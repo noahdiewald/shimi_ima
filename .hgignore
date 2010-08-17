@@ -1,0 +1,10 @@
+ebin/.*\.beam$
+deps/
+priv/log/
+.eunit/
+.*\.dump
+scrap
+doc/.*\.html
+doc/erlang.png
+doc/.*\.css
+doc/edoc-info
