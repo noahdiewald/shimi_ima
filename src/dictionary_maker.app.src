@@ -1,0 +1,16 @@
+%%-*- mode: erlang -*-
+{application, dictionary_maker,
+ [
+  {description, "dictionary_maker"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  crypto,
+                  mochiweb,
+                  webmachine
+                 ]},
+  {mod, { dictionary_maker_app, []}},
+  {env, []}
+ ]}.
