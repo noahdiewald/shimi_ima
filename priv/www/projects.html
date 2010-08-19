@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html version="HTML+RDFa 1.1" lang="en">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <title>Test Area</title>
+    
+    <link href="/favicon.ico" rel="icon" type="image/x-icon">
+    <link href="/css/screen.css" rel="stylesheet" type="text/css">
+    <link href="/css/flick/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
+    
+    <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.8.4.custom.min.js"></script>
+    <script type="text/javascript" src="/js/json2.js"></script>
+    <script type="text/javascript" src="/js/application.js"></script>
+  </head>
+  <body>
+    <div id="dialog-form" title="Create new project">
+      <p class="validate-tips">All fields are required.</p>
+      <form>
+        <fieldset>
+          <label for="project-name">Project Name</label>
+          <input type="text" name="project-name" id="project-name" class="text ui-widget-content ui-corner-all" />
+          <label for="project-description">Project Description</label>
+          <textarea name="project-description" id="project-description" class="text ui-widget-content ui-corner-all"></textarea>
+        </fieldset>
+      </form>
+    </div>
+    
+    <div id="projects-container" class="ui-widget">
+    
+      <h1>Projects</h1>
+      
+      <table id="projects-table" class="ui-widget ui-widget-content">
+        <thead>
+          <tr class="ui-widget-header">
+            <th>Project Name</th>
+            <th>Project Description</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    
+    <button id="create-project">New Project</button>
+  </body>
+</html>
+
