@@ -2,16 +2,34 @@
 <html version="HTML+RDFa 1.1" lang="en">
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="content-type">
-    <title>Test Area</title>
-    
-    <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
+    <title>Projects</title>
     
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
     <link href="/css/screen.css" rel="stylesheet" type="text/css">
+    <link href="/css/flick/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
+    
+    <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.8.4.custom.min.js"></script>
+    <script type="text/javascript" src="/js/application.js"></script>
   </head>
   <body>
-    <input type="text" name="date" id="date" />
+    <p>It seems like it would be safest to have everything sortable by default</p>
+    <form id="main-form" action="/lexeme/12322" method="post">
+      <fieldset>
+        <input type="text" name="birthday" id="birthday" class="date dummy" />
+      </fieldset>
+      <ol id="sortable">
+        <li id="1g" class="item">Item 1</li>
+        <li id="2g" class="item">Item 2</li>
+        <li id="3g" class="item">Item 3</li>
+        <li id="4g" class="item">Item 4</li>
+        <li id="5g" class="item">Item 5</li>
+        <li id="6g" class="item">Item 6</li>
+        <li id="7g" class="item">Item 7</li>
+      </ul>
+
+      <input type="submit" />
+    </form>
   </body>
 </html>
 
