@@ -5,8 +5,8 @@
     <title>Test Area</title>
     
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
+    <link href="/css/ui-lightness/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
     <link href="/css/screen.css" rel="stylesheet" type="text/css">
-    <link href="/css/flick/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
     
     <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery-ui-1.8.4.custom.min.js"></script>
@@ -14,7 +14,7 @@
     <script type="text/javascript" src="/js/application.js"></script>
   </head>
   <body>
-    <div id="dialog-form" title="Create new project">
+    <div id="add-dialog" title="Create new project">
       <p class="validate-tips">All fields are required.</p>
       <form>
         <fieldset>
@@ -23,6 +23,12 @@
           <label for="project-description">Project Description</label>
           <textarea name="project-description" id="project-description" class="text ui-widget-content ui-corner-all"></textarea>
         </fieldset>
+      </form>
+    </div>
+    
+    <div id="delete-dialog" title="Delete project">
+      <p>This will delete the project and its associated data.</p>
+      <form>
       </form>
     </div>
     
