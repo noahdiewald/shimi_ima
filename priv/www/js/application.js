@@ -6,11 +6,7 @@ $(function () {
   $("#sortable").sortable({
     update: function(event, ui) {
       var lis = $(event.target).children('li');
-      for (var x=0; x < lis.length; x++) {
-        $(lis[x]).text($(lis[x]).text() + " " + x);
-      }
-      //alert($(lis[0]).text());
-      //alert($(this).sortable('toArray').toString());
+      lis.forEach(function(li) {$(li).text($(li).text() + " " + x);});
     }
   });
   
@@ -47,10 +43,29 @@ $(function () {
     }
   }
   
-  $("#dialog-form").dialog({
+  function populateProjectsTable() {
+    $.getJSON("project", function(data) {
+      $("#projects-table > tbody").empty();
+      data.rows.forEach(function(row) {
+        $("#projects-table").append(
+          "<tr>" +
+              "<td>" + row.key + "</td>" +
+              "<td>" + row.value + "</td>" +
+              "<td><button class=\"delete-button\" id=\"" + row.id + "\">Delete</button></td>" +
+          "</tr>"
+        );
+        $(".delete-button").button().click(function() {
+          toDelete = $(this).attr("id");
+          $("#delete-dialog").dialog("open");
+        });
+      });
+    });
+  }
+  
+  populateProjectsTable();
+  
+  $("#add-dialog").dialog({
     autoOpen: false,
-    height: 300,
-    width: 350,
     modal: true,
     buttons: {
       "Add project": function() {
@@ -68,14 +83,8 @@ $(function () {
             processData: false,
             data: JSON.stringify({name: projectName.val(), description: projectDescription.val()}),
             complete: function(req, status) {
-              var resp = $.httpData(req, "json");
               if (req.status == 204) {
-                $("#projects-table").append(
-                  "<tr>" +
-                    "<td>ok</td>" +
-                    "<td>nokay</td>" +
-                  "</tr>"
-                );
+                populateProjectsTable();
               } else {
                 alert("An error occurred" + req.status);
               }
@@ -93,7 +102,34 @@ $(function () {
     }
   });
   
-  $("#create-project").button().click(function() {
-    $("#dialog-form").dialog("open");
+  $("#delete-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Delete project": function() {
+        $.ajax({
+          type: "DELETE", 
+          url: "project/" + toDelete,
+          dataType: "json",
+          contentType: "application/json",
+          complete: function(req, status) {
+            if (req.status == 204) {
+              populateProjectsTable();
+            } else {
+              alert("An error occurred" + req.status);
+            }
+          }
+        });
+        $(this).dialog("close");
+      },
+      Cancel: function() {
+        $(this).dialog("close");
+      },
+    },
   });
+  
+  $("#create-project").button().click(function() {
+    $("#add-dialog").dialog("open");
+  });
+  
 });
