@@ -1,0 +1,46 @@
+{% extends "base.dtl" %}
+
+{% block page_title %}Projects{% endblock %}
+
+{% block dialogs %}
+<div id="add-dialog" title="Create new project">
+  <p class="validate-tips">All fields are required.</p>
+  <form>
+    <fieldset>
+      <label for="project-name">Project Name</label>
+      <input type="text" name="project-name" id="project-name" class="text ui-widget-content ui-corner-all" />
+      <label for="project-description">Project Description</label>
+      <textarea name="project-description" id="project-description" class="text ui-widget-content ui-corner-all"></textarea>
+    </fieldset>
+  </form>
+</div>
+
+<div id="delete-dialog" title="Delete project">
+  <p>This will delete the project and its associated data.</p>
+  <form>
+  </form>
+</div>
+{% endblock %}
+
+{% block header %}<h1>{{ title }}</h1>{% endblock %}
+
+    
+{% block main_content %}
+<div id="projects-container" class="ui-widget">
+  
+  <table id="projects-table" class="ui-widget ui-widget-content">
+    <thead>
+      <tr class="ui-widget-header">
+        <th>Project Name</th>
+        <th>Project Description</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
+<br />
+
+<button id="create-project">New Project</button>
+{% endblock %}
