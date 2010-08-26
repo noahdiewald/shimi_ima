@@ -11,7 +11,7 @@
         }
       ],
       "cells": [
-        1: ["default_field"]
+        ["default_field"]
       ],
       "key": "default_field"
     }
