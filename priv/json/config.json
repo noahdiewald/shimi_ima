@@ -1,0 +1,19 @@
+{
+  "default_doc_type": "default",
+  "doc_types": [
+    "default": {
+      "title": "Default",
+      "plural_title": "Defaults",
+      "fields": [
+        "default_field": {
+          "label": "Default Field",
+          "type": "short_text"
+        }
+      ],
+      "cells": [
+        1: ["default_field"]
+      ],
+      "key": "default_field"
+    }
+  ]
+}
