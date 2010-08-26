@@ -3,6 +3,8 @@
 %% @doc This is the primary webmachine resource for the project.
 
 -module(project_resource).
+
+% Webmachine API
 -export([
   allowed_methods/2,
   content_types_accepted/2,
@@ -14,7 +16,13 @@
   is_authorized/2,
   post_is_create/2,
   resource_exists/2,
+  to_html/2,
   to_json/2
+]).
+
+% Custom
+-export([
+  validate_authentication/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -38,13 +46,7 @@ resource_exists(ReqData, State) ->
   end. 
 
 is_authorized(ReqData, State) ->
-  State1 = [{auth_head, "Basic realm=dictionary"}|State],
-  case wrq:get_req_header("authorization", ReqData) of
-    "Basic " ++ Base64 ->
-      State2 = update_client_headers({"Authorization", "Basic " ++ Base64}, State1),
-      do_basic_authentication(Base64, ReqData, State2);
-    _ -> {proplists:get_value(auth_head, State1), ReqData, State1}
-  end.
+  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
 
 allowed_methods(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
@@ -83,7 +85,10 @@ create_path(ReqData, State) ->
   end.
 
 content_types_provided(ReqData, State) ->
-  {[{"application/json", to_json}], ReqData, State}.
+  {[
+    {"application/json", to_json}, 
+    {"text/html", to_html}
+   ], ReqData, State}.
   
 content_types_accepted(ReqData, State) ->
   {[{"application/json", from_json}], ReqData, State}.
@@ -91,8 +96,14 @@ content_types_accepted(ReqData, State) ->
 to_json(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   
-  {ok, "200", _, Json} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
-  {Json, ReqData, State}.
+  {ok, "200", _, JsonIn} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
+  JsonStruct = mochijson2:decode(JsonIn),
+  JsonOut = mochijson2:encode(add_renders(JsonStruct)),
+  {JsonOut, ReqData, State}.
+  
+to_html(ReqData, State) ->
+  {ok, Html} = projects_dtl:render([{title, "Projects"}]),
+  {Html, ReqData, State}.
   
 from_json(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
@@ -117,31 +128,6 @@ get_uuid(State) ->
     _ -> undefined
   end.
 
-update_client_headers(Header, State) ->
-  case proplists:get_value(headers, State) of
-    undefined -> [{headers, [Header]}|State];
-    Headers -> 
-      State1 = proplists:delete(headers, State),
-      [{headers, [Header|Headers]}|State1]
-    end.
-    
-do_basic_authentication(Base64, ReqData, State) ->
-  Str = base64:mime_decode_to_string(Base64),
-  case string:tokens(Str, ":") of
-    [Username, Password] -> couchdb_authenticate(Username, Password, ReqData, State);
-    _ -> {proplists:get_value(auth_head, State), ReqData, State}
-  end.
-  
-couchdb_authenticate(Username, Password, ReqData, State) ->
-  Body = "name=" ++ Username ++ "&password=" ++ Password,
-  Headers = [{"Content-Type", "application/x-www-form-urlencoded"}],
-  Resp = ibrowse:send_req(?COUCHDB ++ "_session", Headers, post, Body),
-  case Resp of
-    {ok, "200", _, Json} -> 
-      validate_authentication(mochijson2:decode(Json), ReqData, State);
-    {ok, "401", _, _} -> {proplists:get_value(auth_head, State), ReqData, State}
-  end.
-
 validate_authentication({struct, Props}, ReqData, State) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
@@ -149,3 +135,12 @@ validate_authentication({struct, Props}, ReqData, State) ->
     true -> {true, ReqData, State};
     false -> {proplists:get_value(auth_head, State), ReqData, State}
   end.
+
+add_renders({struct, JsonStruct}) ->
+  Rows = proplists:get_value(<<"rows">>, JsonStruct),
+  Renderings = [render_row(Project) || {struct, Project} <- Rows],
+  {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
+  
+render_row(Project) ->
+  {ok, Rendering} = project_list_elements_dtl:render(Project),
+  iolist_to_binary(Rendering).

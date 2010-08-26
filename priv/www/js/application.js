@@ -46,14 +46,8 @@ $(function () {
   function populateProjectsTable() {
     $.getJSON("project", function(data) {
       $("#projects-table > tbody").empty();
-      data.rows.forEach(function(row) {
-        $("#projects-table").append(
-          "<tr>" +
-              "<td>" + row.key + "</td>" +
-              "<td>" + row.value + "</td>" +
-              "<td><button class=\"delete-button\" id=\"" + row.id + "\">Delete</button></td>" +
-          "</tr>"
-        );
+      data.renderings.forEach(function(rendering) {
+        $("#projects-table").append(rendering);
         $(".delete-button").button().click(function() {
           toDelete = $(this).attr("id");
           $("#delete-dialog").dialog("open");
