@@ -1,7 +1,5 @@
 {% extends "base.dtl" %}
 
-{% block page_title %}Projects{% endblock %}
-
 {% block dialogs %}
 <div id="add-dialog" title="Create new project">
   <p class="validate-tips">All fields are required.</p>
@@ -21,9 +19,6 @@
   </form>
 </div>
 {% endblock %}
-
-{% block header %}<h1>{{ title }}</h1>{% endblock %}
-
     
 {% block main_content %}
 <div id="projects-container" class="ui-widget">
