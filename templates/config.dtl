@@ -1,8 +1,94 @@
 {% extends "base.dtl" %}
 
+{% block javascript %}
+    <script type="text/javascript" src="/js/config.js"></script>
+{% endblock %}
+
 {% block dialogs %}
+<div id="doc-type-add-dialog" title="Add Document Type">
+  <form>
+    <fieldset class="ui-helper-reset">
+      <label for="document-type-name">Document Type Name</label>
+      <input type="text" name="document-type-name" id="document-type-name" value="" class="ui-widget-content ui-corner-all" />
+    </fieldset>
+  </form>
+</div>
+<div id="character-sequence-add-dialog" title="Add Character Sequence">
+  <form>
+    <fieldset class="ui-helper-reset">
+      <label for="character-sequence-name">Character Sequence Name</label>
+      <input type="text" name="character-sequence-name" id="character-sequence-name" value="" class="ui-widget-content ui-corner-all" />
+    </fieldset>
+  </form>
+</div>
 {% endblock %}
     
 {% block main_content %}
-You got this far, now what?
+<div id="main-tabs">
+  <ul>
+    <li><a href="#document-types">Document Types</a></li>
+    <li><a href="#character-sequences">Character Sequences</a></li>
+  </ul>
+
+  <div id="document-types">
+    <button id="doc-type-add-button">Add Document Type</button>
+    <a href="/project/{{ project }}/index">View and Edit Your Defined Document Types</a>
+    <a href="#" id="document-type-info-toggle">Show Help</a>
+    
+    <div class="toggler">
+      <div id="document-type-info">
+        <p>
+          A document type might be a dictionary entry or some other type of information that you wish to list and edit. Here it is possible to define fields for data entry and describe how they are displayed.
+        </p>
+        <p>
+          More information is available in the application documentation.
+        </p>
+      </div>
+    </div>
+    
+    <div id="document-type-tabs">
+      <ul id="document-type-tabs-headings">
+        <li><a href="#tabs-1">Nunc tincidunt</a></li>
+        <li><a href="#tabs-2">Nunc tincidunt</a></li>
+      </ul>
+      <div id="document-type-tabs-contents">
+        <div id="tabs-1">
+          <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
+        </div>
+        <div id="tabs-2">
+          <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="character-sequences">
+    <button id="character-sequence-add-button">Add Character Sequence</button>
+    <a href="#" id="character-sequence-info-toggle">Show Help</a>
+    
+    <div class="toggler">
+      <div id="character-sequence-info">
+        <p>
+          Character sequences define the sort order for the characters used to write a language. They can also be used to create a means of paging through listings using an alphabet (or your language's equivalent).
+        </p>
+        <p>
+          More information is available in the application documentation.
+        </p>
+      </div>
+    </div>
+    
+    <div id="character-sequence-tabs">
+      <ul>
+        <li><a href="#tabs-3">Nunc tincidunt</a></li>
+        <li><a href="#tabs-4">Nunc tincidunt</a></li>
+      </ul>
+      <div id="tabs-3">
+        <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
+      </div>
+      <div id="tabs-4">
+        <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
