@@ -37,7 +37,13 @@ resource_exists(ReqData, State) ->
   DatabaseUrl = ?COUCHDB ++ "projects/",
    
   Resp = case wrq:path_info(id, ReqData) of
-    undefined -> ibrowse:send_req(DatabaseUrl, Headers, head);
+    undefined -> 
+      case ibrowse:send_req(DatabaseUrl, Headers, head) of
+        {ok, "404", _, _} ->
+          create_database(),
+          ibrowse:send_req(DatabaseUrl, Headers, head);
+        Otherwise -> Otherwise
+      end;
     Id -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
   end,
   case Resp of
@@ -106,13 +112,17 @@ to_html(ReqData, State) ->
   {Html, ReqData, State}.
   
 from_json(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
+  ContentType = {"Content-Type","application/json"},
+  Headers = [ContentType|proplists:get_value(headers, State)],
+  NewDb = "project-" ++ wrq:disp_path(ReqData),
   
   {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
   JsonOut = iolist_to_binary(mochijson2:encode({struct, [{<<"_id">>, list_to_binary(wrq:disp_path(ReqData))}|JsonIn]})),
-  case ibrowse:send_req(?ADMINDB ++ "project-" ++ wrq:disp_path(ReqData), [], put) of
+  case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
     {ok, "201", _, _} ->
-      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", [{"Content-Type","application/json"}|Headers], post, JsonOut)
+      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut),
+      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ NewDb, Headers, post, config_skel()),
+      {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, config_design_skel())
   end,
   {false, ReqData, State}.
 
@@ -144,3 +154,20 @@ add_renders({struct, JsonStruct}) ->
 render_row(Project) ->
   {ok, Rendering} = project_list_elements_dtl:render(Project),
   iolist_to_binary(Rendering).
+
+config_skel() ->
+  {ok, Bin} = file:read_file("./priv/json/config.json"),
+  binary_to_list(Bin).
+
+config_design_skel() ->
+  {ok, Bin} = file:read_file("./priv/json/design_default.json"),
+  binary_to_list(Bin).
+
+project_design_skel() ->
+  {ok, Bin} = file:read_file("./priv/json/design_project.json"),
+  binary_to_list(Bin).
+
+create_database() ->
+  ContentType = {"Content-Type","application/json"},
+  {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [], put),
+  {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [ContentType], post, project_design_skel()).
