@@ -1,6 +1,30 @@
+@font-face {
+  font-family: "abserif";
+  src: url('/fonts/AboriginalSerif.eot');
+  src: local("AboriginalSerif"), url('/fonts/AboriginalSerif.otf') format('opentype'), url('/fonts/AboriginalSerif.ttf') format('truetype'), url('/fonts/AboriginalSerif.svg#AboriginalSerif') format('svg'); 
+}
+  
+@font-face {
+  font-family: "absans";
+  src: url('/fonts/AboriginalSans.eot');
+  src: local("AboriginalSans"), url('/fonts/AboriginalSans.otf') format('opentype'), url('/fonts/AboriginalSans.ttf') format('truetype'), url('/fonts/AboriginalSans.svg#AboriginalSans') format('svg'); 
+}
+  
 body {
+  font-family: absans;
+  font-size: 10pt;
   background: white;
   text-align: center;
+}
+
+h1 {
+  text-align: left;
+  border-bottom: solid;
+  border-width: thin;
+}
+
+button {
+  font-family: absans;
 }
 
 section {
@@ -12,7 +36,7 @@ nav {
 }
 
 #main-content {
-  width: 80%;
+  width: 90%;
   text-align: left;
   margin: auto;
   background: #EEE;
