@@ -24,14 +24,11 @@ $(function () {
     modal: true,
     buttons: {
       "Add project": function() {
-        var bValid = true;
         allFields.removeClass('ui-state-error');
         
         checkResult = checkLength(projectName, "project name", 1, 50, tips);
         
-        bValid = bValid && checkResult
-        
-        if (bValid) {
+        if (checkResult) {
           $.ajax({
             type: "POST", 
             url: "project",

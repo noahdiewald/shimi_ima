@@ -6,10 +6,13 @@
 
 {% block dialogs %}
 <div id="doc-type-add-dialog" title="Add Document Type">
+  <p class="validate-tips">All fields are required.</p>
   <form>
     <fieldset class="ui-helper-reset">
       <label for="document-type-name">Document Type Name</label>
       <input type="text" name="document-type-name" id="document-type-name" value="" class="ui-widget-content ui-corner-all" />
+      <label for="document-type-description">Document Type Description</label>
+      <textarea name="document-type-description" id="document-type-description" class="text ui-widget-content ui-corner-all"></textarea>
     </fieldset>
   </form>
 </div>
@@ -48,17 +51,7 @@
     
     <div id="document-type-tabs">
       <ul id="document-type-tabs-headings">
-        <li><a href="#tabs-1">Nunc tincidunt</a></li>
-        <li><a href="#tabs-2">Nunc tincidunt</a></li>
       </ul>
-      <div id="document-type-tabs-contents">
-        <div id="tabs-1">
-          <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
-        </div>
-        <div id="tabs-2">
-          <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
-        </div>
-      </div>
     </div>
   </div>
 

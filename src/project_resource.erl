@@ -1,6 +1,6 @@
 %% @author Noah Diewald <noah@diewald.me>
 %% @copyright 2010 author.
-%% @doc This is the primary webmachine resource for the project.
+%% @doc The is the resource used for managing projects.
 
 -module(project_resource).
 
@@ -120,9 +120,7 @@ from_json(ReqData, State) ->
   JsonOut = iolist_to_binary(mochijson2:encode({struct, [{<<"_id">>, list_to_binary(wrq:disp_path(ReqData))}|JsonIn]})),
   case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
     {ok, "201", _, _} ->
-      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut),
-      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ NewDb, Headers, post, config_skel()),
-      {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, config_design_skel())
+      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut)
   end,
   {false, ReqData, State}.
 
@@ -154,14 +152,6 @@ add_renders({struct, JsonStruct}) ->
 render_row(Project) ->
   {ok, Rendering} = project_list_elements_dtl:render(Project),
   iolist_to_binary(Rendering).
-
-config_skel() ->
-  {ok, Bin} = file:read_file("./priv/json/config.json"),
-  binary_to_list(Bin).
-
-config_design_skel() ->
-  {ok, Bin} = file:read_file("./priv/json/design_default.json"),
-  binary_to_list(Bin).
 
 project_design_skel() ->
   {ok, Bin} = file:read_file("./priv/json/design_project.json"),

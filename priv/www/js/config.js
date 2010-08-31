@@ -1,17 +1,35 @@
 $(function () {
-  function postConfigDoc(obj, onComplete) {
+  var documentTypeName = $("#document-type-name"),
+    documentTypeDescription = $("#document-type-description"),
+    tips = $(".validate-tips"),
+    allFields = $([]).add(documentTypeName).add(documentTypeDescription);
+  
+  function postConfigDoc(ajaxUrl, obj) {
     $.ajax({
       type: "POST",
+      url: ajaxUrl,
       dataType: "json",
       contentType: "application/json",
       processData: false,
-      data: JSON.stringify(obj),
-      complete: onComplete(req, status)
+      data: JSON.stringify(obj)
     });
   }
   
+  function populateDocTypeTabs() {
+    $.getJSON("config/doctypes", function(data) {
+      $("#document-type-tabs-headings").empty();
+      $("#document-type-tabs-headings + .ui-tabs-panel").remove();
+      $("#document-type-tabs").tabs("destroy");
+      data.renderings.forEach(function(rendering) {
+        $("#document-type-tabs-headings").append(rendering);
+      });
+      $("#document-type-tabs").tabs();
+    });
+  }
+  
+  populateDocTypeTabs();
+  
   $("#main-tabs").tabs();
-  $("#document-type-tabs").tabs();
   $("#character-sequence-tabs").tabs();
   $("#document-type-info").hide();
   $("#character-sequence-info").hide();
@@ -30,8 +48,20 @@ $(function () {
     autoOpen: false,
     modal: true,
     buttons: {
-      "Add": function() {
+      "Add Document Type": function() {
+        allFields.removeClass('ui-state-error');
         
+        checkResult = checkLength(documentTypeName, "document type name", 1, 50, tips); 
+        if (checkResult) {
+          obj = {
+            "category": "doctype", 
+            "description": documentTypeDescription.val(),
+            "_id": documentTypeName.val()
+          };
+          postConfigDoc("config/doctypes", obj);
+          populateDocTypeTabs();
+          $(this).dialog("close");
+        }
       },
       "Cancel": function() {
         $(this).dialog("close");

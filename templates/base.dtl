@@ -17,12 +17,12 @@
     {% block javascript %}{% endblock %}
   </head>
   <body>
-    
-    {% block dialogs %}{% endblock %}
 
     <header>
     {% block header %}<h1>{{ title }}</h1>{% endblock %}
     </header>
+    
+    {% block dialogs %}{% endblock %}
         
     <section id="main-content">
     {% block main_content %}{% endblock %}
