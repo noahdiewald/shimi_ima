@@ -1,0 +1,8 @@
+{
+   "_id": "_design/doctypes",
+   "views": {
+       "all": {
+           "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc) }}"
+       }
+   }
+}
