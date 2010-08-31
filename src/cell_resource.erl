@@ -2,7 +2,7 @@
 %% @copyright 2010 author.
 %% @doc The resource used accessing and editing document types.
 
--module(doctype_resource).
+-module(cell_resource).
 
 % Webmachine API
 -export([
@@ -33,11 +33,12 @@ init([]) -> {ok, []}.
 
 resource_exists(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
-  DatabaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
    
-  Resp = case wrq:path_info(id, ReqData) of
-    undefined -> ibrowse:send_req(DatabaseUrl, Headers, head);
-    Id -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
+  Resp = case {wrq:path_info(domain, ReqData), wrq:path_info(id, ReqData)} of
+    {Domain, undefined} -> ibrowse:send_req(BaseUrl ++ Domain, Headers, head);
+    {undefined, Id} -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
+    _ -> {ok, "404", [], []}
   end,
   case Resp of
     {ok, "200", _, _} -> {true, ReqData, State};
@@ -59,8 +60,13 @@ post_is_create(ReqData, State) ->
 create_path(ReqData, State) ->
   Json = mochijson2:decode(wrq:req_body(ReqData)),
   {struct, JsonIn} = Json,
-  Id = proplists:get_value(<<"_id">>, JsonIn),
-  {binary_to_list(Id), ReqData, [{posted_json, Json}|State]}.
+  
+  {ok, Id} = case proplists:get_value(<<"_id">>, JsonIn) of
+    undefined -> get_uuid(State);
+    IdBin -> {ok, binary_to_list(IdBin)}
+  end,
+  
+  {Id, ReqData, [{posted_json, Json}|State]}.
 
 content_types_provided(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
@@ -74,8 +80,9 @@ content_types_accepted(ReqData, State) ->
 to_json(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData),
+  View = "/_design/" ++ wrq:path_info(domain, ReqData) ++ "/_view/cells",
   
-  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ "/_design/doctypes/_view/all", Headers, get),
+  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ View, Headers, get),
   JsonStruct = mochijson2:decode(JsonIn),
   JsonOut = mochijson2:encode(add_renders(JsonStruct)),
   {JsonOut, ReqData, State}.
@@ -90,7 +97,7 @@ to_html(ReqData, State) ->
     Id ->
       {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ Id, Headers, get),
       {struct, Json} = mochijson2:decode(JsonIn),
-      {ok, Html} = doctype_config_dtl:render(Json),
+      {ok, Html} = cell_config_dtl:render(Json),
       {Html, ReqData, State}
     end.
   
@@ -101,20 +108,20 @@ from_json(ReqData, State) ->
   AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
   
   {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
-  {_, Id} = proplists:lookup(<<"_id">>, JsonIn),
   
-  CellUrl = ?LOCAL ++ "project/" ++ wrq:path_info(project, ReqData) ++ "/config/" ++ binary_to_list(Id) ++ "/cells",
+  PropsOut = case proplists:get_value(<<"_id">>, JsonIn) of
+    undefined -> [{<<"_id">>, list_to_binary(wrq:disp_path(ReqData))}|JsonIn];
+    _ -> JsonIn
+  end,
   
-  % Create the doctype
-  {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, wrq:req_body(ReqData)),
+  JsonOut = iolist_to_binary(mochijson2:encode({struct, PropsOut})),
   
-  % Create the doctype's design document
-  {ok, DesignJson} = design_doctype_json_dtl:render(JsonIn),
+  % Create the cell
+  {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, JsonOut),
+  
+  % Create the cell's design document
+  {ok, DesignJson} = design_cell_json_dtl:render(PropsOut),
   {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
-  
-  % Create the doctype's default cell
-  {ok, CellJson} = doctype_default_cell_json_dtl:render(JsonIn),
-  {ok, "204", _, _} = ibrowse:send_req(CellUrl, Headers, post, CellJson),
   
   {true, ReqData, State}.
 
@@ -130,10 +137,20 @@ validate_authentication({struct, Props}, ReqData, State) ->
 
 add_renders({struct, JsonStruct}) ->
   Rows = proplists:get_value(<<"rows">>, JsonStruct),
-  Renderings = [render_row(Project) || {struct, Project} <- Rows],
+  Renderings = [render_row(Row) || {struct, Row} <- Rows],
   {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
   
-render_row(Project) ->
-  {ok, Rendering} = doctype_list_elements_dtl:render(Project),
+render_row(Row) ->
+  {ok, Rendering} = cell_list_elements_dtl:render(Row),
   iolist_to_binary(Rendering).
+
+get_uuid(State) ->
+  Headers = proplists:get_value(headers, State),
+  
+  case ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get) of
+    {ok, "200", _, Json} ->
+      {struct, [{_, [Uuid]}]} = mochijson2:decode(list_to_binary(Json)),
+      {ok, binary_to_list(Uuid)};
+    _ -> undefined
+  end.
 

@@ -1,0 +1,6 @@
+{
+  "name": "default",
+  "order": 1,
+  "doctype": "{{ _id }}",
+  "category": "cell" 
+}

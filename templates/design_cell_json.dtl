@@ -1,0 +1,8 @@
+{
+   "_id": "_design/{{ _id }}",
+   "views": {
+       "fields": {
+           "map": "function(doc) { if (doc.category == 'field' && doc.doctype == '{{ doctype }}' && doc.cell == '{{ _id }}')  { emit(doc.order, doc) } }" 
+       }
+   }
+}
