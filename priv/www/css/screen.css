@@ -20,8 +20,6 @@ body {
 }
 
 h1 {
-  text-align: left;
-  padding-left: 0.5em;
   color: white;
   margin: 0;
 }
@@ -36,7 +34,8 @@ section {
 
 header {
   display: block !important;
-  padding: 0;
+  padding-left: 0.5em;
+  text-align: left;
   margin: 0;
   background: #008080;
   border-bottom: solid;

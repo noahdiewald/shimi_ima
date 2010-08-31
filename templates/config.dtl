@@ -1,5 +1,12 @@
 {% extends "base.dtl" %}
 
+{% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
+
+{% block header %}
+<h1>{{ title }}: {{ project_info.name }}</h1>
+<em>{{ project_info.description }}</em>
+{% endblock %}
+
 {% block javascript %}
     <script type="text/javascript" src="/js/config.js"></script>
 {% endblock %}
