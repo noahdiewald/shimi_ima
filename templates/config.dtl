@@ -58,7 +58,11 @@
     
     <div id="document-type-tabs">
       <ul id="document-type-tabs-headings">
+        <li><a href="#tabs-1">Nunc tincidunt</a></li>
       </ul>
+      <div id="tabs-1">
+        <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
+      </div>
     </div>
   </div>
 

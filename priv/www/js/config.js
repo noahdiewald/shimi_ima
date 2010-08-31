@@ -27,6 +27,7 @@ $(function () {
     });
   }
   
+  $("#document-type-tabs").tabs();
   populateDocTypeTabs();
   
   $("#main-tabs").tabs();
