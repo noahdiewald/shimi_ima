@@ -5,7 +5,10 @@ $(function () {
     allFields = $([]).add(projectName).add(projectDescription);
   
   function populateProjectsTable() {
-    $.getJSON("project", function(data) {
+    // I use a bogus query string to ensure that the browser
+    // won't replace the html version with the json verson
+    // from this resource.
+    $.getJSON("project?this=null", function(data) {
       $("#projects-table > tbody").empty();
       data.renderings.forEach(function(rendering) {
         $("#projects-table").append(rendering);
