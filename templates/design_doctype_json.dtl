@@ -1,0 +1,11 @@
+{
+   "_id": "_design/{{ _id }}",
+   "views": {
+       "fields": {
+           "map": "function(doc) { if (doc.category == 'field' && doc.doctype == '{{ _id }}')  { emit(doc.cell, doc) } }" 
+       },
+       "cells": {
+           "map": "function(doc) { if (doc.category == 'cell' && doc.doctype == '{{ _id }}')  { emit(doc.order, doc) } }" 
+       }
+   }
+}

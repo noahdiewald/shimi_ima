@@ -81,14 +81,29 @@ to_json(ReqData, State) ->
   {JsonOut, ReqData, State}.
   
 to_html(ReqData, State) ->
-  %{ok, Html} = projects_dtl:render([{title, "Projects"}]),
-  {"<div>Hello!!!</div>", ReqData, State}.
+  Headers = proplists:get_value(headers, State),
+  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  
+  case wrq:path_info(id, ReqData) of
+    undefined ->
+      {"Hello!!!", ReqData, State};
+    Id ->
+      {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ Id, Headers, get),
+      {struct, Json} = mochijson2:decode(JsonIn),
+      {ok, Html} = doctype_config_dtl:render(Json),
+      {Html, ReqData, State}
+    end.
   
 from_json(ReqData, State) ->
   ContentType = {"Content-Type","application/json"},
   Headers = [ContentType|proplists:get_value(headers, State)],
-  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData),
+  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData),
+  AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
+  
   {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, wrq:req_body(ReqData)),
+  {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
+  {ok, Json} = design_doctype_json_dtl:render(JsonIn),
+  {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, Json),
   {false, ReqData, State}.
 
 % Helpers
