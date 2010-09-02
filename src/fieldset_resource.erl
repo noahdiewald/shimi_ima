@@ -2,7 +2,7 @@
 %% @copyright 2010 author.
 %% @doc The resource used accessing and editing document types.
 
--module(cell_resource).
+-module(fieldset_resource).
 
 % Webmachine API
 -export([
@@ -80,7 +80,7 @@ content_types_accepted(ReqData, State) ->
 to_json(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData),
-  View = "/_design/" ++ wrq:path_info(domain, ReqData) ++ "/_view/cells",
+  View = "/_design/" ++ wrq:path_info(domain, ReqData) ++ "/_view/fieldsets",
   
   {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ View, Headers, get),
   JsonStruct = mochijson2:decode(JsonIn),
@@ -97,7 +97,7 @@ to_html(ReqData, State) ->
     Id ->
       {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ Id, Headers, get),
       {struct, Json} = mochijson2:decode(JsonIn),
-      {ok, Html} = cell_config_dtl:render(Json),
+      {ok, Html} = fieldset_config_dtl:render(Json),
       {Html, ReqData, State}
     end.
   
@@ -116,11 +116,11 @@ from_json(ReqData, State) ->
   
   JsonOut = iolist_to_binary(mochijson2:encode({struct, PropsOut})),
   
-  % Create the cell
+  % Create the fieldset
   {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, JsonOut),
   
-  % Create the cell's design document
-  {ok, DesignJson} = design_cell_json_dtl:render(PropsOut),
+  % Create the fieldset's design document
+  {ok, DesignJson} = design_fieldset_json_dtl:render(PropsOut),
   {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
   
   {true, ReqData, State}.
@@ -141,7 +141,7 @@ add_renders({struct, JsonStruct}) ->
   {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
   
 render_row(Row) ->
-  {ok, Rendering} = cell_list_elements_dtl:render(Row),
+  {ok, Rendering} = fieldset_list_elements_dtl:render(Row),
   iolist_to_binary(Rendering).
 
 get_uuid(State) ->

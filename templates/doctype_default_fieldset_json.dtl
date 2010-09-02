@@ -1,6 +1,7 @@
 {
   "name": "default",
+  "multiple": false,
   "order": 1,
   "doctype": "{{ _id }}",
-  "category": "cell" 
+  "category": "fieldset" 
 }

@@ -56,3 +56,11 @@ nav {
 table {
   width: 100%;
 }
+
+.ui-dialog-content {
+  text-align: left;
+}
+
+.ui-dialog-content input, .ui-dialog-content textarea {
+  width: 100%;
+}

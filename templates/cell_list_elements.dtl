@@ -1,1 +1,0 @@
-<li><a href="config/cells/{{ value.struct._id }}">{{ name }}</a></li>

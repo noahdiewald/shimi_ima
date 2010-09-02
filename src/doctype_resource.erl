@@ -97,28 +97,54 @@ to_html(ReqData, State) ->
 from_json(ReqData, State) ->
   ContentType = {"Content-Type","application/json"},
   Headers = [ContentType|proplists:get_value(headers, State)],
+  
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData),
   AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
   
-  {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
-  {_, Id} = proplists:lookup(<<"_id">>, JsonIn),
+  {struct, JsonIn} = get_doctype_body_json(ReqData),
+  {_, Id} = get_doctype_id(JsonIn),
   
-  CellUrl = ?LOCAL ++ "project/" ++ wrq:path_info(project, ReqData) ++ "/config/" ++ binary_to_list(Id) ++ "/cells",
+  FieldsetUrl = get_fieldset_url(Id, ReqData),
   
-  % Create the doctype
-  {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, wrq:req_body(ReqData)),
+  {ok, created} = create_doctype(DataBaseUrl, Headers, post, wrq:req_body(ReqData)),
   
-  % Create the doctype's design document
-  {ok, DesignJson} = design_doctype_json_dtl:render(JsonIn),
-  {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
+  {ok, DesignJson} = get_design_doc_body_json(JsonIn),
+  {ok, created} = create_design_doc(AdminUrl, [ContentType], post, DesignJson),
   
-  % Create the doctype's default cell
-  {ok, CellJson} = doctype_default_cell_json_dtl:render(JsonIn),
-  {ok, "204", _, _} = ibrowse:send_req(CellUrl, Headers, post, CellJson),
+  {ok, FieldsetJson} = get_fieldset_body_json(JsonIn),
+  {ok, created} = create_default_fieldset(FieldsetUrl, Headers, post, FieldsetJson),
   
   {true, ReqData, State}.
 
 % Helpers
+
+get_doctype_body_json(ReqData) ->
+  mochijson2:decode(wrq:req_body(ReqData)).
+  
+get_design_doc_body_json(Json) ->
+  design_doctype_json_dtl:render(Json).
+  
+get_fieldset_body_json(Json) ->
+  doctype_default_fieldset_json_dtl:render(Json).
+  
+get_doctype_id(Json) ->
+  proplists:lookup(<<"_id">>, Json).
+  
+get_fieldset_url(Id, ReqData) ->
+  ?LOCAL ++ "project/" ++ wrq:path_info(project, ReqData) ++ "/config/" ++ 
+    binary_to_list(Id) ++ "/fieldsets".
+  
+create_doctype(Url, Headers, Method, Body) ->
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
+  {ok, created}.
+
+create_design_doc(Url, Headers, Method, Body) ->
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
+  {ok, created}.
+  
+create_default_fieldset(Url, Headers, Method, Body) ->
+  {ok, "204", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
+  {ok, created}.
 
 validate_authentication({struct, Props}, ReqData, State) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
