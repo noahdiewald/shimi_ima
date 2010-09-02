@@ -141,7 +141,8 @@ add_renders({struct, JsonStruct}) ->
   {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
   
 render_row(Row) ->
-  {ok, Rendering} = fieldset_list_elements_dtl:render(Row),
+  {struct, Value} = proplists:get_value(<<"value">>, Row),
+  {ok, Rendering} = fieldset_list_elements_dtl:render(Value),
   iolist_to_binary(Rendering).
 
 get_uuid(State) ->

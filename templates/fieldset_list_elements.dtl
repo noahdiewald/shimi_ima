@@ -1,1 +1,10 @@
-<li><a href="config/fieldsets/{{ value.struct._id }}">{{ name }}</a></li>
+<h3 id="head-{{ _id }}" class="accordion-head"><a href="#">{{ name }}</a></h3>
+
+<div id="body-{{ _id }}">
+  <h4>Description</h4>
+  <p>{{ description }}</p>
+  <p><b>Multiple:</b> {{ multiple }}</p>
+  
+  <h4>Fields</h4>
+  <div id="fields-{{ _id }}"></div>
+</div>

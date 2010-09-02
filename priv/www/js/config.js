@@ -15,6 +15,21 @@ $(function () {
     });
   }
   
+  function populateFieldsets(docTypeId) {
+    $.getJSON("config/" + docTypeId + "/fieldsets", function(data) {
+      var fieldsetContainer = $("#fieldsets-" + docTypeId);
+      fieldsetContainer.empty();
+      fieldsetContainer.accordion("destroy");
+      data.renderings.forEach(function(rendering) {
+        fieldsetContainer.append(rendering);
+      });
+      fieldsetContainer.accordion({
+        autoHeight: false,
+        collapsible: true
+      });
+    });
+  }
+  
   function populateDocTypeTabs() {
     $.getJSON("config/doctypes", function(data) {
       $("#document-type-tabs-headings").empty();
@@ -23,7 +38,13 @@ $(function () {
       data.renderings.forEach(function(rendering) {
         $("#document-type-tabs-headings").append(rendering);
       });
-      $("#document-type-tabs").tabs();
+      $("#document-type-tabs").tabs(
+        {
+          load: function(event, ui) {
+            populateFieldsets($(ui.panel).children()[0].id);
+          }
+        }
+      );
     });
   }
   
