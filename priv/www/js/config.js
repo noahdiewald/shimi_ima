@@ -125,12 +125,13 @@ $(function () {
         if (checkResult) {
           obj = {
             "category": "fieldset", 
+            "name": fieldsetName.val(),
             "description": fieldsetDescription.val(),
             "order": (fieldsetOrder.val() * 1),
             "doctype": fieldsetDoctype.val(),
             "multiple": (fieldsetMultiple.val() == "true")
           };
-          postConfigDoc("config/fieldsets", obj);
+          postConfigDoc("config/" + fieldsetDoctype.val() + "/fieldsets", obj);
           populateFieldsets(fieldsetDoctype.val());
           $(this).dialog("close");
         }
