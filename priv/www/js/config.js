@@ -1,8 +1,14 @@
 $(function () {
   var documentTypeName = $("#document-type-name"),
     documentTypeDescription = $("#document-type-description"),
+    fieldsetName = $("#fieldset-name-input"),
+    fieldsetDescription = $("#fieldset-description-input"),
+    fieldsetOrder = $("#fieldset-order-input"),
+    fieldsetDoctype = $("#fieldset-doctype-input"),
+    fieldsetMultiple = $("#fieldset-multiple-input"),
     tips = $(".validate-tips"),
-    allFields = $([]).add(documentTypeName).add(documentTypeDescription);
+    allDoctypeFields = $([]).add(documentTypeName).add(documentTypeDescription),
+    allFieldsetFields = $([]).add(documentTypeName).add(documentTypeDescription);
   
   function postConfigDoc(ajaxUrl, obj) {
     $.ajax({
@@ -42,6 +48,12 @@ $(function () {
         {
           load: function(event, ui) {
             populateFieldsets($(ui.panel).children()[0].id);
+  
+            $(".add-fieldset-button").button().click(function() {
+              fieldsetDoctype.val($(this).attr("data-doctype-id")),
+              fieldsetOrder.val("0"),
+              $("#fieldset-add-dialog").dialog("open");
+            });
           }
         }
       );
@@ -71,9 +83,10 @@ $(function () {
     modal: true,
     buttons: {
       "Add Document Type": function() {
-        allFields.removeClass('ui-state-error');
+        allDoctypeFields.removeClass('ui-state-error');
         
         checkResult = checkLength(documentTypeName, "document type name", 1, 50, tips); 
+        
         if (checkResult) {
           obj = {
             "category": "doctype", 
@@ -90,12 +103,45 @@ $(function () {
       },
     },
     close: function() {
-      allFields.val('').removeClass('ui-state-error');
+      allDoctypeFields.val('').removeClass('ui-state-error');
     }
   });
   
   $("#doc-type-add-button").button().click(function() {
     $("#doc-type-add-dialog").dialog("open");
+  });
+  
+  $("#fieldset-add-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Add Fieldset": function() {
+        allFieldsetFields.removeClass('ui-state-error');
+        
+        checkResult = (checkLength(fieldsetName, "fieldset name", 1, 50, tips)
+          && checkLength(fieldsetOrder, "fieldset order", 1, 50, tips)
+          && checkRegexp(fieldsetOrder, /[0-9]*/, "fieldset order must be a number", tips));
+        
+        if (checkResult) {
+          obj = {
+            "category": "fieldset", 
+            "description": fieldsetDescription.val(),
+            "order": (fieldsetOrder.val() * 1),
+            "doctype": fieldsetDoctype.val(),
+            "multiple": (fieldsetMultiple.val() == "true")
+          };
+          postConfigDoc("config/fieldsets", obj);
+          populateFieldsets(fieldsetDoctype.val());
+          $(this).dialog("close");
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      },
+    },
+    close: function() {
+      allFieldsetFields.val('').removeClass('ui-state-error');
+    }
   });
   
   $("#character-sequence-add-dialog").dialog({
