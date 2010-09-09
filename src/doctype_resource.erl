@@ -59,8 +59,13 @@ post_is_create(ReqData, State) ->
 create_path(ReqData, State) ->
   Json = mochijson2:decode(wrq:req_body(ReqData)),
   {struct, JsonIn} = Json,
+  
   Id = proplists:get_value(<<"_id">>, JsonIn),
-  {binary_to_list(Id), ReqData, [{posted_json, Json}|State]}.
+  
+  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
+  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+  
+  {binary_to_list(Id), ReqData1, [{posted_json, Json}|State]}.
 
 content_types_provided(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
@@ -143,7 +148,7 @@ create_design_doc(Url, Headers, Method, Body) ->
   {ok, created}.
   
 create_default_fieldset(Url, Headers, Method, Body) ->
-  {ok, "204", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
   {ok, created}.
 
 validate_authentication({struct, Props}, ReqData, State) ->

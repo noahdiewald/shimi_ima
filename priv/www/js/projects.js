@@ -40,7 +40,7 @@ $(function () {
             processData: false,
             data: JSON.stringify({name: projectName.val(), description: projectDescription.val()}),
             complete: function(req, status) {
-              if (req.status == 204) {
+              if (req.status == 201) {
                 populateProjectsTable();
               } else {
                 alert("An error occurred" + req.status);

@@ -10,14 +10,20 @@ $(function () {
     allDoctypeFields = $([]).add(documentTypeName).add(documentTypeDescription),
     allFieldsetFields = $([]).add(documentTypeName).add(documentTypeDescription);
   
-  function postConfigDoc(ajaxUrl, obj) {
+  function postConfigDoc(ajaxUrl, obj, completeFun, callContext) {
     $.ajax({
       type: "POST",
       url: ajaxUrl,
       dataType: "json",
+      context: callContext,
       contentType: "application/json",
       processData: false,
-      data: JSON.stringify(obj)
+      data: JSON.stringify(obj),
+      complete: function(req, status) {
+        if (req.status == 201) {
+          completeFun(this);
+        }
+      }
     });
   }
   
@@ -88,14 +94,16 @@ $(function () {
         checkResult = checkLength(documentTypeName, "document type name", 1, 50, tips); 
         
         if (checkResult) {
-          obj = {
+          var obj = {
             "category": "doctype", 
             "description": documentTypeDescription.val(),
             "_id": documentTypeName.val()
+          },
+          complete = function(context) {
+            populateDocTypeTabs();
+            $(context).dialog("close");
           };
-          postConfigDoc("config/doctypes", obj);
-          populateDocTypeTabs();
-          $(this).dialog("close");
+          postConfigDoc("config/doctypes", obj, complete, this);
         }
       },
       "Cancel": function() {
@@ -123,17 +131,19 @@ $(function () {
           && checkRegexp(fieldsetOrder, /[0-9]*/, "fieldset order must be a number", tips));
         
         if (checkResult) {
-          obj = {
+          var obj = {
             "category": "fieldset", 
             "name": fieldsetName.val(),
             "description": fieldsetDescription.val(),
             "order": (fieldsetOrder.val() * 1),
             "doctype": fieldsetDoctype.val(),
             "multiple": (fieldsetMultiple.val() == "true")
+          },
+          complete = function(context) {
+            populateFieldsets(fieldsetDoctype.val());
+            $(context).dialog("close");
           };
-          postConfigDoc("config/" + fieldsetDoctype.val() + "/fieldsets", obj);
-          populateFieldsets(fieldsetDoctype.val());
-          $(this).dialog("close");
+          postConfigDoc("config/" + fieldsetDoctype.val() + "/fieldsets", obj, complete, this);
         }
       },
       "Cancel": function() {

@@ -86,7 +86,10 @@ post_is_create(ReqData, State) ->
 
 create_path(ReqData, State) ->
   case get_uuid(State) of
-    {ok, Uuid} -> {Uuid, ReqData, State};
+    {ok, Uuid} -> 
+        Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Uuid,
+        ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+        {Uuid, ReqData1, State};
     _ -> {undefined, ReqData, State}
   end.
 
@@ -123,7 +126,7 @@ from_json(ReqData, State) ->
       {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut),
       {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, config_design_skel())
   end,
-  {false, ReqData, State}.
+  {true, ReqData, State}.
 
 % Helpers
 

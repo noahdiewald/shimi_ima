@@ -66,7 +66,10 @@ create_path(ReqData, State) ->
     IdBin -> {ok, binary_to_list(IdBin)}
   end,
   
-  {Id, ReqData, [{posted_json, Json}|State]}.
+  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
+  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+  
+  {Id, ReqData1, [{posted_json, Json}|State]}.
 
 content_types_provided(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
