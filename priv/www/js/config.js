@@ -128,7 +128,7 @@ $(function () {
         
         checkResult = (checkLength(fieldsetName, "fieldset name", 1, 50, tips)
           && checkLength(fieldsetOrder, "fieldset order", 1, 50, tips)
-          && checkRegexp(fieldsetOrder, /[0-9]*/, "fieldset order must be a number", tips));
+          && checkRegexp(fieldsetOrder, /^[0-9]+$/, "fieldset order must be a number", tips));
         
         if (checkResult) {
           var obj = {
