@@ -1,0 +1,5 @@
+<tr>
+  <td>{{ name }}</td>
+  <td>{{ label }}</td>
+  <td>{{ subcategory }}</td>
+</tr>

@@ -6,9 +6,17 @@ $(function () {
     fieldsetOrder = $("#fieldset-order-input"),
     fieldsetDoctype = $("#fieldset-doctype-input"),
     fieldsetMultiple = $("#fieldset-multiple-input"),
+    fieldName = $("#field-name-input"),
+    fieldLabel = $("#field-label-input"),
+    fieldSubcategory = $("#field-subcategory-input"),
+    fieldDescription = $("#field-description-input"),
+    fieldOrder = $("#field-order-input"),
+    fieldDoctype = $("#field-doctype-input"),
+    fieldFieldset = $("#field-fieldset-input"),
     tips = $(".validate-tips"),
     allDoctypeFields = $([]).add(documentTypeName).add(documentTypeDescription),
-    allFieldsetFields = $([]).add(documentTypeName).add(documentTypeDescription);
+    allFieldsetFields = $([]).add(fieldsetName).add(fieldsetOrder);
+    allFieldFields = $([]).add(fieldName).add(fieldLabel).add(fieldOrder);
   
   function postConfigDoc(ajaxUrl, obj, completeFun, callContext) {
     $.ajax({
@@ -27,6 +35,16 @@ $(function () {
     });
   }
   
+  function populateFields(fieldsetId) {
+    $.getJSON("config/" + fieldsetId + "/fields", function(data) {
+      var fieldContainer = $("#fields-" + fieldsetId);
+      fieldContainer.empty();
+      data.renderings.forEach(function(rendering) {
+        fieldContainer.append(rendering);
+      });
+    });
+  }
+  
   function populateFieldsets(docTypeId) {
     $.getJSON("config/" + docTypeId + "/fieldsets", function(data) {
       var fieldsetContainer = $("#fieldsets-" + docTypeId);
@@ -38,6 +56,15 @@ $(function () {
       fieldsetContainer.accordion({
         autoHeight: false,
         collapsible: true
+      });
+      $(".add-field-button").button().click(function() {
+        fieldDoctype.val($(this).attr("data-doctype-id"));
+        fieldFieldset.val($(this).attr("data-fieldset-id"));
+        fieldOrder.val("0");
+        $("#field-add-dialog").dialog("open");
+      });
+      data.rows.forEach(function(element) {
+        populateFields(element.value._id);
       });
     });
   }
@@ -56,8 +83,8 @@ $(function () {
             populateFieldsets($(ui.panel).children()[0].id);
   
             $(".add-fieldset-button").button().click(function() {
-              fieldsetDoctype.val($(this).attr("data-doctype-id")),
-              fieldsetOrder.val("0"),
+              fieldsetDoctype.val($(this).attr("data-doctype-id"));
+              fieldsetOrder.val("0");
               $("#fieldset-add-dialog").dialog("open");
             });
           }
@@ -152,6 +179,47 @@ $(function () {
     },
     close: function() {
       allFieldsetFields.val('').removeClass('ui-state-error');
+    }
+  });
+  
+  $("#field-add-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Add Field": function() {
+        allFieldFields.removeClass('ui-state-error');
+        
+        checkResult = (
+             checkLength(fieldName, "field name", 1, 50, tips)
+          && checkLength(fieldLabel, "field label", 1, 50, tips)
+          && checkLength(fieldOrder, "field order", 1, 50, tips)
+          && checkRegexp(fieldOrder, /^[0-9]+$/, "field order must be a number", tips)
+        );
+        
+        if (checkResult) {
+          var obj = {
+            "category": "field", 
+            "name": fieldName.val(),
+            "label": fieldLabel.val(),
+            "description": fieldDescription.val(),
+            "order": (fieldOrder.val() * 1),
+            "doctype": fieldDoctype.val(),
+            "fieldset": fieldFieldset.val(),
+            "subcategory": fieldSubcategory.val()
+          },
+          complete = function(context) {
+            populateFields(fieldFieldset.val());
+            $(context).dialog("close");
+          };
+          postConfigDoc("config/" + fieldFieldset.val() + "/fields", obj, complete, this);
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      },
+    },
+    close: function() {
+      allFieldFields.val('').removeClass('ui-state-error');
     }
   });
   
