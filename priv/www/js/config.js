@@ -1,6 +1,6 @@
 $(function () {
-  var documentTypeName = $("#document-type-name"),
-    documentTypeDescription = $("#document-type-description"),
+  var doctypeName = $("#doctype-name-input"),
+    doctypeDescription = $("#doctype-description-input"),
     fieldsetName = $("#fieldset-name-input"),
     fieldsetDescription = $("#fieldset-description-input"),
     fieldsetOrder = $("#fieldset-order-input"),
@@ -14,7 +14,7 @@ $(function () {
     fieldDoctype = $("#field-doctype-input"),
     fieldFieldset = $("#field-fieldset-input"),
     tips = $(".validate-tips"),
-    allDoctypeFields = $([]).add(documentTypeName).add(documentTypeDescription),
+    allDoctypeFields = $([]).add(doctypeName).add(doctypeDescription),
     allFieldsetFields = $([]).add(fieldsetName).add(fieldsetOrder);
     allFieldFields = $([]).add(fieldName).add(fieldLabel).add(fieldOrder);
   
@@ -45,9 +45,9 @@ $(function () {
     });
   }
   
-  function populateFieldsets(docTypeId) {
-    $.getJSON("config/" + docTypeId + "/fieldsets", function(data) {
-      var fieldsetContainer = $("#fieldsets-" + docTypeId);
+  function populateFieldsets(doctypeId) {
+    $.getJSON("config/" + doctypeId + "/fieldsets", function(data) {
+      var fieldsetContainer = $("#fieldsets-" + doctypeId);
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
       data.renderings.forEach(function(rendering) {
@@ -69,15 +69,15 @@ $(function () {
     });
   }
   
-  function populateDocTypeTabs() {
+  function populateDoctypeTabs() {
     $.getJSON("config/doctypes", function(data) {
-      $("#document-type-tabs-headings").empty();
-      $("#document-type-tabs-headings + .ui-tabs-panel").remove();
-      $("#document-type-tabs").tabs("destroy");
+      $("#doctype-tabs-headings").empty();
+      $("#doctype-tabs-headings + .ui-tabs-panel").remove();
+      $("#doctype-tabs").tabs("destroy");
       data.renderings.forEach(function(rendering) {
-        $("#document-type-tabs-headings").append(rendering);
+        $("#doctype-tabs-headings").append(rendering);
       });
-      $("#document-type-tabs").tabs(
+      $("#doctype-tabs").tabs(
         {
           load: function(event, ui) {
             populateFieldsets($(ui.panel).children()[0].id);
@@ -93,16 +93,16 @@ $(function () {
     });
   }
   
-  $("#document-type-tabs").tabs();
-  populateDocTypeTabs();
+  $("#doctype-tabs").tabs();
+  populateDoctypeTabs();
   
   $("#main-tabs").tabs();
   $("#character-sequence-tabs").tabs();
-  $("#document-type-info").hide();
+  $("#doctype-info").hide();
   $("#character-sequence-info").hide();
   
-  $("#document-type-info-toggle").click(function() {
-    $("#document-type-info").toggle("blind", {}, 500);
+  $("#doctype-info-toggle").click(function() {
+    $("#doctype-info").toggle("blind", {}, 500);
     return false;
   });
   
@@ -111,23 +111,23 @@ $(function () {
     return false;
   });
   
-  $("#doc-type-add-dialog").dialog({
+  $("#doctype-add-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Add Document Type": function() {
         allDoctypeFields.removeClass('ui-state-error');
         
-        checkResult = checkLength(documentTypeName, "document type name", 1, 50, tips); 
+        checkResult = checkLength(doctypeName, "document type name", 1, 50, tips); 
         
         if (checkResult) {
           var obj = {
             "category": "doctype", 
-            "description": documentTypeDescription.val(),
-            "_id": documentTypeName.val()
+            "description": doctypeDescription.val(),
+            "_id": doctypeName.val()
           },
           complete = function(context) {
-            populateDocTypeTabs();
+            populateDoctypeTabs();
             $(context).dialog("close");
           };
           postConfigDoc("config/doctypes", obj, complete, this);
@@ -142,8 +142,8 @@ $(function () {
     }
   });
   
-  $("#doc-type-add-button").button().click(function() {
-    $("#doc-type-add-dialog").dialog("open");
+  $("#doctype-add-button").button().click(function() {
+    $("#doctype-add-dialog").dialog("open");
   });
   
   $("#fieldset-add-dialog").dialog({

@@ -12,14 +12,14 @@
 {% endblock %}
 
 {% block dialogs %}
-<div id="doc-type-add-dialog" title="Add Document Type">
+<div id="doctype-add-dialog" title="Add Document Type">
   <p class="validate-tips">All fields are required.</p>
   <form>
     <fieldset class="ui-helper-reset">
-      <label for="document-type-name">Document Type Name</label><br />
-      <input type="text" name="document-type-name" id="document-type-name" value="" class="ui-widget-content ui-corner-all" /><br />
-      <label for="document-type-description">Document Type Description</label><br />
-      <textarea name="document-type-description" id="document-type-description" class="text ui-widget-content ui-corner-all"></textarea>
+      <label for="doctype-name-input">Document Type Name</label><br />
+      <input type="text" name="doctype-name-input" id="doctype-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
+      <label for="doctype-description-input">Document Type Description</label><br />
+      <textarea name="doctype-description-input" id="doctype-description-input" class="text ui-widget-content ui-corner-all"></textarea>
     </fieldset>
   </form>
 </div>
@@ -88,17 +88,17 @@
 {% block main_content %}
 <div id="main-tabs">
   <ul>
-    <li><a href="#document-types">Document Types</a></li>
+    <li><a href="#doctypes">Document Types</a></li>
     <li><a href="#character-sequences">Character Sequences</a></li>
   </ul>
 
-  <div id="document-types">
-    <button id="doc-type-add-button">Add Document Type</button>
+  <div id="doctypes">
+    <button id="doctype-add-button">Add Document Type</button>
     <a href="/project/{{ project }}/index">View and Edit Your Defined Document Types</a>
-    <a href="#" id="document-type-info-toggle">Show Help</a>
+    <a href="#" id="doctype-info-toggle">Show Help</a>
     
     <div class="toggler">
-      <div id="document-type-info">
+      <div id="doctype-info">
         <p>
           A document type might be a dictionary entry or some other type of information that you wish to list and edit. Here it is possible to define fields for data entry and describe how they are displayed.
         </p>
@@ -108,8 +108,8 @@
       </div>
     </div>
     
-    <div id="document-type-tabs">
-      <ul id="document-type-tabs-headings">
+    <div id="doctype-tabs">
+      <ul id="doctype-tabs-headings">
         <li><a href="#tabs-1">Nunc tincidunt</a></li>
       </ul>
       <div id="tabs-1">
