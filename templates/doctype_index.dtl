@@ -1,0 +1,20 @@
+{% extends "base.dtl" %}
+
+{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
+
+{% block header %}
+<h1>{{ project_info.name }}: {{ title }}</h1>
+<em>{{ project_info.description }}</em>
+{% endblock %}
+
+{% block main_content %}
+<div id="doctypes-container" class="ui-widget">
+  
+  <dl id="doctypes-list" class="ui-widget ui-widget-content">
+    {% for row in rows %}
+    <dt class="ui-widget ui-widget-header"><a href="./{{ row.key }}">{{ row.key }}</a></dt>
+    <dd>{{ row.value }}</dd>
+    {% endfor %}
+  </dl>
+</div>
+{% endblock %}
