@@ -128,7 +128,7 @@ from_json(ReqData, State) ->
   ContentType = {"Content-Type","application/json"},
   Headers = [ContentType|proplists:get_value(headers, State)],
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData),
-  %AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
+  AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
   
   {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
   
@@ -143,8 +143,8 @@ from_json(ReqData, State) ->
   {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, JsonOut),
   
   % Create the field's design document
-  %{ok, DesignJson} = design_fieldset_json_dtl:render(PropsOut),
-  %{ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
+  {ok, DesignJson} = design_field_json_dtl:render(PropsOut),
+  {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
   
   {true, ReqData, State}.
 
