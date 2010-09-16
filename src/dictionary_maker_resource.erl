@@ -47,19 +47,37 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(ReqData, State) ->
-  %Headers = proplists:get_value(headers, State),
-  %DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  Headers = proplists:get_value(headers, State),
+  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   
-  case proplists:get_value(index, State) of
-    undefined -> {true, ReqData, State};
-    _ -> {true, ReqData, State}
-  end.
+  Index = proplists:get_value(index, State),
+  Doctype = wrq:path_info(doctype, ReqData),
+  Id = wrq:path_info(id, ReqData),
+  
+  Resp = case {Index, Doctype, Id} of
+    {undefined, undefined, undefined} -> {false, ReqData, State};
+    {undefined, DoctypeVal, undefined} -> ibrowse:send_req(BaseUrl ++ DoctypeVal, Headers, head);
+    {undefined, _, IdVal} -> ibrowse:send_req(BaseUrl ++ IdVal, Headers, head);
+    {true, undefined, undefined} -> {ok, "200", [], []}
+  end,
+  
+  case Resp of
+    {ok, "200", _, _} -> {true, ReqData, State};
+    {ok, "404", _, _} -> {false, ReqData, State}
+  end. 
 
 is_authorized(ReqData, State) ->
   proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
 
 allowed_methods(ReqData, State) ->
-  {['HEAD', 'GET'], ReqData, State}.
+  Index = proplists:get_value(index, State),
+  Id = wrq:path_info(id, ReqData),
+  
+  case {Index, Id} of
+    {true, _} -> {['HEAD', 'GET'], ReqData, State};
+    {_, undefined} -> {['HEAD', 'GET'], ReqData, State};
+    {_, _} -> {['HEAD', 'GET'], ReqData, State}
+  end.
 
 content_types_provided(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
@@ -68,9 +86,13 @@ content_types_provided(ReqData, State) ->
   end.
   
 to_html(ReqData, State) ->
-  case proplists:get_value(index, State) of
-    undefined -> {"<html><body>Hello, new world</body></html>", ReqData, State};
-    true -> {html_index(ReqData, State), ReqData, State}
+  Index = proplists:get_value(index, State),
+  Id = wrq:path_info(id, ReqData),
+  
+  case {Index, Id} of
+    {true, _} -> {html_index(ReqData, State), ReqData, State};
+    {_, undefined} -> {html_documents(ReqData, State), ReqData, State};
+    {_, _} -> {html_document(ReqData, State), ReqData, State}
   end.
   
 % Helpers
@@ -93,7 +115,13 @@ html_index(ReqData, State) ->
   ],
   {ok, Html} = doctype_index_dtl:render(Properties),
   Html.
-   
+
+html_documents(_ReqData, _State) ->
+  "Documents".   
+
+html_document(_ReqData, _State) ->
+  "Document". 
+    
 validate_authentication({struct, Props}, ReqData, State) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
