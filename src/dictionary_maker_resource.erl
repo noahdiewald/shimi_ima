@@ -147,11 +147,10 @@ html_new(ReqData, State) ->
   Values = get_values(proplists:get_value(<<"rows">>, Json)),
   
   Properties = [
-    {title, "New " ++ Doctype ++ " Documents"}, 
-    {fieldsets, Values},
-    {project_info, ProjJson},
-    {doctype_info, DoctypeJson}
-  ],
+    {<<"title">>, "New " ++ Doctype ++ " Documents"}, 
+    {<<"project_info">>, ProjJson},
+    {<<"doctype_info">>, DoctypeJson}
+  |Json],
   
   {ok, Html} = new_document_dtl:render(Properties),
   Html.
