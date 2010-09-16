@@ -1,0 +1,25 @@
+{% extends "base.dtl" %}
+
+{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
+
+{% block header %}
+<h1>{{ project_info.name }}: {{ title }}</h1>
+<em>{{ doctype_info.description }}</em>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="/js/new-document.js"></script>
+{% endblock %}
+    
+{% block main_content %}
+<form class="ui-widget ui-corner-all">
+  {% for fieldset in fieldsets %}
+  <fieldset class="ui-widget ui-widget-content ui-corner-all" data-fieldset-id="{{ fieldset._id }}">
+    <legend class="ui-widget ui-widget-header ui-corner-all">{{ fieldset.name }}</legend>
+    <p>{{ fieldset.description }}</p>
+    <div>
+    </div>
+  </fieldset>
+  {% endfor %}
+</form>
+{% endblock %}

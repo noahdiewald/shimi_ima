@@ -90,17 +90,37 @@ to_html(ReqData, State) ->
   
 % Helpers
 
-html_index(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+get_json(project, ReqData, State) ->
   Id = wrq:path_info(project, ReqData) -- "project-",
-  ProjectUrl = ?ADMINDB ++ "projects/" ++ Id,
+  Url = ?ADMINDB ++ "projects/" ++ Id,
+  get_json_helper(admin, Url, State);
   
-  {ok, "200", _, ProjJsonIn} = ibrowse:send_req(ProjectUrl, [], get),
-  {struct, ProjJson} = mochijson2:decode(ProjJsonIn),
-  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ "/_design/doctypes/_view/all_simple", Headers, get),
+get_json(doctype, ReqData, State) ->
+  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  Doctype = wrq:path_info(doctype, ReqData),
+  get_json_helper(DataBaseUrl ++ Doctype, State).
+
+get_json_helper(Url, State) ->  
+  Headers = proplists:get_value(headers, State),
+  {ok, "200", _, JsonIn} = ibrowse:send_req(Url, Headers, get),
   {struct, Json} = mochijson2:decode(JsonIn),
+  Json.
+
+get_json_helper(admin, Url, _State) ->  
+  {ok, "200", _, JsonIn} = ibrowse:send_req(Url, [], get),
+  {struct, Json} = mochijson2:decode(JsonIn),
+  Json.
+
+get_view_json(Id, Name, ReqData, State) ->
+  Headers = proplists:get_value(headers, State),
+  Url = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  {ok, "200", _, JsonIn} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
+  {struct, Json} = mochijson2:decode(JsonIn),
+  Json.
+
+html_index(ReqData, State) ->
+  ProjJson = get_json(project, ReqData, State),
+  Json = get_view_json("doctypes", "all_simple", ReqData, State),
   
   Properties = [
     {title, "All Document Types"}, 
@@ -111,24 +131,36 @@ html_index(ReqData, State) ->
   {ok, Html} = doctype_index_dtl:render(Properties),
   Html.
 
-html_new(_ReqData, _State) ->
-  "New Document".
+get_values([{struct, Row}|[]]) ->
+  {struct, Value} = proplists:get_value(<<"value">>, Row),
+  [Value];
+get_values([{struct, Row}|Rest]) ->
+  {struct, Value} = proplists:get_value(<<"value">>, Row),
+  [Value|get_values(Rest)].
+
+html_new(ReqData, State) ->
+  Doctype = wrq:path_info(doctype, ReqData),
+  ProjJson = get_json(project, ReqData, State),
+  DoctypeJson = get_json(doctype, ReqData, State),
+  Json = get_view_json(Doctype, "fieldsets", ReqData, State),
+  
+  Values = get_values(proplists:get_value(<<"rows">>, Json)),
+  
+  Properties = [
+    {title, "New " ++ Doctype ++ " Documents"}, 
+    {fieldsets, Values},
+    {project_info, ProjJson},
+    {doctype_info, DoctypeJson}
+  ],
+  
+  {ok, Html} = new_document_dtl:render(Properties),
+  Html.
 
 html_documents(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
-  ProjectId = wrq:path_info(project, ReqData) -- "project-",
-  ProjectUrl = ?ADMINDB ++ "projects/" ++ ProjectId,
   Doctype = wrq:path_info(doctype, ReqData),
-  
-  {ok, "200", _, ProjJsonIn} = ibrowse:send_req(ProjectUrl, [], get),
-  {struct, ProjJson} = mochijson2:decode(ProjJsonIn),
-  
-  {ok, "200", _, DoctypeJsonIn} = ibrowse:send_req(DataBaseUrl ++ Doctype, Headers, get),
-  {struct, DoctypeJson} = mochijson2:decode(DoctypeJsonIn),
-  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ "/_design/" ++ Doctype ++ "/_view/alldocs", Headers, get),
-  {struct, Json} = mochijson2:decode(JsonIn),
+  ProjJson = get_json(project, ReqData, State),
+  DoctypeJson = get_json(doctype, ReqData, State),
+  Json = get_view_json(Doctype, "alldocs", ReqData, State),
   
   Properties = [
     {title, "All " ++ Doctype ++ " Documents"}, 
@@ -136,6 +168,7 @@ html_documents(ReqData, State) ->
     {project_info, ProjJson},
     {doctype_info, DoctypeJson}
   ],
+  
   {ok, Html} = doctype_dtl:render(Properties),
   Html.
 
