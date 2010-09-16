@@ -90,33 +90,12 @@ to_html(ReqData, State) ->
   
 % Helpers
 
-get_json(project, ReqData, _State) ->
-  Id = wrq:path_info(project, ReqData) -- "project-",
-  Url = ?ADMINDB ++ "projects/" ++ Id,
-  get_json_helper(Url, []);
-  
-get_json(doctype, ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
-  Doctype = wrq:path_info(doctype, ReqData),
-  get_json_helper(DataBaseUrl ++ Doctype, Headers).
-
-get_json_helper(Url, Headers) ->  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(Url, Headers, get),
-  mochijson2:decode(JsonIn).
-
-get_view_json(Id, Name, ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  Url = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
-  {ok, "200", _, JsonIn} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
-  mochijson2:decode(JsonIn).
-
 html_index(ReqData, State) ->
-  ProjJson = get_json(project, ReqData, State),
-  {struct, Json} = get_view_json("doctypes", "all_simple", ReqData, State),
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json("doctypes", "all_simple", ReqData, State),
   
   Properties = {struct, [
-    {<<"title">>, "All Document Types"}, 
+    {<<"title">>, <<"All Document Types">>}, 
     {<<"project_info">>, ProjJson}
   |Json]},
   
@@ -125,12 +104,12 @@ html_index(ReqData, State) ->
 
 html_new(ReqData, State) ->
   Doctype = wrq:path_info(doctype, ReqData),
-  ProjJson = get_json(project, ReqData, State),
-  DoctypeJson = get_json(doctype, ReqData, State),
-  {struct, Json} = get_view_json(Doctype, "fieldsets", ReqData, State),
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json(Doctype, "fieldsets", ReqData, State),
   
   Properties = {struct, [
-    {<<"title">>, "New " ++ Doctype ++ " Documents"}, 
+    {<<"title">>, list_to_binary("New " ++ Doctype ++ " Documents")}, 
     {<<"project_info">>, ProjJson},
     {<<"doctype_info">>, DoctypeJson}
   |Json]},
@@ -140,12 +119,12 @@ html_new(ReqData, State) ->
 
 html_documents(ReqData, State) ->
   Doctype = wrq:path_info(doctype, ReqData),
-  ProjJson = get_json(project, ReqData, State),
-  DoctypeJson = get_json(doctype, ReqData, State),
-  {struct, Json} = get_view_json(Doctype, "alldocs", ReqData, State),
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json(Doctype, "alldocs", ReqData, State),
   
   Properties = {struct, [
-    {<<"title">>, "All " ++ Doctype ++ " Documents"}, 
+    {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
     {<<"project_info">>, ProjJson},
     {<<"doctype_info">>, DoctypeJson}
   |Json]},
