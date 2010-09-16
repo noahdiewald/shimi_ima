@@ -1,6 +1,8 @@
 <tr>
   <td><a href="/project/project-{{ id }}/index">{{ key }}</a></td>
   <td>{{ value }}</td>
-  <td><a href="/project/project-{{ id }}/config">Configure</a></td>
-  <td><button class="delete-button" id="{{ id }}">Delete</button></td>
+  <td>
+    <a href="/project/project-{{ id }}/config" class="configure-button">Configure</a>
+    <button class="delete-button" id="{{ id }}">Delete</button>
+  </td>
 </tr>

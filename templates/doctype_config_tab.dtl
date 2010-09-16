@@ -1,0 +1,26 @@
+<div id="doctypes">
+  <button id="doctype-add-button">Add Document Type</button>
+  <a href="/project/{{ project }}/index" class="edit-button">Go to Data Entry</a>
+  <a href="#" id="doctype-info-toggle" class="help-button">Show Help</a>
+  
+  <div class="toggler">
+    <div id="doctype-info">
+      <p>
+        A document type might be a dictionary entry or some other type of information that you wish to list and edit. Here it is possible to define fields for data entry and describe how they are displayed.
+      </p>
+      <p>
+        More information is available in the application documentation.
+      </p>
+    </div>
+  </div>
+  
+  <div id="doctype-tabs">
+    <ul id="doctype-tabs-headings">
+      <li><a href="#tabs-1">Nunc tincidunt</a></li>
+    </ul>
+    <div id="tabs-1">
+      <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
+    </div>
+  </div>
+  
+</div>

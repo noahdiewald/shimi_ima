@@ -28,6 +28,21 @@ function checkRegexp(o, regexp, n, tips) {
 }
   
 $(function () {
+  // Buttons
+  
+  $(".help-button").button({
+    icons: {primary: "ui-icon-help"},
+    text: false
+  });
+  
+  $(".link-button").button({
+    icons: {primary: "ui-icon-link"}
+  });
+  
+  $(".edit-button").button({
+    icons: {primary: "ui-icon-pencil"}
+  });
+  
   // Date Picker
   
   $(".date").datepicker();

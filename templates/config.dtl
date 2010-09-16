@@ -12,77 +12,10 @@
 {% endblock %}
 
 {% block dialogs %}
-<div id="doctype-add-dialog" title="Add Document Type">
-  <p class="validate-tips">All fields are required.</p>
-  <form>
-    <fieldset class="ui-helper-reset">
-      <label for="doctype-name-input">Document Type Name</label><br />
-      <input type="text" name="doctype-name-input" id="doctype-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
-      <label for="doctype-description-input">Document Type Description</label><br />
-      <textarea name="doctype-description-input" id="doctype-description-input" class="text ui-widget-content ui-corner-all"></textarea>
-    </fieldset>
-  </form>
-</div>
-<div id="fieldset-add-dialog" title="Add Fieldset">
-  <p class="validate-tips">All fields are required.</p>
-  <form>
-    <fieldset class="ui-helper-reset">
-      <label for="fieldset-name-input">Fieldset Name</label><br />
-      <input type="text" name="fieldset-name-input" id="fieldset-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
-      <label for="fieldset-multiple-input">How many per document?</label><br />
-      <select name="fieldset-multiple-input" id="fieldset-multiple-input">
-        <option selected="true" value="false">Single</option>
-        <option value="true">Multiple</option>
-      </select><br />
-      <label for="fieldset-doctype-input">Internal Doctype Id</label><br />
-      <input type="text" name="fieldset-doctype-input" id="fieldset-doctype-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
-      <label for="fieldset-order-input">Fieldset Relative Order</label> <em>Lower numbers are closer to the top</em><br />
-      <input type="text" name="fieldset-order-input" id="fieldset-order-input" value="" class="ui-widget-content ui-corner-all" size=3 /><br />
-      <label for="fieldset-description-input">Fieldset Description</label><br />
-      <textarea name="fieldset-description-input" id="fieldset-description-input" class="text ui-widget-content ui-corner-all"></textarea>
-    </fieldset>
-  </form>
-</div>
-
-<div id="field-add-dialog" title="Add Field">
-  <p class="validate-tips">All fields are required.</p>
-  <form>
-    <fieldset class="ui-helper-reset">
-      <label for="field-name-input">Field Name</label><br />
-      <input type="text" name="field-name-input" id="field-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
-      
-      <label for="field-label-input">Field Label</label><br />
-      <input type="text" name="field-label-input" id="field-label-input" value="" class="ui-widget-content ui-corner-all" /><br />
-      
-      <label for="field-subcategory-input">What type of field?</label><br />
-      <select name="field-subcategory-input" id="field-subcategory-input">
-        <option selected="true" value="text">Simple Text</option>
-        <option value="textarea">Text Box</option>
-      </select><br />
-      
-      <label for="field-doctype-input">Internal Doctype Id</label><br />
-      <input type="text" name="field-doctype-input" id="field-doctype-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
-      
-      <label for="field-fieldset-input">Internal Fieldset Id</label><br />
-      <input type="text" name="field-fieldset-input" id="field-fieldset-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
-      
-      <label for="field-order-input">Field Relative Order</label> <em>Lower numbers are closer to the top</em><br />
-      <input type="text" name="field-order-input" id="field-order-input" value="" class="ui-widget-content ui-corner-all" size=3 /><br />
-      
-      <label for="field-description-input">Field Description</label><br />
-      <textarea name="field-description-input" id="field-description-input" class="text ui-widget-content ui-corner-all"></textarea>
-    </fieldset>
-  </form>
-</div>
-
-<div id="character-sequence-add-dialog" title="Add Character Sequence">
-  <form>
-    <fieldset class="ui-helper-reset">
-      <label for="character-sequence-name">Character Sequence Name</label>
-      <input type="text" name="character-sequence-name" id="character-sequence-name" value="" class="ui-widget-content ui-corner-all" />
-    </fieldset>
-  </form>
-</div>
+{% include 'doctype_add_dialog.dtl' %}
+{% include 'fieldset_add_dialog.dtl' %}
+{% include 'field_add_dialog.dtl' %}
+{% include 'charseq_add_dialog.dtl' %}
 {% endblock %}
     
 {% block main_content %}
@@ -91,60 +24,7 @@
     <li><a href="#doctypes">Document Types</a></li>
     <li><a href="#character-sequences">Character Sequences</a></li>
   </ul>
-
-  <div id="doctypes">
-    <button id="doctype-add-button">Add Document Type</button>
-    <a href="/project/{{ project }}/index">View and Edit Your Defined Document Types</a>
-    <a href="#" id="doctype-info-toggle">Show Help</a>
-    
-    <div class="toggler">
-      <div id="doctype-info">
-        <p>
-          A document type might be a dictionary entry or some other type of information that you wish to list and edit. Here it is possible to define fields for data entry and describe how they are displayed.
-        </p>
-        <p>
-          More information is available in the application documentation.
-        </p>
-      </div>
-    </div>
-    
-    <div id="doctype-tabs">
-      <ul id="doctype-tabs-headings">
-        <li><a href="#tabs-1">Nunc tincidunt</a></li>
-      </ul>
-      <div id="tabs-1">
-        <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="character-sequences">
-    <button id="character-sequence-add-button">Add Character Sequence</button>
-    <a href="#" id="character-sequence-info-toggle">Show Help</a>
-    
-    <div class="toggler">
-      <div id="character-sequence-info">
-        <p>
-          Character sequences define the sort order for the characters used to write a language. They can also be used to create a means of paging through listings using an alphabet (or your language's equivalent).
-        </p>
-        <p>
-          More information is available in the application documentation.
-        </p>
-      </div>
-    </div>
-    
-    <div id="character-sequence-tabs">
-      <ul>
-        <li><a href="#tabs-3">Nunc tincidunt</a></li>
-        <li><a href="#tabs-4">Nunc tincidunt</a></li>
-      </ul>
-      <div id="tabs-3">
-        <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
-      </div>
-      <div id="tabs-4">
-        <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
-      </div>
-    </div>
-  </div>
+{% include 'doctype_config_tab.dtl' %}
+{% include 'charseq_config_tab.dtl' %}
 </div>
 {% endblock %}

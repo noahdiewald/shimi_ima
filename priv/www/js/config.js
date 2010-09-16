@@ -57,7 +57,9 @@ $(function () {
         autoHeight: false,
         collapsible: true
       });
-      $(".add-field-button").button().click(function() {
+      $(".add-field-button").button({
+        icons: {primary: "ui-icon-plus"}
+      }).click(function() {
         fieldDoctype.val($(this).attr("data-doctype-id"));
         fieldFieldset.val($(this).attr("data-fieldset-id"));
         fieldOrder.val("0");
@@ -82,7 +84,9 @@ $(function () {
           load: function(event, ui) {
             populateFieldsets($(ui.panel).children()[0].id);
   
-            $(".add-fieldset-button").button().click(function() {
+            $(".add-fieldset-button").button({
+              icons: {primary: "ui-icon-plus"}
+            }).click(function() {
               fieldsetDoctype.val($(this).attr("data-doctype-id"));
               fieldsetOrder.val("0");
               $("#fieldset-add-dialog").dialog("open");
@@ -142,7 +146,9 @@ $(function () {
     }
   });
   
-  $("#doctype-add-button").button().click(function() {
+  $("#doctype-add-button").button({
+    icons: {primary: "ui-icon-plus"}
+  }).click(function() {
     $("#doctype-add-dialog").dialog("open");
   });
   
@@ -237,7 +243,9 @@ $(function () {
     }
   });
   
-  $("#character-sequence-add-button").button().click(function() {
+  $("#character-sequence-add-button").button({
+    icons: {primary: "ui-icon-plus"}
+  }).click(function() {
     $("#character-sequence-add-dialog").dialog("open");
   });
 });

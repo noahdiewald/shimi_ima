@@ -1,0 +1,28 @@
+<div id="character-sequences">
+  <button id="character-sequence-add-button">Add Character Sequence</button>
+  <a href="#" id="character-sequence-info-toggle">Show Help</a>
+  
+  <div class="toggler">
+    <div id="character-sequence-info">
+      <p>
+        Character sequences define the sort order for the characters used to write a language. They can also be used to create a means of paging through listings using an alphabet (or your language's equivalent).
+      </p>
+      <p>
+        More information is available in the application documentation.
+      </p>
+    </div>
+  </div>
+  
+  <div id="character-sequence-tabs">
+    <ul>
+      <li><a href="#tabs-3">Nunc tincidunt</a></li>
+      <li><a href="#tabs-4">Nunc tincidunt</a></li>
+    </ul>
+    <div id="tabs-3">
+      <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
+    </div>
+    <div id="tabs-4">
+      <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
+    </div>
+  </div>
+</div>

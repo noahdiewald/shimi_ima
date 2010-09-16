@@ -7,12 +7,17 @@ $(function () {
   function populateProjectsTable() {
     // I use a bogus query string to ensure that the browser
     // won't replace the html version with the json verson
-    // from this resource.
+    // from this resource. There is probably a better way.
     $.getJSON("project?this=null", function(data) {
       $("#projects-table > tbody").empty();
       data.renderings.forEach(function(rendering) {
         $("#projects-table").append(rendering);
-        $(".delete-button").button().click(function() {
+        $(".configure-button").button({
+          icons: {primary: "ui-icon-wrench"}
+        });
+        $(".delete-button").button({
+          icons: {primary: "ui-icon-trash"}
+        }).click(function() {
           toDelete = $(this).attr("id");
           $("#delete-dialog").dialog("open");
         });
@@ -85,7 +90,9 @@ $(function () {
     },
   });
   
-  $("#create-project").button().click(function() {
+  $("#create-project").button({
+    icons: {primary: "ui-icon-plus"}
+  }).click(function() {
     $("#add-dialog").dialog("open");
   });
   
