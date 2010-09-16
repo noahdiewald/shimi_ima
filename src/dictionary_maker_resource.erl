@@ -50,15 +50,13 @@ resource_exists(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   
-  Index = proplists:get_value(index, State),
   Doctype = wrq:path_info(doctype, ReqData),
   Id = wrq:path_info(id, ReqData),
   
-  Resp = case {Index, Doctype, Id} of
-    {undefined, undefined, undefined} -> {false, ReqData, State};
-    {undefined, DoctypeVal, undefined} -> ibrowse:send_req(BaseUrl ++ DoctypeVal, Headers, head);
-    {undefined, _, IdVal} -> ibrowse:send_req(BaseUrl ++ IdVal, Headers, head);
-    {true, undefined, undefined} -> {ok, "200", [], []}
+  Resp = case proplists:get_value(target, State) of
+    index -> {ok, "200", [], []};
+    identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
+    _ -> ibrowse:send_req(BaseUrl ++ Doctype, Headers, head)
   end,
   
   case Resp of
@@ -70,13 +68,10 @@ is_authorized(ReqData, State) ->
   proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
 
 allowed_methods(ReqData, State) ->
-  Index = proplists:get_value(index, State),
-  Id = wrq:path_info(id, ReqData),
-  
-  case {Index, Id} of
-    {true, _} -> {['HEAD', 'GET'], ReqData, State};
-    {_, undefined} -> {['HEAD', 'GET'], ReqData, State};
-    {_, _} -> {['HEAD', 'GET'], ReqData, State}
+  case proplists:get_value(target, State) of
+    doctype -> {['HEAD', 'GET', 'POST'], ReqData, State};
+    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], ReqData, State};
+    _ -> {['HEAD', 'GET'], ReqData, State}
   end.
 
 content_types_provided(ReqData, State) ->
@@ -86,13 +81,11 @@ content_types_provided(ReqData, State) ->
   end.
   
 to_html(ReqData, State) ->
-  Index = proplists:get_value(index, State),
-  Id = wrq:path_info(id, ReqData),
-  
-  case {Index, Id} of
-    {true, _} -> {html_index(ReqData, State), ReqData, State};
-    {_, undefined} -> {html_documents(ReqData, State), ReqData, State};
-    {_, _} -> {html_document(ReqData, State), ReqData, State}
+  case proplists:get_value(target, State) of
+    index -> {html_index(ReqData, State), ReqData, State};
+    new -> {html_new(ReqData, State), ReqData, State};
+    doctype -> {html_documents(ReqData, State), ReqData, State};
+    identifier -> {html_document(ReqData, State), ReqData, State}
   end.
   
 % Helpers
@@ -117,6 +110,9 @@ html_index(ReqData, State) ->
   
   {ok, Html} = doctype_index_dtl:render(Properties),
   Html.
+
+html_new(_ReqData, _State) ->
+  "New Document".
 
 html_documents(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
