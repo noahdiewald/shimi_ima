@@ -90,67 +90,50 @@ to_html(ReqData, State) ->
   
 % Helpers
 
-get_json(project, ReqData, State) ->
+get_json(project, ReqData, _State) ->
   Id = wrq:path_info(project, ReqData) -- "project-",
   Url = ?ADMINDB ++ "projects/" ++ Id,
-  get_json_helper(admin, Url, State);
+  get_json_helper(Url, []);
   
 get_json(doctype, ReqData, State) ->
+  Headers = proplists:get_value(headers, State),
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   Doctype = wrq:path_info(doctype, ReqData),
-  get_json_helper(DataBaseUrl ++ Doctype, State).
+  get_json_helper(DataBaseUrl ++ Doctype, Headers).
 
-get_json_helper(Url, State) ->  
-  Headers = proplists:get_value(headers, State),
+get_json_helper(Url, Headers) ->  
   {ok, "200", _, JsonIn} = ibrowse:send_req(Url, Headers, get),
-  {struct, Json} = mochijson2:decode(JsonIn),
-  Json.
-
-get_json_helper(admin, Url, _State) ->  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(Url, [], get),
-  {struct, Json} = mochijson2:decode(JsonIn),
-  Json.
+  mochijson2:decode(JsonIn).
 
 get_view_json(Id, Name, ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   Url = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   {ok, "200", _, JsonIn} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
-  {struct, Json} = mochijson2:decode(JsonIn),
-  Json.
+  mochijson2:decode(JsonIn).
 
 html_index(ReqData, State) ->
   ProjJson = get_json(project, ReqData, State),
-  Json = get_view_json("doctypes", "all_simple", ReqData, State),
+  {struct, Json} = get_view_json("doctypes", "all_simple", ReqData, State),
   
-  Properties = [
-    {title, "All Document Types"}, 
-    {rows, [Row || {struct, Row} <- proplists:get_value(<<"rows">>, Json)]},
-    {project_info, ProjJson}
-  ],
+  Properties = {struct, [
+    {<<"title">>, "All Document Types"}, 
+    {<<"project_info">>, ProjJson}
+  |Json]},
   
   {ok, Html} = doctype_index_dtl:render(Properties),
   Html.
-
-get_values([{struct, Row}|[]]) ->
-  {struct, Value} = proplists:get_value(<<"value">>, Row),
-  [Value];
-get_values([{struct, Row}|Rest]) ->
-  {struct, Value} = proplists:get_value(<<"value">>, Row),
-  [Value|get_values(Rest)].
 
 html_new(ReqData, State) ->
   Doctype = wrq:path_info(doctype, ReqData),
   ProjJson = get_json(project, ReqData, State),
   DoctypeJson = get_json(doctype, ReqData, State),
-  Json = get_view_json(Doctype, "fieldsets", ReqData, State),
+  {struct, Json} = get_view_json(Doctype, "fieldsets", ReqData, State),
   
-  Values = get_values(proplists:get_value(<<"rows">>, Json)),
-  
-  Properties = [
+  Properties = {struct, [
     {<<"title">>, "New " ++ Doctype ++ " Documents"}, 
     {<<"project_info">>, ProjJson},
     {<<"doctype_info">>, DoctypeJson}
-  |Json],
+  |Json]},
   
   {ok, Html} = new_document_dtl:render(Properties),
   Html.
@@ -159,14 +142,13 @@ html_documents(ReqData, State) ->
   Doctype = wrq:path_info(doctype, ReqData),
   ProjJson = get_json(project, ReqData, State),
   DoctypeJson = get_json(doctype, ReqData, State),
-  Json = get_view_json(Doctype, "alldocs", ReqData, State),
+  {struct, Json} = get_view_json(Doctype, "alldocs", ReqData, State),
   
-  Properties = [
-    {title, "All " ++ Doctype ++ " Documents"}, 
-    {rows, [Row || {struct, Row} <- proplists:get_value(<<"rows">>, Json)]},
-    {project_info, ProjJson},
-    {doctype_info, DoctypeJson}
-  ],
+  Properties = {struct, [
+    {<<"title">>, "All " ++ Doctype ++ " Documents"}, 
+    {<<"project_info">>, ProjJson},
+    {<<"doctype_info">>, DoctypeJson}
+  |Json]},
   
   {ok, Html} = doctype_dtl:render(Properties),
   Html.
