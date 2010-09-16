@@ -1,0 +1,20 @@
+{% extends "base.dtl" %}
+
+{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
+
+{% block header %}
+<h1>{{ project_info.name }}: {{ title }}</h1>
+<em>{{ doctype_info.description }}</em>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="/js/doctype.js"></script>
+{% endblock %}
+    
+{% block main_content %}
+<table>
+  {% for row in rows %}
+  <tr><td>row.key</td><td>row.value</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
