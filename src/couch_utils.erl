@@ -41,7 +41,13 @@ get_json(doctype, ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   Doctype = wrq:path_info(doctype, ReqData),
-  get_json_helper(DataBaseUrl ++ Doctype, Headers).
+  get_json_helper(DataBaseUrl ++ Doctype, Headers);
+  
+get_json(id, ReqData, State) ->
+  Headers = proplists:get_value(headers, State),
+  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  Id = wrq:path_info(id, ReqData),
+  get_json_helper(DataBaseUrl ++ Id, Headers).
 
 get_json_helper(Url, Headers) ->  
   {ok, "200", _, JsonIn} = ibrowse:send_req(Url, Headers, get),
