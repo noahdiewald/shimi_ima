@@ -1,8 +1,0 @@
-{
-  "name": "default",
-  "description": "This is the default fieldset that is automatically created for any new document type",
-  "multiple": false,
-  "order": 1,
-  "doctype": "{{ _id }}",
-  "category": "fieldset" 
-}
