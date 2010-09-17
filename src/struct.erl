@@ -163,7 +163,7 @@ from_json(Key, Input) ->
 %% @spec from_json(input()) -> struct()
 %% @doc by codezone, using mochijson2:decode/1
 from_json(Input) ->
-  mochijson2:decode(JsonInput).
+  mochijson2:decode(Input).
   
   
 %% @spec to_json(struct()) -> list()

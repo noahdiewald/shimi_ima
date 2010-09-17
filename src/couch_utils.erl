@@ -25,6 +25,7 @@
 -module(couch_utils).
 
 -export([
+  create/4,
   get_json/3,
   get_view_json/4,
   get_uuid/2
@@ -70,12 +71,12 @@ get_uuid(_ReqData, State) ->
     _ -> undefined
   end.
 
-create(doc, Json) ->
+create(doc, Json, ReqData, State) ->
   Url = ?COUCHDB ++ wrq:path_info(project, ReqData),
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, State)],
   create(Url, Headers, Json);
 
-create(design, Json) ->
+create(design, Json, ReqData, _State) ->
   Url = ?ADMINDB ++ wrq:path_info(project, ReqData),
   Headers = [{"Content-Type","application/json"}],
   create(Url, Headers, Json).

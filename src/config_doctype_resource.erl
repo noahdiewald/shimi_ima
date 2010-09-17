@@ -59,8 +59,8 @@ resource_exists(ReqData, State) ->
   Id = wrq:path_info(id, ReqData),
    
   Resp = case proplists:get_value(target, State) of
-    index -> ibrowse:send_req(DatabaseUrl, Headers, head);
-    id -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
+    index -> ibrowse:send_req(BaseUrl, Headers, head);
+    id -> ibrowse:send_req(BaseUrl ++ Id, Headers, head)
   end,
   case Resp of
     {ok, "200", _, _} -> {true, ReqData, State};
@@ -80,9 +80,9 @@ post_is_create(ReqData, State) ->
   {true, ReqData, State}.
 
 create_path(ReqData, State) ->
-  Json = mochijson2:decode(wrq:req_body(ReqData)),
+  Json = struct:from_json(wrq:req_body(ReqData)),
   
-  Id = binary_to_list(struct:get_value(<<"_id">>, JsonIn)),
+  Id = binary_to_list(struct:get_value(<<"_id">>, Json)),
   
   Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
   ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
@@ -100,7 +100,7 @@ content_types_accepted(ReqData, State) ->
   
 to_json(ReqData, State) ->
   Json = couch_utils:get_view_json("doctypes", "all"),
-  WithRenderings = render_utils:add_renders(Json, config_doctype_list_elements_dtl)
+  WithRenderings = render_utils:add_renders(Json, config_doctype_list_elements_dtl),
   JsonOut = struct:to_json(WithRenderings),
   {JsonOut, ReqData, State}.
   
@@ -111,10 +111,10 @@ to_html(ReqData, State) ->
   
 from_json(ReqData, State) ->
   Json = struct:from_json(wrq:req_body(ReqData)),
-  {ok, created} = create(doc, wrq:req_body(ReqData)),
+  {ok, created} = couch_utils:create(doc, wrq:req_body(ReqData), ReqData, State),
   
   {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  {ok, created} = create(doc, DesignJson),
+  {ok, created} = couch_utils:create(doc, DesignJson, ReqData, State),
   
   {true, ReqData, State}.
 
