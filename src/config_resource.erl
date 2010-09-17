@@ -35,13 +35,9 @@
 init([]) -> {ok, undefined}.
 
 to_html(ReqData, State) ->
-  Id = wrq:path_info(project, ReqData) -- "project-",
-  ProjectUrl = ?ADMINDB ++ "projects/" ++ Id,
+  Json = couch_utils:get_json(project, ReqData, State),
   
-  {ok, "200", _, JsonIn} = ibrowse:send_req(ProjectUrl, [], get),
-  {struct, Json} = mochijson2:decode(JsonIn),
-  
-  {ok, Html} = config_dtl:render([{title, "Configuration"}, {project, wrq:path_info(project, ReqData)}, {project_info, Json}]),
+  {ok, Html} = config_dtl:render(Json),
   {Html, ReqData, State}.
 
 resource_exists(ReqData, State) ->
