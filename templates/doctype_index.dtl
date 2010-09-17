@@ -12,7 +12,7 @@
   
   <dl id="doctypes-list" class="ui-widget ui-widget-content">
     {% for row in rows %}
-    <dt class="ui-widget ui-widget-header"><a href="./{{ row.key }}">{{ row.key }}</a></dt>
+    <dt class="ui-widget ui-widget-header"><a href="./doctypes/{{ row.key }}/documents">{{ row.key }}</a></dt>
     <dd>{{ row.value }}</dd>
     {% endfor %}
   </dl>

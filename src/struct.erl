@@ -20,7 +20,14 @@
 
 -module(struct).
 
--export([extend/2, withdraw/2, get_value/2, set_value/3, delete/2]).
+-export([
+  extend/2, 
+  withdraw/2, 
+  get_value/2, 
+  set_value/3, 
+  set_values/2, 
+  delete/2
+]).
 
 %% by codezone
 -export([from_json/1, from_json/2, to_json/1]).
@@ -122,7 +129,11 @@ get_val([Key | T], Struct) ->
   NewStruct = get_value(Key, Struct),
   get_val(T, NewStruct).
 
-
+set_values([{Key, Value}|[]], Struct) ->
+  set_value(Key, Value, Struct);
+set_values([{Key, Value}|Rest], Struct) ->
+  set_values(Rest, set_value(Key, Value, Struct)).
+  
 %% @spec set_value(path() | key(), value(), struct()) -> struct()
 set_value(Path, Value, Struct) when is_tuple(Path) ->
   [H | T] = lists:reverse(tuple_to_list(Path)),
@@ -161,7 +172,7 @@ from_json(Key, Input) ->
   mochijson2:decode(JsonInput).
 
 %% @spec from_json(input()) -> struct()
-%% @doc by codezone, using mochijson2:decode/1
+%% @doc using mochijson2:decode/1
 from_json(Input) ->
   mochijson2:decode(Input).
   

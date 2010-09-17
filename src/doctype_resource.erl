@@ -47,94 +47,32 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-  Headers = proplists:get_value(headers, S),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
-  
-  Doctype = wrq:path_info(doctype, R),
-  Id = wrq:path_info(id, R),
-  
-  Resp = case proplists:get_value(target, S) of
-    index -> {ok, "200", [], []};
-    identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
-    _ -> ibrowse:send_req(BaseUrl ++ Doctype, Headers, head)
-  end,
-  
-  case Resp of
-    {ok, "200", _, _} -> {true, R, S};
-    {ok, "404", _, _} -> {false, R, S}
-  end. 
+  {couch:exists([], R, S), R, S}. 
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-  case proplists:get_value(target, S) of
-    doctype -> {['HEAD', 'GET', 'POST'], R, S};
-    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
-    _ -> {['HEAD', 'GET'], R, S}
-  end.
+  {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-  case wrq:path_info(id, R) of
-    %undefined -> {[{"application/json", to_json}], R, S};
-    _ -> {[{"text/html", to_html}], R, S}
-  end.
+  {[{"text/html", to_html}], R, S}.
   
 to_html(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> {html_index(R, S), R, S};
-    new -> {html_new(R, S), R, S};
-    doctype -> {html_documents(R, S), R, S};
-    identifier -> {html_document(R, S), R, S}
-  end.
+  {html_index(R, S), R, S}.
   
 % Helpers
 
 html_index(R, S) ->
   ProjJson = couch:get_json(project, R, S),
-  {struct, Json} = couch:get_view_json("doctypes", "all_simple", R, S),
+  Json = couch:get_view_json("doctypes", "all_simple", R, S),
   
-  Properties = {struct, [
-    {<<"title">>, <<"All Document Types">>}, 
-    {<<"project_info">>, ProjJson}
-  |Json]},
+  Json1 = struct:set_value(<<"title">>, <<"All Document Types">>, Json),
+  Json2 = struct:set_value(<<"project_info">>, ProjJson, Json1),
   
-  {ok, Html} = doctype_index_dtl:render(Properties),
+  {ok, Html} = doctype_index_dtl:render(Json2),
   Html.
 
-html_new(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  ProjJson = couch:get_json(project, R, S),
-  DoctypeJson = couch:get_json(doctype, R, S),
-  {struct, Json} = couch:get_view_json(Doctype, "fieldsets", R, S),
-  
-  Properties = {struct, [
-    {<<"title">>, list_to_binary("New " ++ Doctype ++ " Documents")}, 
-    {<<"project_info">>, ProjJson},
-    {<<"doctype_info">>, DoctypeJson}
-  |Json]},
-  
-  {ok, Html} = new_document_dtl:render(Properties),
-  Html.
-
-html_documents(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  ProjJson = couch:get_json(project, R, S),
-  DoctypeJson = couch:get_json(doctype, R, S),
-  {struct, Json} = couch:get_view_json(Doctype, "alldocs", R, S),
-  
-  Properties = {struct, [
-    {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
-    {<<"project_info">>, ProjJson},
-    {<<"doctype_info">>, DoctypeJson}
-  |Json]},
-  
-  {ok, Html} = doctype_dtl:render(Properties),
-  Html.
-
-html_document(_R, _S) ->
-  "Document". 
-    
 validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,

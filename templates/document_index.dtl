@@ -13,7 +13,7 @@
     
 {% block main_content %}
 <div class="ui-widget ui-widget-content ui-corner-all">
-  <a class="new-button" href="{{ doctype_info._id }}/new">Add Document</a>
+  <a class="new-button" href="documents/new">Add Document</a>
   <table>
     {% for row in rows %}
     <tr><td>row.key</td><td>row.value</td></tr>
