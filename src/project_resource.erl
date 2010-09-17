@@ -61,13 +61,13 @@ resource_exists(ReqData, State) ->
   Resp = case proplists:get_value(target, State) of
     index -> 
       % Create the database if it doesn't exist
-      case ibrowse:send_req(DatabaseUrl, Headers, head) of;
+      case ibrowse:send_req(DatabaseUrl, Headers, head) of
         {ok, "404", _, _} ->
           create_database(),
           ibrowse:send_req(DatabaseUrl, Headers, head);
         Otherwise -> Otherwise
       end;
-    identifier -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head);
+    identifier -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
   end,
    
   case Resp of
@@ -171,12 +171,8 @@ render_row(Project) ->
   {ok, Rendering} = project_list_elements_dtl:render(Project),
   iolist_to_binary(Rendering).
 
-project_design_skel() ->
-  {ok, Bin} = file:read_file("./priv/json/design_project.json"),
-  binary_to_list(Bin).
-
 create_database() ->
   ContentType = {"Content-Type","application/json"},
   {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [], put),
-  {ok, ProjectDesign} design_project_json_dtl:render(),
+  {ok, ProjectDesign} = design_project_json_dtl:render(),
   {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [ContentType], post, iolist_to_binary(ProjectDesign)).
