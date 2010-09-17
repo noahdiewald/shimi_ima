@@ -1,8 +1,0 @@
-{
-   "_id": "_design/default",
-   "views": {
-       "all": {
-           "map": "function(doc) { if (doc.type == 'default')  emit(doc.default_field, doc) }"
-       }
-   }
-}
