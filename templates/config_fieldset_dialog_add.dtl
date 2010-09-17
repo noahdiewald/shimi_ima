@@ -1,20 +1,28 @@
 <div id="fieldset-add-dialog" title="Add Fieldset">
+
   <p class="validate-tips">All fields are required.</p>
+  
   <form>
     <fieldset class="ui-helper-reset">
+    
       <label for="fieldset-name-input">Fieldset Name</label><br />
       <input type="text" name="fieldset-name-input" id="fieldset-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
+      
       <label for="fieldset-multiple-input">How many per document?</label><br />
       <select name="fieldset-multiple-input" id="fieldset-multiple-input">
         <option selected="true" value="false">Single</option>
         <option value="true">Multiple</option>
       </select><br />
+      
       <label for="fieldset-doctype-input">Internal Doctype Id</label><br />
       <input type="text" name="fieldset-doctype-input" id="fieldset-doctype-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
+      
       <label for="fieldset-order-input">Fieldset Relative Order</label> <em>Lower numbers are closer to the top</em><br />
       <input type="text" name="fieldset-order-input" id="fieldset-order-input" value="" class="ui-widget-content ui-corner-all" size=3 /><br />
+      
       <label for="fieldset-description-input">Fieldset Description</label><br />
       <textarea name="fieldset-description-input" id="fieldset-description-input" class="text ui-widget-content ui-corner-all"></textarea>
+      
     </fieldset>
   </form>
 </div>

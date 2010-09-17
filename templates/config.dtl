@@ -1,10 +1,10 @@
 {% extends "base.dtl" %}
 
-{% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
+{% block page_title %}Configuration: {{ name }}{% endblock %}
 
 {% block header %}
-<h1>{{ title }}: {{ project_info.name }}</h1>
-<em>{{ project_info.description }}</em>
+<h1>Configuration: {{ name }}</h1>
+<em>{{ description }}</em>
 {% endblock %}
 
 {% block javascript %}
@@ -12,10 +12,10 @@
 {% endblock %}
 
 {% block dialogs %}
-{% include 'doctype_add_dialog.dtl' %}
-{% include 'fieldset_add_dialog.dtl' %}
-{% include 'field_add_dialog.dtl' %}
-{% include 'charseq_add_dialog.dtl' %}
+{% include 'config_doctype_dialog_add.dtl' %}
+{% include 'config_fieldset_dialog_add.dtl' %}
+{% include 'config_field_dialog_add.dtl' %}
+{% include 'config_charseq_dialog_add.dtl' %}
 {% endblock %}
     
 {% block main_content %}
@@ -24,7 +24,7 @@
     <li><a href="#doctypes">Document Types</a></li>
     <li><a href="#character-sequences">Character Sequences</a></li>
   </ul>
-{% include 'doctype_config_tab.dtl' %}
-{% include 'charseq_config_tab.dtl' %}
+{% include 'config_doctype_tab.dtl' %}
+{% include 'config_charseq_tab.dtl' %}
 </div>
 {% endblock %}
