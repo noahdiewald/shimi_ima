@@ -51,21 +51,35 @@ get_json(id, ReqData, State) ->
   get_json_helper(DataBaseUrl ++ Id, Headers).
 
 get_json_helper(Url, Headers) ->  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(Url, Headers, get),
-  mochijson2:decode(JsonIn).
+  {ok, "200", _, Json} = ibrowse:send_req(Url, Headers, get),
+  struct:from_json(Json).
 
 get_view_json(Id, Name, ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   Url = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
-  {ok, "200", _, JsonIn} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
-  mochijson2:decode(JsonIn).
+  {ok, "200", _, Json} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
+  struct:from_json(Json).
 
 get_uuid(_ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   
   case ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get) of
     {ok, "200", _, Json} ->
-      [Uuid] = struct:get_value(<<"uuids">>, mochijson2:decode(Json)),
+      [Uuid] = struct:get_value(<<"uuids">>, struct:from_json(Json)),
       {ok, binary_to_list(Uuid)};
     _ -> undefined
   end.
+
+create(doc, Json) ->
+  Url = ?COUCHDB ++ wrq:path_info(project, ReqData),
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, State)],
+  create(Url, Headers, Json);
+
+create(design, Json) ->
+  Url = ?ADMINDB ++ wrq:path_info(project, ReqData),
+  Headers = [{"Content-Type","application/json"}],
+  create(Url, Headers, Json).
+
+create(Url, Headers, Json) ->
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, post, Json),
+  {ok, created}.
