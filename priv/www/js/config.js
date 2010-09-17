@@ -15,8 +15,8 @@ $(function () {
     fieldFieldset = $("#field-fieldset-input"),
     tips = $(".validate-tips"),
     allDoctypeFields = $([]).add(doctypeName).add(doctypeDescription),
-    allFieldsetFields = $([]).add(fieldsetName).add(fieldsetOrder);
-    allFieldFields = $([]).add(fieldName).add(fieldLabel).add(fieldOrder);
+    allFieldsetFields = $([]).add(fieldsetName).add(fieldsetOrder).add(fieldsetDescription);
+    allFieldFields = $([]).add(fieldName).add(fieldLabel).add(fieldDescription).add(fieldOrder);
   
   function postConfigDoc(ajaxUrl, obj, completeFun, callContext) {
     $.ajax({
@@ -36,7 +36,7 @@ $(function () {
   }
   
   function populateFields(fieldsetId) {
-    $.getJSON("config/" + fieldsetId + "/fields", function(data) {
+    $.getJSON("config/doctypes/" + doctypeId + "/fieldsets/" + fieldsetId + "/fields", function(data) {
       var fieldContainer = $("#fields-" + fieldsetId);
       fieldContainer.empty();
       data.renderings.forEach(function(rendering) {
@@ -46,7 +46,7 @@ $(function () {
   }
   
   function populateFieldsets(doctypeId) {
-    $.getJSON("config/" + doctypeId + "/fieldsets", function(data) {
+    $.getJSON("config/doctypes/" + doctypeId + "/fieldsets", function(data) {
       var fieldsetContainer = $("#fieldsets-" + doctypeId);
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
@@ -66,7 +66,7 @@ $(function () {
         $("#field-add-dialog").dialog("open");
       });
       data.rows.forEach(function(element) {
-        populateFields(element.value._id);
+        populateFields(element.value._id, element.value.doctype);
       });
     });
   }
@@ -176,7 +176,7 @@ $(function () {
             populateFieldsets(fieldsetDoctype.val());
             $(context).dialog("close");
           };
-          postConfigDoc("config/" + fieldsetDoctype.val() + "/fieldsets", obj, complete, this);
+          postConfigDoc("config/doctypes/" + fieldsetDoctype.val() + "/fieldsets", obj, complete, this);
         }
       },
       "Cancel": function() {
@@ -217,7 +217,7 @@ $(function () {
             populateFields(fieldFieldset.val());
             $(context).dialog("close");
           };
-          postConfigDoc("config/" + fieldFieldset.val() + "/fields", obj, complete, this);
+          postConfigDoc("config/doctypes/" + fieldDoctype.val() + "/fieldsets/" + fieldFieldset.val() + "/fields", obj, complete, this);
         }
       },
       "Cancel": function() {
