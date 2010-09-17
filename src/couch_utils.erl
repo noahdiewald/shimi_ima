@@ -64,12 +64,10 @@ get_view_json(Id, Name, ReqData, State) ->
 get_uuid(_ReqData, State) ->
   Headers = proplists:get_value(headers, State),
   
-  case ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get) of
-    {ok, "200", _, Json} ->
-      [Uuid] = struct:get_value(<<"uuids">>, struct:from_json(Json)),
-      {ok, binary_to_list(Uuid)};
-    _ -> undefined
-  end.
+  {ok, "200", _, Json} = ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get),
+  
+  [Uuid] = struct:get_value(<<"uuids">>, struct:from_json(Json)),
+  {ok, binary_to_list(Uuid)}.
 
 create(doc, Json, ReqData, State) ->
   Url = ?COUCHDB ++ wrq:path_info(project, ReqData),

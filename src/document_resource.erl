@@ -22,7 +22,7 @@
 %% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %% @doc Dictionary Maker main resource 
 
--module(dictionary_maker_resource).
+-module(document_resource).
 
 % Webmachine API
 -export([

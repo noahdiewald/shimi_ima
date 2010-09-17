@@ -20,23 +20,18 @@
 %% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 %% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 %% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc The resource used accessing and editing document types.
+%% @doc Dictionary Maker main resource 
 
 -module(doctype_resource).
 
 % Webmachine API
 -export([
   allowed_methods/2,
-  content_types_accepted/2,
   content_types_provided/2,
-  create_path/2,
-  from_json/2,
   init/1, 
   is_authorized/2,
-  post_is_create/2,
   resource_exists/2,
-  to_html/2,
-  to_json/2
+  to_html/2
 ]).
 
 % Custom
@@ -49,16 +44,21 @@
 
 % Standard webmachine functions
 
-init([]) -> {ok, []}.
+init(Opts) -> {ok, Opts}.
 
 resource_exists(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
-  DatabaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
-   
-  Resp = case wrq:path_info(id, ReqData) of
-    undefined -> ibrowse:send_req(DatabaseUrl, Headers, head);
-    Id -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
+  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  
+  Doctype = wrq:path_info(doctype, ReqData),
+  Id = wrq:path_info(id, ReqData),
+  
+  Resp = case proplists:get_value(target, State) of
+    index -> {ok, "200", [], []};
+    identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
+    _ -> ibrowse:send_req(BaseUrl ++ Doctype, Headers, head)
   end,
+  
   case Resp of
     {ok, "200", _, _} -> {true, ReqData, State};
     {ok, "404", _, _} -> {false, ReqData, State}
@@ -68,109 +68,73 @@ is_authorized(ReqData, State) ->
   proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
 
 allowed_methods(ReqData, State) ->
-  case wrq:path_info(id, ReqData) of
-    undefined -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    _Id -> {['HEAD', 'GET'], ReqData, State}
+  case proplists:get_value(target, State) of
+    doctype -> {['HEAD', 'GET', 'POST'], ReqData, State};
+    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], ReqData, State};
+    _ -> {['HEAD', 'GET'], ReqData, State}
   end.
-  
-post_is_create(ReqData, State) ->
-  {true, ReqData, State}.
-
-create_path(ReqData, State) ->
-  Json = mochijson2:decode(wrq:req_body(ReqData)),
-  {struct, JsonIn} = Json,
-  
-  Id = proplists:get_value(<<"_id">>, JsonIn),
-  
-  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
-  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
-  
-  {binary_to_list(Id), ReqData1, [{posted_json, Json}|State]}.
 
 content_types_provided(ReqData, State) ->
   case wrq:path_info(id, ReqData) of
-    undefined -> {[{"application/json", to_json}], ReqData, State};
+    %undefined -> {[{"application/json", to_json}], ReqData, State};
     _ -> {[{"text/html", to_html}], ReqData, State}
   end.
   
-content_types_accepted(ReqData, State) ->
-  {[{"application/json", from_json}], ReqData, State}.
-  
-to_json(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData),
-  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ "/_design/doctypes/_view/all", Headers, get),
-  JsonStruct = mochijson2:decode(JsonIn),
-  JsonOut = mochijson2:encode(add_renders(JsonStruct)),
-  {JsonOut, ReqData, State}.
-  
 to_html(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+  case proplists:get_value(target, State) of
+    index -> {html_index(ReqData, State), ReqData, State};
+    new -> {html_new(ReqData, State), ReqData, State};
+    doctype -> {html_documents(ReqData, State), ReqData, State};
+    identifier -> {html_document(ReqData, State), ReqData, State}
+  end.
   
-  case wrq:path_info(id, ReqData) of
-    undefined ->
-      {"Hello!!!", ReqData, State};
-    Id ->
-      {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ Id, Headers, get),
-      {struct, Json} = mochijson2:decode(JsonIn),
-      {ok, Html} = doctype_config_dtl:render(Json),
-      {Html, ReqData, State}
-    end.
-  
-from_json(ReqData, State) ->
-  ContentType = {"Content-Type","application/json"},
-  Headers = [ContentType|proplists:get_value(headers, State)],
-  
-  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData),
-  AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
-  
-  {struct, JsonIn} = get_doctype_body_json(ReqData),
-  {_, Id} = get_doctype_id(JsonIn),
-  
-  FieldsetUrl = get_fieldset_url(Id, ReqData),
-  
-  {ok, created} = create_doctype(DataBaseUrl, Headers, post, wrq:req_body(ReqData)),
-  
-  {ok, DesignJson} = get_design_doc_body_json(JsonIn),
-  {ok, created} = create_design_doc(AdminUrl, [ContentType], post, DesignJson),
-  
-  {ok, FieldsetJson} = get_fieldset_body_json(JsonIn),
-  {ok, created} = create_default_fieldset(FieldsetUrl, Headers, post, FieldsetJson),
-  
-  {true, ReqData, State}.
-
 % Helpers
 
-get_doctype_body_json(ReqData) ->
-  mochijson2:decode(wrq:req_body(ReqData)).
+html_index(ReqData, State) ->
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json("doctypes", "all_simple", ReqData, State),
   
-get_design_doc_body_json(Json) ->
-  design_doctype_json_dtl:render(Json).
+  Properties = {struct, [
+    {<<"title">>, <<"All Document Types">>}, 
+    {<<"project_info">>, ProjJson}
+  |Json]},
   
-get_fieldset_body_json(Json) ->
-  doctype_default_fieldset_json_dtl:render(Json).
-  
-get_doctype_id(Json) ->
-  proplists:lookup(<<"_id">>, Json).
-  
-get_fieldset_url(Id, ReqData) ->
-  ?LOCAL ++ "project/" ++ wrq:path_info(project, ReqData) ++ "/config/" ++ 
-    binary_to_list(Id) ++ "/fieldsets".
-  
-create_doctype(Url, Headers, Method, Body) ->
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
-  {ok, created}.
+  {ok, Html} = doctype_index_dtl:render(Properties),
+  Html.
 
-create_design_doc(Url, Headers, Method, Body) ->
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
-  {ok, created}.
+html_new(ReqData, State) ->
+  Doctype = wrq:path_info(doctype, ReqData),
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json(Doctype, "fieldsets", ReqData, State),
   
-create_default_fieldset(Url, Headers, Method, Body) ->
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, Method, Body),
-  {ok, created}.
+  Properties = {struct, [
+    {<<"title">>, list_to_binary("New " ++ Doctype ++ " Documents")}, 
+    {<<"project_info">>, ProjJson},
+    {<<"doctype_info">>, DoctypeJson}
+  |Json]},
+  
+  {ok, Html} = new_document_dtl:render(Properties),
+  Html.
 
+html_documents(ReqData, State) ->
+  Doctype = wrq:path_info(doctype, ReqData),
+  ProjJson = couch_utils:get_json(project, ReqData, State),
+  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
+  {struct, Json} = couch_utils:get_view_json(Doctype, "alldocs", ReqData, State),
+  
+  Properties = {struct, [
+    {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
+    {<<"project_info">>, ProjJson},
+    {<<"doctype_info">>, DoctypeJson}
+  |Json]},
+  
+  {ok, Html} = doctype_dtl:render(Properties),
+  Html.
+
+html_document(_ReqData, _State) ->
+  "Document". 
+    
 validate_authentication({struct, Props}, ReqData, State) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
@@ -178,13 +142,3 @@ validate_authentication({struct, Props}, ReqData, State) ->
     true -> {true, ReqData, State};
     false -> {proplists:get_value(auth_head, State), ReqData, State}
   end.
-
-add_renders({struct, JsonStruct}) ->
-  Rows = proplists:get_value(<<"rows">>, JsonStruct),
-  Renderings = [render_row(Project) || {struct, Project} <- Rows],
-  {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
-  
-render_row(Project) ->
-  {ok, Rendering} = doctype_list_elements_dtl:render(Project),
-  iolist_to_binary(Rendering).
-

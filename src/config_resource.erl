@@ -32,7 +32,7 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 
-init([]) -> {ok, undefined}.
+init(Opts) -> {ok, Opts}.
 
 to_html(ReqData, State) ->
   Json = couch_utils:get_json(project, ReqData, State),

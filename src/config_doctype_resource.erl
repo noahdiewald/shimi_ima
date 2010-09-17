@@ -50,7 +50,7 @@
 
 % Standard webmachine functions
 
-init([]) -> {ok, []}.
+init(Opts) -> {ok, Opts}.
 
 resource_exists(ReqData, State) ->
   Headers = proplists:get_value(headers, State),
@@ -99,7 +99,7 @@ content_types_accepted(ReqData, State) ->
   {[{"application/json", from_json}], ReqData, State}.
   
 to_json(ReqData, State) ->
-  Json = couch_utils:get_view_json("doctypes", "all"),
+  Json = couch_utils:get_view_json("doctypes", "all", ReqData, State),
   WithRenderings = render_utils:add_renders(Json, config_doctype_list_elements_dtl),
   JsonOut = struct:to_json(WithRenderings),
   {JsonOut, ReqData, State}.
