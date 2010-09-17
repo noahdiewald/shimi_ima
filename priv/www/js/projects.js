@@ -8,7 +8,7 @@ $(function () {
     // I use a bogus query string to ensure that the browser
     // won't replace the html version with the json verson
     // from this resource. There is probably a better way.
-    $.getJSON("project?this=null", function(data) {
+    $.getJSON("projects?this=null", function(data) {
       $("#projects-table > tbody").empty();
       data.renderings.forEach(function(rendering) {
         $("#projects-table").append(rendering);
@@ -39,7 +39,7 @@ $(function () {
         if (checkResult) {
           $.ajax({
             type: "POST", 
-            url: "project",
+            url: "projects",
             dataType: "json",
             contentType: "application/json",
             processData: false,
@@ -71,7 +71,7 @@ $(function () {
       "Delete project": function() {
         $.ajax({
           type: "DELETE", 
-          url: "project/" + toDelete,
+          url: "projects/" + toDelete,
           dataType: "json",
           contentType: "application/json",
           complete: function(req, status) {

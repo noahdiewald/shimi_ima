@@ -89,9 +89,9 @@ delete_resource(ReqData, State) ->
   ProjUrl = ?COUCHDB ++ "projects/" ++ wrq:path_info(id, ReqData),
   
   {ok, "200", _, Body} = ibrowse:send_req(ProjUrl, Headers, get),
-  JsonIn = mochijson2:decode(Body),
+  JsonIn = struct:from_json(Body),
   
-  RevQs = "?rev=" ++ binary_to_list(proplists:get_value(<<"_rev">>, JsonIn)),
+  RevQs = "?rev=" ++ binary_to_list(struct:get_value(<<"_rev">>, JsonIn)),
   ProjUrl1 = ProjUrl ++ RevQs,
   DatabaseUrl = ?ADMINDB ++ "project-" ++ wrq:path_info(id, ReqData),
   
@@ -106,13 +106,10 @@ post_is_create(ReqData, State) ->
   {true, ReqData, State}.
 
 create_path(ReqData, State) ->
-  case couch_utils:get_uuid(State) of
-    {ok, Uuid} -> 
-        Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Uuid,
-        ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
-        {Uuid, ReqData1, State};
-    _ -> {undefined, ReqData, State}
-  end.
+  {ok, Uuid} = couch_utils:get_uuid(ReqData, State),
+  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Uuid,
+  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+  {Uuid, ReqData1, State}.
 
 content_types_provided(ReqData, State) ->
   {[
