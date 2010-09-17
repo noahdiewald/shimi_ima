@@ -26,7 +26,8 @@
 
 -export([
   get_json/3,
-  get_view_json/4
+  get_view_json/4,
+  get_uuid/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -58,3 +59,13 @@ get_view_json(Id, Name, ReqData, State) ->
   Url = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
   {ok, "200", _, JsonIn} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
   mochijson2:decode(JsonIn).
+
+get_uuid(_ReqData, State) ->
+  Headers = proplists:get_value(headers, State),
+  
+  case ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get) of
+    {ok, "200", _, Json} ->
+      [Uuid] = struct:get_value(<<"uuids">>, mochijson2:decode(Json)),
+      {ok, binary_to_list(Uuid)};
+    _ -> undefined
+  end.

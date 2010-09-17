@@ -18,7 +18,10 @@
 </div>
 
 <div id="delete-dialog" title="Delete project">
-  <p>This will delete the project and its associated data.</p>
+  <p class="ui-highlight">
+    This will delete the project and its associated data.
+    This is not reversable.
+  </p>
   <form>
   </form>
 </div>
