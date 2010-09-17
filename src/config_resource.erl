@@ -34,16 +34,16 @@
 
 init(Opts) -> {ok, Opts}.
 
-to_html(ReqData, State) ->
-  Json = couch_utils:get_json(project, ReqData, State),
+to_html(R, S) ->
+  Json = couch:get_json(project, R, S),
   
   {ok, Html} = config_dtl:render(Json),
-  {Html, ReqData, State}.
+  {Html, R, S}.
 
-resource_exists(ReqData, State) ->
-  DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
+resource_exists(R, S) ->
+  DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, R),
   
   case ibrowse:send_req(DatabaseUrl, [], head) of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
+    {ok, "200", _, _} -> {true, R, S};
+    {ok, "404", _, _} -> {false, R, S}
   end. 

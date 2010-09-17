@@ -52,79 +52,71 @@
 
 init(Opts) -> {ok, Opts}.
 
-resource_exists(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+resource_exists(R, S) ->
+  Id = wrq:path_info(id, R),
+  case proplists:get_value(target, S) of
+    identifier -> {couch:exists(Id, R, S), R, S};
+    index -> {couch:exists([], R, S), R, S}
+  end.
 
-  Id = wrq:path_info(id, ReqData),
-   
-  Resp = case proplists:get_value(target, State) of
-    index -> ibrowse:send_req(BaseUrl, Headers, head);
-    identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head)
-  end,
-  case Resp of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
-  end. 
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-is_authorized(ReqData, State) ->
-  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
-
-allowed_methods(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    index -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    identifier -> {['HEAD', 'GET'], ReqData, State}
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {['HEAD', 'GET', 'POST'], R, S};
+    identifier -> {['HEAD', 'GET'], R, S}
   end.
   
-post_is_create(ReqData, State) ->
-  {true, ReqData, State}.
+post_is_create(R, S) ->
+  {true, R, S}.
 
-create_path(ReqData, State) ->
-  Json = struct:from_json(wrq:req_body(ReqData)),
+create_path(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
   
   Id = binary_to_list(struct:get_value(<<"_id">>, Json)),
   
-  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
-  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
+  R1 = wrq:set_resp_header("Location", Location, R),
   
-  {Id, ReqData1, [{posted_json, Json}|State]}.
+  {Id, R1, [{posted_json, Json}|S]}.
 
-content_types_provided(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    index -> {[{"application/json", to_json}], ReqData, State};
-    identifier -> {[{"text/html", to_html}], ReqData, State}
+content_types_provided(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {[{"application/json", to_json}], R, S};
+    identifier -> {[{"text/html", to_html}], R, S}
   end.
   
-content_types_accepted(ReqData, State) ->
-  {[{"application/json", from_json}], ReqData, State}.
+content_types_accepted(R, S) ->
+  {[{"application/json", from_json}], R, S}.
   
-to_json(ReqData, State) ->
-  Json = couch_utils:get_view_json("doctypes", "all", ReqData, State),
-  WithRenderings = render_utils:add_renders(Json, config_doctype_list_elements_dtl),
+to_json(R, S) ->
+  Json = couch:get_view_json("doctypes", "all", R, S),
+  WithRenderings = render:add_renders(Json, config_doctype_list_elements_dtl),
   JsonOut = struct:to_json(WithRenderings),
-  {JsonOut, ReqData, State}.
+  {JsonOut, R, S}.
   
-to_html(ReqData, State) ->
-  Json = couch_utils:get_json(id, ReqData, State), 
+to_html(R, S) ->
+  Json = couch:get_json(id, R, S), 
   {ok, Html} = config_doctype_dtl:render(Json),
-  {Html, ReqData, State}.
+  {Html, R, S}.
   
-from_json(ReqData, State) ->
-  Json = struct:from_json(wrq:req_body(ReqData)),
-  {ok, created} = couch_utils:create(doc, wrq:req_body(ReqData), ReqData, State),
+from_json(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
+  {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
   
   {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  {ok, created} = couch_utils:create(doc, DesignJson, ReqData, State),
+  {ok, created} = couch:create(doc, DesignJson, R, S),
   
-  {true, ReqData, State}.
+  {true, R, S}.
 
 % Helpers
 
-validate_authentication({struct, Props}, ReqData, State) ->
+validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, ReqData, State};
-    false -> {proplists:get_value(auth_head, State), ReqData, State}
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
   end.
 

@@ -52,130 +52,82 @@
 
 init(Opts) -> {ok, Opts}.
 
-resource_exists(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+resource_exists(R, S) ->
+  Fieldset = wrq:path_info(fieldset, R),
+  Doctype = wrq:path_info(doctype, R),
+  Id = wrq:path_info(id, R),
    
-  Resp = case {wrq:path_info(domain, ReqData), wrq:path_info(id, ReqData)} of
-    {Domain, undefined} -> ibrowse:send_req(BaseUrl ++ Domain, Headers, head);
-    {undefined, Id} -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
-    _ -> {ok, "404", [], []}
-  end,
-  case Resp of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
+  case proplists:get_value(target, S) of
+    index -> 
+      case couch:exists(Doctype, R, S) of
+        true -> {couch:exists(Fieldset, R, S), R, S};
+        F -> {F, R, S}
+      end;
+    identifier -> {couch:exists(Id, R, S), R, S}
   end. 
 
-is_authorized(ReqData, State) ->
-  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-allowed_methods(ReqData, State) ->
-  case wrq:path_info(id, ReqData) of
-    undefined -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    _Id -> {['HEAD', 'GET'], ReqData, State}
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {['HEAD', 'GET', 'POST'], R, S};
+    identifier -> {['HEAD', 'GET'], R, S}
   end.
   
-post_is_create(ReqData, State) ->
-  {true, ReqData, State}.
+post_is_create(R, S) ->
+  {true, R, S}.
 
-create_path(ReqData, State) ->
-  Json = mochijson2:decode(wrq:req_body(ReqData)),
-  {struct, JsonIn} = Json,
+create_path(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
   
-  {ok, Id} = case proplists:get_value(<<"_id">>, JsonIn) of
-    undefined -> get_uuid(State);
-    IdBin -> {ok, binary_to_list(IdBin)}
+  {Id, Json1} = case struct:get_value(<<"_id">>, Json) of
+    undefined -> 
+      {ok, GenId} = couch:get_uuid(R, S),
+      {GenId, struct:set_value(<<"_id">>, list_to_binary(GenId), Json)};
+    IdBin -> {binary_to_list(IdBin), Json}
   end,
   
-  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Id,
-  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
+  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
+  R1 = wrq:set_resp_header("Location", Location, R),
   
-  {Id, ReqData1, [{posted_json, Json}|State]}.
+  {Id, R1, [{posted_json, Json1}|S]}.
 
-content_types_provided(ReqData, State) ->
-  case wrq:path_info(id, ReqData) of
-    undefined -> {[{"application/json", to_json}], ReqData, State};
-    _ -> {[{"text/html", to_html}], ReqData, State}
+content_types_provided(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {[{"application/json", to_json}], R, S};
+    identifier -> {[{"text/html", to_html}], R, S}
   end.
   
-content_types_accepted(ReqData, State) ->
-  {[{"application/json", from_json}], ReqData, State}.
+content_types_accepted(R, S) ->
+  {[{"application/json", from_json}], R, S}.
   
-to_json(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData),
-  View = "/_design/" ++ wrq:path_info(domain, ReqData) ++ "/_view/fields",
+to_json(R, S) ->
+  Json = couch:get_view_json(wrq:path_info(doctype, R), "fields", R, S),
+  JsonOut = struct:to_json(render:add_renders(Json, config_field_list_elements_dtl)),
+  {JsonOut, R, S}.
   
-  {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ View, Headers, get),
-  JsonStruct = mochijson2:decode(JsonIn),
-  JsonOut = mochijson2:encode(add_renders(JsonStruct)),
-  {JsonOut, ReqData, State}.
+to_html(R, S) ->
+  Json = couch:get_json(id, R, S),
+  {ok, Html} = config_fieldset_dtl:render(Json),
+  {Html, R, S}.
   
-to_html(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  DataBaseUrl =  ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+from_json(R, S) ->
+  Json = proplists:get_value(posted_json, S),
+  {ok, created} = couch:create(doc, struct:to_json(Json), R, S),
   
-  case wrq:path_info(id, ReqData) of
-    undefined ->
-      {"Hello!!!", ReqData, State};
-    Id ->
-      {ok, "200", _, JsonIn} = ibrowse:send_req(DataBaseUrl ++ Id, Headers, get),
-      {struct, Json} = mochijson2:decode(JsonIn),
-      {ok, Html} = field_config_dtl:render(Json),
-      {Html, ReqData, State}
-    end.
+  % Create the fieldset's design document
+  {ok, DesignJson} = design_field_json_dtl:render(Json),
+  {ok, created} = couch:create(design, DesignJson, R, S),
   
-from_json(ReqData, State) ->
-  ContentType = {"Content-Type","application/json"},
-  Headers = [ContentType|proplists:get_value(headers, State)],
-  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData),
-  AdminUrl = ?ADMINDB ++ wrq:path_info(project, ReqData),
+  {true, R, S}.
   
-  {struct, JsonIn} = mochijson2:decode(wrq:req_body(ReqData)),
-  
-  PropsOut = case proplists:get_value(<<"_id">>, JsonIn) of
-    undefined -> [{<<"_id">>, list_to_binary(wrq:disp_path(ReqData))}|JsonIn];
-    _ -> JsonIn
-  end,
-  
-  JsonOut = iolist_to_binary(mochijson2:encode({struct, PropsOut})),
-  
-  % Create the field
-  {ok, "201", _, _} = ibrowse:send_req(DataBaseUrl, Headers, post, JsonOut),
-  
-  % Create the field's design document
-  {ok, DesignJson} = design_field_json_dtl:render(PropsOut),
-  {ok, "201", _, _} = ibrowse:send_req(AdminUrl, [ContentType], post, DesignJson),
-  
-  {true, ReqData, State}.
-
 % Helpers
 
-validate_authentication({struct, Props}, ReqData, State) ->
+validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, ReqData, State};
-    false -> {proplists:get_value(auth_head, State), ReqData, State}
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
   end.
-
-add_renders({struct, JsonStruct}) ->
-  Rows = proplists:get_value(<<"rows">>, JsonStruct),
-  Renderings = [render_row(Row) || {struct, Row} <- Rows],
-  {struct, [{<<"renderings">>, Renderings}|JsonStruct]}.
-  
-render_row(Row) ->
-  {struct, Value} = proplists:get_value(<<"value">>, Row),
-  {ok, Rendering} = field_list_elements_dtl:render(Value),
-  iolist_to_binary(Rendering).
-
-get_uuid(State) ->
-  Headers = proplists:get_value(headers, State),
-  
-  case ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get) of
-    {ok, "200", _, Json} ->
-      {struct, [{_, [Uuid]}]} = mochijson2:decode(list_to_binary(Json)),
-      {ok, binary_to_list(Uuid)};
-    _ -> undefined
-  end.
-

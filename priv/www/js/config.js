@@ -35,7 +35,7 @@ $(function () {
     });
   }
   
-  function populateFields(fieldsetId) {
+  function populateFields(doctypeId, fieldsetId) {
     $.getJSON("config/doctypes/" + doctypeId + "/fieldsets/" + fieldsetId + "/fields", function(data) {
       var fieldContainer = $("#fields-" + fieldsetId);
       fieldContainer.empty();
@@ -66,7 +66,7 @@ $(function () {
         $("#field-add-dialog").dialog("open");
       });
       data.rows.forEach(function(element) {
-        populateFields(element.value._id, element.value.doctype);
+        populateFields(element.value.doctype, element.value._id);
       });
     });
   }
@@ -214,7 +214,7 @@ $(function () {
             "subcategory": fieldSubcategory.val()
           },
           complete = function(context) {
-            populateFields(fieldFieldset.val());
+            populateFields(fieldDoctype.val(), fieldFieldset.val());
             $(context).dialog("close");
           };
           postConfigDoc("config/doctypes/" + fieldDoctype.val() + "/fieldsets/" + fieldFieldset.val() + "/fields", obj, complete, this);

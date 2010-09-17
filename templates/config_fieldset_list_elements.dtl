@@ -1,13 +1,13 @@
-<h3 id="head-{{ _id }}" class="accordion-head"><a href="#">{{ value.name }}</a></h3>
+<h3 id="head-{{ id }}" class="accordion-head"><a href="#">{{ value.name }}</a></h3>
 
-<div id="body-{{ _id }}">
+<div id="body-{{ id }}">
   <h4>Description</h4>
   <p>{{ value.description }}</p>
   <p><b>Multiple:</b> {{ value.multiple }}</p>
   
   <h4>Fields</h4>
   
-  <button id="add-field-to-{{ _id }}-button" class="add-field-button" data-doctype-id="{{ value.doctype }}" data-fieldset-id="{{ _id }}">Add Field</button>
+  <button id="add-field-to-{{ id }}-button" class="add-field-button" data-doctype-id="{{ value.doctype }}" data-fieldset-id="{{ id }}">Add Field</button>
   
   <table class="fields ui-widget ui-widget-content">
     <thead>
@@ -17,7 +17,7 @@
         <th>Subcategory</th>
       </tr>
     </thead>
-    <tbody id="fields-{{ _id }}">
+    <tbody id="fields-{{ id }}">
     </tbody>
   </table>
 </div>

@@ -1,5 +1,5 @@
 <tr>
-  <td>{{ name }}</td>
-  <td>{{ label }}</td>
-  <td>{{ subcategory }}</td>
+  <td>{{ value.name }}</td>
+  <td>{{ value.label }}</td>
+  <td>{{ value.subcategory }}</td>
 </tr>

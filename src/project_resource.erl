@@ -52,13 +52,13 @@
 
 init(Opts) -> {ok, Opts}.
 
-resource_exists(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
+resource_exists(R, S) ->
+  Headers = proplists:get_value(headers, S),
   DatabaseUrl = ?COUCHDB ++ "projects/",
   
-  Id = wrq:path_info(id, ReqData),
+  Id = wrq:path_info(id, R),
   
-  Resp = case proplists:get_value(target, State) of
+  Resp = case proplists:get_value(target, S) of
     index -> 
       % Create the database if it doesn't exist
       case ibrowse:send_req(DatabaseUrl, Headers, head) of
@@ -71,74 +71,74 @@ resource_exists(ReqData, State) ->
   end,
    
   case Resp of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
+    {ok, "200", _, _} -> {true, R, S};
+    {ok, "404", _, _} -> {false, R, S}
   end. 
 
-is_authorized(ReqData, State) ->
-  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-allowed_methods(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    index -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    identifier -> {['HEAD', 'DELETE'], ReqData, State}
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {['HEAD', 'GET', 'POST'], R, S};
+    identifier -> {['HEAD', 'DELETE'], R, S}
   end.
   
-delete_resource(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  ProjUrl = ?COUCHDB ++ "projects/" ++ wrq:path_info(id, ReqData),
+delete_resource(R, S) ->
+  Headers = proplists:get_value(headers, S),
+  ProjUrl = ?COUCHDB ++ "projects/" ++ wrq:path_info(id, R),
   
   {ok, "200", _, Body} = ibrowse:send_req(ProjUrl, Headers, get),
   JsonIn = struct:from_json(Body),
   
   RevQs = "?rev=" ++ binary_to_list(struct:get_value(<<"_rev">>, JsonIn)),
   ProjUrl1 = ProjUrl ++ RevQs,
-  DatabaseUrl = ?ADMINDB ++ "project-" ++ wrq:path_info(id, ReqData),
+  DatabaseUrl = ?ADMINDB ++ "project-" ++ wrq:path_info(id, R),
   
   case ibrowse:send_req(ProjUrl1, Headers, delete) of
     {ok, "200", _, _} -> 
        case ibrowse:send_req(DatabaseUrl, [], delete) of
-         {ok, "200", _, _} -> {true, ReqData, State}
+         {ok, "200", _, _} -> {true, R, S}
        end
   end.
   
-post_is_create(ReqData, State) ->
-  {true, ReqData, State}.
+post_is_create(R, S) ->
+  {true, R, S}.
 
-create_path(ReqData, State) ->
-  {ok, Uuid} = couch_utils:get_uuid(ReqData, State),
-  Location = "http://" ++ wrq:get_req_header("host", ReqData) ++ "/" ++ wrq:path(ReqData) ++ "/" ++ Uuid,
-  ReqData1 = wrq:set_resp_header("Location", Location, ReqData),
-  {Uuid, ReqData1, State}.
+create_path(R, S) ->
+  {ok, Uuid} = couch:get_uuid(R, S),
+  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Uuid,
+  R1 = wrq:set_resp_header("Location", Location, R),
+  {Uuid, R1, S}.
 
-content_types_provided(ReqData, State) ->
+content_types_provided(R, S) ->
   {[
     {"application/json", to_json}, 
     {"text/html", to_html}
-   ], ReqData, State}.
+   ], R, S}.
   
-content_types_accepted(ReqData, State) ->
-  {[{"application/json", from_json}], ReqData, State}.
+content_types_accepted(R, S) ->
+  {[{"application/json", from_json}], R, S}.
   
-to_json(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
+to_json(R, S) ->
+  Headers = proplists:get_value(headers, S),
   
   {ok, "200", _, JsonIn} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
   JsonStruct = mochijson2:decode(JsonIn),
   JsonOut = mochijson2:encode(add_renders(JsonStruct)),
-  {JsonOut, ReqData, State}.
+  {JsonOut, R, S}.
   
-to_html(ReqData, State) ->
+to_html(R, S) ->
   {ok, Html} = projects_dtl:render([{title, "Projects"}]),
-  {Html, ReqData, State}.
+  {Html, R, S}.
   
-from_json(ReqData, State) ->
+from_json(R, S) ->
   ContentType = {"Content-Type","application/json"},
-  Headers = [ContentType|proplists:get_value(headers, State)],
-  NewDb = "project-" ++ wrq:disp_path(ReqData),
+  Headers = [ContentType|proplists:get_value(headers, S)],
+  NewDb = "project-" ++ wrq:disp_path(R),
   
-  JsonIn = mochijson2:decode(wrq:req_body(ReqData)),
-  JsonIn1 = struct:set_value(<<"_id">>, list_to_binary(wrq:disp_path(ReqData)), JsonIn),
+  JsonIn = mochijson2:decode(wrq:req_body(R)),
+  JsonIn1 = struct:set_value(<<"_id">>, list_to_binary(wrq:disp_path(R)), JsonIn),
   JsonOut = iolist_to_binary(mochijson2:encode(JsonIn1)),
   
   case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
@@ -147,16 +147,16 @@ from_json(ReqData, State) ->
       {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
       {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, iolist_to_binary(DoctypesDesign))
   end,
-  {true, ReqData, State}.
+  {true, R, S}.
 
 % Helpers
 
-validate_authentication({struct, Props}, ReqData, State) ->
+validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, ReqData, State};
-    false -> {proplists:get_value(auth_head, State), ReqData, State}
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
   end.
 
 add_renders(Json) ->

@@ -22,7 +22,7 @@
 %% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 %% @doc Utilities and helpers for rendering html and json using erlydtl
 
--module(render_utils).
+-module(render).
 
 -export([
   add_renders/2

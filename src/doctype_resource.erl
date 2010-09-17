@@ -46,53 +46,53 @@
 
 init(Opts) -> {ok, Opts}.
 
-resource_exists(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+resource_exists(R, S) ->
+  Headers = proplists:get_value(headers, S),
+  BaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   
-  Doctype = wrq:path_info(doctype, ReqData),
-  Id = wrq:path_info(id, ReqData),
+  Doctype = wrq:path_info(doctype, R),
+  Id = wrq:path_info(id, R),
   
-  Resp = case proplists:get_value(target, State) of
+  Resp = case proplists:get_value(target, S) of
     index -> {ok, "200", [], []};
     identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head);
     _ -> ibrowse:send_req(BaseUrl ++ Doctype, Headers, head)
   end,
   
   case Resp of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
+    {ok, "200", _, _} -> {true, R, S};
+    {ok, "404", _, _} -> {false, R, S}
   end. 
 
-is_authorized(ReqData, State) ->
-  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-allowed_methods(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    doctype -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], ReqData, State};
-    _ -> {['HEAD', 'GET'], ReqData, State}
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    doctype -> {['HEAD', 'GET', 'POST'], R, S};
+    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
+    _ -> {['HEAD', 'GET'], R, S}
   end.
 
-content_types_provided(ReqData, State) ->
-  case wrq:path_info(id, ReqData) of
-    %undefined -> {[{"application/json", to_json}], ReqData, State};
-    _ -> {[{"text/html", to_html}], ReqData, State}
+content_types_provided(R, S) ->
+  case wrq:path_info(id, R) of
+    %undefined -> {[{"application/json", to_json}], R, S};
+    _ -> {[{"text/html", to_html}], R, S}
   end.
   
-to_html(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    index -> {html_index(ReqData, State), ReqData, State};
-    new -> {html_new(ReqData, State), ReqData, State};
-    doctype -> {html_documents(ReqData, State), ReqData, State};
-    identifier -> {html_document(ReqData, State), ReqData, State}
+to_html(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {html_index(R, S), R, S};
+    new -> {html_new(R, S), R, S};
+    doctype -> {html_documents(R, S), R, S};
+    identifier -> {html_document(R, S), R, S}
   end.
   
 % Helpers
 
-html_index(ReqData, State) ->
-  ProjJson = couch_utils:get_json(project, ReqData, State),
-  {struct, Json} = couch_utils:get_view_json("doctypes", "all_simple", ReqData, State),
+html_index(R, S) ->
+  ProjJson = couch:get_json(project, R, S),
+  {struct, Json} = couch:get_view_json("doctypes", "all_simple", R, S),
   
   Properties = {struct, [
     {<<"title">>, <<"All Document Types">>}, 
@@ -102,11 +102,11 @@ html_index(ReqData, State) ->
   {ok, Html} = doctype_index_dtl:render(Properties),
   Html.
 
-html_new(ReqData, State) ->
-  Doctype = wrq:path_info(doctype, ReqData),
-  ProjJson = couch_utils:get_json(project, ReqData, State),
-  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
-  {struct, Json} = couch_utils:get_view_json(Doctype, "fieldsets", ReqData, State),
+html_new(R, S) ->
+  Doctype = wrq:path_info(doctype, R),
+  ProjJson = couch:get_json(project, R, S),
+  DoctypeJson = couch:get_json(doctype, R, S),
+  {struct, Json} = couch:get_view_json(Doctype, "fieldsets", R, S),
   
   Properties = {struct, [
     {<<"title">>, list_to_binary("New " ++ Doctype ++ " Documents")}, 
@@ -117,11 +117,11 @@ html_new(ReqData, State) ->
   {ok, Html} = new_document_dtl:render(Properties),
   Html.
 
-html_documents(ReqData, State) ->
-  Doctype = wrq:path_info(doctype, ReqData),
-  ProjJson = couch_utils:get_json(project, ReqData, State),
-  DoctypeJson = couch_utils:get_json(doctype, ReqData, State),
-  {struct, Json} = couch_utils:get_view_json(Doctype, "alldocs", ReqData, State),
+html_documents(R, S) ->
+  Doctype = wrq:path_info(doctype, R),
+  ProjJson = couch:get_json(project, R, S),
+  DoctypeJson = couch:get_json(doctype, R, S),
+  {struct, Json} = couch:get_view_json(Doctype, "alldocs", R, S),
   
   Properties = {struct, [
     {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
@@ -132,13 +132,13 @@ html_documents(ReqData, State) ->
   {ok, Html} = doctype_dtl:render(Properties),
   Html.
 
-html_document(_ReqData, _State) ->
+html_document(_R, _S) ->
   "Document". 
     
-validate_authentication({struct, Props}, ReqData, State) ->
+validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, ReqData, State};
-    false -> {proplists:get_value(auth_head, State), ReqData, State}
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
   end.
