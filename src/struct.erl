@@ -23,7 +23,7 @@
 -export([extend/2, withdraw/2, get_value/2, set_value/3, delete/2]).
 
 %% by codezone
--export([from_json/2, to_json/1]).
+-export([from_json/1, from_json/2, to_json/1]).
 -export([new/2]).
 
 %% @type key() = binary()
@@ -158,6 +158,11 @@ del([Key | T ], Struct, Result) ->
 %% @doc by codezone, using mochijson2:decode/1
 from_json(Key, Input) ->
   JsonInput = proplists:get_value(Key, Input),
+  mochijson2:decode(JsonInput).
+
+%% @spec from_json(input()) -> struct()
+%% @doc by codezone, using mochijson2:decode/1
+from_json(Input) ->
   mochijson2:decode(JsonInput).
   
   
