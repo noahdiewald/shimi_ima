@@ -103,7 +103,7 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 to_json(R, S) ->
-  Json = couch:get_view_json(wrq:path_info(doctype, R), "fields", R, S),
+  Json = couch:get_view_json(wrq:path_info(fieldset, R), "fields", R, S),
   JsonOut = struct:to_json(render:add_renders(Json, config_field_list_elements_dtl)),
   {JsonOut, R, S}.
   
