@@ -60,7 +60,7 @@ resource_exists(ReqData, State) ->
    
   Resp = case proplists:get_value(target, State) of
     index -> ibrowse:send_req(BaseUrl, Headers, head);
-    id -> ibrowse:send_req(BaseUrl ++ Id, Headers, head)
+    identifier -> ibrowse:send_req(BaseUrl ++ Id, Headers, head)
   end,
   case Resp of
     {ok, "200", _, _} -> {true, ReqData, State};
@@ -73,7 +73,7 @@ is_authorized(ReqData, State) ->
 allowed_methods(ReqData, State) ->
   case proplists:get_value(target, State) of
     index -> {['HEAD', 'GET', 'POST'], ReqData, State};
-    id -> {['HEAD', 'GET'], ReqData, State}
+    identifier -> {['HEAD', 'GET'], ReqData, State}
   end.
   
 post_is_create(ReqData, State) ->
@@ -92,7 +92,7 @@ create_path(ReqData, State) ->
 content_types_provided(ReqData, State) ->
   case proplists:get_value(target, State) of
     index -> {[{"application/json", to_json}], ReqData, State};
-    id -> {[{"text/html", to_html}], ReqData, State}
+    identifier -> {[{"text/html", to_html}], ReqData, State}
   end.
   
 content_types_accepted(ReqData, State) ->
