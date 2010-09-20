@@ -13,11 +13,11 @@
     
 {% block main_content %}
 <form class="ui-widget ui-corner-all">
-  {% for row in rows %}
-  <fieldset class="ui-widget ui-widget-content ui-corner-all" data-fieldset-id="{{ row.value._id }}">
-    <legend class="ui-widget ui-widget-header ui-corner-all">{{ row.value.name }}</legend>
-    <p>{{ row.value.description }}</p>
-    <div>
+  {% for fieldset in rows %}
+  <fieldset class="ui-widget ui-widget-content ui-corner-all fieldset" data-fieldset-id="{{ fieldset.value._id }}">
+    <legend class="ui-widget ui-widget-header ui-corner-all">{{ fieldset.value.name }}</legend>
+    <p>{{ fieldset.value.description }}</p>
+    <div id="fields-{{ fieldset.value._id }}" class="fields" data-multiple="{{ fieldset.value.multiple }}">
     </div>
   </fieldset>
   {% endfor %}

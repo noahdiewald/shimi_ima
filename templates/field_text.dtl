@@ -1,4 +1,4 @@
-<div>
+<div class="field-text">
   <label>{{ label }}</label>
   <input type="text">
 </div>
