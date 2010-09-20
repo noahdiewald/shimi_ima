@@ -2,6 +2,7 @@
 */
 
 #define U_CHARSET_IS_UTF8 1
+#include <string.h>
 #include "unicode/utypes.h"
 #include "unicode/ustring.h"
 #include "unicode/ucol.h"
@@ -47,6 +48,7 @@ get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   ErlNifBinary orig_bin;
   UChar orig [MAXBUFFERSIZE]; 
   uint8_t sort_key [MAXBUFFERSIZE];
+  char locale [MAXBUFFERSIZE];
   int32_t key_size;
   UErrorCode status = U_ZERO_ERROR;
   ERL_NIF_TERM ok = enif_make_atom(env, "ok");
@@ -55,11 +57,21 @@ get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return error_helper(env, u_errorName(status));
   }
   
-  if (!enif_inspect_binary(env, argv[0], &orig_bin)) {
+  if (!enif_is_list(env, argv[0])) {
     return enif_make_badarg(env);
   }
   
-  collator = ucol_open("", &status);
+  (void)memset(&locale, '\0', sizeof(locale));
+  
+  if (enif_get_string(env, argv[0], locale, sizeof(locale), ERL_NIF_LATIN1) < 1) {
+      return enif_make_badarg(env);
+  }
+  
+  if (!enif_inspect_binary(env, argv[1], &orig_bin)) {
+    return enif_make_badarg(env);
+  }
+  
+  collator = ucol_open(locale, &status);
   if (U_FAILURE(status)) {
     ucol_close(collator);
     return error_helper(env, u_errorName(status));
@@ -83,7 +95,7 @@ get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 static ErlNifFunc icunif_funcs[] =
 {
-  {"get_sort_key", 1, get_sort_key}
+  {"get_sort_key", 2, get_sort_key}
 };
 
 ERL_NIF_INIT(icu, icunif_funcs, load, reload, upgrade, unload)
