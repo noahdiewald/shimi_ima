@@ -46,48 +46,44 @@
 
 init(Opts) -> {ok, Opts}.
 
-resource_exists(ReqData, State) ->
-  Headers = proplists:get_value(headers, State),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, ReqData) ++ "/",
+resource_exists(R, S) ->
+  Fieldset = wrq:path_info(fieldset, R),
+  Id = wrq:path_info(id, R),
   
-  Id = wrq:path_info(id, ReqData),
-  
-  Resp = ibrowse:send_req(BaseUrl ++ Id, Headers, head),
-  
-  case Resp of
-    {ok, "200", _, _} -> {true, ReqData, State};
-    {ok, "404", _, _} -> {false, ReqData, State}
+  case proplists:get_value(target, S) of
+    identifier -> {couch:exits(Id), R, S};
+    index -> {couch:exits(Fieldset), R, S}
   end. 
 
-is_authorized(ReqData, State) ->
-  proxy_auth:is_authorized(ReqData, [{source_mod, ?MODULE}|State]).
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-allowed_methods(ReqData, State) ->
-  {['HEAD', 'GET'], ReqData, State}.
+allowed_methods(R, S) ->
+  {['HEAD', 'GET'], R, S}.
 
-content_types_provided(ReqData, State) ->
-  {[{"text/html", to_html}], ReqData, State}.
+content_types_provided(R, S) ->
+  {[{"text/html", to_html}], R, S}.
   
-to_html(ReqData, State) ->
-  case proplists:get_value(target, State) of
-    fieldset -> {html_fieldset(ReqData, State), ReqData, State};
-    field -> {html_field(ReqData, State), ReqData, State}
+to_html(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {html_fieldset(R, S), R, S};
+    identifier -> {html_field(R, S), R, S}
   end.
   
 % Helpers
 
-html_field(ReqData, State) -> 
-  Json = couch_utils:get_json(id, ReqData, State),
-  Template = list_to_atom("subcat_" ++ binary_to_list(struct:get_value(<<"subcategory">>, Json)) ++ "_dtl"),
+html_field(R, S) -> 
+  Json = couch:get_json(id, R, S),
+  Template = list_to_atom("field_" ++ binary_to_list(struct:get_value(<<"subcategory">>, Json)) ++ "_dtl"),
   {ok, Html} = Template:render(Json),
   Html.
   
-html_fieldset(ReqData, State) -> [].
+html_fieldset(R, S) -> [].
     
-validate_authentication({struct, Props}, ReqData, State) ->
+validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, ReqData, State};
-    false -> {proplists:get_value(auth_head, State), ReqData, State}
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
   end.
