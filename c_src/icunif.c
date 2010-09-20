@@ -1,12 +1,55 @@
 /*
+ Author Noah Diewald <noah@diewald.me>
+ 
+ Copyright (c) 2010 University of Wisconsin Madison Board of Regents
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+ NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+ THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+*/
+
+/*
+ This is a NIF library. For more information see:
+ 
+ http://www.erlang.org/doc/man/erl_nif.html
+ 
+ The purpose of this library is to allow Erlang to access functions in the
+ ICU C API, primarily for making rule and locale based string comparisons
+ easier.
+ 
+ For more information, see:
+ 
+ http://site.icu-project.org/
+ 
+ After reading the documentation on the sites above, this file should be
+ straight forward. The functions below are called by Erlang and most of the
+ code simply involves converting from Erlang to C to Erlang again.
+ 
+ The NIF function headers are uniform so no particular documentation is
+ provided. See the Erlang icu module to understand the interface.
 */
 
 #define U_CHARSET_IS_UTF8 1
 #include <string.h>
-#include "unicode/utypes.h"
+#include "unicode/utypes.h" 
 #include "unicode/ustring.h"
-#include "unicode/ucol.h"
-#include "erl_nif.h"
+#include "unicode/ucol.h" 
+#include "erl_nif.h" 
 #define MAXBUFFERSIZE 100
 
 static int 
