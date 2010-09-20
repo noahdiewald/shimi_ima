@@ -81,7 +81,7 @@ get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   
   enif_release_binary(&orig_bin);
   
-  key_size = ucol_getSortKey(collator, orig, orig_bin.size, sort_key, MAXBUFFERSIZE);
+  key_size = ucol_getSortKey(collator, orig, -1, sort_key, MAXBUFFERSIZE);
   
   if (U_FAILURE(status)) {
     ucol_close(collator);
