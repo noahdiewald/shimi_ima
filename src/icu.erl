@@ -1,5 +1,5 @@
 -module(icu).
--export([get_sort_key/0]).
+-export([get_sort_key/1]).
 -on_load(init/0).
 
 init() ->
@@ -7,7 +7,7 @@ init() ->
   
   erlang:load_nif(File, 0).
 
-get_sort_key() ->
+get_sort_key(_) ->
   nif_error(?LINE).
 
 nif_error(Line) ->
