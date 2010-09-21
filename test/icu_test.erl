@@ -25,10 +25,8 @@ get_sort_key_test_() ->
   ?_assertEqual(icu:get_sort_key("en_US", <<"h">>), icu:get_sort_key("en_US", <<"h">>)),
   
   % The keys must always be the same of a locale
-  ?_assertEqual({ok,[58,1,5,1,5]}, icu:get_sort_key("en_US", <<"h">>)),
-  
+  ?_assertEqual({ok, <<58,1,5,1,5,0>>}, icu:get_sort_key("en_US", <<"h">>)),
   
   % Blank is ok
   ?_assertMatch({ok, _}, icu:get_sort_key("", <<"h">>))
-  
 ].
