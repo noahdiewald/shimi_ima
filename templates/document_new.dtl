@@ -19,25 +19,38 @@
 
   {% for fieldset in rows %}
   
-  <fieldset id="{{ fieldset.value._id }}" class="ui-widget ui-widget-content ui-corner-all fieldset" data-fieldset-id="{{ fieldset.value._id }}" data-multiple="{{ fieldset.value.multiple }}">
+  <fieldset 
+    id="{{ fieldset.value._id }}" 
+    class="ui-widget ui-widget-content ui-corner-all fieldset" 
+    data-fieldset-id="{{ fieldset.value._id }}" 
+    data-multiple="{{ fieldset.value.multiple }}"
+  >
   
-    <legend class="ui-widget ui-widget-header ui-corner-all">{{ fieldset.value.name }}</legend>
+    <legend 
+      class="ui-widget ui-widget-header ui-corner-all"
+    >
+      {{ fieldset.value.name }}
+    </legend>
     
     <p>{{ fieldset.value.description }}</p>
     
-    <div data-fieldset-id="{{ fieldset.value._id }}" class="fields {% if  fieldset.value.multiple %}ui-widget ui-widget-content ui-corner-all padded{% endif %}" data-multiple="{{ fieldset.value.multiple }}" data-target-path="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/fieldsets/{{ fieldset.value._id }}/fields">
+    <div 
+      id="container-{{ fieldset.value._id }}" 
+      class="fieldset-container"
+      data-fieldset-id="{{ fieldset.value._id }}"'
+      data-project-id="project-{{ project_info._id }}"
+      data-doctype-id="{{ doctype_info._id }}" 
+    ></div>
     
-    {% if fieldset.value.multiple %}
-    
-    <a href="#" class="remove-button">Remove</a>
-    
-    {% endif %}
-      
-    </div>
-  
   {% if fieldset.value.multiple %}
   
-  <a href="#" class="add-button" data-fieldset-id="{{ fieldset.value._id }}" data-target-path="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/fieldsets/{{ fieldset.value._id }}">Add Additional</a>
+  <a 
+    href="#" 
+    class="add-button" 
+    data-fieldset-id="{{ fieldset.value._id }}"
+  >
+   Add Additional
+  </a>
   
   {% endif %}
     

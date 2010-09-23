@@ -74,7 +74,13 @@ to_html(R, S) ->
 
 html_fieldset(R, S) -> 
   Json = couch:get_json(id, R, S),
-  {ok, Html} = fieldset_dtl:render(Json),
+  
+  Vals = [
+    {<<"project_info">>, couch:get_json(project, R, S)},
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+  ],
+  
+  {ok, Html} = fieldset_dtl:render(struct:set_values(Vals, Json)),
   Html.
   
 html_fieldsets(_R, _S) -> [].
