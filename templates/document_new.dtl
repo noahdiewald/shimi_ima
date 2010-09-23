@@ -15,7 +15,11 @@
 
 {% if total_rows != 0 %}
 
-<form class="ui-widget ui-corner-all" method="post">
+<form 
+  class="ui-widget ui-corner-all"
+  method="post"
+  action="../documents" 
+>
 
   {% for fieldset in rows %}
   

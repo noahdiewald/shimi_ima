@@ -27,9 +27,13 @@
 % Webmachine API
 -export([
   allowed_methods/2,
+  content_types_accepted/2,
   content_types_provided/2,
+  create_path/2,
+  from_json/2,
   init/1, 
   is_authorized/2,
+  post_is_create/2,
   resource_exists/2,
   to_html/2
 ]).
@@ -64,9 +68,26 @@ allowed_methods(R, S) ->
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
     new -> {['HEAD', 'GET'], R, S}
   end.
+  
+post_is_create(R, S) ->
+  {true, R, S}.
+
+create_path(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
+  
+  {ok, Id} = couch:get_uuid(R, S),
+  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
+  
+  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
+  R1 = wrq:set_resp_header("Location", Location, R),
+  
+  {Id, R1, [{posted_json, Json1}|S]}.
 
 content_types_provided(R, S) ->
   {[{"text/html", to_html}], R, S}.
+  
+content_types_accepted(R, S) ->
+  {[{"application/json", from_json}], R, S}.
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
@@ -74,6 +95,16 @@ to_html(R, S) ->
     index -> {html_documents(R, S), R, S};
     identifier -> {html_document(R, S), R, S}
   end.
+  
+from_json(R, S) ->
+  Json = proplists:get_value(posted_json, S),
+  {ok, created} = couch:create(doc, struct:to_json(Json), R, S),
+  
+  % Create the document's design document
+  %{ok, DesignJson} = design_fieldset_json_dtl:render(Json),
+  %{ok, created} = couch:create(design, DesignJson, R, S),
+  
+  {true, R, S}.
   
 % Helpers
 
@@ -92,7 +123,7 @@ html_new(R, S) ->
 
 html_documents(R, S) ->
   Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_view_json(Doctype, "new", R, S),
+  Json = couch:get_view_json(Doctype, "alldocs", R, S),
   
   Vals = [
     {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
