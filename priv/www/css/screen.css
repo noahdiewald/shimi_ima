@@ -68,3 +68,24 @@ table {
 .accordion-head {
   padding-left: 25px;
 }
+
+#notifications-main {
+  float: right;
+}
+
+.notification {
+  display: none;
+}
+
+.notification span.ui-icon {
+  float: left;
+  margin-right: 0.3em;
+}
+
+label span.ui-icon-help {
+  float: right;
+}
+
+.padded {
+  padding: 0.5em;
+}

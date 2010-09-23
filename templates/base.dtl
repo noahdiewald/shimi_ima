@@ -20,6 +20,7 @@
 
     <header>
     {% block header %}<h1>{{ title }}</h1>{% endblock %}
+    {% include 'notifications.dtl' %}
     </header>
     
     {% block dialogs %}{% endblock %}

@@ -12,14 +12,50 @@
 {% endblock %}
     
 {% block main_content %}
-<form class="ui-widget ui-corner-all">
+
+{% if total_rows != 0 %}
+
+<form class="ui-widget ui-corner-all" method="post">
+
   {% for fieldset in rows %}
-  <fieldset class="ui-widget ui-widget-content ui-corner-all fieldset" data-fieldset-id="{{ fieldset.value._id }}">
+  
+  <fieldset id="{{ fieldset.value._id }}" class="ui-widget ui-widget-content ui-corner-all fieldset" data-fieldset-id="{{ fieldset.value._id }}" data-multiple="{{ fieldset.value.multiple }}">
+  
     <legend class="ui-widget ui-widget-header ui-corner-all">{{ fieldset.value.name }}</legend>
+    
     <p>{{ fieldset.value.description }}</p>
-    <div id="fields-{{ fieldset.value._id }}" class="fields" data-multiple="{{ fieldset.value.multiple }}">
+    
+    <div data-fieldset-id="{{ fieldset.value._id }}" class="fields {% if  fieldset.value.multiple %}ui-widget ui-widget-content ui-corner-all padded{% endif %}" data-multiple="{{ fieldset.value.multiple }}" data-target-path="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/fieldsets/{{ fieldset.value._id }}/fields">
+    
+    {% if fieldset.value.multiple %}
+    
+    <a href="#" class="remove-button">Remove</a>
+    
+    {% endif %}
+      
     </div>
+  
+  {% if fieldset.value.multiple %}
+  
+  <a href="#" class="add-button" data-fieldset-id="{{ fieldset.value._id }}" data-target-path="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/fieldsets/{{ fieldset.value._id }}">Add Additional</a>
+  
+  {% endif %}
+    
   </fieldset>
+  
   {% endfor %}
+  
+  <button id="create-document-button" class="create-button">Create</button>
 </form>
+
+{% endif %}
+
+{% if total_rows == 0 %}
+
+<p>
+  You must add fields and fieldsets before you can create a document of this type.
+</p>
+
+{% endif %}
+
 {% endblock %}

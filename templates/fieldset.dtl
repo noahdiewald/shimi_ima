@@ -1,0 +1,9 @@
+<div data-fieldset-id="{{ _id }}" class="fields {% if multiple %}ui-widget ui-widget-content ui-corner-all padded{% endif %}" data-multiple="{{ multiple }}" data-target-path="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/fieldsets/{{ fieldset.value._id }}/fields">
+
+{% if multiple %}
+
+<a href="#" class="remove-button">Remove</a>
+
+{% endif %}
+  
+</div>

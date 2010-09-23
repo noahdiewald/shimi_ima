@@ -30,6 +30,13 @@ function checkRegexp(o, regexp, n, tips) {
 $(function () {
   // Buttons
   
+  $(".remove-button").button({
+    icons: {primary: "ui-icon-minus"},
+    text: false
+  }).click(function() {
+    $(this).parent().remove()
+  });
+  
   $(".help-button").button({
     icons: {primary: "ui-icon-help"},
     text: false
@@ -41,6 +48,17 @@ $(function () {
   
   $(".edit-button").button({
     icons: {primary: "ui-icon-pencil"}
+  });
+  
+  $(".create-button").button({
+    icons: {primary: "ui-icon-disk"}
+  });
+  
+  $(".create-continue-button").button({
+    icons: {
+      primary: "ui-icon-disk",
+      secondary: "ui-icon-arrowthick-1-e",
+    }
   });
   
   // Date Picker

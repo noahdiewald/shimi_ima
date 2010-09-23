@@ -51,8 +51,8 @@ resource_exists(R, S) ->
   Id = wrq:path_info(id, R),
   
   case proplists:get_value(target, S) of
-    index -> {couch:exits(Doctype), R, S};
-    identifier -> {couch:exits(Id), R, S}
+    index -> {couch:exists(Doctype, R, S), R, S};
+    identifier -> {couch:exists(Id, R, S), R, S}
   end. 
 
 is_authorized(R, S) ->
@@ -66,19 +66,18 @@ content_types_provided(R, S) ->
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
-    fieldset -> {html_fieldset(R, S), R, S};
-    field -> {html_field(R, S), R, S}
+    identifier -> {html_fieldset(R, S), R, S};
+    index -> {html_fieldsets(R, S), R, S}
   end.
   
 % Helpers
 
-html_field(R, S) -> 
+html_fieldset(R, S) -> 
   Json = couch:get_json(id, R, S),
-  Template = list_to_atom("subcat_" ++ binary_to_list(struct:get_value(<<"subcategory">>, Json)) ++ "_dtl"),
-  {ok, Html} = Template:render(Json),
+  {ok, Html} = fieldset_dtl:render(Json),
   Html.
   
-html_fieldset(_R, _S) -> [].
+html_fieldsets(_R, _S) -> [].
     
 validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],

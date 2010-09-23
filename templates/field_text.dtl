@@ -1,4 +1,4 @@
-<div class="field-text">
-  <label>{{ label }}</label>
-  <input type="text">
+<div class="padded field-text ui-widget ui-widget-content ui-corner-all" data-field-id="{{ _id }}">
+  <label for="{{ name }}" class="field-text ui-widget">{{ label }}<span class="ui-icon ui-icon-help" title="{{ description }}"></span></label><br />
+  <input name="{{ name }}" class="field-text ui-widget ui-corner-all" type="text" value="{% if default %}{{ default }}{% endif %}">
 </div>
