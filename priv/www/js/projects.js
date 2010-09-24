@@ -8,19 +8,19 @@ $(function () {
     // I use a bogus query string to ensure that the browser
     // won't replace the html version with the json verson
     // from this resource. There is probably a better way.
-    $.getJSON("projects?this=null", function(data) {
-      $("#projects-table > tbody").empty();
-      data.renderings.forEach(function(rendering) {
-        $("#projects-table").append(rendering);
-        $(".configure-button").button({
-          icons: {primary: "ui-icon-wrench"}
-        });
-        $(".delete-button").button({
-          icons: {primary: "ui-icon-trash"}
-        }).click(function() {
-          toDelete = $(this).attr("id");
-          $("#delete-dialog").dialog("open");
-        });
+    var url = "/projects/index";
+    
+    $.get(url, function(projects) {
+      $('tbody').empty();
+      $('tbody').html(projects);
+      $('.configure-button').button({
+        icons: {primary: "ui-icon-wrench"}
+      });
+      $('.delete-button').button({
+        icons: {primary: "ui-icon-trash"}
+      }).click(function() {
+        toDelete = $(this).attr("id");
+        $('#delete-dialog').dialog("open");
       });
     });
   }
@@ -39,7 +39,7 @@ $(function () {
         if (checkResult) {
           $.ajax({
             type: "POST", 
-            url: "projects",
+            url: "/projects/index",
             dataType: "json",
             contentType: "application/json",
             processData: false,
@@ -71,7 +71,7 @@ $(function () {
       "Delete project": function() {
         $.ajax({
           type: "DELETE", 
-          url: "projects/" + toDelete,
+          url: "/projects/" + toDelete,
           dataType: "json",
           contentType: "application/json",
           complete: function(req, status) {

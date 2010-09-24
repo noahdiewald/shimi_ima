@@ -36,8 +36,8 @@
   is_authorized/2,
   post_is_create/2,
   resource_exists/2,
-  to_html/2,
-  to_json/2
+  id_html/2,
+  index_html/2
 ]).
 
 % Custom
@@ -95,19 +95,18 @@ create_path(R, S) ->
 
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
-    index -> {[{"application/json", to_json}], R, S};
-    identifier -> {[{"text/html", to_html}], R, S}
+    index -> {[{"text/html", index_html}], R, S};
+    identifier -> {[{"text/html", id_html}], R, S}
   end.
   
 content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
-to_json(R, S) ->
+index_html(R, S) ->  
   Json = couch:get_view_json(wrq:path_info(fieldset, R), "fields", R, S),
-  JsonOut = struct:to_json(render:add_renders(Json, config_field_list_elements_dtl)),
-  {JsonOut, R, S}.
-  
-to_html(R, S) ->
+  {render:renderings(Json, config_field_list_elements_dtl), R, S}.
+
+id_html(R, S) ->
   Json = couch:get_json(id, R, S),
   {ok, Html} = config_fieldset_dtl:render(Json),
   {Html, R, S}.

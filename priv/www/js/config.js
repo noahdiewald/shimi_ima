@@ -36,49 +36,59 @@ $(function () {
   }
   
   function populateFields(doctypeId, fieldsetId) {
-    $.getJSON("config/doctypes/" + doctypeId + "/fieldsets/" + fieldsetId + "/fields", function(data) {
+    var url = "config/doctypes/" + doctypeId + 
+              "/fieldsets/" + fieldsetId + 
+              "/fields"
+          
+    $.get(url, function(fields) {
       var fieldContainer = $("#fields-" + fieldsetId);
       fieldContainer.empty();
-      data.renderings.forEach(function(rendering) {
-        fieldContainer.append(rendering);
-      });
+      fieldContainer.html(fields);
     });
   }
   
   function populateFieldsets(doctypeId) {
-    $.getJSON("config/doctypes/" + doctypeId + "/fieldsets", function(data) {
+    var url = "config/doctypes/" + doctypeId + 
+              "/fieldsets"
+              
+    $.get(url, function(fieldsets) {
       var fieldsetContainer = $("#fieldsets-" + doctypeId);
+      
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
-      data.renderings.forEach(function(rendering) {
-        fieldsetContainer.append(rendering);
-      });
+      fieldsetContainer.html(fieldsets);
+      
       fieldsetContainer.accordion({
         autoHeight: false,
         collapsible: true
       });
+      
       $(".add-field-button").button({
         icons: {primary: "ui-icon-plus"}
       }).click(function() {
         fieldDoctype.val($(this).attr("data-doctype-id"));
         fieldFieldset.val($(this).attr("data-fieldset-id"));
-        fieldOrder.val("0");
+        fieldOrder.val("50");
         $("#field-add-dialog").dialog("open");
       });
-      data.rows.forEach(function(element) {
-        populateFields(element.value.doctype, element.value._id);
+      
+      $('.accordion-head').each(function(index) {
+        var fieldsetId = $(this).attr('data-fieldset-id');
+        
+        populateFields(doctypeId, fieldsetId);
       });
     });
   }
   
   function populateDoctypeTabs() {
-    $.getJSON("config/doctypes", function(data) {
+    var url = "config/doctypes";
+    
+    $.get(url, function(doctypes) {
       $("#doctype-tabs-headings").empty();
       $("#doctype-tabs-headings + .ui-tabs-panel").remove();
       $("#doctype-tabs").tabs("destroy");
-      data.renderings.forEach(function(rendering) {
-        $("#doctype-tabs-headings").append(rendering);
-      });
+      $("#doctype-tabs-headings").html(doctypes);
+      
       $("#doctype-tabs").tabs(
         {
           load: function(event, ui) {

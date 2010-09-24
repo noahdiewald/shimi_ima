@@ -25,16 +25,15 @@
 -module(render).
 
 -export([
-  add_renders/2
+  renderings/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 
-add_renders(Json, Template) ->
+renderings(Json, Template) ->
   Rows = struct:get_value(<<"rows">>, Json),
-  Renderings = [render_row(Row, Template) || Row <- Rows],
-  struct:set_value(<<"renderings">>, Renderings, Json).
+  [render_row(Row, Template) || Row <- Rows].
   
 render_row(Row, Template) ->
   {ok, Rendering} = Template:render(Row),

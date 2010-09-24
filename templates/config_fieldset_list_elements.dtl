@@ -1,4 +1,11 @@
-<h3 id="head-{{ id }}" class="accordion-head"><a href="#">{{ value.name }}</a></h3>
+<h3 
+  id="head-{{ id }}" 
+  data-doctype-id="{{ doctype }}" 
+  data-fieldset-id="{{ id }}" 
+  class="accordion-head"
+>
+  <a href="#">{{ value.name }}</a>
+</h3>
 
 <div id="body-{{ id }}">
   <h4>Description</h4>

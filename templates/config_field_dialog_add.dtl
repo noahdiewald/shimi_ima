@@ -4,6 +4,10 @@
   
   <form>
     <fieldset class="ui-helper-reset">
+      
+      <input type="hidden" name="field-doctype-input" id="field-doctype-input" value="" class="ui-widget-content ui-corner-all" />
+      
+      <input type="hidden" name="field-fieldset-input" id="field-fieldset-input" value="" class="ui-widget-content ui-corner-all" />
     
       <label for="field-name-input">Field Name</label><br />
       <input type="text" name="field-name-input" id="field-name-input" value="" class="ui-widget-content ui-corner-all" /><br />
@@ -17,14 +21,14 @@
         <option value="textarea">Text Box</option>
       </select><br />
       
-      <label for="field-doctype-input">Internal Doctype Id</label><br />
-      <input type="text" name="field-doctype-input" id="field-doctype-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
-      
-      <label for="field-fieldset-input">Internal Fieldset Id</label><br />
-      <input type="text" name="field-fieldset-input" id="field-fieldset-input" value="" class="ui-widget-content ui-corner-all" disabled="true" /><br />
+      <label for="field-default-input">Is this the default?</label><br />
+      <select name="field-default-input" id="field-default-input">
+        <option selected="true" value="false">No</option>
+        <option value="true">Yes</option>
+      </select><br />
       
       <label for="field-order-input">Field Relative Order</label> <em>Lower numbers are closer to the top</em><br />
-      <input type="text" name="field-order-input" id="field-order-input" value="" class="ui-widget-content ui-corner-all" size=3 /><br />
+      <input type="text" name="field-order-input" id="field-order-input" value="50" class="ui-widget-content ui-corner-all" size=3 /><br />
       
       <label for="field-description-input">Field Description</label><br />
       <textarea name="field-description-input" id="field-description-input" class="text ui-widget-content ui-corner-all"></textarea>

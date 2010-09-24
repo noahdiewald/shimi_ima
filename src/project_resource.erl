@@ -36,8 +36,8 @@
   is_authorized/2,
   post_is_create/2,
   resource_exists/2,
-  to_html/2,
-  to_json/2
+  index_html/2,
+  main_html/2
 ]).
 
 % Custom
@@ -59,15 +59,15 @@ resource_exists(R, S) ->
   Id = wrq:path_info(id, R),
   
   Resp = case proplists:get_value(target, S) of
-    index -> 
+    identifier -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head);
+    _ -> 
       % Create the database if it doesn't exist
       case ibrowse:send_req(DatabaseUrl, Headers, head) of
         {ok, "404", _, _} ->
           create_database(),
           ibrowse:send_req(DatabaseUrl, Headers, head);
         Otherwise -> Otherwise
-      end;
-    identifier -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head)
+      end
   end,
    
   case Resp of
@@ -81,6 +81,7 @@ is_authorized(R, S) ->
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     index -> {['HEAD', 'GET', 'POST'], R, S};
+    main -> {['HEAD', 'GET'], R, S};
     identifier -> {['HEAD', 'DELETE'], R, S}
   end.
   
@@ -112,23 +113,23 @@ create_path(R, S) ->
   {Uuid, R1, S}.
 
 content_types_provided(R, S) ->
-  {[
-    {"application/json", to_json}, 
-    {"text/html", to_html}
-   ], R, S}.
+  case proplists:get_value(target, S) of
+    main -> {[{"text/html", main_html}], R, S};
+    index -> {[{"text/html", index_html}], R, S}
+  end.
   
 content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
-to_json(R, S) ->
+index_html(R, S) ->
   Headers = proplists:get_value(headers, S),
   
   {ok, "200", _, JsonIn} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
   JsonStruct = mochijson2:decode(JsonIn),
-  JsonOut = mochijson2:encode(add_renders(JsonStruct)),
-  {JsonOut, R, S}.
   
-to_html(R, S) ->
+  {renderings(JsonStruct), R, S}.
+  
+main_html(R, S) ->
   {ok, Html} = projects_dtl:render([{title, "Projects"}]),
   {Html, R, S}.
   
@@ -159,10 +160,9 @@ validate_authentication({struct, Props}, R, S) ->
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
 
-add_renders(Json) ->
+renderings(Json) ->
   Rows = struct:get_value(<<"rows">>, Json),
-  Renderings = [render_row(Project) || {struct, Project} <- Rows],
-  struct:set_value(<<"renderings">>, Renderings, Json).
+  [render_row(Project) || {struct, Project} <- Rows].
   
 render_row(Project) ->
   {ok, Rendering} = project_list_elements_dtl:render(Project),
