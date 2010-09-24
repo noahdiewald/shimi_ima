@@ -26,8 +26,21 @@ function checkRegexp(o, regexp, n, tips) {
     return true;
   }
 }
-  
+
+// Display notifications
+
+function flashError(title, body) {
+}
+
+function flashHighlight(title, body) {
+  $('.ui-state-highlight .notification-summary').text(title + ": ");
+  $('.ui-state-highlight .notification-message').text(body);
+  $('.ui-state-highlight').fadeIn('slow').delay(1000).fadeOut('slow');
+}
+ 
 $(function () {
+  $('.notification').hide();
+  
   // Buttons
   
   $(".remove-button").button({
@@ -48,10 +61,6 @@ $(function () {
   
   $(".edit-button").button({
     icons: {primary: "ui-icon-pencil"}
-  });
-  
-  $(".create-button").button({
-    icons: {primary: "ui-icon-disk"}
   });
   
   $(".create-continue-button").button({

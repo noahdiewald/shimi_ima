@@ -1,0 +1,5 @@
+name="{{ name }}" 
+data-field-subcategory="{{ subcategory }}"
+data-field-label="{{ label }}"
+data-field-order="{{ order }}"
+data-field-id="{{ _id }}"

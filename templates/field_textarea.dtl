@@ -1,6 +1,10 @@
-<div class="padded field-textarea ui-widget ui-widget-content ui-corner-all" data-field-id="{{ _id }}">
-  <label for="{{ name }}" class="field-text ui-widget">{{ label }}<span class="ui-icon ui-icon-help" title="{{ description }}"></span></label><br />
-  <textarea name="{{ name }}" class="field-textarea ui-widget ui-corner-all">
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <textarea 
+    class="field field-textarea ui-widget ui-corner-all"
+    {% include 'field_common_attributes.dtl' %}
+  >
     {% if default %}{{ default }}{% endif %}
   </textarea>
-</div>
+{% endblock %}

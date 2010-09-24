@@ -70,11 +70,9 @@ table {
 }
 
 #notifications-main {
-  float: right;
-}
-
-.notification {
-  display: none;
+  top: 0;
+  right: 0;
+  display: fixed;
 }
 
 .notification span.ui-icon {

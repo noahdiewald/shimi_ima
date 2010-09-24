@@ -6,12 +6,11 @@
     {% if multiple %}
     ui-widget ui-widget-content ui-corner-all padded
     {% endif %}" 
-  data-multiple="{{ multiple }}"
 >
 
   {% if multiple %}
 
-  <a href="#" class="remove-button">Remove</a>
+  <button class="remove-button">Remove</button>
 
   {% endif %}
   

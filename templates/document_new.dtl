@@ -15,10 +15,9 @@
 
 {% if total_rows != 0 %}
 
-<form 
+<div
+  id="new-document"
   class="ui-widget ui-corner-all"
-  method="post"
-  action="../documents" 
 >
 
   {% for fieldset in rows %}
@@ -27,7 +26,10 @@
     id="{{ fieldset.value._id }}" 
     class="ui-widget ui-widget-content ui-corner-all fieldset" 
     data-fieldset-id="{{ fieldset.value._id }}" 
-    data-multiple="{{ fieldset.value.multiple }}"
+    data-fieldset-multiple="{{ fieldset.value.multiple }}"
+    data-fieldset-name="{{ fieldset.value.name }}"
+    data-fieldset-label="{{ fieldset.value.label }}"
+    data-fieldset-order="{{ fieldset.value.order }}"
   >
   
     <legend 
@@ -48,13 +50,12 @@
     
   {% if fieldset.value.multiple %}
   
-  <a 
-    href="#" 
+  <button 
     class="add-button" 
     data-fieldset-id="{{ fieldset.value._id }}"
   >
    Add Additional
-  </a>
+  </button>
   
   {% endif %}
     
@@ -62,8 +63,16 @@
   
   {% endfor %}
   
-  <button id="create-document-button" class="create-button">Create</button>
-</form>
+  <button 
+    data-action="../documents" 
+    data-doctype-id="{{ doctype_info._id }}" 
+    data-doctype-description="{{ doctype_info.description }}" 
+    id="create-document-button" 
+    class="create-button"
+  >
+    Create
+  </button>
+</div>
 
 {% endif %}
 
