@@ -123,7 +123,7 @@ html_new(R, S) ->
 
 html_documents(R, S) ->
   Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_view_json(Doctype, "alldocs", R, S),
+  Json = couch:get_view_json(Doctype, "index", R, S),
   
   Vals = [
     {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 

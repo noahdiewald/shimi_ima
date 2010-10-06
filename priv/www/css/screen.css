@@ -87,3 +87,36 @@ label span.ui-icon-help {
 .padded {
   padding: 0.5em;
 }
+
+ul.head-elements {
+  padding: 0;
+}
+
+ul.head-elements li {
+  padding: 0;
+  display: inline;
+}
+
+ul.head-elements li::before {
+  content: ", ";
+  white-space: pre;
+}
+
+ul.head-elements li:first-child::before {
+  content:"";
+}
+
+#all-document-container {
+  display: table-row;
+}
+
+table#document-index {
+  padding: 0.5em;
+  width: 33%;
+  display: table-cell;
+}
+
+#document-view {
+  padding: 0.5em;
+  display: table-cell;
+}

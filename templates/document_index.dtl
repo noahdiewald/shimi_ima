@@ -12,12 +12,38 @@
 {% endblock %}
     
 {% block main_content %}
+
 <div class="ui-widget ui-widget-content ui-corner-all">
   <a class="new-button" href="documents/new">Add Document</a>
-  <table>
-    {% for row in rows %}
-    <tr><td>row.key</td><td>row.value</td></tr>
-    {% endfor %}
-  </table>
+
+  <div class="ui-widget ui-widget-content ui-corner-all" id="all-document-container">
+    <table class="ui-widget ui-widget-content ui-corner-all" id="document-index">
+      {% for row in rows %}
+      <tr>
+        <td>
+          <a href="#{{ row.id }}">
+            <ul class="head-elements">
+            {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
+            </ul>
+          </a>
+        </td>
+        <td>
+          <ul>
+          {% for elem in row.value %}<li>{{ elem }}</li>{% endfor %}
+          </ul>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="ui-widget ui-widget-content ui-corner-all" id="document-view">
+    
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer a interdum nulla. Nullam congue, nibh id accumsan porttitor, massa eros faucibus libero, sit amet bibendum libero enim a massa. Suspendisse facilisis molestie elit id rutrum. Nullam in erat tellus, a varius urna. Ut non elit sapien. Praesent rhoncus, nisl at vestibulum venenatis, nisi arcu auctor erat, et mattis massa turpis ac eros. Sed lacinia varius quam, a mollis justo iaculis volutpat. Maecenas venenatis mollis lacus non posuere. Maecenas sed tempus enim. Nullam sed ipsum sapien. Cras lacinia leo vel eros viverra non interdum magna posuere. Quisque purus odio, placerat in volutpat sed, sollicitudin non orci. Suspendisse varius imperdiet dolor, non commodo dui feugiat vel. Vivamus nisi est, congue ac consequat nec, dignissim ac risus. Praesent sed turpis magna, non bibendum diam. Etiam commodo laoreet urna ac venenatis.
+
+Nulla lectus mi, hendrerit quis molestie eu, tincidunt ut purus. Praesent aliquam interdum lorem sed consequat. Quisque nec lectus at mauris aliquet lacinia. Ut nisl lectus, elementum vel malesuada id, vehicula id lacus. Etiam aliquam lorem ante, ut tempus elit. Praesent pharetra tristique elit, rhoncus euismod ligula ultricies fringilla. Cras dui urna, tristique vel tempus sit amet, aliquet a ante. Vivamus fringilla lorem vel eros fermentum ac ullamcorper sem consectetur. Pellentesque porta vehicula fermentum. In id vehicula diam.
+
+Donec urna nisi, gravida eu volutpat in, malesuada non ligula. Morbi mollis tempor felis, vitae suscipit mi porta sed. Ut pretium facilisis commodo. Pellentesque et augue non velit tincidunt scelerisque euismod quis magna. Nullam nisl elit, malesuada eu sagittis quis, porttitor non massa. Suspendisse fermentum sapien a odio imperdiet euismod id eget justo. Cras ac lacus lectus, at sodales lorem. Pellentesque vestibulum, lacus et eleifend molestie, quam libero egestas mi, at facilisis nunc justo ac augue. Nulla sed mauris nibh, eu condimentum ipsum. Suspendisse lectus nisi, viverra sit amet volutpat non, dapibus id orci. Nullam at neque nisi. Nullam rutrum lacinia enim et pellentesque. Maecenas quam metus, vehicula hendrerit placerat eget, ullamcorper a sapien.     
+    
+    </div>
+  </div>
 </div>
 {% endblock %}
