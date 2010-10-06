@@ -19,15 +19,20 @@
       <select name="field-subcategory-input" id="field-subcategory-input">
         <option selected="true" value="text">Simple Text</option>
         <option value="textarea">Text Box</option>
+        <option value="date">Date</option>
+        <option value="integer">Integer</option>
+        <option value="decimal">Decimal</option>
+        <option value="boolean">Boolean</option>
+        <option value="checkbox">Check Box</option>
       </select><br />
       
-      <label for="field-default-input">Is this the default?</label><br />
-      <select name="field-default-input" id="field-default-input">
-        <option selected="true" value="false">No</option>
-        <option value="true">Yes</option>
-      </select><br />
+      <fieldset class="ui-widget ui-widget-content ui-corner-all">
+        <input name="field-head-input" id="field-head-input" type="checkbox" value="true" /> <label for="field-head-input">Document Head</label><br />
+
+        <input name="field-reversal-input" id="field-reversal-input" type="checkbox" value="true" /> <label for="field-reversal-input">Document Reversal</label><br />
+      </fieldset>
       
-      <label for="field-order-input">Field Relative Order</label> <em>Lower numbers are closer to the top</em><br />
+      <label for="field-order-input">Field Relative Order</label><br />
       <input type="text" name="field-order-input" id="field-order-input" value="50" class="ui-widget-content ui-corner-all" size=3 /><br />
       
       <label for="field-description-input">Field Description</label><br />
