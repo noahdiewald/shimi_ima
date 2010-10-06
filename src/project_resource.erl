@@ -115,7 +115,8 @@ create_path(R, S) ->
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
     main -> {[{"text/html", main_html}], R, S};
-    index -> {[{"text/html", index_html}], R, S}
+    index -> {[{"text/html", index_html}], R, S};
+    identifier -> {[{"text/html", index_html}], R, S}
   end.
   
 content_types_accepted(R, S) ->
