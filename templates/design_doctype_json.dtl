@@ -17,21 +17,25 @@
                var reversals = [];
                
                doc.fieldsets.forEach(function(fieldset, index) {
-                 heads = heads.concat(fieldset.fields.filter(function(elem, index) {
-                   return (elem.head == true);
-                 }).map(function(elem, index) {
-                   return elem.value;
-                 }));
+                 if (! fieldset.multiple) {
+                   heads = heads.concat(fieldset.fields.filter(function(elem, index) {
+                     return (elem.head == true);
+                   }).map(function(elem, index) {
+                     return elem.value;
+                   }));
+                 }
                });
                
                if (heads.length == 0) { heads = [doc._id] }
                
                doc.fieldsets.forEach(function(fieldset, index) {
-                 reversals = reversals.concat(fieldset.fields.filter(function(elem, index) {
-                   return (elem.reversal == true);
-                 }).map(function(elem, index) {
-                   return elem.value;
-                 }));
+                 if (! fieldset.multiple) {
+                   reversals = reversals.concat(fieldset.fields.filter(function(elem, index) {
+                     return (elem.reversal == true);
+                   }).map(function(elem, index) {
+                     return elem.value;
+                   }));
+                 }
                });
                
                emit(heads, reversals);

@@ -1,0 +1,25 @@
+<h2>{{ title }}</h2>
+
+<ul>
+{% for fieldset in fieldsets %}
+  <li>
+    {% if fieldset.multiple %}
+    {% for multifield in fieldset.multifields %}
+    next
+    <ul>
+    {% for field in multifield.fields %}
+      <li><b>{{ field.label }}</b>: {{ field.value }}</li>
+    {% endfor %}
+    </ul>
+    {% endfor %}
+    {% endif %}
+    {% if not fieldset.multiple %}
+    <ul>
+    {% for field in fieldset.fields %}
+      <li><b>{{ field.label }}</b>: {{ field.value }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+{% endfor %}
+</ul>

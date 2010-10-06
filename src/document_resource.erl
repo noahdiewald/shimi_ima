@@ -134,8 +134,17 @@ html_documents(R, S) ->
   {ok, Html} = document_index_dtl:render(struct:set_values(Vals, Json)),
   Html.
 
-html_document(_R, _S) ->
-  "Document". 
+html_document(R, S) ->
+  Json = couch:get_json(id, R, S),
+  
+  Vals = [
+    {<<"title">>, list_to_binary("Document")}, 
+    {<<"project_info">>, couch:get_json(project, R, S)},
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+  ],
+  
+  {ok, Html} = document_dtl:render(struct:set_values(Vals, Json)),
+  Html.
     
 validate_authentication({struct, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
