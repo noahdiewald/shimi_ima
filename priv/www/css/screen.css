@@ -112,7 +112,7 @@ ul.head-elements li:first-child::before {
 
 table#document-index {
   padding: 0.5em;
-  width: 33%;
+  width: 25%;
   display: table-cell;
 }
 
