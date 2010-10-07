@@ -13,20 +13,23 @@
     
 {% block main_content %}
 
-<div class="ui-widget ui-widget-content ui-corner-all">
   <a class="new-button" href="documents/new">Add Document</a>
+<div class="ui-widget ui-corner-all" id="container">
 
-  <div class="ui-widget ui-widget-content ui-corner-all" id="all-document-container">
-    <table class="ui-widget ui-widget-content ui-corner-all" id="document-index">
+  <div id="all-document-container">
+    <div class="ui-widget ui-widget-content ui-corner-left" id="document-index">
+    <h2 class="ui-widget ui-widget-header ui-corner-tl">Document Index</h2>
+
+    <table>
       {% for row in rows %}
       <tr>
-        <td>
+        <th>
           <a href="#{{ row.id }}" class="view-document-link">
             <ul class="head-elements">
             {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
             </ul>
           </a>
-        </td>
+        </th>
         <td>
           <ul>
           {% for elem in row.value %}<li>{{ elem }}</li>{% endfor %}
@@ -35,7 +38,8 @@
       </tr>
       {% endfor %}
     </table>
-    <div id="document-view">
+    </div>
+    <div class="ui-widget ui-widget-content ui-corner-right" id="document-view">
     </div>
   </div>
 </div>

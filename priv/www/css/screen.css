@@ -106,17 +106,28 @@ ul.head-elements li:first-child::before {
   content:"";
 }
 
+#container {
+  display: table;
+  width: 100%;
+}
+
 #all-document-container {
+  
   display: table-row;
 }
 
-table#document-index {
-  padding: 0.5em;
+#document-index {
   width: 25%;
   display: table-cell;
 }
 
 #document-view {
-  padding: 0.5em;
+  vertical-align: top;
+  width: 75%;
+  padding-top: 0;
   display: table-cell;
+}
+
+#document-index h2, #document-view h2 {
+  margin-top: 0;
 }
