@@ -1,23 +1,25 @@
 <h2 class="ui-widget ui-widget-header">{{ title }}</h2>
 
-<ul>
+<button id="document-edit-button">Edit</button>
+
+<ul id="document-view">
 {% for fieldset in fieldsets %}
   <li 
     class="fieldset-view" 
-    fieldset-id="{{ fieldset.id }}" 
+    data-fieldset-view-id="{{ fieldset.id }}" 
     data-multiple="{{ fieldset.multiple }}"
   >
     <b>{{ fieldset.name }}</b>:
     {% if fieldset.multiple %}
     {% for multifield in fieldset.multifields %}
     next
-    <ul>
+    <ul class="multifield">
     {% for field in multifield.fields %}
       <li 
         class="field-view" 
-        field-id="{{ field.id}}"
-        data-index={{ field.index }}
-        data-value="{{ field.value }}"
+        data-field-view-id="{{ field.id}}"
+        data-field-view-index={{ field.index }}
+        data-field-view-value="{{ field.value }}"
       >
         <b>{{ field.label }}</b>: {{ field.value }}
       </li>
@@ -30,8 +32,8 @@
     {% for field in fieldset.fields %}
       <li 
         class="field-view" 
-        field-id="{{ field.id}}"
-        data-value="{{ field.value }}"
+        data-field-view-id="{{ field.id}}"
+        data-field-view-value="{{ field.value }}"
       >
         <b>{{ field.label }}</b>: {{ field.value }}
       </li>

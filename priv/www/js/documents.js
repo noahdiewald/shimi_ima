@@ -1,8 +1,49 @@
+function fillFields() {
+  $('.fieldset-view').each(function(fieldsetViewIndex, fieldsetView) {
+  
+    if ($(fieldsetView).attr('data-multiple') == "true") {
+    
+      var fieldsetId = $(fieldsetView).attr('data-fieldset-view-id');
+      var fieldsetContainer = $('.fieldset-container[data-fieldset-id=' + fieldsetId + ']');
+      var url = buildUrl(fieldsetContainer.attr('data-project-id'),
+                         fieldsetContainer.attr('data-doctype-id'),
+                         fieldsetContainer.attr('data-fieldset-id'));
+      
+      fieldsetContainer.html('');
+      
+      $(fieldsetView).children('.multifield').each(function(multifieldIndex, multifield) {
+        
+        initFieldset(fieldsetContainer, url, function(fieldset) {
+        
+          $(multifield).children().each(function(fieldIndex, field) {
+            var value = $(field).attr('data-field-view-value');
+            var fieldId = $(field).attr('data-field-view-id');
+            
+            fieldset.find('[data-field-id=' + fieldId + ']').last().val(value);
+          });
+        });
+      });
+      
+    } else {
+      $(fieldsetView).find('.field-view').each(function(fieldIndex, field) {
+        var value = $(field).attr('data-field-view-value');
+        var fieldId = $(field).attr('data-field-view-id');
+        
+        $('[data-field-id=' + fieldId + ']').val(value);
+      });
+    }
+  });
+}
+
 function getDocument(id) {
   var url = "documents/" + id;
   
   $.get(url, function(documentHtml) {
     $('#document-view').html(documentHtml);
+    
+    $('#document-edit-button').button().click(function() {
+      fillFields();
+    });
   });
 }
 
@@ -87,20 +128,23 @@ function buildUrl(project, doctype, fieldset) {
          "/fieldsets/" + fieldset;
 }
 
-function initFields(fieldset, url) {
+function initFields(fieldset, url, fieldsetCallback) {
   $.get(url, function(fields) {
     fieldset.prepend(fields);
+    if (fieldsetCallback) {
+      fieldsetCallback(fieldset);
+    }
     initRemoveButton();
   });
 }
 
-function initFieldset(fieldsetContainer, url) {
+function initFieldset(fieldsetContainer, url, fieldsetCallback) {
   $.get(url, function(newFieldset) {
     fieldsetContainer.append(newFieldset);
     
     var fieldset = fieldsetContainer.children().last();
     
-    initFields(fieldset, url + "/fields");
+    initFields(fieldset, url + "/fields", fieldsetCallback);
   });
 }
 
@@ -178,7 +222,6 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
     }
     
     if (fieldsIndex >= 0) {
-      alert("Free Pony Ride");
       obj.fields[index].index = fieldsIndex;
     }
   })
@@ -189,5 +232,4 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
 $(function () {
   initIndex();
   initEdit();
-  
 });
