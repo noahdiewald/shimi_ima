@@ -1,6 +1,6 @@
 <h2 class="ui-widget ui-widget-header">{{ title }}</h2>
 
-<button id="document-edit-button">Edit</button>
+<button id="document-edit-button" data-document-id="{{ _id }}" data-document-rev="{{ _rev }}">Edit</button>
 
 <ul id="document-view">
 {% for fieldset in fieldsets %}

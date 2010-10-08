@@ -33,6 +33,10 @@ function fillFields() {
       });
     }
   });
+  
+  $('#save-document-button').attr('data-document-id', $('#document-edit-button').attr('data-document-id'));
+  $('#save-document-button').attr('data-document-rev', $('#document-edit-button').attr('data-document-rev'));
+  $('#save-document-button').show();
 }
 
 function getDocument(id) {
@@ -78,12 +82,57 @@ function initEdit() {
        
       initFieldset(fieldsetContainer, url);
     });
-    
-    $(".create-button").button({
+  
+    $('#save-document-button').button({
       icons: {primary: "ui-icon-disk"}
     }).click(function() {
+      var saveButton = $(this);
+      var root = $('#edit-document-form');
+      var documentId = saveButton.attr('data-document-id');
+      var documentRev = saveButton.attr('data-document-rev');
+      var url = "./documents/" + documentId + "?rev=" + documentRev;
+      var obj = {
+        doctype: saveButton.attr('data-doctype-id'),
+        description: saveButton.attr('data-doctype-description')
+      };
+      
+      saveButton.button('disable');
+      $.extend(obj, fieldsetsToObject(root));
+      
+      $.ajax({
+        type: "PUT",
+        url: url,
+        dataType: "json",
+        contentType: "application/json",
+        processData: false,
+        data: JSON.stringify(obj),
+        complete: function(req, status) {
+          if (req.status == 204) {
+            var title = "Success";
+            var body = "Your document was saved.";
+            getDocument(documentId);
+            initIndex();
+            flashHighlight(title, body);
+            saveButton.button('enable');
+          } else {
+            var title = "Failure";
+            var body = "Server returned " + req.status;
+            
+            flashError(title, body);
+            saveButton.button('enable');
+          }
+        }
+      });
+      
+    });
+    
+    $('#save-document-button').hide();
+    
+    $("#create-document-button").button({
+      icons: {primary: "ui-icon-document"}
+    }).click(function() {
       var createButton = $(this);
-      var root = $('#new-document');
+      var root = $('#edit-document-form');
       var obj = {
         doctype: createButton.attr('data-doctype-id'),
         description: createButton.attr('data-doctype-description')
@@ -105,7 +154,7 @@ function initEdit() {
             
             $('.fields').remove();
             initFieldsets();
-            initIndex()
+            initIndex();
             flashHighlight(title, body);
             createButton.button('enable');
           } else {
@@ -118,6 +167,14 @@ function initEdit() {
         }
       });
       
+    });
+    
+    $('#clear-document-button').button({
+      icons: {primary: "ui-icon-refresh"}
+    }).click(function() {
+      $('#save-document-button').hide();
+      $('.fields').remove();
+      initFieldsets();
     });
   });
 }

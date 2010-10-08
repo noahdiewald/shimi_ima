@@ -72,7 +72,7 @@ table {
 #notifications-main {
   top: 0;
   right: 0;
-  display: fixed;
+  position: fixed;
 }
 
 .notification span.ui-icon {

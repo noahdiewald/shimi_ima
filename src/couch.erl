@@ -29,7 +29,8 @@
   exists/3,
   get_json/3,
   get_view_json/4,
-  get_uuid/2
+  get_uuid/2,
+  update/5
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -83,6 +84,15 @@ create(design, Json, R, _S) ->
 create(Url, Headers, Json) ->
   {ok, "201", _, _} = ibrowse:send_req(Url, Headers, post, Json),
   {ok, created}.
+
+update(doc, Id, Json, R, S) ->
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ Id,
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  update(Url, Headers, Json).
+
+update(Url, Headers, Json) ->
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, Json),
+  {ok, updated}.
 
 exists(Target, R, S) ->
   Headers = proplists:get_value(headers, S),

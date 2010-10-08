@@ -3,7 +3,7 @@
 {% if total_rows != 0 %}
 
 <div
-  id="new-document"
+  id="edit-document-form"
   class="ui-widget ui-corner-all"
 >
 
@@ -50,14 +50,32 @@
   
   {% endfor %}
   
-  <button 
-    data-doctype-id="{{ doctype_info._id }}" 
-    data-doctype-description="{{ doctype_info.description }}" 
-    id="create-document-button" 
-    class="create-button"
-  >
-    Create
-  </button>
+  <div id="submit-button-area">
+    <button 
+      id="clear-document-button" 
+      class="clear-button"
+    >
+      Clear Form
+    </button>
+    <button 
+      data-doctype-id="{{ doctype_info._id }}" 
+      data-doctype-description="{{ doctype_info.description }}" 
+      id="create-document-button" 
+      class="create-button"
+    >
+      Create as New
+    </button>
+    <button 
+      data-doctype-id="{{ doctype_info._id }}" 
+      data-doctype-description="{{ doctype_info.description }}"
+      data-document-id=""
+      data-document-rev=""
+      id="save-document-button" 
+      class="save-button"
+    >
+      Save
+    </button>
+  </div>
 </div>
 
 {% endif %}

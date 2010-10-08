@@ -99,6 +99,14 @@ to_html(R, S) ->
   end.
   
 from_json(R, S) ->
+  case proplists:get_value(target, S) of
+    main -> {json_create(R, S), R, S};
+    identifier -> {json_update(R, S), R, S}
+  end.
+  
+% Helpers
+  
+json_create(R, S) ->
   Json = proplists:get_value(posted_json, S),
   {ok, created} = couch:create(doc, struct:to_json(Json), R, S),
   
@@ -106,9 +114,22 @@ from_json(R, S) ->
   %{ok, DesignJson} = design_fieldset_json_dtl:render(Json),
   %{ok, created} = couch:create(design, DesignJson, R, S),
   
-  {true, R, S}.
+  true.
   
-% Helpers
+json_update(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
+  Id = wrq:path_info(id, R),
+  Rev = wrq:get_qs_value("rev", R),
+  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json2 = struct:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+  
+  {ok, updated} = couch:update(doc, Id, struct:to_json(Json2), R, S),
+  
+  % Create the document's design document
+  %{ok, DesignJson} = design_fieldset_json_dtl:render(Json),
+  %{ok, created} = couch:create(design, DesignJson, R, S),
+  
+  true.
 
 html_documents(R, S) ->
   Doctype = wrq:path_info(doctype, R),
