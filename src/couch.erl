@@ -27,6 +27,7 @@
 -export([
   create/4,
   exists/3,
+  find_id/2,
   get_json/3,
   get_view_json/4,
   get_uuid/2
@@ -91,3 +92,19 @@ exists(Target, R, S) ->
     {ok, "200", _, _} -> true;
     {ok, "404", _, _} -> false
   end.
+  
+find_id(Id, Struct={struct, _}) ->
+  Id1 = list_to_binary(Id),
+  Rows = struct:get_value(<<"rows">>, Struct),
+  find_id(Id1, Rows);
+  
+find_id(Id, []) ->
+  undefined;
+  
+find_id(Id, [Row|Rest]) ->
+  case struct:get_value(<<"key">>, Row) of
+    [_, Id] -> struct:get_value(<<"value">>, Row);
+    _ -> find_id(Id, Rest)
+  end.
+
+  

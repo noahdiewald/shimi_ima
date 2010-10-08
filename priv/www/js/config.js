@@ -1,113 +1,110 @@
-$(function () {
-  var doctypeName = $("#doctype-name-input"),
-    doctypeDescription = $("#doctype-description-input"),
-    fieldsetName = $("#fieldset-name-input"),
-    fieldsetDescription = $("#fieldset-description-input"),
-    fieldsetOrder = $("#fieldset-order-input"),
-    fieldsetDoctype = $("#fieldset-doctype-input"),
-    fieldsetMultiple = $("#fieldset-multiple-input"),
-    fieldName = $("#field-name-input"),
-    fieldLabel = $("#field-label-input"),
-    fieldSubcategory = $("#field-subcategory-input"),
-    fieldDescription = $("#field-description-input"),
-    fieldHead = $("#field-head-input"),
-    fieldReversal = $("#field-reversal-input"),
-    fieldOrder = $("#field-order-input"),
-    fieldDoctype = $("#field-doctype-input"),
-    fieldFieldset = $("#field-fieldset-input"),
-    tips = $(".validate-tips"),
-    allDoctypeFields = $([]).add(doctypeName).add(doctypeDescription),
-    allFieldsetFields = $([]).add(fieldsetName).add(fieldsetOrder).add(fieldsetDescription);
-    allFieldFields = $([]).add(fieldName).add(fieldLabel).add(fieldDescription).add(fieldOrder);
+// TODO: maybe saying $('input, select, textarea...) could serve
+//       as alternative to variable passing.
+function clearValues(inputFields) {
+  inputFields.each(function(index) {
+    inputField = $(this);
+    
+    if (! inputField.attr('data-retain')) {
+      if (inputField.is(':checked')) {
+        inputField.attr('checked', false);
+      }
+      inputField.val('');
+    }
+  });
   
-  function postConfigDoc(ajaxUrl, obj, completeFun, callContext) {
-    $.ajax({
-      type: "POST",
-      url: ajaxUrl,
-      dataType: "json",
-      context: callContext,
-      contentType: "application/json",
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function(req, status) {
-        if (req.status == 201) {
-          completeFun(this);
+  return inputFields;
+}
+
+function postConfigDoc(ajaxUrl, obj, completeFun, callContext) {
+  $.ajax({
+    type: "POST",
+    url: ajaxUrl,
+    dataType: "json",
+    context: callContext,
+    contentType: "application/json",
+    processData: false,
+    data: JSON.stringify(obj),
+    complete: function(req, status) {
+      if (req.status == 201) {
+        completeFun(this);
+      }
+    }
+  });
+}
+
+function populateFields(doctypeId, fieldsetId) {
+  var url = "config/doctypes/" + doctypeId + 
+            "/fieldsets/" + fieldsetId + 
+            "/fields"
+        
+  $.get(url, function(fields) {
+    var fieldContainer = $("#fields-" + fieldsetId);
+    fieldContainer.empty();
+    fieldContainer.html(fields);
+  });
+}
+
+function populateFieldsets(doctypeId, fieldsets) {
+  var doctypeInput = $("#field-doctype-input");
+  var fieldsetInput = $("#field-fieldset-input");
+  var fieldsetContainer = $("#fieldsets-" + doctypeId);
+  
+  fieldsetContainer.empty();
+  fieldsetContainer.accordion("destroy");
+  fieldsetContainer.html(fieldsets);
+  
+  fieldsetContainer.accordion({
+    autoHeight: false,
+    collapsible: true
+  });
+  
+  $(".add-field-button").button({
+    icons: {primary: "ui-icon-plus"}
+  }).click(function() {
+    doctypeInput.val($(this).attr("data-doctype-id"));
+    fieldsetInput.val($(this).attr("data-fieldset-id"));
+    $("#field-add-dialog").dialog("open");
+  });
+  
+  $('.accordion-head').each(function(index) {
+    var fieldsetId = $(this).attr('data-fieldset-id');
+    
+    populateFields(doctypeId, fieldsetId);
+  });
+}
+
+function populateDoctypeTabs() {
+  var url = "config/doctypes";
+  
+  $.get(url, function(doctypes) {
+    var fieldsetDoctype = $("#fieldset-doctype-input");
+
+    $("#doctype-tabs-headings").empty();
+    $("#doctype-tabs-headings + .ui-tabs-panel").remove();
+    $("#doctype-tabs").tabs("destroy");
+    $("#doctype-tabs-headings").html(doctypes);
+    
+    $("#doctype-tabs").tabs(
+      {
+        load: function(event, ui) {
+          doctypeId = $(ui.panel).children()[0].id;
+          fieldsets = $(ui.panel).children()[0].fieldsets;
+          
+          populateFieldsets(doctypeId, fieldsets);
+
+          $(".add-fieldset-button").button({
+            icons: {primary: "ui-icon-plus"}
+          }).click(function() {
+            fieldsetDoctype.val($(this).attr("data-doctype-id"));
+            $("#fieldset-add-dialog").dialog("open");
+          });
         }
       }
-    });
-  }
-  
-  function populateFields(doctypeId, fieldsetId) {
-    var url = "config/doctypes/" + doctypeId + 
-              "/fieldsets/" + fieldsetId + 
-              "/fields"
-          
-    $.get(url, function(fields) {
-      var fieldContainer = $("#fields-" + fieldsetId);
-      fieldContainer.empty();
-      fieldContainer.html(fields);
-    });
-  }
-  
-  function populateFieldsets(doctypeId) {
-    var url = "config/doctypes/" + doctypeId + 
-              "/fieldsets"
-              
-    $.get(url, function(fieldsets) {
-      var fieldsetContainer = $("#fieldsets-" + doctypeId);
-      
-      fieldsetContainer.empty();
-      fieldsetContainer.accordion("destroy");
-      fieldsetContainer.html(fieldsets);
-      
-      fieldsetContainer.accordion({
-        autoHeight: false,
-        collapsible: true
-      });
-      
-      $(".add-field-button").button({
-        icons: {primary: "ui-icon-plus"}
-      }).click(function() {
-        fieldDoctype.val($(this).attr("data-doctype-id"));
-        fieldFieldset.val($(this).attr("data-fieldset-id"));
-        fieldOrder.val("50");
-        $("#field-add-dialog").dialog("open");
-      });
-      
-      $('.accordion-head').each(function(index) {
-        var fieldsetId = $(this).attr('data-fieldset-id');
-        
-        populateFields(doctypeId, fieldsetId);
-      });
-    });
-  }
-  
-  function populateDoctypeTabs() {
-    var url = "config/doctypes";
-    
-    $.get(url, function(doctypes) {
-      $("#doctype-tabs-headings").empty();
-      $("#doctype-tabs-headings + .ui-tabs-panel").remove();
-      $("#doctype-tabs").tabs("destroy");
-      $("#doctype-tabs-headings").html(doctypes);
-      
-      $("#doctype-tabs").tabs(
-        {
-          load: function(event, ui) {
-            populateFieldsets($(ui.panel).children()[0].id);
-  
-            $(".add-fieldset-button").button({
-              icons: {primary: "ui-icon-plus"}
-            }).click(function() {
-              fieldsetDoctype.val($(this).attr("data-doctype-id"));
-              fieldsetOrder.val("0");
-              $("#fieldset-add-dialog").dialog("open");
-            });
-          }
-        }
-      );
-    });
-  }
+    );
+  });
+}
+
+$(function () {
   
   $("#doctype-tabs").tabs();
   populateDoctypeTabs();
@@ -132,15 +129,15 @@ $(function () {
     modal: true,
     buttons: {
       "Add Document Type": function() {
-        allDoctypeFields.removeClass('ui-state-error');
+        $('.input').removeClass('ui-state-error');
         
-        checkResult = checkLength(doctypeName, "document type name", 1, 50, tips); 
+        checkResult = true;
         
         if (checkResult) {
           var obj = {
             "category": "doctype", 
-            "description": doctypeDescription.val(),
-            "_id": doctypeName.val()
+            "description": $("#doctype-description-input").val(),
+            "_id": $("#doctype-name-input").val()
           },
           complete = function(context) {
             populateDoctypeTabs();
@@ -154,7 +151,7 @@ $(function () {
       },
     },
     close: function() {
-      allDoctypeFields.val('').removeClass('ui-state-error');
+      clearValues($('.input')).removeClass('ui-state-error');
     }
   });
   
@@ -169,11 +166,15 @@ $(function () {
     modal: true,
     buttons: {
       "Add Fieldset": function() {
-        allFieldsetFields.removeClass('ui-state-error');
+        var fieldsetName = $("#fieldset-name-input");
+        var fieldsetDescription = $("#fieldset-description-input");
+        var fieldsetOrder = $("#fieldset-order-input");
+        var fieldsetDoctype = $("#fieldset-doctype-input");
+        var fieldsetMultiple = $("#fieldset-multiple-input");
         
-        checkResult = (checkLength(fieldsetName, "fieldset name", 1, 50, tips)
-          && checkLength(fieldsetOrder, "fieldset order", 1, 50, tips)
-          && checkRegexp(fieldsetOrder, /^[0-9]+$/, "fieldset order must be a number", tips));
+        $('.input').removeClass('ui-state-error');
+        
+        checkResult = true;
         
         if (checkResult) {
           var obj = {
@@ -196,7 +197,7 @@ $(function () {
       },
     },
     close: function() {
-      allFieldsetFields.val('').removeClass('ui-state-error');
+      clearValues($('.input')).removeClass('ui-state-error');
     }
   });
   
@@ -205,14 +206,19 @@ $(function () {
     modal: true,
     buttons: {
       "Add Field": function() {
-        allFieldFields.removeClass('ui-state-error');
+        var fieldName = $("#field-name-input");
+        var fieldLabel = $("#field-label-input");
+        var fieldSubcategory = $("#field-subcategory-input");
+        var fieldDescription = $("#field-description-input");
+        var fieldHead = $("#field-head-input");
+        var fieldReversal = $("#field-reversal-input");
+        var fieldOrder = $("#field-order-input");
+        var fieldDoctype = $("#field-doctype-input");
+        var fieldFieldset = $("#field-fieldset-input");
         
-        checkResult = (
-             checkLength(fieldName, "field name", 1, 50, tips)
-          && checkLength(fieldLabel, "field label", 1, 50, tips)
-          && checkLength(fieldOrder, "field order", 1, 50, tips)
-          && checkRegexp(fieldOrder, /^[0-9]+$/, "field order must be a number", tips)
-        );
+        $('.input').removeClass('ui-state-error');
+        
+        checkResult = true;
         
         if (checkResult) {
           var obj = {
@@ -239,7 +245,7 @@ $(function () {
       },
     },
     close: function() {
-      allFieldFields.val('').removeClass('ui-state-error');
+      clearValues($('.input')).removeClass('ui-state-error');
     }
   });
   
@@ -253,7 +259,7 @@ $(function () {
       },
     },
     close: function() {
-      allFields.val('').removeClass('ui-state-error');
+      clearValues($('.input')).removeClass('ui-state-error');
     }
   });
   

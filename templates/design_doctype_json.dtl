@@ -1,46 +1,76 @@
 {
-   "_id": "_design/{{ _id }}",
-   "views": {
-       "fields": {
-           "map": "function(doc) { if (doc.category == 'field' && doc.doctype == '{{ _id }}')  { emit([doc.fieldset, doc.order], doc) } }" 
-       },
-       "fieldsets": {
-           "map": "function(doc) { if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { emit(doc.order, doc) } }" 
-       },
-       "alldocs": {
-           "map": "function(doc) { if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { emit(doc._id, doc) } }" 
-       },
-       "index": {
-           "map": "function(doc) { 
-             if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {
-               var heads = [];
-               var reversals = [];
-               
-               doc.fieldsets.forEach(function(fieldset, index) {
-                 if (! fieldset.multiple) {
-                   heads = heads.concat(fieldset.fields.filter(function(elem, index) {
-                     return (elem.head == true);
-                   }).map(function(elem, index) {
-                     return elem.value;
-                   }));
-                 }
-               });
-               
-               if (heads.length == 0) { heads = [doc._id] }
-               
-               doc.fieldsets.forEach(function(fieldset, index) {
-                 if (! fieldset.multiple) {
-                   reversals = reversals.concat(fieldset.fields.filter(function(elem, index) {
-                     return (elem.reversal == true);
-                   }).map(function(elem, index) {
-                     return elem.value;
-                   }));
-                 }
-               });
-               
-               emit(heads, reversals);
-             } 
-           }" 
-       }
-   }
+  "_id": "_design/{{ _id }}",
+  "views": {
+    "fields": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && 
+            doc.fieldsets && 
+            doc.fieldsets.length > 0)  {
+          
+          doc.fieldsets.forEach(function(fieldset, index) {  
+          
+            if (fieldset.fields && fieldset.fields.length > 0) {
+            
+              fields.forEach(function(field, index) {
+                emit([field.order, field.id], field)
+              });
+              
+            }
+            
+          });
+        } 
+      }" 
+    },
+    "fieldsets": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && 
+            doc.fieldsets && 
+            doc.fieldsets.length > 0)  {
+          
+          doc.fieldsets.forEach(function(fieldset, index) {  
+            emit([fieldset.order, fieldset.id], fieldset)
+          });
+        } 
+      }" 
+    },
+    "alldocs": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { 
+          emit(doc._id, doc) 
+        } 
+      }" 
+    },
+    "index": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {
+          var heads = [];
+          var reversals = [];
+          
+          doc.fieldsets.forEach(function(fieldset, index) {
+            if (! fieldset.multiple) {
+              heads = heads.concat(fieldset.fields.filter(function(elem, index) {
+                return (elem.head == true);
+              }).map(function(elem, index) {
+                return elem.value;
+              }));
+            }
+          });
+          
+          if (heads.length == 0) { heads = [doc._id] }
+          
+          doc.fieldsets.forEach(function(fieldset, index) {
+            if (! fieldset.multiple) {
+              reversals = reversals.concat(fieldset.fields.filter(function(elem, index) {
+                return (elem.reversal == true);
+              }).map(function(elem, index) {
+                return elem.value;
+              }));
+            }
+          });
+          
+          emit(heads, reversals);
+        } 
+      }" 
+    }
+  }
 }

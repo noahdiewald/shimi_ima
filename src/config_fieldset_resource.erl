@@ -55,10 +55,15 @@ init(Opts) -> {ok, Opts}.
 resource_exists(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Id = wrq:path_info(id, R),
+  Json = get_view_json(Doctype, "fieldsets", R, S),
    
   case proplists:get_value(target, S) of
     index -> {couch:exists(Doctype, R, S), R, S};
-    identifier -> {couch:exists(Id, R, S), R, S}
+    identifier -> 
+      case couch:find_id(Id, Json) of
+        undefined -> {false, R, S};
+        Value -> {true, R, S}
+      end
   end. 
 
 is_authorized(R, S) ->
@@ -75,15 +80,14 @@ post_is_create(R, S) ->
 
 create_path(R, S) ->
   Json = struct:from_json(wrq:req_body(R)),
+  {ok, Id} = couch:get_uuid(R, S);
+  Json1 = struct:set_value(<<"id">>, list_to_binary(Id), Json);
   
-  {Id, Json1} = case struct:get_value(<<"_id">>, Json) of
-    undefined -> 
-      {ok, GenId} = couch:get_uuid(R, S),
-      {GenId, struct:set_value(<<"_id">>, list_to_binary(GenId), Json)};
-    IdBin -> {binary_to_list(IdBin), Json}
-  end,
-  
-  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
+  Location = "http://" ++ 
+             wrq:get_req_header("host", R) ++ "/" ++ 
+             wrq:path(R) ++ "/" ++ 
+             Id,
+             
   R1 = wrq:set_resp_header("Location", Location, R),
   
   {Id, R1, [{posted_json, Json1}|S]}.
