@@ -1,6 +1,6 @@
 <h3 
   id="head-{{ id }}" 
-  data-doctype-id="{{ doctype }}" 
+  data-doctype-id="{{ value.doctype }}" 
   data-fieldset-id="{{ id }}" 
   class="accordion-head"
 >
@@ -14,7 +14,14 @@
   
   <h4>Fields</h4>
   
-  <button id="add-field-to-{{ id }}-button" class="add-field-button" data-doctype-id="{{ value.doctype }}" data-fieldset-id="{{ id }}">Add Field</button>
+  <button 
+    id="add-field-to-{{ id }}-button" 
+    class="add-field-button" 
+    data-doctype-id="{{ value.doctype }}" 
+    data-fieldset-id="{{ id }}"
+  >
+    Add Field
+  </button>
   
   <table class="fields ui-widget ui-widget-content">
     <thead>
