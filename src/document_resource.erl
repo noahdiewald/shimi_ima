@@ -64,9 +64,10 @@ is_authorized(R, S) ->
 
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
-    index -> {['HEAD', 'GET', 'POST'], R, S};
+    main -> {['HEAD', 'GET', 'POST'], R, S};
+    index -> {['HEAD', 'GET'], R, S};
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
-    new -> {['HEAD', 'GET'], R, S}
+    edit -> {['HEAD', 'GET'], R, S}
   end.
   
 post_is_create(R, S) ->
@@ -91,8 +92,9 @@ content_types_accepted(R, S) ->
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
-    new -> {html_new(R, S), R, S};
-    index -> {html_documents(R, S), R, S};
+    edit -> {html_edit(R, S), R, S};
+    main -> {html_documents(R, S), R, S};
+    index -> {html_index(R, S), R, S};
     identifier -> {html_document(R, S), R, S}
   end.
   
@@ -108,7 +110,19 @@ from_json(R, S) ->
   
 % Helpers
 
-html_new(R, S) ->
+html_documents(R, S) ->
+  Doctype = wrq:path_info(doctype, R),
+  
+  Vals = [
+    {<<"title">>, list_to_binary(Doctype ++ " Documents")}, 
+    {<<"project_info">>, couch:get_json(project, R, S)},
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+  ],
+  
+  {ok, Html} = document_dtl:render(Vals),
+  Html.
+
+html_edit(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Json = couch:get_view_json(Doctype, "fieldsets", R, S),
   
@@ -118,10 +132,10 @@ html_new(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = document_new_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = document_edit_dtl:render(struct:set_values(Vals, Json)),
   Html.
 
-html_documents(R, S) ->
+html_index(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Json = couch:get_view_json(Doctype, "index", R, S),
   
@@ -143,7 +157,7 @@ html_document(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = document_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = document_view_dtl:render(struct:set_values(Vals, Json)),
   Html.
     
 validate_authentication({struct, Props}, R, S) ->

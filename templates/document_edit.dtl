@@ -1,17 +1,4 @@
-{% extends "base.dtl" %}
-
-{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
-
-{% block header %}
-<h1>{{ project_info.name }}: {{ title }}</h1>
-<em>{{ doctype_info.description }}</em>
-{% endblock %}
-
-{% block javascript %}
-    <script type="text/javascript" src="/js/new-document.js"></script>
-{% endblock %}
-    
-{% block main_content %}
+<h2 class="ui-widget ui-widget-header">{{ title }}</h2>
 
 {% if total_rows != 0 %}
 
@@ -64,7 +51,6 @@
   {% endfor %}
   
   <button 
-    data-action="../documents" 
     data-doctype-id="{{ doctype_info._id }}" 
     data-doctype-description="{{ doctype_info.description }}" 
     id="create-document-button" 
@@ -83,5 +69,3 @@
 </p>
 
 {% endif %}
-
-{% endblock %}

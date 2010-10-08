@@ -1,0 +1,43 @@
+<h2 class="ui-widget ui-widget-header">{{ title }}</h2>
+
+<ul>
+{% for fieldset in fieldsets %}
+  <li 
+    class="fieldset-view" 
+    fieldset-id="{{ fieldset.id }}" 
+    data-multiple="{{ fieldset.multiple }}"
+  >
+    <b>{{ fieldset.name }}</b>:
+    {% if fieldset.multiple %}
+    {% for multifield in fieldset.multifields %}
+    next
+    <ul>
+    {% for field in multifield.fields %}
+      <li 
+        class="field-view" 
+        field-id="{{ field.id}}"
+        data-index={{ field.index }}
+        data-value="{{ field.value }}"
+      >
+        <b>{{ field.label }}</b>: {{ field.value }}
+      </li>
+    {% endfor %}
+    </ul>
+    {% endfor %}
+    {% endif %}
+    {% if not fieldset.multiple %}
+    <ul>
+    {% for field in fieldset.fields %}
+      <li 
+        class="field-view" 
+        field-id="{{ field.id}}"
+        data-value="{{ field.value }}"
+      >
+        <b>{{ field.label }}</b>: {{ field.value }}
+      </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+{% endfor %}
+</ul>

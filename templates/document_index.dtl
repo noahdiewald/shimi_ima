@@ -1,46 +1,20 @@
-{% extends "base.dtl" %}
-
-{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
-
-{% block header %}
-<h1>{{ project_info.name }}: {{ title }}</h1>
-<em>{{ doctype_info.description }}</em>
-{% endblock %}
-
-{% block javascript %}
-    <script type="text/javascript" src="/js/documents.js"></script>
-{% endblock %}
-    
-{% block main_content %}
-
-  <a class="new-button" href="documents/new">Add Document</a>
-<div class="ui-widget ui-corner-all" id="container">
-
-  <div id="all-document-container">
-    <div class="ui-widget ui-widget-content ui-corner-left" id="document-index">
-    <h2 class="ui-widget ui-widget-header ui-corner-tl">Document Index</h2>
-
-    <table>
-      {% for row in rows %}
-      <tr>
-        <th>
-          <a href="#{{ row.id }}" class="view-document-link">
-            <ul class="head-elements">
-            {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
-            </ul>
-          </a>
-        </th>
-        <td>
-          <ul>
-          {% for elem in row.value %}<li>{{ elem }}</li>{% endfor %}
-          </ul>
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
-    </div>
-    <div class="ui-widget ui-widget-content ui-corner-right" id="document-view">
-    </div>
-  </div>
-</div>
-{% endblock %}
+<h2 class="ui-widget ui-widget-header ui-corner-tl">Document Index</h2>
+  
+<table>
+  {% for row in rows %}
+  <tr>
+    <th>
+      <a href="#{{ row.id }}" class="view-document-link">
+        <ul class="head-elements">
+        {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
+        </ul>
+      </a>
+    </th>
+    <td>
+      <ul>
+      {% for elem in row.value %}<li>{{ elem }}</li>{% endfor %}
+      </ul>
+    </td>
+  </tr>
+  {% endfor %}
+</table>

@@ -123,11 +123,18 @@ ul.head-elements li:first-child::before {
 
 #document-view {
   vertical-align: top;
-  width: 75%;
+  width: 25%;
   padding-top: 0;
   display: table-cell;
 }
 
-#document-index h2, #document-view h2 {
+#document-edit {
+  vertical-align: top;
+  width: 50%;
+  padding-top: 0;
+  display: table-cell;
+}
+
+#all-document-container h2 {
   margin-top: 0;
 }
