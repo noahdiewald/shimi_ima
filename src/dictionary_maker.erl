@@ -24,7 +24,7 @@
 
 -module(dictionary_maker).
 -author('author <author@example.com>').
--export([start/0, start_link/0, stop/0]).
+-export([start/0, start_link/0, stop/0, stop/1]).
 
 ensure_started(App) ->
     case application:start(App) of
@@ -52,6 +52,7 @@ start() ->
     application:set_env(webmachine, webmachine_logger_module, 
                         webmachine_logger),
     ensure_started(webmachine),
+    write_pid_file(),
     application:start(dictionary_maker).
 
 %% @spec stop() -> ok
@@ -62,3 +63,26 @@ stop() ->
     application:stop(mochiweb),
     application:stop(crypto),
     Res.
+
+%% @spec stop([Node]) -> void()
+%% @doc Stop a dictionary maker server on a specific node
+stop([Node]) ->
+    io:format("Stop:~p~n",[Node]),
+    case net_adm:ping(Node) of
+     pong -> 
+       % TODO: this could delete the pid file even if the program hasn't stoped.
+       file:delete("./dictionary_maker.pid"),
+       rpc:cast(Node, init, stop, []);
+     pang -> io:format("There is no node with this name~n")
+    end,
+    init:stop().
+
+write_pid_file() ->
+    case file:open("./dictionary_maker.pid", [write]) of
+        {ok, Fd} ->
+            io:format(Fd, "~s~n", [os:getpid()]),
+            file:close(Fd);
+        {error, Reason} ->
+            throw({cannot_write_pid_file, "./dictionary_maker.pid", Reason})
+        end.
+
