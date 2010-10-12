@@ -22,8 +22,7 @@
 ##
 
 # Change this to your base directory
-#BASE=/home/dictionary_maker
-BASE=.
+BASE=/home/dictionary_maker/dictionary_maker
 
 # Change this to the complete path to dictionary_maker.sh (this script)
 DM_SH=$BASE/dictionary_maker.sh
@@ -34,7 +33,7 @@ DM_SH=$BASE/dictionary_maker.sh
 DM=.
 
 # Change this to point to the erlang vm
-ERL="/usr/local/bin/erl"
+ERL="/usr/bin/erl"
 
 # The include path for the erlang vm, add when needed for your application.
 PA="$DM/ebin $DM/deps/*/ebin"
@@ -46,6 +45,8 @@ SNAME=dm001
 # HOSTNAME=`hostname`
 # HOSTNAME=your.domain.com
 HOSTNAME=localhost
+
+EXEC_USER=dictionary_maker
 
 # The command used to restart dictionary_maker when crashed, only used after a "dictionary_maker.sh start"
 export HEART_COMMAND="$DM_SH start"
@@ -62,12 +63,12 @@ pushd $DM >/dev/null
 
 function start() {
     echo "Starting dictionary_maker $SNAME"
-    $ERL -pa $PA -name $SNAME@$HOSTNAME -boot start_sasl -heart -detached -s dictionary_maker
+    su -c "$ERL -pa $PA -name $SNAME@$HOSTNAME -boot start_sasl -heart -detached -s dictionary_maker" $EXEC_USER
 }
 
 function stop() {
     echo "Stopping dictionary_maker $SNAME"
-    $ERL -noshell -pa $PA -sname ${SNAME}_stop -s dictionary_maker stop $SNAME@$HOSTNAME
+    su -c "$ERL -noshell -pa $PA -sname ${SNAME}_stop -s dictionary_maker stop $SNAME@$HOSTNAME" $EXEC_USER
 }
 
 function status() {
@@ -95,7 +96,7 @@ case $1 in
     ;;
  
   debug)
-    $ERL +P 10000000 +K true -pa $PA -name $SNAME@$HOSTNAME -boot start_sasl -s dictionary_maker
+    su -c "$ERL +P 10000000 +K true -pa $PA -name $SNAME@$HOSTNAME -boot start_sasl -s dictionary_maker" $EXEC_USER
     ;;
  
   stop)
@@ -107,7 +108,7 @@ case $1 in
     ;;
 
   shell)
-    $ERL -sname dictionary_maker_shell -remsh $SNAME@$HOSTNAME
+    su -c "$ERL -sname dictionary_maker_shell -remsh $SNAME@$HOSTNAME" $EXEC_USER
     ;;
 
   restart)
@@ -117,7 +118,7 @@ case $1 in
     ;;
 
   *)
-    echo "Usage: $0 {debug|start|stop|restart}"
+    echo "Usage: $0 {debug|shell|status|start|stop|restart}"
     exit 1
 esac
 
