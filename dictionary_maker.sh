@@ -1,36 +1,22 @@
 #!/bin/bash
-#
-# Copyright 2009 Marc Worrell
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
  
 ##
-## usage dictionary_maker.sh {debug|start|stop|restart}
+## usage dictionary_maker {debug|shell|status|start|stop|restart}
 ##
 ## Use "debug" to start an interactive shell (highly recommended when installing the db on the first run).
-## Use "start" in production. This boots zotonic in an erlang vm with a heart beat process.
+## Use "start" in production. This boots dictionary_maker in an erlang vm with a heart beat process.
 ##
 
 # Change this to your base directory
 BASE=/home/dictionary_maker/dictionary_maker
 
-# Change this to the complete path to dictionary_maker.sh (this script)
-DM_SH=$BASE/dictionary_maker.sh
+# Change this to the complete path to dictionary_maker (this script)
+DM_SH=/etc/rc.d/dictionary_maker
 
 # Change this to the directory where you have unpacked dictionary_maker
 # IMPORTANT: this directory must be called dictionary_maker or dictionary_maker-x.y where x.y is the version number.
 #DM=$BASE/dictionary_maker
-DM=.
+DM=BASE
 
 # Change this to point to the erlang vm
 ERL="/usr/bin/erl"
