@@ -3,7 +3,7 @@
 ##
 ## usage dictionary_maker {debug|shell|status|start|stop|restart}
 ##
-## Use "debug" to start an interactive shell (highly recommended when installing the db on the first run).
+## Use "debug" to start an interactive shell.
 ## Use "start" in production. This boots dictionary_maker in an erlang vm with a heart beat process.
 ##
 
