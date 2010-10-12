@@ -70,6 +70,24 @@ function stop() {
     $ERL -noshell -pa $PA -sname ${SNAME}_stop -s dictionary_maker stop $SNAME@$HOSTNAME
 }
 
+function status() {
+    if [ -f $DM_PIDFILE ]
+    then
+        if ps ax|grep `cat $DM_PIDFILE` > /dev/null 2>&1
+        then
+            echo "Dictionary Maker is running"
+        else
+            echo "Dictionary Maker is not running"
+            echo "Erasing stale PID file $DM_PIDFILE"
+            rm $DM_PIDFILE
+            exit 1
+        fi
+    else
+        echo "Dictionary Maker is not running"
+        exit 1
+    fi
+}
+
 case $1 in
 
   start)
@@ -82,6 +100,10 @@ case $1 in
  
   stop)
     stop
+    ;;
+  
+  status)
+    status
     ;;
 
   shell)
