@@ -1,0 +1,11 @@
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <em class="help-text">yyyy-mm-dd</em><br />
+  <input 
+    class="date field field-text ui-widget ui-corner-all"
+    type="text" 
+    value="{% if default %}{{ default }}{% endif %}"
+    {% include 'field_common_attributes.dtl' %}
+  >
+{% endblock %}

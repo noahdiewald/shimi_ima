@@ -37,6 +37,9 @@ function fillFields() {
   $('#save-document-button').attr('data-document-id', $('#document-edit-button').attr('data-document-id'));
   $('#save-document-button').attr('data-document-rev', $('#document-edit-button').attr('data-document-rev'));
   $('#save-document-button').show();
+    
+  initDateFields();
+
 }
 
 function getDocument(id) {
@@ -176,6 +179,7 @@ function initEdit() {
       $('.fields').remove();
       initFieldsets();
     });
+
   });
 }
 
@@ -191,6 +195,7 @@ function initFields(fieldset, url, fieldsetCallback) {
     if (fieldsetCallback) {
       fieldsetCallback(fieldset);
     }
+    initDateFields();
     initRemoveButton();
   });
 }

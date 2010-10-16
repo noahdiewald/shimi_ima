@@ -27,6 +27,12 @@ function checkRegexp(o, regexp, n, tips) {
   }
 }
 
+// Date Picker
+
+function initDateFields() {
+  $(".date").datepicker({dateFormat: "yy-mm-dd"});
+}
+
 // Display notifications
 
 function flashError(title, body) {
@@ -70,9 +76,7 @@ $(function () {
     }
   });
   
-  // Date Picker
-  
-  $(".date").datepicker();
+  initDateFields();
   
   // Sortable
   
