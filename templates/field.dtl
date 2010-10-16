@@ -19,6 +19,6 @@
     type="text" 
     value="{% if default %}{{ default }}{% endif %}"
     {% include 'field_common_attributes.dtl' %}
-  >
+  />
 {% endblock %}
 </div>
