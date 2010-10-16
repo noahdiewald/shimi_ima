@@ -1,45 +1,76 @@
+// Fill the form fields with a document's values
 function fillFields() {
   $('.fieldset-view').each(function(fieldsetViewIndex, fieldsetView) {
-  
     if ($(fieldsetView).attr('data-multiple') == "true") {
-    
-      var fieldsetId = $(fieldsetView).attr('data-fieldset-view-id');
-      var fieldsetContainer = $('.fieldset-container[data-fieldset-id=' + fieldsetId + ']');
-      var url = buildUrl(fieldsetContainer.attr('data-project-id'),
-                         fieldsetContainer.attr('data-doctype-id'),
-                         fieldsetContainer.attr('data-fieldset-id'));
-      
-      fieldsetContainer.html('');
-      
-      $(fieldsetView).children('.multifield').each(function(multifieldIndex, multifield) {
-        
-        initFieldset(fieldsetContainer, url, function(fieldset) {
-        
-          $(multifield).children().each(function(fieldIndex, field) {
-            var value = $(field).attr('data-field-view-value');
-            var fieldId = $(field).attr('data-field-view-id');
-            
-            fieldset.find('[data-field-id=' + fieldId + ']').last().val(value);
-          });
-        });
-      });
-      
+      fillMultiFields(fieldsetView);
     } else {
-      $(fieldsetView).find('.field-view').each(function(fieldIndex, field) {
-        var value = $(field).attr('data-field-view-value');
-        var fieldId = $(field).attr('data-field-view-id');
-        
-        $('[data-field-id=' + fieldId + ']').val(value);
-      });
+      fillNormalFields(fieldsetView);
     }
   });
   
+  afterEditRefresh();
+
+  return true;
+}
+
+// Fill fields in multiple fieldsets
+function fillMultiFields(fieldsetView) {
+  var fieldsetId = $(fieldsetView).attr('data-fieldset-view-id');
+  var fieldsetContainer = $('.fieldset-container[data-fieldset-id=' + fieldsetId + ']');
+  var url = buildUrl(fieldsetContainer.attr('data-project-id'),
+                     fieldsetContainer.attr('data-doctype-id'),
+                     fieldsetContainer.attr('data-fieldset-id'));
+  
+  fieldsetContainer.html('');
+  
+  $(fieldsetView).children('.multifield').each(function(multifieldIndex, multifield) {
+    
+    initFieldset(fieldsetContainer, url, function(fieldset) {
+    
+      $(multifield).children().each(function(fieldIndex, field) {
+        var value = $(field).attr('data-field-view-value');
+        var fieldId = $(field).attr('data-field-view-id');
+        
+        fieldset.find('[data-field-id=' + fieldId + ']').last().val(value);
+      });
+    });
+  });
+}
+
+// Fill fields in normal fieldset
+function fillNormalFields(fieldsetView) {
+  $(fieldsetView).find('.field-view').each(function(fieldIndex, field) {
+    var value = $(field).attr('data-field-view-value');
+    var fieldId = $(field).attr('data-field-view-id');
+    
+    $('[data-field-id=' + fieldId + ']').val(value);
+  });
+}
+
+// Functions to run after the form is refreshed or filled.
+
+// This is run after the form is refreshed with new values inserted.
+function afterEditRefresh() {
   $('#save-document-button').attr('data-document-id', $('#document-edit-button').attr('data-document-id'));
   $('#save-document-button').attr('data-document-rev', $('#document-edit-button').attr('data-document-rev'));
   $('#save-document-button').show();
-    
-  initDateFields();
+  
+  afterRefresh();
+  
+  return true;
+}
 
+// This is run after the form is cleared or created empty
+function afterFreshRefresh() {
+  initRemoveButton();
+  afterRefresh();
+  return true;
+}
+
+// This should be run after either afterFreshRefresh() or afterEditRefresh()
+function afterRefresh() {
+  initDateFields();
+  return true;
 }
 
 function getDocument(id) {
@@ -195,8 +226,8 @@ function initFields(fieldset, url, fieldsetCallback) {
     if (fieldsetCallback) {
       fieldsetCallback(fieldset);
     }
-    initDateFields();
-    initRemoveButton();
+    
+    afterFreshRefresh();
   });
 }
 
