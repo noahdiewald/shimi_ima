@@ -1,20 +1,10 @@
 {% extends "field.dtl" %}
   
 {% block input_area %}
-  <fieldset class="ui-widget ui-corner-all boolean">
-    <input 
-      class="field ui-widget ui-corner-all"
-      type="radio" 
-      value=true
-      {% if default == 'true' %}checked=true{% endif %}
-      {% include 'field_common_attributes.dtl' %}
-    /> True<br />
-    <input 
-      class="field ui-widget ui-corner-all"
-      type="radio" 
-      value=false
-      {% if default == 'false' %}checked=true{% endif %}
-      {% include 'field_common_attributes.dtl' %}
-    /> False
-  </fieldset>
+  <input 
+    class="boolean field ui-widget ui-corner-all"
+    type="checkbox"
+    {% if default == 'true' %}checked{% endif %}
+    {% include 'field_common_attributes.dtl' %}
+  /> Check for true<br />
 {% endblock %}

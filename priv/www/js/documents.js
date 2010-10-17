@@ -58,12 +58,20 @@ function fillFields(container, context) {
     var value = $(field).attr('data-field-view-value');
     var fieldId = $(field).attr('data-field-view-id');
     
-    if (context) {
-      context.find('[data-field-id=' + fieldId + ']').val(value);
-    } else {
-      $('[data-field-id=' + fieldId + ']').val(value);
-    }
+    if (!context) context = $('body');
+    
+    setFieldValue(context.find('.field[data-field-id=' + fieldId + ']'), value);
   });
+  
+  return true;
+}
+
+function setFieldValue(field, value) {
+  if (field.is('input.boolean')) {
+    field.attr("checked", value == "true");
+  } else {
+    field.val(value);
+  }
   
   return true;
 }
@@ -382,17 +390,19 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
   
   fields.each(function(index) {
     var field = $(this);
-    var fieldId = field.attr('data-field-id')
+    var fieldId = field.attr('data-field-id');
+    var fieldName = field.attr('name');
+    var fieldValue = getFieldValue(field);
     
     obj.fields[index] = {
       id: fieldId,
-      name: field.attr('name'),
+      name: fieldName,
       label: field.attr('data-field-label'),
       head: field.attr('data-field-head') == "true",
       reversal: field.attr('data-field-reversal') == "true",
       order: field.attr('data-field-order') * 1,
       subcategory: field.attr('data-field-subcategory'),
-      value: field.val()
+      value: fieldValue
     }
     
     if (fieldsIndex >= 0) {
@@ -401,6 +411,21 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
   })
   
   return obj;
+}
+
+// Get the value from a field that not much is known about.
+function getFieldValue(field) {
+  var fieldValue;
+  
+  if (field.is('input.boolean')) {
+    fieldValue = field.is('input:checkbox:checked');
+  } else if (field.is('input.number')) {
+    fieldValue = field.val() * 1;
+  } else {
+    fieldValue = field.val();
+  }
+  
+  return fieldValue;
 }
 
 $(function () {
