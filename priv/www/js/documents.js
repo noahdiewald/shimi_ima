@@ -114,6 +114,8 @@ function getDocument(id) {
     $('#document-view').html(documentHtml);
     
     $('#document-edit-button').button().click(function() {
+      $('.fields').val('');
+      $('.fields').attr('checked', 'false');
       fillFieldsets();
     });
   });
