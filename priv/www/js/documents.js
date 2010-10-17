@@ -107,11 +107,13 @@ function afterRefresh() {
 // generating parts of a form.
 
 // Get a document and display it in the middle column
-function getDocument(id) {
+function getDocument(id, runAfterEditRefresh) {
   var url = "documents/" + id;
   
   $.get(url, function(documentHtml) {
     $('#document-view').html(documentHtml);
+    
+    if (runAfterEditRefresh) afterEditRefresh();
     
     $('#document-edit-button').button().click(function() {
       $('.fields').val('');
@@ -219,7 +221,7 @@ function initSaveButton() {
         if (req.status == 204) {
           var title = "Success";
           var body = "Your document was saved.";
-          getDocument(documentId);
+          getDocument(documentId, true);
           getIndex();
           flashHighlight(title, body);
           saveButton.button('enable');
