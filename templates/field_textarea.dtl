@@ -3,6 +3,9 @@
 {% block input_area %}
   <textarea 
     class="field textarea ui-widget ui-corner-all"
+    {% if default != "" %}
+    data-field-default="{{ default }}"
+    {% endif %}
     {% include 'field_common_attributes.dtl' %}
   >{% if default %}{{ default }}{% endif %}</textarea>
 {% endblock %}

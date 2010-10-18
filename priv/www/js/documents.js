@@ -69,6 +69,8 @@ function fillFields(container, context) {
 function setFieldValue(field, value) {
   if (field.is('input.boolean')) {
     field.attr("checked", value == "true");
+  } else if (value && field.is('select.multiselect')) {
+    field.val(value.split(","));
   } else {
     field.val(value);
   }
@@ -116,10 +118,29 @@ function getDocument(id, runAfterEditRefresh) {
     if (runAfterEditRefresh) afterEditRefresh();
     
     $('#document-edit-button').button().click(function() {
-      $('.fields').val('');
-      $('.fields').attr('checked', 'false');
+      resetFields();
       fillFieldsets();
     });
+  });
+}
+
+function resetFields() {
+  $('.field').each(function(index) {
+    field = $(this);
+    thedefault = field.attr('data-field-default');
+    
+    if (thedefault && thedefault != '') {
+      if (field.is('select.multiselect')) {
+        field.val(thedefault.split(","));
+      } else if (field.is('input.boolean')) {
+        field.attr('checked', thedefault == true);
+      } else {
+        field.val(thedefault);
+      }
+    } else {
+      field.val('');
+      field.removeAttr('checked');
+    }
   });
 }
 

@@ -5,6 +5,9 @@
     class="field number integer ui-widget ui-corner-all" 
     type="text" 
     value="{% if default %}{{ default }}{% endif %}"
+    {% if default != "" %}
+    data-field-default="{{ default }}"
+    {% endif %}
     {% include 'field_common_attributes.dtl' %}
   />
 {% endblock %}

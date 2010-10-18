@@ -4,6 +4,9 @@
   <select 
     multiple=true
     class="field multiselect ui-widget ui-corner-all"
+    {% if default != "" %}
+    data-field-default="{{ default|join:"," }}"
+    {% endif %}
     {% include 'field_common_attributes.dtl' %}
   >
     {% if required != 'true' %}
