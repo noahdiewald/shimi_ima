@@ -15,7 +15,7 @@
   
 {% block input_area %}
   <input 
-    class="field field-text ui-widget ui-corner-all" 
+    class="field text ui-widget ui-corner-all" 
     type="text" 
     value="{% if default %}{{ default }}{% endif %}"
     {% include 'field_common_attributes.dtl' %}

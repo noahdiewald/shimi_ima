@@ -2,7 +2,7 @@
   
 {% block input_area %}
   <textarea 
-    class="field field-textarea ui-widget ui-corner-all"
+    class="field textarea ui-widget ui-corner-all"
     {% include 'field_common_attributes.dtl' %}
   >{% if default %}{{ default }}{% endif %}</textarea>
 {% endblock %}

@@ -224,21 +224,24 @@ function initFieldsetAddDialog() {
 }
 
 function initFieldAddDialog() {
+  var fieldName = $("#field-name-input");
+  var fieldLabel = $("#field-label-input");
+  var fieldSubcategory = $("#field-subcategory-input");
+  var fieldDescription = $("#field-description-input");
+  var fieldHead = $("#field-head-input");
+  var fieldReversal = $("#field-reversal-input");
+  var fieldOrder = $("#field-order-input");
+  var fieldDoctype = $("#field-doctype-input");
+  var fieldFieldset = $("#field-fieldset-input");
+  var fieldDefault = $("#field-default-input");
+  var fieldRequired = $("#field-required-input");
+  var fieldAllowed = $("#field-allowed-input");
+  
   $("#field-add-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Add Field": function() {
-        var fieldName = $("#field-name-input");
-        var fieldLabel = $("#field-label-input");
-        var fieldSubcategory = $("#field-subcategory-input");
-        var fieldDescription = $("#field-description-input");
-        var fieldHead = $("#field-head-input");
-        var fieldReversal = $("#field-reversal-input");
-        var fieldOrder = $("#field-order-input");
-        var fieldDoctype = $("#field-doctype-input");
-        var fieldFieldset = $("#field-fieldset-input");
-        
         $('.input').removeClass('ui-state-error');
         
         checkResult = true;
@@ -248,9 +251,12 @@ function initFieldAddDialog() {
             "category": "field", 
             "name": fieldName.val(),
             "label": fieldLabel.val(),
+            "default": fieldDefault.val(),
             "head": fieldHead.is(':checked'),
             "reversal": fieldReversal.is(':checked'),
+            "required": fieldRequired.is(':checked'),
             "order": (fieldOrder.val() * 1),
+            "allowed": fieldAllowed.val().split(","),
             "description": fieldDescription.val(),
             "doctype": fieldDoctype.val(),
             "fieldset": fieldFieldset.val(),
@@ -269,7 +275,26 @@ function initFieldAddDialog() {
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
+      fieldAllowed.attr("disabled", "disabled");
+      fieldAllowed.parent().hide();
     }
+  });
+  
+  fieldAllowed.attr("disabled", "disabled");
+  fieldAllowed.parent().hide();
+  
+  fieldSubcategory.change(function() {
+    var selected = fieldSubcategory.children('option:selected').val();
+    var options = ["select", "multiselect"];
+    
+    if (options.indexOf(selected) >= 0) {
+      fieldAllowed.removeAttr("disabled");
+      fieldAllowed.parent().show();
+    } else {
+      fieldAllowed.attr("disabled", "disabled")
+      fieldAllowed.val('');
+      fieldAllowed.parent().hide();
+    };
   });
   
   return true;

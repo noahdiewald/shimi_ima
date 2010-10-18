@@ -1,0 +1,19 @@
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <select 
+    multiple=true
+    class="field multiselect ui-widget ui-corner-all"
+    {% include 'field_common_attributes.dtl' %}
+  >
+    {% if required != 'true' %}
+    <option value=""></option>
+    {% endif %}
+    {% for option in allowed %}
+      <option
+        {% if option == default %}selected=true{% endif %}
+        value={{ option }}
+      >{{ option }}</option>
+    {% endfor %}
+  </select>
+{% endblock %}

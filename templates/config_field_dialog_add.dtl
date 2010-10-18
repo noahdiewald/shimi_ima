@@ -21,15 +21,26 @@
         <option value="textarea">Text Box</option>
         <option value="date">Date</option>
         <option value="integer">Integer</option>
-        <option value="decimal">Decimal</option>
+        <option value="rational">Rational</option>
         <option value="boolean">Boolean</option>
-        <option value="checkbox">Check Box</option>
+        <option value="select">Selection</option>
+        <option value="multiselect">Multiple Selection</option>
       </select><br />
+      
+      <label for="field-default-input">Default Value</label><br />
+      <input type="text" name="field-default-input" id="field-default-input" value="" class="ui-corner-all input" /><br />
+      
+      <div>
+        <label for="field-allowed-input">Allowed Values</label> <em>Separate values with a comma.</em><br />
+        <input type="text" name="field-allowed-input" id="field-allowed-input" value="" class="ui-corner-all input" /><br />
+      </div>
       
       <fieldset class="ui-widget-content ui-corner-all">
         <input name="field-head-input" class="input" id="field-head-input" type="checkbox" /> <label for="field-head-input">Document Head</label><br />
 
         <input name="field-reversal-input" class="input" id="field-reversal-input" type="checkbox" /> <label for="field-reversal-input">Document Reversal</label><br />
+
+        <input name="field-required-input" class="input" id="field-required-input" type="checkbox" /> <label for="field-required-input">Required Field</label><br />
       </fieldset>
       
       <label for="field-order-input">Field Relative Order</label><br />
