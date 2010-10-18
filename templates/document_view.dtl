@@ -11,21 +11,34 @@
   >
     <b>{{ fieldset.name }}</b>:
     {% if fieldset.multiple %}
+    <ol>
     {% for multifield in fieldset.multifields %}
-    next
-    <ul class="multifield">
-    {% for field in multifield.fields %}
-      <li 
-        class="field-view" 
-        data-field-view-id="{{ field.id}}"
-        data-field-view-index={{ field.index }}
-        data-field-view-value="{{ field.value }}"
-      >
-        <b>{{ field.label }}</b>: {{ field.value }}
-      </li>
+      <li><ul class="multifield">
+      {% for field in multifield.fields %}
+        <li 
+          class="field-view" 
+          data-field-view-id="{{ field.id}}"
+          data-field-view-index={{ field.index }}
+        {% if field.subcategory == "multiselect" %}
+          data-field-view-value="{{ field.value|join:"," }}"
+        >
+          <b>{{ field.label }}</b>: 
+            <ol>
+              {% for elem in field.value %}
+                <li>{{ elem }}</li>
+              {% endfor %}
+            </ol>
+        {% endif %}
+        {% if field.subcategory != "multiselect" %}
+          data-field-view-value="{{ field.value }}"
+        >
+          <b>{{ field.label }}</b>: {{ field.value }}
+        {% endif %}
+        </li>
+      {% endfor %}
+      </ul></li>
     {% endfor %}
-    </ul>
-    {% endfor %}
+    </ol>
     {% endif %}
     {% if not fieldset.multiple %}
     <ul>
@@ -33,9 +46,21 @@
       <li 
         class="field-view" 
         data-field-view-id="{{ field.id}}"
+      {% if field.subcategory == "multiselect" %}
+        data-field-view-value="{{ field.value|join:"," }}"
+      >
+        <b>{{ field.label }}</b>: 
+          <ol>
+            {% for elem in field.value %}
+              <li>{{ elem }}</li>
+            {% endfor %}
+          </ol>
+      {% endif %}
+      {% if field.subcategory != "multiselect" %}
         data-field-view-value="{{ field.value }}"
       >
         <b>{{ field.label }}</b>: {{ field.value }}
+      {% endif %}
       </li>
     {% endfor %}
     </ul>

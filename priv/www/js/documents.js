@@ -69,6 +69,8 @@ function fillFields(container, context) {
 function setFieldValue(field, value) {
   if (field.is('input.boolean')) {
     field.attr("checked", value == "true");
+  } else if (field.is('select.multiselect')) {
+    field.val(value.split(","));
   } else {
     field.val(value);
   }
