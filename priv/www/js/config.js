@@ -108,16 +108,19 @@ function populateDoctypeTabs() {
   });
 }
 
-$(function () {
-  
+function initTabs() {
   $("#doctype-tabs").tabs();
   populateDoctypeTabs();
-  
   $("#main-tabs").tabs();
   $("#character-sequence-tabs").tabs();
+  
+  return true;
+}
+
+function initHelpText() {
   $("#doctype-info").hide();
   $("#character-sequence-info").hide();
-  
+
   $("#doctype-info-toggle").click(function() {
     $("#doctype-info").toggle("blind", {}, 500);
     return false;
@@ -128,6 +131,10 @@ $(function () {
     return false;
   });
   
+  return true;
+}
+
+function initDoctypeAddDialog() {
   $("#doctype-add-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -159,12 +166,20 @@ $(function () {
     }
   });
   
+  return true;
+}
+
+function initDoctypeAddButton() {
   $("#doctype-add-button").button({
     icons: {primary: "ui-icon-plus"}
   }).click(function() {
     $("#doctype-add-dialog").dialog("open");
   });
   
+  return true;
+}
+
+function initFieldsetAddDialog() {
   $("#fieldset-add-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -205,6 +220,10 @@ $(function () {
     }
   });
   
+  return true;
+}
+
+function initFieldAddDialog() {
   $("#field-add-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -253,6 +272,10 @@ $(function () {
     }
   });
   
+  return true;
+}
+
+function initCharsecAddDialog() {
   $("#character-sequence-add-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -267,9 +290,26 @@ $(function () {
     }
   });
   
+  return true;
+}
+
+function initCharsecAddButton() {
   $("#character-sequence-add-button").button({
     icons: {primary: "ui-icon-plus"}
   }).click(function() {
     $("#character-sequence-add-dialog").dialog("open");
   });
+
+  return true;
+}
+
+$(function () {
+  initTabs(); 
+  initHelpText();
+  initDoctypeAddDialog();
+  initDoctypeAddButton();
+  initFieldsetAddDialog();
+  initFieldAddDialog();
+  initCharsecAddDialog();
+  initCharsecAddButton();
 });
