@@ -1,7 +1,8 @@
 %% @doc Utilities for working with mochijson2 struct.
 %%
-%% COPYRIGHT - stickyNotes sample application by beepbeep.
-
+%% From the stickyNotes sample application by BeeBole.
+%% http://beebole.com/en/blog/erlang/tutorial-web-application-erlang/
+%%
 %%  struct example : 
 %% 
 %%  S = {struct, [  
