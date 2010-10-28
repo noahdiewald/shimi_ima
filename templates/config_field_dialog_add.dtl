@@ -23,6 +23,7 @@
         <option value="integer">Integer</option>
         <option value="rational">Rational</option>
         <option value="boolean">Boolean</option>
+        <option value="openboolean">Open Boolean</option>
         <option value="select">Selection</option>
         <option value="multiselect">Multiple Selection</option>
       </select><br />

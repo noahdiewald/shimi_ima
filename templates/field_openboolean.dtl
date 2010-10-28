@@ -1,0 +1,24 @@
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <select 
+    class="field open-boolean ui-widget ui-corner-all"
+    {% if default != "" %}
+    data-field-default="{{ default }}"
+    {% endif %}
+    {% include 'field_common_attributes.dtl' %}
+  >
+    <option 
+      value="null"
+      {% if default == 'null' %}selected=true{% endif %}
+    ></option>
+    <option
+      {% if default == 'false' %}selected=true{% endif %}
+      value="false"
+    >False</option>
+    <option
+      {% if default == 'true' %}selected=true{% endif %}
+      value="true"
+    >True</option>
+  </select>
+{% endblock %}

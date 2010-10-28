@@ -444,6 +444,14 @@ function getFieldValue(field) {
   
   if (field.is('input.boolean')) {
     fieldValue = field.is('input:checkbox:checked');
+  } else if (field.is('input.openboolean')) {
+    if (field.val() == "true") {
+      fieldValue == true;
+    } else if (field.val() == "false") {
+      fieldValue == false;
+    } else {
+      fieldValue == null;
+    }
   } else if (field.is('input.number')) {
     fieldValue = field.val() * 1;
   } else {
