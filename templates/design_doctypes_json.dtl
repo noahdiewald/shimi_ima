@@ -16,8 +16,9 @@
    "updates": {
    
        "stamp": "function(doc, req) {
-           if (!doc) {
-               var newDoc = JSON.parse(req.body);
+           var newDoc = JSON.parse(req.body);
+
+           if (!doc) {               
                if (newDoc._id) {
                    var now = (new Date()).toString();
                    newDoc.created_at_ = now;
@@ -25,13 +26,15 @@
                    message = 'Created at ' + now.toString + ' by ' + req.userCtx;
                    return [newDoc, message];
                }
-               return [newDoc, newDoc];
+               return [null, 'This application expects the document _id in the JSON body'];
            }
            var now = (new Date()).toString();
-           doc.updated_at_ = now;
-           doc.update_user_ = req.userCtx.name;
+           newDoc.updated_at_ = now;
+           newDoc.update_user_ = req.userCtx.name;
+           newDoc.created_at_ = doc.created_at_
+           newDoc.create_user_ = doc.create_user_
            message = 'Updated at ' + now.toString + ' by ' + req.userCtx;
-           return [doc, message];
+           return [newDoc, message];
        }"
        
    }
