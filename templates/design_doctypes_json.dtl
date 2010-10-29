@@ -1,11 +1,39 @@
 {
    "_id": "_design/doctypes",
+   
    "views": {
+   
        "all": {
            "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc) }}"
        },
+       
        "all_simple": {
            "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc.description) }}"
        }
+       
+   },
+   
+   "updates": {
+   
+       "stamp": "function(doc, req) {
+           if (!doc) {
+               var newDoc = JSON.parse(req.body);
+               if (newDoc._id) {
+                   var now = (new Date()).toString();
+                   newDoc.created_at_ = now;
+                   newDoc.create_user_ = req.userCtx.name;
+                   message = 'Created at ' + now.toString + ' by ' + req.userCtx;
+                   return [newDoc, message];
+               }
+               return [newDoc, newDoc];
+           }
+           var now = (new Date()).toString();
+           doc.updated_at_ = now;
+           doc.update_user_ = req.userCtx.name;
+           message = 'Updated at ' + now.toString + ' by ' + req.userCtx;
+           return [doc, message];
+       }"
+       
    }
+   
 }

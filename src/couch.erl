@@ -72,7 +72,7 @@ get_uuid(_R, S) ->
   {ok, binary_to_list(Uuid)}.
 
 create(doc, Json, R, S) ->
-  Url = ?COUCHDB ++ wrq:path_info(project, R),
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp",
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
   create(Url, Headers, Json);
 
@@ -86,7 +86,7 @@ create(Url, Headers, Json) ->
   {ok, created}.
 
 update(doc, Id, Json, R, S) ->
-  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ Id,
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp/" ++ Id,
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
   update(Url, Headers, Json).
 
