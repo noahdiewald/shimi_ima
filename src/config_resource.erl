@@ -24,9 +24,11 @@
 
 -module(config_resource).
 -export([
-  init/1, 
+  init/1,
+  is_authorized/2, 
   resource_exists/2,
-  to_html/2
+  to_html/2,
+  validate_authentication/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -35,9 +37,14 @@
 init(Opts) -> {ok, Opts}.
 
 to_html(R, S) ->
-  Json = couch:get_json(project, R, S),
+  User = proplists:get_value(user, S),
+  Project = couch:get_json(project, R, S),
   
-  {ok, Html} = config_dtl:render(Json),
+  Vals = [
+    {<<"user">>, User}
+  ],
+  
+  {ok, Html} = config_dtl:render(struct:set_values(Vals, Project)),
   {Html, R, S}.
 
 resource_exists(R, S) ->
@@ -47,3 +54,16 @@ resource_exists(R, S) ->
     {ok, "200", _, _} -> {true, R, S};
     {ok, "404", _, _} -> {false, R, S}
   end. 
+
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+
+validate_authentication({struct, Props}, R, S) ->
+  Project = couch:get_json(project, R, S),
+  Name = struct:get_value(<<"name">>, Project),
+  ValidRoles = [<<"_admin">>, <<"manager">>, Name],
+  IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
+  case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
+    true -> {true, R, S};
+    false -> {proplists:get_value(auth_head, S), R, S}
+  end.
