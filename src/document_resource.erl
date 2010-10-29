@@ -137,7 +137,8 @@ html_documents(R, S) ->
   Vals = [
     {<<"title">>, list_to_binary(Doctype ++ " Documents")}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)},
+    {<<"user">>, proplists:get_value(user, S)}
   ],
   
   {ok, Html} = document_dtl:render(Vals),
@@ -182,7 +183,9 @@ html_document(R, S) ->
   Html.
     
 validate_authentication({struct, Props}, R, S) ->
-  ValidRoles = [<<"_admin">>, <<"manager">>],
+  Project = couch:get_json(project, R, S),
+  Name = struct:get_value(<<"name">>, Project),
+  ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
     true -> {true, R, S};

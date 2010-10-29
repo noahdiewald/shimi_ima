@@ -131,7 +131,8 @@ index_html(R, S) ->
   {renderings(JsonStruct), R, S}.
   
 main_html(R, S) ->
-  {ok, Html} = projects_dtl:render([{title, "Projects"}]),
+  User = proplists:get_value(user, S),
+  {ok, Html} = projects_dtl:render([{title, "Projects"}, {user, User}]),
   {Html, R, S}.
   
 from_json(R, S) ->

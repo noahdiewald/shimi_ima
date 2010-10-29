@@ -1,0 +1,21 @@
+{% extends "base.dtl" %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block header %}<h1>Welcome to the Dictionary Maker</h1>{% endblock %}
+    
+{% block main_content %}
+<div id="projects-container" class="ui-widget ui-corner-all">
+  
+  <table id="projects-table" class="ui-widget ui-corner-all">
+    <thead class="ui-widget-header">
+      <tr>
+        <th>Project Name</th>
+        <th>Project Description</th>
+      </tr>
+    </thead>
+    <tbody class="ui-widget ui-widget-content ui-corner-all">
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -31,37 +31,44 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 
-is_authorized(ReqData, State) ->
-  State1 = [{auth_head, "Basic realm=dictionary"}|State],
-  case wrq:get_req_header("authorization", ReqData) of
+is_authorized(R, S) ->
+  S1 = [{auth_head, "Basic realm=dictionary"}|S],
+  case wrq:get_req_header("authorization", R) of
     "Basic " ++ Base64 ->
-      State2 = update_client_headers({"Authorization", "Basic " ++ Base64}, State1),
-      do_basic_authentication(Base64, ReqData, State2);
-    _ -> {proplists:get_value(auth_head, State1), ReqData, State1}
+      S2 = update_client_headers({"Authorization", "Basic " ++ Base64}, S1),
+      do_basic_authentication(Base64, R, S2);
+    _ -> {proplists:get_value(auth_head, S1), R, S1}
   end.
     
-do_basic_authentication(Base64, ReqData, State) ->
+do_basic_authentication(Base64, R, S) ->
   Str = base64:mime_decode_to_string(Base64),
   case string:tokens(Str, ":") of
-    [Username, Password] -> couchdb_authenticate(Username, Password, ReqData, State);
-    _ -> {proplists:get_value(auth_head, State), ReqData, State}
+    [Username, Password] -> couchdb_authenticate(Username, Password, R, S);
+    _ -> {proplists:get_value(auth_head, S), R, S}
   end.
   
-couchdb_authenticate(Username, Password, ReqData, State) ->
+couchdb_authenticate(Username, Password, R, S) ->
   Body = "name=" ++ Username ++ "&password=" ++ Password,
   Headers = [{"Content-Type", "application/x-www-form-urlencoded"}],
   Resp = ibrowse:send_req(?COUCHDB ++ "_session", Headers, post, Body),
   case Resp of
     {ok, "200", _, Json} -> 
-      SourceMod = proplists:get_value(source_mod, State),
-      SourceMod:validate_authentication(mochijson2:decode(Json), ReqData, State);
-    {ok, "401", _, _} -> {proplists:get_value(auth_head, State), ReqData, State}
+      do_validations(mochijson2:decode(Json), R, S);
+    {ok, "401", _, _} -> {proplists:get_value(auth_head, S), R, S}
   end.
 
-update_client_headers(Header, State) ->
-  case proplists:get_value(headers, State) of
-    undefined -> [{headers, [Header]}|State];
+do_validations(Struct, R, S) ->
+  Mod = proplists:get_value(source_mod, S),
+  {Valid, R1, S1} = Mod:validate_authentication(Struct, R, S),
+  Name = struct:get_value(<<"name">>, Struct),
+  Roles = struct:get_value(<<"roles">>, Struct),
+  {Valid, R1, [{user, [{name, Name}, {roles, Roles}]}|S1]}.
+  
+
+update_client_headers(Header, S) ->
+  case proplists:get_value(headers, S) of
+    undefined -> [{headers, [Header]}|S];
     Headers -> 
-      State1 = proplists:delete(headers, State),
-      [{headers, [Header|Headers]}|State1]
+      S1 = proplists:delete(headers, S),
+      [{headers, [Header|Headers]}|S1]
     end.
