@@ -94,7 +94,9 @@ get_field_html(Json) ->
   Html.
     
 validate_authentication({struct, Props}, R, S) ->
-  ValidRoles = [<<"_admin">>, <<"manager">>],
+  Project = couch:get_json(project, R, S),
+  Name = struct:get_value(<<"name">>, Project),
+  ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
     true -> {true, R, S};
