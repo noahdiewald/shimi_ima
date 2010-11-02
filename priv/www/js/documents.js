@@ -54,6 +54,8 @@ function fillNormalFieldsets(fieldsetView) {
 // Fill fields, optionally a context is used to fill fields for only
 // a particular fieldset, useful when used as a callback
 function fillFields(container, context) {
+  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  
   container.find('.field-view').each(function(fieldIndex, field) {
     var value = $(field).attr('data-field-view-value');
     var fieldId = $(field).attr('data-field-view-id');
@@ -228,6 +230,7 @@ function initSaveButton() {
       description: saveButton.attr('data-doctype-description')
     };
     
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton.button('disable');
     $.extend(obj, fieldsetsToObject(root));
     
@@ -246,11 +249,13 @@ function initSaveButton() {
           getIndex();
           flashHighlight(title, body);
           saveButton.button('enable');
-        } else {
-          var title = "Failure";
-          var body = "Server returned " + req.status;
+        } else if (req.status == 403) {
+          var body = JSON.parse(req.responseText);
+          var title = req.statusText;
           
-          flashError(title, body);
+          $('[name=' + body.fieldname + ']').addClass('ui-state-error');
+          
+          flashError(title, body.fieldname + " " + body.message);
           saveButton.button('enable');
         }
       }
@@ -276,6 +281,7 @@ function initCreateButton() {
       description: createButton.attr('data-doctype-description')
     };
     
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     createButton.button('disable');
     $.extend(obj, fieldsetsToObject(root));
     
@@ -295,11 +301,13 @@ function initCreateButton() {
           getIndex();
           flashHighlight(title, body);
           createButton.button('enable');
-        } else {
-          var title = "Failure";
-          var body = "Server returned " + req.status;
+        } else if (req.status == 403) {
+          var body = JSON.parse(req.responseText);
+          var title = req.statusText;
           
-          flashError(title, body);
+          $('[name=' + body.fieldname + ']').addClass('ui-state-error');
+          
+          flashError(title, body.fieldname + " " + body.message);
           createButton.button('enable');
         }
       }
@@ -315,6 +323,7 @@ function initClearButton() {
   $('#clear-document-button').button({
     icons: {primary: "ui-icon-refresh"}
   }).click(function() {
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     $('#save-document-button').hide();
     $('.fields').remove();
     initFieldsets();

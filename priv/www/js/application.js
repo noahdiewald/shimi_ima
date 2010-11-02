@@ -36,12 +36,15 @@ function initDateFields() {
 // Display notifications
 
 function flashError(title, body) {
+  $('#notifications-main .ui-state-error .notification-summary').text(title + ": ");
+  $('#notifications-main .ui-state-error .notification-message').text(body);
+  $('#notifications-main .ui-state-error').fadeIn().delay(7000).fadeOut('slow');
 }
 
 function flashHighlight(title, body) {
-  $('.ui-state-highlight .notification-summary').text(title + ": ");
-  $('.ui-state-highlight .notification-message').text(body);
-  $('.ui-state-highlight').fadeIn('slow').delay(1000).fadeOut('slow');
+  $('#notifications-main .ui-state-highlight .notification-summary').text(title + ": ");
+  $('#notifications-main .ui-state-highlight .notification-message').text(body);
+  $('#notifications-main .ui-state-highlight').fadeIn('slow').delay(1000).fadeOut('slow');
 }
  
 $(function () {
