@@ -11,3 +11,4 @@ doc/edoc-info
 c_src/.*\.o
 priv/.*\.so
 dictionary_maker\.pid
+.*\~
