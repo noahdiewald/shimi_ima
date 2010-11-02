@@ -61,7 +61,7 @@ table {
   text-align: left;
 }
 
-.ui-dialog-content input, .ui-dialog-content textarea {
+.ui-dialog-content input[type=text], .ui-dialog-content textarea {
   width: 100%;
 }
 
