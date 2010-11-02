@@ -9,6 +9,9 @@
     
       <label for="fieldset-name-input">Fieldset Name</label><br />
       <input type="text" name="fieldset-name-input" id="fieldset-name-input" value="" class="ui-corner-all input" /><br />
+    
+      <label for="fieldset-label-input">Fieldset Label</label><br />
+      <input type="text" name="fieldset-label-input" id="fieldset-label-input" value="" class="ui-corner-all input" /><br />
       
       <label for="fieldset-multiple-input">How many per document?</label><br />
       <select name="fieldset-multiple-input" class="input" id="fieldset-multiple-input">

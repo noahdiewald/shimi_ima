@@ -74,7 +74,7 @@ to_html(R, S) ->
 
 html_field(R, S) -> 
   Json = couch:get_json(id, R, S),
-  get_field_html(Json).
+  get_field_html(Json, R, S).
   
 html_fieldset(R, S) -> 
   Fieldset = wrq:path_info(fieldset, R),
@@ -83,16 +83,28 @@ html_fieldset(R, S) ->
   Rows = struct:get_value(<<"rows">>, Json),
   
   F = fun(Row) ->
-    get_field_html(struct:get_value(<<"value">>, Row))
+    get_field_html(struct:get_value(<<"value">>, Row), R, S)
   end,
   
   lists:map(F, Rows).
   
-get_field_html(Json) ->
-  Template = list_to_atom("field_" ++ binary_to_list(struct:get_value(<<"subcategory">>, Json)) ++ "_dtl"),
-  {ok, Html} = Template:render(Json),
+get_field_html(Json, R, S) ->
+  Subcategory = binary_to_list(struct:get_value(<<"subcategory">>, Json)),
+  
+  Json1 = case Subcategory of
+    [$d, $o, $c|_] -> getAllowed(Json, R, S);
+    _ -> Json
+  end,
+  
+  Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
+  {ok, Html} = Template:render(Json1),
   Html.
-    
+
+getAllowed(Json, R, S) ->
+  ForeignDoctype = binary_to_list(struct:get_value(<<"source">>, Json)),
+  RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
+  struct:set_value(<<"allowed">>, struct:get_value(<<"rows">>, RawAllowed), Json).
+      
 validate_authentication({struct, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = struct:get_value(<<"name">>, Project),

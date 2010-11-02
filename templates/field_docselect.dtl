@@ -1,0 +1,24 @@
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <select 
+    class="field docselect ui-widget ui-corner-all"
+    {% if default != "" %}
+    data-field-default="{{ default }}"
+    {% endif %}
+    {% include 'field_common_attributes.dtl' %}
+  >
+    {% if required != 'true' %}
+    <option 
+      value=""
+      {% if default == '' %}selected=true{% endif %}
+    ></option>
+    {% endif %}
+    {% for option in allowed %}
+      <option
+        {% if option.value == default %}selected=true{% endif %}
+        value={{ option.value }}
+      >{{ option.key }}</option>
+    {% endfor %}
+  </select>
+{% endblock %}

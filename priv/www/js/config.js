@@ -236,7 +236,17 @@ function initFieldAddDialog() {
   var fieldDefault = $("#field-default-input");
   var fieldRequired = $("#field-required-input");
   var fieldAllowed = $("#field-allowed-input");
+  var fieldSource = $("#field-source-input");
+  var notDefault = [fieldAllowed, fieldSource];
   
+  function hideDisable(blank) {
+    notDefault.forEach(function(field) {
+      field.attr("disabled", "disabled");
+      if (blank) field.val('');
+      field.parent().hide();
+    });
+  }
+      
   $("#field-add-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -257,6 +267,7 @@ function initFieldAddDialog() {
             "required": fieldRequired.is(':checked'),
             "order": (fieldOrder.val() * 1),
             "allowed": fieldAllowed.val().split(","),
+            "source": fieldSource.val(),
             "description": fieldDescription.val(),
             "doctype": fieldDoctype.val(),
             "fieldset": fieldFieldset.val(),
@@ -275,25 +286,25 @@ function initFieldAddDialog() {
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
-      fieldAllowed.attr("disabled", "disabled");
-      fieldAllowed.parent().hide();
+      hideDisable();
     }
   });
   
-  fieldAllowed.attr("disabled", "disabled");
-  fieldAllowed.parent().hide();
+  hideDisable();
   
   fieldSubcategory.change(function() {
     var selected = fieldSubcategory.children('option:selected').val();
-    var options = ["select", "multiselect"];
+    var simpleSelects = ["select", "multiselect"];
+    var remoteSelects = ["docselect", "docmultiselect"];
     
-    if (options.indexOf(selected) >= 0) {
+    if (simpleSelects.indexOf(selected) >= 0) {
       fieldAllowed.removeAttr("disabled");
       fieldAllowed.parent().show();
+    } else if (remoteSelects.indexOf(selected) >= 0) {
+      fieldSource.removeAttr("disabled");
+      fieldSource.parent().show();
     } else {
-      fieldAllowed.attr("disabled", "disabled")
-      fieldAllowed.val('');
-      fieldAllowed.parent().hide();
+      hideDisable(true);
     };
   });
   

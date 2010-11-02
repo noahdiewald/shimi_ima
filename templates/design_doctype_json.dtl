@@ -10,6 +10,35 @@
        "alldocs": {
            "map": "function(doc) { if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { emit(doc._id, doc) } }" 
        },
+       "as_key_vals": {
+           "map": "function(doc) {
+             function emitKeyVals(container) {
+               var v = null;
+               var k = null;
+
+               container.fields.forEach(function(field, index) {
+                 if (field.name = 'value_') {
+                   if (!k) k = field.value;
+                   v = field.value;
+                 } else if (field.name = 'key_') {
+                   k = field.value;
+                 }
+               });
+
+               emit(k, v);
+             }
+
+             if (doc.doctype == '{{ _id }}' && doc.fieldsets ) {
+               doc.fieldsets.forEach(function(fieldset, index) {
+                 if (fieldset.multiple) {
+                   fieldset.multifields.forEach(emitKeyVals(multifield));
+                 } else if (!fieldset.multiple) {
+                   emitKeyVals(fieldset);
+                 }
+               });
+             }
+           }"
+       },
        "index": {
            "map": "function(doc) { 
              if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {

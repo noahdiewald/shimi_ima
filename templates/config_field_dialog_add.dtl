@@ -26,14 +26,23 @@
         <option value="openboolean">Open Boolean</option>
         <option value="select">Selection</option>
         <option value="multiselect">Multiple Selection</option>
+        <option value="docselect">Document Selection</option>
+        <option value="docmultiselect">Document Multiple Selection</option>
       </select><br />
       
-      <label for="field-default-input">Default Value</label><br />
-      <input type="text" name="field-default-input" id="field-default-input" value="" class="ui-corner-all input" /><br />
+      <div>
+        <label for="field-default-input">Default Value</label><br />
+        <input type="text" name="field-default-input" id="field-default-input" value="" class="ui-corner-all input" /><br />
+      </div>
       
       <div>
         <label for="field-allowed-input">Allowed Values</label> <em>Separate values with a comma.</em><br />
         <input type="text" name="field-allowed-input" id="field-allowed-input" value="" class="ui-corner-all input" /><br />
+      </div>
+      
+      <div>
+        <label for="field-source-input">Values Source</label> <em>Case sensitive name of document type.</em><br />
+        <input type="text" name="field-source-input" id="field-source-input" value="" class="ui-corner-all input" /><br />
       </div>
       
       <fieldset class="ui-widget-content ui-corner-all">
