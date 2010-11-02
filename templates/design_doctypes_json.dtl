@@ -1,42 +1,125 @@
 {
-   "_id": "_design/doctypes",
+    "_id": "_design/doctypes",
    
-   "views": {
+    "views": {
    
-       "all": {
-           "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc) }}"
-       },
+        "all": {
+            "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc) }}"
+        },
        
-       "all_simple": {
-           "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc.description) }}"
-       }
+        "all_simple": {
+            "map": "function(doc) { if (doc.category == 'doctype')  { emit(doc._id, doc.description) }}"
+        }
        
-   },
+    },
    
-   "updates": {
+    "updates": {
    
-       "stamp": "function(doc, req) {
-           var newDoc = JSON.parse(req.body);
+        "stamp": "function(doc, req) {
+            var newDoc = JSON.parse(req.body);
 
-           if (!doc) {               
-               if (newDoc._id) {
-                   var now = (new Date()).toString();
-                   newDoc.created_at_ = now;
-                   newDoc.create_user_ = req.userCtx.name;
-                   message = 'Created at ' + now.toString + ' by ' + req.userCtx;
-                   return [newDoc, message];
-               }
-               return [null, 'This application expects the document _id in the JSON body'];
-           }
-           var now = (new Date()).toString();
-           newDoc.updated_at_ = now;
-           newDoc.update_user_ = req.userCtx.name;
-           newDoc.created_at_ = doc.created_at_
-           newDoc.create_user_ = doc.create_user_
-           message = 'Updated at ' + now.toString + ' by ' + req.userCtx;
-           return [newDoc, message];
-       }"
+            if (!doc) {               
+                if (newDoc._id) {
+                    var now = (new Date()).toString();
+                    newDoc.created_at_ = now;
+                    newDoc.create_user_ = req.userCtx.name;
+                    message = 'Created at ' + now.toString + ' by ' + req.userCtx.name;
+                    return [newDoc, message];
+                }
+                return [null, 'This application expects the document _id in the JSON body'];
+            }
+            var now = (new Date()).toString();
+            newDoc.updated_at_ = now;
+            newDoc.update_user_ = req.userCtx.name;
+            newDoc.created_at_ = doc.created_at_
+            newDoc.create_user_ = doc.create_user_
+            message = 'Updated at ' + now.toString + ' by ' + req.userCtx.name;
+            return [newDoc, message];
+        }"
        
-   }
+    },
+
+    "validate_doc_update": "
+        function(newDoc, saveDoc, userCtx) {
+            String.prototype.isBlank = function() {
+                return (/^\\s*$/).test(this);               
+            };
+           
+            var requiredField = function(field) {
+                if (field.required === true) {
+                    if (typeof field.value === 'string' && field.value.isBlank()) {
+                        throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'cannot be blank.\'}'});
+                    }            
+                }              
+            };
+
+            var dateFormat = function(field) {
+                var pattern = (/^\\d{4}-\\d{2}-\\d{2}/);
+
+                if (!pattern.test(field.value) &&
+                    isNaN(Date.parse(field.value))) {
+                        throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in format yyyy-mm-dd\'}'});
+                    }
+                }
+            };
+
+            var dateRange = function(field) {
+                var now = new Date();
+                var given = Date.parse(field.value);
+
+                if (field.max === 'today' &&
+                    given <= now) {
+                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in the past.\'}'});
+                }
+                if (field.min === 'today' &&
+                    Date.parse(field.value) > now) {
+                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in the future.\'}'});
+                }
+                if (typeof field.min === 'number' && given <= field.min) {
+                    var minDate = new Date(field.min);
+                    
+                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be later than ' + minDate.toDateString() + '.\'}'});
+                }
+                if (typeof field.max === 'number' && given > field.max) {
+                    var maxDate = new Date(field.max);
+                    
+                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be earlier than or equal to ' + maxDate.toDateString() + '.\'}'});
+                }
+            };
+
+            var dateField = function(field) {
+                if (field.type === 'date' && !field.value.isBlank()) {
+                    dateFormat(field);
+                    dateRange(field);
+                }
+            };
+
+            var validationTests = [requiredField,dateField];
+
+            if (!newDoc.category && !!newDoc.doctype) {
+                newDoc.fieldsets.forEach(function(fieldset) {
+                    if (fieldset.multiple) {
+                        fieldset.multifields.forEach(function(multifield) {
+                            multifield.fields.forEach(function(field) {
+                                validationTests.forEach(function(vTest) {
+                                    vTest(field);
+                                });
+                            });
+                        });
+                    } else {
+                        fieldset.fields.forEach(function(field) {
+                            validationTests.forEach(function(vTest) {
+                                vTest(field);
+                            });
+                        });
+                    }
+                });
+            }
+
+            //if (newDoc.category === 'doctype') {}
+            //if (newDoc.category === 'fieldset') {}
+            //if (newDoc.category === 'field') {}
+        }
+    "
    
 }

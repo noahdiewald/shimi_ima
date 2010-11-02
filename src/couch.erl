@@ -82,8 +82,13 @@ create(design, Json, R, _S) ->
   create(Url, Headers, Json).
 
 create(Url, Headers, Json) ->
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, post, Json),
-  {ok, created}.
+  case ibrowse:send_req(Url, Headers, post, Json) of
+    {ok, "201", _, _} -> {ok, created};
+    {ok, "403", _, Body} ->
+      Resp = struct:from_json(Body),
+      Message = struct:get_value(<<"reason">>, Resp),
+      {403, Message}
+  end.
 
 update(doc, Id, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp/" ++ Id,
@@ -91,8 +96,13 @@ update(doc, Id, Json, R, S) ->
   update(Url, Headers, Json).
 
 update(Url, Headers, Json) ->
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, Json),
-  {ok, updated}.
+  case ibrowse:send_req(Url, Headers, put, Json) of
+    {ok, "201", _, _} -> {ok, updated};
+    {ok, "403", _, Body} ->
+      Resp = struct:from_json(Body),
+      Message = struct:get_value(<<"reason">>, Resp),
+      {403, Message}
+  end.
 
 exists(Target, R, S) ->
   Headers = proplists:get_value(headers, S),
