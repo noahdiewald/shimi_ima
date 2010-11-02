@@ -1,17 +1,22 @@
 <div 
- class="padded field-container ui-widget ui-widget-content ui-corner-all" 
+ class="field-container ui-widget ui-widget-content ui-corner-all" 
  data-field-id="{{ _id }}"
 >
   <label 
     for="{{ name }}" 
     class="ui-widget"
   >
-    {{ label }}
+    <span
+      class="label-text"
+    >
+      {{ label }}
+    </span>
     <span 
       class="ui-icon ui-icon-help" 
-      title="{{ description }}"
+      title="{% block format_info %}{% endblock %}
+{{ description }}"
     ></span>
-  </label><br />
+  </label>
   
 {% block input_area %}
   <input 

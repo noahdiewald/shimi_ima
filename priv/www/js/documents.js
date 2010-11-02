@@ -165,6 +165,7 @@ function initEdit() {
   
   $.get(url, function(documentEditHtml) {
     $('#document-edit').html(documentEditHtml);
+    $('#edit-tabs').tabs();
     initFieldsets();
     initEditButtons();
   });
@@ -187,8 +188,7 @@ function initEditButtons() {
 // a multiple fieldset 
 function initAddButton() {
   $(".add-button").button({
-    icons: {primary: "ui-icon-plus"},
-    text: false
+    icons: {primary: "ui-icon-plus"}
   }).click(function() {
     var fieldsetContainer = $("#container-" + $(this).attr('data-fieldset-id'));
     var url = buildUrl(fieldsetContainer.attr('data-project-id'),
@@ -204,8 +204,7 @@ function initAddButton() {
 // Initialize the button that removes a fieldset from a multiple fieldset
 function initRemoveButton() {  
   $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"},
-    text: false
+    icons: {primary: "ui-icon-minus"}
   }).click(function() {
     $(this).parent().remove()
   });
@@ -386,7 +385,7 @@ function initFieldsets() {
 function fieldsetsToObject(root) {
   var obj = {fieldsets:[]};
   
-  root.children('fieldset').each(function(index) {
+  root.find('fieldset').each(function(index) {
     var fieldset = $(this);
     var fieldsetId = fieldset.attr('data-fieldset-id');
     var fieldsetMultiple = fieldset.attr('data-fieldset-multiple') == "true";

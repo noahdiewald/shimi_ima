@@ -7,6 +7,22 @@
   class="ui-widget ui-corner-all"
 >
 
+  <div id="edit-tabs">
+  <ul>
+  {% for fieldset in rows %}
+    <li>
+      <a href="#{{ fieldset.value._id }}">
+        {% if fieldset.value.label %}
+        {{ fieldset.value.label }}
+        {% endif %}
+        {% if not fieldset.value.lable %}
+        {{ fieldset.value.name }}
+        {% endif %}
+      </a>
+    </li>
+  {% endfor %}
+  </ul>
+  
   {% for fieldset in rows %}
   
   <fieldset 
@@ -18,12 +34,6 @@
     data-fieldset-label="{{ fieldset.value.label }}"
     data-fieldset-order="{{ fieldset.value.order }}"
   >
-  
-    <legend 
-      class="ui-widget ui-widget-header ui-corner-all"
-    >
-      {{ fieldset.value.name }}
-    </legend>
     
     <p>{{ fieldset.value.description }}</p>
     
@@ -49,6 +59,7 @@
   </fieldset>
   
   {% endfor %}
+  </div>
   
   <div id="submit-button-area">
     <button 

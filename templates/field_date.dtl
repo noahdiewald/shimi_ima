@@ -1,7 +1,10 @@
 {% extends "field.dtl" %}
-  
+
+{% block format_info %}
+Format date as: yyyy-mm-dd.
+{% endblock %}
+
 {% block input_area %}
-  <em class="help-text">yyyy-mm-dd</em><br />
   <input 
     class="date field field-text ui-widget ui-corner-all"
     type="text" 

@@ -61,6 +61,36 @@ table {
   text-align: left;
 }
 
+label {
+  width: 35%;
+  position: relative;
+  display: inline-block;
+}
+
+label span.label-text {
+  padding-left: 1em;
+}
+
+input[type=text] {
+  width: 60%;
+}
+
+#edit-document-form textarea {
+  width: 60%;
+  height: 1.2em;
+}
+
+#edit-document-form textarea:focus {
+  height: 20em;
+}
+
+label span.ui-icon-help {
+  position: absolute;
+  opacity: 0.4;
+  top: 0;
+  left: 0;
+}
+
 .ui-dialog-content input[type=text], .ui-dialog-content textarea {
   width: 100%;
 }
@@ -79,10 +109,6 @@ table {
 .notification span.ui-icon {
   float: left;
   margin-right: 0.3em;
-}
-
-label span.ui-icon-help {
-  float: right;
 }
 
 .padded {
