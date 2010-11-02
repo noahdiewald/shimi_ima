@@ -186,6 +186,7 @@ function initFieldsetAddDialog() {
     buttons: {
       "Add Fieldset": function() {
         var fieldsetName = $("#fieldset-name-input");
+        var fieldsetLabel = $("#fieldset-label-input");
         var fieldsetDescription = $("#fieldset-description-input");
         var fieldsetOrder = $("#fieldset-order-input");
         var fieldsetDoctype = $("#fieldset-doctype-input");
@@ -199,6 +200,7 @@ function initFieldsetAddDialog() {
           var obj = {
             "category": "fieldset", 
             "name": fieldsetName.val(),
+            "label": fieldsetLabel.val(),
             "description": fieldsetDescription.val(),
             "order": (fieldsetOrder.val() * 1),
             "doctype": fieldsetDoctype.val(),
@@ -237,7 +239,14 @@ function initFieldAddDialog() {
   var fieldRequired = $("#field-required-input");
   var fieldAllowed = $("#field-allowed-input");
   var fieldSource = $("#field-source-input");
-  var notDefault = [fieldAllowed, fieldSource];
+  var fieldMin = $("#field-max-input");
+  var fieldMax = $("#field-min-input");
+  var fieldRegex = $("#field-regex-input");
+  var notDefault = [fieldAllowed, 
+                    fieldSource, 
+                    fieldMin, 
+                    fieldMax, 
+                    fieldRegex];
   
   function hideDisable(blank) {
     notDefault.forEach(function(field) {
@@ -296,13 +305,27 @@ function initFieldAddDialog() {
     var selected = fieldSubcategory.children('option:selected').val();
     var simpleSelects = ["select", "multiselect"];
     var remoteSelects = ["docselect", "docmultiselect"];
+    var rangeable = ["date", "integer", "rational"];
+    var matchable = ["text", "textarea"];
     
     if (simpleSelects.indexOf(selected) >= 0) {
+      hideDisable(true);
       fieldAllowed.removeAttr("disabled");
       fieldAllowed.parent().show();
     } else if (remoteSelects.indexOf(selected) >= 0) {
+      hideDisable(true);
       fieldSource.removeAttr("disabled");
       fieldSource.parent().show();
+    } else if (matchable.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldRegex.removeAttr("disabled");
+      fieldRegex.parent().show();
+    } else if (rangeable.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldMin.removeAttr("disabled");
+      fieldMin.parent().show();
+      fieldMax.removeAttr("disabled");
+      fieldMax.parent().show();
     } else {
       hideDisable(true);
     };

@@ -31,6 +31,21 @@
       </select><br />
       
       <div>
+        <label for="field-min-input">Minimum Value</label><br />
+        <input type="text" name="field-min-input" id="field-min-input" value="" class="ui-corner-all input" /><br />
+      </div>
+      
+      <div>
+        <label for="field-max-input">Maximum Value</label><br />
+        <input type="text" name="field-max-input" id="field-max-input" value="" class="ui-corner-all input" /><br />
+      </div>
+      
+      <div>
+        <label for="field-regex-input">Match Regex</label><br />
+        <input type="text" name="field-regex-input" id="field-regex-input" value="" class="ui-corner-all input" /><br />
+      </div>
+      
+      <div>
         <label for="field-default-input">Default Value</label><br />
         <input type="text" name="field-default-input" id="field-default-input" value="" class="ui-corner-all input" /><br />
       </div>
