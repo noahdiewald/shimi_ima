@@ -434,6 +434,9 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
       head: field.attr('data-field-head') == "true",
       reversal: field.attr('data-field-reversal') == "true",
       required: field.attr('data-field-required') == "true",
+      min: field.attr('data-field-min'),
+      max: field.attr('data-field-max'),
+      regex: field.attr('data-field-regex'),
       order: field.attr('data-field-order') * 1,
       subcategory: field.attr('data-field-subcategory'),
       value: fieldValue
