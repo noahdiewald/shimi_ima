@@ -34,7 +34,7 @@ function fillMultiFieldsets(fieldsetView) {
   // Clear the container
   fieldsetContainer.html('');
   
-  $(fieldsetView).children('.multifield').each(function(multifieldIndex, multifield) {
+  $(fieldsetView).find('.multifield').each(function(multifieldIndex, multifield) {
     // Initialize the fieldset with a callback function that will fill the fields
     initFieldset(fieldsetContainer, url, function(fieldset) {
       fillFields($(multifield), fieldset);
