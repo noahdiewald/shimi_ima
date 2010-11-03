@@ -11,8 +11,9 @@
   >
     <b>{{ fieldset.name }}</b>:
     {% if fieldset.multiple %}
+    <ol>
     {% for multifield in fieldset.multifields %}
-    next
+    <li>
     <ul class="multifield">
     {% for field in multifield.fields %}
       <li 
@@ -25,7 +26,9 @@
       </li>
     {% endfor %}
     </ul>
+    </li>
     {% endfor %}
+    </ol>
     {% endif %}
     {% if not fieldset.multiple %}
     <ul>
