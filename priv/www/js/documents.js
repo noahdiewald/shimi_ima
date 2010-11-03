@@ -125,7 +125,12 @@ function getDocument(id, runAfterEditRefresh) {
     });
     
     $('#document-delete-button').button().click(function() {
-      deleteDocument();
+      if (confirm("Are you sure?")) {
+        var docid = $(this).attr('data-document-id');
+        var docrev = $(this).attr('data-document-rev');
+        
+        deleteDocument(docid, docrev);
+      }
     });
     
     $('#document-view ul > li').click(function() {
@@ -134,8 +139,23 @@ function getDocument(id, runAfterEditRefresh) {
   });
 }
 
-function deleteDocument() {
-  confirm("Are you sure?");
+function deleteDocument(docid, docrev) {
+  var url = "./documents/" + docid + "?rev=" + docrev;
+  
+  $.ajax({
+    type: "DELETE",
+    url: url,
+    dataType: "json",
+    contentType: "application/json",
+    complete: function(req, status) {
+      if (req.status == 204) {
+        var title = "Success";
+        var body = "Your document was deleted. You may undo this by clicking Edit and then Create as New.";
+        getIndex();
+        flashHighlight(title, body);
+      }
+    }
+  });
 }
 
 function resetFields() {

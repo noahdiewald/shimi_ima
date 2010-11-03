@@ -26,6 +26,7 @@
 
 -export([
   create/4,
+  delete/2,
   exists/3,
   get_json/3,
   get_view_json/4,
@@ -76,6 +77,14 @@ get_uuid(_R, S) ->
   
   [Uuid] = struct:get_value(<<"uuids">>, struct:from_json(Json)),
   {ok, binary_to_list(Uuid)}.
+
+delete(R, S) ->
+  Id = wrq:path_info(id, R),
+  Rev = wrq:get_qs_value("rev", R),
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ Id ++ "?rev=" ++ Rev,
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  {ok, "200", _, _} = ibrowse:send_req(Url, Headers, delete),
+  {ok, deleted}.
 
 create(doc, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp",

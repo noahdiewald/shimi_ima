@@ -30,6 +30,7 @@
   content_types_accepted/2,
   content_types_provided/2,
   create_path/2,
+  delete_resource/2,
   from_json/2,
   init/1, 
   is_authorized/2,
@@ -69,6 +70,10 @@ allowed_methods(R, S) ->
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
     edit -> {['HEAD', 'GET'], R, S}
   end.
+  
+delete_resource(R, S) ->
+  {ok, deleted} = couch:delete(R, S),
+  {true, R, S}.
   
 post_is_create(R, S) ->
   {true, R, S}.
