@@ -50,8 +50,8 @@
 <div class="timestamps">
   <dl>
     <dt>Created At</dt><dd>{{ created_at_ }}</dd>
-    <dt>Created By</dt><dd>{{ created_user_ }}</dd>
+    <dt>Created By</dt><dd>{{ create_user_ }}</dd>
     <dt>Updated At</dt><dd>{{ updated_at_ }}</dd>
-    <dt>Updated By</dt><dd>{{ updated_user_ }}</dd>
+    <dt>Updated By</dt><dd>{{ update_user_ }}</dd>
   </dl>
 </div>
