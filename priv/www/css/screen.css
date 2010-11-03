@@ -159,6 +159,10 @@ ul.head-elements li:first-child::before {
   display: table-cell;
 }
 
+span.retain-white {
+  white-space: pre-wrap;
+}
+
 #document-edit {
   vertical-align: top;
   width: 50%;

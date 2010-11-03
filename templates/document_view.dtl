@@ -26,7 +26,12 @@
         {% if field.value == 'null' %}
           not specified
         {% endif %}
-        {% if field.value != 'null' %}
+        {% if field.subcategory == 'textarea' %}
+          <span class="retain-white">
+{{ field.value }}
+          </span>
+        {% endif %}
+        {% if field.value != 'null' and field.subcategory != 'textarea' %}
           {{ field.value }}
         {% endif %}
       </li>
@@ -48,7 +53,12 @@
         {% if field.value == 'null' %}
           not specified
         {% endif %}
-        {% if field.value != 'null' %}
+        {% if field.subcategory == 'textarea' %}
+          <span class="retain-white">
+{{ field.value }}
+          </span>
+        {% endif %}
+        {% if field.value != 'null' and field.subcategory != 'textarea' %}
           {{ field.value }}
         {% endif %}
       </li>

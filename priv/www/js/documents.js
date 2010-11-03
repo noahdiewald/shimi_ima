@@ -123,7 +123,19 @@ function getDocument(id, runAfterEditRefresh) {
       resetFields();
       fillFieldsets();
     });
+    
+    $('#document-delete-button').button().click(function() {
+      deleteDocument();
+    });
+    
+    $('#document-view ul > li').click(function() {
+      $(this).children('ul, ol').slideToggle();
+    });
   });
+}
+
+function deleteDocument() {
+  confirm("Are you sure?");
 }
 
 function resetFields() {
