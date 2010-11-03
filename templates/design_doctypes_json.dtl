@@ -17,10 +17,10 @@
    
         "stamp": "function(doc, req) {
             var newDoc = JSON.parse(req.body);
+            var now = (new Date()).toString();
 
-            if (!doc) {               
+            if (!doc) {
                 if (newDoc._id) {
-                    var now = (new Date()).toString();
                     newDoc.created_at_ = now;
                     newDoc.create_user_ = req.userCtx.name;
                     message = 'Created at ' + now.toString + ' by ' + req.userCtx.name;
@@ -28,11 +28,11 @@
                 }
                 return [null, 'This application expects the document _id in the JSON body'];
             }
-            var now = (new Date()).toString();
+
             newDoc.updated_at_ = now;
             newDoc.update_user_ = req.userCtx.name;
-            newDoc.created_at_ = doc.created_at_
-            newDoc.create_user_ = doc.create_user_
+            newDoc.created_at_ = doc.created_at_;
+            newDoc.create_user_ = doc.create_user_;
             message = 'Updated at ' + now.toString + ' by ' + req.userCtx.name;
             return [newDoc, message];
         }"
@@ -44,57 +44,66 @@
             String.prototype.isBlank = function() {
                 return (/^\\s*$/).test(this);               
             };
-           
+            
+            var forbid = function(name, msg) {
+                var errorMsg = JSON.stringify({
+                    fieldname: name,
+                    message: msg
+                });
+
+                throw({forbidden: errorMsg});
+            };
+ 
             var requiredField = function(field) {
                 if (field.required === true) {
                     if (typeof field.value === 'string' && field.value.isBlank()) {
-                        throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'cannot be blank.\'}'});
+                        forbid(field.name, 'cannot be blank.');
                     }            
                 }              
             };
 
             var dateFormat = function(field) {
-                var pattern = (/^\\d{4}-\\d{2}-\\d{2}/);
+                var pattern = (/^\\d{4}-\\d{2}-\\d{2}$/);
 
-                if (!pattern.test(field.value) &&
-                    isNaN(Date.parse(field.value))) {
-                        throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in format yyyy-mm-dd\'}'});
-                    }
+                if (!pattern.test(field.value) && isNaN(Date.parse(field.value))) {
+                    forbid(field.name, 'date must be in format yyyy-mm-dd');
                 }
             };
 
             var dateRange = function(field) {
                 var now = new Date();
                 var given = Date.parse(field.value);
+                var min;
+                var max;
 
-                if (field.max === 'today' &&
-                    given <= now) {
-                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in the past.\'}'});
+                if (field.max === 'today' && given > now) {
+                    forbid(field.name, 'date must be in the past.');
                 }
-                if (field.min === 'today' &&
-                    Date.parse(field.value) > now) {
-                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be in the future.\'}'});
+                if (field.min === 'today' && given <= now) {
+                    forbid(field.name, 'date must be in the future.');
                 }
-                if (typeof field.min === 'number' && given <= field.min) {
-                    var minDate = new Date(field.min);
-                    
-                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be later than ' + minDate.toDateString() + '.\'}'});
+                if (!isNaN(min = Date.parse(field.min)) && given < min) {
+                    var minDate = new Date(min);
+                    var message = 'date must be later than ' + minDate.toDateString() + '.'
+
+                    forbid(field.name, message);
                 }
-                if (typeof field.max === 'number' && given > field.max) {
-                    var maxDate = new Date(field.max);
-                    
-                    throw({forbidden: '{fieldname: \'' + field.name + '\', message: \'date must be earlier than or equal to ' + maxDate.toDateString() + '.\'}'});
+                if (!isNaN(max = Date.parse(field.max)) && given >= max) {
+                    var maxDate = new Date(max);
+                    var message = 'date must be earlier than or equal to ' + maxDate.toDateString() + '.'
+
+                    forbid(field.name, message);
                 }
             };
 
             var dateField = function(field) {
-                if (field.type === 'date' && !field.value.isBlank()) {
+                if (field.subcategory === 'date' && !field.value.isBlank()) {
                     dateFormat(field);
                     dateRange(field);
                 }
             };
 
-            var validationTests = [requiredField,dateField];
+            var validationTests = [requiredField, dateField];
 
             if (!newDoc.category && !!newDoc.doctype) {
                 newDoc.fieldsets.forEach(function(fieldset) {
