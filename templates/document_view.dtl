@@ -22,7 +22,13 @@
         data-field-view-index={{ field.index }}
         data-field-view-value="{{ field.value }}"
       >
-        <b>{{ field.label }}</b>: {{ field.value }}
+        <b>{{ field.label }}</b>: 
+        {% if field.value == 'null' %}
+          not specified
+        {% endif %}
+        {% if field.value != 'null' %}
+          {{ field.value }}
+        {% endif %}
       </li>
     {% endfor %}
     </ul>
@@ -38,7 +44,13 @@
         data-field-view-id="{{ field.id}}"
         data-field-view-value="{{ field.value }}"
       >
-        <b>{{ field.label }}</b>: {{ field.value }}
+        <b>{{ field.label }}</b>:
+        {% if field.value == 'null' %}
+          not specified
+        {% endif %}
+        {% if field.value != 'null' %}
+          {{ field.value }}
+        {% endif %}
       </li>
     {% endfor %}
     </ul>
