@@ -29,6 +29,7 @@
   exists/3,
   get_json/3,
   get_view_json/4,
+  get_design_rev/3,
   get_uuid/2,
   update/5
 ]).
@@ -62,6 +63,11 @@ get_view_json(Id, Name, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   {ok, "200", _, Json} = ibrowse:send_req(Url ++ "_design/" ++ Id ++ "/_view/" ++ Name, Headers, get),
   struct:from_json(Json).
+
+get_design_rev(Name, R, _S) ->
+  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Name,
+  Json = get_json_helper(Url, []),
+  struct:get_value(<<"_rev">>, Json).
 
 get_uuid(_R, S) ->
   Headers = proplists:get_value(headers, S),

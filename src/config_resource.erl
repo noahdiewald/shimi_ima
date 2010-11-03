@@ -39,6 +39,13 @@ init(Opts) -> {ok, Opts}.
 to_html(R, S) ->
   User = proplists:get_value(user, S),
   Project = couch:get_json(project, R, S),
+  {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
+  Json = mochijson2:decode(DoctypesDesign),
+  DoctypesRev = couch:get_design_rev("doctypes", R, S),
+  Json1 = struct:set_value(<<"_rev">>, DoctypesRev, Json),
+  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/doctypes",
+  Headers = [{"Content-Type","application/json"}],
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, mochijson2:encode(Json1)),
   
   Vals = [
     {<<"user">>, User}
