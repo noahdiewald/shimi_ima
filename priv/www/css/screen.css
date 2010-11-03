@@ -19,6 +19,10 @@ body {
   margin: 0;
 }
 
+.timestamps {
+  font-size: 8pt;
+}
+
 h1 {
   color: white;
   margin: 0;
