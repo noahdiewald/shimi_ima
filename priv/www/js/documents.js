@@ -153,6 +153,11 @@ function deleteDocument(docid, docrev) {
         var body = "Your document was deleted. You may undo this by clicking Edit and then Create as New.";
         getIndex();
         flashHighlight(title, body);
+      } else if (req.status == 409) {
+        var body = JSON.parse(req.responseText);
+        var title = req.statusText;
+          
+        flashError(title, body.message);
       }
     }
   });
@@ -288,6 +293,12 @@ function initSaveButton() {
           
           flashError(title, body.fieldname + " " + body.message);
           saveButton.button('enable');
+        } else if (req.status == 409) {
+          var body = JSON.parse(req.responseText);
+          var title = req.statusText;
+          
+          flashError(title, body.message);
+          saveButton.button('enable');
         }
       }
     });
@@ -316,7 +327,7 @@ function initCreateButton() {
     createButton.button('disable');
     $.extend(obj, fieldsetsToObject(root));
     
-    $.ajax({
+    postUrl = $.ajax({
       type: "POST",
       dataType: "json",
       contentType: "application/json",
@@ -326,9 +337,11 @@ function initCreateButton() {
         if (req.status == 201) {
           var title = "Success";
           var body = "Your document was created.";
+          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
           
           $('.fields').remove();
           initFieldsets();
+          getDocument(documentId, true);
           getIndex();
           flashHighlight(title, body);
           createButton.button('enable');

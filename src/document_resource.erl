@@ -72,8 +72,13 @@ allowed_methods(R, S) ->
   end.
   
 delete_resource(R, S) ->
-  {ok, deleted} = couch:delete(R, S),
-  {true, R, S}.
+  case couch:delete(R, S) of
+    {ok, deleted} -> {true, R, S};
+    {409, _} ->
+      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
+  end.
   
 post_is_create(R, S) ->
   {true, R, S}.
@@ -132,7 +137,11 @@ json_update(R, S) ->
     {ok, updated} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
-      {{halt, 403}, R1, S}
+      {{halt, 403}, R1, S};
+    {409, _} ->
+      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
   end.
 
 html_documents(R, S) ->

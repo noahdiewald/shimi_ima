@@ -83,8 +83,10 @@ delete(R, S) ->
   Rev = wrq:get_qs_value("rev", R),
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ Id ++ "?rev=" ++ Rev,
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-  {ok, "200", _, _} = ibrowse:send_req(Url, Headers, delete),
-  {ok, deleted}.
+  case ibrowse:send_req(Url, Headers, delete) of
+    {ok, "200", _, _} -> {ok, deleted};
+    {ok, "409", _, _} -> {409, <<"Conflict">>}
+  end.
 
 create(doc, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp",
@@ -116,7 +118,8 @@ update(Url, Headers, Json) ->
     {ok, "403", _, Body} ->
       Resp = struct:from_json(Body),
       Message = struct:get_value(<<"reason">>, Resp),
-      {403, Message}
+      {403, Message};
+    {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.
 
 exists(Target, R, S) ->
