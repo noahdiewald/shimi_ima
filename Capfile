@@ -10,10 +10,18 @@ task :deploy, :roles => :lingserver do
 end
 
 task :develinit, :roles => :development do
-  run "cd /home/dictionary_maker && /usr/bin/hg clone ssh://staging.ling.wisc.edu//hg/dictionary_maker && cd /home/dictionary_maker/dictionary_maker && ./rebar get-deps && ./rebar compile"
+  run "cd /home/dictionary_maker && 
+       /usr/bin/hg clone ssh://staging.ling.wisc.edu//hg/dictionary_maker && 
+       cd /home/dictionary_maker/dictionary_maker && 
+       ./rebar get-deps && 
+       ./rebar compile"
 end
 
 task :develdeploy, :roles => :development do
-  run "cd /home/dictionary_maker/dictionary_maker && /usr/bin/hg pull -u && ./rebar compile"
+  run "cd /home/dictionary_maker/dictionary_maker && 
+       /usr/bin/hg pull && 
+       /usr/bin/hg update && 
+       rm ebin/* && 
+       ./rebar compile"
 end
 
