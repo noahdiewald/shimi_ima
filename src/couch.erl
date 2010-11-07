@@ -100,7 +100,7 @@ create(design, Json, R, _S) ->
 
 create(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, post, Json) of
-    {ok, [$2|_], _, _} -> {ok, created};
+    {ok, "201", _, _} -> {ok, created};
     {ok, "403", _, Body} ->
       Resp = struct:from_json(Body),
       Message = struct:get_value(<<"reason">>, Resp),
