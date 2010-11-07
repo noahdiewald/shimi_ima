@@ -6,7 +6,11 @@ task :init, :roles => :lingserver do
 end
 
 task :deploy, :roles => :lingserver do
-  run "cd /home/dictionary_maker/dictionary_maker && /usr/bin/hg pull -u && ./rebar compile"
+  run "cd /home/dictionary_maker/dictionary_maker && 
+       /usr/bin/hg pull && 
+       /usr/bin/hg update && 
+       rm ebin/* && 
+       ./rebar compile"
 end
 
 task :develinit, :roles => :development do
