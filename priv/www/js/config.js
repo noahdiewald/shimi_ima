@@ -114,7 +114,9 @@ function populateDoctypeTabs() {
               populateDoctypeTabs();
             };
             
-            sendConfigDoc(url, {}, 'DELETE', complete, this);
+            if (confirm("Are you sure? This is permanent.") {
+              sendConfigDoc(url, {}, 'DELETE', complete, this);
+            }
           });
           
           populateFieldsets(doctypeId);

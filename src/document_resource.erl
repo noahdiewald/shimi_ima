@@ -132,7 +132,6 @@ json_update(R, S) ->
   Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
   Json2 = struct:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
-  
   case couch:update(doc, Id, struct:to_json(Json2), R, S) of
     {ok, updated} -> {true, R, S};
     {403, Message} ->
