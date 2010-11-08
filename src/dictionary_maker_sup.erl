@@ -73,7 +73,7 @@ init([]) ->
            {webmachine_mochiweb, start, [WebConfig]},
            permanent, 5000, worker, dynamic},
     Ibrowse = {ibrowse, 
-               {ibrowse, start, []},
-               permanent, 5000, worker, dynamic},
+               {ibrowse, start_link, []},
+               permanent, 2000, worker, dynamic},
     Processes = [Web, Ibrowse],
     {ok, { {one_for_one, 10, 10}, Processes} }.
