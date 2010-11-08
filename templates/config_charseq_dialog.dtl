@@ -1,0 +1,13 @@
+<div id="charseq-dialog" title="Character Sequence">
+  <form>
+    <fieldset class="ui-helper-reset">
+      <label for="charseq-name">Character Sequence Name</label>
+      <input 
+        type="text" 
+        name="charseq-name" 
+        id="charseq-name" 
+        value="" 
+        class="ui-widget-content ui-corner-all" />
+    </fieldset>
+  </form>
+</div>

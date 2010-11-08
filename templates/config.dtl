@@ -12,17 +12,17 @@
 {% endblock %}
 
 {% block dialogs %}
-{% include 'config_doctype_dialog_add.dtl' %}
-{% include 'config_fieldset_dialog_add.dtl' %}
-{% include 'config_field_dialog_add.dtl' %}
-{% include 'config_charseq_dialog_add.dtl' %}
+{% include 'config_doctype_dialog.dtl' %}
+{% include 'config_fieldset_dialog.dtl' %}
+{% include 'config_field_dialog.dtl' %}
+{% include 'config_charseq_dialog.dtl' %}
 {% endblock %}
     
 {% block main_content %}
 <div id="main-tabs">
   <ul>
     <li><a href="#doctypes">Document Types</a></li>
-    <li><a href="#character-sequences">Character Sequences</a></li>
+    <li><a href="#charseqs">Character Sequences</a></li>
   </ul>
 {% include 'config_doctype_tab.dtl' %}
 {% include 'config_charseq_tab.dtl' %}

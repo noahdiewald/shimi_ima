@@ -1,0 +1,59 @@
+<div id="fieldset-dialog" title="Fieldset">
+
+  <p class="validate-tips">All fields are required.</p>
+  
+  <form>
+    <fieldset class="ui-helper-reset">
+      
+      <input 
+        type="hidden" 
+        name="fieldset-doctype-input" 
+        id="fieldset-doctype-input"
+         class="input" />
+    
+      <label for="fieldset-name-input">Fieldset Name</label><br />
+      <input 
+        type="text" 
+        name="fieldset-name-input" 
+        id="fieldset-name-input" 
+        value="" 
+        class="ui-corner-all input" /><br />
+    
+      <label for="fieldset-label-input">Fieldset Label</label><br />
+      <input 
+        type="text" 
+        name="fieldset-label-input" 
+        id="fieldset-label-input" 
+        value="" 
+        class="ui-corner-all input" /><br />
+      
+      <label for="fieldset-multiple-input">How many per document?</label><br />
+      <select 
+        name="fieldset-multiple-input" 
+        class="input" 
+        id="fieldset-multiple-input">
+        
+        <option selected="true" value="false">Single</option>
+        <option value="true">Multiple</option>
+        
+      </select><br />
+      
+      <label for="fieldset-order-input">Fieldset Relative Order</label><br />
+      <input 
+        type="text" 
+        name="fieldset-order-input" 
+        id="fieldset-order-input" 
+        value="50" 
+        class="ui-corner-all input" 
+        data-retain="true" 
+        size=3 /><br />
+      
+      <label for="fieldset-description-input">Fieldset Description</label><br />
+      <textarea 
+        name="fieldset-description-input" 
+        id="fieldset-description-input" 
+        class="text ui-corner-all input"></textarea>
+      
+    </fieldset>
+  </form>
+</div>

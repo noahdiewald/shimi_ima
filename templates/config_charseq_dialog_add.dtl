@@ -1,8 +1,0 @@
-<div id="character-sequence-add-dialog" title="Add Character Sequence">
-  <form>
-    <fieldset class="ui-helper-reset">
-      <label for="character-sequence-name">Character Sequence Name</label>
-      <input type="text" name="character-sequence-name" id="character-sequence-name" value="" class="ui-widget-content ui-corner-all" />
-    </fieldset>
-  </form>
-</div>

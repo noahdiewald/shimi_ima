@@ -1,11 +1,22 @@
 <div id={{ _id }}>
-  <h2>Description</h2>
-
-  <p>{{ description }}</p>
-
-  <h2>Fieldsets</h2>
-
-  <button id="add-fieldset-to-{{ _id }}-button" class="add-fieldset-button" data-doctype-id="{{ _id }}">Add Fieldset</button>
+  <button 
+    id="edit-doctype-{{ _id }}-button" 
+    class="edit-button" 
+    data-doctype-id="{{ _id }}" 
+    data-doctype-description="{{ description }}" 
+    data-doctype-rev="{{ _rev }}">Edit</button> 
+  <button 
+    id="delete-doctype-{{ _id }}-button" 
+    class="delete-button" 
+    data-doctype-id="{{ _id }}" 
+    data-doctype-rev="{{ _rev }}">Delete</button>
+  <button 
+    id="add-fieldset-to-{{ _id }}-button" 
+    class="add-fieldset-button" 
+    data-doctype-id="{{ _id }}">Add Fieldset</button>
   
   <div id="fieldsets-{{ _id }}" class="fieldsets"></div>
+
+  <p><b>Description:</b> {{ description }}</p>
+  
 </div>

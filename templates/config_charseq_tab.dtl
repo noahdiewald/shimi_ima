@@ -1,9 +1,9 @@
-<div id="character-sequences">
-  <button id="character-sequence-add-button">Add Character Sequence</button>
-  <a href="#" id="character-sequence-info-toggle">Show Help</a>
+<div id="charseqs">
+  <button id="charseq-add-button">Add Character Sequence</button>
+  <a href="#" id="charseq-info-toggle">Show Help</a>
   
   <div class="toggler">
-    <div id="character-sequence-info">
+    <div id="charseq-info">
       <p>
         Character sequences define the sort order for the characters used to write a language. They can also be used to create a means of paging through listings using an alphabet (or your language's equivalent).
       </p>
@@ -13,7 +13,7 @@
     </div>
   </div>
   
-  <div id="character-sequence-tabs">
+  <div id="charseq-tabs">
     <ul>
       <li><a href="#tabs-3">Nunc tincidunt</a></li>
       <li><a href="#tabs-4">Nunc tincidunt</a></li>

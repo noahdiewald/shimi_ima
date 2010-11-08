@@ -8,12 +8,6 @@
 </h3>
 
 <div id="body-{{ id }}">
-  <h4>Description</h4>
-  <p>{{ value.description }}</p>
-  <p><b>Multiple:</b> {{ value.multiple }}</p>
-  
-  <h4>Fields</h4>
-  
   <button 
     id="add-field-to-{{ id }}-button" 
     class="add-field-button" 
@@ -34,4 +28,7 @@
     <tbody id="fields-{{ id }}">
     </tbody>
   </table>
+  
+  <p><b>Description:</b> {{ value.description }}</p>
+  <p><b>Multiple:</b> {{ value.multiple }}</p>
 </div>
