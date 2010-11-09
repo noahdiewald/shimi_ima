@@ -1,5 +1,33 @@
-<tr>
+<tr class="field-row" data-field-id="{{ id }}">
   <td>{{ value.name }}</td>
   <td>{{ value.label }}</td>
   <td>{{ value.subcategory }}</td>
+  <td>
+    <button
+      id="edit-field-{{ id }}-button"
+      data-doctype-id="{{ value.doctype }}"
+      data-fieldset-id="{{ value.fieldset }}"
+      data-field-rev="{{ value._rev }}"
+      data-field-id="{{ id }}"
+      data-field-name="{{ value.name }}"
+      data-field-label="{{ value.label }}"
+      data-field-subcategory="{{ value.subcategory }}"
+      data-field-description="{{ value.description }}"
+      data-field-head="{{ value.head }}"
+      data-field-reversal="{{ value.reversal }}"
+      data-field-order="{{ value.order }}"
+      data-field-default="{{ value.default }}"
+      data-field-required="{{ value.required }}"
+      data-field-allowed="{{ value.allowed }}"
+      data-field-source="{{ value.source }}"
+      data-field-max="{{ value.max }}"
+      data-field-min="{{ value.min }}"
+      data-field-regex="{{ value.regex }}">Edit Field</button>
+    <button
+      id="delete-field-{{ id }}-button"
+      data-doctype-id="{{ value.doctype }}"
+      data-fieldset-id="{{ value.fieldset }}"
+      data-field-id="{{ id }}"
+      data-field-rev="{{ value._rev }}">Delete Field</button>
+  </td>
 </tr>

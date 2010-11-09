@@ -61,9 +61,7 @@
           id="field-min-input" 
           value="" 
           class="ui-corner-all input" /><br />
-      </div>
-      
-      <div>
+          
         <label for="field-max-input">Maximum Value</label><br />
         <input 
           type="text" 

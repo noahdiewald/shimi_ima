@@ -41,6 +41,55 @@ function populateFields(doctypeId, fieldsetId) {
     var fieldContainer = $("#fields-" + fieldsetId);
     fieldContainer.empty();
     fieldContainer.html(fields);
+    $('.field-row').each(function(field) {
+      var id = $(this).attr('data-field-id');
+      
+      $('#edit-field-' + id + '-button').button({
+        icons: {primary: "ui-icon-pencil"},
+        text: false
+      }).click(function() {
+        var bttn = $(this);
+        var rev = bttn.attr('data-field-rev');
+        var doctype = bttn.attr('data-doctype-id');
+        var fieldset = bttn.attr('data-fieldset-id');
+        var oldobj = {
+          name: bttn.attr('data-field-name'),
+          label: bttn.attr('data-field-label'),
+          order: bttn.attr('data-field-order'),
+          description: bttn.attr('data-field-description'),
+          subcategory: bttn.attr('data-field-subcategory'),
+          head: bttn.attr('data-field-head'),
+          reversal: bttn.attr('data-field-reversal'),
+          default: bttn.attr('data-field-default'),
+          required: bttn.attr('data-field-required'),
+          allowed: bttn.attr('data-field-allowed'),
+          source: bttn.attr('data-field-source'),
+          max: bttn.attr('data-field-max'),
+          min: bttn.attr('data-field-min'),
+          regex: bttn.attr('data-field-regex')
+        };
+        
+        initFieldEditDialog(id, fieldset, doctype, oldobj, rev).dialog("open");
+      });
+  
+      $("#delete-field-" + id + "-button").button({
+        icons: {primary: "ui-icon-trash"},
+        text: false
+      }).click(function() {
+        var bttn = $(this);
+        var rev = bttn.attr('data-field-rev');
+        var doctype = bttn.attr('data-doctype-id');
+        var fieldset = bttn.attr('data-fieldset-id');
+        var url = "config/doctypes/" + doctype + 
+                  "/fieldsets/" + fieldset + 
+                  "/fields/" + id + "?rev=" + rev
+        var complete = function() {populateFields(doctype, fieldset)};
+          
+        if (confirm("Are you sure? This is permanent.")) {
+          sendConfigDoc(url, {}, 'DELETE', complete, this);
+        }
+      });
+    });
   });
 }
 
@@ -67,7 +116,7 @@ function populateFieldsets(doctypeId) {
     }).click(function() {
       fieldDoctype.val($(this).attr('data-doctype-id'));
       fieldFieldset.val($(this).attr('data-fieldset-id'));
-      $("#field-dialog").dialog("open");
+      initFieldAddDialog().dialog("open");
     });
     
     $('.accordion-head').each(function(index) {
@@ -400,8 +449,8 @@ function initFieldAddDialog() {
   var fieldRequired = $("#field-required-input");
   var fieldAllowed = $("#field-allowed-input");
   var fieldSource = $("#field-source-input");
-  var fieldMin = $("#field-max-input");
-  var fieldMax = $("#field-min-input");
+  var fieldMin = $("#field-min-input");
+  var fieldMax = $("#field-max-input");
   var fieldRegex = $("#field-regex-input");
   var notDefault = [fieldAllowed, 
                     fieldSource, 
@@ -417,11 +466,11 @@ function initFieldAddDialog() {
     });
   }
       
-  $("#field-dialog").dialog({
+  var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Add Field": function() {
+      "Create": function() {
         $('.input').removeClass('ui-state-error');
         
         checkResult = true;
@@ -495,7 +544,137 @@ function initFieldAddDialog() {
     };
   });
   
-  return true;
+  return dialog;
+}
+
+function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
+  var fieldName = $("#field-name-input");
+  var fieldLabel = $("#field-label-input");
+  var fieldSubcategory = $("#field-subcategory-input");
+  var fieldDescription = $("#field-description-input");
+  var fieldHead = $("#field-head-input");
+  var fieldReversal = $("#field-reversal-input");
+  var fieldOrder = $("#field-order-input");
+  var fieldDoctype = $("#field-doctype-input");
+  var fieldFieldset = $("#field-fieldset-input");
+  var fieldDefault = $("#field-default-input");
+  var fieldRequired = $("#field-required-input");
+  var fieldAllowed = $("#field-allowed-input");
+  var fieldSource = $("#field-source-input");
+  var fieldMin = $("#field-min-input");
+  var fieldMax = $("#field-max-input");
+  var fieldRegex = $("#field-regex-input");
+  var notDefault = [fieldAllowed, 
+                    fieldSource, 
+                    fieldMin, 
+                    fieldMax, 
+                    fieldRegex];
+  var url = "config/doctypes/" + doctype + 
+            "/fieldsets/" + fieldset + 
+            "/fields/" + id + "?rev=" + rev;
+  
+  fieldName.val(oldobj.name);
+  fieldLabel.val(oldobj.label);
+  fieldSubcategory.val(oldobj.subcategory);
+  fieldDescription.val(oldobj.description);
+  fieldHead.val(oldobj.head);
+  fieldReversal.val(oldobj.reversal);
+  fieldOrder.val(oldobj.order);
+  fieldDoctype.val(doctype);
+  fieldFieldset.val(fieldset);
+  fieldDefault.val(oldobj.default);
+  fieldRequired.val(oldobj.required);
+  fieldAllowed.val(oldobj.allowed);
+  fieldSource.val(oldobj.source);
+  fieldMin.val(oldobj.min);
+  fieldMax.val(oldobj.max);
+  fieldRegex.val(oldobj.regex);
+  
+  function hideDisable(blank) {
+    notDefault.forEach(function(field) {
+      field.attr("disabled", "disabled");
+      if (blank) field.val('');
+      field.parent().hide();
+    });
+  }
+      
+  var dialog = $("#field-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Save": function() {
+        $('.input').removeClass('ui-state-error');
+        
+        checkResult = true;
+        
+        if (checkResult) {
+          var obj = {
+            "category": "field", 
+            "name": fieldName.val(),
+            "label": fieldLabel.val(),
+            "default": fieldDefault.val(),
+            "head": fieldHead.is(':checked'),
+            "reversal": fieldReversal.is(':checked'),
+            "required": fieldRequired.is(':checked'),
+            "order": (fieldOrder.val() * 1),
+            "allowed": fieldAllowed.val().split(","),
+            "source": fieldSource.val(),
+            "min": fieldMin.val(),
+            "max": fieldMax.val(),
+            "regex": fieldRegex.val(),
+            "description": fieldDescription.val(),
+            "doctype": doctype,
+            "fieldset": fieldset,
+            "subcategory": fieldSubcategory.val()
+          },
+          complete = function(context) {
+            populateFields(doctype, fieldset);
+            $(context).dialog("close");
+          };
+          sendConfigDoc(url, obj, 'PUT', complete, this);
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      },
+    },
+    close: function() {
+      clearValues($('.input')).removeClass('ui-state-error');
+      hideDisable();
+    }
+  });
+  
+  fieldSubcategory.change(function() {
+    var selected = fieldSubcategory.children('option:selected').val();
+    var simpleSelects = ["select", "multiselect"];
+    var remoteSelects = ["docselect", "docmultiselect"];
+    var rangeable = ["date", "integer", "rational"];
+    var matchable = ["text", "textarea"];
+    
+    if (simpleSelects.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldAllowed.removeAttr("disabled");
+      fieldAllowed.parent().show();
+    } else if (remoteSelects.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldSource.removeAttr("disabled");
+      fieldSource.parent().show();
+    } else if (matchable.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldRegex.removeAttr("disabled");
+      fieldRegex.parent().show();
+    } else if (rangeable.indexOf(selected) >= 0) {
+      hideDisable(true);
+      fieldMin.removeAttr("disabled");
+      fieldMin.parent().show();
+      fieldMax.removeAttr("disabled");
+      fieldMax.parent().show();
+    } else {
+      hideDisable(true);
+    };
+  });
+  
+  return dialog;
 }
 
 function initCharsecAddDialog() {
@@ -531,8 +710,8 @@ $(function () {
   initHelpText();
   $('#doctype-dialog').hide();
   $("#fieldset-dialog").hide();
+  $("#field-dialog").hide();
   initDoctypeAddButton();
-  initFieldAddDialog();
   initCharsecAddDialog();
   initCharsecAddButton();
 });
