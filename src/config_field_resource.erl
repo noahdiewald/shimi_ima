@@ -31,6 +31,7 @@
   content_types_accepted/2,
   content_types_provided/2,
   create_path/2,
+  delete_resource/2,
   from_json/2,
   init/1, 
   is_authorized/2,
@@ -72,7 +73,16 @@ is_authorized(R, S) ->
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     index -> {['HEAD', 'GET', 'POST'], R, S};
-    identifier -> {['HEAD', 'GET'], R, S}
+    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
+  end.
+  
+delete_resource(R, S) ->
+  case couch:delete(R, S) of
+    {ok, deleted} -> {true, R, S};
+    {409, _} ->
+      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
   end.
   
 post_is_create(R, S) ->
@@ -112,6 +122,12 @@ id_html(R, S) ->
   {Html, R, S}.
   
 from_json(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> json_create(R, S);
+    identifier -> json_update(R, S)
+  end.
+
+json_create(R, S) ->  
   Json = proplists:get_value(posted_json, S),
   {ok, created} = couch:create(doc, struct:to_json(Json), R, S),
   
@@ -120,6 +136,24 @@ from_json(R, S) ->
   {ok, created} = couch:create(design, DesignJson, R, S),
   
   {true, R, S}.
+  
+json_update(R, S) ->
+  Json = struct:from_json(wrq:req_body(R)),
+  Id = wrq:path_info(id, R),
+  Rev = wrq:get_qs_value("rev", R),
+  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json2 = struct:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+  
+  case couch:update(doc, Id, struct:to_json(Json2), R, S) of
+    {ok, updated} -> {true, R, S};
+    {403, Message} ->
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 403}, R1, S};
+    {409, _} ->
+      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
+  end.
   
 % Helpers
 
