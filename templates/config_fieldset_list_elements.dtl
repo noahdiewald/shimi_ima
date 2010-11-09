@@ -9,13 +9,26 @@
 
 <div id="body-{{ id }}">
   <button 
-    id="add-field-to-{{ id }}-button" 
-    class="add-field-button" 
+    id="edit-fieldset-{{ id }}-button" 
+    class="edit-button" 
+    data-doctype-id="{{ value.doctype }}" 
+    data-fieldset-name="{{ value.name }}" 
+    data-fieldset-label="{{ value.label }}" 
+    data-fieldset-description="{{ value.description }}" 
+    data-fieldset-multiple="{{ value.multiple }}" 
+    data-fieldset-order="{{ value.order }}" 
+    data-fieldset-id="{{ id }}"
+    data-fieldset-rev="{{ value._rev }}">Edit Fieldset</button>
+  <button 
+    id="delete-fieldset-{{ id }}-button" 
+    class="delete-button" 
     data-doctype-id="{{ value.doctype }}" 
     data-fieldset-id="{{ id }}"
-  >
-    Add Field
-  </button>
+    data-fieldset-rev="{{ value._rev }}">Delete Fieldset</button>
+  <button 
+    id="add-field-to-{{ id }}-button" 
+    class="add-field-button" 
+    data-doctype-id="{{ value.doctype }}">Add Field</button>
   
   <table class="fields ui-widget ui-widget-content">
     <thead>

@@ -72,6 +72,38 @@ function populateFieldsets(doctypeId) {
     
     $('.accordion-head').each(function(index) {
       var fieldsetId = $(this).attr('data-fieldset-id');
+
+      $("#edit-fieldset-" + fieldsetId + "-button").button({
+        icons: {primary: "ui-icon-pencil"}
+      }).click(function() {
+        var bttn = $(this);
+        var rev = bttn.attr('data-fieldset-rev');
+        var doctype = bttn.attr('data-doctype-id');
+        var oldobj = {
+          name: bttn.attr('data-fieldset-name'),
+          label: bttn.attr('data-fieldset-label'),
+          order: bttn.attr('data-fieldset-order'),
+          multiple: bttn.attr('data-fieldset-multiple'),
+          description: bttn.attr('data-fieldset-description') 
+        };
+        
+        initFieldsetEditDialog(fieldsetId, doctype, oldobj, rev).dialog("open");
+      });
+  
+      $("#delete-fieldset-" + fieldsetId + "-button").button({
+        icons: {primary: "ui-icon-trash"}
+      }).click(function() {
+        var bttn = $(this);
+        var rev = bttn.attr('data-fieldset-rev');
+        var doctype = bttn.attr('data-doctype-id');
+        var url = "config/doctypes/" + doctype + 
+                  "/fieldsets/" + fieldsetId + "?rev=" + rev
+        var complete = function() {populateFieldsets(doctype)};
+          
+        if (confirm("Are you sure? This is permanent.")) {
+          sendConfigDoc(url, {}, 'DELETE', complete, this);
+        }
+      });
       
       populateFields(doctypeId, fieldsetId);
     });
@@ -114,7 +146,7 @@ function populateDoctypeTabs() {
               populateDoctypeTabs();
             };
             
-            if (confirm("Are you sure? This is permanent.") {
+            if (confirm("Are you sure? This is permanent.")) {
               sendConfigDoc(url, {}, 'DELETE', complete, this);
             }
           });
@@ -125,7 +157,7 @@ function populateDoctypeTabs() {
             icons: {primary: "ui-icon-plus"}
           }).click(function() {
             fieldsetDoctype.val($(this).attr("data-doctype-id"));
-            $("#fieldset-dialog").dialog("open");
+            initFieldsetAddDialog().dialog("open");
           });
         }
       }
@@ -200,6 +232,7 @@ function initDoctypeAddDialog() {
 function initDoctypeEditDialog(name, description, rev) {
   var doctypeName = $("#doctype-name-input");
   var doctypeDescription = $("#doctype-description-input");
+  var url = "config/doctypes/" + name + "?rev=" + rev
   
   doctypeDescription.val(description);
   doctypeName.val(name);
@@ -209,7 +242,7 @@ function initDoctypeEditDialog(name, description, rev) {
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save Document Type": function() {
+      "Save": function() {
         $('.input').removeClass('ui-state-error');
         
         checkResult = true;
@@ -224,7 +257,7 @@ function initDoctypeEditDialog(name, description, rev) {
             populateDoctypeTabs();
             $(context).dialog("close");
           };
-          var url = "config/doctypes/" + name + "?rev=" + rev
+          
           sendConfigDoc(url, obj, 'PUT', complete, this);
         }
       },
@@ -251,11 +284,11 @@ function initDoctypeAddButton() {
 }
 
 function initFieldsetAddDialog() {
-  $("#fieldset-dialog").dialog({
+  var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Add Fieldset": function() {
+      "Create": function() {
         var fieldsetName = $("#fieldset-name-input");
         var fieldsetLabel = $("#fieldset-label-input");
         var fieldsetDescription = $("#fieldset-description-input");
@@ -281,6 +314,7 @@ function initFieldsetAddDialog() {
             populateFieldsets(fieldsetDoctype.val());
             $(context).dialog("close");
           };
+          
           sendConfigDoc("config/doctypes/" + fieldsetDoctype.val() + "/fieldsets", obj, 'POST', complete, this);
         }
       },
@@ -293,7 +327,63 @@ function initFieldsetAddDialog() {
     }
   });
   
-  return true;
+  return dialog;
+}
+
+function initFieldsetEditDialog(id, doctype, oldobj, rev) {
+  var fieldsetName = $("#fieldset-name-input");
+  var fieldsetLabel = $("#fieldset-label-input");
+  var fieldsetDescription = $("#fieldset-description-input");
+  var fieldsetOrder = $("#fieldset-order-input");
+  var fieldsetMultiple = $("#fieldset-multiple-input");
+  var url = "config/doctypes/" + doctype + 
+            "/fieldsets/" + id + "?rev=" + rev 
+            
+  fieldsetName.val(oldobj.name);
+  fieldsetLabel.val(oldobj.label);
+  fieldsetDescription.val(oldobj.description);
+  fieldsetOrder.val(oldobj.order);
+  fieldsetMultiple.val(oldobj.multiple);
+        
+  var dialog = $("#fieldset-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Save": function() {
+        
+        $('.input').removeClass('ui-state-error');
+        
+        checkResult = true;
+        
+        if (checkResult) {
+          var obj = {
+            "_id": id, 
+            "category": "fieldset", 
+            "name": fieldsetName.val(),
+            "label": fieldsetLabel.val(),
+            "description": fieldsetDescription.val(),
+            "order": (fieldsetOrder.val() * 1),
+            "doctype": doctype,
+            "multiple": (fieldsetMultiple.val() == "true")
+          },
+          complete = function(context) {
+            populateFieldsets(doctype);
+            $(context).dialog("close");
+          };
+           
+          sendConfigDoc(url, obj, 'PUT', complete, this);
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      },
+    },
+    close: function() {
+      clearValues($('.input')).removeClass('ui-state-error');
+    }
+  });
+  
+  return dialog;
 }
 
 function initFieldAddDialog() {
@@ -440,8 +530,8 @@ $(function () {
   initTabs(); 
   initHelpText();
   $('#doctype-dialog').hide();
+  $("#fieldset-dialog").hide();
   initDoctypeAddButton();
-  initFieldsetAddDialog();
   initFieldAddDialog();
   initCharsecAddDialog();
   initCharsecAddButton();
