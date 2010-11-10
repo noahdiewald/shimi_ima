@@ -64,6 +64,14 @@
                    }).map(function(elem, index) {
                      return elem.value;
                    }));
+                 } else {
+                   fieldset.multifields.forEach(function(multifield, index) {
+                     reversals = reversals.concat(multifield.fields.filter(function(elem, index) {
+                       return (elem.reversal == true);
+                     }).map(function(elem, index) {
+                       return elem.value;
+                     }));
+                   });
                  }
                });
                
