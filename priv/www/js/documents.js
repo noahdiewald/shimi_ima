@@ -339,9 +339,10 @@ function initCreateButton() {
           var body = "Your document was created.";
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
           
+          $('#save-document-button').hide();
           $('.fields').remove();
           initFieldsets();
-          getDocument(documentId, true);
+          getDocument(documentId);
           getIndex();
           flashHighlight(title, body);
           createButton.button('enable');
