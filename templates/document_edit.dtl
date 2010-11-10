@@ -12,12 +12,7 @@
   {% for fieldset in rows %}
     <li>
       <a href="#{{ fieldset.value._id }}">
-        {% if fieldset.value.label %}
         {{ fieldset.value.label }}
-        {% endif %}
-        {% if not fieldset.value.lable %}
-        {{ fieldset.value.name }}
-        {% endif %}
       </a>
     </li>
   {% endfor %}
