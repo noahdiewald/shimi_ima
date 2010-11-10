@@ -12,7 +12,9 @@
     </th>
     <td>
       <ul>
-      {% for elem in row.value %}<li>{{ elem }}</li>{% endfor %}
+      {% for elem in row.value %}
+        {% if elem %}<li>{{ elem }}</li>{% endif %}
+      {% endfor %}
       </ul>
     </td>
   </tr>
