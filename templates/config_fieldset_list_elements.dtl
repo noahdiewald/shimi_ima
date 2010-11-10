@@ -28,6 +28,7 @@
   <button 
     id="add-field-to-{{ id }}-button" 
     class="add-field-button" 
+    data-fieldset-id="{{ id }}"
     data-doctype-id="{{ value.doctype }}">Add Field</button>
   
   <table class="fields ui-widget ui-widget-content">

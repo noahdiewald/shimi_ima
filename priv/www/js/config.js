@@ -114,9 +114,10 @@ function populateFieldsets(doctypeId) {
     $(".add-field-button").button({
       icons: {primary: "ui-icon-plus"}
     }).click(function() {
-      fieldDoctype.val($(this).attr('data-doctype-id'));
-      fieldFieldset.val($(this).attr('data-fieldset-id'));
-      initFieldAddDialog().dialog("open");
+      var fieldset = $(this).attr('data-fieldset-id');
+      var doctype = $(this).attr('data-doctype-id');
+      
+      initFieldAddDialog(fieldset, doctype).dialog("open");
     });
     
     $('.accordion-head').each(function(index) {
@@ -435,7 +436,7 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
   return dialog;
 }
 
-function initFieldAddDialog() {
+function initFieldAddDialog(fieldset, doctype) {
   var fieldName = $("#field-name-input");
   var fieldLabel = $("#field-label-input");
   var fieldSubcategory = $("#field-subcategory-input");
@@ -457,7 +458,9 @@ function initFieldAddDialog() {
                     fieldMin, 
                     fieldMax, 
                     fieldRegex];
-  
+  var url = "config/doctypes/" + doctype + 
+            "/fieldsets/" + fieldset + "/fields"
+
   function hideDisable(blank) {
     notDefault.forEach(function(field) {
       field.attr("disabled", "disabled");
@@ -491,15 +494,15 @@ function initFieldAddDialog() {
             "max": fieldMax.val(),
             "regex": fieldRegex.val(),
             "description": fieldDescription.val(),
-            "doctype": fieldDoctype.val(),
-            "fieldset": fieldFieldset.val(),
+            "doctype": doctype,
+            "fieldset": fieldset,
             "subcategory": fieldSubcategory.val()
           },
           complete = function(context) {
-            populateFields(fieldDoctype.val(), fieldFieldset.val());
+            populateFields(doctype, fieldset);
             $(context).dialog("close");
           };
-          sendConfigDoc("config/doctypes/" + fieldDoctype.val() + "/fieldsets/" + fieldFieldset.val() + "/fields", obj, 'POST', complete, this);
+          sendConfigDoc(url, obj, 'POST', complete, this);
         }
       },
       "Cancel": function() {
