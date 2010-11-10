@@ -298,12 +298,7 @@ function initSaveButton() {
           flashHighlight(title, body);
           saveButton.button('enable');
         } else if (req.status == 403) {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
-          
-          $('[name=' + body.fieldname + ']').addClass('ui-state-error');
-          
-          flashError(title, body.fieldname + " " + body.message);
+          setInvalidError(req);
           saveButton.button('enable');
         } else if (req.status == 409) {
           var body = JSON.parse(req.responseText);
@@ -320,6 +315,19 @@ function initSaveButton() {
   $('#save-document-button').hide();
   
   return true;
+}
+
+function setInvalidError(req) {
+  var body = JSON.parse(req.responseText);
+  var title = req.statusText;
+  
+  var invalid = $('[name=' + body.fieldname + ']');
+  var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+  
+  invalidTab.addClass('ui-state-error');
+  invalid.addClass('ui-state-error');
+  
+  flashError(title, body.fieldname + " " + body.message);
 }
 
 // Initialize the create as new button used to create a new document based
@@ -359,12 +367,7 @@ function initCreateButton() {
           flashHighlight(title, body);
           createButton.button('enable');
         } else if (req.status == 403) {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
-          
-          $('[name=' + body.fieldname + ']').addClass('ui-state-error');
-          
-          flashError(title, body.fieldname + " " + body.message);
+          setInvalidError(req);
           createButton.button('enable');
         }
       }
