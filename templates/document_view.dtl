@@ -29,9 +29,7 @@
           not specified
         {% endif %}
         {% if field.subcategory == 'textarea' %}
-          <span class="retain-white">
-{{ field.value }}
-          </span>
+          <span class="retain-white">{{ field.value }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' %}
           {{ field.value }}
@@ -56,9 +54,7 @@
           not specified
         {% endif %}
         {% if field.subcategory == 'textarea' %}
-          <span class="retain-white">
-{{ field.value }}
-          </span>
+          <span class="retain-white">{{ field.value }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' %}
           {{ field.value }}
