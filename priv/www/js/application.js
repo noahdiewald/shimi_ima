@@ -50,6 +50,12 @@ function flashHighlight(title, body) {
 $(function () {
   $('.notification').hide();
   
+  $('#loading').hide().ajaxStart(function() {
+    $(this).show();
+  }).ajaxStop(function() {
+    $(this).hide();
+  });
+  
   // Buttons
   
   $(".remove-button").button({

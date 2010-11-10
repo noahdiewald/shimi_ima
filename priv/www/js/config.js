@@ -108,7 +108,8 @@ function populateFieldsets(doctypeId) {
     
     fieldsetContainer.accordion({
       autoHeight: false,
-      collapsible: true
+      collapsible: true,
+      active: false
     });
     
     $(".add-field-button").button({
