@@ -550,55 +550,85 @@ function initFieldAddDialog(fieldset, doctype) {
   return dialog;
 }
 
+function getFieldElems() {
+  var obj = {
+    name: $("#field-name-input"),
+    label: $("#field-label-input"),
+    subcategory: $("#field-subcategory-input"),
+    description: $("#field-description-input"),
+    head: $("#field-head-input"),
+    reversal: $("#field-reversal-input"),
+    order: $("#field-order-input"),
+    doctype: $("#field-doctype-input"),
+    fieldset: $("#field-fieldset-input"),
+    default: $("#field-default-input"),
+    required: $("#field-required-input"),
+    allowed: $("#field-allowed-input"),
+    source: $("#field-source-input"),
+    min: $("#field-min-input"),
+    max: $("#field-max-input"),
+    regex: $("#field-regex-input"),
+    notDefault: function() {
+      return [this.allowed, this.source, this.min, this.max, this.regex];
+    }
+  };
+  
+  return obj;
+}
+
+function hideDisable(form, blank) {
+  form.notDefault().forEach(function(field) {
+    field.attr("disabled", "disabled");
+    if (blank) field.val('');
+    field.parent().hide();
+  });
+}
+
+function showEnable(form) {
+  form.notDefault().forEach(function(field) {
+    field.removeAttr("disabled");
+    field.parent().show();
+  });
+}
+
+function copyValues(form, oldobj) {
+  for (var name in oldobj) {
+    form[name].val(oldobj[name]);
+    if (form[name].is('input[type=checkbox]')) {
+      if (oldobj[name] == "true") form[name].attr('checked', true);
+    }
+  }
+}
+
 function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
-  var fieldName = $("#field-name-input");
-  var fieldLabel = $("#field-label-input");
-  var fieldSubcategory = $("#field-subcategory-input");
-  var fieldDescription = $("#field-description-input");
-  var fieldHead = $("#field-head-input");
-  var fieldReversal = $("#field-reversal-input");
-  var fieldOrder = $("#field-order-input");
-  var fieldDoctype = $("#field-doctype-input");
-  var fieldFieldset = $("#field-fieldset-input");
-  var fieldDefault = $("#field-default-input");
-  var fieldRequired = $("#field-required-input");
-  var fieldAllowed = $("#field-allowed-input");
-  var fieldSource = $("#field-source-input");
-  var fieldMin = $("#field-min-input");
-  var fieldMax = $("#field-max-input");
-  var fieldRegex = $("#field-regex-input");
-  var notDefault = [fieldAllowed, 
-                    fieldSource, 
-                    fieldMin, 
-                    fieldMax, 
-                    fieldRegex];
+  var form = getFieldElems();
   var url = "config/doctypes/" + doctype + 
             "/fieldsets/" + fieldset + 
             "/fields/" + id + "?rev=" + rev;
   
-  fieldName.val(oldobj.name);
-  fieldLabel.val(oldobj.label);
-  fieldSubcategory.val(oldobj.subcategory);
-  fieldDescription.val(oldobj.description);
-  fieldHead.val(oldobj.head);
-  fieldReversal.val(oldobj.reversal);
-  fieldOrder.val(oldobj.order);
-  fieldDoctype.val(doctype);
-  fieldFieldset.val(fieldset);
-  fieldDefault.val(oldobj.default);
-  fieldRequired.val(oldobj.required);
-  fieldAllowed.val(oldobj.allowed);
-  fieldSource.val(oldobj.source);
-  fieldMin.val(oldobj.min);
-  fieldMax.val(oldobj.max);
-  fieldRegex.val(oldobj.regex);
+  copyValues(form, oldobj);
+  showEnable(form);
   
-  function hideDisable(blank) {
-    notDefault.forEach(function(field) {
-      field.attr("disabled", "disabled");
-      if (blank) field.val('');
-      field.parent().hide();
-    });
+  if (form.min.val() == '' && form.max.val() == '') {
+    form.min.attr("disabled", "disabled");
+    form.max.attr("disabled", "disabled");
+    form.max.parent().hide();
+    form.min.parent().hide();
+  }
+  
+  if (form.regex.val() == '') {
+    form.regex.attr("disabled", "disabled");
+    form.regex.parent().hide();
+  }
+  
+  if (form.allowed.val() == '') {
+    form.allowed.attr("disabled", "disabled");
+    form.allowed.parent().hide();
+  }
+  
+  if (form.source.val() == '') {
+    form.source.attr("disabled", "disabled");
+    form.source.parent().hide();
   }
       
   var dialog = $("#field-dialog").dialog({
@@ -613,22 +643,22 @@ function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
         if (checkResult) {
           var obj = {
             "category": "field", 
-            "name": fieldName.val(),
-            "label": fieldLabel.val(),
-            "default": fieldDefault.val(),
-            "head": fieldHead.is(':checked'),
-            "reversal": fieldReversal.is(':checked'),
-            "required": fieldRequired.is(':checked'),
-            "order": (fieldOrder.val() * 1),
-            "allowed": fieldAllowed.val().split(","),
-            "source": fieldSource.val(),
-            "min": fieldMin.val(),
-            "max": fieldMax.val(),
-            "regex": fieldRegex.val(),
-            "description": fieldDescription.val(),
+            "name": form.name.val(),
+            "label": form.label.val(),
+            "default": form.default.val(),
+            "head": form.head.is(':checked'),
+            "reversal": form.reversal.is(':checked'),
+            "required": form.required.is(':checked'),
+            "order": (form.order.val() * 1),
+            "allowed": form.allowed.val().split(","),
+            "source": form.source.val(),
+            "min": form.min.val(),
+            "max": form.max.val(),
+            "regex": form.regex.val(),
+            "description": form.description.val(),
             "doctype": doctype,
             "fieldset": fieldset,
-            "subcategory": fieldSubcategory.val()
+            "subcategory": form.subcategory.val()
           },
           complete = function(context) {
             populateFields(doctype, fieldset);
@@ -643,37 +673,37 @@ function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
-      hideDisable();
+      hideDisable(form);
     }
   });
   
-  fieldSubcategory.change(function() {
-    var selected = fieldSubcategory.children('option:selected').val();
+  form.subcategory.change(function() {
+    var selected = form.subcategory.children('option:selected').val();
     var simpleSelects = ["select", "multiselect"];
     var remoteSelects = ["docselect", "docmultiselect"];
     var rangeable = ["date", "integer", "rational"];
     var matchable = ["text", "textarea"];
     
     if (simpleSelects.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldAllowed.removeAttr("disabled");
-      fieldAllowed.parent().show();
+      hideDisable(form, true);
+      form.allowed.removeAttr("disabled");
+      form.allowed.parent().show();
     } else if (remoteSelects.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldSource.removeAttr("disabled");
-      fieldSource.parent().show();
+      hideDisable(form, true);
+      form.source.removeAttr("disabled");
+      form.source.parent().show();
     } else if (matchable.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldRegex.removeAttr("disabled");
-      fieldRegex.parent().show();
+      hideDisable(form, true);
+      form.regex.removeAttr("disabled");
+      form.regex.parent().show();
     } else if (rangeable.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldMin.removeAttr("disabled");
-      fieldMin.parent().show();
-      fieldMax.removeAttr("disabled");
-      fieldMax.parent().show();
+      hideDisable(form, true);
+      form.min.removeAttr("disabled");
+      form.min.parent().show();
+      form.max.removeAttr("disabled");
+      form.max.parent().show();
     } else {
-      hideDisable(true);
+      hideDisable(form, true);
     };
   });
   
