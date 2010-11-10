@@ -11,7 +11,7 @@
     data-fieldset-view-id="{{ fieldset.id }}" 
     data-multiple="{{ fieldset.multiple }}"
   >
-    <b>{{ fieldset.name }}</b>:
+    <b>{{ fieldset.label }}</b>:
     {% if fieldset.multiple %}
     <ol>
     {% for multifield in fieldset.multifields %}
