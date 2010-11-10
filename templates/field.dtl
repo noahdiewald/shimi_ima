@@ -1,21 +1,11 @@
 <div 
  class="field-container ui-widget ui-widget-content ui-corner-all" 
- data-field-id="{{ _id }}"
->
-  <label 
-    for="{{ name }}" 
-    class="ui-widget"
-  >
-    <span
-      class="label-text"
-    >
-      {{ label }}
-    </span>
+ data-field-id="{{ _id }}">
+  <label for="{{ name }}" class="ui-widget">
+    <span class="label-text">{{ label }}</span>
     <span 
       class="ui-icon ui-icon-help" 
-      title="{% block format_info %}{% endblock %}
-{{ description }}"
-    ></span>
+      title="{% block format_info %}{% endblock %}{{ description }}"></span>
   </label>
   
 {% block input_area %}
@@ -26,7 +16,6 @@
     {% if default != "" %}
     data-field-default="{{ default }}"
     {% endif %}
-    {% include 'field_common_attributes.dtl' %}
-  />
+    {% include 'field_common_attributes.dtl' %} />
 {% endblock %}
 </div>
