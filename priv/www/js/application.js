@@ -44,7 +44,7 @@ function flashError(title, body) {
 function flashHighlight(title, body) {
   $('#notifications-main .ui-state-highlight .notification-summary').text(title + ": ");
   $('#notifications-main .ui-state-highlight .notification-message').text(body);
-  $('#notifications-main .ui-state-highlight').fadeIn('slow').delay(1000).fadeOut('slow');
+  $('#notifications-main .ui-state-highlight').fadeIn('slow').delay(7000).fadeOut('slow');
 }
  
 $(function () {

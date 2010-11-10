@@ -114,6 +114,8 @@ function afterRefresh() {
 function getDocument(id, runAfterEditRefresh) {
   var url = "documents/" + id;
   
+  $('#document-view').fadeTo('slow', 1);
+  
   $.get(url, function(documentHtml) {
     $('#document-view').html(documentHtml);
     
@@ -151,6 +153,11 @@ function deleteDocument(docid, docrev) {
       if (req.status == 204) {
         var title = "Success";
         var body = "Your document was deleted. You may undo this by clicking Edit and then Create as New.";
+        
+        $('#document-delete-button').hide();
+        $('#document-view h2').text("Deleted Document");
+        $('#document-view').fadeTo('slow', 0.5);
+        
         getIndex();
         flashHighlight(title, body);
       } else if (req.status == 409) {
@@ -158,6 +165,11 @@ function deleteDocument(docid, docrev) {
         var title = req.statusText;
           
         flashError(title, body.message);
+      } else if (req.status == 404) {
+        var body = "Document appears to have been deleted already.";
+        var title = req.statusText;
+          
+        flashError(title, body);
       }
     }
   });
