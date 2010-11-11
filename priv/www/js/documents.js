@@ -72,6 +72,7 @@ function setFieldValue(field, value) {
   if (field.is('input.boolean')) {
     field.attr("checked", value == "true");
   } else if (value && field.is('select.multiselect')) {
+    alert(value);
     field.val(value.split(","));
   } else {
     field.val(value);
@@ -84,9 +85,15 @@ function setFieldValue(field, value) {
 
 // This is run after the form is refreshed with new values inserted.
 function afterEditRefresh() {
-  $('#save-document-button').attr('data-document-id', $('#document-edit-button').attr('data-document-id'));
-  $('#save-document-button').attr('data-document-rev', $('#document-edit-button').attr('data-document-rev'));
-  $('#save-document-button').show();
+  var saveBttn = $('#save-document-button');
+  var editBttn = $('#document-edit-button');
+  var sharedAttrs = ['data-document-id', 'data-document-rev'];
+  
+  _(sharedAttrs).each(function(elem) {
+    saveBttn.attr(elem, editBttn.attr(elem));
+  });
+  
+  saveBttn.show();
   
   afterRefresh();
   

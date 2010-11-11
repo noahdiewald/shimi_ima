@@ -9,13 +9,10 @@
     {% endif %}
     {% include 'field_common_attributes.dtl' %}
   >
-    {% if required != 'true' %}
-    <option value=""></option>
-    {% endif %}
     {% for option in allowed %}
       <option
         {% if option.value == default %}selected=true{% endif %}
-        value={{ option.value }}
+        value="{{ option.value }}"
       >{{ option.key }}</option>
     {% endfor %}
   </select>

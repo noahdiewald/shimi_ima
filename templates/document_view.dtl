@@ -22,16 +22,23 @@
         class="field-view" 
         data-field-view-id="{{ field.id}}"
         data-field-view-index={{ field.index }}
-        data-field-view-value="{{ field.value }}"
-      >
+        {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
+        data-field-view-value="{{ field.value|join:"," }}">
+        {% endif %}
+        {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        data-field-view-value="{{ field.value }}">
+        {% endif %}
         <b>{{ field.label }}</b>: 
         {% if field.value == 'null' %}
           not specified
         {% endif %}
+        {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
+          {{ field.value|join:", " }}
+        {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value }}</span>
         {% endif %}
-        {% if field.value != 'null' and field.subcategory != 'textarea' %}
+        {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
           {{ field.value }}
         {% endif %}
       </li>
@@ -47,16 +54,23 @@
       <li 
         class="field-view" 
         data-field-view-id="{{ field.id}}"
-        data-field-view-value="{{ field.value }}"
-      >
+        {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
+        data-field-view-value="{{ field.value|join:"," }}">
+        {% endif %}
+        {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        data-field-view-value="{{ field.value }}">
+        {% endif %}
         <b>{{ field.label }}</b>:
         {% if field.value == 'null' %}
           not specified
         {% endif %}
+        {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
+          {{ field.value|join:", " }}
+        {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value }}</span>
         {% endif %}
-        {% if field.value != 'null' and field.subcategory != 'textarea' %}
+        {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
           {{ field.value }}
         {% endif %}
       </li>

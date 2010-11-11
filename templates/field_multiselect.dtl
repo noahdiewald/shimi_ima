@@ -7,15 +7,11 @@
     {% if default != "" %}
     data-field-default="{{ default|join:"," }}"
     {% endif %}
-    {% include 'field_common_attributes.dtl' %}
-  >
-    {% if required != 'true' %}
-    <option value=""></option>
-    {% endif %}
+    {% include 'field_common_attributes.dtl' %}>
     {% for option in allowed %}
       <option
         {% if option == default %}selected=true{% endif %}
-        value={{ option }}
+        value="{{ option }}"
       >{{ option }}</option>
     {% endfor %}
   </select>
