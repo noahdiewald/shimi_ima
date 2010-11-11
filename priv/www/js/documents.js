@@ -72,7 +72,6 @@ function setFieldValue(field, value) {
   if (field.is('input.boolean')) {
     field.attr("checked", value == "true");
   } else if (value && field.is('select.multiselect')) {
-    alert(value);
     field.val(value.split(","));
   } else {
     field.val(value);
