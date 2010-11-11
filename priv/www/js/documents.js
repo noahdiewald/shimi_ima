@@ -214,7 +214,7 @@ function initEdit() {
   
   $.get(url, function(documentEditHtml) {
     $('#document-edit').html(documentEditHtml);
-    $('#edit-tabs').tabs();
+    $('#edit-tabs').tabs().scrollabletab();
     initFieldsets();
     initEditButtons();
   });
