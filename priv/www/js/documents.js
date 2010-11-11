@@ -215,6 +215,16 @@ function initEdit() {
   $.get(url, function(documentEditHtml) {
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();
+    var totalWidth = _($('#tab-list li')).reduce(function(acc, elem) {
+      var width = elem.offsetWidth;
+      if (isNaN(width)) {
+        return acc;
+      } else {
+        return acc + elem.offsetWidth;
+      }
+    }, 0);
+    var newWidth = totalWidth / $('#document-edit').width() * 100;
+    $('#tab-list').css('width', newWidth + "%");
     initFieldsets();
     initEditButtons();
   });

@@ -200,3 +200,14 @@ nav ul li {
   left: 50%;
   top: 50%;
 }
+
+#scroll {
+  overflow-y: hidden;
+  overflow-x: scroll;
+  width: 100%;
+}
+
+#tab-list {
+  width: 400%;
+  position: relative;
+}

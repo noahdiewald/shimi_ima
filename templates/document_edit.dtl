@@ -4,19 +4,20 @@
 
 <div
   id="edit-document-form"
-  class="ui-widget ui-corner-all"
->
+  class="ui-widget ui-corner-all">
 
   <div id="edit-tabs">
-  <ul>
-  {% for fieldset in rows %}
-    <li>
-      <a href="#{{ fieldset.value._id }}">
-        {{ fieldset.value.label }}
-      </a>
-    </li>
-  {% endfor %}
-  </ul>
+    <div id="scroll">
+      <ul id="tab-list">
+      {% for fieldset in rows %}
+        <li>
+          <a href="#{{ fieldset.value._id }}">
+            {{ fieldset.value.label }}
+          </a>
+        </li>
+      {% endfor %}
+      </ul>
+    </div>
   
   {% for fieldset in rows %}
   
@@ -27,8 +28,7 @@
     data-fieldset-multiple="{{ fieldset.value.multiple }}"
     data-fieldset-name="{{ fieldset.value.name }}"
     data-fieldset-label="{{ fieldset.value.label }}"
-    data-fieldset-order="{{ fieldset.value.order }}"
-  >
+    data-fieldset-order="{{ fieldset.value.order }}">
     
     <p>{{ fieldset.value.description }}</p>
     
@@ -37,8 +37,7 @@
       class="fieldset-container"
       data-fieldset-id="{{ fieldset.value._id }}"'
       data-project-id="project-{{ project_info._id }}"
-      data-doctype-id="{{ doctype_info._id }}" 
-    ></div>
+      data-doctype-id="{{ doctype_info._id }}"></div>
     
   {% if fieldset.value.multiple %}
   
