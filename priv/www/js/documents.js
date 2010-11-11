@@ -216,7 +216,7 @@ function initEdit() {
 
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();
-    setTabBarWidth();
+    arrangeTabBar();
     initFieldsets();
     initEditButtons();
   });
@@ -224,10 +224,12 @@ function initEdit() {
   return true;
 }
 
-function setTabBarWidth() {
-  var newWidth;
+function arrangeTabBar() {
+  var tabs = $('#tab-list li');
+  var containerWidth = $('#tabs-container').width();
+  var tabsWidth;
   
-  var totalWidth = _($('#tab-list li')).reduce(function(acc, elem) {
+  tabsWidth = _(tabs).reduce(function(acc, elem) {
     var width = elem.offsetWidth;
     
     if (isNaN(width)) {
@@ -235,11 +237,14 @@ function setTabBarWidth() {
     } else {
       return acc + elem.offsetWidth;
     }
-  }, 0);
+  }, 50);
   
-  newWidth = totalWidth / $('#document-edit').width() * 100;
-  
-  $('#tab-list').css('width', newWidth + "%");
+  if (containerWidth < tabsWidth) {
+    tabs.switchClass('ui-corner-top', 'ui-corner-all');
+    tabs.children().css('padding', '2px');
+    tabs.children().css('font-weight', 'normal');
+    tabs.parent().css('padding-bottom', '4px');
+  }
 }
 
 // Functions for initializing buttons

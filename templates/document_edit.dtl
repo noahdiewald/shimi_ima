@@ -5,9 +5,9 @@
 <div
   id="edit-document-form"
   class="ui-widget ui-corner-all">
-
+  
   <div id="edit-tabs">
-    <div id="scroll">
+    <div id="tabs-container">
       <ul id="tab-list">
       {% for fieldset in rows %}
         <li>
