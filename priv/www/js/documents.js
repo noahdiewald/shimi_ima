@@ -55,6 +55,7 @@ function fillNormalFieldsets(fieldsetView) {
 // a particular fieldset, useful when used as a callback
 function fillFields(container, context) {
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  $('#save-document-button').removeAttr('disabled');
   
   container.find('.field-view').each(function(fieldIndex, field) {
     var value = $(field).attr('data-field-view-value');
@@ -222,12 +223,26 @@ function initEdit() {
 
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();
+    setKeyboardEvents();
     arrangeTabBar();
     initFieldsets();
     initEditButtons();
   });
   
   return true;
+}
+
+function setKeyboardEvents() {
+  $('#edit-tabs').keypress(function(event) {
+    if (event.keyCode == '13' && $(event.target).is('input')) {
+      if ($('#save-document-button').attr('disabled')) {
+        $('#create-document-button').click();
+      } else {
+        $('#save-document-button').click();
+      }
+    }
+  });
+
 }
 
 function arrangeTabBar() {
@@ -344,6 +359,7 @@ function initSaveButton() {
   });
   
   $('#save-document-button').hide();
+  $('#save-document-button').attr('disabled', 'true');
   
   return true;
 }
@@ -391,6 +407,7 @@ function initCreateButton() {
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
           
           $('#save-document-button').hide();
+          $('#save-document-button').attr('disabled','true');
           $('.fields').remove();
           initFieldsets();
           getDocument(documentId);
@@ -416,6 +433,7 @@ function initClearButton() {
   }).click(function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     $('#save-document-button').hide();
+    $('#save-document-button').attr('disabled','true');
     $('.fields').remove();
     initFieldsets();
   });
@@ -435,7 +453,7 @@ function initFields(fieldset, url, fieldsetCallback) {
     if (fieldsetCallback) {
       fieldsetCallback(fieldset);
     }
-    
+
     afterFreshRefresh();
   });
   
