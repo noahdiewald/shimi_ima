@@ -144,9 +144,6 @@ get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   ERL_NIF_TERM ok = enif_make_atom(env, "ok");
   UConverter *conv;
   UCollator *collator = 0;
-  if (U_FAILURE(status)) {
-    return error_helper(env, u_errorName(status));
-  }
   
   /* Check if the first argument is a list aka string of characters */
   if (!enif_is_list(env, argv[0])) {
