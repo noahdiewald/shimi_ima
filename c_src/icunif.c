@@ -120,12 +120,24 @@ error_helper(ErlNifEnv* env, const char* message)
 static ERL_NIF_TERM 
 get_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
+  /* erlang binary containing unicode string that we need a sort
+     key for */
   ErlNifBinary orig_bin;
+  
+  /* this is the structure that will hold the return value */
   ERL_NIF_TERM out_bin;
+  
+  /* this will hold the sort key */
   unsigned char* out_data;
+  
+  /* this will hold the user suplied locale for determining
+     sort order */
   char locale [MAXBUFFERSIZE];
   
+  /* this holds the orig_bin after it is converted to UChar, which is the
+     icu internal character type */
   UChar converted [MAXBUFFERSIZE]; 
+  
   uint8_t sort_key [MAXBUFFERSIZE];
   int32_t key_size, conv_size;
   UErrorCode status = U_ZERO_ERROR;
