@@ -244,9 +244,9 @@ locale_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
   See above for more information on NIFs.
 
-  The Erlang function icu:get_sort_key(tailoring, Tailoring, Data) when
-  called will cause this funtion to be called. Locale is in argv[0]
-  and Data is in argv[1].
+  The Erlang function icu:get_sort_key(rule, Rule, Data) when called
+  will cause this funtion to be called. Locale is in argv[0] and Data
+  is in argv[1].
 
   These values will be finesed until they can be used to open an ICU
   collator with the given Locale defining a sort order. The Data will
@@ -271,7 +271,7 @@ locale_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 */
 
 static ERL_NIF_TERM 
-tailoring_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+rule_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   /* erlang binary containing unicode string that we need a sort
      key for */
@@ -283,9 +283,9 @@ tailoring_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   /* this will hold the sort key */
   unsigned char* out_data;
   
-  /* this will hold the user suplied tailoring for determining
+  /* this will hold the user suplied rule for determining
      sort order */
-  char tailoring [MAXBUFFERSIZE];
+  char rule [MAXBUFFERSIZE];
   
   /* this holds the orig_bin after it is converted to UChar, which is the
      icu internal character type */
@@ -317,11 +317,11 @@ tailoring_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   
   /* Pad the memory that will hold the string with \0 so that the string
      to be placed there is \0 terminated */
-  (void)memset(&tailoring, '\0', sizeof(tailoring));
+  (void)memset(&rule, '\0', sizeof(rule));
   
   /* Establish the list as a string. Erlang forces us to use latin1 but
-     that is ok since tailoring strings are (in this program) ASCII */
-  if (enif_get_string(env, argv[0], tailoring, sizeof(tailoring), ERL_NIF_LATIN1) < 1)  {
+     that is ok since rule strings are (in this program) ASCII */
+  if (enif_get_string(env, argv[0], rule, sizeof(rule), ERL_NIF_LATIN1) < 1)  {
     return enif_make_badarg(env);
   }
   
@@ -360,7 +360,7 @@ tailoring_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   
   /* Attempt to open the collator and if an error occurs close everything
      up */
-  collator = ucol_open(tailoring, &status);
+  collator = ucol_open(rule, &status);
   if (U_FAILURE(status)) {
     enif_release_binary(&orig_bin);
     ucol_close(collator);
@@ -394,7 +394,7 @@ tailoring_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 static ErlNifFunc icunif_funcs[] =
 {
   {"locale_sort_key", 2, locale_sort_key},
-  {"tailoring_sort_key", 2, tailoring_sort_key}
+  {"rule_sort_key", 2, rule_sort_key}
 };
 
 ERL_NIF_INIT(icu, icunif_funcs, load, reload, upgrade, unload)
