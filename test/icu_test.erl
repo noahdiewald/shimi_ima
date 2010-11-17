@@ -6,6 +6,22 @@
 
 -define(COMPLEX_RULES, "&9<a,A<\\u0101,a\\u0304,\\u0100,A\\u0304<c,C<ae,AE<a\\u035ee,A\\u035eE<e,E<\\u0113,e\\u0304,\\u0112,E\\u0304<h,H<i,I<\\u012b,i\\u0304,\\u012a,I\\u0304<k,K<m,M<n,N<o,O<\\u014D,o\\u0304,\\u014C,O\\u0304<p,P<q,Q<r,R<s,S<t,T<u,U<\\u016B,u\\u0304,\\u016A,U\\u0304<w,W<y,Y").
 
+unescape_test_() ->
+[
+  % Ensure that a properly formed tuple is returned
+  ?_assertMatch({ok, _}, icu:unescape(<<"hey">>)),
+  
+  % Equivalent binaries should unescape the same
+  ?_assertEqual(icu:unescape(<<"h">>), icu:unescape(<<"h">>)),
+  
+  % Equivalent binaries and lists should unescape the same
+  ?_assertEqual(icu:unescape(<<"h">>), icu:unescape("h")),
+  
+  % Unescaped values should be correct
+  ?_assertEqual({ok, <<196,129>>}, icu:unescape("\\u0101"))
+  
+].
+
 get_sort_key_test_() ->
 [
   % Ensure that a properly formed tuple is returned

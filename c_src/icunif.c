@@ -48,7 +48,6 @@
 #include <stdint.h>
 #include "unicode/utypes.h" 
 #include "unicode/ustring.h"
-#include "unicode/ucnv.h"
 #include "unicode/ucol.h" 
 #include "erl_nif.h" 
 #define BUFFERSIZE 1024
@@ -114,6 +113,45 @@ get_sort_key(ErlNifEnv* env, const UCollator* coll, const UChar* source, uint32_
   }
   
   return result_bin;
+}
+
+static ERL_NIF_TERM 
+icu_unescape(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+  ErlNifBinary source_bin; // erlang binary containing unicode
+  ERL_NIF_TERM result_bin; // erlang binary return value
+  uint8_t* result; 
+  UChar buffer [BUFFERSIZE]; // stack buffer
+  UChar* currBuffer = buffer;
+  int32_t bufferLen = sizeof(buffer);
+  int32_t expectedLen = 0;
+  ERL_NIF_TERM ok = enif_make_atom(env, "ok"); // atom for return value
+  
+  // check and initialize binary
+  if (!enif_inspect_binary(env, argv[0], &source_bin)) {
+    return enif_make_badarg(env);
+  }
+  
+  expectedLen = u_unescape((char*)source_bin.data, currBuffer, bufferLen);
+  if (expectedLen > bufferLen) {
+    if (currBuffer == buffer) {
+      currBuffer = malloc(expectedLen);
+    } else {
+      currBuffer = realloc(currBuffer, expectedLen);
+    }
+  }
+  bufferLen = u_unescape((char*)source_bin.data, currBuffer, expectedLen);
+  
+  enif_release_binary(&source_bin);
+  
+  result = enif_make_new_binary(env, bufferLen * 2, &result_bin);
+  u_memcpy((UChar*)result, currBuffer, bufferLen);
+  
+  if (currBuffer != buffer && currBuffer != NULL) {
+    free(currBuffer);
+  }
+  
+  return enif_make_tuple2(env, ok, result_bin);
 }
 
 /*
@@ -242,6 +280,7 @@ rule_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 static ErlNifFunc icunif_funcs[] =
 {
+  {"icu_unescape", 1, icu_unescape},
   {"locale_sort_key", 2, locale_sort_key},
   {"rule_sort_key", 2, rule_sort_key}
 };
