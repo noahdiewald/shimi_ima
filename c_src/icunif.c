@@ -51,7 +51,7 @@
 #include "unicode/ucnv.h"
 #include "unicode/ucol.h" 
 #include "erl_nif.h" 
-#define MAXBUFFERSIZE 1024
+#define BUFFERSIZE 1024
 
 static int 
 load(ErlNifEnv* env, void** priv, ERL_NIF_TERM load_info)
@@ -86,6 +86,36 @@ error_helper(ErlNifEnv* env, const char* message)
   return enif_make_tuple2(env, error_atm, error_msg);
 }
 
+static ERL_NIF_TERM 
+get_sort_key(ErlNifEnv* env, const UCollator* coll, const UChar* source, uint32_t srcsize)
+{
+  ERL_NIF_TERM result_bin; // erlang binary return value
+  uint8_t* result; 
+  uint8_t buffer [BUFFERSIZE]; // stack buffer
+  uint8_t* currBuffer = buffer;
+  int32_t bufferLen = sizeof(buffer);
+  int32_t expectedLen = 0;
+  
+  expectedLen = ucol_getSortKey(coll, source, srcsize, currBuffer, bufferLen);
+  if (expectedLen > bufferLen) {
+    if (currBuffer == buffer) {
+      currBuffer = malloc(expectedLen);
+    } else {
+      currBuffer = realloc(currBuffer, expectedLen);
+    }
+  }
+  bufferLen = ucol_getSortKey(coll, source, srcsize, currBuffer, expectedLen);
+  
+  result = enif_make_new_binary(env, bufferLen, &result_bin);
+  memcpy(result, currBuffer, bufferLen);
+  
+  if (currBuffer != buffer && currBuffer != NULL) {
+    free(currBuffer);
+  }
+  
+  return result_bin;
+}
+
 /*
   This is an Erlang NIF function. See icu.erl for the Erlang interface.
 
@@ -107,136 +137,47 @@ error_helper(ErlNifEnv* env, const char* message)
   as {error, Reason} where Reason is a latin1 string.
 
   Otherwise {ok, SortKey} where SortKey is an Erlang binary.
-  
-  TODO: Move generic converter and collation creation code to separate
-        function.
-  TODO: Rename the incoming binary variables to something more 
-        descriptive.
-  TODO: Examine buffer sizes and determine whether they should be 
-        a different size and whether it might not be a good idea to 
-        calculate them based on what is passed in.
 */
 
 static ERL_NIF_TERM 
 locale_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  /* erlang binary containing unicode string that we need a sort
-     key for */
-  ErlNifBinary orig_bin;
+  ErlNifBinary source_bin; // erlang binary containing unicode
+  ERL_NIF_TERM result_bin; // erlang binary return value
+  char locale [256] = { '\0' }; // for user supplied locale
+  UErrorCode status = U_ZERO_ERROR; // error status
+  ERL_NIF_TERM ok = enif_make_atom(env, "ok"); // atom for return value
+  UCollator *collator = 0; // icu collator
   
-  /* this is the structure that will hold the return value */
-  ERL_NIF_TERM out_bin;
-  
-  /* this will hold the sort key */
-  unsigned char* out_data;
-  
-  /* this will hold the user suplied locale for determining
-     sort order */
-  char locale [MAXBUFFERSIZE];
-  
-  /* this holds the orig_bin after it is converted to UChar, which is the
-     icu internal character type */
-  UChar converted [MAXBUFFERSIZE]; 
-  
-  /* to hold the sort key returned by the collator */
-  uint8_t key_buf [MAXBUFFERSIZE];
-  
-  /* to hold the sizes returned by the collator */
-  int32_t key_size, conv_size;
-  
-  /* to hold icu error status */
-  UErrorCode status = U_ZERO_ERROR;
-  
-  /* 'ok' to be sent back as first element in erlang tuple */
-  ERL_NIF_TERM ok = enif_make_atom(env, "ok");
-  
-  /* pointer to the converter used to take the utf8 input and put it in the
-     format used by icu */
-  UConverter *conv;
-  
-  /* pointer to the collator */
-  UCollator *collator = 0;
-  
-  /* Check if the first argument is a list aka string of characters */
+  // Check if the first argument is an erlang list
   if (!enif_is_list(env, argv[0])) {
     return enif_make_badarg(env);
   }
   
-  /* Pad the memory that will hold the string with \0 so that the string
-     to be placed there is \0 terminated */
-  (void)memset(&locale, '\0', sizeof(locale));
-  
-  /* Establish the list as a string. Erlang forces us to use latin1 but
-     that is ok since locale strings are ASCII */
+  // check that term is an erlang string
   if (enif_get_string(env, argv[0], locale, sizeof(locale), ERL_NIF_LATIN1) < 1)  {
     return enif_make_badarg(env);
   }
   
-  /* This checks that second argument is a binary and sets it to
-     orig_bin. */
-  if (!enif_inspect_binary(env, argv[1], &orig_bin)) {
+  // check and initialize binary
+  if (!enif_inspect_binary(env, argv[1], &source_bin)) {
     return enif_make_badarg(env);
   }
   
-  /* Attempt to open the converter and if an error occurs close everything
-     up */
-  conv = ucnv_open("utf-8", &status);
-  if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
-    ucnv_close(conv);
-    return error_helper(env, u_errorName(status));
-  }
-  
-  /* Convert the original data passed in, which should be UTF8 to the
-     ICU internal UTF16 that has the type UChar. */
-  conv_size = ucnv_toUChars(conv, converted, MAXBUFFERSIZE, (char*)orig_bin.data, orig_bin.size, &status);
-  /* TODO: it is possible to test for a buffer overrun here and allocate a
-     larger buffer. 
-     http://userguide.icu-project.org/conversion/converters */
-  if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
-    ucnv_close(conv);
-    return error_helper(env, u_errorName(status));
-  }
-
-  /* Close the converter */
-  ucnv_close(conv);
-  
-  /* Release the binary passed in */
-  enif_release_binary(&orig_bin);
-  
-  /* Attempt to open the collator and if an error occurs close everything
-     up */
+  // open collator with locale setting
   collator = ucol_open(locale, &status);
   if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
+    enif_release_binary(&source_bin);
     ucol_close(collator);
     return error_helper(env, u_errorName(status));
   }
   
+  result_bin = get_sort_key(env, collator, (UChar*)source_bin.data, source_bin.size / 2);
   
-  /* Run the collator getSortKey funtion on the converted string. Save
-     the sort key to key_buf. It should be possible to reallocate the 
-     buffer if the specified one is too small but it wasn't working for
-     me. http://userguide.icu-project.org/collation/api */
-  key_size = ucol_getSortKey(collator, converted, conv_size, key_buf, MAXBUFFERSIZE);
-  /* TODO: I am not sure if an error can be reported here */
-  if (U_FAILURE(status)) {
-    ucol_close(collator);
-    return error_helper(env, u_errorName(status));
-  }
-  
-  /* Close the collator */
+  enif_release_binary(&source_bin);
   ucol_close(collator);
   
-  /* Create a new binary to hold the sort key */
-  out_data = enif_make_new_binary(env, key_size, &out_bin);
-  
-  /* Copy the sort key to the out_bin binary */
-  memcpy(out_data, key_buf, key_size);
-  
-  /* Return a tuple */
-  return enif_make_tuple2(env, ok, out_bin);
+  return enif_make_tuple2(env, ok, result_bin);
 }
 
 /*
@@ -260,135 +201,43 @@ locale_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   as {error, Reason} where Reason is a latin1 string.
 
   Otherwise {ok, SortKey} where SortKey is an Erlang binary.
-  
-  TODO: Move generic converter and collation creation code to separate
-        function.
-  TODO: Rename the incoming binary variables to something more 
-        descriptive.
-  TODO: Examine buffer sizes and determine whether they should be 
-        a different size and whether it might not be a good idea to 
-        calculate them based on what is passed in.
 */
 
 static ERL_NIF_TERM 
 rule_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-  /* erlang binary containing unicode string that we need a sort
-     key for */
-  ErlNifBinary orig_bin;
+  ErlNifBinary source_bin; // erlang binary containing unicode
+  ErlNifBinary rule_bin; // erlang binary containing unicode
+  ERL_NIF_TERM result_bin; // erlang binary return value
+  UErrorCode status = U_ZERO_ERROR; // error status
+  UParseError parse_status; // error status
+  ERL_NIF_TERM ok = enif_make_atom(env, "ok"); // atom for return value
+  UCollator *collator = 0; // icu collator
   
-  /* this is the structure that will hold the return value */
-  ERL_NIF_TERM out_bin;
-  
-  /* this will hold the sort key */
-  unsigned char* out_data;
-  
-  /* this will hold the user suplied rule for determining
-     sort order */
-  char rule [MAXBUFFERSIZE];
-  
-  /* this holds the orig_bin after it is converted to UChar, which is the
-     icu internal character type */
-  UChar converted [MAXBUFFERSIZE]; 
-  
-  /* to hold the sort key returned by the collator */
-  uint8_t key_buf [MAXBUFFERSIZE];
-  
-  /* to hold the sizes returned by the collator */
-  int32_t key_size, conv_size;
-  
-  /* to hold icu error status */
-  UErrorCode status = U_ZERO_ERROR;
-  
-  /* 'ok' to be sent back as first element in erlang tuple */
-  ERL_NIF_TERM ok = enif_make_atom(env, "ok");
-  
-  /* pointer to the converter used to take the utf8 input and put it in the
-     format used by icu */
-  UConverter *conv;
-  
-  /* pointer to the collator */
-  UCollator *collator = 0;
-  
-  /* Check if the first argument is a list aka string of characters */
-  if (!enif_is_list(env, argv[0])) {
+  // check and initialize binaries
+  if (!enif_inspect_binary(env, argv[0], &rule_bin)) {
     return enif_make_badarg(env);
   }
   
-  /* Pad the memory that will hold the string with \0 so that the string
-     to be placed there is \0 terminated */
-  (void)memset(&rule, '\0', sizeof(rule));
-  
-  /* Establish the list as a string. Erlang forces us to use latin1 but
-     that is ok since rule strings are (in this program) ASCII */
-  if (enif_get_string(env, argv[0], rule, sizeof(rule), ERL_NIF_LATIN1) < 1)  {
+  if (!enif_inspect_binary(env, argv[1], &source_bin)) {
     return enif_make_badarg(env);
   }
   
-  /* This checks that second argument is a binary and sets it to
-     orig_bin. */
-  if (!enif_inspect_binary(env, argv[1], &orig_bin)) {
-    return enif_make_badarg(env);
-  }
-  
-  /* Attempt to open the converter and if an error occurs close everything
-     up */
-  conv = ucnv_open("utf-8", &status);
+  // open collator with locale setting
+  collator = ucol_openRules((UChar*)rule_bin.data, source_bin.size / 2, UCOL_DEFAULT, UCOL_DEFAULT_STRENGTH, &parse_status, &status);
   if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
-    ucnv_close(conv);
-    return error_helper(env, u_errorName(status));
-  }
-  
-  /* Convert the original data passed in, which should be UTF8 to the
-     ICU internal UTF16 that has the type UChar. */
-  conv_size = ucnv_toUChars(conv, converted, MAXBUFFERSIZE, (char*)orig_bin.data, orig_bin.size, &status);
-  /* TODO: it is possible to test for a buffer overrun here and allocate a
-     larger buffer. 
-     http://userguide.icu-project.org/conversion/converters */
-  if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
-    ucnv_close(conv);
-    return error_helper(env, u_errorName(status));
-  }
-
-  /* Close the converter */
-  ucnv_close(conv);
-  
-  /* Release the binary passed in */
-  enif_release_binary(&orig_bin);
-  
-  /* Attempt to open the collator and if an error occurs close everything
-     up */
-  collator = ucol_open(rule, &status);
-  if (U_FAILURE(status)) {
-    enif_release_binary(&orig_bin);
+    enif_release_binary(&source_bin);
     ucol_close(collator);
     return error_helper(env, u_errorName(status));
   }
   
-  /* Run the collator getSortKey funtion on the converted string. Save
-     the sort key to key_buf. It should be possible to reallocate the 
-     buffer if the specified one is too small but it wasn't working for
-     me. http://userguide.icu-project.org/collation/api */
-  key_size = ucol_getSortKey(collator, converted, conv_size, key_buf, MAXBUFFERSIZE);
-  /* TODO: I am not sure if an error can be reported here */
-  if (U_FAILURE(status)) {
-    ucol_close(collator);
-    return error_helper(env, u_errorName(status));
-  }
+  result_bin = get_sort_key(env, collator, (UChar*)source_bin.data, source_bin.size / 2);
   
-  /* Close the collator */
+  enif_release_binary(&rule_bin);
+  enif_release_binary(&source_bin);
   ucol_close(collator);
   
-  /* Create a new binary to hold the sort key */
-  out_data = enif_make_new_binary(env, key_size, &out_bin);
-  
-  /* Copy the sort key to the out_bin binary */
-  memcpy(out_data, key_buf, key_size);
-  
-  /* Return a tuple */
-  return enif_make_tuple2(env, ok, out_bin);
+  return enif_make_tuple2(env, ok, result_bin);
 }
 
 static ErlNifFunc icunif_funcs[] =

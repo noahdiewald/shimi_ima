@@ -15,12 +15,13 @@ get_sort_key(Bin) ->
 
 
 get_sort_key(locale, Locale, Bin) ->
-  Bin1 = unicode:characters_to_binary(Bin, utf8, utf16),
+  Bin1 = unicode:characters_to_binary(Bin, utf8, {utf16,little}),
   locale_sort_key(Locale, Bin1);
 
 get_sort_key(rule, Rule, Bin) ->
-  Bin1 = unicode:characters_to_binary(Bin, utf8, utf16),
-  rule_sort_key(Rule, Bin1).
+  Bin1 = unicode:characters_to_binary(Bin, utf8, {utf16,little}),
+  Rule1 = unicode:characters_to_binary(Rule, utf8, {utf16,little}),
+  rule_sort_key(Rule1, Bin1).
  
   
 locale_sort_key(_Locale, _Bin) ->
