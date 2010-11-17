@@ -8,29 +8,30 @@
 
 get_sort_key_test_() ->
 [
-  % Detect bad arg
-  ?_assertError(badarg, icu:get_sort_key("hey")),
-  
   % Ensure that a properly formed tuple is returned
   ?_assertMatch({ok, _}, icu:get_sort_key(<<"hey">>)),
   
   % Equivalent binaries should get equivalent keys
   ?_assertEqual(icu:get_sort_key(<<"h">>), icu:get_sort_key(<<"h">>)),
   
+  % String or key arg are the same
+  ?_assertEqual(icu:get_sort_key(<<"hey">>), icu:get_sort_key("hey")),
+  
+  % TODO: error on bad locale
   % Detect bad argument type
-  ?_assertError(badarg, icu:get_sort_key("ha͞ew", "hey")),
+  %?_assertError(badarg, icu:get_sort_key(locale, "ha͞ew", "hey")),
   
   % Ensure that a locale works
-  ?_assertMatch({ok, _}, icu:get_sort_key("en_US", <<"hey">>)),
+  ?_assertMatch({ok, _}, icu:get_sort_key(locale, "en_US", <<"hey">>)),
   
   % Equivalent binaries should get equivalent keys with locales too.
-  ?_assertEqual(icu:get_sort_key("en_US", <<"h">>), icu:get_sort_key("en_US", <<"h">>)),
+  ?_assertEqual(icu:get_sort_key(locale, "en_US", <<"h">>), icu:get_sort_key(locale, "en_US", <<"h">>)),
   
   % With larger data
-  ?_assertEqual(icu:get_sort_key("en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>), icu:get_sort_key("en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>)),
+  ?_assertEqual(icu:get_sort_key(locale, "en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>), icu:get_sort_key(locale, "en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>)),
   
   % The keys must always be the same
-  ?_assertEqual({ok, <<58,1,5,1,5,0>>}, icu:get_sort_key("en_US", <<"h">>)),
+  ?_assertEqual({ok, <<58,1,5,1,5,0>>}, icu:get_sort_key(locale, "en_US", <<"h">>)),
   
   % With larger data
   ?_assertEqual({ok, 
@@ -43,8 +44,8 @@ get_sort_key_test_() ->
   41,136,41,138,41,140,41,142,41,136,41,126,41,128,41,130,41,132,41,134,41,136,
   41,138,41,140,41,142,41,138,41,126,41,128,41,130,41,132,41,134,41,136,41,138,
   41,140,41,142,41,140,41,126,41,128,41,130,41,132,41,134,41,136,41,138,41,140,
-  41,142,1,69,40,1,48,48,18,0>>}, icu:get_sort_key("en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>)),
+  41,142,1,69,40,1,48,48,18,0>>}, icu:get_sort_key(locale, "en_US", <<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>)),
   
   % Blank locale is ok
-  ?_assertMatch({ok, _}, icu:get_sort_key("", <<"h">>))
+  ?_assertMatch({ok, _}, icu:get_sort_key(locale, "", <<"h">>))
 ].
