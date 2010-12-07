@@ -161,7 +161,7 @@ html_edit(R, S) ->
   Json = couch:get_view_json(Doctype, "fieldsets", R, S),
   
   Vals = [
-    {<<"title">>, list_to_binary("New " ++ Doctype ++ " Document")}, 
+    {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
@@ -174,7 +174,7 @@ html_index(R, S) ->
   Json = couch:get_view_json(Doctype, "index", R, S),
   
   Vals = [
-    {<<"title">>, list_to_binary("All " ++ Doctype ++ " Documents")}, 
+    {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
@@ -183,10 +183,11 @@ html_index(R, S) ->
   Html.
 
 html_document(R, S) ->
+  Doctype = wrq:path_info(doctype, R),
   Json = couch:get_json(id, R, S),
   
   Vals = [
-    {<<"title">>, list_to_binary("Document")}, 
+    {<<"title">>, list_to_binary(Doctype)}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],

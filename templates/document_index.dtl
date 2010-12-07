@@ -1,4 +1,4 @@
-<h2 class="ui-widget ui-widget-header ui-corner-tl">Document Index</h2>
+<h2 class="ui-widget ui-widget-header ui-corner-tl">{{ title }}</h2>
   
 <table>
   {% for row in rows %}
