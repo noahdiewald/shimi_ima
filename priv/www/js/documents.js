@@ -142,8 +142,8 @@ function getDocument(id, runAfterEditRefresh) {
       }
     });
     
-    $('#document-view ul > li').click(function() {
-      $(this).children('ul, ol').slideToggle();
+    $('#document-view-list > li > b').click(function() {
+      $(this).parent('li').toggleClass('collapsed');
     });
   });
 }

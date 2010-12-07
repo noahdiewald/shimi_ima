@@ -204,3 +204,42 @@ nav ul li {
 #tabs-container {
   width: 100%;
 }
+
+#document-view ul {
+  padding-left: 1em;
+}
+
+#document-view ol {
+  padding-left: 1.5em;
+}
+
+#document-view ol ul {
+  padding-left: 0;
+}
+
+#document-view ul {
+  list-style-type: none;
+}
+
+#document-view li b {
+  font-family: abserif;
+  font-size: 95%;
+  color: #5868B6;
+}
+
+#document-view li ul b {
+  color: #AD5657;
+}
+
+#document-view-list li.collapsed:before {
+  content: "▸ ";
+}
+
+#document-view-list > li:before {
+  content: "▾ ";
+}
+
+#document-view li.collapsed ul, #document-view li.collapsed ol {
+  display: none;
+}
+

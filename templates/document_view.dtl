@@ -4,7 +4,7 @@
 
 <button id="document-delete-button" data-document-id="{{ _id }}" data-document-rev="{{ _rev }}">Delete</button>
 
-<ul id="document-view">
+<ul id="document-view-list">
 {% for fieldset in fieldsets %}
   <li 
     class="fieldset-view" 
