@@ -234,12 +234,12 @@ function initEdit() {
 
 function setKeyboardEvents() {
   var isCtrl = false;
-  var inputable = 'input, select, textarea';
+  var inputable = 'input, select';
   var t = $('#edit-tabs');
   
   selectInput = function() {
     var cur = t.find('.ui-tabs-selected a').attr('href');
-    $(cur).find(inputable).first().focus();
+    $(cur).find(inputable + ", textarea").first().focus();
   }
   
   t.keypress(function(event) {
