@@ -233,8 +233,17 @@ function initEdit() {
 }
 
 function setKeyboardEvents() {
-  $('#edit-tabs').keypress(function(event) {
-    if (event.keyCode == '13' && $(event.target).is('input')) {
+  var isCtrl = false;
+  var inputable = 'input, select, textarea';
+  var t = $('#edit-tabs');
+  
+  selectInput = function() {
+    var cur = t.find('.ui-tabs-selected a').attr('href');
+    $(cur).find(inputable).first().focus();
+  }
+  
+  t.keypress(function(event) {
+    if (event.keyCode == '13' && $(event.target).is(inputable)) {
       if ($('#save-document-button').attr('disabled')) {
         $('#create-document-button').click();
       } else {
@@ -243,6 +252,32 @@ function setKeyboardEvents() {
     }
   });
 
+  $(document).keyup(function(event) {
+    if (event.keyCode == '17') isCtrl = false;
+  }).keydown(function(event) {
+    var totaltabs = t.tabs('length');
+    var selected = t.tabs('option', 'selected');
+    
+    if (event.keyCode == '17') isCtrl = true;
+    if (event.keyCode == '39' && isCtrl) { 
+      if (selected < totaltabs - 1) {
+        t.tabs('select', selected + 1);
+        selectInput();
+      } else {
+        t.tabs('select', 0);
+        selectInput();
+      }
+    }
+    if (event.keyCode == '37' && isCtrl) { 
+      if (selected != 0) {
+        t.tabs('select', selected - 1);
+        selectInput();
+      } else {
+        t.tabs('select', totaltabs - 1);
+        selectInput();
+      }
+    }
+  });
 }
 
 function arrangeTabBar() {
