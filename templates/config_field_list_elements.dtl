@@ -18,7 +18,7 @@
       data-field-order="{{ value.order }}"
       data-field-default="{{ value.default }}"
       data-field-required="{{ value.required }}"
-      data-field-allowed="{{ value.allowed }}"
+      data-field-allowed="{{ value.allowed|join:"," }}"
       data-field-source="{{ value.source }}"
       data-field-max="{{ value.max }}"
       data-field-min="{{ value.min }}"
