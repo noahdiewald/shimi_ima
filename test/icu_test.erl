@@ -14,11 +14,14 @@ unescape_test_() ->
   % Equivalent binaries should unescape the same
   ?_assertEqual(icu:unescape(<<"h">>), icu:unescape(<<"h">>)),
   
-  % Equivalent binaries and lists should unescape the same
-  ?_assertEqual(icu:unescape(<<"h">>), icu:unescape("h")),
+  % Equivalent binaries should unescape the same
+  ?_assertEqual(icu:unescape(<<104>>), icu:unescape(<<"h">>)),
   
   % Unescaped values should be correct
-  ?_assertEqual({ok, <<196,129>>}, icu:unescape("\\u0101"))
+  ?_assertEqual(icu:unescape(<<104,196,129>>), icu:unescape(<<"h\\u0101">>)),
+  
+  % Unescaped values should be correct
+  ?_assertEqual({ok, <<196,129>>}, icu:unescape(<<"\\u0101">>))
   
 ].
 

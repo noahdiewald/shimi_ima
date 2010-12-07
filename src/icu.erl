@@ -21,11 +21,7 @@ get_sort_key(rule, Rule, Bin) ->
   Rule1 = unicode:characters_to_binary(Rule, utf8, {utf16, little}),
   rule_sort_key(Rule1, Bin1).
  
-
-unescape(List) when is_list(List) ->
-  Bin = list_to_binary(List),
-  unescape(Bin);
-unescape(Bin) when is_binary(Bin) ->
+unescape(Bin) ->
   {ok, Result} = icu_unescape(Bin),
   {ok, unicode:characters_to_binary(Result, {utf16, little}, utf8)}.
   

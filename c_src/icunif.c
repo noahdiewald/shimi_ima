@@ -144,8 +144,8 @@ icu_unescape(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   
   enif_release_binary(&source_bin);
   
-  result = enif_make_new_binary(env, bufferLen * 2, &result_bin);
-  u_memcpy((UChar*)result, currBuffer, bufferLen);
+  result = enif_make_new_binary(env, sizeof(currBuffer), &result_bin);
+  memcpy(result, currBuffer, sizeof(currBuffer));
   
   if (currBuffer != buffer && currBuffer != NULL) {
     free(currBuffer);
