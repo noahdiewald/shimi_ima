@@ -41,39 +41,37 @@
        },
        "index": {
            "map": "function(doc) { 
-             if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {
-               var heads = [];
-               var reversals = [];
+             var isReversal = function(elem) {return elem.reversal === true};
+             
+             var isHead = function(elem) {return elem.head === true};
+             
+             var gatherElems = function(acc, obj, filterFun) {
+               acc = acc.concat(obj.fields.filter(function(elem, index) {
+                 return (filterFun(elem));
+               }).map(function(elem, index) {return elem.value}));
                
+               return acc;
+             };
+             
+             var gather = function(acc, filterFun) {
                doc.fieldsets.forEach(function(fieldset, index) {
                  if (! fieldset.multiple) {
-                   heads = heads.concat(fieldset.fields.filter(function(elem, index) {
-                     return (elem.head == true);
-                   }).map(function(elem, index) {
-                     return elem.value;
-                   }));
-                 }
-               });
-               
-               if (heads.length == 0) { heads = [doc._id] }
-               
-               doc.fieldsets.forEach(function(fieldset, index) {
-                 if (! fieldset.multiple) {
-                   reversals = reversals.concat(fieldset.fields.filter(function(elem, index) {
-                     return (elem.reversal == true);
-                   }).map(function(elem, index) {
-                     return elem.value;
-                   }));
+                   acc = gatherElems(acc, fieldset, filterFun);
                  } else {
                    fieldset.multifields.forEach(function(multifield, index) {
-                     reversals = reversals.concat(multifield.fields.filter(function(elem, index) {
-                       return (elem.reversal == true);
-                     }).map(function(elem, index) {
-                       return elem.value;
-                     }));
+                     acc = gatherElems(acc, multifield, filterFun);
                    });
                  }
                });
+               
+               return acc;
+             }
+             
+             if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {
+               var heads = gather([], isHead);
+               var reversals = gather([], isReversal);
+               
+               if (heads.length === 0) { heads = [doc._id] };
                
                emit(heads, reversals);
              } 
