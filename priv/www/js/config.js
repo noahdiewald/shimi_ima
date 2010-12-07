@@ -347,6 +347,7 @@ function initFieldsetAddDialog() {
         var fieldsetOrder = $("#fieldset-order-input");
         var fieldsetDoctype = $("#fieldset-doctype-input");
         var fieldsetMultiple = $("#fieldset-multiple-input");
+        var fieldsetCollapse = $("#fieldset-collapse-input");
         
         $('.input').removeClass('ui-state-error');
         
