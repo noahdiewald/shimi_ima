@@ -7,7 +7,7 @@
 <ul id="document-view-list">
 {% for fieldset in fieldsets %}
   <li 
-    class="fieldset-view" 
+    class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 
     data-fieldset-view-id="{{ fieldset.id }}" 
     data-multiple="{{ fieldset.multiple }}"
   >

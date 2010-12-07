@@ -135,6 +135,7 @@ function populateFieldsets(doctypeId) {
           label: bttn.attr('data-fieldset-label'),
           order: bttn.attr('data-fieldset-order'),
           multiple: bttn.attr('data-fieldset-multiple'),
+          collapse: bttn.attr('data-fieldset-collapse'),
           description: bttn.attr('data-fieldset-description') 
         };
         
@@ -359,7 +360,8 @@ function initFieldsetAddDialog() {
             "description": fieldsetDescription.val(),
             "order": (fieldsetOrder.val() * 1),
             "doctype": fieldsetDoctype.val(),
-            "multiple": (fieldsetMultiple.val() == "true")
+            "multiple": fieldsetMultiple.is(':checked'),
+            "collapse": fieldsetCollapse.is(':checked')
           },
           complete = function(context) {
             populateFieldsets(fieldsetDoctype.val());
@@ -387,6 +389,7 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
   var fieldsetDescription = $("#fieldset-description-input");
   var fieldsetOrder = $("#fieldset-order-input");
   var fieldsetMultiple = $("#fieldset-multiple-input");
+  var fieldsetCollapse = $("#fieldset-collapse-input");
   var url = "config/doctypes/" + doctype + 
             "/fieldsets/" + id + "?rev=" + rev 
             
@@ -394,7 +397,12 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
   fieldsetLabel.val(oldobj.label);
   fieldsetDescription.val(oldobj.description);
   fieldsetOrder.val(oldobj.order);
-  fieldsetMultiple.val(oldobj.multiple);
+  if (oldobj.multiple == "true") {
+    fieldsetMultiple.attr('checked', true);
+  }
+  if (oldobj.collapse == "true") {
+    fieldsetCollapse.attr('checked', true);
+  }
         
   var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
@@ -415,7 +423,8 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
             "description": fieldsetDescription.val(),
             "order": (fieldsetOrder.val() * 1),
             "doctype": doctype,
-            "multiple": (fieldsetMultiple.val() == "true")
+            "multiple": fieldsetMultiple.is(':checked'),
+            "collapse": fieldsetCollapse.is(':checked')
           },
           complete = function(context) {
             populateFieldsets(doctype);

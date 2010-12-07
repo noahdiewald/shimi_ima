@@ -15,6 +15,7 @@
     data-fieldset-name="{{ value.name }}" 
     data-fieldset-label="{{ value.label }}" 
     data-fieldset-description="{{ value.description }}" 
+    data-fieldset-collapse="{{ value.collapse }}" 
     data-fieldset-multiple="{{ value.multiple }}" 
     data-fieldset-order="{{ value.order }}" 
     data-fieldset-id="{{ id }}"
@@ -45,4 +46,5 @@
   
   <p><b>Description:</b> {{ value.description }}</p>
   <p><b>Multiple:</b> {{ value.multiple }}</p>
+  <p><b>Collapse:</b> {{ value.collapse }}</p>
 </div>

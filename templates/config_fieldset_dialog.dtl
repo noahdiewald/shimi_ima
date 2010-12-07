@@ -27,16 +27,21 @@
         value="" 
         class="ui-corner-all input" /><br />
       
-      <label for="fieldset-multiple-input">How many per document?</label><br />
-      <select 
-        name="fieldset-multiple-input" 
-        class="input" 
-        id="fieldset-multiple-input">
-        
-        <option selected="true" value="false">Single</option>
-        <option value="true">Multiple</option>
-        
-      </select><br />
+      <fieldset class="ui-widget-content ui-corner-all">
+        <input 
+          name="fieldset-multiple-input" 
+          class="input" 
+          id="fieldset-multiple-input" 
+          type="checkbox" /> 
+        <label for="fieldset-multiple-input">Multiple</label><br />
+
+        <input 
+          name="fieldset-collapse-input" 
+          class="input" 
+          id="fieldset-collapse-input" 
+          type="checkbox" /> 
+        <label for="fieldset-collapse-input">Show Collapsed</label><br />
+      </fieldset>
       
       <label for="fieldset-order-input">Fieldset Relative Order</label><br />
       <input 

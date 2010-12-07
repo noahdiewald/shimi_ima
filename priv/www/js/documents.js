@@ -534,10 +534,12 @@ function fieldsetsToObject(root) {
     var fieldset = $(this);
     var fieldsetId = fieldset.attr('data-fieldset-id');
     var fieldsetMultiple = fieldset.attr('data-fieldset-multiple') == "true";
+    var fieldsetCollapse = fieldset.attr('data-fieldset-collapse') == "true";
     var fieldsContainers = $('#container-' + fieldsetId).children('.fields');
     var fieldsetObj = {
       id: fieldsetId,
       multiple: fieldsetMultiple,
+      collapse: fieldsetCollapse,
       name: fieldset.attr('data-fieldset-name'),
       label: fieldset.attr('data-fieldset-label'),
       order: fieldset.attr('data-fieldset-order') * 1
