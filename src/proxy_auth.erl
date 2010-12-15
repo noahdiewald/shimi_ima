@@ -53,15 +53,15 @@ couchdb_authenticate(Username, Password, R, S) ->
   Resp = ibrowse:send_req(?COUCHDB ++ "_session", Headers, post, Body),
   case Resp of
     {ok, "200", _, Json} -> 
-      do_validations(mochijson2:decode(Json), R, S);
+      do_validations(jsn:decode(Json), R, S);
     {ok, "401", _, _} -> {proplists:get_value(auth_head, S), R, S}
   end.
 
 do_validations(Struct, R, S) ->
   Mod = proplists:get_value(source_mod, S),
   {Valid, R1, S1} = Mod:validate_authentication(Struct, R, S),
-  Name = struct:get_value(<<"name">>, Struct),
-  Roles = struct:get_value(<<"roles">>, Struct),
+  Name = jsn:get_value(<<"name">>, Struct),
+  Roles = jsn:get_value(<<"roles">>, Struct),
   {Valid, R1, [{user, [{name, Name}, {roles, Roles}]}|S1]}.
   
 

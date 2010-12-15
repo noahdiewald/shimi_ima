@@ -80,16 +80,16 @@ html_fieldset(R, S) ->
   Fieldset = wrq:path_info(fieldset, R),
   Json = couch:get_view_json(Fieldset, "fields", R, S),
   
-  Rows = struct:get_value(<<"rows">>, Json),
+  Rows = jsn:get_value(<<"rows">>, Json),
   
   F = fun(Row) ->
-    get_field_html(struct:get_value(<<"value">>, Row), R, S)
+    get_field_html(jsn:get_value(<<"value">>, Row), R, S)
   end,
   
   lists:map(F, Rows).
   
 get_field_html(Json, R, S) ->
-  Subcategory = binary_to_list(struct:get_value(<<"subcategory">>, Json)),
+  Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
   
   Json1 = case Subcategory of
     [$d, $o, $c|_] -> getAllowed(Json, R, S);
@@ -101,13 +101,13 @@ get_field_html(Json, R, S) ->
   Html.
 
 getAllowed(Json, R, S) ->
-  ForeignDoctype = binary_to_list(struct:get_value(<<"source">>, Json)),
+  ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
   RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
-  struct:set_value(<<"allowed">>, struct:get_value(<<"rows">>, RawAllowed), Json).
+  jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication({jsn, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
-  Name = struct:get_value(<<"name">>, Project),
+  Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

@@ -90,9 +90,9 @@ delete_resource(R, S) ->
   ProjUrl = ?COUCHDB ++ "projects/" ++ wrq:path_info(id, R),
   
   {ok, "200", _, Body} = ibrowse:send_req(ProjUrl, Headers, get),
-  JsonIn = struct:from_json(Body),
+  JsonIn = jsn:decode(Body),
   
-  RevQs = "?rev=" ++ binary_to_list(struct:get_value(<<"_rev">>, JsonIn)),
+  RevQs = "?rev=" ++ binary_to_list(jsn:get_value(<<"_rev">>, JsonIn)),
   ProjUrl1 = ProjUrl ++ RevQs,
   DatabaseUrl = ?ADMINDB ++ "project-" ++ wrq:path_info(id, R),
   
@@ -141,7 +141,7 @@ from_json(R, S) ->
   NewDb = "project-" ++ wrq:disp_path(R),
   
   JsonIn = mochijson2:decode(wrq:req_body(R)),
-  JsonIn1 = struct:set_value(<<"_id">>, list_to_binary(wrq:disp_path(R)), JsonIn),
+  JsonIn1 = jsn:set_value(<<"_id">>, list_to_binary(wrq:disp_path(R)), JsonIn),
   JsonOut = iolist_to_binary(mochijson2:encode(JsonIn1)),
   
   case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
@@ -154,7 +154,7 @@ from_json(R, S) ->
 
 % Helpers
 
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
@@ -163,8 +163,8 @@ validate_authentication({struct, Props}, R, S) ->
   end.
 
 renderings(Json) ->
-  Rows = struct:get_value(<<"rows">>, Json),
-  [render_row(Project) || {struct, Project} <- Rows].
+  Rows = jsn:get_value(<<"rows">>, Json),
+  [render_row(Project) || Project <- Rows].
   
 render_row(Project) ->
   {ok, Rendering} = project_list_elements_dtl:render(Project),

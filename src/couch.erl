@@ -58,7 +58,7 @@ get_json(id, R, S) ->
 
 get_json_helper(Url, Headers) ->  
   {ok, "200", _, Json} = ibrowse:send_req(Url, Headers, get),
-  struct:from_json(Json).
+  jsn:decode(Json).
 
 get_view_json(Id, Name, R, S) ->
   Headers = proplists:get_value(headers, S),
@@ -66,7 +66,7 @@ get_view_json(Id, Name, R, S) ->
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
   FullUrl = Url ++ Path,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, Headers, get),
-  struct:from_json(Json).
+  jsn:decode(Json).
 
 get_paged_view_json(Id, Name, StartKey, Limit, R, S) ->
   Headers = proplists:get_value(headers, S),
@@ -75,19 +75,19 @@ get_paged_view_json(Id, Name, StartKey, Limit, R, S) ->
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
   FullUrl = Url ++ Path ++ Qs,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, Headers, get),
-  struct:from_json(Json).
+  jsn:decode(Json).
 
 get_design_rev(Name, R, _S) ->
   Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Name,
   Json = get_json_helper(Url, []),
-  struct:get_value(<<"_rev">>, Json).
+  jsn:get_value(<<"_rev">>, Json).
 
 get_uuid(_R, S) ->
   Headers = proplists:get_value(headers, S),
   
   {ok, "200", _, Json} = ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get),
   
-  [Uuid] = struct:get_value(<<"uuids">>, struct:from_json(Json)),
+  [Uuid] = jsn:get_value(<<"uuids">>, jsn:from_json(Json)),
   {ok, binary_to_list(Uuid)}.
 
 delete(R, S) ->
@@ -114,8 +114,8 @@ create(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, post, Json) of
     {ok, "201", _, _} -> {ok, created};
     {ok, "403", _, Body} ->
-      Resp = struct:from_json(Body),
-      Message = struct:get_value(<<"reason">>, Resp),
+      Resp = jsn:from_json(Body),
+      Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message}
   end.
 
@@ -128,8 +128,8 @@ update(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, put, Json) of
     {ok, "201", _, _} -> {ok, updated};
     {ok, "403", _, Body} ->
-      Resp = struct:from_json(Body),
-      Message = struct:get_value(<<"reason">>, Resp),
+      Resp = jsn:from_json(Body),
+      Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.

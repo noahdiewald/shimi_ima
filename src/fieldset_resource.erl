@@ -80,14 +80,14 @@ html_fieldset(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = fieldset_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = fieldset_dtl:render(jsn:set_values(Vals, Json)),
   Html.
   
 html_fieldsets(_R, _S) -> [].
     
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication({jsn, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
-  Name = struct:get_value(<<"name">>, Project),
+  Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

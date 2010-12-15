@@ -42,7 +42,7 @@ to_html(R, S) ->
   {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
   Json = mochijson2:decode(DoctypesDesign),
   DoctypesRev = couch:get_design_rev("doctypes", R, S),
-  Json1 = struct:set_value(<<"_rev">>, DoctypesRev, Json),
+  Json1 = jsn:set_value(<<"_rev">>, DoctypesRev, Json),
   Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/doctypes",
   Headers = [{"Content-Type","application/json"}],
   {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, mochijson2:encode(Json1)),
@@ -51,7 +51,7 @@ to_html(R, S) ->
     {<<"user">>, User}
   ],
   
-  {ok, Html} = config_dtl:render(struct:set_values(Vals, Project)),
+  {ok, Html} = config_dtl:render(jsn:set_values(Vals, Project)),
   {Html, R, S}.
 
 resource_exists(R, S) ->
@@ -65,9 +65,9 @@ resource_exists(R, S) ->
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication({jsn, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
-  Name = struct:get_value(<<"name">>, Project),
+  Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

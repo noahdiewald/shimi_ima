@@ -75,7 +75,7 @@ delete_resource(R, S) ->
   case couch:delete(R, S) of
     {ok, deleted} -> {true, R, S};
     {409, _} ->
-      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
@@ -84,10 +84,10 @@ post_is_create(R, S) ->
   {true, R, S}.
 
 create_path(R, S) ->
-  Json = struct:from_json(wrq:req_body(R)),
+  Json = jsn:decode(wrq:req_body(R)),
   
   {ok, Id} = couch:get_uuid(R, S),
-  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
   Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
   R1 = wrq:set_resp_header("Location", Location, R),
@@ -118,7 +118,7 @@ from_json(R, S) ->
   
 json_create(R, S) ->
   Json = proplists:get_value(posted_json, S),
-  case couch:create(doc, struct:to_json(Json), R, S) of
+  case couch:create(doc, jsn:to_json(Json), R, S) of
     {ok, created} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
@@ -126,19 +126,19 @@ json_create(R, S) ->
   end.
   
 json_update(R, S) ->
-  Json = struct:from_json(wrq:req_body(R)),
+  Json = jsn:decode(wrq:req_body(R)),
   Id = wrq:path_info(id, R),
   Rev = wrq:get_qs_value("rev", R),
-  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
-  Json2 = struct:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+  Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
-  case couch:update(doc, Id, struct:to_json(Json2), R, S) of
+  case couch:update(doc, Id, jsn:to_json(Json2), R, S) of
     {ok, updated} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};
     {409, _} ->
-      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
@@ -166,7 +166,7 @@ html_edit(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = document_edit_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = document_edit_dtl:render(jsn:set_values(Vals, Json)),
   Html.
 
 html_index(R, S) ->
@@ -179,7 +179,7 @@ html_index(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = document_index_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = document_index_dtl:render(jsn:set_values(Vals, Json)),
   Html.
 
 html_document(R, S) ->
@@ -192,12 +192,12 @@ html_document(R, S) ->
     {<<"doctype_info">>, couch:get_json(doctype, R, S)}
   ],
   
-  {ok, Html} = document_view_dtl:render(struct:set_values(Vals, Json)),
+  {ok, Html} = document_view_dtl:render(jsn:set_values(Vals, Json)),
   Html.
     
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication({jsn, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
-  Name = struct:get_value(<<"name">>, Project),
+  Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

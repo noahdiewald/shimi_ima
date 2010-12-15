@@ -75,7 +75,7 @@ delete_resource(R, S) ->
   case couch:delete(R, S) of
     {ok, deleted} -> {true, R, S};
     {409, _} ->
-      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
@@ -84,12 +84,12 @@ post_is_create(R, S) ->
   {true, R, S}.
 
 create_path(R, S) ->
-  Json = struct:from_json(wrq:req_body(R)),
+  Json = jsn:decode(wrq:req_body(R)),
   
-  {Id, Json1} = case struct:get_value(<<"_id">>, Json) of
+  {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
     undefined -> 
       {ok, GenId} = couch:get_uuid(R, S),
-      {GenId, struct:set_value(<<"_id">>, list_to_binary(GenId), Json)};
+      {GenId, jsn:set_value(<<"_id">>, list_to_binary(GenId), Json)};
     IdBin -> {binary_to_list(IdBin), Json}
   end,
   
@@ -124,7 +124,7 @@ from_json(R, S) ->
 
 json_create(R, S) ->  
   Json = proplists:get_value(posted_json, S),
-  {ok, created} = couch:create(doc, struct:to_json(Json), R, S),
+  {ok, created} = couch:create(doc, jsn:to_json(Json), R, S),
   
   % Create the fieldset's design document
   {ok, DesignJson} = design_fieldset_json_dtl:render(Json),
@@ -133,26 +133,26 @@ json_create(R, S) ->
   {true, R, S}.
   
 json_update(R, S) ->
-  Json = struct:from_json(wrq:req_body(R)),
+  Json = jsn:decode(wrq:req_body(R)),
   Id = wrq:path_info(id, R),
   Rev = wrq:get_qs_value("rev", R),
-  Json1 = struct:set_value(<<"_id">>, list_to_binary(Id), Json),
-  Json2 = struct:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+  Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
-  case couch:update(doc, Id, struct:to_json(Json2), R, S) of
+  case couch:update(doc, Id, jsn:to_json(Json2), R, S) of
     {ok, updated} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};
     {409, _} ->
-      Message = struct:to_json({struct, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
 
 % Helpers
 
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication({jsn, Props}, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
