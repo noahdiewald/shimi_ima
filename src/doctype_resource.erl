@@ -76,9 +76,11 @@ to_html(R, S) ->
 touch_all(R, S) ->
   DoctypeId = wrq:path_info(doctype, R),
   Doctype1 = couch:get_json(doctype, R, S),
-  Fieldsets1 = struct:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
-  Fieldsets2 = [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets1],
-  Doctype2 = struct:set_value(<<"fieldsets">>, Fieldsets2, Doctype1),
+  Fieldsets1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
+  Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
+  Fieldsets3 = [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2],
+  Doctype2 = jsn:set_value(<<"fieldsets">>, Fieldsets3, Doctype1),
+  io:format("~p", [Doctype2]),
   {ok, Template} = batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]),
   
   {Template, R, S}.
@@ -86,26 +88,26 @@ touch_all(R, S) ->
 % Helpers
 
 add_fields(Fieldset, R, S) ->
-  Id = binary_to_list(struct:get_value(<<"id">>, Fieldset)),
-  Fields1 = struct:get_value(<<"rows">>, couch:get_view_json(Id, "fields", R, S)),
-  Fields2 = [struct:get_value(<<"value">>,X) || X <- Fields1],
-  struct:set_value(<<"fields">>, Fields2, Fieldset).
+  Id = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
+  Fields1 = jsn:get_value(<<"rows">>, couch:get_view_json(Id, "fields", R, S)),
+  Fields2 = [jsn:get_value(<<"value">>,X) || X <- Fields1],
+  jsn:set_value(<<"fields">>, Fields2, Fieldset).
   
 html_index(R, S) ->
   User = proplists:get_value(user, S),
   ProjJson = couch:get_json(project, R, S),
   Json = couch:get_view_json("doctypes", "all_simple", R, S),
   
-  Json1 = struct:set_value(<<"title">>, <<"All Document Types">>, Json),
-  Json2 = struct:set_value(<<"project_info">>, ProjJson, Json1),
-  Json3 = struct:set_value(<<"user">>, User, Json2),
+  Json1 = jsn:set_value(<<"title">>, <<"All Document Types">>, Json),
+  Json2 = jsn:set_value(<<"project_info">>, ProjJson, Json1),
+  Json3 = jsn:set_value(<<"user">>, User, Json2),
   
   {ok, Html} = doctype_index_dtl:render(Json3),
   Html.
 
-validate_authentication({struct, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
-  Name = struct:get_value(<<"name">>, Project),
+  Name = jsn:get_value(<<"name">>, Project),
   NormalRoles = [<<"_admin">>, <<"manager">>, Name],
   IsNormal = fun (Role) -> lists:member(Role, NormalRoles) end,
   IsAdmin = fun (Role) -> lists:member(Role, [<<"_admin">>]) end,

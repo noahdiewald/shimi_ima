@@ -18,7 +18,7 @@
            "label": "{{ fieldset.label }}",
            "order": {{ fieldset.order }},
            "fields": [
-               {% for field in fielset.fields %}
+               {% for field in fieldset.fields %}
                {
                    "id": "{{ field._id }}",
                    "name": "{{ field.name }}",
