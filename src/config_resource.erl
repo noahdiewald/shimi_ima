@@ -47,11 +47,9 @@ to_html(R, S) ->
   Headers = [{"Content-Type","application/json"}],
   {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, mochijson2:encode(Json1)),
   
-  Vals = [
-    {<<"user">>, User}
-  ],
+  Vals = [{<<"user">>, User}|Project],
   
-  {ok, Html} = config_dtl:render(jsn:set_values(Vals, Project)),
+  {ok, Html} = config_dtl:render(Vals),
   {Html, R, S}.
 
 resource_exists(R, S) ->
@@ -65,7 +63,7 @@ resource_exists(R, S) ->
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
-validate_authentication({jsn, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],

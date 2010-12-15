@@ -80,7 +80,6 @@ touch_all(R, S) ->
   Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
   Fieldsets3 = [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2],
   Doctype2 = jsn:set_value(<<"fieldsets">>, Fieldsets3, Doctype1),
-  io:format("~p", [Doctype2]),
   {ok, Template} = batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]),
   
   {Template, R, S}.

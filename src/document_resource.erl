@@ -163,10 +163,10 @@ html_edit(R, S) ->
   Vals = [
     {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
   ],
   
-  {ok, Html} = document_edit_dtl:render(jsn:set_values(Vals, Json)),
+  {ok, Html} = document_edit_dtl:render(Vals),
   Html.
 
 html_index(R, S) ->
@@ -176,10 +176,10 @@ html_index(R, S) ->
   Vals = [
     {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
   ],
   
-  {ok, Html} = document_index_dtl:render(jsn:set_values(Vals, Json)),
+  {ok, Html} = document_index_dtl:render(Vals),
   Html.
 
 html_document(R, S) ->
@@ -189,13 +189,13 @@ html_document(R, S) ->
   Vals = [
     {<<"title">>, list_to_binary(Doctype)}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
   ],
   
-  {ok, Html} = document_view_dtl:render(jsn:set_values(Vals, Json)),
+  {ok, Html} = document_view_dtl:render(Vals),
   Html.
     
-validate_authentication({jsn, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],

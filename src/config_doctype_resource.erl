@@ -161,7 +161,7 @@ json_update(R, S) ->
 
 % Helpers
 
-validate_authentication({jsn, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   ValidRoles = [<<"_admin">>, <<"manager">>],
   IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
   case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

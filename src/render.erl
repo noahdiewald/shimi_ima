@@ -32,7 +32,7 @@
 -include_lib("include/config.hrl").
 
 renderings(Json, Template) ->
-  Rows = struct:get_value(<<"rows">>, Json),
+  Rows = jsn:get_value(<<"rows">>, Json),
   [render_row(Row, Template) || Row <- Rows].
   
 render_row(Row, Template) ->

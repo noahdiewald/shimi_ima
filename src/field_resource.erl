@@ -105,7 +105,7 @@ getAllowed(Json, R, S) ->
   RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
-validate_authentication({jsn, Props}, R, S) ->
+validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = jsn:get_value(<<"name">>, Project),
   ValidRoles = [<<"_admin">>, <<"manager">>, Name],
