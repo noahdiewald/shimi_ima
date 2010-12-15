@@ -31,7 +31,8 @@
   init/1, 
   is_authorized/2,
   resource_exists/2,
-  to_html/2
+  to_html/2,
+  touch_all/2
 ]).
 
 % Custom
@@ -47,22 +48,49 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-  {couch:exists([], R, S), R, S}. 
+  Doctype = wrq:path_info(doctype, R),
+  
+  case proplists:get_value(target, S) of
+    index -> {couch:exists([], R, S), R, S};
+    touch -> {couch:exists(Doctype, R, S), R, S}
+  end.
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-  {['HEAD', 'GET'], R, S}.
+  case proplists:get_value(target, S) of
+    index -> {['HEAD', 'GET'], R, S};
+    touch -> {['HEAD', 'GET'], R, S}
+  end.
 
 content_types_provided(R, S) ->
-  {[{"text/html", to_html}], R, S}.
+  case proplists:get_value(target, S) of
+    index -> {[{"text/html", to_html}], R, S};
+    touch -> {[{"application/json", touch_all}], R, S}
+  end.
   
 to_html(R, S) ->
   {html_index(R, S), R, S}.
   
+touch_all(R, S) ->
+  DoctypeId = wrq:path_info(doctype, R),
+  Doctype1 = couch:get_json(doctype, R, S),
+  Fieldsets1 = struct:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
+  Fieldsets2 = [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets1],
+  Doctype2 = struct:set_value(<<"fieldsets">>, Fieldsets2, Doctype1),
+  {ok, Template} = batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]),
+  
+  {Template, R, S}.
+  
 % Helpers
 
+add_fields(Fieldset, R, S) ->
+  Id = binary_to_list(struct:get_value(<<"id">>, Fieldset)),
+  Fields1 = struct:get_value(<<"rows">>, couch:get_view_json(Id, "fields", R, S)),
+  Fields2 = [struct:get_value(<<"value">>,X) || X <- Fields1],
+  struct:set_value(<<"fields">>, Fields2, Fieldset).
+  
 html_index(R, S) ->
   User = proplists:get_value(user, S),
   ProjJson = couch:get_json(project, R, S),
@@ -78,9 +106,16 @@ html_index(R, S) ->
 validate_authentication({struct, Props}, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = struct:get_value(<<"name">>, Project),
-  ValidRoles = [<<"_admin">>, <<"manager">>, Name],
-  IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
-  case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, R, S};
-    false -> {proplists:get_value(auth_head, S), R, S}
+  NormalRoles = [<<"_admin">>, <<"manager">>, Name],
+  IsNormal = fun (Role) -> lists:member(Role, NormalRoles) end,
+  IsAdmin = fun (Role) -> lists:member(Role, [<<"_admin">>]) end,
+  Normal = lists:any(IsNormal, proplists:get_value(<<"roles">>, Props)),
+  Admin = lists:any(IsAdmin, proplists:get_value(<<"roles">>, Props)),
+  Target = proplists:get_value(target, S),
+  
+  case {Target, Normal, Admin} of
+    {index, true, _} -> {true, R, S};
+    {index, false, _} -> {proplists:get_value(auth_head, S), R, S};
+    {touch, _, true} -> {true, R, S};
+    {touch, _, false} -> {proplists:get_value(auth_head, S), R, S}
   end.
