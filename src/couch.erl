@@ -87,7 +87,7 @@ get_uuid(_R, S) ->
   
   {ok, "200", _, Json} = ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get),
   
-  [Uuid] = jsn:get_value(<<"uuids">>, jsn:from_json(Json)),
+  [Uuid] = jsn:get_value(<<"uuids">>, jsn:decode(Json)),
   {ok, binary_to_list(Uuid)}.
 
 delete(R, S) ->

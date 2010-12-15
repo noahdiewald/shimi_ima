@@ -73,7 +73,7 @@ delete_resource(R, S) ->
   case couch:delete(R, S) of
     {ok, deleted} -> {true, R, S};
     {409, _} ->
-      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
@@ -148,13 +148,13 @@ json_update(R, S) ->
   Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
-  case couch:update(doc, Id, jsn:to_json(Json2), R, S) of
+  case couch:update(doc, Id, jsn:encode(Json2), R, S) of
     {ok, updated} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};
     {409, _} ->
-      Message = jsn:to_json({jsn, [{<<"message">>, <<"This document has been edited or deleted by another user.">>}]}),
+      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 409}, R1, S}
   end.
