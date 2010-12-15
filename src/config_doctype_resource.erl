@@ -109,12 +109,12 @@ id_html(R, S) ->
   {ok, Html} = config_doctype_dtl:render(Json),
   
   {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  DesignJson1 = mochijson2:decode(DesignJson),
+  DesignJson1 = jsn:decode(DesignJson),
   DoctypeRev = couch:get_design_rev(wrq:path_info(id, R), R, S),
   DesignJson2 = jsn:set_value(<<"_rev">>, DoctypeRev, DesignJson1),
   Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ wrq:path_info(id, R),
   Headers = [{"Content-Type","application/json"}],
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, mochijson2:encode(DesignJson2)),
+  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(DesignJson2)),
   
   {Html, R, S}.
   
@@ -135,8 +135,8 @@ json_create(R, S) ->
   % edit was throwing off the JSON parser. This seems to be an
   % arch specific issue. What I'm doing below is using mochijson2
   % to make the JSON into something easier to parse.
-  DesignJson1 = mochijson2:decode(DesignJson),
-  DesignJson2 = mochijson2:encode(DesignJson1),
+  DesignJson1 = jsn:decode(DesignJson),
+  DesignJson2 = jsn:encode(DesignJson1),
   {ok, created} = couch:create(design, DesignJson2, R, S),
   
   {true, R, S}.

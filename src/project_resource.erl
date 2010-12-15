@@ -126,7 +126,7 @@ index_html(R, S) ->
   Headers = proplists:get_value(headers, S),
   
   {ok, "200", _, JsonIn} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
-  JsonStruct = mochijson2:decode(JsonIn),
+  JsonStruct = jsn:decode(JsonIn),
   
   {renderings(JsonStruct), R, S}.
   
@@ -140,9 +140,9 @@ from_json(R, S) ->
   Headers = [ContentType|proplists:get_value(headers, S)],
   NewDb = "project-" ++ wrq:disp_path(R),
   
-  JsonIn = mochijson2:decode(wrq:req_body(R)),
+  JsonIn = jsn:decode(wrq:req_body(R)),
   JsonIn1 = jsn:set_value(<<"_id">>, list_to_binary(wrq:disp_path(R)), JsonIn),
-  JsonOut = iolist_to_binary(mochijson2:encode(JsonIn1)),
+  JsonOut = iolist_to_binary(jsn:encode(JsonIn1)),
   
   case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
     {ok, "201", _, _} ->
