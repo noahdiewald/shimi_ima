@@ -77,6 +77,10 @@
                 var tmp = {};
                 tmp['field_' + field.id] = JSON.stringify(field.value);
                 return tmp;
+              }).reduce(function(acc, elem) {
+                var attr;
+                for (attr in elem) { acc[attr] = elem[attr]; }
+                return acc;
               });
             } else {
               outDoc[fieldsetId] = fieldset.multifields.map(function(multifield, index) {
@@ -84,6 +88,10 @@
                   var tmp = {}; 
                   tmp['field_' + field.id] = JSON.stringify(field.value);
                   return tmp;
+                }).reduce(function(acc, elem) {
+                  var attr;
+                  for (attr in elem) { acc[attr] = elem[attr]; }
+                  return acc;
                 });
               });
               

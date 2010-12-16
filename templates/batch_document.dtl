@@ -12,7 +12,6 @@
       "fieldsets": [
           {% for fieldset in doctype.fieldsets %}
           {% if not fieldset.multiple %}
-          {{ ot }} for field in document.fieldset_{{ fieldset._id }} {{ ct }}
           {
               "id": "{{ fieldset._id }}",
               "multiple": {{ fieldset.multiple }},
@@ -34,12 +33,11 @@
                       "regex": "{{ field.regex }}",
                       "order": {{ field.order }},
                       "subcategory": "{{ field.subcategory }}",
-                      "value": {{ ov }} field.field_{{ field._id }} {{ cv }}
+                      "value": {{ ov }} document.fieldset_{{ fieldset._id }}.field_{{ field._id }} {{ cv }}
                   }{% if not forloop.last %},{% endif %}
                   {% endfor %}
               ]
           }{% if not forloop.last %},{% endif %}
-          {{ ot }} endfor {{ ct }}
           {% else %}
           {
               "id": "{{ fieldset._id }}",
