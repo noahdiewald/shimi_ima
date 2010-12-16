@@ -47,6 +47,7 @@
               "label": "{{ fieldset.label }}",
               "order": {{ fieldset.order }},
               "multifields": [
+                  {{ ot }} if document.fieldset_{{ fieldset._id }} {{ ct }}
                   {{ ot }} for field in document.fieldset_{{ fieldset._id }} {{ ct }}
                   
                   {
@@ -71,6 +72,7 @@
                       ]
                   }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
                   {{ ot }} endfor {{ ct }}
+                  {{ ot }} endif {{ ct }}
                   
               ]
           }{% if not forloop.last %},{% endif %}
