@@ -45,10 +45,11 @@
            "label": "{{ fieldset.label }}",
            "order": {{ fieldset.order }},
            "multifields": [
-               {% for field in fieldset.fields %}
+               {{ ot }} for field in {{ fieldset.id }} {{ ct }}
+               
                {
                    "fields": [
-                       {{ ot }} for field in {{ fieldset.id }} {{ ct }}
+                       {% for field in fieldset.fields %}
                        {
                            "id": "{{ field.id }}",
                            "name": "{{ field.name }}",
@@ -63,11 +64,12 @@
                            "subcategory": "{{ field.subcategory }}",
                            "value": {{ ov }} field.{{ field._id }} {{ cv }},
                            "index": 0
-                       }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
-                       {{ ot }} endfor {{ ct }}
+                       }{% if not forloop.last %},{% endif %}
+                       {% endfor %}
                    ]
-               }
-               {% endfor %}
+               }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
+               {{ ot }} endfor {{ ct }}
+               
            ]
        }{% if not forloop.last %},{% endif %}
        {% endif %}
