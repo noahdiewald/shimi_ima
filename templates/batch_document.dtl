@@ -1,78 +1,84 @@
-{
-   "_id": "{{ ov }} id {{ cv }}",
-   "_rev": "{{ ov }} rev {{ cv }}",
-   "doctype": "{{ doctype._id }}",
-   "description": "{{ doctype.description }}",
-   "updated_at_": "{{ ov }} updated_at {{ cv }}",
-   "update_user_": "{{ ov }} update_user {{ cv }}",
-   "created_at_": "{{ ov }} created_at {{ cv }}",
-   "create_user_": "{{ ov }} create_user {{ cv }}"
-   "fieldsets": [
-       {% for fieldset in doctype.fieldsets %}
-       {% if not fieldset.multiple %}
-       {
-           "id": "{{ fieldset._id }}",
-           "multiple": {{ fieldset.multiple }},
-           "collapse": {{ fieldset.collapse }},
-           "name": "{{ fieldset.name }}",
-           "label": "{{ fieldset.label }}",
-           "order": {{ fieldset.order }},
-           "fields": [
-               {% for field in fieldset.fields %}
-               {
-                   "id": "{{ field._id }}",
-                   "name": "{{ field.name }}",
-                   "label": "{{ field.label }}",
-                   "head": {{ field.head }},
-                   "reversal": {{ field.reversal }},
-                   "required": {{ field.required }},
-                   "min": "{{ field.min }}",
-                   "max": "{{ field.max }}",
-                   "regex": "{{ field.regex }}",
-                   "order": {{ field.order }},
-                   "subcategory": "{{ field.subcategory }}",
-                   "value": {{ ov }} {{ fieldset._id }}.{{ field._id }} {{ cv }}
-               }{% if not forloop.last %},{% endif %}
-               {% endfor %}
-           ]
-       }{% if not forloop.last %},{% endif %}
-       {% else %}
-       {
-           "id": "{{ fieldset._id }}",
-           "multiple": {{ fieldset.multiple }},
-           "collapse": {{ fieldset.collapse }},
-           "name": "{{ fieldset.name }}",
-           "label": "{{ fieldset.label }}",
-           "order": {{ fieldset.order }},
-           "multifields": [
-               {{ ot }} for field in {{ fieldset.id }} {{ ct }}
-               
-               {
-                   "fields": [
-                       {% for field in fieldset.fields %}
-                       {
-                           "id": "{{ field.id }}",
-                           "name": "{{ field.name }}",
-                           "label": "{{ field.label }}",
-                           "head": {{ field.head }},
-                           "reversal": {{ field.reversal }},
-                           "required": {{ field.required }},
-                           "min": "{{ field.min }}",
-                           "max": "{{ field.max }}",
-                           "regex": "{{ field.regex }}",
-                           "order": {{ field.order }},
-                           "subcategory": "{{ field.subcategory }}",
-                           "value": {{ ov }} field.{{ field._id }} {{ cv }},
-                           "index": 0
-                       }{% if not forloop.last %},{% endif %}
-                       {% endfor %}
-                   ]
-               }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
-               {{ ot }} endfor {{ ct }}
-               
-           ]
-       }{% if not forloop.last %},{% endif %}
-       {% endif %}
-       {% endfor %}
-   ],
-}
+{"docs": [
+{{ ot }} for document in documents {{ ct }}
+   {
+      "_id": "{{ ov }} document._id {{ cv }}",
+      "_rev": "{{ ov }} document._rev {{ cv }}",
+      "doctype": "{{ doctype._id }}",
+      "description": "{{ doctype.description }}",
+      "updated_at_": "{{ ov }} document.updated_at {{ cv }}",
+      "update_user_": "{{ ov }} document.update_user {{ cv }}",
+      "created_at_": "{{ ov }} document.created_at {{ cv }}",
+      "create_user_": "{{ ov }} document.create_user {{ cv }}"
+      "fieldsets": [
+          {% for fieldset in doctype.fieldsets %}
+          {% if not fieldset.multiple %}
+          {{ ot }} for field in document.fieldset_{{ fieldset._id }} {{ ct }}
+          {
+              "id": "{{ fieldset._id }}",
+              "multiple": {{ fieldset.multiple }},
+              "collapse": {{ fieldset.collapse }},
+              "name": "{{ fieldset.name }}",
+              "label": "{{ fieldset.label }}",
+              "order": {{ fieldset.order }},
+              "fields": [
+                  {% for field in fieldset.fields %}
+                  {
+                      "id": "{{ field._id }}",
+                      "name": "{{ field.name }}",
+                      "label": "{{ field.label }}",
+                      "head": {{ field.head }},
+                      "reversal": {{ field.reversal }},
+                      "required": {{ field.required }},
+                      "min": "{{ field.min }}",
+                      "max": "{{ field.max }}",
+                      "regex": "{{ field.regex }}",
+                      "order": {{ field.order }},
+                      "subcategory": "{{ field.subcategory }}",
+                      "value": {{ ov }} field.field_{{ field._id }} {{ cv }}
+                  }{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+              ]
+          }{% if not forloop.last %},{% endif %}
+          {{ ot }} endfor {{ ct }}
+          {% else %}
+          {
+              "id": "{{ fieldset._id }}",
+              "multiple": {{ fieldset.multiple }},
+              "collapse": {{ fieldset.collapse }},
+              "name": "{{ fieldset.name }}",
+              "label": "{{ fieldset.label }}",
+              "order": {{ fieldset.order }},
+              "multifields": [
+                  {{ ot }} for field in document.fieldset_{{ fieldset._id }} {{ ct }}
+                  
+                  {
+                      "fields": [
+                          {% for field in fieldset.fields %}
+                          {
+                              "id": "{{ field._id }}",
+                              "name": "{{ field.name }}",
+                              "label": "{{ field.label }}",
+                              "head": {{ field.head }},
+                              "reversal": {{ field.reversal }},
+                              "required": {{ field.required }},
+                              "min": "{{ field.min }}",
+                              "max": "{{ field.max }}",
+                              "regex": "{{ field.regex }}",
+                              "order": {{ field.order }},
+                              "subcategory": "{{ field.subcategory }}",
+                              "value": {{ ov }} field.field_{{ field._id }} {{ cv }},
+                              "index": 0
+                          }{% if not forloop.last %},{% endif %}
+                          {% endfor %}
+                      ]
+                  }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
+                  {{ ot }} endfor {{ ct }}
+                  
+              ]
+          }{% if not forloop.last %},{% endif %}
+          {% endif %}
+          {% endfor %}
+      ],
+   }
+{{ ot }} endfor {{ ct }}
+]}

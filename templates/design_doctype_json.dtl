@@ -55,6 +55,46 @@
       }"
     },
     
+    "ids_as_keys" : {
+      "map": "function(doc) {
+        var outDoc = {};
+        
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets) {
+          outDoc = {
+            '_id': doc._id,
+            '_rev': doc._rev,
+            'updated_at': doc.updated_at_,
+            'update_user': doc.update_user_,
+            'created_at': doc.created_at_,
+            'create_user': doc.create_user_
+          };
+          
+          doc.fieldsets.forEach(function(fieldset, index) {
+            var fieldsetId = 'fieldset_' + fieldset.id;
+            
+            if (!fieldset.multiple) {
+              outDoc[fieldsetId] = fieldset.fields.map(function(field, index) {
+                var tmp = {};
+                tmp['field_' + field.id] = JSON.stringify(field.value);
+                return tmp;
+              });
+            } else {
+              outDoc[fieldsetId] = fieldset.multifields.map(function(multifield, index) {
+                return multifield.fields.map(function(field, index) {
+                  var tmp = {}; 
+                  tmp['field_' + field.id] = JSON.stringify(field.value);
+                  return tmp;
+                });
+              });
+              
+            }
+          });
+          
+          emit(doc._id, outDoc);
+        }
+      }"
+    },
+    
     "index": {
       "map": "function(doc) { 
         var isReversal = function(elem) {return elem.reversal === true};

@@ -75,17 +75,31 @@ to_html(R, S) ->
   
 touch_all(R, S) ->
   DoctypeId = wrq:path_info(doctype, R),
-  Doctype1 = couch:get_json(doctype, R, S),
-  Fieldsets1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
-  Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
-  Fieldsets3 = [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2],
-  Doctype2 = jsn:set_value(<<"fieldsets">>, Fieldsets3, Doctype1),
-  {ok, Template} = batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]),
+  {ok, Template} = generate_template(DoctypeId, R, S),
+  {ok, bulk_template} = erlydtl:compile(iolist_to_binary(Template), bulk_template),
+  Documents = get_documents(DoctypeId, R, S),
+  io:format("~p", [Documents]),
+  {ok, Rendering} = bulk_template:render([{<<"documents">>, Documents}]),
   
-  {Template, R, S}.
+  {Rendering, R, S}.
   
 % Helpers
 
+get_documents(DoctypeId, R, S) ->
+  Documents1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "ids_as_keys", R, S)),
+  [jsn:get_value(<<"value">>,X) || X <- Documents1].
+
+generate_template(DoctypeId, R, S) ->
+  Doctype1 = couch:get_json(doctype, R, S),
+  Fieldsets = get_fieldsets(DoctypeId, R, S),
+  Doctype2 = jsn:set_value(<<"fieldsets">>, Fieldsets, Doctype1),
+  batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]).
+
+get_fieldsets(DoctypeId, R, S) ->
+  Fieldsets1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
+  Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
+  [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2].
+  
 add_fields(Fieldset, R, S) ->
   Id = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
   Fields1 = jsn:get_value(<<"rows">>, couch:get_view_json(Id, "fields", R, S)),
