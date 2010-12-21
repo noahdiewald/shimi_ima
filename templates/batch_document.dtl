@@ -1,6 +1,8 @@
-{"docs": [
+{
+  "all_or_nothing": true,
+  "docs": [
 {{ ot }} for document in documents {{ ct }}
-   {
+    {
       "_id": "{{ ov }} document._id {{ cv }}",
       "_rev": "{{ ov }} document._rev {{ cv }}",
       "doctype": "{{ doctype._id }}",
