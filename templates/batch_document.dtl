@@ -10,7 +10,7 @@
       "updated_at_": "{{ ov }} document.updated_at {{ cv }}",
       "update_user_": "{{ ov }} document.update_user {{ cv }}",
       "created_at_": "{{ ov }} document.created_at {{ cv }}",
-      "create_user_": "{{ ov }} document.create_user {{ cv }}"
+      "create_user_": "{{ ov }} document.create_user {{ cv }}",
       "fieldsets": [
           {% for fieldset in doctype.fieldsets %}
           {% if not fieldset.multiple %}
@@ -80,7 +80,7 @@
           }{% if not forloop.last %},{% endif %}
           {% endif %}
           {% endfor %}
-      ],
-   }
+      ]
+   }{{ ot }} if not forloop.last {{ ct }},{{ ot }} endif {{ ct }}
 {{ ot }} endfor {{ ct }}
 ]}
