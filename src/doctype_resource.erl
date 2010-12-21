@@ -78,7 +78,6 @@ touch_all(R, S) ->
   {ok, Template} = generate_template(DoctypeId, R, S),
   {ok, bulk_template} = erlydtl:compile(iolist_to_binary(Template), bulk_template),
   Documents = get_documents(DoctypeId, R, S),
-  io:format("~p", [Documents]),
   {ok, Rendering} = bulk_template:render([{<<"documents">>, Documents}]),
   
   {Rendering, R, S}.
