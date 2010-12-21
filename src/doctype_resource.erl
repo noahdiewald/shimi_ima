@@ -80,7 +80,16 @@ touch_all(R, S) ->
   Documents = get_documents(DoctypeId, R, S),
   {ok, Rendering} = bulk_template:render([{<<"documents">>, Documents}]),
   
-  {Rendering, R, S}.
+  case couch:update(bulk, Rendering, R, S) of
+    {ok, Body} -> {Body, R, S};
+    {403, Message} ->
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 403}, R1, S};
+    {409, _} ->
+      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
+  end.
   
 % Helpers
 

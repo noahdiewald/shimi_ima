@@ -33,6 +33,7 @@
   get_paged_view_json/6,
   get_design_rev/3,
   get_uuid/2,
+  update/4,
   update/5
 ]).
 
@@ -124,6 +125,18 @@ update(doc, Id, Json, R, S) ->
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
   update(Url, Headers, Json).
 
+update(bulk, Json, R, S) ->
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  case ibrowse:send_req(Url, Headers, post, Json) of
+    {ok, "201", _, Body} -> {ok, Body};
+    {ok, "403", _, Body} ->
+      Resp = jsn:from_json(Body),
+      Message = jsn:get_value(<<"reason">>, Resp),
+      {403, Message};
+    {ok, "409", _, _} -> {409, <<"Conflict">>}
+  end.
+  
 update(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, put, Json) of
     {ok, "201", _, _} -> {ok, updated};
