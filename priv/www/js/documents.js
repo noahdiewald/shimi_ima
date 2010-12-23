@@ -233,7 +233,10 @@ function initEdit() {
 }
 
 function setKeyboardEvents() {
-  var isCtrl = false;
+  var isMod = false;
+  var modKey = '18';
+  var nextKey = '78';
+  var prevKey = '80';
   var inputable = 'input, select';
   var t = $('#edit-tabs');
   
@@ -253,13 +256,13 @@ function setKeyboardEvents() {
   });
 
   $(document).keyup(function(event) {
-    if (event.keyCode == '17') isCtrl = false;
+    if (event.keyCode == modKey) isMod = false;
   }).keydown(function(event) {
     var totaltabs = t.tabs('length');
     var selected = t.tabs('option', 'selected');
     
-    if (event.keyCode == '17') isCtrl = true;
-    if (event.keyCode == '39' && isCtrl) { 
+    if (event.keyCode == modKey) isMod = true;
+    if (event.keyCode == nextKey && isMod) { 
       if (selected < totaltabs - 1) {
         t.tabs('select', selected + 1);
         selectInput();
@@ -268,7 +271,7 @@ function setKeyboardEvents() {
         selectInput();
       }
     }
-    if (event.keyCode == '37' && isCtrl) { 
+    if (event.keyCode == prevKey && isMod) { 
       if (selected != 0) {
         t.tabs('select', selected - 1);
         selectInput();
