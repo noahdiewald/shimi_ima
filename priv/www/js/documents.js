@@ -215,11 +215,11 @@ function getIndex(startkey, endkey) {
   }
   
   if (endkey) {
-    url = url + '&endkey="[\"' + endkey + '\"]"';
+    url = url + '&endkey=' + JSON.stringify([endkey]);
   }
   
   if (limit) {
-    url = url + '&limit=' + limit + 1;
+    url = url + '&limit=' + (limit + 1);
   }
   
   $.get(url, function(documentIndexHtml) {
@@ -642,6 +642,15 @@ function getFieldValue(field) {
 $(function () {
   getIndex();
   initEdit();
+  
+  $('#index-filter-form input').keyup(function() {
+    getIndex();
+  });
+  
+  $('#index-filter-form select').change(function() {
+    getIndex();
+  });
+  
   $('#panel-toggle li').click(function(e) {
     var panel = '#' + $(this).attr('data-panel');
     

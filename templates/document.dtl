@@ -42,19 +42,21 @@
       <form id="index-filter-form">
         <label for="index-startkey">Start</label>
         <input type="text" name="index-startkey" id="index-startkey" />
+        <label for="index-endkey">End</label>
+        <input type="text" name="index-endkey" id="index-endkey" />
         <label for="index-limit">Limit</label>
         <input type="text" name="index-limit" id="index-limit" />
-        <label for="index-descending">Descending</label>
+        <label for="index-descending">Sort</label>
         <select name="index-descending" id="index-descending">
-          <option>true</option>
-          <option>false</option>
+          <option value="true">descending</option>
+          <option value="false">ascending</option>
         </select>
       </form>
       <div></div>
     </div>
     
     <div class="ui-widget ui-widget-content panel" id="document-view">
-      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id }}</h2>
+      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id }} View</h2>
     </div>
     
     <div class="ui-widget ui-widget-content ui-corner-right panel" id="document-edit">
