@@ -1,3 +1,16 @@
+{% if offset > 0 %}
+<span 
+  id="previous-index-page"
+  data-endkey="{{prevkey}}"
+  data-endid="{{previd}}"
+>Prev</span> 
+{% endif %}
+<span 
+  id="next-index-page"
+  data-startkey="{{nextkey}}"
+  data-startid="{{nextid}}"
+>Next</span>
+
 <table>
   {% for row in rows %}
   <tr>

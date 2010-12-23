@@ -203,7 +203,7 @@ function resetFields() {
 }
 
 // Get the index that is displayed in the left column 
-function getIndex(startkey, endkey) {
+function getIndex(startkey, startid, endkey, endid) {
   var descending = $('#index-descending').val() != "true";
   var url = "documents/index?descending=" + descending;
   var limit = $('#index-limit').val() * 1;
@@ -212,10 +212,18 @@ function getIndex(startkey, endkey) {
   
   if (startkey) {
     url = url + '&startkey=' + JSON.stringify([startkey]);
+    
+    if (startid) {
+      url = url + '&startkey_id=' + startid;
+    }
   }
   
   if (endkey) {
     url = url + '&endkey=' + JSON.stringify([endkey]);
+    
+    if (endid) {
+      url = url + '&endid_id=' + endid;
+    }
   }
   
   if (limit) {
@@ -225,6 +233,20 @@ function getIndex(startkey, endkey) {
   $.get(url, function(documentIndexHtml) {
     $('#document-index div').html(documentIndexHtml);
 
+    $('#previous-index-page').click(function() {
+      var prevkey = $(this).attr('data-endkey');
+      var previd = $(this).attr('data-endid');
+      
+      getIndex(false, false, prevkey, previd);
+    });
+    
+    $('#next-index-page').click(function() {
+      var nextkey = $(this).attr('data-startkey');
+      var nextid = $(this).attr('data-startid');
+      
+      getIndex(nextkey, nextid, false, false);
+    });
+    
     $('.view-document-link').click(function() {
       getDocument(this.hash.slice(1));
     });

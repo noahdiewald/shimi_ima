@@ -172,11 +172,18 @@ html_edit(R, S) ->
 html_index(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Json = couch:get_view_json(Doctype, "index", R, S),
+  {First, Last, Json1} = extract_final_row(Json),
+  [PrevKey|_] = jsn:get_value(<<"key">>, First),
+  [NextKey|_] = jsn:get_value(<<"key">>, Last),
   
   Vals = [
+    {<<"previd">>, jsn:get_value(<<"id">>, First)},
+    {<<"prevkey">>, PrevKey},
+    {<<"nextid">>, jsn:get_value(<<"id">>, Last)},
+    {<<"nextkey">>, NextKey},
     {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json1
   ],
   
   {ok, Html} = document_index_dtl:render(Vals),
@@ -204,3 +211,10 @@ validate_authentication(Props, R, S) ->
     true -> {true, R, S};
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
+  
+extract_final_row(Json) ->
+  [Last|Rest] = lists:reverse(jsn:get_value(<<"rows">>, Json)),
+  [First|Rest1] = lists:reverse(Rest),
+  Json1 = jsn:set_value(<<"rows">>, [First|Rest1], Json),
+  {First, Last, Json1}.
+  
