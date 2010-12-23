@@ -626,4 +626,9 @@ function getFieldValue(field) {
 $(function () {
   getIndex();
   initEdit();
+  $('#panel-toggle li').click(function(e) {
+    var panel = '#' + $(this).attr('data-panel');
+    
+    $(panel).toggle();
+  });
 });
