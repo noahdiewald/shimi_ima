@@ -30,7 +30,6 @@
   exists/3,
   get_json/3,
   get_view_json/4,
-  get_paged_view_json/6,
   get_design_rev/3,
   get_uuid/2,
   update/4,
@@ -63,16 +62,8 @@ get_json_helper(Url, Headers) ->
 
 get_view_json(Id, Name, R, S) ->
   Headers = proplists:get_value(headers, S),
+  Qs = get_qs(wrq:raw_path(R)),
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
-  Path = "_design/" ++ Id ++ "/_view/" ++ Name,
-  FullUrl = Url ++ Path,
-  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, Headers, get),
-  jsn:decode(Json).
-
-get_paged_view_json(Id, Name, StartKey, Limit, R, S) ->
-  Headers = proplists:get_value(headers, S),
-  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
-  Qs = "?startkey=" ++ StartKey ++ "&limit=" ++ Limit,
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
   FullUrl = Url ++ Path ++ Qs,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, Headers, get),
@@ -154,3 +145,10 @@ exists(Target, R, S) ->
     {ok, "200", _, _} -> true;
     {ok, "404", _, _} -> false
   end.
+
+get_qs([]) ->
+  [];  
+get_qs([$?|Rest]) ->
+  [$?|Rest];
+get_qs([_|Rest]) ->
+  get_qs(Rest).

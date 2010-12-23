@@ -203,11 +203,27 @@ function resetFields() {
 }
 
 // Get the index that is displayed in the left column 
-function getIndex() {
-  var url = "documents/index";
+function getIndex(startkey, endkey) {
+  var descending = $('#index-descending').val() != "true";
+  var url = "documents/index?descending=" + descending;
+  var limit = $('#index-limit').val() * 1;
+  startkey = startkey || $('#index-startkey').val();
+  endkey = endkey || $('#index-endkey').val();
+  
+  if (startkey) {
+    url = url + '&startkey=' + JSON.stringify([startkey]);
+  }
+  
+  if (endkey) {
+    url = url + '&endkey="[\"' + endkey + '\"]"';
+  }
+  
+  if (limit) {
+    url = url + '&limit=' + limit + 1;
+  }
   
   $.get(url, function(documentIndexHtml) {
-    $('#document-index').html(documentIndexHtml);
+    $('#document-index div').html(documentIndexHtml);
 
     $('.view-document-link').click(function() {
       getDocument(this.hash.slice(1));
