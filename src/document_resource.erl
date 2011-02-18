@@ -220,10 +220,11 @@ validate_authentication(Props, R, S) ->
 extract_final_row(Json) ->
   case jsn:get_value(<<"rows">>, Json) of
     [] -> {[], [], Json};
+    [Elem|[]] ->
+      {Elem, Elem, Json};
     Rows -> 
-      [Last|Rest] = lists:reverse(Rows),
-      [First|Rest1] = lists:reverse(Rest),
-      Json1 = jsn:set_value(<<"rows">>, [First|Rest1], Json),
-      {First, Last, Json1}
+      [Last|_] = lists:reverse(Rows),
+      [First|_] = Rows,
+      {First, Last, Json}
   end.
   
