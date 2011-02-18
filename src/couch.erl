@@ -106,7 +106,7 @@ create(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, post, Json) of
     {ok, "201", _, _} -> {ok, created};
     {ok, "403", _, Body} ->
-      Resp = jsn:from_json(Body),
+      Resp = jsn:decode(Body),
       Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message}
   end.
@@ -122,7 +122,7 @@ update(bulk, Json, R, S) ->
   case ibrowse:send_req(Url, Headers, post, Json) of
     {ok, "201", _, Body} -> {ok, Body};
     {ok, "403", _, Body} ->
-      Resp = jsn:from_json(Body),
+      Resp = jsn:decode(Body),
       Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
@@ -132,7 +132,7 @@ update(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, put, Json) of
     {ok, "201", _, _} -> {ok, updated};
     {ok, "403", _, Body} ->
-      Resp = jsn:from_json(Body),
+      Resp = jsn:decode(Body),
       Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
