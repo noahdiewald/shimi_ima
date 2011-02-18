@@ -28,19 +28,22 @@
     "as_key_vals": {
       "map": "function(doc) {
         function emitKeyVals(container) {
-          var v = null;
-          var k = null;
+          var v;
+          var k;
 
           container.fields.forEach(function(field, index) {
-            if (field.name = 'value_') {
-              if (!k) k = field.value;
+            if (field.name === 'value_') {
               v = field.value;
-            } else if (field.name = 'key_') {
+            } else if (field.name === 'key_') {
               k = field.value;
             }
           });
 
-          emit(k, v);
+          if (!k) {
+            emit(v, v);
+          } else {
+            emit(k, v);
+          }
         }
 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets ) {
