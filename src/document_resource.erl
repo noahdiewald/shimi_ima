@@ -172,9 +172,14 @@ html_edit(R, S) ->
 html_index(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Json = couch:get_view_json(Doctype, "index", R, S),
-  {First, Last, Json1} = extract_final_row(Json),
-  [PrevKey|_] = jsn:get_value(<<"key">>, First),
-  [NextKey|_] = jsn:get_value(<<"key">>, Last),
+  case extract_final_row(Json) of
+    {[], [], Json1} ->
+      [First, Last, PrevKey, NextKey] = [[{}],[{}],<<"">>,<<"">>];
+    {First, Last, Json1} ->
+      {First, Last, Json1} = extract_final_row(Json),
+      [PrevKey|_] = jsn:get_value(<<"key">>, First),
+      [NextKey|_] = jsn:get_value(<<"key">>, Last)
+  end,
   
   Vals = [
     {<<"previd">>, jsn:get_value(<<"id">>, First)},
@@ -213,8 +218,12 @@ validate_authentication(Props, R, S) ->
   end.
   
 extract_final_row(Json) ->
-  [Last|Rest] = lists:reverse(jsn:get_value(<<"rows">>, Json)),
-  [First|Rest1] = lists:reverse(Rest),
-  Json1 = jsn:set_value(<<"rows">>, [First|Rest1], Json),
-  {First, Last, Json1}.
+  case jsn:get_value(<<"rows">>, Json) of
+    [] -> {[], [], Json};
+    Rows -> 
+      [Last|Rest] = lists:reverse(Rows),
+      [First|Rest1] = lists:reverse(Rest),
+      Json1 = jsn:set_value(<<"rows">>, [First|Rest1], Json),
+      {First, Last, Json1}
+  end.
   
