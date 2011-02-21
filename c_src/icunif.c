@@ -120,11 +120,10 @@ icu_unescape(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   ErlNifBinary source_bin; // erlang binary containing unicode
   ERL_NIF_TERM result_bin; // erlang binary return value
+  char input_str[BUFFERSIZE];
   uint8_t* result; 
-  UChar buffer [BUFFERSIZE]; // stack buffer
-  UChar* currBuffer = buffer;
-  int32_t bufferLen = sizeof(buffer);
-  int32_t expectedLen = 0;
+  UChar currBuffer[BUFFERSIZE];
+  int32_t ustr_length;
   ERL_NIF_TERM ok = enif_make_atom(env, "ok"); // atom for return value
   
   // check and initialize binary
@@ -132,24 +131,18 @@ icu_unescape(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return enif_make_badarg(env);
   }
   
-  expectedLen = u_unescape((char*)source_bin.data, currBuffer, bufferLen);
-  if (expectedLen > bufferLen) {
-    if (currBuffer == buffer) {
-      currBuffer = malloc(expectedLen);
-    } else {
-      currBuffer = realloc(currBuffer, expectedLen);
-    }
-  }
-  bufferLen = u_unescape((char*)source_bin.data, currBuffer, expectedLen);
+  memset(input_str, '\0', BUFFERSIZE);
+  memset(currBuffer, '\0', BUFFERSIZE * 2);
+  
+  memcpy(input_str, source_bin.data, source_bin.size);
+  
+  ustr_length = u_unescape(input_str, currBuffer, BUFFERSIZE);
   
   enif_release_binary(&source_bin);
   
-  result = enif_make_new_binary(env, sizeof(currBuffer), &result_bin);
-  memcpy(result, currBuffer, sizeof(currBuffer));
-  
-  if (currBuffer != buffer && currBuffer != NULL) {
-    free(currBuffer);
-  }
+  result = enif_make_new_binary(env, ustr_length * 2, &result_bin);
+  memset(result, '\0', ustr_length * 2);
+  memcpy(result, currBuffer, ustr_length * 2);
   
   return enif_make_tuple2(env, ok, result_bin);
 }
