@@ -202,7 +202,7 @@ function resetFields() {
   });
 }
 
-// Get the index that is displayed in the left column 
+// Get the index that is displayed in the index pane 
 function getIndex(startkey, startid, endkey, endid) {
   var descending = $('#index-descending').val() != "true";
   var url = "documents/index?descending=" + descending;
@@ -253,7 +253,7 @@ function getIndex(startkey, startid, endkey, endid) {
   });
 }
 
-// Initialize the form in the right column
+// Initialize the form in the edit pane
 function initEdit() {
   var url = "documents/edit";
   
@@ -270,6 +270,8 @@ function initEdit() {
   return true;
 }
 
+// This function initializes all the keyboard events for the
+// edit pane
 function setKeyboardEvents() {
   var isMod = false;
   var modKey = '18';
@@ -321,6 +323,8 @@ function setKeyboardEvents() {
   });
 }
 
+// This reshapes the tab bar in the edit pane to better
+// fit in the available space
 function arrangeTabBar() {
   var tabs = $('#tab-list li');
   var containerWidth = $('#tabs-container').width();
@@ -440,6 +444,8 @@ function initSaveButton() {
   return true;
 }
 
+// When a form validation error has occurred, this will cause it to
+// be displayed
 function setInvalidError(req) {
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
@@ -653,7 +659,11 @@ function getFieldValue(field) {
       fieldValue == null;
     }
   } else if (field.is('input.number')) {
-    fieldValue = field.val() * 1;
+    if (field.val() == '') {
+      fieldValue = '';
+    } else {
+      fieldValue = field.val() * 1;
+    }
   } else {
     fieldValue = field.val();
   }
