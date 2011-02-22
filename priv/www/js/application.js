@@ -62,7 +62,7 @@ $(function () {
     icons: {primary: "ui-icon-minus"},
     text: false
   }).click(function() {
-    $(this).parent().remove()
+    $(this).parent().remove();
   });
   
   $(".help-button").button({
@@ -81,7 +81,7 @@ $(function () {
   $(".create-continue-button").button({
     icons: {
       primary: "ui-icon-disk",
-      secondary: "ui-icon-arrowthick-1-e",
+      secondary: "ui-icon-arrowthick-1-e"
     }
   });
   

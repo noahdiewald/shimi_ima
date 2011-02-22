@@ -57,7 +57,7 @@ $(function () {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       allFields.val('').removeClass('ui-state-error');
@@ -86,8 +86,8 @@ $(function () {
       },
       Cancel: function() {
         $(this).dialog("close");
-      },
-    },
+      }
+    }
   });
   
   $("#create-project").button({

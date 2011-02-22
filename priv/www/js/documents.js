@@ -283,7 +283,7 @@ function setKeyboardEvents() {
   selectInput = function() {
     var cur = t.find('.ui-tabs-selected a').attr('href');
     $(cur).find(inputable + ", textarea").first().focus();
-  }
+  };
   
   t.keypress(function(event) {
     if (event.keyCode == '13' && $(event.target).is(inputable)) {
@@ -381,7 +381,7 @@ function initRemoveButton() {
   $(".remove-button").button({
     icons: {primary: "ui-icon-minus"}
   }).click(function() {
-    $(this).parent().remove()
+    $(this).parent().remove();
   });
   
   return true;
@@ -590,12 +590,12 @@ function fieldsetsToObject(root) {
       name: fieldset.attr('data-fieldset-name'),
       label: fieldset.attr('data-fieldset-label'),
       order: fieldset.attr('data-fieldset-order') * 1
-    }
+    };
 
     if (!fieldsetMultiple) {
       $.extend(fieldsetObj, fieldsToObject(fieldsContainers.first()));
     } else {
-      fieldsetObj.multifields = []
+      fieldsetObj.multifields = [];
       
       fieldsContainers.each(function(index1) {
         var fieldContainer = $(this);
@@ -634,12 +634,12 @@ function fieldsToObject(fieldsContainer, fieldsIndex) {
       order: field.attr('data-field-order') * 1,
       subcategory: field.attr('data-field-subcategory'),
       value: fieldValue
-    }
+    };
     
     if (fieldsIndex >= 0) {
       obj.fields[index].index = fieldsIndex;
     }
-  })
+  });
   
   return obj;
 }
@@ -652,11 +652,11 @@ function getFieldValue(field) {
     fieldValue = field.is('input:checkbox:checked');
   } else if (field.is('input.openboolean')) {
     if (field.val() == "true") {
-      fieldValue == true;
+      fieldValue = true;
     } else if (field.val() == "false") {
-      fieldValue == false;
+      fieldValue = false;
     } else {
-      fieldValue == null;
+      fieldValue = null;
     }
   } else if (field.is('input.number')) {
     if (field.val() == '') {

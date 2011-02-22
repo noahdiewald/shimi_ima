@@ -35,7 +35,7 @@ function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
 function populateFields(doctypeId, fieldsetId) {
   var url = "config/doctypes/" + doctypeId + 
             "/fieldsets/" + fieldsetId + 
-            "/fields"
+            "/fields";
         
   $.get(url, function(fields) {
     var fieldContainer = $("#fields-" + fieldsetId);
@@ -82,8 +82,10 @@ function populateFields(doctypeId, fieldsetId) {
         var fieldset = bttn.attr('data-fieldset-id');
         var url = "config/doctypes/" + doctype + 
                   "/fieldsets/" + fieldset + 
-                  "/fields/" + id + "?rev=" + rev
-        var complete = function() {populateFields(doctype, fieldset)};
+                  "/fields/" + id + "?rev=" + rev;
+        var complete = function() {
+          populateFields(doctype, fieldset);
+        };
           
         if (confirm("Are you sure? This is permanent.")) {
           sendConfigDoc(url, {}, 'DELETE', complete, this);
@@ -97,7 +99,7 @@ function populateFieldsets(doctypeId) {
   var fieldDoctype = $("#field-doctype-input");
   var fieldFieldset = $("#field-fieldset-input");
   var url = "config/doctypes/" + doctypeId + 
-            "/fieldsets"
+            "/fieldsets";
             
   $.get(url, function(fieldsets) {
     var fieldsetContainer = $("#fieldsets-" + doctypeId);
@@ -149,8 +151,10 @@ function populateFieldsets(doctypeId) {
         var rev = bttn.attr('data-fieldset-rev');
         var doctype = bttn.attr('data-doctype-id');
         var url = "config/doctypes/" + doctype + 
-                  "/fieldsets/" + fieldsetId + "?rev=" + rev
-        var complete = function() {populateFieldsets(doctype)};
+                  "/fieldsets/" + fieldsetId + "?rev=" + rev;
+        var complete = function() {
+          populateFieldsets(doctype);
+        };
           
         if (confirm("Are you sure? This is permanent.")) {
           sendConfigDoc(url, {}, 'DELETE', complete, this);
@@ -192,7 +196,7 @@ function populateDoctypeTabs() {
           }).click(function() {
             var name = $(this).attr("data-doctype-id");
             var rev = $(this).attr("data-doctype-rev");
-            var url = "config/doctypes/" + name + "?rev=" + rev
+            var url = "config/doctypes/" + name + "?rev=" + rev;
             
             var complete = function() {
               populateDoctypeTabs();
@@ -271,7 +275,7 @@ function initDoctypeAddDialog() {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -284,7 +288,7 @@ function initDoctypeAddDialog() {
 function initDoctypeEditDialog(name, description, rev) {
   var doctypeName = $("#doctype-name-input");
   var doctypeDescription = $("#doctype-description-input");
-  var url = "config/doctypes/" + name + "?rev=" + rev
+  var url = "config/doctypes/" + name + "?rev=" + rev;
   
   doctypeDescription.val(description);
   doctypeName.val(name);
@@ -315,7 +319,7 @@ function initDoctypeEditDialog(name, description, rev) {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -374,7 +378,7 @@ function initFieldsetAddDialog() {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -392,7 +396,7 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
   var fieldsetMultiple = $("#fieldset-multiple-input");
   var fieldsetCollapse = $("#fieldset-collapse-input");
   var url = "config/doctypes/" + doctype + 
-            "/fieldsets/" + id + "?rev=" + rev 
+            "/fieldsets/" + id + "?rev=" + rev;
             
   fieldsetName.val(oldobj.name);
   fieldsetLabel.val(oldobj.label);
@@ -437,7 +441,7 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -470,7 +474,7 @@ function initFieldAddDialog(fieldset, doctype) {
                     fieldMax, 
                     fieldRegex];
   var url = "config/doctypes/" + doctype + 
-            "/fieldsets/" + fieldset + "/fields"
+            "/fieldsets/" + fieldset + "/fields";
 
   function hideDisable(blank) {
     notDefault.forEach(function(field) {
@@ -518,7 +522,7 @@ function initFieldAddDialog(fieldset, doctype) {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -680,7 +684,7 @@ function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
       },
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
@@ -729,7 +733,7 @@ function initCharsecAddDialog() {
       "Add": function() {},
       "Cancel": function() {
         $(this).dialog("close");
-      },
+      }
     },
     close: function() {
       clearValues($('.input')).removeClass('ui-state-error');
