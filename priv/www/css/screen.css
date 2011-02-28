@@ -65,6 +65,10 @@ table {
   text-align: left;
 }
 
+label {
+  vertical-align: top;
+}
+
 #edit-document-form label {
   width: 35%;
   position: relative;
