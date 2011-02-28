@@ -204,7 +204,7 @@ function resetFields() {
 
 // Get the index that is displayed in the index pane 
 function getIndex(startkey, startid, endkey, endid) {
-  var descending = $('#index-descending').val() != "true";
+  var descending = $('#index-descending').val() == "true";
   var url = "documents/index?descending=" + descending;
   var limit = $('#index-limit').val() * 1;
   startkey = startkey || $('#index-startkey').val();

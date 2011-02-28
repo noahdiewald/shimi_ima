@@ -49,8 +49,8 @@
         <input type="text" name="index-limit" id="index-limit" />
         <label for="index-descending">Sort</label>
         <select name="index-descending" id="index-descending">
-          <option value="true">descending</option>
           <option value="false">ascending</option>
+          <option value="true">descending</option>
         </select>
       </form>
       <div></div>
