@@ -42,7 +42,7 @@
   
       <form id="index-filter-form">
         <label for="index-filter">Filter</label>
-        <input type="text" name="index-filter" id="index-filter" />
+        <input type="text" name="index-filter" id="index-filter" /><br />
         <label for="index-limit">Limit</label>
         <input type="text" name="index-limit" id="index-limit" />
       </form>
