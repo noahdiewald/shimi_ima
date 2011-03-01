@@ -178,11 +178,11 @@ span.retain-white {
   margin-top: 0;
 }
 
-nav {
+nav#main-navigation {
   margin: auto;
   text-align: center;
-  width: 33%;
-  opacity: 0.5;
+  width: 80%;
+  opacity: 0.3;
 }
 
 #panel-toggle {
@@ -190,7 +190,7 @@ nav {
   opacity: 0.5;
 }
 
-nav:hover, #panel-toggle:hover {
+nav#main-navigation:hover, #panel-toggle:hover {
   opacity: 1;
 }
 
@@ -202,6 +202,10 @@ nav ul, #panel-toggle ul {
 nav ul li, #panel-toggle ul li {
   display: inline;
   font-weight: bold;
+}
+
+nav.pager button {
+  width: 50%;
 }
 
 #loading {

@@ -1,23 +1,22 @@
-{% if offset > 0 %}
-<a 
-  href="#"
+<nav class="pager">
+<button 
   title="Previous Page"
   id="previous-index-page"
->Previous</a> 
-{% endif %}
-{% if not rows|length < limit %}
-<a 
-  href="#"
+>Previous</button> 
+<button 
   title="Next Page"
   id="next-index-page"
+  {% if rows|length < limit %}
+  data-last-page="true"
+  {% endif %}
   {% for row in rows %}
     {% if forloop.last %}
   data-startkey="{{row.key|first}}"
   data-startid="{{row.id }}"
     {% endif %}
   {% endfor %}
->Next</a>
-{% endif %}
+>Next</button>
+</nav>
     
 <table>
   {% for row in rows %}
