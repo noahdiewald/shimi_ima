@@ -41,19 +41,12 @@
       <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id }} Index</h2>
   
       <form id="index-filter-form">
-        <label for="index-startkey">Start</label>
-        <input type="text" name="index-startkey" id="index-startkey" />
-        <label for="index-endkey">End</label>
-        <input type="text" name="index-endkey" id="index-endkey" />
+        <label for="index-filter">Filter</label>
+        <input type="text" name="index-filter" id="index-filter" />
         <label for="index-limit">Limit</label>
         <input type="text" name="index-limit" id="index-limit" />
-        <label for="index-descending">Sort</label>
-        <select name="index-descending" id="index-descending">
-          <option value="false">ascending</option>
-          <option value="true">descending</option>
-        </select>
       </form>
-      <div></div>
+      <div id="index-listing"></div>
     </div>
     
     <div class="ui-widget ui-widget-content panel" id="document-view">

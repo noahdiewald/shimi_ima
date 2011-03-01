@@ -1,22 +1,32 @@
 {% if offset > 0 %}
-<span 
+<a 
+  href="#"
+  title="Previous Page"
   id="previous-index-page"
-  data-endkey="{{prevkey}}"
-  data-endid="{{previd}}"
->Prev</span> 
+>Previous</a> 
 {% endif %}
-<span 
+{% if not rows|length < limit %}
+<a 
+  href="#"
+  title="Next Page"
   id="next-index-page"
-  data-startkey="{{nextkey}}"
-  data-startid="{{nextid}}"
->Next</span>
-
+  {% for row in rows %}
+    {% if forloop.last %}
+  data-startkey="{{row.key|first}}"
+  data-startid="{{row.id }}"
+    {% endif %}
+  {% endfor %}
+>Next</a>
+{% endif %}
+    
 <table>
   {% for row in rows %}
+    {% if rows|length < limit or not forloop.last  %} 
   <tr>
     <th>
-      <a href="#{{ row.id }}" class="view-document-link">
+      <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{{row.key|first}}" {% endif %}>
         <ul class="head-elements">
+        
         {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
         </ul>
       </a>
@@ -29,5 +39,6 @@
       </ul>
     </td>
   </tr>
+    {% endif %}
   {% endfor %}
 </table>
