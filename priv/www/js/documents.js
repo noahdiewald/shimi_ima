@@ -308,10 +308,6 @@ function initEdit() {
 // This function initializes all the keyboard events for the
 // edit pane
 function setKeyboardEvents() {
-  var isMod = false;
-  var modKey = '18';
-  var nextKey = '78';
-  var prevKey = '80';
   var inputable = 'input, select';
   var t = $('#edit-tabs');
   
@@ -320,41 +316,34 @@ function setKeyboardEvents() {
     $(cur).find(inputable + ", textarea").first().focus();
   };
   
-  t.keypress(function(event) {
-    if (event.keyCode == '13' && $(event.target).is(inputable)) {
-      if ($('#save-document-button').attr('disabled')) {
-        $('#create-document-button').click();
-      } else {
-        $('#save-document-button').click();
-      }
-    }
-  });
-
-  $(document).keyup(function(event) {
-    if (event.keyCode == modKey) isMod = false;
-  }).keydown(function(event) {
+  $(document).bind('keydown', 'Alt+p', function(e) {
     var totaltabs = t.tabs('length');
     var selected = t.tabs('option', 'selected');
     
-    if (event.keyCode == modKey) isMod = true;
-    if (event.keyCode == nextKey && isMod) { 
-      if (selected < totaltabs - 1) {
-        t.tabs('select', selected + 1);
-        selectInput();
-      } else {
-        t.tabs('select', 0);
-        selectInput();
-      }
+    if (selected != 0) {
+      t.tabs('select', selected - 1);
+      selectInput();
+    } else {
+      t.tabs('select', totaltabs - 1);
+      selectInput();
     }
-    if (event.keyCode == prevKey && isMod) { 
-      if (selected != 0) {
-        t.tabs('select', selected - 1);
-        selectInput();
-      } else {
-        t.tabs('select', totaltabs - 1);
-        selectInput();
-      }
+    
+    return false;
+  });
+  
+  $(document).bind('keydown', 'Alt+n', function(e) {
+    var totaltabs = t.tabs('length');
+    var selected = t.tabs('option', 'selected');
+    
+    if (selected < totaltabs - 1) {
+      t.tabs('select', selected + 1);
+      selectInput();
+    } else {
+      t.tabs('select', 0);
+      selectInput();
     }
+    
+    return false;
   });
 }
 
