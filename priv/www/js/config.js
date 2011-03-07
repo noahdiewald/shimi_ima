@@ -41,10 +41,10 @@ function populateFields(doctypeId, fieldsetId) {
     var fieldContainer = $("#fields-" + fieldsetId);
     fieldContainer.empty();
     fieldContainer.html(fields);
-    $('.field-row').each(function(field) {
-      var id = $(this).attr('data-field-id');
+    $('#body-' + fieldsetId + ' .field-row').each(function(index, field) {
+      var fieldId = $(field).attr('data-field-id');
       
-      $('#edit-field-' + id + '-button').button({
+      $('#edit-field-' + fieldId + '-button').button({
         icons: {primary: "ui-icon-pencil"},
         text: false
       }).click(function() {
@@ -69,27 +69,31 @@ function populateFields(doctypeId, fieldsetId) {
           regex: bttn.attr('data-field-regex')
         };
         
-        initFieldEditDialog(id, fieldset, doctype, oldobj, rev).dialog("open");
+        initFieldEditDialog(fieldId, fieldset, doctype, oldobj, rev).dialog("open");
       });
   
-      $("#delete-field-" + id + "-button").button({
+      $("#delete-field-" + fieldId + "-button").button({
         icons: {primary: "ui-icon-trash"},
         text: false
-      }).click(function() {
-        var bttn = $(this);
-        var rev = bttn.attr('data-field-rev');
-        var doctype = bttn.attr('data-doctype-id');
-        var fieldset = bttn.attr('data-fieldset-id');
-        var url = "config/doctypes/" + doctype + 
-                  "/fieldsets/" + fieldset + 
-                  "/fields/" + id + "?rev=" + rev;
-        var complete = function() {
-          populateFields(doctype, fieldset);
-        };
+      }).click(function(e) {
+        var answer = confirm("Are you sure? This is permanent.");
+        
+        if (answer) {
+          var bttn = $(this);
+          var rev = bttn.attr('data-field-rev');
+          var doctype = bttn.attr('data-doctype-id');
+          var fieldset = bttn.attr('data-fieldset-id');
+          var url = "config/doctypes/" + doctype + 
+                    "/fieldsets/" + fieldset + 
+                    "/fields/" + fieldId + "?rev=" + rev;
+          var complete = function() {
+            populateFields(doctype, fieldset);
+          };
           
-        if (confirm("Are you sure? This is permanent.")) {
           sendConfigDoc(url, {}, 'DELETE', complete, this);
         }
+        
+        return false;
       });
     });
   });
@@ -114,7 +118,7 @@ function populateFieldsets(doctypeId) {
       active: false
     });
     
-    $(".add-field-button").button({
+    $('#' + doctypeId + ' .add-field-button').button({
       icons: {primary: "ui-icon-plus"}
     }).click(function() {
       var fieldset = $(this).attr('data-fieldset-id');
