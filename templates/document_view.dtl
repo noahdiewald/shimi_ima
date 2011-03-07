@@ -23,7 +23,7 @@
         data-field-view-id="{{ field.id}}"
         data-field-view-index={{ field.index }}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-        data-field-view-value="{{ field.value|join:"," }}">
+        data-field-view-value="{{ field.value|force_escape|join:"," }}">
         {% endif %}
         {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
         data-field-view-value="{{ field.value }}">
@@ -36,7 +36,7 @@
           {{ field.value|join:", "|force_escape }}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
-          <span class="retain-white">{{ field.value }}</span>
+          <span class="retain-white">{{ field.value|force_escape }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
           {{ field.value|force_escape }}
@@ -65,10 +65,10 @@
           not specified
         {% endif %}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-          {{ field.value|join:", "|force_escape }}
+          {{ field.value|force_escape|join:", " }}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
-          <span class="retain-white">{{ field.value }}</span>
+          <span class="retain-white">{{ field.value|force_escape }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
           {{ field.value|force_escape }}
