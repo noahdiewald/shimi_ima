@@ -220,6 +220,7 @@ nav.pager button {
 
 #document-view ul {
   padding-left: 1em;
+  line-height: 120%;
 }
 
 #document-view ol {
@@ -235,20 +236,22 @@ nav.pager button {
 }
 
 #document-view li b {
+  font-weight: normal;
   font-family: abserif;
   font-size: 95%;
-  color: #5868B6;
+  color: #0D465C;
 }
 
 #document-view li ul b {
-  color: #AD5657;
+  font-weight: normal;
+  color: #630000;
 }
 
-#document-view-list li.collapsed:before {
+#document-view-list > li.collapsed.fieldset-view > b:before {
   content: "▸ ";
 }
 
-#document-view-list > li:before {
+#document-view-list > li.fieldset-view > b:before {
   content: "▾ ";
 }
 
