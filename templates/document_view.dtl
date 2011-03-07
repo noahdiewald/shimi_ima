@@ -11,7 +11,7 @@
     data-fieldset-view-id="{{ fieldset.id }}" 
     data-multiple="{{ fieldset.multiple }}"
   >
-    <b>{{ fieldset.label }}</b>:
+    <b>{{ fieldset.label|force_escape }}</b>:
     {% if fieldset.multiple %}
     <ol>
     {% for multifield in fieldset.multifields %}
@@ -28,18 +28,18 @@
         {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
         data-field-view-value="{{ field.value }}">
         {% endif %}
-        <b>{{ field.label }}</b>: 
+        <b>{{ field.label|force_escape }}</b>: 
         {% if field.value == 'null' %}
           not specified
         {% endif %}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-          {{ field.value|join:", " }}
+          {{ field.value|join:", "|force_escape }}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
-          {{ field.value }}
+          {{ field.value|force_escape }}
         {% endif %}
       </li>
     {% endfor %}
@@ -60,18 +60,18 @@
         {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
         data-field-view-value="{{ field.value }}">
         {% endif %}
-        <b>{{ field.label }}</b>:
+        <b>{{ field.label|force_escape }}</b>:
         {% if field.value == 'null' %}
           not specified
         {% endif %}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-          {{ field.value|join:", " }}
+          {{ field.value|join:", "|force_escape }}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value }}</span>
         {% endif %}
         {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
-          {{ field.value }}
+          {{ field.value|force_escape }}
         {% endif %}
       </li>
     {% endfor %}

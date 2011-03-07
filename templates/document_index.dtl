@@ -26,14 +26,14 @@
       <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{{row.key|first}}" {% endif %}>
         <ul class="head-elements">
         
-        {% for elem in row.key %}<li>{{ elem }}</li>{% endfor %}
+        {% for elem in row.key %}<li>{{ elem|force_escape }}</li>{% endfor %}
         </ul>
       </a>
     </th>
     <td>
       <ul class="reversal-elements">
       {% for elem in row.value %}
-        {% if elem %}<li>{{ elem }}</li>{% endif %}
+        {% if elem %}<li>{{ elem|force_escape }}</li>{% endif %}
       {% endfor %}
       </ul>
     </td>
