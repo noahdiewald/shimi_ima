@@ -18,7 +18,7 @@
       <option
         {% if option.value == default %}selected=true{% endif %}
         value={{ option.value }}
-      >{{ option.key }}</option>
+      >{{ option.key|force_escape }}</option>
     {% endfor %}
   </select>
 {% endblock %}

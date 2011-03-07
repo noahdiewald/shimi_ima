@@ -12,7 +12,7 @@
       <option
         {% if option == default %}selected=true{% endif %}
         value="{{ option }}"
-      >{{ option }}</option>
+      >{{ option|force_escape }}</option>
     {% endfor %}
   </select>
 {% endblock %}
