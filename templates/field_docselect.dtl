@@ -2,7 +2,7 @@
   
 {% block input_area %}
   <select 
-    class="field docselect ui-widget ui-corner-all"
+    class="field select ui-widget ui-corner-all"
     {% if default != "" %}
     data-field-default="{{ default|urlencode }}"
     {% endif %}
