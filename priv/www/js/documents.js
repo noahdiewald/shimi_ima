@@ -74,6 +74,10 @@ function setFieldValue(field, value) {
     field.attr("checked", value == "true");
   } else if (value && field.is('select.multiselect')) {
     field.val(value.split(","));
+  } else if (value && (field.is('input.text')))  {
+    field.val(decodeURIComponent(value.replace(/\+/g," ")));
+  } else if (field.is('textarea.textarea')) {
+    field.val(decodeURIComponent(value.replace(/\+/g," ")));
   } else {
     field.val(value);
   }
@@ -688,6 +692,12 @@ function getFieldValue(field) {
     } else {
       fieldValue = field.val() * 1;
     }
+  } else if (field.val() && field.is('select.multiselect')) {
+    fieldValue = field.val().map(function(v) {
+      return decodeURIComponent(v.replace(/\+/g," "));
+    });
+  } else if (field.val() && field.is('select.select')) {
+    fieldValue = decodeURIComponent(field.val().replace(/\+/g," "));
   } else {
     fieldValue = field.val();
   }

@@ -1,4 +1,4 @@
-<h2 class="ui-widget ui-widget-header">{{ title }} View</h2>
+<h2 class="ui-widget ui-widget-header">{{ title|force_escape }} View</h2>
 
 <button id="document-edit-button" data-document-id="{{ _id }}" data-document-rev="{{ _rev }}">Edit</button>
 
@@ -23,9 +23,12 @@
         data-field-view-id="{{ field.id}}"
         data-field-view-index={{ field.index }}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-        data-field-view-value="{{ field.value }}">
+        data-field-view-value="{% for val in field.value %}{% if val != 'null' %}{% if not forloop.first %},{% endif %}{{ val|urlencode }}{% endif %}{% endfor %}">
         {% endif %}
-        {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        {% if field.value != 'null' and (field.subcategory == 'text' or field.subcategory == 'select' or field.subcategory == 'textarea' or field.subcategory == 'docselect') %}
+        data-field-view-value="{{ field.value|urlencode }}">
+        {% endif %}
+        {% if field.value == 'null' or field.subcategory == 'integer' or field.subcategory == 'rational' or field.subcategory == 'boolean' or field.subcategory == 'openboolean' or field.subcategory == 'date' %}
         data-field-view-value="{{ field.value }}">
         {% endif %}
         <b>{{ field.label|force_escape }}</b>: 
@@ -33,13 +36,16 @@
           not specified
         {% endif %}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-          {{ field.value|force_escape|join:"," }}
+          {% for val in field.value %}{% if val != 'null' %}{% if not forloop.first %}, {% endif %}{{ val|force_escape }}{% endif %}{% endfor %}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value|force_escape }}</span>
         {% endif %}
-        {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        {% if field.value != 'null' and (field.subcategory == 'text' or field.subcategory == 'select' or field.subcategory == 'docselect') %}
           {{ field.value|force_escape }}
+        {% endif %}
+        {% if field.value != 'null' and ( field.subcategory == 'boolean' or field.subcategory == 'openboolean' or field.subcategory == 'integer' or field.subcategory == 'rational' or field.subcategory == 'date' ) %}
+          {{ field.value }}
         {% endif %}
       </li>
     {% endfor %}
@@ -55,9 +61,12 @@
         class="field-view" 
         data-field-view-id="{{ field.id}}"
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-        data-field-view-value="{{ field.value|join:"," }}">
+        data-field-view-value="{% for val in field.value %}{% if val != 'null' %}{% if not forloop.first %},{% endif %}{{ val|urlencode }}{% endif %}{% endfor %}">
         {% endif %}
-        {% if field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        {% if field.value != 'null' and (field.subcategory == 'text' or field.subcategory == 'select' or field.subcategory == 'textarea' or field.subcategory == 'docselect') %}
+        data-field-view-value="{{ field.value|urlencode }}">
+        {% endif %}
+        {% if field.value == 'null' or field.subcategory == 'integer' or field.subcategory == 'rational' or field.subcategory == 'boolean' or field.subcategory == 'openboolean' or field.subcategory == 'date' %}
         data-field-view-value="{{ field.value }}">
         {% endif %}
         <b>{{ field.label|force_escape }}</b>:
@@ -65,13 +74,16 @@
           not specified
         {% endif %}
         {% if field.value != 'null' and (field.subcategory == 'multiselect' or field.subcategory == 'docmultiselect') %}
-          {{ field.value|force_escape|join:", " }}
+          {% for val in field.value %}{% if val != 'null' %}{% if not forloop.first %}, {% endif %}{{ val|force_escape }}{% endif %}{% endfor %}
         {% endif %}
         {% if field.subcategory == 'textarea' %}
           <span class="retain-white">{{ field.value|force_escape }}</span>
         {% endif %}
-        {% if field.value != 'null' and field.subcategory != 'textarea' and field.subcategory != 'multiselect' and field.subcategory != 'docmultiselect' %}
+        {% if field.value != 'null' and (field.subcategory == 'text' or field.subcategory == 'select' or field.subcategory == 'docselect') %}
           {{ field.value|force_escape }}
+        {% endif %}
+        {% if field.value != 'null' and ( field.subcategory == 'boolean' or field.subcategory == 'openboolean' or field.subcategory == 'integer' or field.subcategory == 'rational' or field.subcategory == 'date' ) %}
+          {{ field.value }}
         {% endif %}
       </li>
     {% endfor %}

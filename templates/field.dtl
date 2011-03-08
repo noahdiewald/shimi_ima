@@ -12,9 +12,9 @@
   <input 
     class="field text ui-widget ui-corner-all" 
     type="text" 
-    value="{% if default %}{{ default }}{% endif %}"
+    value="{% if default %}{{ default|urlencode }}{% endif %}"
     {% if default != "" %}
-    data-field-default="{{ default }}"
+    data-field-default="{{ default|urlencode }}"
     {% endif %}
     {% include 'field_common_attributes.dtl' %} />
 {% endblock %}

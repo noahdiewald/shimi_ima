@@ -11,7 +11,7 @@
     {% for option in allowed %}
       <option
         {% if option == default %}selected=true{% endif %}
-        value="{{ option }}"
+        value="{{ option|urlencode }}"
       >{{ option|force_escape }}</option>
     {% endfor %}
   </select>

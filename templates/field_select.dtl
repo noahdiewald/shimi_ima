@@ -4,7 +4,7 @@
   <select 
     class="field select ui-widget ui-corner-all"
     {% if default != "" %}
-    data-field-default="{{ default }}"
+    data-field-default="{{ default|urlencode }}"
     {% endif %}
     {% include 'field_common_attributes.dtl' %}
   >
@@ -16,8 +16,8 @@
     {% endif %}
     {% for option in allowed %}
       <option
-        {% if option == default %}selected=true{% endif %}
-        value={{ option }}
+        {% if option|urlencode == default|urlencode %}selected=true{% endif %}
+        value="{{ option|urlencode }}"
       >{{ option|force_escape }}</option>
     {% endfor %}
   </select>

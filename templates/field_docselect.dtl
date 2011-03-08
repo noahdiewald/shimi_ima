@@ -4,7 +4,7 @@
   <select 
     class="field docselect ui-widget ui-corner-all"
     {% if default != "" %}
-    data-field-default="{{ default }}"
+    data-field-default="{{ default|urlencode }}"
     {% endif %}
     {% include 'field_common_attributes.dtl' %}
   >
@@ -16,8 +16,8 @@
     {% endif %}
     {% for option in allowed %}
       <option
-        {% if option.value == default %}selected=true{% endif %}
-        value={{ option.value }}
+        {% if option.value|urlencode == default|urlencode %}selected=true{% endif %}
+        value="{{ option.value|urlencode }}"
       >{{ option.key|force_escape }}</option>
     {% endfor %}
   </select>

@@ -4,8 +4,8 @@
   <textarea 
     class="field textarea ui-widget ui-corner-all"
     {% if default != "" %}
-    data-field-default="{{ default }}"
+    data-field-default="{{ default|urlencode }}"
     {% endif %}
     {% include 'field_common_attributes.dtl' %}
-  >{% if default %}{{ default }}{% endif %}</textarea>
+  >{% if default %}{{ default|urlencode }}{% endif %}</textarea>
 {% endblock %}
