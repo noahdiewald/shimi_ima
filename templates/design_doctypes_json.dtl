@@ -54,6 +54,10 @@
                 throw({forbidden: errorMsg});
             };
  
+            if (userCtx.roles.indexOf('readonly') !== -1) {
+              forbid(userCtx.name, 'is a read only user.');
+            }
+            
             var requiredField = function(field) {
                 if (field.required === true) {
                     if (typeof field.value === 'string' && field.value.isBlank()) {
