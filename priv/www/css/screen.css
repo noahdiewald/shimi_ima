@@ -262,3 +262,7 @@ nav.pager button {
 .hidden {
   display: none;
 }
+
+select[multiple=true] {
+  height: 5em;
+}
