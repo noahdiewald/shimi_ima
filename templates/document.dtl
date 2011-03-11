@@ -8,6 +8,7 @@
       {% if role == "_admin" or role == "manager" %}
       <li><a href="/projects/project-{{ project_info._id }}/config">Configuration</a></li>
       {% endif %}
+      <li><a href="/projects/project-{{ project_info._id }}/doctypes/{{ doctype_info._id }}/search">Advanced</a></li>
     {% endfor %}
   {% endif %}
   <li><a href="/projects/project-{{ project_info._id }}/doctypes">Document Type Listing</a></li>
