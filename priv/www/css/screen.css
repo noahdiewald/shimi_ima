@@ -25,6 +25,7 @@ body {
 
 h1 {
   color: white;
+  font-size: 12pt;
   margin: 0;
 }
 
@@ -147,7 +148,6 @@ ul.head-elements li:first-child::before {
 }
 
 #all-document-container {
-  
   display: table-row;
 }
 

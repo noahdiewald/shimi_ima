@@ -1,0 +1,20 @@
+{% extends "project_context.dtl" %}
+
+{% block page_title %}Tools: {{ project_info.name }}{% endblock %}
+
+{% block header %}
+<h1>Tools: {{ project_info.name }}</h1>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="/js/tools.js"></script>
+{% endblock %}
+    
+{% block main_content %}
+<div id="main-tabs">
+  <ul>
+    <li><a href="#query">Query</a></li>
+  </ul>
+{% include 'tools_query_tab.dtl' %}
+</div>
+{% endblock %}
