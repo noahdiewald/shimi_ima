@@ -1,0 +1,3 @@
+{% for row in options.rows %}
+<option value="{{row.id}}">{{ row.key|force_escape }}</option>
+{% endfor %}
