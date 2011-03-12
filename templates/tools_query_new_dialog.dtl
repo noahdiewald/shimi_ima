@@ -1,0 +1,30 @@
+<div id="query-new-dialog" title="New Query">
+
+  <p class="validate-tips">All fields are required.</p>
+  
+  <form>
+    <fieldset class="ui-helper-reset">
+    
+      <input type="hidden" id="query-owner-input" value="{{user.name}}" />
+    
+      <label for="query-name-input">Name</label><br />
+      <input 
+        type="text" 
+        name="query-name-input" 
+        id="query-name-input" 
+        value="" 
+        class="ui-widget-content ui-corner-all input" /><br />
+    
+      <label for="query-doctype-input">Doctype</label><br />
+      <select 
+        name="query-doctype-input" 
+        id="query-doctype-input" 
+        class="ui-widget-content ui-corner-all input">
+        {% for row in doctypes.rows %}
+        <option>{{ row.key|force_escape }}</option>
+        {% endfor %}
+      </select>
+      
+    </fieldset>
+  </form>
+</div>

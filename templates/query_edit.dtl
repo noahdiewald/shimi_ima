@@ -1,11 +1,5 @@
-<div id="query-editing-buttons">
-  <button id="new-query-button">New</button>
 {% if query._id %}
-  <button id="save-as-query-button">Save As</button>
+  <button id="save-query-button">Save</button>
   <button id="delete-query-button">Delete</button>
   <button id="add-query-condition-button">Add Condition</button>
 {% endif %}
-</div>
-
-<div id="query-conditions-listing">
-</div>

@@ -5,8 +5,6 @@
   <form>
     <fieldset class="ui-helper-reset">
     
-      <input type="hidden" id="builder-doctype-input" />
-    
       <label for="builder-fieldset-input">Fieldset</label><br />
       <select 
         name="builder-fieldset-input" 

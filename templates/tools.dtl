@@ -21,4 +21,5 @@
 
 {% block dialogs %}
   {% include 'tools_query_builder_dialog.dtl' %}
+  {% include 'tools_query_new_dialog.dtl' %}
 {% endblock %}
