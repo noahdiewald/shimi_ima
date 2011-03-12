@@ -66,7 +66,7 @@ content_types_provided(R, S) ->
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
-    index -> {html_fieldset(R, S), R, S};
+    index -> {html_fields(R, S), R, S};
     identifier -> {html_field(R, S), R, S}
   end.
   
@@ -76,10 +76,16 @@ html_field(R, S) ->
   Json = couch:get_json(id, R, S),
   get_field_html(Json, R, S).
   
-html_fieldset(R, S) -> 
+html_fields(R, S) -> 
+  case wrq:get_qs_value("as", R) of
+    undefined -> html_as_fieldset(R, S);
+    "fieldset" -> html_as_fieldset(R, S);
+    "options" -> html_as_options(R, S)
+  end.
+
+html_as_fieldset(R, S) -> 
   Fieldset = wrq:path_info(fieldset, R),
   Json = couch:get_view_json(Fieldset, "fields", R, S),
-  
   Rows = jsn:get_value(<<"rows">>, Json),
   
   F = fun(Row) ->
@@ -87,6 +93,13 @@ html_fieldset(R, S) ->
   end,
   
   lists:map(F, Rows).
+  
+html_as_options(R, S) ->
+  Fieldset = wrq:path_info(fieldset, R),
+  Json = couch:get_view_json(Fieldset, "fields_simple", R, S),
+  {ok, Html} = options_dtl:render(Json),
+  Html.
+
   
 get_field_html(Json, R, S) ->
   Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
