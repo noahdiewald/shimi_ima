@@ -1,0 +1,45 @@
+<div id="query-builder-dialog" title="Query Builder">
+
+  <p class="validate-tips">All fields are required.</p>
+  
+  <form>
+    <fieldset class="ui-helper-reset">
+    
+      <input type="hidden" id="builder-doctype-input" />
+    
+      <label for="builder-fieldset-input">Fieldset</label><br />
+      <select 
+        name="builder-fieldset-input" 
+        id="builder-fieldset-input" 
+        class="ui-widget-content ui-corner-all select">
+      </select>
+    
+      <label for="builder-field-input">Field</label><br />
+      <select 
+        name="builder-field-input" 
+        id="builder-field-input" 
+        class="ui-widget-content ui-corner-all select">
+      </select>
+    
+      <label for="builder-condition-type-input">Condition Type</label><br />
+      <select 
+        name="builder-condition-type-input" 
+        id="builder-condition-type-input" 
+        class="ui-widget-content ui-corner-all select">
+        <option>equal</option>
+        <option>match</option>
+        <option>greater</option>
+        <option>less</option>
+      </select>
+    
+      <label for="builder-condition-input">Condition</label><br />
+      <input 
+        type="text" 
+        name="builder-condition-input" 
+        id="builder-condition-input" 
+        value="" 
+        class="ui-widget-content ui-corner-all input" /><br />
+      
+    </fieldset>
+  </form>
+</div>

@@ -25,6 +25,8 @@ function initHelpText() {
 $(function () {
   initTabs(); 
   initHelpText();
+  $('#query-builder-dialog').hide();
+  
   //getIndex();
   //initEdit();
   

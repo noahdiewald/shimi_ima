@@ -12,6 +12,7 @@
         <label for="index-limit">Limit</label>
         <input type="text" name="index-limit" id="index-limit" />
       </form><br />
+      
       <div id="index-listing"></div>
       
     </div>
@@ -24,6 +25,14 @@
     <h3 class="accordion-head">Results</h3>
     
     <div id="query-view">
+  
+      <form id="query-filter-form">
+        <label for="query-filter">Filter</label>
+        <input type="text" name="query-filter" id="query-filter" />
+        <label for="query-limit">Limit</label>
+        <input type="text" name="query-limit" id="query-limit" />
+      </form><br />
+      
     </div>
     
   </div>
