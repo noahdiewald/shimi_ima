@@ -18,3 +18,7 @@
 {% include 'tools_query_tab.dtl' %}
 </div>
 {% endblock %}
+
+{% block dialogs %}
+  {% include 'tools_query_builder_dialog.dtl' %}
+{% endblock %}
