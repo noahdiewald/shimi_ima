@@ -23,7 +23,6 @@ function initHelpText() {
 }
 
 function initQueryNewDialog() {
-  var queryOwner = $("#query-owner-input");
   var queryDoctype = $("#query-doctype-input");
   var queryName = $("#query-name-input");
   
@@ -40,7 +39,6 @@ function initQueryNewDialog() {
         if (checkResult) {
           var obj = {
             "category": "query", 
-            "owner": queryOwner.val(), 
             "name": queryName.val(), 
             "doctype": queryDoctype.val()
           },

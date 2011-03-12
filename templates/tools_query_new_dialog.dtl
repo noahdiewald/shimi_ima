@@ -5,8 +5,6 @@
   <form>
     <fieldset class="ui-helper-reset">
     
-      <input type="hidden" id="query-owner-input" value="{{user.name}}" />
-    
       <label for="query-name-input">Name</label><br />
       <input 
         type="text" 
@@ -23,6 +21,22 @@
         {% for row in doctypes.rows %}
         <option>{{ row.key|force_escape }}</option>
         {% endfor %}
+      </select>
+    
+      <p>Using the lists below choose a field to display results by.</p>
+      
+      <label for="query-fieldset-input">Fieldset</label><br />
+      <select 
+        name="query-fieldset-input" 
+        id="query-fieldset-input" 
+        class="ui-widget-content ui-corner-all input">
+      </select><br />
+    
+      <label for="query-field-input">Field</label><br />
+      <select 
+        name="query-field-input" 
+        id="query-field-input" 
+        class="ui-widget-content ui-corner-all input">
       </select>
       
     </fieldset>
