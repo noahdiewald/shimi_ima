@@ -47,7 +47,7 @@ to_html(R, S) ->
   Headers = [{"Content-Type","application/json"}],
   {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json1)),
   
-  Vals = [{<<"user">>, User}|Project],
+  Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
   
   {ok, Html} = config_dtl:render(Vals),
   {Html, R, S}.

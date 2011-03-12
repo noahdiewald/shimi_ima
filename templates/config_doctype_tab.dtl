@@ -1,6 +1,6 @@
 <div id="doctypes">
   <button id="doctype-add-button">Add Document Type</button>
-  <a href="/projects/project-{{ _id }}/doctypes" class="edit-button">Go to Data Entry</a>
+  <a href="/projects/project-{{ project_info._id }}/doctypes" class="edit-button">Go to Data Entry</a>
   <a href="#" id="doctype-info-toggle" class="help-button">Show Help</a>
   
   <div class="toggler">

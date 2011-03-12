@@ -1,10 +1,10 @@
-{% extends "base.dtl" %}
+{% extends "project_context.dtl" %}
 
-{% block page_title %}Configuration: {{ name }}{% endblock %}
+{% block page_title %}Configuration: {{ project_info.name }}{% endblock %}
 
 {% block header %}
-<h1>Configuration: {{ name }}</h1>
-<em>{{ description }}</em>
+<h1>Configuration: {{ project_info.name }}</h1>
+<em>{{ project_info.description }}</em>
 {% endblock %}
 
 {% block javascript %}
