@@ -1,19 +1,9 @@
-{% extends "base.dtl" %}
+{% extends "project_context.dtl" %}
 
-{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
-
-{% block navigation %}
-  {% if user %}
-    {% for role in user.roles %}
-      {% if role == "_admin" or role == "manager" %}
-      <li><a href="/projects/project-{{ project_info._id }}/config">Configuration</a></li>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-{% endblock %}
+{% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
 
 {% block header %}
-<h1>{{ project_info.name }}: {{ title }}</h1>
+<h1>{{ title }}: {{ project_info.name }}</h1>
 <em>{{ project_info.description }}</em>
 {% endblock %}
 
