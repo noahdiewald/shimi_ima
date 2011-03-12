@@ -108,14 +108,6 @@ id_html(R, S) ->
   Json = couch:get_json(id, R, S), 
   {ok, Html} = config_doctype_dtl:render(Json),
   
-  {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  DesignJson1 = jsn:decode(DesignJson),
-  DoctypeRev = couch:get_design_rev(wrq:path_info(id, R), R, S),
-  DesignJson2 = jsn:set_value(<<"_rev">>, DoctypeRev, DesignJson1),
-  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ wrq:path_info(id, R),
-  Headers = [{"Content-Type","application/json"}],
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(DesignJson2)),
-  
   {Html, R, S}.
   
 from_json(R, S) ->
@@ -149,7 +141,10 @@ json_update(R, S) ->
   Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
   case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-    {ok, updated} -> {true, R, S};
+    {ok, updated} -> 
+      {ok, DesignJson} = design_doctype_json_dtl:render(Json),
+      {ok, _} = couch:update(design, DesignJson, R, S),
+      {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};

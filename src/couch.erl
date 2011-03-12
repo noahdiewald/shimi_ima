@@ -114,7 +114,18 @@ create(Url, Headers, Json) ->
 update(doc, Id, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp/" ++ Id,
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-  update(Url, Headers, Json).
+  update(Url, Headers, Json);
+
+% TODO I may want to reconsider not forcing the app to pick the design revision
+% before hand.  
+update(design, Id, Json, R, S) ->
+  Json1 = jsn:decode(Json),
+  Rev = get_design_rev(wrq:path_info(id, R), R, S),
+  Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
+  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Id,
+  Headers = [{"Content-Type","application/json"}],
+  update(Url, Headers, jsn:encode(Json2)).
+
 
 update(bulk, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
@@ -126,7 +137,17 @@ update(bulk, Json, R, S) ->
       Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
-  end.
+  end;
+  
+% TODO I may want to reconsider not forcing the app to pick the design revision
+% before hand.  
+update(design, Json, R, S) ->
+  Json1 = jsn:decode(Json),
+  Rev = get_design_rev(wrq:path_info(id, R), R, S),
+  Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
+  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ wrq:path_info(id, R),
+  Headers = [{"Content-Type","application/json"}],
+  update(Url, Headers, jsn:encode(Json2)).
   
 update(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, put, Json) of
