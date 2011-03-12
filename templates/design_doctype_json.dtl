@@ -9,10 +9,26 @@
       }" 
     },
     
+    "fields_simple": {
+      "map": "function(doc) { 
+        if (doc.category == 'field' && doc.doctype == '{{ _id }}')  { 
+          emit(doc.label, doc.name) 
+        } 
+      }" 
+    },
+    
     "fieldsets": {
       "map": "function(doc) { 
         if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
           emit(doc.order, doc) 
+        } 
+      }" 
+    },
+    
+    "fieldsets_simple": {
+      "map": "function(doc) { 
+        if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
+          emit(doc.label, doc.name) 
         } 
       }" 
     },
