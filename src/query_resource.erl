@@ -101,15 +101,14 @@ content_types_accepted(R, S) ->
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
-    edit -> {html_edit(R, S), R, S};
-    main -> {html_documents(R, S), R, S};
+    view -> {html_view(R, S), R, S};
     index -> {html_index(R, S), R, S};
-    identifier -> {html_document(R, S), R, S}
+    identifier -> {html_identifier(R, S), R, S}
   end.
   
 from_json(R, S) ->
   case proplists:get_value(target, S) of
-    main -> json_create(R, S);
+    index -> json_create(R, S);
     identifier -> json_update(R, S)
   end.
   
@@ -142,59 +141,30 @@ json_update(R, S) ->
       {{halt, 409}, R1, S}
   end.
 
-html_documents(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  
-  Vals = [
-    {<<"title">>, list_to_binary(Doctype ++ " Documents")}, 
-    {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-    {<<"user">>, proplists:get_value(user, S)}
-  ],
-  
-  {ok, Html} = document_dtl:render(Vals),
-  Html.
-
-html_edit(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_view_json(Doctype, "fieldsets", R, S),
-  
-  Vals = [
-    {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
-    {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
-  ],
-  
-  {ok, Html} = document_edit_dtl:render(Vals),
-  Html.
-
 html_index(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
+  case couch:exists("_design/queries", R, S) of
+    false -> 
+      {ok, VJson} = design_queries_json_dtl:render(),
+      {ok, created} = couch:create(design, VJson, R, S);
+    _ -> undefined
+  end,
+  
   Limit = wrq:get_qs_value("limit", R),
-  Json = couch:get_view_json(Doctype, "index", R, S),
+  Json = couch:get_view_json("queries", "all_simple", R, S),
   
-  Vals = [
-    {<<"limit">>, Limit},
-    {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
-    {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
-  ],
+  Vals = [{<<"limit">>, Limit}|Json],
   
-  {ok, Html} = document_index_dtl:render(Vals),
+  {ok, Html} = query_index_dtl:render(Vals),
   Html.
 
-html_document(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
+html_identifier(R, S) ->
   Json = couch:get_json(id, R, S),
   
-  Vals = [
-    {<<"title">>, list_to_binary(Doctype)}, 
-    {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
-  ],
-  
-  {ok, Html} = document_view_dtl:render(Vals),
+  {ok, Html} = query_edit_dtl:render(Json),
   Html.
+
+html_view(_R, _S) ->
+  <<"still working on it">>.
     
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),

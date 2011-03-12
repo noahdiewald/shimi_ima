@@ -1,0 +1,7 @@
+{
+  "_id": "_design/queries",
+  "views": {
+    "all": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc) }}"},
+    "all_simple": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc.name) }}"}
+  }
+}
