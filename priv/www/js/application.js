@@ -3,6 +3,41 @@
 if (!window.btoa) window.btoa = base64.encode
 if (!window.atob) window.atob = base64.decode
 
+// Dialog form helpers
+
+// TODO: maybe saying $('input, select, textarea...) could serve
+//       as alternative to variable passing.
+function clearValues(inputFields) {
+  inputFields.each(function(index) {
+    inputField = $(this);
+    
+    if (! inputField.attr('data-retain')) {
+      if (inputField.is(':checked')) {
+        inputField.attr('checked', false);
+      }
+      inputField.val('');
+    }
+  });
+  
+  return inputFields;
+}
+
+function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
+  $.ajax({
+    type: method,
+    url: ajaxUrl,
+    dataType: "json",
+    context: callContext,
+    contentType: "application/json",
+    processData: false,
+    data: JSON.stringify(obj),
+    complete: function(req, status) {
+      if (req.status >= 200) {
+        completeFun(this);
+      }
+    }
+  });
+}
 
 // Validation
   

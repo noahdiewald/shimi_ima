@@ -1,37 +1,3 @@
-// TODO: maybe saying $('input, select, textarea...) could serve
-//       as alternative to variable passing.
-function clearValues(inputFields) {
-  inputFields.each(function(index) {
-    inputField = $(this);
-    
-    if (! inputField.attr('data-retain')) {
-      if (inputField.is(':checked')) {
-        inputField.attr('checked', false);
-      }
-      inputField.val('');
-    }
-  });
-  
-  return inputFields;
-}
-
-function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
-  $.ajax({
-    type: method,
-    url: ajaxUrl,
-    dataType: "json",
-    context: callContext,
-    contentType: "application/json",
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function(req, status) {
-      if (req.status >= 200) {
-        completeFun(this);
-      }
-    }
-  });
-}
-
 function populateFields(doctypeId, fieldsetId) {
   var url = "config/doctypes/" + doctypeId + 
             "/fieldsets/" + fieldsetId + 
@@ -340,7 +306,7 @@ function initDoctypeAddButton() {
     initDoctypeAddDialog().dialog("open");
   });
   
-  return true;
+  return false;
 }
 
 function initFieldsetAddDialog() {
