@@ -18,6 +18,7 @@
         name="query-doctype-input" 
         id="query-doctype-input" 
         class="ui-widget-content ui-corner-all input">
+        <option></option>
         {% for row in doctypes.rows %}
         <option>{{ row.key|force_escape }}</option>
         {% endfor %}

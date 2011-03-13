@@ -267,6 +267,10 @@ select[multiple=true] {
   height: 5em;
 }
 
-#index-filter-form {
+#query-index-filter-form {
   float: right;
+}
+
+#query-index-listing {
+  clear: right;
 }

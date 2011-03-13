@@ -22,9 +22,39 @@ function initHelpText() {
   return false;
 }
 
+function setQueryDoctypeEvents(queryDoctype, queryFieldset) {
+  queryDoctype.change(function() {
+    var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
+    
+    fillOptionsFromUrl(url, queryFieldset);
+  });
+  
+  return false;
+}
+
+function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
+  queryFieldset.change(function() {
+    var url = 'doctypes/' + queryDoctype.val() + 
+              '/fieldsets/' + queryFieldset.val() + '/fields?as=options';
+    
+    fillOptionsFromUrl(url, queryField);
+  });
+  
+  return false;
+}
+
+function fillOptionsFromUrl(url, selectElement) {
+  $.get(url, function(options) {
+    selectElement.html(options);
+  });
+}
+
 function initQueryNewDialog() {
   var queryDoctype = $("#query-doctype-input");
+  var queryFieldset = $("#query-fieldset-input");
+  var queryField = $("#query-field-input");
   var queryName = $("#query-name-input");
+  var allFields = [queryDoctype, queryFieldset, queryField, queryName];
   
   var dialog = $("#query-new-dialog").dialog({
     autoOpen: false,
@@ -34,16 +64,18 @@ function initQueryNewDialog() {
         $('.input').removeClass('ui-state-error');
         
         // place holder for client side validation
-        checkResult = true;
+        var checkResult = true;
         
         if (checkResult) {
           var obj = {
             "category": "query", 
             "name": queryName.val(), 
-            "doctype": queryDoctype.val()
+            "doctype": queryDoctype.val(),
+            "fieldset": queryFieldset.val(),
+            "field": queryField.val()
           },
           complete = function(context) {
-            //populateDoctypeTabs();
+            initQueryIndex();
             $(context).dialog("close");
           };
           sendConfigDoc("queries", obj, 'POST', complete, this);
@@ -58,6 +90,9 @@ function initQueryNewDialog() {
     }
   });
   
+  setQueryDoctypeEvents(queryDoctype, queryFieldset);
+  setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField);
+  
   return dialog;
 }
 
@@ -71,12 +106,21 @@ function initQueryNewButton() {
   return false;
 }
 
+function initQueryIndex() {
+  url = "queries";
+  
+  $.get(url, function(index) {
+    $('#query-index-listing').html(index);
+  });
+}
+
 $(function () {
   initTabs(); 
   initHelpText();
   $('#query-builder-dialog').hide();
   $('#query-new-dialog').hide();
   initQueryNewButton();
+  initQueryIndex();
   
   //getIndex();
   //initEdit();

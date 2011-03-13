@@ -3,5 +3,29 @@
   "views": {
     "all": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc) }}"},
     "all_simple": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc.name) }}"}
-  }
+  },
+
+  "validate_doc_update": "function(newDoc, saveDoc, userCtx) {
+    String.prototype.isBlank = function() {
+      return ((/^\\s*$/).test(this) && ! (/\\S/).test(this) && ! (this == null));
+    };
+    
+    var forbid = function(name, msg) {
+      var errorMsg = JSON.stringify({
+        fieldname: name,
+        message: msg
+      });
+
+      throw({forbidden: errorMsg});
+    };
+    
+    if (newDoc.category === 'query') {
+      [newDoc.doctype, newDoc.name, newDoc.fieldset, newDoc.field].forEach(function(field) {
+        if (field.isBlank()) forbid('All fields', 'must be filled in.');
+      });
+      
+      if (!(/^\\w*$/).test(newDoc.name)) forbid('Name', 'may only contain alphanumeric characters and underscores.');
+    }
+  }"
+
 }
