@@ -1,8 +1,7 @@
-<table>
+<div class="multicol">
+  <ul>
   {% for row in rows %}
-  <tr>
-    <td>{{ row.id }}</td>
-    <td>{{ row.value }}</td>
-  </tr>
+    <li><a href="#" data-query-id="{{row.key}}">{{row.value}}</a></li>
   {% endfor %}
-</table>
+  </ul>
+</div>

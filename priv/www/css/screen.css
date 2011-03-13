@@ -274,3 +274,16 @@ select[multiple=true] {
 #query-index-listing {
   clear: right;
 }
+
+.multicol 
+{
+  -moz-column-count: 5;
+  -webkit-column-count: 5;
+  column-count: 5;
+}
+
+.multicol ul
+{
+  padding: 0;
+  margin: 0;
+}

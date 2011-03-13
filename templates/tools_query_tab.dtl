@@ -21,11 +21,6 @@
     <h3 class="accordion-head">Builder</h3>
     
     <div id="query-edit">
-      <div id="query-editing-buttons">
-      </div>
-
-      <div id="query-conditions-listing">
-      </div>
     </div>
     
     <h3 class="accordion-head">Results</h3>

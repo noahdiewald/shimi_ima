@@ -106,11 +106,25 @@ function initQueryNewButton() {
   return false;
 }
 
+function getQueryEdit(queryId) {
+  var url = "queries/" + queryId;
+  var target = $('#query-edit');
+  
+  $.get(url, function(queryData) {
+    target.html(queryData);
+    $('#all-query-container').accordion("activate", 1);
+  });
+}
+
 function initQueryIndex() {
-  url = "queries";
+  var url = "queries";
+  var target = $('#query-index-listing');
   
   $.get(url, function(index) {
-    $('#query-index-listing').html(index);
+    target.html(index);
+    target.click(function(e) {
+      getQueryEdit($(e.target).attr('data-query-id'));
+    });
   });
 }
 
