@@ -54,7 +54,6 @@ function initQueryNewDialog() {
   var queryFieldset = $("#query-fieldset-input");
   var queryField = $("#query-field-input");
   var queryName = $("#query-name-input");
-  var allFields = [queryDoctype, queryFieldset, queryField, queryName];
   
   var dialog = $("#query-new-dialog").dialog({
     autoOpen: false,
@@ -70,6 +69,7 @@ function initQueryNewDialog() {
           var obj = {
             "category": "query", 
             "name": queryName.val(), 
+            "conditions": [], 
             "doctype": queryDoctype.val(),
             "fieldset": queryFieldset.val(),
             "field": queryField.val()
@@ -96,6 +96,60 @@ function initQueryNewDialog() {
   return dialog;
 }
 
+function initQueryBuilderDialog(queryDoctype) {
+  var builderOr = $("#builder-or-input");
+  var builderNegate = $("#builder-negate-input");
+  var builderOperator = $("#builder-operator-input");
+  var builderValue = $("#builder-value-input");
+  var builderFieldset = $("#builder-fieldset-input");
+  var builderField = $("#builder-field-input");
+  var notBlank = [builderOperator, builderValue, builderFieldset, builderField];
+  var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
+    
+  fillOptionsFromUrl(url, builderFieldset);
+  
+  var dialog = $("#query-builder-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Create": function() {
+        $('.input').removeClass('ui-state-error');
+        
+        // place holder for client side validation
+        var checkResult = true;
+        
+        if (checkResult) {
+          if (builderOr.is(':checked')) {
+            // TODO do this through back end templates
+            builderRow = '<tr><td colspan=5 class="or-conditon" data-value="or">OR</td></tr>';
+          } else {
+            builderRow = '
+            <tr>
+              <td data-name="negate" data-value="' + builderNegate.is(':checked') + '">' + builderNegate.is(':checked') + '</td>
+              <td data-name="fieldset" data-value="' + builderFieldset.val() + '">' + builderFieldset.val() + '</td>
+              <td data-name="field" data-value="' + builderField.val() + '">' + builderField.val() + '</td>
+              <td data-name="condition" data-value="' + builderOperator.val() + '">' + builderOperator.val() + '</td>
+              <td data-name="value" data-value="' + builderValue.val() + '">' + builderValue.val() + '</td>
+            </tr>'
+          }
+          
+          $('#query-conditions-listing tbody').append(builderRow);
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      }
+    },
+    close: function() {
+      clearValues($('.input')).removeClass('ui-state-error');
+    }
+  });
+  
+  setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField);
+  
+  return dialog;
+}
+
 function initQueryNewButton() {
   $('#new-query-button').button({
     icons: {primary: "ui-icon-plus"}
@@ -106,24 +160,79 @@ function initQueryNewButton() {
   return false;
 }
 
+function deleteQuery(queryId, queryRev, completeMessage, completeFunction) {
+  var url = "queries/" + queryId + "?rev=" + queryRev;
+  
+  $.ajax({
+    type: "DELETE",
+    url: url,
+    dataType: "json",
+    contentType: "application/json",
+    complete: function(req, status) {
+      if (req.status == 204) {
+        var title = "Success";
+        var body = completeMessage;
+        
+        completeFunction();
+        
+        flashHighlight(title, body);
+      } else if (req.status == 409) {
+        var body = JSON.parse(req.responseText);
+        var title = req.statusText;
+          
+        flashError(title, body.message);
+      } else if (req.status == 404) {
+        var body = "Query appears to have been deleted already.";
+        var title = req.statusText;
+          
+        flashError(title, body);
+      }
+    }
+  });
+
+  return false;  
+}
+
 function initQueryEditButtons(buttonData) {
-  initQueryDeleteButton($('#delete-query-button'), buttonData);
   initQuerySaveButton($('#save-query-button'), buttonData);
+  initQueryDeleteButton($('#delete-query-button'), buttonData);
   initQueryAddConditionButton($('#add-query-condition-button'), buttonData);
   
   return false;
 }
-
-function initQueryDeleteButton(button, buttonData) {
-  button.button();
+ 
+function initQuerySaveButton(button, buttonData) {
+  button.button({icons: {primary: "ui-icon-file"}});
 }
 
-function initQuerySaveButton(button, buttonData) {
-  button.button();
+function initQueryDeleteButton(button, buttonData) {
+  button.button({icons: {primary: "ui-icon-trash"}}).click(function (e) {
+    var deleteButton = $(e.target);
+    var queryId = buttonData.attr('data-query-id');
+    var queryRev = buttonData.attr('data-query-rev');
+    var completeMessage = "Your query has been deleted.";
+    var completeFunction = function() {
+      button.parent('div').parent('div').empty();
+      initQueryIndex();
+      $('#all-query-container').accordion("activate", 0);
+    };
+    
+    if (confirm("Are you sure?")) {
+      deleteQuery(queryId, queryRev, completeMessage, completeFunction);
+    }
+  });
+  
+  return false;
 }
 
 function initQueryAddConditionButton(button, buttonData) {
-  button.button();
+  button.button({
+    icons: {primary: "ui-icon-plus"}
+  }).click(function (e) {
+    initQueryBuilderDialog().dialog("open");
+  });
+
+  return false;
 }
 
 function getQueryEdit(queryId) {

@@ -1,4 +1,4 @@
-<div id="query-editing-data" data-query-id="{{doctype}}" data-query-id="{{_id}}" data-query-rev="{{_rev}}"><h4>{{name}}</h4></div>
+<div id="query-editing-data" data-query-doctype="{{doctype}}" data-query-id="{{_id}}" data-query-rev="{{_rev}}"><h4>{{name}}</h4></div>
 
 <div id="query-editing-buttons">
   <button id="save-query-button">Save</button>
@@ -20,9 +20,9 @@
       <td colspan=5 class="or-conditon" data-value="or">OR</td>
     {% else %}
       <td data-name="negate" data-value="{{ negate }}">{{ negate }}</td>
-      <td data-name="fieldset" data-value="{{ fieldset }}"></td>
-      <td data-name="field" data-value="{{ field }}"></td>
-      <td data-name="condition" data-value="{{ condition }}">{{ condition }}</td>
+      <td data-name="fieldset" data-value="{{ fieldset }}">{{ fieldset }}</td>
+      <td data-name="field" data-value="{{ field }}">{{ field }}</td>
+      <td data-name="condition" data-value="{{ operator }}">{{ operator }}</td>
       <td data-name="value" data-value="{{ value }}">{{ value }}</td>
     {% endif %}
   </tr>

@@ -1,40 +1,54 @@
 <div id="query-builder-dialog" title="Query Builder">
 
-  <p class="validate-tips">All fields are required.</p>
+  <p class="validate-tips">All non-checkbox fields are required.</p>
   
   <form>
     <fieldset class="ui-helper-reset">
+    
+      <label for="builder-or-input">Insert 'or'</label><br />
+      <input 
+        name="builder-or-input" 
+        id="builder-or-input" 
+        type="checkbox"
+        class="ui-widget-content ui-corner-all input" /> Check to add an 'or' line.<br />
+    
+      <label for="builder-negate-input">Negate</label><br />
+      <input 
+        name="builder-negate-input" 
+        id="builder-negate-input" 
+        type="checkbox"
+        class="ui-widget-content ui-corner-all input" /> Check to negate the condition.<br />
     
       <label for="builder-fieldset-input">Fieldset</label><br />
       <select 
         name="builder-fieldset-input" 
         id="builder-fieldset-input" 
-        class="ui-widget-content ui-corner-all select">
+        class="ui-widget-content ui-corner-all input">
       </select>
     
       <label for="builder-field-input">Field</label><br />
       <select 
         name="builder-field-input" 
         id="builder-field-input" 
-        class="ui-widget-content ui-corner-all select">
+        class="ui-widget-content ui-corner-all input">
       </select>
     
-      <label for="builder-condition-type-input">Condition Type</label><br />
+      <label for="builder-operator-input">Condition Type</label><br />
       <select 
-        name="builder-condition-type-input" 
-        id="builder-condition-type-input" 
-        class="ui-widget-content ui-corner-all select">
+        name="builder-operator-input" 
+        id="builder-operator-input" 
+        class="ui-widget-content ui-corner-all input">
         <option>equal</option>
         <option>match</option>
         <option>greater</option>
         <option>less</option>
       </select>
     
-      <label for="builder-condition-input">Condition</label><br />
+      <label for="builder-value-input">Condition Value</label><br />
       <input 
         type="text" 
-        name="builder-condition-input" 
-        id="builder-condition-input" 
+        name="builder-value-input" 
+        id="builder-value-input" 
         value="" 
         class="ui-widget-content ui-corner-all input" /><br />
       
