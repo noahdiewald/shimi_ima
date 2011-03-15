@@ -162,27 +162,19 @@ html_index(R, S) ->
 html_identifier(R, S) ->
   Json = couch:get_json(id, R, S),
   
-  {ok, Html} = query_edit_dtl:render(Json),
+  Conditions = jsn:get_value(<<"conditions">>, Json),
+  
+  F = fun(X) -> 
+    render_conditions(jsn, get_value, X)
+  end,
+  
+  RenderedConditions = lists:map(F, Conditions),
+  
+  {ok, Html} = query_edit_dtl:render([{<<"rendered_conditions">>, RenderedConditions}|Json]),
   Html.
 
 html_condition(R, _S) ->
-  {ok, Html} = case wrq:get_qs_value("is_or", R) of
-    "true" -> 
-      query_condition_dtl:render([{<<"is_or">>, true}]);
-    _ ->
-      Vals = [
-        {<<"is_or">>, false},
-        {<<"negate">>, wrq:get_qs_value("negate", R) == "true"},
-        {<<"fieldset">>, wrq:get_qs_value("fieldset", R)},
-        {<<"field">>, wrq:get_qs_value("field", R)},
-        {<<"operator">>, wrq:get_qs_value("operator", R)},
-        {<<"argument">>, wrq:get_qs_value("argument", R)},
-        {<<"fieldset_label">>, get_label(wrq:get_qs_value("fieldset", R))},
-        {<<"field_label">>, get_label(wrq:get_qs_value("field", R))}],
-      query_condition_dtl:render(Vals)
-  end,
-  
-  Html.
+  render_conditions(wrq, get_qs_value, R).
   
 html_view(_R, _S) ->
   <<"still working on it">>.
@@ -196,6 +188,27 @@ validate_authentication(Props, R, S) ->
     true -> {true, R, S};
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
+
+render_conditions(Module, Function, Arg) ->
+  {ok, Html} = case Module:Function("is_or", Arg) of
+    "true" -> 
+      query_condition_dtl:render([{<<"is_or">>, true}]);
+    true -> 
+      query_condition_dtl:render([{<<"is_or">>, true}]);
+    _ ->
+      Vals = [
+        {<<"is_or">>, false},
+        {<<"negate">>, Module:Function("negate", Arg) == "true"},
+        {<<"fieldset">>, Module:Function("fieldset", Arg)},
+        {<<"field">>, Module:Function("field", Arg)},
+        {<<"operator">>, Module:Function("operator", Arg)},
+        {<<"argument">>, Module:Function("argument", Arg)},
+        {<<"fieldset_label">>, get_label(Module:Function("fieldset", Arg))},
+        {<<"field_label">>, get_label(Module:Function("field", Arg))}],
+      query_condition_dtl:render(Vals)
+  end,
+  
+  Html.
 
 get_label(_DocId) ->
   "label".
