@@ -5,6 +5,8 @@
   <form>
     <fieldset class="ui-helper-reset">
     
+      <p>This will allow you to specify that you want either of two conditions to be true.</p>
+      
       <label for="builder-or-input">Insert 'or'</label><br />
       <input 
         name="builder-or-input" 
@@ -13,6 +15,9 @@
         class="ui-widget-content ui-corner-all input" /> Check to add an 'or' line.<br />
     
       <div id="builder-conditions">
+      
+        <p>This will make the condition match the oposite of what you specify for a condition. For instance, equal will become not equal.</p>
+        
         <label for="builder-negate-input">Negate</label><br />
         <input 
           name="builder-negate-input" 
@@ -20,19 +25,21 @@
           type="checkbox"
           class="ui-widget-content ui-corner-all input" /> Check to negate the condition.<br />
       
+        <p>All of the following are required.</p>
+        
         <label for="builder-fieldset-input">Fieldset</label><br />
         <select 
           name="builder-fieldset-input" 
           id="builder-fieldset-input" 
           class="ui-widget-content ui-corner-all input">
-        </select>
+        </select><br />
       
         <label for="builder-field-input">Field</label><br />
         <select 
           name="builder-field-input" 
           id="builder-field-input" 
           class="ui-widget-content ui-corner-all input">
-        </select>
+        </select><br />
       
         <label for="builder-operator-input">Condition Type</label><br />
         <select 
@@ -43,13 +50,13 @@
           <option>match</option>
           <option>greater</option>
           <option>less</option>
-        </select>
+        </select><br />
       
-        <label for="builder-value-input">Condition Value</label><br />
+        <label for="builder-argument-input">Condition Value</label><br />
         <input 
           type="text" 
-          name="builder-value-input" 
-          id="builder-value-input" 
+          name="builder-argument-input" 
+          id="builder-argument-input" 
           value="" 
           class="ui-widget-content ui-corner-all input" /><br />
       </div>

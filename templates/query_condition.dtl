@@ -1,0 +1,15 @@
+<tr class="ui-state-default ui-corner-all">
+  {% if is_or %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td colspan=5 class="or-condition" data-value="or">OR</td>
+    <td><button class="remove-condition-button">Remove</button></td>
+  {% else %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td data-name="negate" data-value="{{ negate }}">{{ negate }}</td>
+    <td data-name="fieldset" data-value="{{ fieldset }}">{{ fieldset_label }}</td>
+    <td data-name="field" data-value="{{ field }}">{{ field_label }}</td>
+    <td data-name="operator" data-value="{{ operator }}">{{ operator }}</td>
+    <td data-name="argument" data-value="{{ argument }}">{{ argument }}</td>
+    <td><button class="remove-condition-button">Remove</button></td>
+  {% endif %}
+</tr>

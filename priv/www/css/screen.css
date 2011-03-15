@@ -275,15 +275,25 @@ select[multiple=true] {
   clear: right;
 }
 
-.multicol 
-{
+.multicol {
   -moz-column-count: 5;
   -webkit-column-count: 5;
   column-count: 5;
 }
 
-.multicol ul
-{
+.multicol ul {
   padding: 0;
   margin: 0;
+}
+
+#query-conditions-listing table {
+  border-collapse: collapse;
+}
+
+#query-conditions-listing tr {
+  cursor: move;
+}
+
+.or-condition {
+  text-align: center;
 }

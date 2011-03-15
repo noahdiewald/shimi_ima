@@ -11,22 +11,12 @@
 <div id="query-conditions-listing">
 <table>
   <thead>
-    <tr><th>Neg.</th><th>Fieldset</th><th>Field</th><th>Condition</th><th>Value</th></tr>
+    <tr><td></td><th>Neg.</th><th>Fieldset</th><th>Field</th><th>Condition</th><th>Value</th></tr>
   </thead>
   <tbody>
-  {% for condition in conditions %}
-  <tr>
-    {% if condition == 'or' %}
-      <td colspan=5 class="or-conditon" data-value="or">OR</td>
-    {% else %}
-      <td data-name="negate" data-value="{{ negate }}">{{ negate }}</td>
-      <td data-name="fieldset" data-value="{{ fieldset }}">{{ fieldset }}</td>
-      <td data-name="field" data-value="{{ field }}">{{ field }}</td>
-      <td data-name="condition" data-value="{{ operator }}">{{ operator }}</td>
-      <td data-name="value" data-value="{{ value }}">{{ value }}</td>
-    {% endif %}
-  </tr>
-  {% endfor %}
+  {% if rendered_conditions %}
+    {{rendered_conditions}}
+  {% endif %}
   </tbody>
 </table>
 </div>

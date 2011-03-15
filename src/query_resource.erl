@@ -67,6 +67,7 @@ allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     index -> {['HEAD', 'GET', 'POST'], R, S};
     view -> {['HEAD', 'GET'], R, S};
+    condition -> {['HEAD', 'GET'], R, S};
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
   end.
   
@@ -103,6 +104,7 @@ to_html(R, S) ->
   case proplists:get_value(target, S) of
     view -> {html_view(R, S), R, S};
     index -> {html_index(R, S), R, S};
+    condition -> {html_condition(R, S), R, S};
     identifier -> {html_identifier(R, S), R, S}
   end.
   
@@ -163,6 +165,25 @@ html_identifier(R, S) ->
   {ok, Html} = query_edit_dtl:render(Json),
   Html.
 
+html_condition(R, _S) ->
+  {ok, Html} = case wrq:get_qs_value("is_or", R) of
+    "true" -> 
+      query_condition_dtl:render([{<<"is_or">>, true}]);
+    _ ->
+      Vals = [
+        {<<"is_or">>, false},
+        {<<"negate">>, wrq:get_qs_value("negate", R) == "true"},
+        {<<"fieldset">>, wrq:get_qs_value("fieldset", R)},
+        {<<"field">>, wrq:get_qs_value("field", R)},
+        {<<"operator">>, wrq:get_qs_value("operator", R)},
+        {<<"argument">>, wrq:get_qs_value("argument", R)},
+        {<<"fieldset_label">>, get_label(wrq:get_qs_value("fieldset", R))},
+        {<<"field_label">>, get_label(wrq:get_qs_value("field", R))}],
+      query_condition_dtl:render(Vals)
+  end,
+  
+  Html.
+  
 html_view(_R, _S) ->
   <<"still working on it">>.
     
@@ -175,3 +196,6 @@ validate_authentication(Props, R, S) ->
     true -> {true, R, S};
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
+
+get_label(_DocId) ->
+  "label".

@@ -100,13 +100,18 @@ function initQueryBuilderDialog(queryDoctype) {
   var builderOr = $("#builder-or-input");
   var builderNegate = $("#builder-negate-input");
   var builderOperator = $("#builder-operator-input");
-  var builderValue = $("#builder-value-input");
+  var builderArgument = $("#builder-argument-input");
   var builderFieldset = $("#builder-fieldset-input");
   var builderField = $("#builder-field-input");
-  var notBlank = [builderOperator, builderValue, builderFieldset, builderField];
-  var url = 'doctypes/' + queryDoctype + '/fieldsets';
+  var notBlank = [builderOperator, builderArgument, builderFieldset, builderField];
+  var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
+  var condition_url = 'queries/condition';
+  var appendCondition = function(builderRow) {
+    $('#query-conditions-listing tbody').append(builderRow);
+    $('#query-conditions-listing tbody').sortable();
+  };
     
-  fillOptionsFromUrl(url, builderFieldset);
+  fillOptionsFromUrl(fieldset_url, builderFieldset);
   
   builderOr.change(function() {
     if (builderOr.is(':checked')) {
@@ -139,20 +144,18 @@ function initQueryBuilderDialog(queryDoctype) {
         
         if (checkResult) {
           if (builderOr.is(':checked')) {
-            // TODO do this through back end templates
-            builderRow = '<tr><td colspan=5 class="or-conditon" data-value="or">OR</td></tr>';
+            $.get(condition_url, {"is_or": true}, function(data) {appendCondition(data)});
           } else {
-            builderRow = '\n\
-            <tr>\
-              <td data-name="negate" data-value="' + builderNegate.is(':checked') + '">' + builderNegate.is(':checked') + '</td>\
-              <td data-name="fieldset" data-value="' + builderFieldset.val() + '">' + builderFieldset.val() + '</td>\
-              <td data-name="field" data-value="' + builderField.val() + '">' + builderField.val() + '</td>\
-              <td data-name="condition" data-value="' + builderOperator.val() + '">' + builderOperator.val() + '</td>\
-              <td data-name="value" data-value="' + builderValue.val() + '">' + builderValue.val() + '</td>\
-            </tr>'
+            $.get(condition_url, {
+              "is_or": false,
+              "negate": builderNegate.is(':checked'),
+              "fieldset": builderFieldset.val(),
+              "field": builderField.val(),
+              "operator": builderOperator.val(),
+              "argument": builderArgument.val()
+            }, function(data) {appendCondition(data)});
           }
           
-          $('#query-conditions-listing tbody').append(builderRow);
           $(this).dialog("close");
         }
       },
