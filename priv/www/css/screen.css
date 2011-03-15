@@ -297,3 +297,7 @@ select[multiple=true] {
 .or-condition {
   text-align: center;
 }
+
+.remove-condition-button-cell {
+  text-align: right;
+}

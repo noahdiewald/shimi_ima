@@ -1,4 +1,13 @@
-<div id="query-editing-data" data-query-doctype="{{doctype}}" data-query-id="{{_id}}" data-query-rev="{{_rev}}"><h4>{{name}}</h4></div>
+<div 
+  id="query-editing-data" 
+  data-query-doctype="{{doctype}}" 
+  data-query-fieldset="{{fieldset}}" 
+  data-query-field="{{field}}" 
+  data-query-name="{{name}}" 
+  data-query-id="{{_id}}" 
+  data-query-rev="{{_rev}}">
+  <h4>{{name}} applies to {{doctype}}</h4>
+</div>
 
 <div id="query-editing-buttons">
   <button id="save-query-button">Save</button>
@@ -11,7 +20,12 @@
 <div id="query-conditions-listing">
 <table>
   <thead>
-    <tr><td></td><th>Neg.</th><th>Fieldset</th><th>Field</th><th>Condition</th><th>Value</th></tr>
+    <tr class="ui-widget-header ui-corner-all">
+      <th colspan=2>Negate</th>
+      <th>Fieldset</th>
+      <th>Field</th>
+      <th>Condition</th>
+      <th colspan=2>Value</th></tr>
   </thead>
   <tbody>
   {% if rendered_conditions %}

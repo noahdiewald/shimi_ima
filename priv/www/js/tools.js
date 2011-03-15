@@ -34,6 +34,10 @@ function setQueryDoctypeEvents(queryDoctype, queryFieldset) {
 
 function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
   queryFieldset.change(function() {
+    if (!(typeof queryDoctype == "string")) {
+      queryDoctype = queryDoctype.val();
+    }
+    
     var url = 'doctypes/' + queryDoctype + 
               '/fieldsets/' + queryFieldset.val() + '/fields?as=options';
     
@@ -91,9 +95,19 @@ function initQueryNewDialog() {
   });
   
   setQueryDoctypeEvents(queryDoctype, queryFieldset);
-  setQueryFieldsetEvents(queryDoctype.val(), queryFieldset, queryField);
+  setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField);
   
   return dialog;
+}
+
+function initConditionRemoveButtons(tableBody) {
+  tableBody.find('button').button({
+    icons: {primary: "ui-icon-minus"}
+  }).click(function(e) {
+    $(e.target).parent('td').parent('tr').remove();
+  });
+  
+  return false;
 }
 
 function initQueryBuilderDialog(queryDoctype) {
@@ -106,9 +120,14 @@ function initQueryBuilderDialog(queryDoctype) {
   var notBlank = [builderOperator, builderArgument, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
   var condition_url = 'queries/condition';
+  
   var appendCondition = function(builderRow) {
-    $('#query-conditions-listing tbody').append(builderRow);
-    $('#query-conditions-listing tbody').sortable();
+    tableBody = $('#query-conditions-listing tbody');
+    tableBody.append(builderRow);
+    tableBody.sortable();
+    initConditionRemoveButtons(tableBody);
+    
+    return false;
   };
     
   fillOptionsFromUrl(fieldset_url, builderFieldset);
@@ -184,6 +203,42 @@ function initQueryNewButton() {
   return false;
 }
 
+function getQueryConditions(rows) {
+  conditons = rows.map(function(row) {
+    var condition = {
+      "is_or": row.find('td.or-condition').attr('data-value') == "true",
+      "negate": row.find('td.negate-condition').attr('data-value') == "true",
+      "fieldset": row.find('td.fieldset-condition').attr('data-value'),
+      "field": row.find('td.field-condition').attr('data-value'),
+      "operator": row.find('td.operator-condition').attr('data-value'),
+      "argument": row.find('td.argument-condition').attr('data-value')
+    };
+    
+    return condition;
+  });
+  
+  return conditions;
+}
+
+function saveQuery(buttonData, completeFunction) {
+  var queryId = buttonData.attr('data-query-id');
+  var queryRev = buttonData.attr('data-query-rev');
+  var url = "queries/" + queryId + "?rev=" + queryRev;
+  
+  var obj = {
+    "_id": queryId,
+    "doctype": buttonData.attr('data-query-doctype'),
+    "fieldset": buttonData.attr('data-query-fieldset'),
+    "field": buttonData.attr('data-query-field'),
+    "name": buttonData.attr('data-query-name'),
+    "conditions": getQueryConditions($('#query-conditions-listing tbody tr'))
+  };
+  
+  sendConfigDoc(url, obj, 'PUT', completeFunction, this);
+
+  return false;  
+}
+
 function deleteQuery(queryId, queryRev, completeMessage, completeFunction) {
   var url = "queries/" + queryId + "?rev=" + queryRev;
   
@@ -226,7 +281,14 @@ function initQueryEditButtons(buttonData) {
 }
  
 function initQuerySaveButton(button, buttonData) {
-  button.button({icons: {primary: "ui-icon-file"}});
+  button.button({
+    icons: {primary: "ui-icon-document"}
+  }).click(function (e) {
+    var completeMessage = "Your query has been saved.";
+    var completeFunction = function() {};
+    
+    saveQuery(buttonData, completeMessage, completeFunction);
+  });
 }
 
 function initQueryDeleteButton(button, buttonData) {
