@@ -1,7 +1,7 @@
 <tr class="ui-state-default ui-corner-all">
   {% if is_or %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
-    <td colspan=5 class="or-condition" data-value="or">OR</td>
+    <td colspan=5 class="or-condition" data-value="true">OR</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
   {% else %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>

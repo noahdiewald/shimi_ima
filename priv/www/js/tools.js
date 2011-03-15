@@ -204,14 +204,16 @@ function initQueryNewButton() {
 }
 
 function getQueryConditions(rows) {
-  conditons = rows.map(function(row) {
+  var conditions = rows.map(function(index, row) {
+    row = $(row);
+    
     var condition = {
-      "is_or": row.find('td.or-condition').attr('data-value') == "true",
-      "negate": row.find('td.negate-condition').attr('data-value') == "true",
-      "fieldset": row.find('td.fieldset-condition').attr('data-value'),
-      "field": row.find('td.field-condition').attr('data-value'),
-      "operator": row.find('td.operator-condition').attr('data-value'),
-      "argument": row.find('td.argument-condition').attr('data-value')
+      "is_or": row.find('td.or-condition').first().attr('data-value') == "true",
+      "negate": row.find('td.negate-condition').first().attr('data-value') == "true",
+      "fieldset": row.find('td.fieldset-condition').first().attr('data-value'),
+      "field": row.find('td.field-condition').first().attr('data-value'),
+      "operator": row.find('td.operator-condition').first().attr('data-value'),
+      "argument": row.find('td.argument-condition').first().attr('data-value')
     };
     
     return condition;
@@ -227,6 +229,7 @@ function saveQuery(buttonData, completeFunction) {
   
   var obj = {
     "_id": queryId,
+    "category": "query",
     "doctype": buttonData.attr('data-query-doctype'),
     "fieldset": buttonData.attr('data-query-fieldset'),
     "field": buttonData.attr('data-query-field'),
