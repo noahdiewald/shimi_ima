@@ -3,6 +3,12 @@
 if (!window.btoa) window.btoa = base64.encode
 if (!window.atob) window.atob = base64.decode
 
+// isBlank function added to String
+
+String.prototype.isBlank = function() {
+  return ((/^\s*$/).test(this) && ! (/\S/).test(this) && ! (this == null));
+};
+
 // Dialog form helpers
 
 // TODO: maybe saying $('input, select, textarea...) could serve

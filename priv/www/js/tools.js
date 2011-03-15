@@ -34,7 +34,7 @@ function setQueryDoctypeEvents(queryDoctype, queryFieldset) {
 
 function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
   queryFieldset.change(function() {
-    var url = 'doctypes/' + queryDoctype.val() + 
+    var url = 'doctypes/' + queryDoctype + 
               '/fieldsets/' + queryFieldset.val() + '/fields?as=options';
     
     fillOptionsFromUrl(url, queryField);
@@ -91,7 +91,7 @@ function initQueryNewDialog() {
   });
   
   setQueryDoctypeEvents(queryDoctype, queryFieldset);
-  setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField);
+  setQueryFieldsetEvents(queryDoctype.val(), queryFieldset, queryField);
   
   return dialog;
 }
@@ -104,9 +104,17 @@ function initQueryBuilderDialog(queryDoctype) {
   var builderFieldset = $("#builder-fieldset-input");
   var builderField = $("#builder-field-input");
   var notBlank = [builderOperator, builderValue, builderFieldset, builderField];
-  var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
+  var url = 'doctypes/' + queryDoctype + '/fieldsets';
     
   fillOptionsFromUrl(url, builderFieldset);
+  
+  builderOr.change(function() {
+    if (builderOr.is(':checked')) {
+      $('#builder-conditions').hide();
+    } else {
+      $('#builder-conditions').show();
+    }
+  });
   
   var dialog = $("#query-builder-dialog").dialog({
     autoOpen: false,
@@ -118,22 +126,34 @@ function initQueryBuilderDialog(queryDoctype) {
         // place holder for client side validation
         var checkResult = true;
         
+        if (!builderOr.is(':checked')) {
+          notBlank.forEach(function(item) {
+            if (item.val().isBlank()) {
+              item.addClass('ui-state-error');
+              checkResult = false;
+            } else {
+              item.removeClass('ui-state-error');
+            }
+          });
+        }
+        
         if (checkResult) {
           if (builderOr.is(':checked')) {
             // TODO do this through back end templates
             builderRow = '<tr><td colspan=5 class="or-conditon" data-value="or">OR</td></tr>';
           } else {
-            builderRow = '
-            <tr>
-              <td data-name="negate" data-value="' + builderNegate.is(':checked') + '">' + builderNegate.is(':checked') + '</td>
-              <td data-name="fieldset" data-value="' + builderFieldset.val() + '">' + builderFieldset.val() + '</td>
-              <td data-name="field" data-value="' + builderField.val() + '">' + builderField.val() + '</td>
-              <td data-name="condition" data-value="' + builderOperator.val() + '">' + builderOperator.val() + '</td>
-              <td data-name="value" data-value="' + builderValue.val() + '">' + builderValue.val() + '</td>
+            builderRow = '\n\
+            <tr>\
+              <td data-name="negate" data-value="' + builderNegate.is(':checked') + '">' + builderNegate.is(':checked') + '</td>\
+              <td data-name="fieldset" data-value="' + builderFieldset.val() + '">' + builderFieldset.val() + '</td>\
+              <td data-name="field" data-value="' + builderField.val() + '">' + builderField.val() + '</td>\
+              <td data-name="condition" data-value="' + builderOperator.val() + '">' + builderOperator.val() + '</td>\
+              <td data-name="value" data-value="' + builderValue.val() + '">' + builderValue.val() + '</td>\
             </tr>'
           }
           
           $('#query-conditions-listing tbody').append(builderRow);
+          $(this).dialog("close");
         }
       },
       "Cancel": function() {
@@ -141,6 +161,7 @@ function initQueryBuilderDialog(queryDoctype) {
       }
     },
     close: function() {
+      $('#builder-conditions').show();
       clearValues($('.input')).removeClass('ui-state-error');
     }
   });
@@ -229,7 +250,7 @@ function initQueryAddConditionButton(button, buttonData) {
   button.button({
     icons: {primary: "ui-icon-plus"}
   }).click(function (e) {
-    initQueryBuilderDialog().dialog("open");
+    initQueryBuilderDialog(buttonData.attr('data-query-doctype')).dialog("open");
   });
 
   return false;
