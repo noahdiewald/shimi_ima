@@ -208,21 +208,21 @@ function getQueryConditions(rows) {
     row = $(row);
     
     var condition = {
-      "is_or": row.find('td.or-condition').first().attr('data-value') == "true",
-      "negate": row.find('td.negate-condition').first().attr('data-value') == "true",
-      "fieldset": row.find('td.fieldset-condition').first().attr('data-value'),
-      "field": row.find('td.field-condition').first().attr('data-value'),
-      "operator": row.find('td.operator-condition').first().attr('data-value'),
-      "argument": row.find('td.argument-condition').first().attr('data-value')
+      "is_or": row.find('td.or-condition').attr('data-value') == "true",
+      "negate": row.find('td.negate-condition').attr('data-value') == "true",
+      "fieldset": row.find('td.fieldset-condition').attr('data-value'),
+      "field": row.find('td.field-condition').attr('data-value'),
+      "operator": row.find('td.operator-condition').attr('data-value'),
+      "argument": row.find('td.argument-condition').attr('data-value')
     };
     
     return condition;
-  });
+  }).toArray();
   
   return conditions;
 }
 
-function saveQuery(buttonData, completeFunction) {
+function saveQuery(buttonData, message, completeFunction) {
   var queryId = buttonData.attr('data-query-id');
   var queryRev = buttonData.attr('data-query-rev');
   var url = "queries/" + queryId + "?rev=" + queryRev;
