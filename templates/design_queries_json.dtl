@@ -7,7 +7,7 @@
 
   "validate_doc_update": "function(newDoc, saveDoc, userCtx) {
     String.prototype.isBlank = function() {
-      return ((/^\\s*$/).test(this) && ! (/\\S/).test(this) && ! (this == null));
+      return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
     };
     
     var forbid = function(name, msg) {
@@ -24,8 +24,37 @@
         if (field.isBlank()) forbid('All fields', 'must be filled in.');
       });
       
-      if (!(/^\\w*$/).test(newDoc.name)) forbid('Name', 'may only contain alphanumeric characters and underscores.');
+      if (!(/^\\w*$/).test(newDoc.name)) {
+        forbid('Name', 'may only contain alphanumeric characters and underscores.');
+      }
+      
+      if (newDoc.conditions && newDoc.conditions.length > 0) {
+        var firstCondition = newDoc.conditions[0];
+        var lastCondition = newDoc.conditions[newDoc.conditions.length - 1];
+        
+        if (firstCondition.is_or == true || lastCondition.is_or == true) forbid('Conditions', 'may not begin or end with OR.');
+        
+        newDoc.conditions.forEach(function(condition, index) {
+          if (condition.is_or != true) {
+            if (condition.negate != true && condition.negate != false) {
+              forbid('Condition ' + index, 'negate must be true or false');
+            } else if (condition.field.isBlank() || !(/^\\w*$/).test(condition.field)) {
+              forbid('Condition ' + index, 'invalid field.');
+            } else if (condition.fieldset.isBlank() || !(/^\\w*$/).test(condition.fieldset)) {
+              forbid('Condition ' + index, 'invalid fieldset.');
+            } else if (condition.operator != 'equal' && 
+                       condition.operator != 'match' && 
+                       condition.operator != 'greater' && 
+                       condition.operator != 'less') {
+              forbid('Condition ' + index, 'invalid operator. Must be equal, match, greater or less.');
+            } else if (condition.argument.isBlank()) {
+              forbid('Condition ' + index, 'blank argument is not allowed.');
+            }
+          }  
+        });
+      }
     }
+    
   }"
 
 }

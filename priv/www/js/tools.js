@@ -332,7 +332,10 @@ function getQueryEdit(queryId) {
   $.get(url, function(queryData) {
     target.html(queryData);
     initQueryEditButtons($('#query-editing-data'));
-    initConditionRemoveButtons($('#query-conditions-listing tbody'));
+    // TODO don't repeat this code. It is also in initQueryBuilderDialog
+    tableBody = $('#query-conditions-listing tbody');
+    tableBody.sortable();
+    initConditionRemoveButtons(tableBody);
     $('#all-query-container').accordion("activate", 1);
   });
   
