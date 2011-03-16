@@ -60,7 +60,7 @@ build_expression(less, Condition) ->
   negate(Exp, Condition);
   
 build_expression(match, Condition) ->
-  Exp = "((/" ++ proplists:get_value(<<"argument">>, Condition) ++ "/).test(value))",
+  Exp = "((/" ++ binary_to_list(proplists:get_value(<<"argument">>, Condition)) ++ "/).test(value))",
   negate(Exp, Condition);
 
 build_expression(equal, Condition) ->
@@ -74,10 +74,10 @@ build_expression(fieldset, Condition) ->
   build_expression(equal, "fieldsetID", proplists:get_value(<<"fieldset">>, Condition)).
 
 build_expression(equal, ScriptVar, Val) ->
-  build_expression("===", ScriptVar, binary_to_list(Val));
+  build_expression("==", ScriptVar, Val);
 
 build_expression(Operator, ScriptVar, Val) ->
-  string:join(["(" ++ ScriptVar, Operator, "'" ++ Val ++ "')"], " ").
+  string:join(["(" ++ ScriptVar, Operator, "'" ++ binary_to_list(Val) ++ "')"], " ").
 
 join_expressions(Exp, Condition) ->    
   Exps = [Exp, build_expression(field, Condition), build_expression(fieldset, Condition)],
