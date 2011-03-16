@@ -331,6 +331,7 @@ function getQueryEdit(queryId) {
   $.get(url, function(queryData) {
     target.html(queryData);
     initQueryEditButtons($('#query-editing-data'));
+    initConditionRemoveButtons($('#query-conditions-listing tbody'));
     $('#all-query-container').accordion("activate", 1);
   });
   
