@@ -38,9 +38,9 @@ function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
     processData: false,
     data: JSON.stringify(obj),
     complete: function(req, status) {
-      if (req.status >= 200 && req.status < 400) {
-        completeFun(this);
-      } else if (req.status < 500) {
+      if (req.status >= 200 && req.status < 300) {
+        completeFun(this, req);
+      } else if (req.status >= 400 && req.status < 500) {
         var body = JSON.parse(req.responseText);
         var title = req.statusText;
         

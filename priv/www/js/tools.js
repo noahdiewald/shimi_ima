@@ -222,7 +222,7 @@ function getQueryConditions(rows) {
   return conditions;
 }
 
-function saveQuery(buttonData, message, completeFunction) {
+function saveQuery(buttonData, completeFunction) {
   var queryId = buttonData.attr('data-query-id');
   var queryRev = buttonData.attr('data-query-rev');
   var url = "queries/" + queryId + "?rev=" + queryRev;
@@ -287,10 +287,11 @@ function initQuerySaveButton(button, buttonData) {
   button.button({
     icons: {primary: "ui-icon-document"}
   }).click(function (e) {
-    var completeMessage = "Your query has been saved.";
-    var completeFunction = function() {};
+    var completeFunction = function() {
+      flashHighlight("Success", "Your query has been saved.")
+    };
     
-    saveQuery(buttonData, completeMessage, completeFunction);
+    saveQuery(buttonData, completeFunction);
   });
 }
 
