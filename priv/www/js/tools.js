@@ -358,14 +358,6 @@ $(function () {
   initQueryNewButton();
   initQueryIndex();
   
-  //$('#index-filter-form input').keyup(function() {
-  //  getIndex();
-  //});
-  
-  //$('#index-filter-form select').change(function() {
-  //  getIndex();
-  //});
-  
   $('#all-query-container').accordion({ 
     collapsible: true,
     autoHeight: false

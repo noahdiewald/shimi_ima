@@ -165,7 +165,7 @@ html_identifier(R, S) ->
   Conditions = jsn:get_value(<<"conditions">>, Json),
   
   F = fun(X) -> 
-    render_conditions(jsn, get_value, X)
+    render_conditions(jsn, get_value, X, R, S)
   end,
   
   RenderedConditions = lists:map(F, Conditions),
@@ -173,8 +173,8 @@ html_identifier(R, S) ->
   {ok, Html} = query_edit_dtl:render([{<<"rendered_conditions">>, RenderedConditions}|Json]),
   Html.
 
-html_condition(R, _S) ->
-  render_conditions(wrq, get_qs_value, R).
+html_condition(R, S) ->
+  render_conditions(wrq, get_qs_value, R, R, S).
   
 html_view(_R, _S) ->
   <<"still working on it">>.
@@ -189,7 +189,7 @@ validate_authentication(Props, R, S) ->
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
 
-render_conditions(Module, Function, Arg) ->
+render_conditions(Module, Function, Arg, R, S) ->
   {ok, Html} = case Module:Function("is_or", Arg) of
     "true" -> 
       query_condition_dtl:render([{<<"is_or">>, true}]);
@@ -203,12 +203,13 @@ render_conditions(Module, Function, Arg) ->
         {<<"field">>, Module:Function("field", Arg)},
         {<<"operator">>, Module:Function("operator", Arg)},
         {<<"argument">>, Module:Function("argument", Arg)},
-        {<<"fieldset_label">>, get_label(Module:Function("fieldset", Arg))},
-        {<<"field_label">>, get_label(Module:Function("field", Arg))}],
+        {<<"fieldset_label">>, get_label(Module:Function("fieldset", Arg), R, S)},
+        {<<"field_label">>, get_label(Module:Function("field", Arg), R, S)}],
       query_condition_dtl:render(Vals)
   end,
   
   Html.
 
-get_label(_DocId) ->
-  "label".
+get_label(Id, R, S) ->
+  Json = couch:get_json(Id, R, S),
+  jsn:get_value(<<"label">>, Json).
