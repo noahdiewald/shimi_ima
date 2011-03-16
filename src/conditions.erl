@@ -20,7 +20,8 @@
 %% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 %% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 %% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc Application specific CouchDB utility and helper functions
+%%
+%% @doc Convert an array of condition proplists to JavaScript expression.
 
 -module(conditions).
 
@@ -60,7 +61,7 @@ build_expression(less, Condition) ->
   negate(Exp, Condition);
   
 build_expression(match, Condition) ->
-  Exp = "((/" ++ binary_to_list(proplists:get_value(<<"argument">>, Condition)) ++ "/).test(value))",
+  Exp = "((/" ++ convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ "/).test(value))",
   negate(Exp, Condition);
 
 build_expression(equal, Condition) ->
@@ -77,8 +78,27 @@ build_expression(equal, ScriptVar, Val) ->
   build_expression("==", ScriptVar, Val);
 
 build_expression(Operator, ScriptVar, Val) ->
-  string:join(["(" ++ ScriptVar, Operator, "'" ++ binary_to_list(Val) ++ "')"], " ").
+  string:join(["(" ++ ScriptVar, Operator, "'" ++ convert_binary(Val) ++ "')"], " ").
 
+convert_binary(Bin) ->
+  String = binary_to_list(Bin),
+  escape_arg(String, []).
+  
+escape_arg([], Acc) ->
+  lists:reverse(Acc);
+  
+escape_arg([$\\|Rest], Acc) ->
+  escape_arg(Rest, [$\\,$\\|Acc]);
+  
+escape_arg([$'|Rest], Acc) ->
+  escape_arg(Rest, [$',$\\|Acc]);
+  
+escape_arg([$"|Rest], Acc) ->
+  escape_arg(Rest, [$",$\\|Acc]);
+  
+escape_arg([H|Rest], Acc) ->
+  escape_arg(Rest, [H|Acc]).
+  
 join_expressions(Exp, Condition) ->    
   Exps = [Exp, build_expression(field, Condition), build_expression(fieldset, Condition)],
   "(" ++ join_and(Exps) ++ ")".
