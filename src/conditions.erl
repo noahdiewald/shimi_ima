@@ -100,8 +100,9 @@ escape_arg([H|Rest], Acc) ->
   escape_arg(Rest, [H|Acc]).
   
 join_expressions(Exp, Condition) ->    
-  Exps = [Exp, build_expression(field, Condition), build_expression(fieldset, Condition)],
-  "(" ++ join_and(Exps) ++ ")".
+  FieldsAndSets = [build_expression(field, Condition), build_expression(fieldset, Condition)],
+  FieldsAndSetsString = "!(" ++ join_and(FieldsAndSets) ++ ")",
+  "(" ++ FieldsAndSetsString ++ " || " ++ Exp ++ ")".
 
 negate(Exp, Condition) ->  
   case proplists:get_value(<<"negate">>, Condition) of
