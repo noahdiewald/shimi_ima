@@ -1,0 +1,60 @@
+{
+  "_id": "_design/{{ _id }}",
+  
+  "views": {
+    "index": {
+      "map": "function(doc) {
+        if (doc.doctype == '{{ doctype }}' && doc.fieldsets)  {
+          var keys = [];
+          
+          doc.fieldsets.forEach(function(fieldset, index) {
+            var fieldsetId = fieldset.id;
+            var k = [];
+            var result;
+              
+            if (! fieldset.multiple) {
+              
+              result = fieldset.fields.every(function(field, index) {
+                var fieldId = field.id;
+                var value = field.value;
+                
+                if (fieldId == {{ field }} && fieldsetId == {{ fieldset }}) {
+                  k.push(value);
+                }
+                
+                return {{ Expression }};
+              });
+              
+              if (result) {
+                keys.push(k);
+              }
+            } else {
+              result = fieldset.multifields.every(function(multifield, index) {
+                return multifield.fields.every(function(field, index) {
+                  var fieldId = field.id;
+                  var value = field.value;
+                  
+                  if (fieldId == {{ field }} && fieldsetId == {{ fieldset }}) {
+                    k.push(value);
+                  }
+                  
+                  return {{ Expression }};
+                });
+              });
+              
+              if (result) {
+                keys.push(k);
+              }
+            }
+          });
+          
+          keys.reduce(function(acc, item) {
+            return a.concat(b);
+          }).forEach(function(item)) {
+            emit(item, doc);
+          });
+        } 
+      }" 
+    }
+  }
+}
