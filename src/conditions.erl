@@ -59,23 +59,20 @@ build_expression(greater, Condition) ->
 build_expression(less, Condition) ->
   Exp = build_expression("<", "value", proplists:get_value(<<"argument">>, Condition)),
   negate(Exp, Condition);
+
+build_expression(equal, Condition) ->
+  Exp = build_expression("==", "value", proplists:get_value(<<"argument">>, Condition)),
+  negate(Exp, Condition);
   
 build_expression(match, Condition) ->
   Exp = "((/" ++ convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ "/).test(value))",
   negate(Exp, Condition);
-
-build_expression(equal, Condition) ->
-  Exp = build_expression(equal, "value", proplists:get_value(<<"argument">>, Condition)),
-  negate(Exp, Condition);
   
 build_expression(field, Condition) ->
-  build_expression(equal, "fieldId", proplists:get_value(<<"field">>, Condition));
+  build_expression("===", "fieldId", proplists:get_value(<<"field">>, Condition));
   
 build_expression(fieldset, Condition) ->
-  build_expression(equal, "fieldsetID", proplists:get_value(<<"fieldset">>, Condition)).
-
-build_expression(equal, ScriptVar, Val) ->
-  build_expression("==", ScriptVar, Val);
+  build_expression("===", "fieldsetId", proplists:get_value(<<"fieldset">>, Condition)).
 
 build_expression(Operator, ScriptVar, Val) ->
   string:join(["(" ++ ScriptVar, Operator, "'" ++ convert_binary(Val) ++ "')"], " ").
@@ -100,9 +97,9 @@ escape_arg([H|Rest], Acc) ->
   escape_arg(Rest, [H|Acc]).
   
 join_expressions(Exp, Condition) ->    
-  FieldsAndSets = [build_expression(field, Condition), build_expression(fieldset, Condition)],
-  FieldsAndSetsString = "!(" ++ join_and(FieldsAndSets) ++ ")",
-  "(" ++ FieldsAndSetsString ++ " || " ++ Exp ++ ")".
+  Field = [build_expression(field, Condition), build_expression(fieldset, Condition)],
+  FieldString = "(" ++ join_and(Field) ++ ")",
+  "(!" ++ FieldString ++ " || " ++ join_and([Exp, FieldString]) ++ ")".
 
 negate(Exp, Condition) ->  
   case proplists:get_value(<<"negate">>, Condition) of

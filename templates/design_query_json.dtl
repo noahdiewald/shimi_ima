@@ -18,11 +18,11 @@
                 var fieldId = field.id;
                 var value = field.value;
                 
-                if (fieldId == {{ field }} && fieldsetId == {{ fieldset }}) {
+                if (fieldId == '{{ field }}' && fieldsetId == '{{ fieldset }}') {
                   k.push(value);
                 }
                 
-                return {{ expression }};
+                return ({{ expression }});
               });
               
               if (result) {
@@ -30,16 +30,25 @@
               }
             } else {
               result = fieldset.multifields.every(function(multifield, index) {
-                return multifield.fields.every(function(field, index) {
+                var result1;
+                var k1 = [];
+                
+                result1 = multifield.fields.every(function(field, index) {
                   var fieldId = field.id;
                   var value = field.value;
                   
-                  if (fieldId == {{ field }} && fieldsetId == {{ fieldset }}) {
-                    k.push(value);
+                  if (fieldId == '{{ field }}' && fieldsetId == '{{ fieldset }}') {
+                    k1.push(value);
                   }
                   
-                  return {{ expression }};
+                  return ({{ expression }});
                 });
+                
+                if (result1) {
+                  k.push(k1);
+                }
+                
+                return result1;
               });
               
               if (result) {
@@ -49,8 +58,8 @@
           });
           
           keys.reduce(function(acc, item) {
-            return a.concat(b);
-          }).forEach(function(item)) {
+            return acc.concat(item);
+          }).forEach(function(item) {
             emit(item, doc);
           });
         } 

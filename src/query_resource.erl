@@ -134,8 +134,7 @@ json_update(R, S) ->
   
   case couch:update(doc, Id, jsn:encode(Json2), R, S) of
     {ok, updated} -> 
-      Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
-      {ok, Rendered} = design_query_json_dtl:render([{<<"expression">>, Expression}|Json2]),
+      {ok, _} = update_design(Json2, R, S),
       {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
@@ -146,6 +145,18 @@ json_update(R, S) ->
       {{halt, 409}, R1, S}
   end.
 
+update_design(Json, R, S) ->
+  Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
+  {ok, Design} = design_query_json_dtl:render([{<<"expression">>, Expression}|Json]),
+  Id = "_design/" ++ wrq:path_info(id, R),
+  
+  case couch:exists(Id, R, S) of
+    false ->
+      couch:create(design, Design, R, S);
+    _ ->
+      couch:update(design, Design, R, S)
+  end.
+  
 html_index(R, S) ->
   case couch:exists("_design/queries", R, S) of
     false -> 
