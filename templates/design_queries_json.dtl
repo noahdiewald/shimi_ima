@@ -32,7 +32,9 @@
         var firstCondition = newDoc.conditions[0];
         var lastCondition = newDoc.conditions[newDoc.conditions.length - 1];
         
-        if (firstCondition.is_or == true || lastCondition.is_or == true) forbid('Conditions', 'may not begin or end with OR.');
+        if (firstCondition.is_or == true || lastCondition.is_or == true) {
+          forbid('Conditions', 'may not begin or end with OR.');
+        }
         
         newDoc.conditions.forEach(function(condition, index) {
           if (condition.is_or != true) {
