@@ -288,7 +288,8 @@ function initQuerySaveButton(button, buttonData) {
     icons: {primary: "ui-icon-document"}
   }).click(function (e) {
     var completeFunction = function() {
-      flashHighlight("Success", "Your query has been saved.")
+      getQueryEdit(buttonData.attr('data-query-id'));
+      flashHighlight("Success", "Your query has been saved.");
     };
     
     saveQuery(buttonData, completeFunction);
@@ -304,7 +305,6 @@ function initQueryDeleteButton(button, buttonData) {
     var completeFunction = function() {
       button.parent('div').parent('div').empty();
       initQueryIndex();
-      $('#all-query-container').accordion("activate", 0);
     };
     
     if (confirm("Are you sure?")) {
@@ -336,7 +336,6 @@ function getQueryEdit(queryId) {
     tableBody = $('#query-conditions-listing tbody');
     tableBody.sortable();
     initConditionRemoveButtons(tableBody);
-    $('#all-query-container').accordion("activate", 1);
   });
   
   return false;
@@ -361,9 +360,4 @@ $(function () {
   $('#query-new-dialog').hide();
   initQueryNewButton();
   initQueryIndex();
-  
-  $('#all-query-container').accordion({ 
-    collapsible: true,
-    autoHeight: false
-  });
 });
