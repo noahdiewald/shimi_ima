@@ -29,31 +29,22 @@
                 keys.push(k);
               }
             } else {
-              result = fieldset.multifields.every(function(multifield, index) {
-                var result1;
-                var k1 = [];
-                
-                result1 = multifield.fields.every(function(field, index) {
+              fieldset.multifields.forEach(function(multifield, index) {
+                result = multifield.fields.every(function(field, index) {
                   var fieldId = field.id;
                   var value = field.value;
                   
                   if (fieldId == '{{ field }}' && fieldsetId == '{{ fieldset }}') {
-                    k1.push(value);
+                    k.push(value);
                   }
                   
                   return ({{ expression }});
                 });
                 
-                if (result1) {
-                  k.push(k1);
+                if (result) {
+                  keys.push(k);
                 }
-                
-                return result1;
               });
-              
-              if (result) {
-                keys.push(k);
-              }
             }
           });
           
