@@ -180,42 +180,32 @@
 escape_test() ->
 [
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/9\\\\9/).test(value)))", 
     conditions:trans(?SLASH)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/9é9/).test(value)))", 
     conditions:trans(?ACCENT)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/9\\\\w9/).test(value)))", 
     conditions:trans(?ESCAPE)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/9\\'9/).test(value)))", 
     conditions:trans(?QUOTE)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/9\\\"9/).test(value)))", 
     conditions:trans(?DOUBLE_QUOTE))
 ].
@@ -223,104 +213,74 @@ escape_test() ->
 trans_test_() ->
 [
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value == '99'))", 
     conditions:trans(?EQUAL)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value > '99'))", 
     conditions:trans(?GREATER)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value < '99'))", 
     conditions:trans(?LESS)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "((/99/).test(value)))", 
     conditions:trans(?MATCH)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value == '99')) && " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
     "(value == '888'))", 
     conditions:trans(?DOUBLE)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value == '99')) || " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
     "(value == '888'))", 
     conditions:trans(?WITH_OR)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "!(value == '99'))", 
     conditions:trans(?NEGATIVE)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value == '99')) || " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
     "!(value == '888'))", 
     conditions:trans(?COMPLEX1)),
   
   ?_assertEqual(
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value == '99')) && " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "!((/99/).test(value))) || " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d904780e') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "!(value > '99')) || " ++
-    "(!((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) || " ++
-    "((fieldsetId === 'd5331cbb4d62fe3d2899f142d9039eed') && " ++
-    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0')) && " ++
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
     "!(value == '888'))", 
     conditions:trans(?COMPLEX2))
 ].
