@@ -32,6 +32,26 @@
           }
         }
         
+        function try_multifields(multifields) {
+          var results;
+          var result;
+          var k = [];
+          
+          results = multifields.map(function(multifield, index) {
+            fields_result = try_fields(multifield);
+            if (fields_result.result) k.push(fields_result.keys);
+            return fields_result.result;
+          });
+          
+          result = results.some(function(r) {return r});
+          
+          if (result) {
+            return {keys: k.flatten(), result: result};
+          } else {
+            return {};
+          }
+        }
+        
         function try_fieldsets(fieldsets) {
           var k = [];
           var result;
@@ -41,14 +61,11 @@
             
             if (! fieldset.multiple) {
               fields_result = try_fields(fieldset);
-              k.push(fields_result.keys);
             } else {
-              fieldset.multifields.forEach(function(multifield, index) {
-                fields_result = try_fields(multifield);
-                k.push(fields_result.keys);
-              });
+              fields_result = try_multifields(fieldset.multifields);
             }
             
+            k.push(fields_result.keys);
             return fields_result.result;
           });
           
