@@ -31,7 +31,8 @@
   init/1, 
   is_authorized/2,
   resource_exists/2,
-  to_html/2
+  to_html/2,
+  to_json/2
 ]).
 
 % Custom
@@ -62,7 +63,13 @@ allowed_methods(R, S) ->
   {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-  {[{"text/html", to_html}], R, S}.
+  {[{"text/html", to_html}, {"application/json", to_json}], R, S}.
+
+to_json(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {json_fields(R, S), R, S};
+    identifier -> {json_field(R, S), R, S}
+  end.
   
 to_html(R, S) ->
   case proplists:get_value(target, S) of
@@ -71,6 +78,24 @@ to_html(R, S) ->
   end.
   
 % Helpers
+
+json_field(R, S) ->
+  Json = couch:get_json(id, R, S),
+  Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
+  jsn:encode(get_allowed(Subcategory, Json, R, S)).
+
+json_fields(R, S) -> 
+  Fieldset = wrq:path_info(fieldset, R),
+  Json = couch:get_view_json(Fieldset, "fields", R, S),
+  Rows = jsn:get_value(<<"rows">>, Json),
+  
+  F = fun(Row) ->
+    Value = jsn:get_value(<<"value">>, Row),
+    Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Value)),
+    get_allowed(Subcategory, Value, R, S)
+  end,
+  
+  jsn:encode(lists:map(F, Rows)).
 
 html_field(R, S) -> 
   Json = couch:get_json(id, R, S),
@@ -103,17 +128,14 @@ html_as_options(R, S) ->
   
 get_field_html(Json, R, S) ->
   Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-  
-  Json1 = case Subcategory of
-    [$d, $o, $c|_] -> getAllowed(Json, R, S);
-    _ -> Json
-  end,
-  
   Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
-  {ok, Html} = Template:render(Json1),
+  {ok, Html} = Template:render(get_allowed(Subcategory, Json, R, S)),
   Html.
 
-getAllowed(Json, R, S) ->
+get_allowed([$d, $o, $c|_], Json, R, S) -> get_allowed(Json, R, S);
+get_allowed(_, Json, _, _) -> Json.
+
+get_allowed(Json, R, S) ->
   ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
   RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
