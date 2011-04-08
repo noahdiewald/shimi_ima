@@ -1,24 +1,23 @@
-function initTabs() {
-  $("#main-tabs").tabs();
-  //populateDoctypeTabs();
+function putDoc(doc) {
+  if (!sessionStorage[doc._id]) {
+    sessionStorage[doc._id] = JSON.stringify(doc);
+  }
   
-  return false;
+  return doc._id;
 }
 
-function initHelpText() {
-  $("#doctype-info").hide();
-  $("#charseq-info").hide();
+function getDoc(docId) {
+  var doc = sessionStorage[docId];
+  
+  if (doc) {
+    return JSON.parse(doc);
+  } else {
+    return null;
+  }
+}
 
-  $("#doctype-info-toggle").click(function() {
-    $("#doctype-info").toggle("blind", {}, 500);
-    return false;
-  });
-  
-  $("#charseq-info-toggle").click(function() {
-    $("#charseq-info").toggle("blind", {}, 500);
-    return false;
-  });
-  
+function initTabs() {
+  $("#main-tabs").tabs();
   return false;
 }
 
@@ -47,10 +46,84 @@ function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
   return false;
 }
 
+function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
+  queryField.change(function() {
+    if (!(typeof queryDoctype == "string")) {
+      queryDoctype = queryDoctype.val();
+    }
+    
+    var url = 'doctypes/' + queryDoctype + 
+              '/fieldsets/' + queryFieldset.val() + 
+              '/fields/' + queryField.val();
+    
+    alterOperatorField(url, queryField.val());
+  });
+  
+  return false;
+}
+
 function fillOptionsFromUrl(url, selectElement) {
   $.get(url, function(options) {
     selectElement.html(options);
   });
+  
+  return false;
+}
+
+function alterOperatorField(url, fieldId) {
+  var fieldDoc = getDoc(fieldId);
+  
+  // Having problems with Jquey Accepts headers. This is a work around
+  url = url + "?format=json";
+  
+  if (fieldDoc) {
+    disableOperatorOptions(fieldDoc);
+  } else {
+    $.getJSON(url, function(data) {
+      putDoc(data);
+      disableOperatorOptions(data);
+    });
+  }
+  
+  return false;
+}
+
+function disableOperatorOptions(fieldDoc) {
+  var options = $('#builder-operator-input');
+  
+  switch (fieldDoc.subcategory) {
+    case "text":
+    case "textarea":
+    case "select":
+    case "docselect":
+      disableOptions(options, ["member", "true"]);
+      break;
+    case "integer":
+    case "rational":
+    case "date":
+      disableOptions(options, ["member", "true", "match"]);
+      break;
+    case "boolean":
+    case "openboolean":
+      disableOptions(options, ["equal", "greater", "less", "member", "match"]);
+      break;
+    case "multiselect":
+    case "docmultiselect":
+      disableOptions(options, ["equal", "greater", "less", "match", "true"]);
+      break;
+  }
+  
+  return false;
+}
+
+function disableOptions(options, disables) {
+  options.children().show();
+  
+  disables.forEach(function(item) {
+    options.children('option:contains(' + item + ')').hide();
+  });
+  
+  return false;
 }
 
 function initQueryNewDialog() {
@@ -189,6 +262,7 @@ function initQueryBuilderDialog(queryDoctype) {
   });
   
   setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField);
+  setQueryFieldEvents(queryDoctype, builderFieldset, builderField);
   
   return dialog;
 }
@@ -355,7 +429,6 @@ function initQueryIndex() {
 
 $(function () {
   initTabs(); 
-  initHelpText();
   $('#query-builder-dialog').hide();
   $('#query-new-dialog').hide();
   initQueryNewButton();

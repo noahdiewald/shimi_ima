@@ -46,10 +46,14 @@
           name="builder-operator-input" 
           id="builder-operator-input" 
           class="ui-widget-content ui-corner-all input">
+          <option></option>
           <option>equal</option>
-          <option>match</option>
           <option>greater</option>
           <option>less</option>
+          <option>match</option>
+          <option>member</option>
+          <option>blank</option>
+          <option>true</option>
         </select><br />
       
         <label for="builder-argument-input">Condition Value</label><br />

@@ -63,7 +63,13 @@ allowed_methods(R, S) ->
   {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-  {[{"text/html", to_html}, {"application/json", to_json}], R, S}.
+  % Currently having a problem with jquery and Accepts headers
+  % this is a work around.
+  case wrq:get_qs_value("format", R) of
+    undefined -> {[{"text/html", to_html}, {"application/json", to_json}], R, S};
+    "json" -> {[{"*/*", to_json}], R, S};
+    "html" -> {[{"*/*", to_html}], R, S}
+  end.
 
 to_json(R, S) ->
   case proplists:get_value(target, S) of
