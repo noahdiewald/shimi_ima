@@ -52,11 +52,21 @@ function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
       queryDoctype = queryDoctype.val();
     }
     
-    var url = 'doctypes/' + queryDoctype + 
-              '/fieldsets/' + queryFieldset.val() + 
-              '/fields/' + queryField.val();
-    
-    alterOperatorField(url, queryField.val());
+    if (!(queryField.val().isBlank())) {
+      var url = 'doctypes/' + queryDoctype + 
+                '/fieldsets/' + queryFieldset.val() + 
+                '/fields/' + queryField.val();
+      
+      alterOperatorField(url, queryField.val());
+    }
+  });
+  
+  return false;
+}
+
+function setQueryOperatorEvents(argumentField, operatorField, fieldField) {
+  operatorField.change(function() {
+    alterArgumentField(argumentField, operatorField, fieldField);
   });
   
   return false;
@@ -92,10 +102,10 @@ function disableOperatorOptions(fieldDoc) {
   var options = $('#builder-operator-input');
   
   switch (fieldDoc.subcategory) {
-    case "text":
-    case "textarea":
     case "select":
     case "docselect":
+    case "text":
+    case "textarea":
       disableOptions(options, ["member", "true"]);
       break;
     case "integer":
@@ -109,7 +119,7 @@ function disableOperatorOptions(fieldDoc) {
       break;
     case "multiselect":
     case "docmultiselect":
-      disableOptions(options, ["equal", "greater", "less", "match", "true"]);
+      disableOptions(options, ["equal", "greater", "less", "true", "match"]);
       break;
   }
   
@@ -124,6 +134,28 @@ function disableOptions(options, disables) {
   });
   
   return false;
+}
+
+function alterArgumentField(argumentField, operatorField, fieldField) {
+  var fieldDoc = function () {return getDoc(fieldField.val())};
+  
+  argumentField.removeAttr('disabled').autocomplete('destroy');
+  
+  if (fdoc = fieldDoc()) {
+    switch (operatorField.val()) {
+      case "true":
+      case "blank":
+        alert("blank");
+        argumentField.attr('disabled', 'disabled').val("");
+        break;
+      case "equal":
+      case "member":
+      case "greater":
+      case "less":
+        argumentField.autocomplete({source: fdoc.allowed});
+        break;
+    }
+  }
 }
 
 function initQueryNewDialog() {
@@ -190,7 +222,7 @@ function initQueryBuilderDialog(queryDoctype) {
   var builderArgument = $("#builder-argument-input");
   var builderFieldset = $("#builder-fieldset-input");
   var builderField = $("#builder-field-input");
-  var notBlank = [builderOperator, builderArgument, builderFieldset, builderField];
+  var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
   var condition_url = 'queries/condition';
   
@@ -263,6 +295,7 @@ function initQueryBuilderDialog(queryDoctype) {
   
   setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField);
   setQueryFieldEvents(queryDoctype, builderFieldset, builderField);
+  setQueryOperatorEvents(builderArgument, builderOperator, builderField);
   
   return dialog;
 }
