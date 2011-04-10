@@ -48,10 +48,6 @@ function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
 
 function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
   queryField.change(function() {
-    if (!(typeof queryDoctype == "string")) {
-      queryDoctype = queryDoctype.val();
-    }
-    
     if (!(queryField.val().isBlank())) {
       fieldDoc = getFieldDoc(queryField.val(), queryFieldset.val(), queryDoctype);
       alterOperatorField(fieldDoc, queryField.val());
@@ -208,6 +204,8 @@ function initQueryNewDialog() {
       }
     },
     close: function() {
+      queryFieldset.unbind('change');
+      queryDoctype.unbind('change');
       clearValues($('.input')).removeClass('ui-state-error');
     }
   });
@@ -302,6 +300,9 @@ function initQueryBuilderDialog(queryDoctype) {
     },
     close: function() {
       $('#builder-conditions').show();
+      builderFieldset.unbind('change');
+      builderField.unbind('change');
+      builderOperator.unbind('change');
       clearValues($('.input')).removeClass('ui-state-error');
     }
   });
