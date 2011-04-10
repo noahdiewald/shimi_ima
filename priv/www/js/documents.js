@@ -219,8 +219,10 @@ function resetFields() {
 // the current key and id are taken from the html when needed to
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
+
 function getIndex(startkey, startid, prevkeys, previds) {
   var url = "documents/index?";
+  var query = $('#index-query').val();
   var limit = $('#index-limit').val() * 1;
   
   // Initialize some values if we're at the beginning of the listing
@@ -247,6 +249,10 @@ function getIndex(startkey, startid, prevkeys, previds) {
     // because the list could be huge.
     $('#index-limit').val(10);
     url = url + '&limit=11';
+  }
+  
+  if (query) {
+    url = url + '&query=' + query;
   }
   
   $.get(url, function(documentIndexHtml) {
@@ -705,7 +711,17 @@ function getFieldValue(field) {
   return fieldValue;
 }
 
+function fillQueryOptions() {
+  url = "/projects/project-" + $('#container').attr('data-project-id') +
+        "/queries?as=options"
+        
+  $.get(url, function(data) {
+    $('#index-query').html(data);
+  });
+}
+
 $(function () {
+  fillQueryOptions();
   getIndex();
   initEdit();
   

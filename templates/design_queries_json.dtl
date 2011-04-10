@@ -2,7 +2,8 @@
   "_id": "_design/queries",
   "views": {
     "all": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc) }}"},
-    "all_simple": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc.name) }}"}
+    "all_simple": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc._id, doc.name) }}"},
+    "options": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc.name) }}"}
   },
 
   "validate_doc_update": "function(newDoc, saveDoc, userCtx) {

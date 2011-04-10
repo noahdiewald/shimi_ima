@@ -165,12 +165,16 @@ html_index(R, S) ->
     _ -> undefined
   end,
   
-  Limit = wrq:get_qs_value("limit", R),
-  Json = couch:get_view_json("queries", "all_simple", R, S),
   
-  Vals = [{<<"limit">>, Limit}|Json],
+  case wrq:get_qs_value("as", R) of
+    "options" -> 
+      Json = couch:get_view_json("queries", "options", R, S),
+      {ok, Html} = options_dtl:render(Json);
+    _Else ->
+      Json = couch:get_view_json("queries", "all_simple", R, S),
+      {ok, Html} = query_index_dtl:render(Json)
+  end,
   
-  {ok, Html} = query_index_dtl:render(Vals),
   Html.
 
 html_identifier(R, S) ->
