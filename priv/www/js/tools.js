@@ -320,16 +320,6 @@ function initQueryBuilderDialog(queryDoctype) {
   return dialog;
 }
 
-function initQueryPreviewButton() {
-  $('#view-query-button').button({
-    icons: {primary: "ui-icon-circle-arrow-s"}
-  }).click(function() {
-    $('#query-view').slideToggle();
-  });
-  
-  return false;
-}
-
 function initQueryChooseButton() {
   $('#choose-query-button').button({
     icons: {primary: "ui-icon-arrowreturnthick-1-s"}
@@ -617,7 +607,6 @@ $(function () {
   initQueryEditButtons(function () {return $('#query-editing-data')});
   initQueryNewButton();
   initQueryChooseButton();
-  initQueryPreviewButton();
   $('#button-bar').buttonset();
   initQueryIndex();
   $('#query-filter-form input').keyup(function() {

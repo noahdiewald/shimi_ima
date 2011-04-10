@@ -9,7 +9,6 @@
         <button id="save-query-button">Save</button>
         <button id="delete-query-button">Delete</button>
         <button id="add-query-condition-button">Add Condition</button>
-        <button id="view-query-button">Preview</button>
       </div>
       
       <div id="query-index-listing" class="hidden"></div>
@@ -18,7 +17,7 @@
     
     <div id="query-edit"></div>
     
-    <div id="query-view" class="hidden">
+    <div id="query-view">
       <form id="query-filter-form">
         <label for="query-filter">Filter</label>
         <input type="text" name="query-filter" id="query-filter" />
