@@ -158,7 +158,6 @@ function alterArgumentField(argumentField, operatorField, fieldField) {
     switch (operatorField.val()) {
       case "true":
       case "blank":
-        alert("blank");
         argumentField.attr('disabled', 'disabled').val("");
         break;
       case "equal":
