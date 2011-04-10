@@ -217,6 +217,10 @@ validate_authentication(Props, R, S) ->
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
 
+% This is passed the a getter function depending on the origin of
+% the request. It may have been a JSON post or put but could also
+% be an URL encoded query string.
+
 render_conditions(Module, Function, Arg, R, S) ->
   {ok, Html} = case Module:Function("is_or", Arg) of
     true -> 
@@ -224,9 +228,10 @@ render_conditions(Module, Function, Arg, R, S) ->
     "true" -> 
       query_condition_dtl:render([{<<"is_or">>, true}]);
     _ ->
+      Negate = Module:Function("negate", Arg),
       Vals = [
         {<<"is_or">>, false},
-        {<<"negate">>, Module:Function("negate", Arg) == true},
+        {<<"negate">>, (Negate =:= true) or (Negate =:= "true")},
         {<<"fieldset">>, Module:Function("fieldset", Arg)},
         {<<"field">>, Module:Function("field", Arg)},
         {<<"operator">>, Module:Function("operator", Arg)},
