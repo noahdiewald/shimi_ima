@@ -53,15 +53,29 @@ function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
     }
     
     if (!(queryField.val().isBlank())) {
-      var url = 'doctypes/' + queryDoctype + 
-                '/fieldsets/' + queryFieldset.val() + 
-                '/fields/' + queryField.val();
-      
-      alterOperatorField(url, queryField.val());
+      fieldDoc = getFieldDoc(queryField.val(), queryFieldset.val(), queryDoctype);
+      alterOperatorField(fieldDoc, queryField.val());
     }
   });
   
   return false;
+}
+
+function getFieldDoc(fieldId, fieldsetId, doctypeId) {
+  var fieldDoc;
+  var url = 'doctypes/' + doctypeId + 
+            '/fieldsets/' + fieldsetId + 
+            '/fields/' + fieldId + '?format=json';
+            
+  if (fieldDoc = getDoc(fieldId)) {
+    return fieldDoc;
+  } else {
+    $.getJSON(url, function(data) {
+      putDoc(data);
+    });
+    
+    return getDoc(fieldId);
+  }
 }
 
 function setQueryOperatorEvents(argumentField, operatorField, fieldField) {
@@ -80,20 +94,8 @@ function fillOptionsFromUrl(url, selectElement) {
   return false;
 }
 
-function alterOperatorField(url, fieldId) {
-  var fieldDoc = getDoc(fieldId);
-  
-  // Having problems with Jquey Accepts headers. This is a work around
-  url = url + "?format=json";
-  
-  if (fieldDoc) {
-    disableOperatorOptions(fieldDoc);
-  } else {
-    $.getJSON(url, function(data) {
-      putDoc(data);
-      disableOperatorOptions(data);
-    });
-  }
+function alterOperatorField(fieldDoc, fieldId) {
+  disableOperatorOptions(fieldDoc);
   
   return false;
 }
@@ -139,7 +141,18 @@ function disableOptions(options, disables) {
 function alterArgumentField(argumentField, operatorField, fieldField) {
   var fieldDoc = function () {return getDoc(fieldField.val())};
   
+  argumentField.removeAttr('disabled').datepicker('destroy');
   argumentField.removeAttr('disabled').autocomplete('destroy');
+  
+  function dateOrText(argumentField, fdoc) {
+    if (fdoc.subcategory == 'date') {
+      argumentField.datepicker({dateFormat: "yy-mm-dd"});
+    } else {
+      argumentField.autocomplete({source: fdoc.allowed});
+    }
+    
+    return false;
+  }
   
   if (fdoc = fieldDoc()) {
     switch (operatorField.val()) {
@@ -152,9 +165,10 @@ function alterArgumentField(argumentField, operatorField, fieldField) {
       case "member":
       case "greater":
       case "less":
-        argumentField.autocomplete({source: fdoc.allowed});
+        dateOrText(argumentField, fdoc);
         break;
     }
+    
   }
 }
 
@@ -310,17 +324,34 @@ function initQueryNewButton() {
   return false;
 }
 
-function getQueryConditions(rows) {
+function fixArgumentType(argument, subcategory) {
+  switch (subcategory) {
+    case "integer":
+    case "rational":
+      argument = argument * 1;
+      break;
+  }
+  
+  return argument;
+}
+
+function getQueryConditions(doctypeId, rows) {
   var conditions = rows.map(function(index, row) {
     row = $(row);
+    var fieldId = row.find('td.field-condition').attr('data-value');
+    var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+    var argument = row.find('td.argument-condition').attr('data-value');
+    var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
+    
+    argument = fixArgumentType(argument, fieldDoc.subcategory);
     
     var condition = {
       "is_or": row.find('td.or-condition').attr('data-value') == "true",
       "negate": row.find('td.negate-condition').attr('data-value') == "true",
-      "fieldset": row.find('td.fieldset-condition').attr('data-value'),
-      "field": row.find('td.field-condition').attr('data-value'),
+      "fieldset": fieldsetId,
+      "field": fieldId,
       "operator": row.find('td.operator-condition').attr('data-value'),
-      "argument": row.find('td.argument-condition').attr('data-value')
+      "argument": argument
     };
     
     return condition;
@@ -333,15 +364,16 @@ function saveQuery(buttonData, completeFunction) {
   var queryId = buttonData.attr('data-query-id');
   var queryRev = buttonData.attr('data-query-rev');
   var url = "queries/" + queryId + "?rev=" + queryRev;
+  var doctype = buttonData.attr('data-query-doctype');
   
   var obj = {
     "_id": queryId,
     "category": "query",
-    "doctype": buttonData.attr('data-query-doctype'),
+    "doctype": doctype,
     "fieldset": buttonData.attr('data-query-fieldset'),
     "field": buttonData.attr('data-query-field'),
     "name": buttonData.attr('data-query-name'),
-    "conditions": getQueryConditions($('#query-conditions-listing tbody tr'))
+    "conditions": getQueryConditions(doctype, $('#query-conditions-listing tbody tr'))
   };
   
   sendConfigDoc(url, obj, 'PUT', completeFunction, this);
