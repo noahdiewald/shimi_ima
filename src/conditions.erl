@@ -49,7 +49,10 @@ build_expression(Condition) ->
     <<"equal">> -> build_expression(equal, Condition);
     <<"greater">> -> build_expression(greater, Condition);
     <<"less">> -> build_expression(less, Condition);
-    <<"match">> -> build_expression(match, Condition)
+    <<"match">> -> build_expression(match, Condition);
+    <<"member">> -> build_expression(member, Condition);
+    <<"true">> -> build_expression(true, Condition);
+    <<"blank">> -> build_expression(blank, Condition)
   end.
 
 build_expression(greater, Condition) ->
@@ -63,9 +66,25 @@ build_expression(less, Condition) ->
 build_expression(equal, Condition) ->
   Exp = build_expression("==", "value", proplists:get_value(<<"argument">>, Condition)),
   negate(Exp, Condition);
+
+build_expression(true, Condition) ->
+  Exp = build_expression("==", "value", "true"),
+  negate(Exp, Condition);
   
 build_expression(match, Condition) ->
-  Exp = "((/" ++ convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ "/).test(value))",
+  Exp = "((/" ++ 
+        convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ 
+        "/).test(value))",
+  negate(Exp, Condition);
+  
+build_expression(blank, Condition) ->
+  Exp = "(value.isBlank())",
+  negate(Exp, Condition);
+  
+build_expression(member, Condition) ->
+  Exp = "(value.indexOf('" ++ 
+        convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ 
+        "') > -1)",
   negate(Exp, Condition);
   
 build_expression(field, Condition) ->
@@ -74,12 +93,22 @@ build_expression(field, Condition) ->
 build_expression(fieldset, Condition) ->
   build_expression("===", "fieldsetId", proplists:get_value(<<"fieldset">>, Condition)).
 
-build_expression(Operator, ScriptVar, Val) ->
-  string:join(["(" ++ ScriptVar, Operator, "'" ++ convert_binary(Val) ++ "')"], " ").
+build_expression(Operator, ScriptVar, Val) when is_binary(Val) ->
+  build_expression(Operator, ScriptVar, "'" ++ convert_binary(Val) ++ "'");
+
+build_expression(Operator, ScriptVar, Val) when is_integer(Val); is_float(Val) ->
+  build_expression(Operator, ScriptVar, convert_number(Val));
+
+build_expression(Operator, ScriptVar, Val) when is_list(Val) ->
+  string:join(["(" ++ ScriptVar, Operator, Val ++ ")"], " ").
 
 convert_binary(Bin) ->
   String = binary_to_list(Bin),
   escape_arg(String, []).
+
+convert_number(Num) ->
+  [String] = io_lib:format("~w", [Num]),
+  String.
   
 escape_arg([], Acc) ->
   lists:reverse(Acc);

@@ -35,6 +35,22 @@
     {<<"argument">>,<<"99">>}]]
 ).
 
+-define(EQUAL_INT,
+  [[{<<"is_or">>,false},{<<"negate">>,false},
+    {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+    {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+    {<<"operator">>,<<"equal">>},
+    {<<"argument">>,99}]]
+).
+
+-define(EQUAL_FLOAT,
+  [[{<<"is_or">>,false},{<<"negate">>,false},
+    {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+    {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+    {<<"operator">>,<<"equal">>},
+    {<<"argument">>,99.9}]]
+).
+
 -define(GREATER,
   [[{<<"is_or">>,false},{<<"negate">>,false},
     {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
@@ -57,6 +73,30 @@
     {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
     {<<"operator">>,<<"match">>},
     {<<"argument">>,<<"99">>}]]
+).
+
+-define(MEMBER,
+  [[{<<"is_or">>,false},{<<"negate">>,false},
+    {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+    {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+    {<<"operator">>,<<"member">>},
+    {<<"argument">>,<<"99">>}]]
+).
+
+-define(BLANK,
+  [[{<<"is_or">>,false},{<<"negate">>,false},
+    {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+    {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+    {<<"operator">>,<<"blank">>},
+    {<<"argument">>,<<"">>}]]
+).
+
+-define(TRUE,
+  [[{<<"is_or">>,false},{<<"negate">>,false},
+    {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+    {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+    {<<"operator">>,<<"true">>},
+    {<<"argument">>,<<"">>}]]
 ).
 
 -define(DOUBLE,
@@ -221,6 +261,18 @@ trans_test_() ->
   ?_assertEqual(
     "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
     "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
+    "(value == 99))", 
+    conditions:trans(?EQUAL_INT)),
+  
+  ?_assertEqual(
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
+    "(value == 99.9))", 
+    conditions:trans(?EQUAL_FLOAT)),
+    
+  ?_assertEqual(
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value > '99'))", 
     conditions:trans(?GREATER)),
   
@@ -229,6 +281,24 @@ trans_test_() ->
     "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
     "(value < '99'))", 
     conditions:trans(?LESS)),
+  
+  ?_assertEqual(
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
+    "(value.isBlank()))", 
+    conditions:trans(?BLANK)),
+  
+  ?_assertEqual(
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
+    "(value.indexOf('99') > -1))",
+    conditions:trans(?MEMBER)),
+  
+  ?_assertEqual(
+    "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
+    "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
+    "(value == true))", 
+    conditions:trans(?TRUE)),
   
   ?_assertEqual(
     "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
