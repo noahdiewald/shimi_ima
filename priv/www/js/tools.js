@@ -54,26 +54,36 @@ function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
 
 function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
   queryField.change(function() {
-    if (!(queryField.val().isBlank())) {
-      fieldDoc = getFieldDoc(queryField.val(), queryFieldset.val(), queryDoctype);
-      alterOperatorField(fieldDoc, queryField.val());
+    var fieldId = queryField.val();
+    var fieldsetId = queryFieldset.val();
+    
+    if (!(fieldId.isBlank())) {
+      getFieldDoc(fieldId, fieldsetId, queryDoctype, function(data) {
+        alterOperatorField(data, fieldId);
+      });
     }
   });
   
   return false;
 }
 
-function getFieldDoc(fieldId, fieldsetId, doctypeId) {
+function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
   var fieldDoc;
   var url = 'doctypes/' + doctypeId + 
             '/fieldsets/' + fieldsetId + 
             '/fields/' + fieldId + '?format=json';
             
   if (fieldDoc = getDoc(fieldId)) {
+    if (callback) {
+      callback(fieldDoc);
+    }
     return fieldDoc;
   } else {
     $.getJSON(url, function(data) {
       putDoc(data);
+      if (callback) {
+        callback(getDoc(fieldId));
+      }
     });
     
     return getDoc(fieldId);
