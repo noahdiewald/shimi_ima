@@ -207,6 +207,8 @@ render_conditions(Module, Function, Arg, R, S) ->
   {ok, Html} = case Module:Function("is_or", Arg) of
     true -> 
       query_condition_dtl:render([{<<"is_or">>, true}]);
+    "true" -> 
+      query_condition_dtl:render([{<<"is_or">>, true}]);
     _ ->
       Vals = [
         {<<"is_or">>, false},
