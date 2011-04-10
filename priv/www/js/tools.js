@@ -148,8 +148,10 @@ function alterArgumentField(argumentField, operatorField, fieldField) {
   
   function dateOrText(argumentField, fdoc) {
     if (fdoc.subcategory == 'date') {
+      argumentField.removeAttr('disabled');
       argumentField.datepicker({dateFormat: "yy-mm-dd"});
     } else {
+      argumentField.removeAttr('disabled');
       argumentField.autocomplete({source: fdoc.allowed});
     }
     
