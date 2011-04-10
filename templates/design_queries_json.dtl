@@ -37,22 +37,48 @@
         }
         
         newDoc.conditions.forEach(function(condition, index) {
-          if (condition.is_or != true) {
-            if (condition.negate != true && condition.negate != false) {
+          var is_or = condition.is_or;
+          var negate = condition.negate;
+          var argument = condition.argument;
+          var operator = condition.operator;
+          var field = condition.field;
+          var fieldset = condition. fieldset;
+          
+          if (is_or != true) {
+          
+            if (negate != true && negate != false) {
               forbid('Condition ' + index, 'negate must be true or false');
-            } else if (condition.field.isBlank() || !(/^\\w*$/).test(condition.field)) {
-              forbid('Condition ' + index, 'invalid field.');
-            } else if (condition.fieldset.isBlank() || !(/^\\w*$/).test(condition.fieldset)) {
-              forbid('Condition ' + index, 'invalid fieldset.');
-            } else if (condition.operator != 'equal' && 
-                       condition.operator != 'match' && 
-                       condition.operator != 'greater' && 
-                       condition.operator != 'less') {
-              forbid('Condition ' + index, 'invalid operator. Must be equal, match, greater or less.');
-            } else if (condition.argument.isBlank()) {
-              forbid('Condition ' + index, 'blank argument is not allowed.');
             }
-          }  
+            
+            if (field.isBlank() || !(/^\\w*$/).test(field)) {
+              forbid('Condition ' + index, 'invalid field.');
+            }
+            
+            if (fieldset.isBlank() || !(/^\\w*$/).test(fieldset)) {
+              forbid('Condition ' + index, 'invalid fieldset.');
+            } 
+            
+            switch (operator) {
+              case 'equal':
+              case 'match':
+              case 'greater': 
+              case 'less':
+              case 'match':
+              case 'member':
+                if (argument.isBlank()) {
+                  forbid('Condition ' + index, 'blank argument is not allowed.');
+                }
+                break;
+              case 'true':
+              case 'blank':
+                if (!argument.isBlank()) {
+                  forbid('Condition ' + index, 'no argument allowed for this condition.');
+                }
+                break;
+              default:
+                forbid('Condition ' + index, 'invalid operator.');
+            }
+          } 
         });
       }
     }
