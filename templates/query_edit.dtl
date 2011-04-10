@@ -6,26 +6,20 @@
   data-query-name="{{name}}" 
   data-query-id="{{_id}}" 
   data-query-rev="{{_rev}}">
-  <h4>{{name}} applies to {{doctype}}</h4>
+  <p class="help-text"><em>{{name}}</em> will list <b>{{doctype}}</b> documents. They will be listed by <b>{{fieldset_label}}: {{field_label}}</b>.</p>
 </div>
-
-<div id="query-editing-buttons">
-  <button id="save-query-button">Save</button>
-  <button id="delete-query-button">Delete</button>
-  <button id="add-query-condition-button">Add Condition</button>
-</div>
-
-<h5>Conditions</h5>
 
 <div id="query-conditions-listing">
 <table>
   <thead>
     <tr class="ui-widget-header ui-corner-all">
-      <th colspan=2>Negate</th>
+      <th</th>
+      <th>Negate</th>
       <th>Fieldset</th>
       <th>Field</th>
       <th>Condition</th>
-      <th colspan=2>Value</th></tr>
+      <th colspan=2>Value</th>
+    </tr>
   </thead>
   <tbody>
   {% if rendered_conditions %}

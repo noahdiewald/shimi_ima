@@ -175,7 +175,6 @@ html_index(R, S) ->
 
 html_identifier(R, S) ->
   Json = couch:get_json(id, R, S),
-  
   Conditions = jsn:get_value(<<"conditions">>, Json),
   
   F = fun(X) -> 
@@ -184,14 +183,25 @@ html_identifier(R, S) ->
   
   RenderedConditions = lists:map(F, Conditions),
   
-  {ok, Html} = query_edit_dtl:render([{<<"rendered_conditions">>, RenderedConditions}|Json]),
+  Vals = [
+    {<<"rendered_conditions">>, RenderedConditions},
+    {<<"fieldset_label">>, get_label(jsn:get_value(<<"fieldset">>, Json), R, S)},
+    {<<"field_label">>, get_label(jsn:get_value(<<"field">>, Json), R, S)}
+  |Json],
+  
+  {ok, Html} = query_edit_dtl:render(Vals),
   Html.
 
 html_condition(R, S) ->
   render_conditions(wrq, get_qs_value, R, R, S).
   
-html_view(_R, _S) ->
-  <<"still working on it">>.
+html_view(R, S) ->
+  QueryId = wrq:path_info(id, R),
+  Limit = wrq:get_qs_value("limit", R),
+  Json = couch:get_view_json(QueryId, "index", R, S),
+  Vals = [{<<"limit">>, Limit}|Json],
+  {ok, Html} = query_view_dtl:render(Vals),
+  Html.
     
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),

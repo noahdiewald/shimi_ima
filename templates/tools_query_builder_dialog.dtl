@@ -1,11 +1,11 @@
 <div id="query-builder-dialog" title="Query Builder">
 
-  <p class="validate-tips">All non-checkbox fields are required.</p>
+  <p class="validate-tips help-text">All non-checkbox fields are required.</p>
   
   <form>
     <fieldset class="ui-helper-reset">
     
-      <p>This will allow you to specify that you want either of two conditions to be true.</p>
+      <p class="help-text">This will allow you to specify that you want either of two conditions to be true.</p>
       
       <label for="builder-or-input">Insert 'or'</label><br />
       <input 
@@ -16,7 +16,7 @@
     
       <div id="builder-conditions">
       
-        <p>This will make the condition match the oposite of what you specify for a condition. For instance, equal will become not equal.</p>
+        <p class="help-text">This will make the condition match the oposite of what you specify for a condition. For instance, equal will become not equal.</p>
         
         <label for="builder-negate-input">Negate</label><br />
         <input 
@@ -25,7 +25,7 @@
           type="checkbox"
           class="ui-widget-content ui-corner-all input" /> Check to negate the condition.<br />
       
-        <p>All of the following are required.</p>
+        <p class="help-text">All of the following are required.</p>
         
         <label for="builder-fieldset-input">Fieldset</label><br />
         <select 

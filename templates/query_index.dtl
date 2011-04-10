@@ -1,7 +1,5 @@
-<div class="multicol">
   <ul>
   {% for row in rows %}
     <li><a href="#" data-query-id="{{row.key}}">{{row.value}}</a></li>
   {% endfor %}
   </ul>
-</div>

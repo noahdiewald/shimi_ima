@@ -10,6 +10,100 @@
           });
         };
         
+        var heads = [];
+        
+        function try_fields(fieldset) {
+          var k = [];
+          var result;
+          
+          result = fieldset.fields.every(function(field, index) {
+            var fieldId = field.id;
+            var value = field.value;
+            
+            if (fieldId === '{{field}}') {
+              k.push(value);
+            }
+            
+            if (field.head) {
+              heads.push(value);
+            }
+            
+            return ({{expression}});
+          });
+          
+          if (result) {
+            return {keys: k, result: result};
+          } else {
+            return {};
+          }
+        }
+        
+        function try_multifields(multifields) {
+          var results;
+          var result;
+          var k = [];
+          
+          results = multifields.map(function(multifield, index) {
+            fields_result = try_fields(multifield);
+            if (fields_result.result) k.push(fields_result.keys);
+            return fields_result.result;
+          });
+          
+          result = results.some(function(r) {return r});
+          
+          if (result) {
+            return {keys: k.flatten(), result: result};
+          } else {
+            return {};
+          }
+        }
+        
+        function try_fieldsets(fieldsets) {
+          var k = [];
+          var result;
+          
+          result = fieldsets.every(function(fieldset, index) {
+            var fields_result;
+            
+            if (! fieldset.multiple) {
+              fields_result = try_fields(fieldset);
+            } else {
+              fields_result = try_multifields(fieldset.multifields);
+            }
+            
+            k.push(fields_result.keys);
+            return fields_result.result;
+          });
+          
+          if (result) {
+            return k.flatten();
+          } else {
+            return [];
+          }
+        }
+        
+        if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
+          var keys = try_fieldsets(doc.fieldsets);
+          
+          keys.forEach(function(item) {
+            if (typeof item == 'string') {
+              emit([item], heads);
+            } else {
+              emit(item, heads);
+            }
+          });
+        } 
+      }" 
+    },
+    
+    "full": {
+      "map": "function(doc) {
+        Array.prototype.flatten = function() {
+          return this.reduce(function(acc, item) {
+            return acc.concat(item);
+          });
+        };
+        
         function try_fields(fieldset) {
           var k = [];
           var result;
@@ -80,7 +174,11 @@
           var keys = try_fieldsets(doc.fieldsets);
           
           keys.forEach(function(item) {
-            emit(item, doc);
+            if (typeof item == 'string') {
+              emit([item], doc);
+            } else {
+              emit(item, doc);
+            }
           });
         } 
       }" 

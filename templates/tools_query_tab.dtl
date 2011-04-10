@@ -1,39 +1,32 @@
 <div class="ui-widget ui-corner-all" id="container">
   
   <div id="all-query-container">
-    
-    <h3 class="accordion-head">Saved Queries</h3>
-    
     <div id="query-index">
-      <button id="new-query-button">New</button>
-  
-      <form id="query-index-filter-form">
-        <label for="index-filter">Filter</label>
-        <input type="text" name="index-filter" id="index-filter" />
-        <label for="index-limit">Limit</label>
-        <input type="text" name="index-limit" id="index-limit" />
-      </form><br />
+    
+      <div id="button-bar">
+        <button id="new-query-button">New</button>
+        <button id="choose-query-button">Choose Query</button>
+        <button id="save-query-button">Save</button>
+        <button id="delete-query-button">Delete</button>
+        <button id="add-query-condition-button">Add Condition</button>
+        <button id="view-query-button">Preview</button>
+      </div>
       
-      <div id="query-index-listing"></div>
+      <div id="query-index-listing" class="hidden"></div>
       
     </div>
     
-    <h3 class="accordion-head">Builder</h3>
+    <div id="query-edit"></div>
     
-    <div id="query-edit">
-    </div>
-    
-    <h3 class="accordion-head">Results</h3>
-    
-    <div id="query-view">
-  
+    <div id="query-view" class="hidden">
       <form id="query-filter-form">
         <label for="query-filter">Filter</label>
         <input type="text" name="query-filter" id="query-filter" />
         <label for="query-limit">Limit</label>
         <input type="text" name="query-limit" id="query-limit" />
-      </form><br />
-      
+      </form>
+      <div id="query-list-view">
+      </div>
     </div>
     
   </div>

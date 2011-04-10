@@ -267,23 +267,18 @@ select[multiple=true] {
   height: 5em;
 }
 
-#query-index-filter-form {
-  float: right;
+#query-index-listing li {
+  background: white;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-style: dotted;
+  border-width: thin;
+  border-color: #1C94C4;
+  display: inline;
 }
 
-#query-index-listing {
-  clear: right;
-}
-
-.multicol {
-  -moz-column-count: 5;
-  -webkit-column-count: 5;
-  column-count: 5;
-}
-
-.multicol ul {
-  padding: 0;
-  margin: 0;
+#query-index-listing a {
+  text-decoration: none;
 }
 
 #query-conditions-listing table {
@@ -300,4 +295,31 @@ select[multiple=true] {
 
 .remove-condition-button-cell {
   text-align: right;
+}
+
+.help-text {
+  font-size: 85%;
+  background: white;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-style: dotted;
+  border-width: thin;
+  border-color: #1C94C4;
+}
+
+input[disabled] {
+  background: #555;
+}
+
+#button-bar {
+  padding: 10px;
+}
+
+#button-bar button {
+  padding: -4px;
+  margin: -4px;
+}
+
+#query-view {
+  margin-top: 10px;
 }

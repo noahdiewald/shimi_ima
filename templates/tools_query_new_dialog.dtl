@@ -1,6 +1,6 @@
 <div id="query-new-dialog" title="New Query">
 
-  <p class="validate-tips">All fields are required.</p>
+  <p class="validate-tips help-text">All fields are required.</p>
   
   <form>
     <fieldset class="ui-helper-reset">
@@ -24,7 +24,7 @@
         {% endfor %}
       </select>
     
-      <p>Using the lists below choose a field to display results by.</p>
+      <p class="help-text">Using the lists below, choose a field to display results by.</p>
       
       <label for="query-fieldset-input">Fieldset</label><br />
       <select 
