@@ -3,10 +3,14 @@
 if (!window.btoa) window.btoa = base64.encode
 if (!window.atob) window.atob = base64.decode
 
-// isBlank function added to String
+// functions added to String
 
 String.prototype.isBlank = function() {
   return ((/^\s*$/).test(this) && ! (/\S/).test(this) && ! (this == null));
+};
+
+String.prototype.trim = function() {
+  return this.replace(/^\s+/,'').replace(/\s+$/,'');
 };
 
 // Dialog form helpers

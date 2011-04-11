@@ -421,6 +421,26 @@ function initFieldsetEditDialog(id, doctype, oldobj, rev) {
   return dialog;
 }
 
+function encodeDefaults(subcategory, defaults) {
+  switch (subcategory) {
+    case "docmultiselect":
+    case "multiselect":
+      return defaults.join(", ");
+    default:
+      return defaults;
+  }
+}
+
+function decodeDefaults(subcategory, defaults) {
+  switch (subcategory) {
+    case "docmultiselect":
+    case "multiselect":
+      return defaults.split(",").map(function (item) {return item.trim()});
+    default:
+      return defaults;
+  }
+}
+
 function initFieldAddDialog(fieldset, doctype) {
   var fieldName = $("#field-name-input");
   var fieldLabel = $("#field-label-input");
@@ -453,7 +473,7 @@ function initFieldAddDialog(fieldset, doctype) {
       field.parent().hide();
     });
   }
-      
+   
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -468,7 +488,7 @@ function initFieldAddDialog(fieldset, doctype) {
             "category": "field", 
             "name": fieldName.val(),
             "label": fieldLabel.val(),
-            "default": fieldDefault.val(),
+            "default": decodeDefaults(fieldSubcategory.val(), fieldDefault.val()),
             "head": fieldHead.is(':checked'),
             "reversal": fieldReversal.is(':checked'),
             "required": fieldRequired.is(':checked'),
@@ -630,7 +650,7 @@ function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
             "category": "field", 
             "name": form.name.val(),
             "label": form.label.val(),
-            "default": form.default.val(),
+            "default": decodeDefaults(form.subcategory.val(), form.default.val()),
             "head": form.head.is(':checked'),
             "reversal": form.reversal.is(':checked'),
             "required": form.required.is(':checked'),

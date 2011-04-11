@@ -16,7 +16,7 @@
       data-field-head="{{ value.head }}"
       data-field-reversal="{{ value.reversal }}"
       data-field-order="{{ value.order }}"
-      data-field-default="{{ value.default }}"
+      data-field-default="{% if (value.subcategory == "multiselect" or value.subcategory == "docmultiselect") and value.default %}{{ value.default|join:","|force_escape }}{% else %}{{ value.default|force_escape }}{% endif %}"
       data-field-required="{{ value.required }}"
       data-field-allowed="{{ value.allowed|join:"," }}"
       data-field-source="{{ value.source }}"
