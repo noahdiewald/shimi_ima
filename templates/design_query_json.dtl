@@ -91,6 +91,9 @@
           
           keys.forEach(function(item) {
             if (typeof item == 'string') {
+              if (item.isBlank()) {
+                item = '~blank';
+              }
               emit([item], heads);
             } else {
               emit(item, heads);

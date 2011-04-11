@@ -22,7 +22,13 @@
     <th>
       <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{{row.key|first}}" {% endif %}>
         <ul class="head-elements">
-        {% for elem in row.key %}<li>{{ elem|force_escape }}</li>{% endfor %}
+          {% for elem in row.key %}<li>
+          {% if elem == '~blank' %}
+            <span class="help-text">blank</span>
+          {% else %}
+            {{ elem|force_escape }}
+          {% endif %}
+          </li>{% endfor %}
         </ul>
       </a>
     </th>
