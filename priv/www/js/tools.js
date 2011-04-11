@@ -370,17 +370,25 @@ function getQueryConditions(doctypeId, rows) {
     var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
     var argument = row.find('td.argument-condition').attr('data-value');
     var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
+    var is_or = row.find('td.or-condition').attr('data-value') == "true";
+    var negate = row.find('td.negate-condition').attr('data-value') == "true";
+    var operator = row.find('td.operator-condition').attr('data-value');
+    var condition;
     
-    argument = fixArgumentType(argument, fieldDoc.subcategory);
-    
-    var condition = {
-      "is_or": row.find('td.or-condition').attr('data-value') == "true",
-      "negate": row.find('td.negate-condition').attr('data-value') == "true",
-      "fieldset": fieldsetId,
-      "field": fieldId,
-      "operator": row.find('td.operator-condition').attr('data-value'),
-      "argument": argument
-    };
+    if (is_or) {
+      condition = { "is_or": true };
+    } else {
+      argument = fixArgumentType(argument, fieldDoc.subcategory);
+      
+      var condition = {
+        "is_or": false,
+        "negate": negate,
+        "fieldset": fieldsetId,
+        "field": fieldId,
+        "operator": operator,
+        "argument": argument
+      };
+    }
     
     return condition;
   }).toArray();
