@@ -5,7 +5,7 @@
     <span class="label-text">{{ label }}</span>
     <span 
       class="ui-icon ui-icon-help" 
-      title="{% block format_info %}{% endblock %}{{ description }}"></span>
+      title="{% block format_info %}{% endblock %}{{ description|force_escape }}"></span>
   </label>
   
 {% block input_area %}

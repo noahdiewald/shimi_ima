@@ -1,6 +1,6 @@
 {% extends "base.dtl" %}
 
-{% block page_title %}{{ project_info.name }}{% endblock %}
+{% block page_title %}{{ project_info.name|force_escape }}{% endblock %}
 
 {% block navigation %}
   {% if user %}
@@ -15,5 +15,5 @@
 {% endblock %}
 
 {% block header %}
-<h1>{{ project_info.name }}</h1>
+<h1>{{ project_info.name|force_escape }}</h1>
 {% endblock %}

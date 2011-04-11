@@ -1,6 +1,6 @@
 <tr>
-  <td><a href="/projects/project-{{ id }}/doctypes">{{ key }}</a></td>
-  <td>{{ value }}</td>
+  <td><a href="/projects/project-{{ id }}/doctypes">{{ key|force_escape }}</a></td>
+  <td>{{ value|force_escape }}</td>
   <td>
     <a href="/projects/project-{{ id }}/config" class="configure-button">Configure</a>
     <button class="delete-button" id="{{ id }}">Delete</button>

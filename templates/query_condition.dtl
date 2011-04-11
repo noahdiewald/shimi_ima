@@ -9,7 +9,7 @@
     <td class="fieldset-condition" data-value="{{ fieldset }}">{{ fieldset_label }}</td>
     <td class="field-condition" data-value="{{ field }}">{{ field_label }}</td>
     <td class="operator-condition" data-value="{{ operator }}">{{ operator }}</td>
-    <td class="argument-condition" data-value="{{ argument }}">{{ argument }}</td>
+    <td class="argument-condition" data-value="{{ argument|force_escape }}">{{ argument|force_escape }}</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
   {% endif %}
 </tr>

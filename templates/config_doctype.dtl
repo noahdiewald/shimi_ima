@@ -3,7 +3,7 @@
     id="edit-doctype-{{ _id }}-button" 
     class="edit-button" 
     data-doctype-id="{{ _id }}" 
-    data-doctype-description="{{ description }}" 
+    data-doctype-description="{{ description|force_escape }}" 
     data-doctype-rev="{{ _rev }}">Edit Document Type</button> 
   <button 
     id="delete-doctype-{{ _id }}-button" 
@@ -17,6 +17,6 @@
   
   <div id="fieldsets-{{ _id }}" class="fieldsets"></div>
 
-  <p><b>Description:</b> {{ description }}</p>
+  <p><b>Description:</b> {{ description|force_escape }}</p>
   
 </div>

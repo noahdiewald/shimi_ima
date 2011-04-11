@@ -12,7 +12,7 @@
       {% for fieldset in rows %}
         <li>
           <a href="#{{ fieldset.value._id }}">
-            {{ fieldset.value.label }}
+            {{ fieldset.value.label|force_escape }}
           </a>
         </li>
       {% endfor %}
@@ -27,8 +27,8 @@
     data-fieldset-id="{{ fieldset.value._id }}" 
     data-fieldset-multiple="{{ fieldset.value.multiple }}"
     data-fieldset-collapse="{{ fieldset.value.collapse }}"
-    data-fieldset-name="{{ fieldset.value.name }}"
-    data-fieldset-label="{{ fieldset.value.label }}"
+    data-fieldset-name="{{ fieldset.value.name|force_escape }}"
+    data-fieldset-label="{{ fieldset.value.label|force_escape }}"
     data-fieldset-order="{{ fieldset.value.order }}">
     
     <p>{{ fieldset.value.description }}</p>

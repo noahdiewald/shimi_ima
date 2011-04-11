@@ -1,6 +1,6 @@
 <tr class="field-row" data-field-id="{{ id }}">
-  <td>{{ value.name }}</td>
-  <td>{{ value.label }}</td>
+  <td>{{ value.name|force_escape }}</td>
+  <td>{{ value.label|force_escape }}</td>
   <td>{{ value.subcategory }}</td>
   <td>
     <button
@@ -12,7 +12,7 @@
       data-field-name="{{ value.name }}"
       data-field-label="{{ value.label }}"
       data-field-subcategory="{{ value.subcategory }}"
-      data-field-description="{{ value.description }}"
+      data-field-description="{{ value.description|force_escape }}"
       data-field-head="{{ value.head }}"
       data-field-reversal="{{ value.reversal }}"
       data-field-order="{{ value.order }}"
@@ -22,10 +22,10 @@
       data-field-source="{{ value.source }}"
       data-field-max="{{ value.max }}"
       data-field-min="{{ value.min }}"
-      data-field-regex="{{ value.regex }}">Edit Field</button>
+      data-field-regex="{{ value.regex|force_escape }}">Edit Field</button>
     <button
       id="delete-field-{{ id }}-button"
-      data-doctype-id="{{ value.doctype }}"
+      data-doctype-id="{{ value.doctype|force_escape }}"
       data-fieldset-id="{{ value.fieldset }}"
       data-field-id="{{ id }}"
       data-field-rev="{{ value._rev }}">Delete Field</button>
