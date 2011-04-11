@@ -4,6 +4,10 @@
   "views": {
     "index": {
       "map": "function(doc) {
+        String.prototype.isBlank = function() {
+          return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
+        };
+        
         Array.prototype.flatten = function() {
           return this.reduce(function(acc, item) {
             return acc.concat(item);
@@ -98,6 +102,10 @@
     
     "full": {
       "map": "function(doc) {
+        String.prototype.isBlank = function() {
+          return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
+        };
+        
         Array.prototype.flatten = function() {
           return this.reduce(function(acc, item) {
             return acc.concat(item);
