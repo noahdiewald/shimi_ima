@@ -3,6 +3,16 @@
 if (!window.btoa) window.btoa = base64.encode
 if (!window.atob) window.atob = base64.decode
 
+// Object.keys compatibility
+
+if(!Object.keys) Object.keys = function(o){
+  if (o !== Object(o))
+    throw new TypeError('Object.keys called on non-object');
+  var ret=[],p;
+  for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
+  return ret;
+}
+
 // functions added to String
 
 String.prototype.isBlank = function() {
@@ -12,6 +22,23 @@ String.prototype.isBlank = function() {
 String.prototype.trim = function() {
   return this.replace(/^\s+/,'').replace(/\s+$/,'');
 };
+
+// Event dispatch
+
+function dispatcher(patterns) {
+  var d = function(e) {
+    var target = $(e.target);
+    
+    Object.keys(patterns).forEach(function(pattern) {
+      if (target.is(pattern)) {
+        var action = patterns[pattern];
+        action(target);
+      }
+    });  
+  };
+  
+  return d;
+}
 
 // Dialog form helpers
 

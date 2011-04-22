@@ -5,6 +5,7 @@
   <td>
     <button
       id="edit-field-{{ id }}-button"
+      class="edit-field-button"
       data-doctype-id="{{ value.doctype }}"
       data-fieldset-id="{{ value.fieldset }}"
       data-field-rev="{{ value._rev }}"
@@ -25,6 +26,7 @@
       data-field-regex="{{ value.regex|force_escape }}">Edit Field</button>
     <button
       id="delete-field-{{ id }}-button"
+      class="delete-field-button"
       data-doctype-id="{{ value.doctype|force_escape }}"
       data-fieldset-id="{{ value.fieldset }}"
       data-field-id="{{ id }}"

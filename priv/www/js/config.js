@@ -1,68 +1,111 @@
-function populateFields(doctypeId, fieldsetId) {
-  var url = "config/doctypes/" + doctypeId + 
-            "/fieldsets/" + fieldsetId + 
-            "/fields";
-        
-  $.get(url, function(fields) {
-    var fieldContainer = $("#fields-" + fieldsetId);
-    fieldContainer.empty();
-    fieldContainer.html(fields);
-    $('#body-' + fieldsetId + ' .field-row').each(function(index, field) {
-      var fieldId = $(field).attr('data-field-id');
-      
-      $('#edit-field-' + fieldId + '-button').button({
-        icons: {primary: "ui-icon-pencil"},
-        text: false
-      }).click(function() {
-        var bttn = $(this);
-        var rev = bttn.attr('data-field-rev');
-        var doctype = bttn.attr('data-doctype-id');
-        var fieldset = bttn.attr('data-fieldset-id');
-        var oldobj = {
-          name: bttn.attr('data-field-name'),
-          label: bttn.attr('data-field-label'),
-          order: bttn.attr('data-field-order'),
-          description: bttn.attr('data-field-description'),
-          subcategory: bttn.attr('data-field-subcategory'),
-          head: bttn.attr('data-field-head'),
-          reversal: bttn.attr('data-field-reversal'),
-          default: bttn.attr('data-field-default'),
-          required: bttn.attr('data-field-required'),
-          allowed: bttn.attr('data-field-allowed'),
-          source: bttn.attr('data-field-source'),
-          max: bttn.attr('data-field-max'),
-          min: bttn.attr('data-field-min'),
-          regex: bttn.attr('data-field-regex')
-        };
-        
-        initFieldEditDialog(fieldId, fieldset, doctype, oldobj, rev).dialog("open");
-      });
-  
-      $("#delete-field-" + fieldId + "-button").button({
-        icons: {primary: "ui-icon-trash"},
-        text: false
-      }).click(function(e) {
-        var answer = confirm("Are you sure? This is permanent.");
-        
-        if (answer) {
-          var bttn = $(this);
-          var rev = bttn.attr('data-field-rev');
-          var doctype = bttn.attr('data-doctype-id');
-          var fieldset = bttn.attr('data-fieldset-id');
-          var url = "config/doctypes/" + doctype + 
-                    "/fieldsets/" + fieldset + 
-                    "/fields/" + fieldId + "?rev=" + rev;
-          var complete = function() {
-            populateFields(doctype, fieldset);
-          };
-          
-          sendConfigDoc(url, {}, 'DELETE', complete, this);
-        }
-        
-        return false;
-      });
-    });
+// Depending on the class trigger the specified function on the
+// event target. Takes an event object and performs an action.
+
+function clickDispatch(e) {
+  var action = dispatcher({
+    ".edit-field-button": function(t) {editFieldButton(t)},
+    ".delete-field-button": function(t) {deleteFieldButton(t)},
+    ".add-field-button": function(t) {addFieldButton(t)},
+    ".edit-fieldset-button": function(t) {editFieldsetButton(t)},
+    ".delete-fieldset-button": function(t) {deleteFieldsetButton(t)},
+    ".add-fieldset-button": function(t) {addFieldsetButton(t)},
+    ".accordion-head a": function(t) {accordionHead(t)}
   });
+
+  action(e);
+}
+
+// Button that opens a dialog for editing a field
+
+function editFieldButton(button) {
+  var rev = button.attr('data-field-rev');
+  var doctype = button.attr('data-doctype-id');
+  var fieldset = button.attr('data-fieldset-id');
+  var field = button.attr('data-field-id');
+  var oldobj = {
+    name: button.attr('data-field-name'),
+    label: button.attr('data-field-label'),
+    order: button.attr('data-field-order'),
+    description: button.attr('data-field-description'),
+    subcategory: button.attr('data-field-subcategory'),
+    head: button.attr('data-field-head'),
+    reversal: button.attr('data-field-reversal'),
+    default: button.attr('data-field-default'),
+    required: button.attr('data-field-required'),
+    allowed: button.attr('data-field-allowed'),
+    source: button.attr('data-field-source'),
+    max: button.attr('data-field-max'),
+    min: button.attr('data-field-min'),
+    regex: button.attr('data-field-regex')
+  };
+  
+  initFieldEditDialog(field, fieldset, doctype, oldobj, rev).dialog("open");
+}
+
+// Button that opens a dialog for deleting a field
+
+function deleteFieldButton(button) {
+  var answer = confirm("Are you sure? This is permanent.");
+  
+  if (answer) {
+    var rev = button.attr('data-field-rev');
+    var doctype = button.attr('data-doctype-id');
+    var fieldset = button.attr('data-fieldset-id');
+    var field = button.attr('data-field-id');
+    var url = "config/doctypes/" + doctype + 
+              "/fieldsets/" + fieldset + 
+              "/fields/" + field + "?rev=" + rev;
+    var complete = function() {populateFields(doctype, fieldset)};
+    
+    sendConfigDoc(url, {}, 'DELETE', complete, this);
+  }
+}
+
+function addFieldButton(button) {
+  var fieldset = button.attr('data-fieldset-id');
+  var doctype = button.attr('data-doctype-id');
+  
+  initFieldAddDialog(fieldset, doctype).dialog("open");
+}
+
+function editFieldsetButton(button) {
+  var rev = button.attr('data-fieldset-rev');
+  var doctype = button.attr('data-doctype-id');
+  var fieldset = button.attr('data-fieldset-id');
+  var oldobj = {
+    name: button.attr('data-fieldset-name'),
+    label: button.attr('data-fieldset-label'),
+    order: button.attr('data-fieldset-order'),
+    multiple: button.attr('data-fieldset-multiple'),
+    collapse: button.attr('data-fieldset-collapse'),
+    description: button.attr('data-fieldset-description') 
+  };
+  
+  initFieldsetEditDialog(fieldset, doctype, oldobj, rev).dialog("open");
+}
+
+function deleteFieldsetButton(button) {
+  var rev = button.attr('data-fieldset-rev');
+  var doctype = button.attr('data-doctype-id');
+  var fieldset = button.attr('data-fieldset-id');
+  var url = "config/doctypes/" + doctype + 
+"/fieldsets/" + fieldset + "?rev=" + rev;
+  var complete = function() {
+    populateFieldsets(doctype);
+  };
+    
+  if (confirm("Are you sure? This is permanent.")) {
+    sendConfigDoc(url, {}, 'DELETE', complete, this);
+  }
+}
+
+function addFielsetButton(button) {
+}
+
+function accordionHead(head) {
+  var doctype = head.parent('h3').attr('data-doctype-id');
+  var fieldset = head.parent('h3').attr('data-fieldset-id');
+  populateFields(doctype, fieldset);
 }
 
 function populateFieldsets(doctypeId) {
@@ -82,56 +125,6 @@ function populateFieldsets(doctypeId) {
       autoHeight: false,
       collapsible: true,
       active: false
-    });
-    
-    $('#' + doctypeId + ' .add-field-button').button({
-      icons: {primary: "ui-icon-plus"}
-    }).click(function() {
-      var fieldset = $(this).attr('data-fieldset-id');
-      var doctype = $(this).attr('data-doctype-id');
-      
-      initFieldAddDialog(fieldset, doctype).dialog("open");
-    });
-    
-    $('.accordion-head').each(function(index) {
-      var fieldsetId = $(this).attr('data-fieldset-id');
-
-      $("#edit-fieldset-" + fieldsetId + "-button").button({
-        icons: {primary: "ui-icon-pencil"}
-      }).click(function() {
-        var bttn = $(this);
-        var rev = bttn.attr('data-fieldset-rev');
-        var doctype = bttn.attr('data-doctype-id');
-        var oldobj = {
-          name: bttn.attr('data-fieldset-name'),
-          label: bttn.attr('data-fieldset-label'),
-          order: bttn.attr('data-fieldset-order'),
-          multiple: bttn.attr('data-fieldset-multiple'),
-          collapse: bttn.attr('data-fieldset-collapse'),
-          description: bttn.attr('data-fieldset-description') 
-        };
-        
-        initFieldsetEditDialog(fieldsetId, doctype, oldobj, rev).dialog("open");
-      });
-  
-      $("#delete-fieldset-" + fieldsetId + "-button").button({
-        icons: {primary: "ui-icon-trash"}
-      }).click(function() {
-        var bttn = $(this);
-        var rev = bttn.attr('data-fieldset-rev');
-        var doctype = bttn.attr('data-doctype-id');
-        var url = "config/doctypes/" + doctype + 
-                  "/fieldsets/" + fieldsetId + "?rev=" + rev;
-        var complete = function() {
-          populateFieldsets(doctype);
-        };
-          
-        if (confirm("Are you sure? This is permanent.")) {
-          sendConfigDoc(url, {}, 'DELETE', complete, this);
-        }
-      });
-      
-      populateFields(doctypeId, fieldsetId);
     });
   });
 }
@@ -163,9 +156,10 @@ function populateDoctypeTabs() {
 
           $('#delete-doctype-' + doctypeId + '-button').button({
             icons: {primary: "ui-icon-trash"}
-          }).click(function() {
-            var name = $(this).attr("data-doctype-id");
-            var rev = $(this).attr("data-doctype-rev");
+          }).click(function(e) {
+            var deleteButton = $(e.target);
+            var name = deleteButton.attr("data-doctype-id");
+            var rev = deleteButton.attr("data-doctype-rev");
             var url = "config/doctypes/" + name + "?rev=" + rev;
             
             var complete = function() {
@@ -743,7 +737,28 @@ function initCharsecAddButton() {
   return true;
 }
 
+function populateFields(doctypeId, fieldsetId) {
+  var url = "config/doctypes/" + doctypeId + 
+            "/fieldsets/" + fieldsetId + 
+            "/fields";
+        
+  $.get(url, function(fields) {
+    var fieldContainer = $("#fields-" + fieldsetId);
+    fieldContainer.empty();
+    fieldContainer.html(fields);
+    $('.edit-field-button').button({
+      icons: {primary: "ui-icon-pencil"},
+      text: false
+    });
+    $(".delete-field-button").button({
+      icons: {primary: "ui-icon-trash"},
+      text: false
+    });
+  });
+}
+
 $(function () {
+  $('body').click(function(e) {clickDispatch(e)});
   initTabs(); 
   initHelpText();
   $('#doctype-dialog').hide();
