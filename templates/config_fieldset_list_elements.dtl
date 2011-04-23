@@ -1,62 +1,32 @@
-<h3 
-  id="head-{{ id }}" 
-  data-doctype-id="{{ value.doctype }}" 
-  data-fieldset-id="{{ id }}" 
-  class="accordion-head"
->
-  <a href="#">{{ value.name }}</a>
+<h3 id="head-{{ id }}" class="accordion-head" data-group-id="{{ id }}">
+  <a href="#">{{ value.label }}</a>
 </h3>
 
-<div id="body-{{ id }}">
-  <button 
-    id="edit-fieldset-{{ id }}-button" 
-    class="edit-button
-      edit-fieldset-button
-      ui-button
-      ui-widget
-      ui-state-default
-      ui-corner-all
-      ui-button-text-icon-primary" 
-    data-doctype-id="{{ value.doctype }}" 
-    data-fieldset-name="{{ value.name }}" 
-    data-fieldset-label="{{ value.label }}" 
-    data-fieldset-description="{{ value.description }}" 
-    data-fieldset-collapse="{{ value.collapse }}" 
-    data-fieldset-multiple="{{ value.multiple }}" 
-    data-fieldset-order="{{ value.order }}" 
-    data-fieldset-id="{{ id }}"
-    data-fieldset-rev="{{ value._rev }}">
-    <span class="ui-button-icon-primary ui-icon ui-icon-pencil"></span>
-    <span class="ui-button-text">Edit Fieldset</span>
-  </button>  
-  <button 
-    id="delete-fieldset-{{ id }}-button" 
-    class="delete-button
-      delete-fieldset-button 
-      ui-button
-      ui-widget
-      ui-state-default
-      ui-corner-all
-      ui-button-text-icon-primary" 
-    data-doctype-id="{{ value.doctype }}" 
-    data-fieldset-id="{{ id }}"
-    data-fieldset-rev="{{ value._rev }}">
-    <span class="ui-button-icon-primary ui-icon ui-icon-trash"></span>
-    <span class="ui-button-text">Delete Fieldset</span>
-  </button>  
-  <button 
-    id="add-field-to-{{ id }}-button" 
-    class="add-field-button 
-      ui-button
-      ui-widget
-      ui-state-default
-      ui-corner-all
-      ui-button-text-icon-primary" 
-    data-fieldset-id="{{ id }}"
-    data-doctype-id="{{ value.doctype }}">
-    <span class="ui-button-icon-primary ui-icon ui-icon-plus"></span>
-    <span class="ui-button-text">Add Field</span>
-  </button>
+<div id="{{ id }}"
+  data-fieldset-doctype="{{ value.doctype }}" 
+  data-fieldset-fieldset="{{ id }}"
+  data-fieldset-name="{{ value.name }}" 
+  data-fieldset-label="{{ value.label }}" 
+  data-fieldset-description="{{ value.description }}" 
+  data-fieldset-collapse="{{ value.collapse }}" 
+  data-fieldset-multiple="{{ value.multiple }}" 
+  data-fieldset-order="{{ value.order }}" 
+  data-fieldset-rev="{{ value._rev }}">
+  <a 
+    id="edit-{{ id }}"
+    data-group-id="{{ id }}"
+    href="#"
+    class="edit-fieldset-button link-button">Edit Fieldset</a>  
+  <a 
+    id="delete-{{ id }}"
+    data-group-id="{{ id }}"
+    href="#"
+    class="delete-fieldset-button link-button">Delete Fieldset</a>  
+  <a 
+    id="add-field-to-{{ id }}"
+    data-group-id="{{ id }}"
+    href="#"
+    class="add-field-button link-button">Add Field</a>
   <table class="fields ui-widget ui-widget-content">
     <thead>
       <tr class="ui-widget-header">

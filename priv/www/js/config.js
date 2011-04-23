@@ -9,37 +9,222 @@ function clickDispatch(e) {
     ".edit-fieldset-button": function(t) {editFieldsetButton(t)},
     ".delete-fieldset-button": function(t) {deleteFieldsetButton(t)},
     ".add-fieldset-button": function(t) {addFieldsetButton(t)},
-    ".accordion-head a": function(t) {accordionHead(t)}
+    "h3.accordion-head a": function(t) {accordionHead(t)}
   });
 
   action(e);
 }
 
+// Build a url based on information available on page
+
+function buildUrl(source, prefix) {
+  if (prefix) {
+    prefix = prefix + "-";
+  } else {
+    prefix = "";
+  }
+  
+  var url = {
+    string: "config/",
+    origin: source,
+    type: prefix + "url",
+    valid_components: ["doctype", "fieldset", "field"],
+    send: function(object, method, callback, context) {
+      sendConfigDoc(this.string, object, method, callback, context);
+      return this;
+    },
+    put: function(object, callback, context) {
+      this.send(object, 'PUT', callback, context);
+      return this;
+    },
+    post: function(object, callback, context) {
+      this.send(object, 'POST', callback, context);
+      return this;
+    },
+    delete: function(object, callback, context) {
+      this.sendConfigDoc(object, 'DELETE', callback, context);
+      return this;
+    },
+    toString: function() {
+      this.string.concat(this.valid_components.map(function(item) {
+        var plural = item + "s";
+        
+        if (var value = getData(prefix + item, source)) {
+          return plural + "/" + "value";
+        } else if (prefix == item + "-") {
+          return plural;
+        }
+      }).join("/"));
+      
+      if (var rev = getData(prefix + 'rev', source)) {
+        this.string.concat("?rev=" + rev);
+      }
+    }
+  };
+  
+  url.valid_components.forEach(function(item) {
+    url[item] = (function() {return getData(prefix + item, source)})();
+  });
+
+  return url; 
+}
+
+// Returns an object with references to add/edit fields dialog
+// field elements with some helper functions. 
+// TODO look at how an OO person does this
+
+function fieldElems() {
+  return {
+    var attrs = ["name", "label", "order", "description", "subcategory", 
+                 "head", "reversal", "default", "required", "allowed", 
+                 "source", "max", "min", "regex", "doctype", "fieldset",
+                 "rev", "field"];
+    
+    var getFieldAttrs = function() {return attrs};
+        
+    var getFieldElems = function(values) {
+      var fieldsObj = {};
+                   
+      attrs.forEach(function(item) {
+         fieldsObj[item] = $('#field-' + item + '-input');
+      });
+      
+      fieldsObj.notDefault = function() {
+        return [fieldsObj.allowed, fieldsObj.source, fieldsObj.min, fieldsObj.max, fieldsObj.regex];
+      };
+      
+      fieldsObj.hideDisable = function(blankAll) {
+        fieldsObj.notDefault().forEach(function(field) {
+          field.attr("disabled", "disabled");
+          if (blankAll) field.val('');
+          field.parent().hide();
+        });
+        
+        return fieldsObj;
+      };
+      
+      fieldsObj.showEnable = function() {
+        fieldsObj.notDefault().forEach(function(field) {
+          field.removeAttr("disabled");
+          field.parent().show();
+        });
+        
+        return fieldsObj;
+      };
+            
+      fieldsObj.copyValues = function(sfieldsObj) {
+        Object.keys(sfieldsObj).forEach(function(field) {
+          var targ = fieldsObj[field];
+          var source = sfieldsObj[field];
+    
+          targ.val(source);
+          if (targ.is('input[type=checkbox]')) {
+            if (source == "true") targ.attr('checked', true);
+          }
+        });
+        
+        return fieldsObj;
+      };
+        
+      fieldsObj.hideBlanks = function() {
+        fieldsObj.notDefault().forEach(function(field) {
+          if (field.val() == '') {
+            field.attr("disabled", "disabled");
+            field.parent().hide();
+          }
+        });
+        
+        return fieldsObj;
+      };
+        
+      fieldsObj.getFieldInputVals = function() {
+        var valObj = {
+          "category": "field", 
+          "name": fieldsObj.name.val(),
+          "label": fieldsObj.label.val(),
+          "default": decodeDefaults(fieldsObj.subcategory.val(), fieldsObj.default.val()),
+          "head": fieldsObj.head.is(':checked'),
+          "reversal": fieldsObj.reversal.is(':checked'),
+          "required": fieldsObj.required.is(':checked'),
+          "order": fieldsObj.order.val() * 1,
+          "allowed": fieldsObj.allowed.val().split(","),
+          "source": fieldsObj.source.val(),
+          "min": fieldsObj.min.val(),
+          "max": fieldsObj.max.val(),
+          "regex": fieldsObj.regex.val(),
+          "description": fieldsObj.description.val(),
+          "doctype": fieldsObj.doctype.val(),
+          "fieldset": fieldsObj.fieldset.val(),
+          "subcategory": fieldsObj.subcategory.val()
+        }
+      
+        return valObj;
+      };
+    
+      fieldsObj.clear(function() {
+        clearValues($('field-dialog .input')).removeClass('ui-state-error');
+        fieldsObj.hideDisable();
+        return fieldsObj;
+      }
+      
+      if (values) {
+        fieldsObj.copyValues(values);
+        fieldsObj.showEnable();
+        fieldsObj.hideBlanks();
+      }
+      
+      fieldsObj.subcategory.change(function(e) {
+        switch ($(e.target).val()) {
+          case "select":
+          case "multiselect":
+          case "docselect":
+          case "docmultiselect":
+            fieldsObj.hideDisable(true);
+            fieldsObj.source.removeAttr("disabled");
+            fieldsObj.source.parent().show();
+            break;
+          case "text":
+          case "textarea":
+            fieldsObj.hideDisable(true);
+            fieldsObj.regex.removeAttr("disabled");
+            fieldsObj.regex.parent().show();
+            break;
+          case "date":
+          case "integer":
+          case "rational":
+            fieldsObj.hideDisable(true);
+            fieldsObj.min.removeAttr("disabled");
+            fieldsObj.min.parent().show();
+            fieldsObj.max.removeAttr("disabled");
+            fieldsObj.max.parent().show();
+            break;
+          default:
+            fieldsObj.hideDisable(true);
+        }
+      });
+      
+      return fieldsObj;
+    }
+  }
+}
+
+function getData(value, elem) {
+  var dataElem = elem.attr('data-group-id');
+  return $('#' + dataElem).attr('data-' + value);
+}
+
 // Button that opens a dialog for editing a field
 
 function editFieldButton(button) {
-  var rev = button.attr('data-field-rev');
-  var doctype = button.attr('data-doctype-id');
-  var fieldset = button.attr('data-fieldset-id');
-  var field = button.attr('data-field-id');
-  var oldobj = {
-    name: button.attr('data-field-name'),
-    label: button.attr('data-field-label'),
-    order: button.attr('data-field-order'),
-    description: button.attr('data-field-description'),
-    subcategory: button.attr('data-field-subcategory'),
-    head: button.attr('data-field-head'),
-    reversal: button.attr('data-field-reversal'),
-    default: button.attr('data-field-default'),
-    required: button.attr('data-field-required'),
-    allowed: button.attr('data-field-allowed'),
-    source: button.attr('data-field-source'),
-    max: button.attr('data-field-max'),
-    min: button.attr('data-field-min'),
-    regex: button.attr('data-field-regex')
-  };
+  var url = buildUrl(button, "field");
+  var oldobj = {};
+  var attrs = fieldElems().getFieldAttrs();
+   
+  attrs.forEach(function(item) {
+    oldobj[item] = getData('field-' + item, button);
+  });
   
-  initFieldEditDialog(field, fieldset, doctype, oldobj, rev).dialog("open");
+  initFieldEditDialog(url, oldobj).dialog("open");
 }
 
 // Button that opens a dialog for deleting a field
@@ -48,10 +233,10 @@ function deleteFieldButton(button) {
   var answer = confirm("Are you sure? This is permanent.");
   
   if (answer) {
-    var rev = button.attr('data-field-rev');
-    var doctype = button.attr('data-doctype-id');
-    var fieldset = button.attr('data-fieldset-id');
-    var field = button.attr('data-field-id');
+    var rev = getData('field-rev', button);
+    var doctype = getData('doctype-id', button);
+    var fieldset = getData('fieldset-id', button);
+    var field = getData('field-id', button);
     var url = "config/doctypes/" + doctype + 
               "/fieldsets/" + fieldset + 
               "/fields/" + field + "?rev=" + rev;
@@ -61,33 +246,39 @@ function deleteFieldButton(button) {
   }
 }
 
+// Button that opens a dialog for adding a field
+
 function addFieldButton(button) {
-  var fieldset = button.attr('data-fieldset-id');
-  var doctype = button.attr('data-doctype-id');
+  var fieldset = getData('fieldset-id', button);
+  var doctype = getData('doctype-id', button);
   
   initFieldAddDialog(fieldset, doctype).dialog("open");
 }
 
+// Button that opens a dialog for editing a fieldset
+
 function editFieldsetButton(button) {
-  var rev = button.attr('data-fieldset-rev');
-  var doctype = button.attr('data-doctype-id');
-  var fieldset = button.attr('data-fieldset-id');
+  var rev = getData('fieldset-rev', button);
+  var doctype = getData('doctype-id', button);
+  var fieldset = getData('fieldset-id', button);
   var oldobj = {
-    name: button.attr('data-fieldset-name'),
-    label: button.attr('data-fieldset-label'),
-    order: button.attr('data-fieldset-order'),
-    multiple: button.attr('data-fieldset-multiple'),
-    collapse: button.attr('data-fieldset-collapse'),
-    description: button.attr('data-fieldset-description') 
+    name: getData('fieldset-name', button),
+    label: getData('fieldset-label', button),
+    order: getData('fieldset-order', button),
+    multiple: getData('fieldset-multiple', button),
+    collapse: getData('fieldset-collapse', button),
+    description: getData('fieldset-description', button) 
   };
   
   initFieldsetEditDialog(fieldset, doctype, oldobj, rev).dialog("open");
 }
 
+// Button that opens a dialog for deleting a fieldset
+
 function deleteFieldsetButton(button) {
-  var rev = button.attr('data-fieldset-rev');
-  var doctype = button.attr('data-doctype-id');
-  var fieldset = button.attr('data-fieldset-id');
+  var rev = getData('fieldset-rev', button);
+  var doctype = getData('doctype-id', button);
+  var fieldset = getData('fieldset-id', button);
   var url = "config/doctypes/" + doctype + 
 "/fieldsets/" + fieldset + "?rev=" + rev;
   var complete = function() {
@@ -99,116 +290,40 @@ function deleteFieldsetButton(button) {
   }
 }
 
+// Button that opens a dialog for adding a fieldset
+
 function addFielsetButton(button) {
+  fieldsetDoctype.val(getData('doctype-id', button));
+  initFieldsetAddDialog().dialog("open");
 }
+
+function editDoctypeButton(button) {
+  var description = getData('doctype-description', button);
+  var name = getData('doctype-id', button);
+  var rev = getData('doctype-rev', button);
+  initDoctypeEditDialog(name, description, rev).dialog("open");
+}
+
+function deleteDoctypeButton(button) {
+  var name = getData('doctype-id', button);
+  var rev = getData('doctype-rev', button);
+  var url = "config/doctypes/" + name + "?rev=" + rev;
+  var complete = function() {populateDoctypeTabs()};
+  
+  if (confirm("Are you sure? This is permanent.")) {
+    sendConfigDoc(url, {}, 'DELETE', complete, this);
+  }
+}
+
+function addDoctypeButton(button) {
+}
+
+// Action for click event on accordion head
 
 function accordionHead(head) {
-  var doctype = head.parent('h3').attr('data-doctype-id');
-  var fieldset = head.parent('h3').attr('data-fieldset-id');
+  var doctype = getData('doctype-id', head.parent('h3'));
+  var fieldset = getData('fieldset-id', head.parent('h3'));
   populateFields(doctype, fieldset);
-}
-
-function populateFieldsets(doctypeId) {
-  var fieldDoctype = $("#field-doctype-input");
-  var fieldFieldset = $("#field-fieldset-input");
-  var url = "config/doctypes/" + doctypeId + 
-            "/fieldsets";
-            
-  $.get(url, function(fieldsets) {
-    var fieldsetContainer = $("#fieldsets-" + doctypeId);
-    
-    fieldsetContainer.empty();
-    fieldsetContainer.accordion("destroy");
-    fieldsetContainer.html(fieldsets);
-    
-    fieldsetContainer.accordion({
-      autoHeight: false,
-      collapsible: true,
-      active: false
-    });
-  });
-}
-
-function populateDoctypeTabs() {
-  var url = "config/doctypes";
-  
-  $.get(url, function(doctypes) {
-    var fieldsetDoctype = $("#fieldset-doctype-input");
-
-    $("#doctype-tabs-headings").empty();
-    $("#doctype-tabs-headings + .ui-tabs-panel").remove();
-    $("#doctype-tabs").tabs("destroy");
-    $("#doctype-tabs-headings").html(doctypes);
-    
-    $("#doctype-tabs").tabs(
-      {
-        load: function(event, ui) {
-          doctypeId = $(ui.panel).children()[0].id;
-
-          $('#edit-doctype-' + doctypeId + '-button').button({
-            icons: {primary: "ui-icon-pencil"}
-          }).click(function() {
-            var description = $(this).attr("data-doctype-description");
-            var name = $(this).attr("data-doctype-id");
-            var rev = $(this).attr("data-doctype-rev");
-            initDoctypeEditDialog(name, description, rev).dialog("open");
-          });
-
-          $('#delete-doctype-' + doctypeId + '-button').button({
-            icons: {primary: "ui-icon-trash"}
-          }).click(function(e) {
-            var deleteButton = $(e.target);
-            var name = deleteButton.attr("data-doctype-id");
-            var rev = deleteButton.attr("data-doctype-rev");
-            var url = "config/doctypes/" + name + "?rev=" + rev;
-            
-            var complete = function() {
-              populateDoctypeTabs();
-            };
-            
-            if (confirm("Are you sure? This is permanent.")) {
-              sendConfigDoc(url, {}, 'DELETE', complete, this);
-            }
-          });
-          
-          populateFieldsets(doctypeId);
-
-          $(".add-fieldset-button").button({
-            icons: {primary: "ui-icon-plus"}
-          }).click(function() {
-            fieldsetDoctype.val($(this).attr("data-doctype-id"));
-            initFieldsetAddDialog().dialog("open");
-          });
-        }
-      }
-    );
-  });
-}
-
-function initTabs() {
-  $("#doctype-tabs").tabs();
-  populateDoctypeTabs();
-  $("#main-tabs").tabs();
-  $("#charseq-tabs").tabs();
-  
-  return true;
-}
-
-function initHelpText() {
-  $("#doctype-info").hide();
-  $("#charseq-info").hide();
-
-  $("#doctype-info-toggle").click(function() {
-    $("#doctype-info").toggle("blind", {}, 500);
-    return false;
-  });
-  
-  $("#charseq-info-toggle").click(function() {
-    $("#charseq-info").toggle("blind", {}, 500);
-    return false;
-  });
-  
-  return true;
 }
 
 function initDoctypeAddDialog() {
@@ -435,159 +550,65 @@ function decodeDefaults(subcategory, defaults) {
   }
 }
 
-function initFieldAddDialog(fieldset, doctype) {
-  var fieldName = $("#field-name-input");
-  var fieldLabel = $("#field-label-input");
-  var fieldSubcategory = $("#field-subcategory-input");
-  var fieldDescription = $("#field-description-input");
-  var fieldHead = $("#field-head-input");
-  var fieldReversal = $("#field-reversal-input");
-  var fieldOrder = $("#field-order-input");
-  var fieldDoctype = $("#field-doctype-input");
-  var fieldFieldset = $("#field-fieldset-input");
-  var fieldDefault = $("#field-default-input");
-  var fieldRequired = $("#field-required-input");
-  var fieldAllowed = $("#field-allowed-input");
-  var fieldSource = $("#field-source-input");
-  var fieldMin = $("#field-min-input");
-  var fieldMax = $("#field-max-input");
-  var fieldRegex = $("#field-regex-input");
-  var notDefault = [fieldAllowed, 
-                    fieldSource, 
-                    fieldMin, 
-                    fieldMax, 
-                    fieldRegex];
-  var url = "config/doctypes/" + doctype + 
-            "/fieldsets/" + fieldset + "/fields";
+function setSubcategoryChangeAction(f) {
+  f.subcategory.change(function(e) {
+    switch ($(e.target).val()) {
+      case "select":
+      case "multiselect":
+      case "docselect":
+      case "docmultiselect":
+        f.hideDisable(true);
+        f.source.removeAttr("disabled");
+        f.source.parent().show();
+        break;
+      case "text":
+      case "textarea":
+        f.hideDisable(true);
+        f.regex.removeAttr("disabled");
+        f.regex.parent().show();
+        break;
+      case "date":
+      case "integer":
+      case "rational":
+        f.hideDisable(true);
+        f.min.removeAttr("disabled");
+        f.min.parent().show();
+        f.max.removeAttr("disabled");
+        f.max.parent().show();
+        break;
+      default:
+        f.hideDisable(true);
+    }
+  });
+}
 
-  function hideDisable(blank) {
-    notDefault.forEach(function(field) {
-      field.attr("disabled", "disabled");
-      if (blank) field.val('');
-      field.parent().hide();
-    });
-  }
+function initFieldAddDialog(url) {
+  var f = fieldElems().getFieldElems();
    
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Create": function() {
-        $('.input').removeClass('ui-state-error');
-        
-        checkResult = true;
-        
-        if (checkResult) {
-          var obj = {
-            "category": "field", 
-            "name": fieldName.val(),
-            "label": fieldLabel.val(),
-            "default": decodeDefaults(fieldSubcategory.val(), fieldDefault.val()),
-            "head": fieldHead.is(':checked'),
-            "reversal": fieldReversal.is(':checked'),
-            "required": fieldRequired.is(':checked'),
-            "order": (fieldOrder.val() * 1),
-            "allowed": fieldAllowed.val().split(","),
-            "source": fieldSource.val(),
-            "min": fieldMin.val(),
-            "max": fieldMax.val(),
-            "regex": fieldRegex.val(),
-            "description": fieldDescription.val(),
-            "doctype": doctype,
-            "fieldset": fieldset,
-            "subcategory": fieldSubcategory.val()
-          },
-          complete = function(context) {
-            populateFields(doctype, fieldset);
-            $(context).dialog("close");
-          };
-          sendConfigDoc(url, obj, 'POST', complete, this);
-        }
+        var obj = f.getFieldInputVals();
+        complete = function(context) {
+          populateFields(url.doctype, url.fieldset);
+          $(context).dialog("close");
+        };
+        f.post(obj, complete, this);
       },
       "Cancel": function() {
         $(this).dialog("close");
       }
     },
     close: function() {
-      clearValues($('.input')).removeClass('ui-state-error');
-      hideDisable();
+      f.clear();
     }
   });
   
-  hideDisable();
-  
-  fieldSubcategory.change(function() {
-    var selected = fieldSubcategory.children('option:selected').val();
-    var simpleSelects = ["select", "multiselect"];
-    var remoteSelects = ["docselect", "docmultiselect"];
-    var rangeable = ["date", "integer", "rational"];
-    var matchable = ["text", "textarea"];
-    
-    if (simpleSelects.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldAllowed.removeAttr("disabled");
-      fieldAllowed.parent().show();
-    } else if (remoteSelects.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldSource.removeAttr("disabled");
-      fieldSource.parent().show();
-    } else if (matchable.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldRegex.removeAttr("disabled");
-      fieldRegex.parent().show();
-    } else if (rangeable.indexOf(selected) >= 0) {
-      hideDisable(true);
-      fieldMin.removeAttr("disabled");
-      fieldMin.parent().show();
-      fieldMax.removeAttr("disabled");
-      fieldMax.parent().show();
-    } else {
-      hideDisable(true);
-    };
-  });
+  f.hideDisable();
   
   return dialog;
-}
-
-function getFieldElems() {
-  var obj = {
-    name: $("#field-name-input"),
-    label: $("#field-label-input"),
-    subcategory: $("#field-subcategory-input"),
-    description: $("#field-description-input"),
-    head: $("#field-head-input"),
-    reversal: $("#field-reversal-input"),
-    order: $("#field-order-input"),
-    doctype: $("#field-doctype-input"),
-    fieldset: $("#field-fieldset-input"),
-    default: $("#field-default-input"),
-    required: $("#field-required-input"),
-    allowed: $("#field-allowed-input"),
-    source: $("#field-source-input"),
-    min: $("#field-min-input"),
-    max: $("#field-max-input"),
-    regex: $("#field-regex-input"),
-    notDefault: function() {
-      return [this.allowed, this.source, this.min, this.max, this.regex];
-    }
-  };
-  
-  return obj;
-}
-
-function hideDisable(form, blank) {
-  form.notDefault().forEach(function(field) {
-    field.attr("disabled", "disabled");
-    if (blank) field.val('');
-    field.parent().hide();
-  });
-}
-
-function showEnable(form) {
-  form.notDefault().forEach(function(field) {
-    field.removeAttr("disabled");
-    field.parent().show();
-  });
 }
 
 function copyValues(form, oldobj) {
@@ -599,111 +620,28 @@ function copyValues(form, oldobj) {
   }
 }
 
-function initFieldEditDialog(id, fieldset, doctype, oldobj, rev) {
-  var form = getFieldElems();
-  var url = "config/doctypes/" + doctype + 
-            "/fieldsets/" + fieldset + 
-            "/fields/" + id + "?rev=" + rev;
-  
-  copyValues(form, oldobj);
-  showEnable(form);
-  
-  if (form.min.val() == '' && form.max.val() == '') {
-    form.min.attr("disabled", "disabled");
-    form.max.attr("disabled", "disabled");
-    form.max.parent().hide();
-    form.min.parent().hide();
-  }
-  
-  if (form.regex.val() == '') {
-    form.regex.attr("disabled", "disabled");
-    form.regex.parent().hide();
-  }
-  
-  if (form.allowed.val() == '') {
-    form.allowed.attr("disabled", "disabled");
-    form.allowed.parent().hide();
-  }
-  
-  if (form.source.val() == '') {
-    form.source.attr("disabled", "disabled");
-    form.source.parent().hide();
-  }
-      
+function initFieldEditDialog(url, oldobj) {
+  var f = fieldElems().getFieldElems(oldobj);
+   
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Save": function() {
-        $('.input').removeClass('ui-state-error');
-        
-        checkResult = true;
-        
-        if (checkResult) {
-          var obj = {
-            "category": "field", 
-            "name": form.name.val(),
-            "label": form.label.val(),
-            "default": decodeDefaults(form.subcategory.val(), form.default.val()),
-            "head": form.head.is(':checked'),
-            "reversal": form.reversal.is(':checked'),
-            "required": form.required.is(':checked'),
-            "order": (form.order.val() * 1),
-            "allowed": form.allowed.val().split(","),
-            "source": form.source.val(),
-            "min": form.min.val(),
-            "max": form.max.val(),
-            "regex": form.regex.val(),
-            "description": form.description.val(),
-            "doctype": doctype,
-            "fieldset": fieldset,
-            "subcategory": form.subcategory.val()
-          },
-          complete = function(context) {
-            populateFields(doctype, fieldset);
-            $(context).dialog("close");
-          };
-          sendConfigDoc(url, obj, 'PUT', complete, this);
-        }
+        var obj = f.getFieldInputVals();
+        var complete = function(context) {
+          populateFields(url.doctype, fieldset);
+          $(context).dialog("close");
+        };
+        url.put(obj, complete, this);
       },
       "Cancel": function() {
         $(this).dialog("close");
       }
     },
     close: function() {
-      clearValues($('.input')).removeClass('ui-state-error');
-      hideDisable(form);
+      f.clear();
     }
-  });
-  
-  form.subcategory.change(function() {
-    var selected = form.subcategory.children('option:selected').val();
-    var simpleSelects = ["select", "multiselect"];
-    var remoteSelects = ["docselect", "docmultiselect"];
-    var rangeable = ["date", "integer", "rational"];
-    var matchable = ["text", "textarea"];
-    
-    if (simpleSelects.indexOf(selected) >= 0) {
-      hideDisable(form, true);
-      form.allowed.removeAttr("disabled");
-      form.allowed.parent().show();
-    } else if (remoteSelects.indexOf(selected) >= 0) {
-      hideDisable(form, true);
-      form.source.removeAttr("disabled");
-      form.source.parent().show();
-    } else if (matchable.indexOf(selected) >= 0) {
-      hideDisable(form, true);
-      form.regex.removeAttr("disabled");
-      form.regex.parent().show();
-    } else if (rangeable.indexOf(selected) >= 0) {
-      hideDisable(form, true);
-      form.min.removeAttr("disabled");
-      form.min.parent().show();
-      form.max.removeAttr("disabled");
-      form.max.parent().show();
-    } else {
-      hideDisable(form, true);
-    };
   });
   
   return dialog;
@@ -746,15 +684,72 @@ function populateFields(doctypeId, fieldsetId) {
     var fieldContainer = $("#fields-" + fieldsetId);
     fieldContainer.empty();
     fieldContainer.html(fields);
-    $('.edit-field-button').button({
-      icons: {primary: "ui-icon-pencil"},
-      text: false
-    });
-    $(".delete-field-button").button({
-      icons: {primary: "ui-icon-trash"},
-      text: false
+  });
+}
+
+function populateFieldsets(doctypeId) {
+  var fieldDoctype = $("#field-doctype-input");
+  var fieldFieldset = $("#field-fieldset-input");
+  var url = "config/doctypes/" + doctypeId + 
+            "/fieldsets";
+            
+  $.get(url, function(fieldsets) {
+    var fieldsetContainer = $("#fieldsets-" + doctypeId);
+    
+    fieldsetContainer.empty();
+    fieldsetContainer.accordion("destroy");
+    fieldsetContainer.html(fieldsets);
+    
+    fieldsetContainer.accordion({
+      autoHeight: false,
+      collapsible: true,
+      active: false
     });
   });
+}
+
+function populateDoctypeTabs() {
+  var url = "config/doctypes";
+  
+  $.get(url, function(doctypes) {
+    var fieldsetDoctype = $("#fieldset-doctype-input");
+    var loadFun = function(event, ui) {
+      doctype = $(ui.panel).children()[0].id;
+      populateFieldsets(doctype);
+    };
+    
+    $("#doctype-tabs-headings").empty();
+    $("#doctype-tabs-headings + .ui-tabs-panel").remove();
+    $("#doctype-tabs").tabs("destroy");
+    $("#doctype-tabs-headings").html(doctypes);
+    $("#doctype-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
+  });
+}
+
+function initTabs() {
+  $("#doctype-tabs").tabs();
+  populateDoctypeTabs();
+  $("#main-tabs").tabs();
+  $("#charseq-tabs").tabs();
+  
+  return true;
+}
+
+function initHelpText() {
+  $("#doctype-info").hide();
+  $("#charseq-info").hide();
+
+  $("#doctype-info-toggle").click(function() {
+    $("#doctype-info").toggle("blind", {}, 500);
+    return false;
+  });
+  
+  $("#charseq-info-toggle").click(function() {
+    $("#charseq-info").toggle("blind", {}, 500);
+    return false;
+  });
+  
+  return true;
 }
 
 $(function () {

@@ -1,35 +1,39 @@
-<tr class="field-row" data-field-id="{{ id }}">
+<tr 
+  id="{{ id }}" 
+  class="field-row" 
+  data-field-field="{{ id }}"
+  data-field-doctype="{{ value.doctype }}"
+  data-field-fieldset="{{ value.fieldset }}"
+  data-field-rev="{{ value._rev }}"
+  data-field-id="{{ id }}"
+  data-field-name="{{ value.name }}"
+  data-field-label="{{ value.label }}"
+  data-field-subcategory="{{ value.subcategory }}"
+  data-field-description="{{ value.description|force_escape }}"
+  data-field-head="{{ value.head }}"
+  data-field-reversal="{{ value.reversal }}"
+  data-field-order="{{ value.order }}"
+  data-field-default="{% if (value.subcategory == "multiselect" or value.subcategory == "docmultiselect") and value.default %}{{ value.default|join:","|force_escape }}{% else %}{{ value.default|force_escape }}{% endif %}"
+  data-field-required="{{ value.required }}"
+  data-field-allowed="{{ value.allowed|join:"," }}"
+  data-field-source="{{ value.source }}"
+  data-field-max="{{ value.max }}"
+  data-field-min="{{ value.min }}"
+  data-field-regex="{{ value.regex|force_escape }}">
+  
   <td>{{ value.name|force_escape }}</td>
   <td>{{ value.label|force_escape }}</td>
   <td>{{ value.subcategory }}</td>
   <td>
-    <button
+    <a 
       id="edit-field-{{ id }}-button"
-      class="edit-field-button"
-      data-doctype-id="{{ value.doctype }}"
-      data-fieldset-id="{{ value.fieldset }}"
-      data-field-rev="{{ value._rev }}"
-      data-field-id="{{ id }}"
-      data-field-name="{{ value.name }}"
-      data-field-label="{{ value.label }}"
-      data-field-subcategory="{{ value.subcategory }}"
-      data-field-description="{{ value.description|force_escape }}"
-      data-field-head="{{ value.head }}"
-      data-field-reversal="{{ value.reversal }}"
-      data-field-order="{{ value.order }}"
-      data-field-default="{% if (value.subcategory == "multiselect" or value.subcategory == "docmultiselect") and value.default %}{{ value.default|join:","|force_escape }}{% else %}{{ value.default|force_escape }}{% endif %}"
-      data-field-required="{{ value.required }}"
-      data-field-allowed="{{ value.allowed|join:"," }}"
-      data-field-source="{{ value.source }}"
-      data-field-max="{{ value.max }}"
-      data-field-min="{{ value.min }}"
-      data-field-regex="{{ value.regex|force_escape }}">Edit Field</button>
-    <button
-      id="delete-field-{{ id }}-button"
-      class="delete-field-button"
-      data-doctype-id="{{ value.doctype|force_escape }}"
-      data-fieldset-id="{{ value.fieldset }}"
-      data-field-id="{{ id }}"
-      data-field-rev="{{ value._rev }}">Delete Field</button>
+      href="#"
+      data-group-id="{{ id }}"
+      class="edit-field-button link-button">Edit</a>
+    <a 
+      id="delete-field-{{ id }}-button" 
+      href="#"
+      data-group-id="{{ id }}"
+      class="delete-field-button link-button">Delete</a>
   </td>
 </tr>
