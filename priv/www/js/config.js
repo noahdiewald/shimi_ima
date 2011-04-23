@@ -46,17 +46,20 @@ function buildUrl(source, prefix) {
       return this;
     },
     toString: function() {
+      var rev;
+      
       this.string.concat(this.valid_components.map(function(item) {
         var plural = item + "s";
+        var value;
         
-        if (var value = getData(prefix + item, source)) {
+        if (value = getData(prefix + item, source)) {
           return plural + "/" + "value";
         } else if (prefix == item + "-") {
           return plural;
         }
       }).join("/"));
       
-      if (var rev = getData(prefix + 'rev', source)) {
+      if (rev = getData(prefix + 'rev', source)) {
         this.string.concat("?rev=" + rev);
       }
     }
@@ -75,97 +78,80 @@ function buildUrl(source, prefix) {
 
 function fieldElems() {
   return {
-    var attrs = ["name", "label", "order", "description", "subcategory", 
-                 "head", "reversal", "default", "required", "allowed", 
-                 "source", "max", "min", "regex", "doctype", "fieldset",
-                 "rev", "field"];
-    
-    var getFieldAttrs = function() {return attrs};
-        
-    var getFieldElems = function(values) {
-      var fieldsObj = {};
+    attrs: ["name", "label", "order", "description", "subcategory", 
+            "head", "reversal", "default", "required", "allowed", 
+            "source", "max", "min", "regex", "doctype", "fieldset",
+            "rev", "field"],
+    getFieldElems: function(values) {
+      var fieldsObj = {
+        notDefault: function() {
+          return [this.allowed, this.source, this.min, this.max, this.regex];
+        },
+        hideDisable: function(blankAll) {
+          this.notDefault().forEach(function(field) {
+            field.attr("disabled", "disabled");
+            if (blankAll) field.val('');
+            field.parent().hide();
+          });
+          return this;
+        },
+        showEnable: function() {
+          this.notDefault().forEach(function(field) {
+            field.removeAttr("disabled");
+            field.parent().show();
+          });
+          return this;
+        },
+        copyValues: function(sfieldsObj) {
+          Object.keys(source).forEach(function(field) {
+            this[field].val(source[field]);
+            if (this[field].is('input[type=checkbox]')) {
+              if (source[field] == "true") this[field].attr('checked', true);
+            }
+          });
+          return this;
+        },
+        hideBlanks: function() {
+          this.notDefault().forEach(function(field) {
+            if (field.val() == '') {
+              field.attr("disabled", "disabled");
+              field.parent().hide();
+            }
+          });
+          return this;
+        },
+        getFieldInputVals: function() {
+          var valObj = {
+            "category": "field", 
+            "name": fieldsObj.name.val(),
+            "label": fieldsObj.label.val(),
+            "default": decodeDefaults(fieldsObj.subcategory.val(), fieldsObj.default.val()),
+            "head": fieldsObj.head.is(':checked'),
+            "reversal": fieldsObj.reversal.is(':checked'),
+            "required": fieldsObj.required.is(':checked'),
+            "order": fieldsObj.order.val() * 1,
+            "allowed": fieldsObj.allowed.val().split(","),
+            "source": fieldsObj.source.val(),
+            "min": fieldsObj.min.val(),
+            "max": fieldsObj.max.val(),
+            "regex": fieldsObj.regex.val(),
+            "description": fieldsObj.description.val(),
+            "doctype": fieldsObj.doctype.val(),
+            "fieldset": fieldsObj.fieldset.val(),
+            "subcategory": fieldsObj.subcategory.val()
+          }
+          return valObj;
+        },
+        clear: function() {
+          clearValues($('field-dialog .input')).removeClass('ui-state-error');
+          fieldsObj.hideDisable();
+          return fieldsObj;
+        }
+      };
                    
       attrs.forEach(function(item) {
          fieldsObj[item] = $('#field-' + item + '-input');
       });
-      
-      fieldsObj.notDefault = function() {
-        return [fieldsObj.allowed, fieldsObj.source, fieldsObj.min, fieldsObj.max, fieldsObj.regex];
-      };
-      
-      fieldsObj.hideDisable = function(blankAll) {
-        fieldsObj.notDefault().forEach(function(field) {
-          field.attr("disabled", "disabled");
-          if (blankAll) field.val('');
-          field.parent().hide();
-        });
-        
-        return fieldsObj;
-      };
-      
-      fieldsObj.showEnable = function() {
-        fieldsObj.notDefault().forEach(function(field) {
-          field.removeAttr("disabled");
-          field.parent().show();
-        });
-        
-        return fieldsObj;
-      };
-            
-      fieldsObj.copyValues = function(sfieldsObj) {
-        Object.keys(sfieldsObj).forEach(function(field) {
-          var targ = fieldsObj[field];
-          var source = sfieldsObj[field];
-    
-          targ.val(source);
-          if (targ.is('input[type=checkbox]')) {
-            if (source == "true") targ.attr('checked', true);
-          }
-        });
-        
-        return fieldsObj;
-      };
-        
-      fieldsObj.hideBlanks = function() {
-        fieldsObj.notDefault().forEach(function(field) {
-          if (field.val() == '') {
-            field.attr("disabled", "disabled");
-            field.parent().hide();
-          }
-        });
-        
-        return fieldsObj;
-      };
-        
-      fieldsObj.getFieldInputVals = function() {
-        var valObj = {
-          "category": "field", 
-          "name": fieldsObj.name.val(),
-          "label": fieldsObj.label.val(),
-          "default": decodeDefaults(fieldsObj.subcategory.val(), fieldsObj.default.val()),
-          "head": fieldsObj.head.is(':checked'),
-          "reversal": fieldsObj.reversal.is(':checked'),
-          "required": fieldsObj.required.is(':checked'),
-          "order": fieldsObj.order.val() * 1,
-          "allowed": fieldsObj.allowed.val().split(","),
-          "source": fieldsObj.source.val(),
-          "min": fieldsObj.min.val(),
-          "max": fieldsObj.max.val(),
-          "regex": fieldsObj.regex.val(),
-          "description": fieldsObj.description.val(),
-          "doctype": fieldsObj.doctype.val(),
-          "fieldset": fieldsObj.fieldset.val(),
-          "subcategory": fieldsObj.subcategory.val()
-        }
-      
-        return valObj;
-      };
-    
-      fieldsObj.clear(function() {
-        clearValues($('field-dialog .input')).removeClass('ui-state-error');
-        fieldsObj.hideDisable();
-        return fieldsObj;
-      }
       
       if (values) {
         fieldsObj.copyValues(values);
@@ -173,8 +159,8 @@ function fieldElems() {
         fieldsObj.hideBlanks();
       }
       
-      fieldsObj.subcategory.change(function(e) {
-        switch ($(e.target).val()) {
+      fieldsObj.subcategory.change(function() {
+        switch (fieldsObj.subcategory.val()) {
           case "select":
           case "multiselect":
           case "docselect":
