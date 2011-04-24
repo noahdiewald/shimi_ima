@@ -23,8 +23,10 @@
     href="#"
     class="delete-fieldset-button link-button">Delete Fieldset</a>  
   <a 
+    data-field-doctype="{{ value.doctype }}" 
+    data-field-fieldset="{{ id }}"
     id="add-field-to-{{ id }}"
-    data-group-id="{{ id }}"
+    data-group-id="add-field-to-{{ id }}"
     href="#"
     class="add-field-button link-button">Add Field</a>
   <table class="fields ui-widget ui-widget-content">

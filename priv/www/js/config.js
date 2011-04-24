@@ -41,8 +41,8 @@ function buildUrl(source, prefix) {
       this.send(object, 'POST', callback, context);
       return this;
     },
-    delete: function(object, callback, context) {
-      this.sendConfigDoc(object, 'DELETE', callback, context);
+    delete: function(callback, context) {
+      this.sendConfigDoc({}, 'DELETE', callback, context);
       return this;
     },
     toString: function() {
@@ -73,8 +73,7 @@ function buildUrl(source, prefix) {
 }
 
 // Returns an object with references to add/edit fields dialog
-// field elements with some helper functions. 
-// TODO look at how an OO person does this
+// field elements with helper functions. 
 
 function fieldElems() {
   var attrs = ["name", "label", "order", "description", "subcategory", 
@@ -158,8 +157,9 @@ function fieldElems() {
       if (values) {
         fieldsObj.copyValues(values);
         fieldsObj.showEnable();
-        fieldsObj.hideBlanks();
       }
+      
+      fieldsObj.hideBlanks();
       
       fieldsObj.subcategory.change(function() {
         switch (fieldsObj.subcategory.val()) {
@@ -212,7 +212,7 @@ function editFieldButton(button) {
     oldobj[item] = getData('field-' + item, button);
   });
   
-  initFieldEditDialog(url, oldobj).dialog("open");
+  fieldDialog(url, oldobj).dialog("open");
 }
 
 // Button that opens a dialog for deleting a field
@@ -221,26 +221,18 @@ function deleteFieldButton(button) {
   var answer = confirm("Are you sure? This is permanent.");
   
   if (answer) {
-    var rev = getData('field-rev', button);
-    var doctype = getData('doctype-id', button);
-    var fieldset = getData('fieldset-id', button);
-    var field = getData('field-id', button);
-    var url = "config/doctypes/" + doctype + 
-              "/fieldsets/" + fieldset + 
-              "/fields/" + field + "?rev=" + rev;
+    var url = buildUrl(button, "field");
     var complete = function() {populateFields(doctype, fieldset)};
-    
-    sendConfigDoc(url, {}, 'DELETE', complete, this);
+    url.delete(complete, this);
   }
 }
 
 // Button that opens a dialog for adding a field
 
 function addFieldButton(button) {
-  var fieldset = getData('fieldset-id', button);
-  var doctype = getData('doctype-id', button);
+  var url = (button, "field");
   
-  initFieldAddDialog(fieldset, doctype).dialog("open");
+  fieldDialog(url).dialog("open");
 }
 
 // Button that opens a dialog for editing a fieldset
@@ -538,67 +530,6 @@ function decodeDefaults(subcategory, defaults) {
   }
 }
 
-function setSubcategoryChangeAction(f) {
-  f.subcategory.change(function(e) {
-    switch ($(e.target).val()) {
-      case "select":
-      case "multiselect":
-      case "docselect":
-      case "docmultiselect":
-        f.hideDisable(true);
-        f.source.removeAttr("disabled");
-        f.source.parent().show();
-        break;
-      case "text":
-      case "textarea":
-        f.hideDisable(true);
-        f.regex.removeAttr("disabled");
-        f.regex.parent().show();
-        break;
-      case "date":
-      case "integer":
-      case "rational":
-        f.hideDisable(true);
-        f.min.removeAttr("disabled");
-        f.min.parent().show();
-        f.max.removeAttr("disabled");
-        f.max.parent().show();
-        break;
-      default:
-        f.hideDisable(true);
-    }
-  });
-}
-
-function initFieldAddDialog(url) {
-  var f = fieldElems().getFieldElems();
-   
-  var dialog = $("#field-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Create": function() {
-        var obj = f.getFieldInputVals();
-        complete = function(context) {
-          populateFields(url.doctype, url.fieldset);
-          $(context).dialog("close");
-        };
-        f.post(obj, complete, this);
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      f.clear();
-    }
-  });
-  
-  f.hideDisable();
-  
-  return dialog;
-}
-
 function copyValues(form, oldobj) {
   for (var name in oldobj) {
     form[name].val(oldobj[name]);
@@ -608,7 +539,7 @@ function copyValues(form, oldobj) {
   }
 }
 
-function initFieldEditDialog(url, oldobj) {
+function fieldDialog(url, oldobj) {
   var f = fieldElems().getFieldElems(oldobj);
    
   var dialog = $("#field-dialog").dialog({
@@ -618,10 +549,14 @@ function initFieldEditDialog(url, oldobj) {
       "Save": function() {
         var obj = f.getFieldInputVals();
         var complete = function(context) {
-          populateFields(url.doctype, fieldset);
+          populateFields(url.doctype, url.fieldset);
           $(context).dialog("close");
         };
-        url.put(obj, complete, this);
+        if (oldobj) {
+          url.put(obj, complete, this);
+        } else {
+          url.post(obj, complete, this);
+        }
       },
       "Cancel": function() {
         $(this).dialog("close");
