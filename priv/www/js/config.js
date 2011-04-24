@@ -77,11 +77,13 @@ function buildUrl(source, prefix) {
 // TODO look at how an OO person does this
 
 function fieldElems() {
+  var attrs = ["name", "label", "order", "description", "subcategory", 
+               "head", "reversal", "default", "required", "allowed", 
+               "source", "max", "min", "regex", "doctype", "fieldset",
+               "rev", "field"];
+               
   return {
-    attrs: ["name", "label", "order", "description", "subcategory", 
-            "head", "reversal", "default", "required", "allowed", 
-            "source", "max", "min", "regex", "doctype", "fieldset",
-            "rev", "field"],
+    attrs: attrs,
     getFieldElems: function(values) {
       var fieldsObj = {
         notDefault: function() {
@@ -102,11 +104,11 @@ function fieldElems() {
           });
           return this;
         },
-        copyValues: function(sfieldsObj) {
+        copyValues: function(source) {
           Object.keys(source).forEach(function(field) {
-            this[field].val(source[field]);
-            if (this[field].is('input[type=checkbox]')) {
-              if (source[field] == "true") this[field].attr('checked', true);
+            fieldsObj[field].val(source[field]);
+            if (fieldsObj[field].is('input[type=checkbox]')) {
+              if (source[field] == "true") fieldsObj[field].attr('checked', true);
             }
           });
           return this;
@@ -123,29 +125,29 @@ function fieldElems() {
         getFieldInputVals: function() {
           var valObj = {
             "category": "field", 
-            "name": fieldsObj.name.val(),
-            "label": fieldsObj.label.val(),
-            "default": decodeDefaults(fieldsObj.subcategory.val(), fieldsObj.default.val()),
-            "head": fieldsObj.head.is(':checked'),
-            "reversal": fieldsObj.reversal.is(':checked'),
-            "required": fieldsObj.required.is(':checked'),
-            "order": fieldsObj.order.val() * 1,
-            "allowed": fieldsObj.allowed.val().split(","),
-            "source": fieldsObj.source.val(),
-            "min": fieldsObj.min.val(),
-            "max": fieldsObj.max.val(),
-            "regex": fieldsObj.regex.val(),
-            "description": fieldsObj.description.val(),
-            "doctype": fieldsObj.doctype.val(),
-            "fieldset": fieldsObj.fieldset.val(),
-            "subcategory": fieldsObj.subcategory.val()
+            "name": this.name.val(),
+            "label": this.label.val(),
+            "default": decodeDefaults(this.subcategory.val(), this.default.val()),
+            "head": this.head.is(':checked'),
+            "reversal": this.reversal.is(':checked'),
+            "required": this.required.is(':checked'),
+            "order": this.order.val() * 1,
+            "allowed": this.allowed.val().split(","),
+            "source": this.source.val(),
+            "min": this.min.val(),
+            "max": this.max.val(),
+            "regex": this.regex.val(),
+            "description": this.description.val(),
+            "doctype": this.doctype.val(),
+            "fieldset": this.fieldset.val(),
+            "subcategory": this.subcategory.val()
           }
           return valObj;
         },
         clear: function() {
-          clearValues($('field-dialog .input')).removeClass('ui-state-error');
-          fieldsObj.hideDisable();
-          return fieldsObj;
+          clearValues($('#field-dialog .input')).removeClass('ui-state-error');
+          this.hideDisable();
+          return this;
         }
       };
                    
@@ -204,7 +206,7 @@ function getData(value, elem) {
 function editFieldButton(button) {
   var url = buildUrl(button, "field");
   var oldobj = {};
-  var attrs = fieldElems().getFieldAttrs();
+  var attrs = fieldElems().attrs;
    
   attrs.forEach(function(item) {
     oldobj[item] = getData('field-' + item, button);
@@ -307,8 +309,8 @@ function addDoctypeButton(button) {
 // Action for click event on accordion head
 
 function accordionHead(head) {
-  var doctype = getData('doctype-id', head.parent('h3'));
-  var fieldset = getData('fieldset-id', head.parent('h3'));
+  var doctype = getData('fieldset-doctype', head.parent('h3'));
+  var fieldset = getData('fieldset-fieldset', head.parent('h3'));
   populateFields(doctype, fieldset);
 }
 
