@@ -530,15 +530,6 @@ function decodeDefaults(subcategory, defaults) {
   }
 }
 
-function copyValues(form, oldobj) {
-  for (var name in oldobj) {
-    form[name].val(oldobj[name]);
-    if (form[name].is('input[type=checkbox]')) {
-      if (oldobj[name] == "true") form[name].attr('checked', true);
-    }
-  }
-}
-
 function fieldDialog(url, oldobj) {
   var f = fieldElems().getFieldElems(oldobj);
    

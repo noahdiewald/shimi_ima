@@ -28,7 +28,6 @@ init(ConfigProps) ->
     
 allowed_methods(ReqData, Context) ->
     {['HEAD', 'GET'], ReqData, Context}.
-    %{['HEAD', 'GET', 'PUT', 'DELETE', 'POST'], ReqData, Context}.
 
 file_path(Context, Name) ->
     RelName = case hd(Name) of
