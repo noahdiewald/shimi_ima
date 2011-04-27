@@ -1,4 +1,4 @@
-<div id="fieldset-dialog" title="Fieldset">
+<div id="fieldset-dialog" title="Fieldset" class="hidden">
 
   <p class="validate-tips">All fields are required.</p>
   

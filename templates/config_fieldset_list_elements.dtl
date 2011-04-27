@@ -1,5 +1,5 @@
-<h3 id="head-{{ id }}" class="accordion-head" data-group-id="{{ id }}">
-  <a href="#">{{ value.label }}</a>
+<h3 id="head-{{ id }}" class="accordion-head">
+  <a href="#" data-group-id="add-field-to-{{ id }}">{{ value.label }}</a>
 </h3>
 
 <div id="{{ id }}"

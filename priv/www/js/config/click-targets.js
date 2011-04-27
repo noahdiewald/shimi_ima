@@ -1,3 +1,15 @@
+// Button that opens a dialog for adding a charsec
+
+function addCharsec(button) {
+  $("#charseq-add-dialog").dialog("open");
+}
+
+// Button that opens a dialog for adding a doctype
+
+function addDoctype(button) {
+  initDoctypeAddDialog().dialog("open");
+}
+
 // Button that opens a dialog for editing a field
 
 function editFieldButton(button) {
@@ -19,7 +31,7 @@ function deleteFieldButton(button) {
   
   if (answer) {
     var url = buildUrl(button, "field");
-    var complete = function() {populateFields(url.doctype, url.fieldset)};
+    var complete = function() {populateFields(url)};
     url.delete(complete, this);
   }
 }
@@ -52,24 +64,20 @@ function editFieldsetButton(button) {
 // Button that opens a dialog for deleting a fieldset
 
 function deleteFieldsetButton(button) {
-  var rev = getData('fieldset-rev', button);
-  var doctype = getData('doctype-id', button);
-  var fieldset = getData('fieldset-id', button);
-  var url = "config/doctypes/" + doctype + 
-"/fieldsets/" + fieldset + "?rev=" + rev;
+  var url = buildUrl(button, "fieldset");
   var complete = function() {
-    populateFieldsets(doctype);
+    populateFieldsets(url);
   };
     
   if (confirm("Are you sure? This is permanent.")) {
-    sendConfigDoc(url, {}, 'DELETE', complete, this);
+    sendConfigDoc(url.toString(), {}, 'DELETE', complete, this);
   }
 }
 
 // Button that opens a dialog for adding a fieldset
 
-function addFielsetButton(button) {
-  fieldsetDoctype.val(getData('doctype-id', button));
+function addFieldsetButton(button) {
+  var url = buildUrl(button, "fieldset");
   initFieldsetAddDialog().dialog("open");
 }
 
@@ -96,9 +104,8 @@ function addDoctypeButton(button) {
 
 // Action for click event on accordion head
 
-function accordionHead(head) {
-  var doctype = getData('fieldset-doctype', head.parent('h3'));
-  var fieldset = getData('fieldset-fieldset', head.parent('h3'));
-  populateFields(doctype, fieldset);
+function accordionHead(button) {
+  var url = buildUrl(button, "field");
+  populateFields(url);
 }
 

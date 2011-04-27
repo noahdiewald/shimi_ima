@@ -60,7 +60,7 @@ function fieldElems() {
         "category": "field", 
         "name": fObj.name.val(),
         "label": fObj.label.val(),
-        "default": decodeDefaults(fObj.subcategory.val(), fObj.default.val()),
+        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj.default.val()),
         "head": fObj.head.is(':checked'),
         "reversal": fObj.reversal.is(':checked'),
         "required": fObj.required.is(':checked'),
@@ -82,12 +82,22 @@ function fieldElems() {
       clearValues($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.hideDisable();
       return fObj;
-    }
+    };
+    
+    fObj.decodeDefaults = function(subcategory, defaults) {
+      switch (subcategory) {
+        case "docmultiselect":
+        case "multiselect":
+          return defaults.split(",").map(function (item) {return item.trim()});
+        default:
+          return defaults;
+      }
+    };
                    
     fObj.attrs.forEach(function(item) {
       fObj[item] = $('#field-' + item + '-input');
     });
-      
+    
     fObj.copyValues(values);
     fObj.showEnable();
     fObj.hideBlanks();

@@ -1,82 +1,17 @@
-
-function initDoctypeAddButton() {
-  $("#doctype-add-button").button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function() {
-    initDoctypeAddDialog().dialog("open");
-  });
-  
-  return false;
-}
-
-function encodeDefaults(subcategory, defaults) {
-  switch (subcategory) {
-    case "docmultiselect":
-    case "multiselect":
-      return defaults.join(", ");
-    default:
-      return defaults;
-  }
-}
-
-function decodeDefaults(subcategory, defaults) {
-  switch (subcategory) {
-    case "docmultiselect":
-    case "multiselect":
-      return defaults.split(",").map(function (item) {return item.trim()});
-    default:
-      return defaults;
-  }
-}
-
-function initCharsecAddDialog() {
-  $("#charseq-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Add": function() {},
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      clearValues($('.input')).removeClass('ui-state-error');
-    }
-  });
-  
-  return true;
-}
-
-function initCharsecAddButton() {
-  $("#charseq-add-button").button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function() {
-    $("#charseq-add-dialog").dialog("open");
-  });
-
-  return true;
-}
-
-function populateFields(doctypeId, fieldsetId) {
-  var url = "config/doctypes/" + doctypeId + 
-            "/fieldsets/" + fieldsetId + 
-            "/fields";
-        
-  $.get(url, function(fields) {
-    var fieldContainer = $("#fields-" + fieldsetId);
+function populateFields(url) {
+  $.get(url.toString(), function(fields) {
+    var fieldContainer = $("#fields-" + url.fieldset);
     fieldContainer.empty();
     fieldContainer.html(fields);
   });
 }
 
-function populateFieldsets(doctypeId) {
+function populateFieldsets(url) {
   var fieldDoctype = $("#field-doctype-input");
   var fieldFieldset = $("#field-fieldset-input");
-  var url = "config/doctypes/" + doctypeId + 
-            "/fieldsets";
             
-  $.get(url, function(fieldsets) {
-    var fieldsetContainer = $("#fieldsets-" + doctypeId);
+  $.get(url.toString(), function(fieldsets) {
+    var fieldsetContainer = $("#fieldsets-" + url.doctype);
     
     fieldsetContainer.empty();
     fieldsetContainer.accordion("destroy");
@@ -96,8 +31,8 @@ function populateDoctypeTabs() {
   $.get(url, function(doctypes) {
     var fieldsetDoctype = $("#fieldset-doctype-input");
     var loadFun = function(event, ui) {
-      doctype = $(ui.panel).children()[0].id;
-      populateFieldsets(doctype);
+      var fieldsetsUrl = buildUrl($(ui.panel).children('div[data-fieldset-doctype]'), "fieldset");
+      populateFieldsets(fieldsetsUrl);
     };
     
     $("#doctype-tabs-headings").empty();
@@ -138,10 +73,4 @@ $(function () {
   $('body').click(function(e) {clickDispatch(e)});
   initTabs(); 
   initHelpText();
-  $('#doctype-dialog').hide();
-  $("#fieldset-dialog").hide();
-  $("#field-dialog").hide();
-  initDoctypeAddButton();
-  initCharsecAddDialog();
-  initCharsecAddButton();
 });

@@ -10,7 +10,7 @@ function fieldDialog(url, values) {
       "Save": function() {
         var obj = f.getFieldInputVals();
         var complete = function(context) {
-          populateFields(url.doctype, url.fieldset);
+          populateFields(url);
           $(context).dialog("close");
         };
         if (!values.rev || values.rev.isBlank()) {

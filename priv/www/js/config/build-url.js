@@ -36,15 +36,19 @@ function buildUrl(source, prefix) {
     
   url.toString = function() {
     var rev;
+    var end;
       
     urlString = url.string.concat(url.valid_components.map(function(item) {
       var plural = item + "s";
       var value = url[item];
-        
-      if (value) {
-        return plural + "/" + value;
-      } else {
-        return plural;
+       
+      if (!end) { 
+        if (value) {
+          return plural + "/" + value;
+        } else {
+          end = true;
+          return plural;
+        }
       }
     }).join("/"));
       

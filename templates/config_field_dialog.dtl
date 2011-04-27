@@ -1,4 +1,4 @@
-<div id="field-dialog" title="Field">
+<div id="field-dialog" title="Field" class="hidden">
   
   <form>
     <fieldset class="ui-helper-reset">

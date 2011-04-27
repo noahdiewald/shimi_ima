@@ -1,4 +1,4 @@
-<div id="doctype-dialog" title="Document Type">
+<div id="doctype-dialog" title="Document Type" class="hidden">
 
   <p class="validate-tips">All fields are required.</p>
   

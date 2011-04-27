@@ -1,5 +1,7 @@
 <div 
   id={{ _id }}
+  data-fieldset-doctype="{{ _id }}" 
+  data-group-id="{{ _id }}" 
   data-doctype-doctype="{{ _id }}" 
   data-doctype-description="{{ description|force_escape }}" 
   data-doctype-rev="{{ _rev }}">

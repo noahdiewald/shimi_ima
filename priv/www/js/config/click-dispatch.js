@@ -1,4 +1,4 @@
-// Depending on the css matcher trigger the specified function on the
+// Depending on the css matcher, trigger the specified function on the
 // event target. Takes an event object and performs an action.
 
 function clickDispatch(e) {
@@ -9,7 +9,8 @@ function clickDispatch(e) {
     ".edit-fieldset-button": function(t) {editFieldsetButton(t)},
     ".delete-fieldset-button": function(t) {deleteFieldsetButton(t)},
     ".add-fieldset-button": function(t) {addFieldsetButton(t)},
-    "h3.accordion-head a": function(t) {accordionHead(t)}
+    "h3.accordion-head a": function(t) {accordionHead(t)},
+    "#doctype-add-button": function(t) {addDoctype(t)}
   });
 
   action(e);
