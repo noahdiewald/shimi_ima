@@ -1,18 +1,26 @@
 // Build a url based on information available on page
 
-function buildUrl(source, prefix) {
+function buildUrl(source, category) {
   var url = {};
   
-  if (prefix) {
-    prefix = prefix + "-";
+  if (category) {
+    var prefix = category + "-";
   } else {
-    prefix = "";
+    var prefix = "";
   }
   
+  url.category = category;
   url.string = "config/";
   url.origin = source;
   url.type = prefix + "url";
   url.valid_components = ["doctype", "fieldset", "field"];
+  
+  url.valid_components.forEach(function(item) {
+    url[item] = (function() {
+      var value = getData(prefix + item, url.origin);
+      return value;
+    })();
+  });
   
   url.send = function(object, method, callback, context) {
     sendConfigDoc(url.toString(), object, method, callback, context);
@@ -36,19 +44,15 @@ function buildUrl(source, prefix) {
     
   url.toString = function() {
     var rev;
-    var end;
       
     urlString = url.string.concat(url.valid_components.map(function(item) {
       var plural = item + "s";
       var value = url[item];
-       
-      if (!end) { 
-        if (value) {
-          return plural + "/" + value;
-        } else {
-          end = true;
-          return plural;
-        }
+      
+      if (value) {
+        return plural + "/" + value;
+      } else if (item == url.category) {
+        return plural;
       }
     }).join("/"));
       
@@ -59,11 +63,5 @@ function buildUrl(source, prefix) {
     return urlString;
   };
   
-  url.valid_components.forEach(function(item) {
-    url[item] = (function() {
-      return getData(prefix + item, source)
-    })();
-  });
-
   return url; 
 }

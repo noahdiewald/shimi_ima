@@ -7,9 +7,6 @@ function populateFields(url) {
 }
 
 function populateFieldsets(url) {
-  var fieldDoctype = $("#field-doctype-input");
-  var fieldFieldset = $("#field-fieldset-input");
-            
   $.get(url.toString(), function(fieldsets) {
     var fieldsetContainer = $("#fieldsets-" + url.doctype);
     
@@ -30,15 +27,19 @@ function populateDoctypeTabs() {
   
   $.get(url, function(doctypes) {
     var fieldsetDoctype = $("#fieldset-doctype-input");
-    var loadFun = function(event, ui) {
-      var fieldsetsUrl = buildUrl($(ui.panel).children('div[data-fieldset-doctype]'), "fieldset");
-      populateFieldsets(fieldsetsUrl);
-    };
     
     $("#doctype-tabs-headings").empty();
     $("#doctype-tabs-headings + .ui-tabs-panel").remove();
     $("#doctype-tabs").tabs("destroy");
     $("#doctype-tabs-headings").html(doctypes);
+    
+    var loadFun = function(event, ui) {
+      var source = $(ui.panel).children('div[data-fieldset-doctype]');
+      var fieldsetsUrl = buildUrl(source, "fieldset");
+      
+      populateFieldsets(fieldsetsUrl);
+    };
+    
     $("#doctype-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
   });
 }

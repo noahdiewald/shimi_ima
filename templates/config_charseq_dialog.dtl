@@ -1,4 +1,4 @@
-<div id="charseq-dialog" title="Character Sequence">
+<div id="charseq-dialog" title="Character Sequence" class="hidden">
   <form>
     <fieldset class="ui-helper-reset">
       <label for="charseq-name">Character Sequence Name</label>

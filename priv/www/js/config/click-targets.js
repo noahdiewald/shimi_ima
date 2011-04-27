@@ -46,19 +46,15 @@ function addFieldButton(button) {
 // Button that opens a dialog for editing a fieldset
 
 function editFieldsetButton(button) {
-  var rev = getData('fieldset-rev', button);
-  var doctype = getData('doctype-id', button);
-  var fieldset = getData('fieldset-id', button);
-  var oldobj = {
-    name: getData('fieldset-name', button),
-    label: getData('fieldset-label', button),
-    order: getData('fieldset-order', button),
-    multiple: getData('fieldset-multiple', button),
-    collapse: getData('fieldset-collapse', button),
-    description: getData('fieldset-description', button) 
-  };
+  var url = buildUrl(button, "fieldset");
+  var oldobj = {};
+  var attrs = fieldsetElems().attrs;
+   
+  attrs.forEach(function(item) {
+    oldobj[item] = getData('fieldset-' + item, button);
+  });
   
-  initFieldsetEditDialog(fieldset, doctype, oldobj, rev).dialog("open");
+  fieldsetDialog(url, oldobj).dialog("open");
 }
 
 // Button that opens a dialog for deleting a fieldset
@@ -78,7 +74,7 @@ function deleteFieldsetButton(button) {
 
 function addFieldsetButton(button) {
   var url = buildUrl(button, "fieldset");
-  initFieldsetAddDialog().dialog("open");
+  fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
 }
 
 function editDoctypeButton(button) {

@@ -1,5 +1,5 @@
 <div 
-  id={{ _id }}
+  id="{{ _id }}"
   data-fieldset-doctype="{{ _id }}" 
   data-group-id="{{ _id }}" 
   data-doctype-doctype="{{ _id }}" 
