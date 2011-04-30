@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block dialogs %}
-<div id="add-dialog" title="Create new project">
+<div id="add-dialog" class="hidden" title="Create new project">
   <p class="validate-tips">All fields are required.</p>
   <form>
     <fieldset>
@@ -14,15 +14,6 @@
       <label for="project-description">Project Description</label>
       <textarea name="project-description" id="project-description" class="text ui-widget-content ui-corner-all"></textarea>
     </fieldset>
-  </form>
-</div>
-
-<div id="delete-dialog" title="Delete project">
-  <p class="ui-highlight">
-    This will delete the project and its associated data.
-    This is not reversable.
-  </p>
-  <form>
   </form>
 </div>
 {% endblock %}
