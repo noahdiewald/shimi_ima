@@ -1,8 +1,3 @@
-// Base64 encoding for browsers withough btoa() and atob() (IE, maybe Opera)
-
-if (!window.btoa) window.btoa = base64.encode
-if (!window.atob) window.atob = base64.decode
-
 // Object.keys compatibility
 
 if(!Object.keys) Object.keys = function(o){

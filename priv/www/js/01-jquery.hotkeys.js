@@ -1,6 +1,7 @@
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
+ * Modified by Noah Diewald
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
  * Based upon the plugin by Tzury Bar Yochay:
