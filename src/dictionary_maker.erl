@@ -70,7 +70,9 @@ stop([Node]) ->
     io:format("Stop:~p~n",[Node]),
     case net_adm:ping(Node) of
      pong -> 
-       % TODO: this could delete the pid file even if the program hasn't stoped.
+       % TODO: This could delete the pid file even if the program hasn't stoped.
+       % TODO: Do not hard code this file name
+       % TODO: Build file name in a portable manner
        file:delete("./dictionary_maker.pid"),
        rpc:cast(Node, init, stop, []);
      pang -> io:format("There is no node with this name~n")
