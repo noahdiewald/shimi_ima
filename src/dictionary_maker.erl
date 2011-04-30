@@ -23,7 +23,7 @@
 %% @doc dictionary_maker startup code
 
 -module(dictionary_maker).
--author('author <author@example.com>').
+-author('Noah Diewald <noah@diewald.me>').
 -export([start/0, start_link/0, stop/0, stop/1]).
 
 ensure_started(App) ->
