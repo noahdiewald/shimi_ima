@@ -56,8 +56,9 @@ to_js(R, S) ->
     {ok, Content} = file:read_file(File),
     [Content|Acc]
   end,
-  Common = filelib:fold_files(proplists:get_value(root, S), "\.js$", false, Fun, []),
-  Script = filelib:fold_files(proplists:get_value(path, S), "\.js$", true, Fun, []),
+  Pattern = "\.js$",
+  Common = filelib:fold_files(proplists:get_value(root, S), Pattern, false, Fun, []),
+  Script = filelib:fold_files(proplists:get_value(path, S), Pattern, true, Fun, []),
   {[Common|Script], R, S}.
   
 script_exists(S, Name) ->
