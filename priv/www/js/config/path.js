@@ -1,0 +1,69 @@
+// Build a url based on information available on page
+
+function path(source, category) {
+  var path = {};
+  
+  if (category) {
+    var prefix = category + "-";
+  } else {
+    var prefix = "";
+  }
+  
+  path.category = category;
+  path.string = "config/";
+  path.origin = source;
+  path.type = prefix + "path";
+  path.valid_components = ["doctype", "fieldset", "field"];
+  
+  path.valid_components.forEach(function(item) {
+    path[item] = (function() {
+      var value = getData(prefix + item, path.origin);
+      return value;
+    })();
+  });
+  
+  path.rev = getData(prefix + 'rev', path.origin);
+  
+  path.send = function(object, method, callback, context) {
+    sendConfigDoc(path.toString(), object, method, callback, context);
+    return path;
+  };
+  
+  path.put = function(object, callback, context) {
+    path.send(object, 'PUT', callback, context);
+    return path;
+  };
+    
+  path.post = function(object, callback, context) {
+    path.send(object, 'POST', callback, context);
+    return path;
+  };
+  
+  path.delete = function(callback, context) {
+    path.send({}, 'DELETE', callback, context);
+    return path;
+  };
+    
+  path.toString = function() {
+    var rev;
+      
+    pathString = path.string.concat(path.valid_components.map(function(item) {
+      var plural = item + "s";
+      var value = path[item];
+      
+      if (value) {
+        return plural + "/" + value;
+      } else if (item == path.category) {
+        return plural;
+      }
+    }).join("/"));
+      
+    if (path.rev) {
+      pathString = pathString.concat("?rev=" + path.rev);
+    }
+    
+    return pathString;
+  };
+  
+  return path; 
+}

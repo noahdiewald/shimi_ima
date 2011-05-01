@@ -5,7 +5,8 @@ function fieldsetElems() {
   var fElems = {};
   
   fElems.attrs = ["name", "label", "order", "description", 
-                  "doctype", "rev", "multiple", "collapse"];
+                  "doctype", "rev", "multiple", "collapse",
+                  "fieldset"];
                
   fElems.get = function(values) {
     var fObj = {};

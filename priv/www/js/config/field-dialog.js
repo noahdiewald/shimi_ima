@@ -16,6 +16,7 @@ function fieldDialog(url, values) {
         if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
         } else {
+          obj._id = url.field;
           url.put(obj, complete, this);
         }
       },

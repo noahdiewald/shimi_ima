@@ -1,73 +1,28 @@
 // Dialog for manipulating doctypes
 
-function initDoctypeAddDialog() {
-  var doctypeName = $("#doctype-name-input");
-  doctypeName.attr('disabled', false);
+function doctypeDialog(url, values) {
+  var f = doctypeElems().get(values);
   
-  var dialog = $("#doctype-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Add Document Type": function() {
-        $('.input').removeClass('ui-state-error');
-        
-        checkResult = true;
-        
-        if (checkResult) {
-          var obj = {
-            "category": "doctype", 
-            "description": $("#doctype-description-input").val(),
-            "_id": $("#doctype-name-input").val()
-          },
-          complete = function(context) {
-            populateDoctypeTabs();
-            $(context).dialog("close");
-          };
-          sendConfigDoc("config/doctypes", obj, 'POST', complete, this);
-        }
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      clearValues($('.input')).removeClass('ui-state-error');
-    }
-  });
+  if (values.rev && !values.rev.isBlank()) {
+    f.doctype.attr('disabled', 'disabled');
+  }  
   
-  return dialog;
-}
-
-function initDoctypeEditDialog(name, description, rev) {
-  var doctypeName = $("#doctype-name-input");
-  var doctypeDescription = $("#doctype-description-input");
-  var url = "config/doctypes/" + name + "?rev=" + rev;
-  
-  doctypeDescription.val(description);
-  doctypeName.val(name);
-  doctypeName.attr('disabled', true);
-
   var dialog = $("#doctype-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Save": function() {
-        $('.input').removeClass('ui-state-error');
+        var obj = f.getDoctypeInputVals();
+        var complete = function(context) {
+          populateDoctypeTabs();
+          $(context).dialog("close");
+        };
         
-        checkResult = true;
-        
-        if (checkResult) {
-          var obj = {
-            "category": "doctype", 
-            "description": $("#doctype-description-input").val(),
-            "_id": $("#doctype-name-input").val()
-          },
-          complete = function(context) {
-            populateDoctypeTabs();
-            $(context).dialog("close");
-          };
-          
-          sendConfigDoc(url, obj, 'PUT', complete, this);
+        if (!values.rev || values.rev.isBlank()) {
+          url.post(obj, complete, this);
+        } else {
+          obj._id = url.doctype;
+          url.put(obj, complete, this);
         }
       },
       "Cancel": function() {
@@ -75,7 +30,7 @@ function initDoctypeEditDialog(name, description, rev) {
       }
     },
     close: function() {
-      clearValues($('.input')).removeClass('ui-state-error');
+      f.clear();
     }
   });
   

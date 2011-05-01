@@ -8,8 +8,8 @@
       <label for="doctype-name-input">Document Type Name</label><br />
       <input 
         type="text" 
-        name="doctype-name-input" 
-        id="doctype-name-input" 
+        name="doctype-doctype-input" 
+        id="doctype-doctype-input" 
         value="" 
         class="ui-widget-content ui-corner-all input" /><br />
       
