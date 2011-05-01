@@ -11,7 +11,7 @@ function removeFieldset(target) {
   target.parent().remove();
 }
 
-function save(target) {
+function saveDoc(target) {
   var saveButton = target;
   var root = $('#edit-document-form');
   var documentId = saveButton.attr('data-document-id');
@@ -55,7 +55,7 @@ function save(target) {
   });
 }
 
-function create(target) {
+function createDoc(target) {
   var createButton = target;
   var root = $('#edit-document-form');
   var obj = {
@@ -95,7 +95,7 @@ function create(target) {
   });
 }
 
-function clear(target) {
+function clearDoc(target) {
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
   $('#save-document-button').hide();
   $('#save-document-button').attr('disabled','disabled');
@@ -103,12 +103,12 @@ function clear(target) {
   initFieldsets();
 }
 
-function edit(target) {
+function editDoc(target) {
   resetFields();
   fillFieldsets();
 }
 
-function delete(target) {
+function deleteDoc(target) {
   if (confirm("Are you sure?")) {
     var docid = target.attr('data-document-id');
     var docrev = target.attr('data-document-rev');

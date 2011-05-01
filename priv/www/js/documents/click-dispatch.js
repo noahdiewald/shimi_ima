@@ -3,13 +3,13 @@
 
 function clickDispatch(e) {
   var action = dispatcher({
-    ".add-button": function(t) {addFieldset(t)},
-    ".remove-button": function(t) {removeFieldset(t)},
-    "#save-document-button": function(t) {save(t)},
-    "#create-document-button": function(t) {create(t)},
-    "#clear-document-button": function(t) {clear(t)},
-    "#document-edit-button": function(t) {edit(t)},
-    "#document-delete-button": function(t) {delete(t)},
+    ".add-button span": function(t) {addFieldset(t.parent())},
+    ".remove-button span": function(t) {removeFieldset(t.parent())},
+    "#save-document-button span": function(t) {saveDoc(t.parent())},
+    "#create-document-button span": function(t) {createDoc(t.parent())},
+    "#clear-document-button span": function(t) {clearDoc(t.parent())},
+    "#document-edit-button span": function(t) {editDoc(t.parent())},
+    "#document-delete-button span": function(t) {deleteDoc(t.parent())},
     "#document-view-list > li > b": function(t) {collapseToggle(t)},
     "#panel-toggle li": function(t) {panelToggle(t)}
   });

@@ -93,7 +93,7 @@ function afterEditRefresh() {
   var editBttn = $('#document-edit-button');
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
   
-  _(sharedAttrs).each(function(elem) {
+  sharedAttrs.forEach(function(elem) {
     saveBttn.attr(elem, editBttn.attr(elem));
   });
   
@@ -591,6 +591,7 @@ function fillQueryOptions() {
 }
 
 $(function () {
+  $('body').click(function(e) {clickDispatch(e)});
   fillQueryOptions();
   getIndex();
   initEdit();
