@@ -132,23 +132,9 @@ function getDocument(id, runAfterEditRefresh) {
     
     if (runAfterEditRefresh) afterEditRefresh();
     
-    $('#document-edit-button').button().click(function() {
-      resetFields();
-      fillFieldsets();
-    });
+    $('#document-edit-button').button();
     
-    $('#document-delete-button').button().click(function() {
-      if (confirm("Are you sure?")) {
-        var docid = $(this).attr('data-document-id');
-        var docrev = $(this).attr('data-document-rev');
-        
-        deleteDocument(docid, docrev);
-      }
-    });
-    
-    $('#document-view-list > li > b').click(function() {
-      $(this).parent('li').toggleClass('collapsed');
-    });
+    $('#document-delete-button').button();
   });
 }
 
@@ -364,7 +350,7 @@ function arrangeTabBar() {
   var containerWidth = $('#tabs-container').width();
   var tabsWidth;
   
-  tabsWidth = _(tabs).reduce(function(acc, elem) {
+  tabsWidth = tabs.toArray().reduce(function(acc, elem) {
     var width = elem.offsetWidth;
     
     if (isNaN(width)) {
@@ -396,86 +382,23 @@ function initEditButtons() {
 // Initialize the button that will add additional fieldsets to
 // a multiple fieldset 
 function initAddButton() {
-  $(".add-button").button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function() {
-    var fieldsetContainer = $("#container-" + $(this).attr('data-fieldset-id'));
-    var url = buildUrl(fieldsetContainer.attr('data-project-id'),
-                       fieldsetContainer.attr('data-doctype-id'),
-                       fieldsetContainer.attr('data-fieldset-id'));
-     
-    initFieldset(fieldsetContainer, url);
-  });
+  $(".add-button").button({icons: {primary: "ui-icon-plus"}});
   
   return true;
 }
 
 // Initialize the button that removes a fieldset from a multiple fieldset
 function initRemoveButton() {  
-  $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"}
-  }).click(function() {
-    $(this).parent().remove();
-  });
-  
-  return true;
+  return $(".remove-button").button({icons: {primary: "ui-icon-minus"}});
 }
 
 // Initialize the save button that is used for already existing documents.
 // Hide the button until the form has been filled by an already existing
 // document's values. See the after functions above.
 function initSaveButton() {
-  $('#save-document-button').button({
-    icons: {primary: "ui-icon-disk"}
-  }).click(function() {
-    var saveButton = $(this);
-    var root = $('#edit-document-form');
-    var documentId = saveButton.attr('data-document-id');
-    var documentRev = saveButton.attr('data-document-rev');
-    var url = "./documents/" + documentId + "?rev=" + documentRev;
-    var obj = {
-      doctype: saveButton.attr('data-doctype-id'),
-      description: saveButton.attr('data-doctype-description')
-    };
-    
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton.button('disable');
-    $.extend(obj, fieldsetsToObject(root));
-    
-    $.ajax({
-      type: "PUT",
-      url: url,
-      dataType: "json",
-      contentType: "application/json",
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function(req, status) {
-        if (req.status == 204) {
-          var title = "Success";
-          var body = "Your document was saved.";
-          getDocument(documentId, true);
-          getIndex();
-          flashHighlight(title, body);
-          saveButton.button('enable');
-        } else if (req.status == 403) {
-          setInvalidError(req);
-          saveButton.button('enable');
-        } else if (req.status == 409) {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
-          
-          flashError(title, body.message);
-          saveButton.button('enable');
-        }
-      }
-    });
-    
-  });
-  
+  $('#save-document-button').button({ icons: {primary: "ui-icon-disk"}});
   $('#save-document-button').hide();
-  $('#save-document-button').attr('disabled', 'true');
-  
-  return true;
+  return $('#save-document-button').attr('disabled', 'disabled');
 }
 
 // When a form validation error has occurred, this will cause it to
@@ -496,65 +419,12 @@ function setInvalidError(req) {
 // Initialize the create as new button used to create a new document based
 // on filled in values.
 function initCreateButton() {
-  $("#create-document-button").button({
-    icons: {primary: "ui-icon-document"}
-  }).click(function() {
-    var createButton = $(this);
-    var root = $('#edit-document-form');
-    var obj = {
-      doctype: createButton.attr('data-doctype-id'),
-      description: createButton.attr('data-doctype-description')
-    };
-    
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton.button('disable');
-    $.extend(obj, fieldsetsToObject(root));
-    
-    postUrl = $.ajax({
-      type: "POST",
-      dataType: "json",
-      contentType: "application/json",
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function(req, status) {
-        if (req.status == 201) {
-          var title = "Success";
-          var body = "Your document was created.";
-          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-          
-          $('#save-document-button').hide();
-          $('#save-document-button').attr('disabled','true');
-          $('.fields').remove();
-          initFieldsets();
-          getDocument(documentId);
-          getIndex();
-          flashHighlight(title, body);
-          createButton.button('enable');
-        } else if (req.status == 403) {
-          setInvalidError(req);
-          createButton.button('enable');
-        }
-      }
-    });
-    
-  });
-
-  return true;
+  return $("#create-document-button").button({icons: {primary: "ui-icon-document"}});
 }
 
 // Initialize the clear button that will rebuild the form fresh.
 function initClearButton() {
-  $('#clear-document-button').button({
-    icons: {primary: "ui-icon-refresh"}
-  }).click(function() {
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    $('#save-document-button').hide();
-    $('#save-document-button').attr('disabled','true');
-    $('.fields').remove();
-    initFieldsets();
-  });
-  
-  return true;
+  return $('#clear-document-button').button({icons: {primary: "ui-icon-refresh"}});
 }
 
 // Given the context of a fieldset in the HTML and a URL to dowload the
@@ -731,11 +601,5 @@ $(function () {
   
   $('#index-filter-form select').change(function() {
     getIndex();
-  });
-  
-  $('#panel-toggle li').click(function(e) {
-    var panel = '#' + $(this).attr('data-panel');
-    
-    $(panel).toggle();
   });
 });
