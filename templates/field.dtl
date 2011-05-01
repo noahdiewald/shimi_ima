@@ -1,7 +1,7 @@
 <div 
- class="field-container ui-widget ui-widget-content ui-corner-all" 
+ class="field-container" 
  data-field-id="{{ _id }}">
-  <label for="{{ name }}" class="ui-widget">
+  <label for="{{ name }}">
     <span class="label-text">{{ label }}</span>
     <span 
       class="ui-icon ui-icon-help" 
