@@ -2,9 +2,7 @@
 
 {% if total_rows != 0 %}
 
-<div
-  id="edit-document-form"
-  class="ui-widget ui-corner-all">
+<div id="edit-document-form" class="ui-widget ui-corner-all">
   
   <div id="edit-tabs">
     <div id="tabs-container">
@@ -48,7 +46,7 @@
   
   <button 
     class="add-button" 
-    data-fieldset-id="{{ fieldset.value._id }}">
+    data-fieldset-fieldset="{{ fieldset.value._id }}">
    Add Additional
   </button>
   
@@ -67,17 +65,17 @@
       Clear Form
     </button>
     <button 
-      data-doctype-id="{{ doctype_info._id }}" 
-      data-doctype-description="{{ doctype_info.description }}" 
+      data-document-doctype="{{ doctype_info._id }}" 
+      data-document-description="{{ doctype_info.description }}" 
       id="create-document-button" 
       class="create-button"
     >
       Create as New
     </button>
     <button 
-      data-doctype-id="{{ doctype_info._id }}" 
-      data-doctype-description="{{ doctype_info.description }}"
-      data-document-id=""
+      data-document-doctype="{{ doctype_info._id }}" 
+      data-document-description="{{ doctype_info.description }}"
+      data-document-document=""
       data-document-rev=""
       id="save-document-button" 
       class="save-button"

@@ -11,6 +11,14 @@ function dpath(source, category) {
   return url;
 }
 
+function fsInfo(key, source) {
+  getData("fieldset-" + key, source);
+}
+
+function fInfo(key, source) {
+  getData("field-" + key, source);
+}
+
 $(function () {
   $('body').click(function(e) {clickDispatch(e)});
   fillQueryOptions();
