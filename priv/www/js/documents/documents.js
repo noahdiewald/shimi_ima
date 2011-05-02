@@ -5,6 +5,12 @@ function buildUrl(project, doctype, fieldset) {
          "/fieldsets/" + fieldset;
 }
 
+function dpath(source, category) {
+  var url = path(source, category);
+  url.doctype = false;
+  return url;
+}
+
 $(function () {
   $('body').click(function(e) {clickDispatch(e)});
   fillQueryOptions();

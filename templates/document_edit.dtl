@@ -42,14 +42,13 @@
     <div 
       id="container-{{ fieldset.value._id }}" 
       class="fieldset-container"
-      data-fieldset-id="{{ fieldset.value._id }}"></div>
+      data-group-id="{{ fieldset.value._id }}"></div>
     
   {% if fieldset.value.multiple %}
   
   <button 
     class="add-button" 
-    data-fieldset-id="{{ fieldset.value._id }}"
-  >
+    data-fieldset-id="{{ fieldset.value._id }}">
    Add Additional
   </button>
   

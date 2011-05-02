@@ -61,6 +61,8 @@ function path(source, category, section) {
       } else if (item == path.category) {
         return plural;
       }
+    }).filter(function(item) {
+      return (typeof item == "string" && !item.isBlank());
     }).join("/"));
       
     if (path.rev) {

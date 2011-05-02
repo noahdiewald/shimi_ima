@@ -1,4 +1,5 @@
 // Initialize the form in the edit pane
+
 function initEdit() {
   var url = "documents/edit";
   
@@ -141,53 +142,6 @@ function initClearButton() {
   return $('#clear-document-button').button({icons: {primary: "ui-icon-refresh"}});
 }
 
-// Given the context of a fieldset in the HTML and a URL to dowload the
-// fields from the database, prepend the fields to the HTML in the fieldset.
-// Prepending avoids overwriting or putting fields below the remove button
-// that may appear in multiple fieldsets. When filling the form fields of
-// a multiple fieldset, a callback is also sent that has the correct context
-// for that purpose.
-
-function initFields(fieldset, callback) {
-  var url = path(fieldset, "field");
-  var section = $('#container-' + fieldset).childern('.fields').last();
-  
-  $.get(url.toString(), function(fields) {
-    section.prepend(fields);
-    if (callback) {
-      callback(section);
-    }
-
-    afterFreshRefresh();
-  });
-  
-  return true;
-}
-
-// Retrieve a fieldset rendering and request the field renderings. When this
-// fieldset is in a multiple fieldset, a callback may be supplied when filling
-// the fields to provide the correct context.
-function initFieldset(fieldset, callback) {
-  var container = $('#container-' + fieldset.id);
-  
-  $.get(url, function(data) {
-    container.append(data);
-    initFields(fieldset, callback);
-  });
-  
-  return false;
-}
-
-
-// Initialize all the fieldsets. 
-function initFieldsets() {
-  $('fieldset').forEach(function(fieldset) {
-    initFieldset(fieldset);
-  });
-  
-  return true;
-}
-
 // Before submitting the form, the form data is converted into an object
 // that can be serialized to JSON. This begins with the fieldsets. 
 function fieldsetsToObject(root) {
@@ -298,8 +252,8 @@ function getFieldValue(field) {
 
 // Fill the form fields with a document's values
 function fillFieldsets() {
-  $('.fieldset-view').each(function(fieldsetViewIndex, fieldsetView) {
-    if ($(fieldsetView).attr('data-multiple') == "true") {
+  $('.fieldset-view').each(function(i, fieldset) {
+    if (getData("fieldset-multiple", $(fieldset))) {
       fillMultiFieldsets(fieldsetView);
     } else {
       fillNormalFieldsets(fieldsetView);

@@ -1,3 +1,9 @@
+// hide common options for path
+
+function cpath(source, category) {
+  return path(source, category, "config");
+}
+
 // Populate the listing of fields
 
 function populateFields(path) {

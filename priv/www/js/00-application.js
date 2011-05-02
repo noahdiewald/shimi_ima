@@ -1,4 +1,4 @@
-// Helpers for treating HTML elements like
+// Helpers for treating HTML elements like key value storage
 
 function getData(value, elem) {
   var dataElem = elem.attr('data-group-id');

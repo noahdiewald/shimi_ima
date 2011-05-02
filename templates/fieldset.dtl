@@ -1,17 +1,7 @@
 <div 
-  data-fieldset-id="{{ _id }}"
-  data-doctype-id="{{ doctype_info._id }}"
-  data-project-id="project-{{ project_info._id }}"
-  class="fields 
-    {% if multiple %}
-    ui-widget ui-widget-content ui-corner-all padded
-    {% endif %}" 
->
-
+  data-group-id="{{ _id }}"
+  class="fields ui-widget ui-widget-content ui-corner-all padded">
   {% if multiple %}
-
   <button class="remove-button">Remove</button>
-
   {% endif %}
-  
 </div>

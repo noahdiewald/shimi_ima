@@ -9,6 +9,7 @@
   <li 
     class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 
     data-fieldset-view-id="{{ fieldset.id }}" 
+    data-group-id="{{ fieldset.id }}" 
     data-multiple="{{ fieldset.multiple }}">
     <b>{{ fieldset.label|force_escape }}</b>:
     {% if fieldset.multiple %}
