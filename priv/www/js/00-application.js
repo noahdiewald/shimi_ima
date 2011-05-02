@@ -1,8 +1,24 @@
 // Helpers for treating HTML elements like key value storage
 
+// TODO Loop or recurse
+
 function getData(key, elem) {
   var dataElem = elem.attr('data-group-id');
-  return $('#' + dataElem).attr('data-' + key);
+  var store = $('#' + dataElem);
+  value = store.attr('data-' + key);
+  
+  if (value == undefined && store.attr('data-group-id') != undefined) {
+    dataElem = store.attr('data-group-id');
+    store = $('#' + dataElem);
+    value = store.attr('data-' + key);
+  }
+    
+  return value;
+}
+
+function putData(key, value, elem) {
+  var dataElem = elem.attr('data-group-id');
+  $('#' + dataElem).attr('data-' + key, value);
 }
 
 // Object.keys compatibility from MDC

@@ -5,6 +5,10 @@ function buildUrl(project, doctype, fieldset) {
          "/fieldsets/" + fieldset;
 }
 
+function fsContainer(id) {
+  return $("#container-" + id);
+}
+
 function dpath(source, category) {
   var url = path(source, category);
   url.doctype = false;
@@ -17,6 +21,10 @@ function fsInfo(key, elem) {
 
 function fInfo(key, elem) {
   return getData("field-" + key, elem);
+}
+
+function dInfo(key, elem) {
+  return getData("document-" + key, elem);
 }
 
 $(function () {

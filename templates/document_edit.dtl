@@ -44,11 +44,11 @@
     
   {% if fieldset.value.multiple %}
   
-  <button 
+  <a 
     class="add-button" 
-    data-fieldset-fieldset="{{ fieldset.value._id }}">
+    data-group-id="{{ fieldset.value._id }}">
    Add Additional
-  </button>
+  </a>
   
   {% endif %}
     
@@ -58,30 +58,23 @@
   </div>
   
   <div id="submit-button-area">
-    <button 
+    <a 
       id="clear-document-button" 
-      class="clear-button"
-    >
+      class="clear-button">
       Clear Form
-    </button>
-    <button 
-      data-document-doctype="{{ doctype_info._id }}" 
-      data-document-description="{{ doctype_info.description }}" 
+    </a>
+    <a 
+      data-group-id="document-view-list"
       id="create-document-button" 
-      class="create-button"
-    >
+      class="create-button">
       Create as New
-    </button>
-    <button 
-      data-document-doctype="{{ doctype_info._id }}" 
-      data-document-description="{{ doctype_info.description }}"
-      data-document-document=""
-      data-document-rev=""
+    </a>
+    <a 
+      data-group-id="document-view-list"
       id="save-document-button" 
-      class="save-button"
-    >
+      class="save-button">
       Save
-    </button>
+    </a>
   </div>
 </div>
 

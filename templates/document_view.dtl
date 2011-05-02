@@ -1,10 +1,22 @@
 <h2 class="ui-widget ui-widget-header">{{ title|force_escape }} View</h2>
 
-<button id="document-edit-button" data-document-document="{{ _id }}" data-document-rev="{{ _rev }}">Edit</button>
+<a 
+  id="document-edit-button"
+  data-group-id="document-view-list">
+  Edit</a>
 
-<button id="document-delete-button" data-document-document="{{ _id }}" data-document-rev="{{ _rev }}">Delete</button>
+<a 
+  id="document-delete-button"
+  data-group-id="document-view-list">
+  Delete</a>
 
-<ul id="document-view-list">
+<ul 
+  id="document-view-list"
+  data-document-doctype="{{ doctype }}" 
+  data-document-description="{{ description }}" 
+  data-document-document="{{ _id }}" 
+  data-document-rev="{{ _rev }}">
+
 {% for fieldset in fieldsets %}
   <li 
     class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 

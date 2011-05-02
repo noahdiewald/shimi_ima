@@ -1,11 +1,5 @@
-function addFieldset(target) {
-  var fieldsetContainer = $("#container-" + target.attr('data-fieldset-id'));
-  var url = buildUrl(fieldsetContainer.attr('data-project-id'),
-                     fieldsetContainer.attr('data-doctype-id'),
-                     fieldsetContainer.attr('data-fieldset-id'));
-     
-  initFieldset(fieldsetContainer, url);
-}
+// These are the target functions called in the click dispatch area.
+// Some are defined elsewhere for organizational reasons.
 
 function removeFieldset(target) {
   target.parent().remove();
@@ -14,12 +8,12 @@ function removeFieldset(target) {
 function saveDoc(target) {
   var saveButton = target;
   var root = $('#edit-document-form');
-  var documentId = saveButton.attr('data-document-id');
-  var documentRev = saveButton.attr('data-document-rev');
-  var url = "./documents/" + documentId + "?rev=" + documentRev;
+  var document = dInfo("document", saveButton);
+  var rev = dInfo("rev", saveButton);
+  var url = "./documents/" + document + "?rev=" + rev;
   var obj = {
-    doctype: saveButton.attr('data-doctype-id'),
-    description: saveButton.attr('data-doctype-description')
+    doctype: dInfo("doctype", saveButton),
+    description: dInfo("description", saveButton)
   };
   
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -37,7 +31,7 @@ function saveDoc(target) {
       if (req.status == 204) {
         var title = "Success";
         var body = "Your document was saved.";
-        getDocument(documentId, true);
+        getDocument(document, true);
         getIndex();
         flashHighlight(title, body);
         saveButton.button('enable');
@@ -59,8 +53,8 @@ function createDoc(target) {
   var createButton = target;
   var root = $('#edit-document-form');
   var obj = {
-    doctype: createButton.attr('data-doctype-id'),
-    description: createButton.attr('data-doctype-description')
+    doctype: dInfo("doctype", createButton),
+    description: dInfo("description", createButton)
   };
   
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -110,10 +104,10 @@ function editDoc(target) {
 
 function deleteDoc(target) {
   if (confirm("Are you sure?")) {
-    var docid = target.attr('data-document-id');
-    var docrev = target.attr('data-document-rev');
+    var document = dInfo("document", target);
+    var rev = dInfo("rev", target);
     
-    deleteDocument(docid, docrev);
+    deleteDocument(document, rev);
   }
 }
 
