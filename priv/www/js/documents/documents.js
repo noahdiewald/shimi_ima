@@ -11,12 +11,12 @@ function dpath(source, category) {
   return url;
 }
 
-function fsInfo(key, source) {
-  getData("fieldset-" + key, source);
+function fsInfo(key, elem) {
+  return getData("fieldset-" + key, elem);
 }
 
-function fInfo(key, source) {
-  getData("field-" + key, source);
+function fInfo(key, elem) {
+  return getData("field-" + key, elem);
 }
 
 $(function () {

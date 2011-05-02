@@ -8,7 +8,8 @@ function initFieldsets() {
 
 function initFieldset(fieldset, callback) {
   var url = dpath($(fieldset), "fieldset");
-  var container = $('#container-' + fieldset.id);
+  var id = fsInfo("fieldset", $(fieldset));
+  var container = $('#container-' + id);
   
   $.get(url.toString(), function(data) {
     container.append(data);

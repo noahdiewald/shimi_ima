@@ -1,8 +1,8 @@
 // Helpers for treating HTML elements like key value storage
 
-function getData(value, elem) {
+function getData(key, elem) {
   var dataElem = elem.attr('data-group-id');
-  return $('#' + dataElem).attr('data-' + value);
+  return $('#' + dataElem).attr('data-' + key);
 }
 
 // Object.keys compatibility from MDC

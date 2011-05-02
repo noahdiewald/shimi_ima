@@ -1,6 +1,6 @@
 function fillFieldsets() {
   $('.fieldset-view').each(function(i, fieldset) {
-    if (fsInfo("multiple", $(fieldset))) {
+    if (fsInfo("multiple", $(fieldset)) == "true") {
       fillMultiFieldsets(fieldset);
     } else {
       fillNormalFieldsets(fieldset);
@@ -8,32 +8,25 @@ function fillFieldsets() {
   });
   
   afterEditRefresh();
-
-  return true;
 }
 
 function fillMultiFieldsets(vfieldset) {
   vfieldset = $(vfieldset);
   var id = fsInfo("fieldset", vfieldset);
-  var container = $('.fieldset-container[data-fieldset-id=' + id + ']');
+  var container = $('#container-' + id);
   var url = dpath(vfieldset, "fieldset");
   
-  // Clear the container
   container.html('');
   
-  fieldset.find('.multifield').each(function(i, multifield) {
-    initFieldset(container, url, function(fieldset) {
+  vfieldset.find('.multifield').each(function(i, multifield) {
+    initFieldset(container, function(fieldset) {
       fillFields($(multifield), fieldset);
     });
   });
-  
-  return true;
 }
 
 function fillNormalFieldsets(vfieldset) {
   fillFields($(vfieldset));
-  
-  return true;
 }
 
 function fillFields(container, context) {
@@ -41,15 +34,13 @@ function fillFields(container, context) {
   $('#save-document-button').removeAttr('disabled');
   
   container.find('.field-view').each(function(i, field) {
-    var value = $(field).attr('data-field-view-value');
-    var id = $(field).attr('data-field-view-id');
+    var value = $(field).attr('data-field-value');
+    var id = $(field).attr('data-field-field');
     
     if (!context) context = $('body');
     
     setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
   });
-  
-  return true;
 }
 
 function setFieldValue(field, value) {
@@ -64,6 +55,4 @@ function setFieldValue(field, value) {
   } else {
     field.val(value);
   }
-  
-  return true;
 }
