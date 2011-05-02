@@ -1,3 +1,10 @@
+// Helpers for treating HTML elements like
+
+function getData(value, elem) {
+  var dataElem = elem.attr('data-group-id');
+  return $('#' + dataElem).attr('data-' + value);
+}
+
 // Object.keys compatibility from MDC
 
 if(!Object.keys) Object.keys = function(o){

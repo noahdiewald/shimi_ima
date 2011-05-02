@@ -1,6 +1,6 @@
 // Build a url based on information available on page
 
-function path(source, category) {
+function path(source, category, section) {
   var path = {};
   
   if (category) {
@@ -9,8 +9,13 @@ function path(source, category) {
     var prefix = "";
   }
   
+  if (section) {
+    path.string = section + "/";
+  } else {
+    path.string = "";
+  }
+  
   path.category = category;
-  path.string = "config/";
   path.origin = source;
   path.type = prefix + "path";
   path.valid_components = ["doctype", "fieldset", "field"];

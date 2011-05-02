@@ -1,7 +1,4 @@
-function getData(value, elem) {
-  var dataElem = elem.attr('data-group-id');
-  return $('#' + dataElem).attr('data-' + value);
-}
+// Populate the listing of fields
 
 function populateFields(path) {
   path.field = false;
@@ -13,6 +10,8 @@ function populateFields(path) {
     $('.link-button').button();
   });
 }
+
+// Populate the listing of fieldsets
 
 function populateFieldsets(url) {
   $.get(url.toString(), function(fieldsets) {
@@ -31,6 +30,8 @@ function populateFieldsets(url) {
   });
 }
 
+// populate the tabs listing the doctypes
+
 function populateDoctypeTabs() {
   var url = "config/doctypes";
   
@@ -45,13 +46,15 @@ function populateDoctypeTabs() {
     
     var loadFun = function(event, ui) {
       var source = $(ui.panel).children('div[data-fieldset-doctype]');
-      var fieldsetsPath = path(source, "fieldset");
+      var fieldsetsPath = path(source, "fieldset", "config");
       populateFieldsets(fieldsetsPath);
     };
     
     $("#doctype-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
   });
 }
+
+// Initialize the tabs on the config page
 
 function initTabs() {
   $("#doctype-tabs").tabs();
@@ -61,6 +64,9 @@ function initTabs() {
   
   return true;
 }
+
+// Hide the help text and set toggle on click events
+// TODO use the click dispatcher
 
 function initHelpText() {
   $("#doctype-info").hide();
@@ -78,6 +84,8 @@ function initHelpText() {
   
   return true;
 }
+
+// Code to be run on page load
 
 $(function () {
   $('body').click(function(e) {clickDispatch(e)});

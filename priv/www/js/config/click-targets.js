@@ -13,7 +13,7 @@ function addDoctype(target) {
 // Button that opens a dialog for editing a field
 
 function editFieldButton(target) {
-  var url = path(target.parent('a'), "field");
+  var url = path(target.parent('a'), "field", "config");
   var oldobj = {};
   var attrs = fieldElems().attrs;
    
@@ -30,7 +30,7 @@ function deleteFieldButton(target) {
   var answer = confirm("Are you sure? This is permanent.");
   
   if (answer) {
-    var url = path(target.parent('a'), "field");
+    var url = path(target.parent('a'), "field", "config");
     var complete = function() {
       url.field = false;
       url.rev = false;
@@ -44,14 +44,14 @@ function deleteFieldButton(target) {
 // Button that opens a dialog for adding a field
 
 function addFieldButton(target) {
-  var url = path(target.parent('a'), "field");
+  var url = path(target.parent('a'), "field", "config");
   fieldDialog(url, {fieldset: url.fieldset, doctype: url.doctype}).dialog("open");
 }
 
 // Button that opens a dialog for editing a fieldset
 
 function editFieldsetButton(target) {
-  var url = path(target.parent('a'), "fieldset");
+  var url = path(target.parent('a'), "fieldset", "config");
   var oldobj = {};
   var attrs = fieldsetElems().attrs;
    
@@ -65,7 +65,7 @@ function editFieldsetButton(target) {
 // Button that opens a dialog for deleting a fieldset
 
 function deleteFieldsetButton(target) {
-  var url = path(target.parent('a'), "fieldset");
+  var url = path(target.parent('a'), "fieldset", "config");
   
   var complete = function() {
     url.fieldset = false;
@@ -81,12 +81,12 @@ function deleteFieldsetButton(target) {
 // Button that opens a dialog for adding a fieldset
 
 function addFieldsetButton(target) {
-  var url = path(target.parent('a'), "fieldset");
+  var url = path(target.parent('a'), "fieldset", "config");
   fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
 }
 
 function editDoctypeButton(target) {
-  var url = path(target.parent('a'), "doctype");
+  var url = path(target.parent('a'), "doctype", "config");
   var oldobj = {};
   var attrs = doctypeElems().attrs;
    
@@ -97,7 +97,7 @@ function editDoctypeButton(target) {
 }
 
 function deleteDoctypeButton(target) {
-  var url = path(target.parent('a'), "doctype");
+  var url = path(target.parent('a'), "doctype", "config");
   var complete = function() {
     url.doctype = false;
     url.rev = false;
@@ -110,14 +110,14 @@ function deleteDoctypeButton(target) {
 }
 
 function addDoctypeButton(target) {
-  var url = path(target.parent('a'), "doctype");
+  var url = path(target.parent('a'), "doctype", "config");
   doctypeDialog(url, {}).dialog("open");
 }
 
 // Action for click event on accordion head
 
 function accordionHead(button) {
-  var url = path(button, "field");
+  var url = path(button, "field", "config");
   populateFields(url);
 }
 

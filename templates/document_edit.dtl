@@ -23,22 +23,26 @@
   
   <fieldset 
     id="{{ fieldset.value._id }}" 
-    class="ui-widget ui-widget-content ui-corner-all fieldset" 
-    data-fieldset-id="{{ fieldset.value._id }}" 
+    class="ui-widget ui-widget-content ui-corner-all fieldset"
+    data-group-id="{{ fieldset.value._id }}"
+    data-field-fieldset="{{ fieldset.value._id }}" 
+    data-field-project="project-{{ project_info._id }}"
+    data-field-doctype="{{ doctype_info._id }}"
+    data-fieldset-fieldset="{{ fieldset.value._id }}" 
     data-fieldset-multiple="{{ fieldset.value.multiple }}"
     data-fieldset-collapse="{{ fieldset.value.collapse }}"
     data-fieldset-name="{{ fieldset.value.name|force_escape }}"
     data-fieldset-label="{{ fieldset.value.label|force_escape }}"
-    data-fieldset-order="{{ fieldset.value.order }}">
+    data-fieldset-order="{{ fieldset.value.order }}"
+    data-fieldset-project="project-{{ project_info._id }}"
+    data-fieldset-doctype="{{ doctype_info._id }}">
     
     <p>{{ fieldset.value.description }}</p>
     
     <div 
       id="container-{{ fieldset.value._id }}" 
       class="fieldset-container"
-      data-fieldset-id="{{ fieldset.value._id }}"'
-      data-project-id="project-{{ project_info._id }}"
-      data-doctype-id="{{ doctype_info._id }}"></div>
+      data-fieldset-id="{{ fieldset.value._id }}"></div>
     
   {% if fieldset.value.multiple %}
   
