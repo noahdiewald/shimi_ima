@@ -84,6 +84,15 @@ if (!Array.prototype.reduce)
     return accumulator;
   };
 }
+// A predicate function to detect blank strings
+      
+function isBlank(value) {
+  return (((/^\s*$/).test(value)) || 
+    (value === null) || 
+    (value === undefined) ||
+    (typeof value === 'number' && isNaN(value)) ||
+    (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
+};
 
 // functions added to String
 
@@ -94,6 +103,19 @@ String.prototype.isBlank = function() {
 String.prototype.trim = function() {
   return this.replace(/^\s+/,'').replace(/\s+$/,'');
 };
+
+// safer(ish) string to number. The difference is that in this app
+// I am using '' if the string isn't a valid number.
+
+function stringToNumber(string) {
+  if (typeof string === 'string' && 
+      !isNaN(string) && 
+      string !== '') {
+    return string * 1;
+  } else {
+    return '';
+  }
+}
 
 // Event dispatch
 

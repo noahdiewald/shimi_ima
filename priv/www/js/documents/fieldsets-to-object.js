@@ -54,8 +54,9 @@ function fieldsToObject(fields, index) {
       head: fInfo("head", field) == "true",
       reversal: fInfo("reversal", field) == "true",
       required: fInfo("required", field) == "true",
-      min: fInfo("min", field),
-      max: fInfo("max", field),
+      min: stringToNumber(fInfo("min", field)),
+      max: stringToNumber(fInfo("max", field)),
+      instance: fInfo("instance", field),
       regex: fInfo("regex", field),
       order: fInfo("order", field) * 1,
       subcategory: fInfo("subcategory", field),
@@ -89,9 +90,9 @@ function getOpenboolean(value) {
 // Get a number from a string. Blanks are returned as an empty string.
 
 function getNumber(value) {
-  if (value.isBlank()) {
+  if (isBlank(value)) {
     value = '';
-  } else {
+  } else if (!isNaN(value)) {
     value = value * 1;
   }
   

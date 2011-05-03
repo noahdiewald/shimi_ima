@@ -122,7 +122,7 @@ function setInvalidError(req) {
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
   
-  var invalid = $('[name=' + body.fieldname + ']');
+  var invalid = $('[data-field-instance=' + body.instance + ']');
   var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
   
   invalidTab.addClass('ui-state-error');
