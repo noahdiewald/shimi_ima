@@ -12,8 +12,6 @@
 
 <ul 
   id="document-view-list"
-  data-document-doctype="{{ doctype }}" 
-  data-document-description="{{ description }}" 
   data-document-document="{{ _id }}" 
   data-document-rev="{{ _rev }}">
 

@@ -133,9 +133,13 @@ html_as_options(R, S) ->
 
   
 get_field_html(Json, R, S) ->
-  Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
+  % One time use identifier
+  {ok, UUID} = couch:get_uuid(R, S),
+  Json1 = jsn:set_value(<<"instance_id">>, list_to_binary(UUID), Json),
+  
+  Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json1)),
   Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
-  {ok, Html} = Template:render(get_allowed(Subcategory, Json, R, S)),
+  {ok, Html} = Template:render(get_allowed(Subcategory, Json1, R, S)),
   Html.
 
 get_allowed([$d, $o, $c|_], Json, R, S) -> get_allowed(Json, R, S);

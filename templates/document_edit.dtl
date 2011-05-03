@@ -64,13 +64,13 @@
       Clear Form
     </a>
     <a 
-      data-group-id="document-view-list"
+      data-group-id="all-document-container"
       id="create-document-button" 
       class="create-button">
       Create as New
     </a>
     <a 
-      data-group-id="document-view-list"
+      data-group-id="all-document-container"
       id="save-document-button" 
       class="save-button">
       Save

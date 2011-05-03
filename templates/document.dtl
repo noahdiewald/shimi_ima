@@ -24,7 +24,11 @@
     </ul>
   </div>
   
-  <div id="all-document-container">
+  <div 
+    data-document-doctype="{{ doctype_info._id }}" 
+    data-document-description="{{ doctype_info.description }}"
+    data-group-id="document-view-list"
+    id="all-document-container">
   
     <div class="ui-widget ui-widget-content ui-corner-left panel" id="document-index">
       <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id }} Index</h2>
