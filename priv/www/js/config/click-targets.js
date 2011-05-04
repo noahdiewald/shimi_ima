@@ -18,7 +18,7 @@ function editFieldButton(target) {
   var attrs = fieldElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getData('field-' + item, target);
+    oldobj[item] = getValue('field-' + item, target);
   });
   
   fieldDialog(url, oldobj).dialog("open");
@@ -56,7 +56,7 @@ function editFieldsetButton(target) {
   var attrs = fieldsetElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getData('fieldset-' + item, target);
+    oldobj[item] = getValue('fieldset-' + item, target);
   });
   
   fieldsetDialog(url, oldobj).dialog("open");
@@ -91,7 +91,7 @@ function editDoctypeButton(target) {
   var attrs = doctypeElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getData('doctype-' + item, target);
+    oldobj[item] = getValue('doctype-' + item, target);
   });
   doctypeDialog(url, oldobj).dialog("open");
 }

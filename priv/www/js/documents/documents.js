@@ -16,15 +16,15 @@ function dpath(source, category) {
 }
 
 function fsInfo(key, elem) {
-  return getData("fieldset-" + key, elem);
+  return getValue("fieldset-" + key, elem);
 }
 
 function fInfo(key, elem) {
-  return getData("field-" + key, elem);
+  return getValue("field-" + key, elem);
 }
 
 function dInfo(key, elem) {
-  return getData("document-" + key, elem);
+  return getValue("document-" + key, elem);
 }
 
 $(function () {
