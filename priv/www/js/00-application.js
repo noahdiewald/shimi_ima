@@ -1,19 +1,40 @@
 // Helpers for treating HTML elements like key value storage
 
-// TODO Loop or recurse
+// Tail call optimization
+
+Function.prototype.r = function() {return [this, arguments]};
+
+Function.prototype.t = function() {
+  var c = [this, arguments];
+  var escape = arguments[arguments.length - 1];
+  while (c[0] !== escape) {
+    c = c[0].apply(this, c[1]);
+  }
+  return escape.apply(this, c[1]);
+}
+
+var identity = function(x) {return x}
+
+// Functions to treat html elements like key value stores
+// TODO may have been better to call it getValue
 
 function getData(key, elem) {
-  var dataElem = elem.attr('data-group-id');
-  var store = $('#' + dataElem);
-  value = store.attr('data-' + key);
-  
-  if (value == undefined && store.attr('data-group-id') != undefined) {
-    dataElem = store.attr('data-group-id');
-    store = $('#' + dataElem);
-    value = store.attr('data-' + key);
-  }
+  var getData1 = function(key, curr, id) {
+    var dataElem = curr.attr('data-group-id');
+    var store = $('#' + dataElem);
+    var value = store.attr('data-' + key);
+    var nextElem = store.attr('data-group-id');
     
-  return value;
+    if (value === undefined && 
+        nextElem !== undefined && 
+        dataElem !== nextElem) {
+      return getData1.r(key, store, id);
+    }
+    
+    return id.r(value);
+  };
+  
+  return getData1.t(key, elem, identity);
 }
 
 function putData(key, value, elem) {
