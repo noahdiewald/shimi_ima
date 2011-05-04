@@ -16,7 +16,7 @@
   <body>
 
     <header>
-    <nav id="main-navigation" class="ui-widget ui-widget-header ui-corner-all">
+    <nav id="main-navigation">
       <ul>
       {% if user %}
         {% for role in user.roles %}

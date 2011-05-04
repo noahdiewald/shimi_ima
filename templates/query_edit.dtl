@@ -6,7 +6,7 @@
   data-query-name="{{name}}" 
   data-query-id="{{_id}}" 
   data-query-rev="{{_rev}}">
-  <p class="help-text"><em>{{name}}</em> will list <b>{{doctype}}</b> documents. They will be listed by <b>{{fieldset_label}}: {{field_label}}</b>.</p>
+  <p><em>{{name}}</em> will list <b>{{doctype}}</b> documents. They will be listed by <b>{{fieldset_label}}: {{field_label}}</b>.</p>
 </div>
 
 <div id="query-conditions-listing">

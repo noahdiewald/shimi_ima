@@ -11,7 +11,8 @@ function clickDispatch(e) {
     "#document-edit-button span": function(t) {editDoc(t.parent())},
     "#document-delete-button span": function(t) {deleteDoc(t.parent())},
     "#document-view-list > li > b": function(t) {collapseToggle(t)},
-    "#panel-toggle li": function(t) {panelToggle(t)}
+    "#panel-toggle li": function(t) {panelToggle(t)},
+    "label span": function(t) {showHelpDialog(t)}
   });
 
   action(e);

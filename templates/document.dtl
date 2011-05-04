@@ -10,6 +10,12 @@
 {% block javascript %}
     <script type="text/javascript" src="/javascript/documents"></script>
 {% endblock %}
+
+{% block dialogs %}
+<div class="hidden" id="help-dialog" title="Help">
+  <p id="help-dialog-text"></p>
+</div>
+{% endblock %}
     
 {% block main_content %}
 
@@ -30,7 +36,7 @@
     data-group-id="document-view-list"
     id="all-document-container">
   
-    <div class="ui-widget ui-widget-content ui-corner-left panel" id="document-index">
+    <div class="ui-widget panel" id="document-index">
       <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id }} Index</h2>
   
       <form id="index-filter-form">
@@ -44,11 +50,11 @@
       <div id="index-listing"></div>
     </div>
     
-    <div class="ui-widget ui-widget-content panel" id="document-view">
+    <div class="ui-widget panel" id="document-view">
       <h2 class="ui-widget ui-widget-header">{{ doctype_info._id }} View</h2>
     </div>
     
-    <div class="ui-widget ui-widget-content ui-corner-right panel" id="document-edit">
+    <div class="ui-widget panel" id="document-edit">
     </div>
     
   </div>

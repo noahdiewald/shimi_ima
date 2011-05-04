@@ -119,3 +119,11 @@ function panelToggle(target) {
   var panel = $('#' + target.attr('data-panel'));
   panel.toggle();
 }
+
+function showHelpDialog(target) {
+  if (target.is('.label-text')) {
+    target = target.parent('label').find('.ui-icon-help');
+  }
+  
+  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+}
