@@ -102,7 +102,7 @@
 function getValue(key, elem) {
   var getValue1 = function(key, elem, id) {
     var gid = elem.attr('data-group-id');
-    var store = $('#' + dataElem);
+    var store = $('#' + gid);
     var val = store.attr('data-' + key);
     var next = store.attr('data-group-id');
     
