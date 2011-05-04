@@ -1,7 +1,7 @@
 /*
- = Path helper
+ h1. Path helper
  
- == Creating the object
+ h2. Creating the object
  
  This function returns an object with various helpers for URL
  path operations. In this application a common pattern in paths is
@@ -16,6 +16,7 @@
  
  Example:
 
+ <pre> 
    <div
      id="someid"
      data-fieldset-fieldset="fsid"
@@ -34,6 +35,7 @@
    mypath = path($('#thisid'), "fieldset");
    mypath.fieldset = false; // unsets the fielset id
    mypath.toString() == "doctypes/did/fieldsets"; // all fieldsets
+ </pre> 
    
  Note that the category matches the x of data-x in someid. Different
  values may be held for doctype or field in the same element. Sometimes
@@ -41,16 +43,16 @@
  forthcoming. The positive side is that information about different
  paths may be held in the same location.
 
- === CouchDB Revision Numbers
+ h3. CouchDB Revision Numbers
  
  Above, a revision could have been added to someid as 'data-fieldset-rev'.
  
- === More Information
+ h3. More Information
  
  For more information on how data attributes are used in this application,
  see getValue in the application.js file.
  
- == Manipulating the object
+ h2. Manipulating the object
  
  Also note that setting certain path elements to false (or undefined)
  will exclude their ids from the end result. Setting the element to a
@@ -58,16 +60,18 @@
  allows one to cleanly manipulate the paths without performing string
  manipulation.
  
- == PUT, POST and DELETE using the object
+ h2. PUT, POST and DELETE using the object
  
  There are also helpers for using the path the work with the resource it points to.
  
   Example:
-  
+ 
+ <pre> 
    mypath = path($('#thisid'), "fieldset");
    mypath.put(object, callback, context);
    mypath.post(object, callback, context);
    mypath.delete(callback, context);
+ </pre>
    
  Object is an Javascript object that can be encoded as JSON, callback
  will be run on success and context provides information the environment
@@ -77,7 +81,7 @@
  The object will be sent to the path that would be returned by the
  toString method using the method implied by the above method's names.
  
- === Error handlers
+ h3. Error handlers
  
  Within the context of this application it is assumed that fairly standard
  things will be done with error responces so they are left alone.
