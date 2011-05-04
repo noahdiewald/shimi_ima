@@ -2,6 +2,10 @@
 
 {% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
 
+{% block javascript %}
+    <script type="text/javascript" src="/javascript/base"></script>
+{% endblock %}
+
 {% block header %}
 <h1>{{ title }}: {{ project_info.name }}</h1>
 <em>{{ project_info.description }}</em>
@@ -9,12 +13,21 @@
 
 {% block main_content %}
 <div id="doctypes-container" class="ui-widget">
-  
-  <dl id="doctypes-list" class="ui-widget ui-widget-content">
-    {% for row in rows %}
-    <dt class="ui-widget ui-widget-header"><a href="./doctypes/{{ row.key }}/documents">{{ row.key }}</a></dt>
-    <dd>{{ row.value }}</dd>
-    {% endfor %}
-  </dl>
+  <table>
+    <thead>
+      <tr>
+        <th>Document Type</th>
+        <th>Document Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <th><a href="./doctypes/{{ row.key }}/documents">{{ row.key }}</a></th>
+        <td>{{ row.value }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

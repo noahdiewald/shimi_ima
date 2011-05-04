@@ -57,8 +57,15 @@ to_js(R, S) ->
     [Content|Acc]
   end,
   Pattern = "\.js$",
+  
+  Script = case wrq:path_info(script, R) of
+    "base" -> [];
+    _ ->
+      filelib:fold_files(proplists:get_value(path, S), Pattern, true, Fun, [])
+  end,
+    
   Common = filelib:fold_files(proplists:get_value(root, S), Pattern, false, Fun, []),
-  Script = filelib:fold_files(proplists:get_value(path, S), Pattern, true, Fun, []),
+
   {[Common|Script], R, S}.
   
 script_exists(S, Name) ->
@@ -69,8 +76,9 @@ script_exists(S, Name) ->
   end.
 
 script_path(S, Name) ->
-  RelName = case hd(Name) of
-    "/" -> tl(Name);
+  RelName = case Name of
+    [$/|Rest] -> Rest;
+    "base" -> "";
     _ -> Name
   end,
   filename:join([proplists:get_value(root, S), RelName]).
