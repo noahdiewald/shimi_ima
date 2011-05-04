@@ -121,7 +121,6 @@ function putValue(key, value, elem) {
   $('#' + dataElem).attr('data-' + key, value);
 }
 
-
 // A predicate function to detect blankness
       
 function isBlank(value) {
