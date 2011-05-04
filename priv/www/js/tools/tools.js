@@ -1,21 +1,3 @@
-function putDoc(doc) {
-  if (!sessionStorage[doc._id]) {
-    sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-  
-  return doc._id;
-}
-
-function getDoc(docId) {
-  var doc = sessionStorage[docId];
-  
-  if (doc) {
-    return JSON.parse(doc);
-  } else {
-    return null;
-  }
-}
-
 function initTabs() {
   $("#main-tabs").tabs();
   return false;
@@ -26,42 +8,6 @@ function setQueryDoctypeEvents(queryDoctype, queryFieldset) {
     var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
     
     fillOptionsFromUrl(url, queryFieldset);
-  });
-  
-  return false;
-}
-
-// Add events to a fieldset. In this case a change event that will populate
-// the select options of a following field input element.  queryDoctype may
-// be either a string corresponding to the doctype or an input field with
-// the doctype as a value. The queryFieldset and queryField should both
-// be select elements.
-
-function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
-  queryFieldset.change(function() {
-    if (!(typeof queryDoctype == "string")) {
-      queryDoctype = queryDoctype.val();
-    }
-    
-    var url = 'doctypes/' + queryDoctype + 
-              '/fieldsets/' + queryFieldset.val() + '/fields?as=options';
-    
-    fillOptionsFromUrl(url, queryField);
-  });
-  
-  return false;
-}
-
-function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
-  queryField.change(function() {
-    var fieldId = queryField.val();
-    var fieldsetId = queryFieldset.val();
-    
-    if (!(fieldId.isBlank())) {
-      getFieldDoc(fieldId, fieldsetId, queryDoctype, function(data) {
-        alterOperatorField(data, fieldId);
-      });
-    }
   });
   
   return false;
@@ -88,14 +34,6 @@ function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
     
     return getDoc(fieldId);
   }
-}
-
-function setQueryOperatorEvents(argumentField, operatorField, fieldField) {
-  operatorField.change(function() {
-    alterArgumentField(argumentField, operatorField, fieldField);
-  });
-  
-  return false;
 }
 
 function fillOptionsFromUrl(url, selectElement) {
@@ -183,173 +121,6 @@ function alterArgumentField(argumentField, operatorField, fieldField) {
     }
     
   }
-}
-
-function initQueryNewDialog() {
-  var queryDoctype = $("#query-doctype-input");
-  var queryFieldset = $("#query-fieldset-input");
-  var queryField = $("#query-field-input");
-  var queryName = $("#query-name-input");
-  
-  var dialog = $("#query-new-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Create": function() {
-        $('.input').removeClass('ui-state-error');
-        
-        // place holder for client side validation
-        var checkResult = true;
-        
-        if (checkResult) {
-          var obj = {
-            "category": "query", 
-            "name": queryName.val(), 
-            "conditions": [], 
-            "doctype": queryDoctype.val(),
-            "fieldset": queryFieldset.val(),
-            "field": queryField.val()
-          },
-          complete = function(context) {
-            initQueryIndex();
-            $(context).dialog("close");
-          };
-          sendConfigDoc("queries", obj, 'POST', complete, this);
-        }
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      queryFieldset.unbind('change');
-      queryDoctype.unbind('change');
-      clearValues($('.input')).removeClass('ui-state-error');
-    }
-  });
-  
-  setQueryDoctypeEvents(queryDoctype, queryFieldset);
-  setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField);
-  
-  return dialog;
-}
-
-function initConditionRemoveButtons(tableBody) {
-  tableBody.find('button').button({
-    icons: {primary: "ui-icon-minus"}
-  }).click(function(e) {
-    $(e.target).parent('td').parent('tr').remove();
-  });
-  
-  return false;
-}
-
-function initQueryBuilderDialog(queryDoctype) {
-  var builderOr = $("#builder-or-input");
-  var builderNegate = $("#builder-negate-input");
-  var builderOperator = $("#builder-operator-input");
-  var builderArgument = $("#builder-argument-input");
-  var builderFieldset = $("#builder-fieldset-input");
-  var builderField = $("#builder-field-input");
-  var notBlank = [builderOperator, builderFieldset, builderField];
-  var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
-  var condition_url = 'queries/condition';
-  
-  var appendCondition = function(builderRow) {
-    tableBody = $('#query-conditions-listing tbody');
-    tableBody.append(builderRow);
-    tableBody.sortable();
-    initConditionRemoveButtons(tableBody);
-    
-    return false;
-  };
-    
-  fillOptionsFromUrl(fieldset_url, builderFieldset);
-  
-  builderOr.change(function() {
-    if (builderOr.is(':checked')) {
-      $('#builder-conditions').hide();
-    } else {
-      $('#builder-conditions').show();
-    }
-  });
-  
-  var dialog = $("#query-builder-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Create": function() {
-        $('.input').removeClass('ui-state-error');
-        
-        // place holder for client side validation
-        var checkResult = true;
-        
-        if (!builderOr.is(':checked')) {
-          notBlank.forEach(function(item) {
-            if (item.val().isBlank()) {
-              item.addClass('ui-state-error');
-              checkResult = false;
-            } else {
-              item.removeClass('ui-state-error');
-            }
-          });
-        }
-        
-        if (checkResult) {
-          if (builderOr.is(':checked')) {
-            $.get(condition_url, {"is_or": true}, function(data) {appendCondition(data)});
-          } else {
-            $.get(condition_url, {
-              "is_or": false,
-              "negate": builderNegate.is(':checked'),
-              "fieldset": builderFieldset.val(),
-              "field": builderField.val(),
-              "operator": builderOperator.val(),
-              "argument": builderArgument.val()
-            }, function(data) {appendCondition(data)});
-          }
-          
-          $(this).dialog("close");
-        }
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      $('#builder-conditions').show();
-      builderFieldset.unbind('change');
-      builderField.unbind('change');
-      builderOperator.unbind('change');
-      clearValues($('.input')).removeClass('ui-state-error');
-    }
-  });
-  
-  setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField);
-  setQueryFieldEvents(queryDoctype, builderFieldset, builderField);
-  setQueryOperatorEvents(builderArgument, builderOperator, builderField);
-  
-  return dialog;
-}
-
-function initQueryChooseButton() {
-  $('#choose-query-button').button({
-    icons: {primary: "ui-icon-arrowreturnthick-1-s"}
-  }).click(function() {
-    $('#query-index-listing').slideToggle();
-  });
-  
-  return false;
-}
-
-function initQueryNewButton() {
-  $('#new-query-button').button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function() {
-    initQueryNewDialog().dialog("open");
-  });
-  
-  return false;
 }
 
 function fixArgumentType(argument, subcategory) {
@@ -475,49 +246,6 @@ function initQuerySaveButton(button, buttonData) {
       flashHighlight("Info", "No query has been chosen to save.");
     }
   });
-}
-
-function initQueryDeleteButton(button, buttonData) {
-  button.button(
-    {icons: {primary: "ui-icon-trash"}
-  }).click(function (e) {
-    var bData = buttonData();
-    
-    if (!bData.length < 1) {
-      var deleteButton = $(e.target);
-      var queryId = bData.attr('data-query-id');
-      var queryRev = bData.attr('data-query-rev');
-      var completeMessage = "Your query has been deleted.";
-      var completeFunction = function() {
-        button.parent('div').parent('div').empty();
-        initQueryIndex();
-      };
-      
-      if (confirm("Are you sure?")) {
-        deleteQuery(queryId, queryRev, completeMessage, completeFunction);
-      }
-    } else {
-      flashHighlight("Info", "No query has been chosen to delete.");
-    }
-  });
-  
-  return false;
-}
-
-function initQueryAddConditionButton(button, buttonData) {
-  button.button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function (e) {
-    var bData = buttonData();
-    
-    if (!bData.length < 1) {
-      initQueryBuilderDialog(bData.attr('data-query-doctype')).dialog("open");
-    } else {
-      flashHighlight("Info", "You must choose a query first.");
-    }
-  });
-
-  return false;
 }
 
 function getQueryEdit(queryId) {
