@@ -1,0 +1,19 @@
+{% extends "project_context.dtl" %}
+
+{% block page_title %}File Manager: {{ project_info.name }}{% endblock %}
+
+{% block header %}
+<h1>File Manager: {{ project_info.name }}</h1>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="/javascript/base"></script>
+{% endblock %}
+    
+{% block main_content %}
+<div id="main">
+</div>
+{% endblock %}
+
+{% block dialogs %}
+{% endblock %}

@@ -37,6 +37,7 @@ ensure_started(App) ->
 %% @spec start_link() -> {ok,Pid::pid()}
 %% @doc Starts the app for inclusion in a supervisor tree
 start_link() ->
+    ensure_started(inets),
     ensure_started(crypto),
     ensure_started(mochiweb),
     application:set_env(webmachine, webmachine_logger_module, 
@@ -47,6 +48,7 @@ start_link() ->
 %% @spec start() -> ok
 %% @doc Start the dictionary_maker server.
 start() ->
+    ensure_started(inets),
     ensure_started(crypto),
     ensure_started(mochiweb),
     application:set_env(webmachine, webmachine_logger_module, 
@@ -62,6 +64,7 @@ stop() ->
     application:stop(webmachine),
     application:stop(mochiweb),
     application:stop(crypto),
+    application:stop(inets),
     Res.
 
 %% @spec stop([Node]) -> void()
