@@ -44,13 +44,17 @@ allowed_methods(R, S) ->
     _Else -> {['GET', 'HEAD'], R, S}
   end.
 
-% Process a file upload
-% Taken largely from 
-% https://bitbucket.org/argv0/webmachine_examples
+%% @doc Process a file upload
 
 process_post(R, S) ->
-  attach:create(get_file_data(R, S), R, S),
-  {true, R, S}.
+  case attach:create(get_file_data(R, S), R, S) of
+    {ok, created} -> 
+      R1 = wrq:set_resp_body(<<"\"Success\"">>, R),
+      {true, R1, S};
+    {Code, Message} ->
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, Code}, R1, S}
+  end.
   
 to_html(R, S) ->
   User = proplists:get_value(user, S),

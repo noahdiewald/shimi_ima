@@ -16,6 +16,7 @@
     <form 
       id="file-upload-form" 
       method="post" 
+      target="file-upload-target"
       enctype="multipart/form-data" 
       action="file_manager/upload">
       <input name="file-chooser" id="file-chooser" size="27" type="file" />

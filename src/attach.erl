@@ -39,7 +39,17 @@
 -include_lib("include/config.hrl").
 
 file_exists(R, S) ->
-  {true, R, S}.
+  Id = wrq:get_path_info("id", R),
+  file_exists(Id, R, S).
+  
+file_exists(Id, R, S) ->
+  DB = proplists:get_value(db, S),
+  Headers = [{"Content-Type", "application/json"}],
+  Url = DB ++ "/" ++ Id,
+  case ibrowse:send_req(Url, Headers, head) of
+    {ok, "200", _, _} -> {true, R, S};
+    _ -> {false, R, S}
+  end.
 
 file_path_exists(R, S) ->
   {true, R, S}.
@@ -69,15 +79,33 @@ get(Id, _R, S) ->
 get_file(_Id, _R, _S) ->
   undefined.
   
-create({ContentType, Name, _, Content, Id}, R, S) ->
-  DB = proplists:get_value(db, S),
-  Url = DB ++ "/" ++ Id ++ "/" ++ Name,
-  Headers = [{"Content-Type", ContentType}],
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, Content),
+create({[ContentType], [Name], _, Content, Id}, R, S) ->
+  case file_exists(Id, R, S) of
+    {true, _, _} -> halt_conflict(Id, R, S);
+    {false, _, _} -> create(ContentType, Name, Content, Id, R, S)
+  end.
+
+halt_conflict(Id, R, S) ->
   Json = get(Id, R, S),
-  Json1 = jsn:set_value(<<"path">>, list_to_binary("files/" ++ Name), Json),
-  {ok, updated} = update(Id, binary_to_list(jsn:get_value(<<"_rev">>, Json1)), Json1, R, S),
-  {ok, created}.
+  Note = ["File exists at: "|[jsn:get_value(<<"path">>, Json)]],
+  Message = jsn:encode([{<<"message">>, iolist_to_binary(Note)}]),
+  {409, Message}.
+
+halt_error(Name, _R, _S) ->
+  Note = ["There was a problem uploading the file: "|Name],
+  Message = jsn:encode([{<<"message">>, iolist_to_binary(Note)}]),
+  {500, Message}.
+  
+create(ContentType, Name, Content, Id, R, S) ->  
+  DB = proplists:get_value(db, S),
+  Url = DB ++ "/" ++ Id ++ "/" ++ mochiweb_util:quote_plus(Name),
+  Headers = [{"Content-Type", ContentType}],
+  case ibrowse:send_req(Url, Headers, put, Content) of
+    {ok, "201", _, _} -> 
+      set_initial_path(Id, Name, R, S),
+      {ok, created};
+    {error, retry_later} -> halt_error(Name, R, S)
+  end.
   
 update(Id, Rev, Json, _R, S) ->
   DB = proplists:get_value(db, S),
@@ -85,3 +113,8 @@ update(Id, Rev, Json, _R, S) ->
   Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
   {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json)),
   {ok, updated}.
+
+set_initial_path(Id, Name, R, S) ->
+  Json = get(Id, R, S),
+  Json1 = jsn:set_value(<<"path">>, list_to_binary("files/" ++ Name), Json),
+  {ok, updated} = update(Id, binary_to_list(jsn:get_value(<<"_rev">>, Json1)), Json1, R, S).
