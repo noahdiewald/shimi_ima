@@ -69,7 +69,7 @@ get(Id, _R, S) ->
 get_file(_Id, _R, _S) ->
   undefined.
   
-create({ContentType, {Name, _, Content, Id}}, R, S) ->
+create({ContentType, Name, _, Content, Id}, R, S) ->
   DB = proplists:get_value(db, S),
   Url = DB ++ "/" ++ Id ++ "/" ++ Name,
   Headers = [{"Content-Type", ContentType}],

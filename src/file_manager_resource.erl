@@ -93,21 +93,21 @@ md5sum(Bin) ->
 binary_to_hexlist(Bin) ->
   lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
   
-get_streamed_body(done_parts, FileName, Acc) ->
+get_streamed_body(done_parts, ContentType, FileName, Acc) ->
   Bin = iolist_to_binary(lists:reverse(Acc)),
-  {FileName, size(Bin)/1024.0, Bin, md5sum(Bin)};
+  {ContentType, FileName, size(Bin)/1024.0, Bin, md5sum(Bin)};
   
-get_streamed_body({{"file-chooser", {Params, _Hdrs}, Content}, Next}, Props, Acc) ->
+get_streamed_body({{"file-chooser", {Params, Hdrs}, Content}, Next}, Types, Names, Acc) ->
   FileName = binary_to_list(proplists:get_value(<<"filename">>, Params)),
-  get_streamed_body(Next(), [FileName|Props], [Content|Acc]);
+  ContentType = binary_to_list(proplists:get_value(<<"Content-Type">>, Hdrs)),
+  get_streamed_body(Next(), [ContentType|Types], [FileName|Names], [Content|Acc]);
   
-get_streamed_body({{"file-submit", {_Params, _Hdrs}, _Content}, Next}, Props, Acc) ->
-  get_streamed_body(Next(), Props, Acc).
+get_streamed_body({{"file-submit", {_Params, _Hdrs}, _Content}, Next}, Types, Names, Acc) ->
+  get_streamed_body(Next(), Types, Names, Acc).
 
 get_file_data(R, _S) ->  
-  CT = wrq:get_req_header("content-type", R),
   Boundary = webmachine_multipart:find_boundary(R),
-  SBody = wrq:stream_req_body(R, 1024),
+  SBody = wrq:stream_req_body(R, 4096),
   SParts = webmachine_multipart:stream_parts(SBody, Boundary),
-  {CT, get_streamed_body(SParts, [], [])}.
+  get_streamed_body(SParts, [], [], []).
   
