@@ -7,11 +7,25 @@
 {% endblock %}
 
 {% block javascript %}
-    <script type="text/javascript" src="/javascript/base"></script>
+    <script type="text/javascript" src="/javascript/file_manager"></script>
 {% endblock %}
     
 {% block main_content %}
 <div id="main">
+  <div id="file-upload">
+    <form 
+      id="file-upload-form" 
+      method="post" 
+      enctype="multipart/form-data" 
+      action="file_manager/upload">
+      <input name="file-chooser" id="file-chooser" size="27" type="file" />
+      <input type="submit" name="file-submit" />
+      <iframe 
+        id="file-upload-target" 
+        name="file-upload-target" 
+        src=""></iframe>
+    </form>
+  </div>
 </div>
 {% endblock %}
 

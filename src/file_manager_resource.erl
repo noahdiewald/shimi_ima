@@ -24,8 +24,10 @@
 
 -module(file_manager_resource).
 -export([
+  allowed_methods/2,
   init/1,
-  is_authorized/2, 
+  is_authorized/2,
+  process_post/2,
   resource_exists/2,
   to_html/2,
   validate_authentication/3
@@ -36,6 +38,20 @@
 
 init(Opts) -> {ok, Opts}.
 
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    upload -> {['POST'], R, S};
+    _Else -> {['GET', 'HEAD'], R, S}
+  end.
+
+% Process a file upload
+% Taken largely from 
+% https://bitbucket.org/argv0/webmachine_examples
+
+process_post(R, S) ->
+  attach:create(get_file_data(R, S), R, S),
+  {true, R, S}.
+  
 to_html(R, S) ->
   User = proplists:get_value(user, S),
   Project = couch:get_json(project, R, S),
@@ -46,35 +62,14 @@ to_html(R, S) ->
   {Html, R, S}.
 
 resource_exists(R, S) ->
-  {R, S1} = get_database(R, S),
+  {R, S1} = attach:get_database(R, S),
   
   case proplists:get_value(target, S1) of
-    index -> file_database_exists(R, S1);
-    identifier -> file_exists(R, S1);
-    path -> file_path_exists(R, S1)
+    identifier -> attach:file_exists(R, S1);
+    path -> attach:file_path_exists(R, S1);
+    _ -> attach:file_database_exists(R, S1)
   end.
 
-file_exists(R, S) ->
-  {true, R, S}.
-
-file_path_exists(R, S) ->
-  {true, R, S}.
-
-% Checks for database existence. If it doesn't exist try to create it.
-% Will raise an exception on failure.
-  
-file_database_exists(R, S) ->
-  DB = proplists:get_value(db, S),
-  {ok, [$2,$0|[_]], _, _} = case ibrowse:send_req(DB, [], head) of
-    {ok, "404", _, _} -> ibrowse:send_req(DB, [], put);
-    Else -> Else
-  end,
-  {true, R, S}.
-  
-get_database(R, S) ->
-  DB = ?ADMINDB ++ "files-" ++ lists:nthtail(8, wrq:path_info(project, R)),
-  {R, [{db, DB}|S]}.
-  
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
@@ -87,3 +82,32 @@ validate_authentication(Props, R, S) ->
     true -> {true, R, S};
     false -> {proplists:get_value(auth_head, S), R, S}
   end.
+
+%% @doc Get md5sum as hex list
+
+md5sum(Bin) ->
+  binary_to_hexlist(crypto:md5(Bin)).
+  
+%% @doc Take binary and return a hexstring
+
+binary_to_hexlist(Bin) ->
+  lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
+  
+get_streamed_body(done_parts, FileName, Acc) ->
+  Bin = iolist_to_binary(lists:reverse(Acc)),
+  {FileName, size(Bin)/1024.0, Bin, md5sum(Bin)};
+  
+get_streamed_body({{"file-chooser", {Params, _Hdrs}, Content}, Next}, Props, Acc) ->
+  FileName = binary_to_list(proplists:get_value(<<"filename">>, Params)),
+  get_streamed_body(Next(), [FileName|Props], [Content|Acc]);
+  
+get_streamed_body({{"file-submit", {_Params, _Hdrs}, _Content}, Next}, Props, Acc) ->
+  get_streamed_body(Next(), Props, Acc).
+
+get_file_data(R, _S) ->  
+  CT = wrq:get_req_header("content-type", R),
+  Boundary = webmachine_multipart:find_boundary(R),
+  SBody = wrq:stream_req_body(R, 1024),
+  SParts = webmachine_multipart:stream_parts(SBody, Boundary),
+  {CT, get_streamed_body(SParts, [], [])}.
+  
