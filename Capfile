@@ -16,7 +16,7 @@ end
 
 task :develinit, :roles => :development do
   run "cd /home/dictionary_maker && 
-       /usr/bin/hg clone ssh://staging.ling.wisc.edu//hg/dictionary_maker && 
+       /usr/bin/hg clone ssh://repository.ling.wisc.edu//hg/dictionary_maker && 
        cd /home/dictionary_maker/dictionary_maker && 
        ./rebar get-deps && 
        ./rebar compile"
@@ -32,7 +32,7 @@ end
 
 task :prodinit, :roles => :production do
   run "cd /home/dictionary_maker &&
-      /usr/bin/hg clone ssh://staging.ling.wisc.edu//hg/dictionary_maker &&
+      /usr/bin/hg clone ssh://repository.ling.wisc.edu//hg/dictionary_maker &&
       cd /home/dictionary_maker/dictionary_maker &&
       ./rebar get-deps &&
       ./rebar compile"
