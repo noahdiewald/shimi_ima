@@ -61,10 +61,10 @@ to_js(R, S) ->
   Script = case wrq:path_info(script, R) of
     "base" -> [];
     _ ->
-      filelib:fold_files(proplists:get_value(path, S), Pattern, true, Fun, [])
+      filelib:fold_files(proplists:get_value(path, S), Pattern, true, Fun, [], utils)
   end,
     
-  Common = filelib:fold_files(proplists:get_value(root, S), Pattern, false, Fun, []),
+  Common = filelib:fold_files(proplists:get_value(root, S), Pattern, false, Fun, [], utils),
 
   {[Common|Script], R, S}.
   
