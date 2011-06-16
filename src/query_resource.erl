@@ -146,8 +146,11 @@ json_update(R, S) ->
   end.
 
 update_design(Json, R, S) ->
+  % Translate the conditions to javascript
   Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
-  {ok, Design} = design_query_json_dtl:render([{<<"expression">>, Expression}|Json]),
+  % Create javascript object used to ensure that all relevant fields are visited
+  Expectation = conditions:expect(jsn:get_value(<<"conditions">>, Json)),
+  {ok, Design} = design_query_json_dtl:render([{<<"expression">>, Expression}, {<<"expected">>, Expectation}|Json]),
   Id = "_design/" ++ wrq:path_info(id, R),
   
   case couch:exists(Id, R, S) of

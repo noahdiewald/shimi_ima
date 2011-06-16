@@ -250,6 +250,23 @@ escape_test() ->
     conditions:trans(?DOUBLE_QUOTE))
 ].
 
+expected_test_() ->
+[
+  ?_assertEqual(
+    "{'d5331cbb4d62fe3d2899f142d90486fd': false, " ++
+    "'allVisited': function () " ++
+    "{return (this['d5331cbb4d62fe3d2899f142d90486fd'])}}",
+    conditions:expect(?EQUAL)),
+    
+  ?_assertEqual(
+    "{'d5331cbb4d62fe3d2899f142d9058ce0': false, " ++
+    "'d5331cbb4d62fe3d2899f142d90486fd': false, "
+    "'allVisited': function () " ++
+    "{return (this['d5331cbb4d62fe3d2899f142d9058ce0'] && " ++
+    "this['d5331cbb4d62fe3d2899f142d90486fd'])}}",
+    conditions:expect(?COMPLEX1))
+].
+
 trans_test_() ->
 [
   ?_assertEqual(

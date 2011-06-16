@@ -8,6 +8,37 @@
           return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
         };
         
+        // From MDC
+        // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Reduce
+        // This was needed because this code was originally developed using
+        // a more recent spidermonkey version where I made use of it. Instead
+        // of rewriting to not use reduce, I look forward to the next spidermonkey
+        // version some day coming to Arch.
+        if ( !Array.prototype.reduce ) {
+          Array.prototype.reduce = function (accumlator){
+            var i, l = this.length, curr;
+
+            if (typeof accumlator !== 'function')  throw new TypeError('First argument is not callable');
+
+            if ((l == 0 || l === null) && (arguments.length <= 1)) throw new TypeError('Array length is 0 and no second argument');
+        
+            if (arguments.length <= 1) {
+              for (i = 0; i == l;)
+                throw new TypeError('Empty array and no second argument');
+              
+              curr = this[i++];
+            } else {
+              curr = arguments[1];
+            }
+        
+            for(i = i || 0 ; i < l ; i++){
+              if (i in this) curr = accumlator.call(undefined, curr, this[i], i, this);
+            }
+        
+            return curr;
+          };
+        } 
+        
         Array.prototype.flatten = function() {
           return this.reduce(function(acc, item) {
             return acc.concat(item);
@@ -15,6 +46,7 @@
         };
         
         var heads = [];
+        var expected = {{expected}};
         
         function try_fields(fieldset) {
           var k = [];
@@ -23,6 +55,10 @@
           result = fieldset.fields.every(function(field, index) {
             var fieldId = field.id;
             var value = field.value;
+            
+            if (expected[fieldId] !== undefined) {
+              expected[fieldId] = true;
+            }
             
             if (fieldId === '{{field}}') {
               k.push(value);
@@ -38,7 +74,7 @@
           if (result) {
             return {keys: k, result: result};
           } else {
-            return {};
+            return {result: result};
           }
         }
         
@@ -55,10 +91,15 @@
           
           result = results.some(function(r) {return r});
           
-          if (result) {
+          // Non-existent multifields are vacuusly true. There is an
+          // additional check to see if all fields that should have had
+          // their values tested were visited.
+          if (multifields.length === 0) {
+            return {keys: [], result: true};
+          } else if (result) {
             return {keys: k.flatten(), result: result};
           } else {
-            return {};
+            return {result: result};
           }
         }
         
@@ -75,102 +116,12 @@
               fields_result = try_multifields(fieldset.multifields);
             }
             
-            k.push(fields_result.keys);
-            return fields_result.result;
-          });
-          
-          if (result) {
-            return k.flatten();
-          } else {
-            return [];
-          }
-        }
-        
-        if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
-          var keys = try_fieldsets(doc.fieldsets);
-          
-          keys.forEach(function(item) {
-            if (typeof item == 'string') {
-              if (item.isBlank()) {
-                item = '~blank';
+            if (fields_result.result) {
+              if (fields_result.keys.length > 0) {
+                k.push(fields_result.keys);
               }
-              emit([item], heads);
-            } else {
-              emit(item, heads);
             }
-          });
-        } 
-      }" 
-    },
-    
-    "full": {
-      "map": "function(doc) {
-        String.prototype.isBlank = function() {
-          return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
-        };
-        
-        Array.prototype.flatten = function() {
-          return this.reduce(function(acc, item) {
-            return acc.concat(item);
-          });
-        };
-        
-        function try_fields(fieldset) {
-          var k = [];
-          var result;
-          
-          result = fieldset.fields.every(function(field, index) {
-            var fieldId = field.id;
-            var value = field.value;
-            
-            if (fieldId === '{{field}}') {
-              k.push(value);
-            }
-            
-            return ({{expression}});
-          });
-          
-          if (result) {
-            return {keys: k, result: result};
-          } else {
-            return {};
-          }
-        }
-        
-        function try_multifields(multifields) {
-          var results;
-          var result;
-          var k = [];
-          
-          results = multifields.map(function(multifield, index) {
-            fields_result = try_fields(multifield);
-            if (fields_result.result) k.push(fields_result.keys);
-            return fields_result.result;
-          });
-          
-          result = results.some(function(r) {return r});
-          
-          if (result) {
-            return {keys: k.flatten(), result: result};
-          } else {
-            return {};
-          }
-        }
-        
-        function try_fieldsets(fieldsets) {
-          var k = [];
-          var result;
-          
-          result = fieldsets.every(function(fieldset, index) {
-            var fields_result;
-            
-            if (! fieldset.multiple) {
-              fields_result = try_fields(fieldset);
-            } else {
-              fields_result = try_multifields(fieldset.multifields);
-            }
-            
-            k.push(fields_result.keys);
+
             return fields_result.result;
           });
           
@@ -184,13 +135,18 @@
         if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
           var keys = try_fieldsets(doc.fieldsets);
           
-          keys.forEach(function(item) {
-            if (typeof item == 'string') {
-              emit([item], doc);
-            } else {
-              emit(item, doc);
-            }
-          });
+          if (expected.allVisited()) {
+            keys.forEach(function(item) {
+              if (typeof item == 'string') {
+                if (item.isBlank()) {
+                  item = '~blank';
+                }
+                emit([item], heads);
+              } else {
+                emit(item, heads);
+              }
+            });
+          }
         } 
       }" 
     }

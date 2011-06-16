@@ -25,8 +25,24 @@
 
 -module(conditions).
 
--export([trans/1]).
+-export([expect/1, trans/1]).
 
+expect(Conditions) ->
+  expect(Conditions, [], []).
+  
+expect([], Acc1, Acc2) ->
+  "{" ++ string:join(Acc1, ", ") ++ ", 'allVisited': function () {return (" ++ string:join(Acc2, " && ") ++ ")}}";
+
+expect([H|Rest], Acc1, Acc2) ->
+  case proplists:get_value(<<"field">>, H) of
+    undefined -> expect(Rest, Acc1, Acc2);
+    Fid ->
+      Fid1 = lists:reverse(binary_to_list(Fid)),
+      Fid2 = [$e,$s,$l,$a,$f,$ ,$: ,$'|Fid1],
+      Fid3 = [$],$'|Fid1],
+      expect(Rest, [[$'|lists:reverse(Fid2)]|Acc1], [[$t,$h,$i,$s,$[,$'|lists:reverse(Fid3)]|Acc2])
+  end.
+  
 trans(Conditions) ->
   trans(Conditions, [], []).
 
