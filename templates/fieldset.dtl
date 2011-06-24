@@ -2,6 +2,6 @@
   data-group-id="{{ _id }}"
   class="fields ui-widget ui-widget-content ui-corner-all padded">
   {% if multiple %}
-  <button class="remove-button">Remove</button>
+  <a href="#" class="remove-button">Remove</a >
   {% endif %}
 </div>

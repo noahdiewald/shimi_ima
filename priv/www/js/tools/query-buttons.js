@@ -19,10 +19,10 @@ function initQueryNewButton() {
 }
 
 function initConditionRemoveButtons(tableBody) {
-  tableBody.find('button').button({
+  tableBody.find('.remove-condition-button').button({
     icons: {primary: "ui-icon-minus"}
   }).click(function(e) {
-    $(e.target).parent('td').parent('tr').remove();
+    $(e.target).closest('tr').remove();
   });
   
   return false;

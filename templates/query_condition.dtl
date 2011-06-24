@@ -10,6 +10,6 @@
     <td class="field-condition" data-value="{{ field }}">{{ field_label }}</td>
     <td class="operator-condition" data-value="{{ operator }}">{{ operator }}</td>
     <td class="argument-condition" data-value="{{ argument|force_escape }}">{{ argument|force_escape }}</td>
-    <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
+    <td class="remove-condition-button-cell"><a href="#" class="remove-condition-button">Remove</a></td>
   {% endif %}
 </tr>
