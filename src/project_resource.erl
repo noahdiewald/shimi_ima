@@ -110,7 +110,7 @@ create_path(R, S) ->
   {ok, Uuid} = couch:get_uuid(R, S),
   Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Uuid,
   R1 = wrq:set_resp_header("Location", Location, R),
-  {Uuid, R1, S}.
+  {Uuid, R1, [{newid, Uuid}|S]}.
 
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
@@ -138,10 +138,10 @@ main_html(R, S) ->
 from_json(R, S) ->
   ContentType = {"Content-Type","application/json"},
   Headers = [ContentType|proplists:get_value(headers, S)],
-  NewDb = "project-" ++ wrq:disp_path(R),
+  NewDb = "project-" ++ proplists:get_value(newid, S),
   
   JsonIn = jsn:decode(wrq:req_body(R)),
-  JsonIn1 = jsn:set_value(<<"_id">>, list_to_binary(wrq:disp_path(R)), JsonIn),
+  JsonIn1 = jsn:set_value(<<"_id">>, list_to_binary(proplists:get_value(newid, S)), JsonIn),
   JsonOut = iolist_to_binary(jsn:encode(JsonIn1)),
   
   case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of

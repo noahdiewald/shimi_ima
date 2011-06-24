@@ -16,7 +16,7 @@ function addProjectDialog() {
         if (checkResult) {
           $.ajax({
             type: "POST", 
-            url: "/projects/index",
+            url: "projects/index",
             dataType: "json",
             contentType: "application/json",
             processData: false,
