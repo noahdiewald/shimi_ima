@@ -1,0 +1,8 @@
+{
+   "_id": "_design/file_manager",
+   "views": {
+     "by_path": {
+       "map": "function(doc) { if (doc.path) emit(doc.path) }"
+     }
+   }
+}

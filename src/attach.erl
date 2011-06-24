@@ -60,7 +60,10 @@ file_path_exists(R, S) ->
 file_database_exists(R, S) ->
   DB = proplists:get_value(db, S),
   {ok, [$2,$0|[_]], _, _} = case ibrowse:send_req(DB, [], head) of
-    {ok, "404", _, _} -> ibrowse:send_req(DB, [], put);
+    {ok, "404", _, _} -> 
+      {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(DB, [], put),
+      {ok, Json} = design_file_manager_json_dtl:render(),
+      ibrowse:send_req(DB, [{"Content-Type", "application/json"}], post, Json);
     Else -> Else
   end,
   {true, R, S}.
