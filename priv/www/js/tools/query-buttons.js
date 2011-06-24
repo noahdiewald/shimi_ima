@@ -40,7 +40,7 @@ function initQueryDeleteButton(button, buttonData) {
       var queryRev = bData.attr('data-query-rev');
       var completeMessage = "Your query has been deleted.";
       var completeFunction = function() {
-        button.parent('div').parent('div').empty();
+        $('#query-edit').empty();
         initQueryIndex();
       };
       
