@@ -59,8 +59,9 @@ process_post(R, S) ->
 to_html(R, S) ->
   User = proplists:get_value(user, S),
   Project = couch:get_json(project, R, S),
+  Files = attach:get_all_by_path(R, S),
   
-  Vals = [{<<"user">>, User}, {<<"project_info">>, Project}],
+  Vals = [{<<"user">>, User}, {<<"project_info">>, Project}, {<<"files">>, Files}],
   
   {ok, Html} = file_manager_dtl:render(Vals),
   {Html, R, S}.

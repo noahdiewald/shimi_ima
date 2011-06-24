@@ -30,6 +30,7 @@
   file_exists/2,
   file_path_exists/2,
   get/3,
+  get_all_by_path/2,
   get_database/2,
   get_file/3,
   update/5
@@ -67,6 +68,15 @@ file_database_exists(R, S) ->
     Else -> Else
   end,
   {true, R, S}.
+
+get_all_by_path(R, S) ->  
+  Qs = get_qs(wrq:raw_path(R)),
+  BaseUrl = proplists:get_value(db, S) ++ "/",
+  Path = "_design/file_manager/_view/by_path",
+  FullUrl = BaseUrl ++ Path ++ Qs,
+  io:format("-----(~p)--------", [FullUrl]),
+  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
+  jsn:decode(Json).
   
 get_database(R, S) ->
   DB = ?ADMINDB ++ "files-" ++ lists:nthtail(8, wrq:path_info(project, R)),
@@ -121,3 +131,10 @@ set_initial_path(Id, Name, R, S) ->
   Json = get(Id, R, S),
   Json1 = jsn:set_value(<<"path">>, list_to_binary("files/" ++ Name), Json),
   {ok, updated} = update(Id, binary_to_list(jsn:get_value(<<"_rev">>, Json1)), Json1, R, S).
+
+get_qs([]) ->
+  [];  
+get_qs([$?|Rest]) ->
+  [$?|Rest];
+get_qs([_|Rest]) ->
+  get_qs(Rest).

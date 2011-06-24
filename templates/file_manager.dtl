@@ -27,6 +27,13 @@
         src=""></iframe>
     </form>
   </div>
+  <div id="file-listing">
+    <ul>
+    {% for row in files.rows %}
+      <li>{{ row.key }}</li>
+    {% endfor %}
+    </ul>
+  </div>
 </div>
 {% endblock %}
 
