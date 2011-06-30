@@ -57,14 +57,27 @@ process_post(R, S) ->
   end.
   
 to_html(R, S) ->
+  case proplists:get_value(target, S) of
+    main -> {html_main(R, S), R, S};
+    index -> {html_index(R, S), R, S}
+  end.
+
+html_main(R, S) ->  
   User = proplists:get_value(user, S),
   Project = couch:get_json(project, R, S),
-  Files = attach:get_all_by_path(R, S),
   
-  Vals = [{<<"user">>, User}, {<<"project_info">>, Project}, {<<"files">>, Files}],
+  Vals = [{<<"user">>, User}, {<<"project_info">>, Project}],
   
   {ok, Html} = file_manager_dtl:render(Vals),
-  {Html, R, S}.
+  Html.
+
+html_index(R, S) ->  
+  Files = attach:get_all_by_path(R, S),
+  
+  Vals = [{<<"files">>, Files}],
+  
+  {ok, Html} = file_manager_listing_dtl:render(Vals),
+  Html.
 
 resource_exists(R, S) ->
   {R, S1} = attach:get_database(R, S),

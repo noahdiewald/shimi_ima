@@ -1,0 +1,23 @@
+<table id="file-listing-table" class="ui-widget">
+  <thead class="ui-widget-header">
+    <tr>
+      <th>File Name</th>
+      <th>Content Type</th>
+      <th>Size (Mbytes)</th>
+      <td></td>
+    </tr>
+  </thead>
+  <tbody class="ui-widget-content">
+    {% for row in files.rows %}
+    <tr data-file-id="{{row.id}}">
+      <td>{{row.key}}</td>
+      <td>{{row.value.content_type}}</td>
+      <td>{{row.value.size}}</td>
+      <td>
+        <a href="#" class="edit-file-button">Edit</a>
+        <a href="#" class="delete-file-button">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

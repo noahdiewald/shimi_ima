@@ -74,7 +74,6 @@ get_all_by_path(R, S) ->
   BaseUrl = proplists:get_value(db, S) ++ "/",
   Path = "_design/file_manager/_view/by_path",
   FullUrl = BaseUrl ++ Path ++ Qs,
-  io:format("-----(~p)--------", [FullUrl]),
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
   jsn:decode(Json).
   
