@@ -70,7 +70,7 @@ content_types_provided(R, S) ->
     path -> 
       ContentType = webmachine_util:guess_mime(wrq:disp_path(R)),
       {[{ContentType, get_file}], R, [{content_type, ContentType}|S]};
-    upload -> {[{"*/*", to_null}], R, S}
+    upload -> {[{"text/plain", to_null}], R, S}
   end.
 
 %% @doc Process a file upload
@@ -78,7 +78,8 @@ content_types_provided(R, S) ->
 process_post(R, S) ->
   case attach:create(get_file_data(R, S), R, S) of
     {ok, created} -> 
-      R1 = wrq:set_resp_body(<<"\"Success\"">>, R),
+      Body = [{<<"status">>, <<"success">>}, {<<"message">>, <<"File Uploaded">>}],
+      R1 = wrq:set_resp_body(jsn:encode(Body), R),
       {true, R1, S};
     {Code, Message} ->
       R1 = wrq:set_resp_body(Message, R),
@@ -97,7 +98,7 @@ to_json(R, S) ->
   end.
   
 get_file(R, S) ->
-  undefined.
+  {attach:get_file(R, S), R, S}.
     
 to_html(R, S) ->
   case proplists:get_value(target, S) of

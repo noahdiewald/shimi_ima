@@ -33,9 +33,16 @@ var getFileListing = function (path) {
   });
 };
 
+var refreshListings = function (path) {
+  getDirListing();
+  getFileListing();
+};
+
 $(function () {
+  refreshListings();
+  
   $('#file-upload-target').load(function() {
-    var encoded = $('#file-upload-target').contents().find('body').html();
+    var encoded = $('#file-upload-target').contents().find('body pre').html();
     var obj = function () {
       if (encoded.length > 0) {
         return JSON.parse(encoded);
@@ -44,11 +51,12 @@ $(function () {
       }
     };
     
-    if (obj().message) {
-      flashError("Error", obj.message);
-    } else {
-      getDirListing();
-      getFileListing();
+    if (obj().message && obj().status === "error") {
+      flashError("Error", obj().message);
+      refreshListings();
+    } else if (obj().message) {
+      flashHighlight("Success", obj().message);
+      refreshListings();
     }
   });
 });

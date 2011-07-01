@@ -34,7 +34,7 @@
   get/3,
   get_all_by_path/2,
   get_database/2,
-  get_file/3,
+  get_file/2,
   update/5
 ]).
 
@@ -51,8 +51,18 @@ file_exists(R, S) ->
 %% combination specified by the URL
 
 file_path_exists(R, S) ->
-  {true, R, S}.
-
+  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(X) || X <- wrq:path_tokens(R)])]),
+  file_path_exists(Path, R, S). 
+  
+file_path_exists(Path, R, S) ->
+  BaseUrl = proplists:get_value(db, S) ++ "/",
+  ViewPath = "_design/file_manager/_view/full_paths",
+  FullUrl = BaseUrl ++ ViewPath ++ "?key=" ++ Path,
+  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
+  Json = jsn:decode(Body),
+  Total = length(proplists:get_value(<<"rows">>, Json)),
+  {Total > 0, R, S}.
+  
 %% @doc Checks for database existence. If it doesn't exist try to create it.
 %% Will raise an exception on failure.
   
@@ -82,9 +92,12 @@ get_all_by_path(R, S) ->
 %% in the URL path to pick out with files to list.
 
 files_by_path(R, S) ->  
+  Tokens = [list_to_binary(X) || X <- wrq:path_tokens(R)],
+  files_by_path(Tokens, R, S).
+  
+files_by_path(Tokens, _R, S) ->
   BaseUrl = proplists:get_value(db, S) ++ "/",
   Path = "_design/file_manager/_view/by_path",
-  Tokens = [list_to_binary(X) || X <- wrq:path_tokens(R)],
   [Key] = io_lib:format("~ts", [jsn:encode(Tokens)]),
   FullUrl = BaseUrl ++ Path ++ "?key=" ++ Key,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
@@ -115,32 +128,59 @@ get_database(R, S) ->
   DB = ?ADMINDB ++ "files-" ++ lists:nthtail(8, wrq:path_info(project, R)),
   {R, [{db, DB}|S]}.
 
-get_file(_Id, _R, _S) ->
-  undefined.
+get_file(R, S) ->
+  get_file(wrq:get_qs_value("id", R), R, S).
+  
+get_file(undefined, R, S) ->
+  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(X) || X <- wrq:path_tokens(R)])]),
+  BaseUrl = proplists:get_value(db, S) ++ "/",
+  ViewPath = "_design/file_manager/_view/full_paths",
+  FullUrl = BaseUrl ++ ViewPath ++ "?key=" ++ Path,
+  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
+  Json = jsn:decode(Body),
+  [Row|_] = proplists:get_value(<<"rows">>, Json),
+  get_file(binary_to_list(proplists:get_value(<<"id">>, Row)), R, S);
+  
+get_file(Id, R, S) ->
+  [Name|_] = lists:reverse(wrq:path_tokens(R)),
+  BaseUrl = proplists:get_value(db, S) ++ "/",
+  FullUrl = BaseUrl ++ Id ++ "/" ++ Name,
+  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
+  Body.
 
 %% @doc Creates an entry
   
 create({[ContentType], [Name], _, Content, Id}, R, S) ->
-  case file_exists(Id, R, S) of
-    {true, _, _} -> halt_conflict(Id, R, S);
-    {false, _, _} -> create(ContentType, Name, Content, Id, R, S)
+  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(Name)])]),
+  {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(mochiweb_util:quote_plus(Path), R, S)},
+  case Exists or PathExists of
+    true -> halt_conflict();
+    false -> create(ContentType, Name, Content, Id, R, S)
   end.
   
 %% @doc Updates an entry
   
-update(Id, Rev, Json, _R, S) ->
+update(Id, Rev, Json, R, S) ->
   DB = proplists:get_value(db, S),
   Headers = [{"Content-Type", "application/json"}],
   Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
-  {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json)),
-  {ok, updated}.
+  Path = lists:reverse(proplists:get_value(<<"path">>, Json, [])),
+  [{Filename, _}|_] = proplists:get_value(<<"_attachments">>, Json, []),
+  [Path1] = io_lib:format("~ts", [jsn:encode(lists:reverse([Filename|Path]))]),
+  
+  case file_path_exists(mochiweb_util:quote_plus(Path1), R, S) of
+    {true, R, S} -> halt_conflict();
+    {false, R, S} ->
+      {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json)),
+      {ok, updated}
+  end.
   
 file_exists(Id, R, S) ->
   DB = proplists:get_value(db, S),
   Headers = [{"Content-Type", "application/json"}],
   Url = DB ++ "/" ++ Id,
   case ibrowse:send_req(Url, Headers, head) of
-    {ok, "200", _, _} -> {true, R, S};
+    {ok, "200", _, _} -> {true, R, [{identifier, Id}|S]};
     _ -> {false, R, S}
   end.
 
@@ -150,11 +190,9 @@ get(Id, _R, S) ->
   Url = DB ++ "/" ++ Id,
   {ok, "200", _, Body} = ibrowse:send_req(Url, Headers, get),
   jsn:decode(Body).
-
-halt_conflict(Id, R, S) ->
-  Json = get(Id, R, S),
-  Note = ["File exists at: "|[jsn:get_value(<<"path">>, Json)]],
-  Message = jsn:encode([{<<"message">>, iolist_to_binary(Note)}]),
+  
+halt_conflict() ->
+  Message = jsn:encode([{<<"status">>, <<"error">>}, {<<"message">>, <<"File already exists.">>}]),
   {409, Message}.
 
 halt_error(Name, _R, _S) ->
