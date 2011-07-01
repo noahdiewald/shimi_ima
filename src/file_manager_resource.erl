@@ -25,11 +25,15 @@
 -module(file_manager_resource).
 -export([
   allowed_methods/2,
+  content_types_provided/2,
   init/1,
   is_authorized/2,
   process_post/2,
   resource_exists/2,
   to_html/2,
+  to_json/2,
+  to_null/2,
+  get_file/2,
   validate_authentication/3
 ]).
 
@@ -44,6 +48,31 @@ allowed_methods(R, S) ->
     _Else -> {['GET', 'HEAD'], R, S}
   end.
 
+resource_exists(R, S) ->
+  {R, S1} = attach:get_database(R, S),
+  
+  case proplists:get_value(target, S1) of
+    identifier -> attach:file_exists(R, S1);
+    path -> attach:file_path_exists(R, S1);
+    _ -> attach:file_database_exists(R, S1)
+  end.
+
+is_authorized(R, S) ->
+  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+
+content_types_provided(R, S) ->
+  case proplists:get_value(target, S) of
+    index -> {[{"text/html", to_html}], R, S};
+    identifier -> {[{"application/json", to_json}], R, S};
+    list_dirs -> {[{"text/html", to_html}], R, S};
+    list_files -> {[{"text/html", to_html}], R, S};
+    main -> {[{"text/html", to_html}], R, S};
+    path -> 
+      ContentType = webmachine_util:guess_mime(wrq:disp_path(R)),
+      {[{ContentType, get_file}], R, [{content_type, ContentType}|S]};
+    upload -> {[{"*/*", to_null}], R, S}
+  end.
+
 %% @doc Process a file upload
 
 process_post(R, S) ->
@@ -55,11 +84,27 @@ process_post(R, S) ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, Code}, R1, S}
   end.
+
+%% @doc A generic return value when there must be a provided content type
+%% but no content is actually intended to be returned.
+
+to_null(R, S) ->
+  {<<"null">>, R, S}.
   
+to_json(R, S) ->
+  case proplists:get_value(target, S) of
+    identifier -> {<<"null">>, R, S}
+  end.
+  
+get_file(R, S) ->
+  undefined.
+    
 to_html(R, S) ->
   case proplists:get_value(target, S) of
     main -> {html_main(R, S), R, S};
-    index -> {html_index(R, S), R, S}
+    index -> {html_index(R, S), R, S};
+    list_files -> {html_files(R, S), R, S};
+    list_dirs -> {html_dirs(R, S), R, S}
   end.
 
 html_main(R, S) ->  
@@ -79,17 +124,21 @@ html_index(R, S) ->
   {ok, Html} = file_manager_listing_dtl:render(Vals),
   Html.
 
-resource_exists(R, S) ->
-  {R, S1} = attach:get_database(R, S),
+html_files(R, S) ->  
+  Files = attach:files_by_path(R, S),
   
-  case proplists:get_value(target, S1) of
-    identifier -> attach:file_exists(R, S1);
-    path -> attach:file_path_exists(R, S1);
-    _ -> attach:file_database_exists(R, S1)
-  end.
+  Vals = [{<<"files">>, Files}],
+  
+  {ok, Html} = file_manager_listing_dtl:render(Vals),
+  Html.
 
-is_authorized(R, S) ->
-  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+html_dirs(R, S) ->  
+  Dirs = attach:dirs_by_path(R, S),
+  
+  Vals = [{<<"dirs">>, Dirs}],
+  
+  {ok, Html} = file_manager_paths_dtl:render(Vals),
+  Html.
 
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),

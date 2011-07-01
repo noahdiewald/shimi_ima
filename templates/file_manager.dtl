@@ -30,6 +30,7 @@
         src=""></iframe>
     </form>
   </div>
+  <div id="file-paths"></div>
   <div id="file-listing"></div>
 </div>
 {% endblock %}

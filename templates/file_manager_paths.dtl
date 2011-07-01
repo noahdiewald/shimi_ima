@@ -1,0 +1,9 @@
+<a href="#" id="root-dir">Top</a><a href="#" id="up-dir">Up</a>
+
+<ul class="directory-tree">
+{% for row in dirs.rows %}
+  {% if row.key|length > 0 %}
+  <li><a href="#" data-path="{{row.key|join:"/"|escape}}" class="dir">{{row.key|last}}</a> (files {{row.value}})</li>
+  {% endif %}
+{% endfor %}
+</ul>
