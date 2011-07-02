@@ -32,6 +32,7 @@
   file_exists/2,
   file_path_exists/2,
   files_by_path/2,
+  get/2,
   get/3,
   get_all_by_path/2,
   get_database/2,
@@ -186,6 +187,17 @@ delete(R, S) ->
     {ok, "200", _, _} -> {ok, deleted};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.
+
+get(Id, _R, S) ->
+  DB = proplists:get_value(db, S),
+  Headers = [{"Content-Type", "application/json"}],
+  Url = DB ++ "/" ++ Id,
+  {ok, "200", _, Body} = ibrowse:send_req(Url, Headers, get),
+  jsn:decode(Body).
+
+get(R, S) ->
+  Id = wrq:path_info(id, R),
+  get(Id, R, S).
   
 file_exists(Id, R, S) ->
   DB = proplists:get_value(db, S),
@@ -195,13 +207,6 @@ file_exists(Id, R, S) ->
     {ok, "200", _, _} -> {true, R, [{identifier, Id}|S]};
     _ -> {false, R, S}
   end.
-
-get(Id, _R, S) ->
-  DB = proplists:get_value(db, S),
-  Headers = [{"Content-Type", "application/json"}],
-  Url = DB ++ "/" ++ Id,
-  {ok, "200", _, Body} = ibrowse:send_req(Url, Headers, get),
-  jsn:decode(Body).
   
 halt_conflict() ->
   Message = jsn:encode([{<<"status">>, <<"error">>}, {<<"message">>, <<"File already exists.">>}]),

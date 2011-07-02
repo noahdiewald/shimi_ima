@@ -41,7 +41,16 @@ var refreshButtons = function (path) {
 };
 
 var refreshEditButton = function (path) {
-    $('.edit-file-button').button({icons: {primary: 'ui-icon-pencil'}});
+    $('.edit-file-button').button({
+      icons: {primary: 'ui-icon-pencil'}
+    }).click(function (e) {
+      target = $(e.target).parent('a');
+      fileId = target.attr('data-file-id');
+      url = "file_manager/" + fileId;
+      
+      $.getJSON(url, function (obj) {
+        pathEditDialog(obj, path).dialog('open');
+    });
 };
 
 var refreshDeleteButton = function (path) {
@@ -59,6 +68,35 @@ var refreshDeleteButton = function (path) {
       
       sendConfigDoc(url, null, 'DELETE', complete, target);
     });
+};
+
+var pathEditDialog = function (obj, path) {
+  var pathInput = $('#file-path-input');
+  
+  pathInput.val(obj.path.join("/");
+  
+  var dialog = $('#edit-path-dialog').dialog(
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Move": function () {
+        var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
+        complete = function () {
+          refreshListings(path);
+          flashHighlight("Success", "File Moved");
+        };
+        
+        obj.path = pathInput.val().replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
+        sendConfigDoc(url, obj, 'PUT', complete, dialog);
+        $(this).dialog("close");
+      }
+      "Cancel": function() {
+        $(this).dialog("close");
+      }
+    }
+  });
+  
+  return dialog;
 };
 
 $(function () {
