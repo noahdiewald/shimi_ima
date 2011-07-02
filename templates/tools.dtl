@@ -1,9 +1,9 @@
 {% extends "project_context.dtl" %}
 
-{% block page_title %}Tools: {{ project_info.name }}{% endblock %}
+{% block page_title %}Tools: {{ project_info.name|escape }}{% endblock %}
 
 {% block header %}
-<h1>Tools: {{ project_info.name }}</h1>
+<h1>Tools: {{ project_info.name|escape }}</h1>
 {% endblock %}
 
 {% block javascript %}

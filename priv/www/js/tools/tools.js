@@ -291,7 +291,7 @@ function getQueryView(startkey, startid, prevkeys, previds) {
   }
   
   if (startkey) {
-    url = url + '&startkey=' + JSON.stringify([startkey]);
+    url = url + '&startkey=' + encodeURIComponent(JSON.stringify([startkey]));
     
     if (startid) {
       url = url + '&startkey_docid=' + startid;
