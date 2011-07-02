@@ -67,7 +67,7 @@
             path = doc.path;
           }
           
-          emit(path, {filename: filename, content_type: content_type, size: size.toFixed(3)}) ;
+          emit(path, {filename: filename, content_type: content_type, size: size.toFixed(3), rev: doc._rev}) ;
         }
       }"
     },
@@ -95,7 +95,7 @@
             path = doc.path;
           }
         
-          emit(content_type, {filename: filename, path: path, size: size.toFixed(3)}) ;
+          emit(content_type, {filename: filename, path: path, size: size.toFixed(3), rev: doc._rev}) ;
         }
       }"
     },
@@ -123,7 +123,7 @@
             path = doc.path;
           }
         
-          emit(filename, {content_type: content_type, path: path, size: size.toFixed(3)}) ;
+          emit(filename, {content_type: content_type, path: path, size: size.toFixed(3), rev: doc._rev}) ;
         }
       }"
     }

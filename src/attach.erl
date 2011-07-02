@@ -26,6 +26,7 @@
 
 -export([
   create/3,
+  delete/2,
   dirs_by_path/2,
   file_database_exists/2,
   file_exists/2,
@@ -44,7 +45,7 @@
 %% @doc Determine if the entry exists by extracting the id from the URL path
 
 file_exists(R, S) ->
-  Id = wrq:get_path_info("id", R),
+  Id = wrq:path_info(id, R),
   file_exists(Id, R, S).
 
 %% @doc Determine if there is at least one entry with the filename and path
@@ -173,6 +174,17 @@ update(Id, Rev, Json, R, S) ->
     {false, R, S} ->
       {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json)),
       {ok, updated}
+  end.
+
+delete(R, S) ->
+  Id = wrq:path_info(id, R),
+  Rev = wrq:get_qs_value("rev", R),
+  DB = proplists:get_value(db, S),
+  Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
+  Headers = [{"Content-Type","application/json"}],
+  case ibrowse:send_req(Url, Headers, delete) of
+    {ok, "200", _, _} -> {ok, deleted};
+    {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.
   
 file_exists(Id, R, S) ->

@@ -26,6 +26,8 @@
 -export([
   allowed_methods/2,
   content_types_provided/2,
+  delete_resource/2,
+  get_file/2,
   init/1,
   is_authorized/2,
   process_post/2,
@@ -33,7 +35,6 @@
   to_html/2,
   to_json/2,
   to_null/2,
-  get_file/2,
   validate_authentication/3
 ]).
 
@@ -45,6 +46,7 @@ init(Opts) -> {ok, Opts}.
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     upload -> {['POST'], R, S};
+    identifier -> {['GET', 'HEAD', 'DELETE', 'PUT'], R, S};
     _Else -> {['GET', 'HEAD'], R, S}
   end.
 
@@ -71,6 +73,15 @@ content_types_provided(R, S) ->
       ContentType = webmachine_util:guess_mime(wrq:disp_path(R)),
       {[{ContentType, get_file}], R, [{content_type, ContentType}|S]};
     upload -> {[{"text/plain", to_null}], R, S}
+  end.
+  
+delete_resource(R, S) ->
+  case attach:delete(R, S) of
+    {ok, deleted} -> {true, R, S};
+    {409, _} ->
+      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
   end.
 
 %% @doc Process a file upload

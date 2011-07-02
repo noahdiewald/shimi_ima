@@ -13,9 +13,9 @@ function getDocument(id, runAfterEditRefresh) {
     
     if (runAfterEditRefresh) afterEditRefresh();
     
-    $('#document-edit-button').button();
+    $('#document-edit-button').button({icons: {primary: 'ui-icon-pencil'}});
     
-    $('#document-delete-button').button();
+    $('#document-delete-button').button({icons: {primary: 'ui-icon-trash'}});
   });
 }
 

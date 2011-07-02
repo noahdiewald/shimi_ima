@@ -36,4 +36,5 @@
 {% endblock %}
 
 {% block dialogs %}
+{% include 'file_manager_edit_path_dialog.dtl' %}
 {% endblock %}

@@ -5,20 +5,18 @@ var getDirListing = function (path) {
     $('#file-paths').html(data);
     $('.dir').click(function (e) {
       var newpath = $(e.target).attr('data-path');
-      getDirListing(newpath);
-      getFileListing(newpath);
+      
+      refreshListings(newpath);
     });
     $('#up-dir').button().click(function () {
       var newpath = path.split("/");
       newpath.pop();
       newpath = newpath.join("/");
       
-      getDirListing(newpath);
-      getFileListing(newpath);
+      refreshListings(newpath);
     });
     $('#root-dir').button().click(function () {
-      getDirListing();
-      getFileListing();
+      refreshListings();
     });
   });
 };
@@ -28,14 +26,39 @@ var getFileListing = function (path) {
   
   $.get("file_manager/list_files/" + path, function (data) {
     $('#file-listing').html(data);
-    $('.edit-file-button').button();
-    $('.delete-file-button').button();
+    refreshButtons(path);
   });
 };
 
 var refreshListings = function (path) {
-  getDirListing();
-  getFileListing();
+  getDirListing(path);
+  getFileListing(path);
+};
+
+var refreshButtons = function (path) {
+  refreshEditButton();
+  refreshDeleteButton();
+};
+
+var refreshEditButton = function (path) {
+    $('.edit-file-button').button({icons: {primary: 'ui-icon-pencil'}});
+};
+
+var refreshDeleteButton = function (path) {
+    $('.delete-file-button').button({
+      icons: {primary: 'ui-icon-trash'}
+    }).click(function(e) {
+      target = $(e.target).parent('a');
+      fileId = target.attr('data-file-id');
+      fileRev = target.attr('data-file-rev');
+      url = "file_manager/" + fileId + "?rev=" + fileRev;
+      complete = function () {
+        refreshListings(path);
+        flashHighlight("Success", "File Deleted");
+      };
+      
+      sendConfigDoc(url, null, 'DELETE', complete, target);
+    });
 };
 
 $(function () {
@@ -44,14 +67,14 @@ $(function () {
   $('#file-upload-target').load(function() {
     var encoded = $('#file-upload-target').contents().find('body pre').html();
     var obj = function () {
-      if (encoded.length > 0) {
+      if (encoded) if (encoded.length > 0) {
         return JSON.parse(encoded);
       } else {
         return {message: false};
       }
     };
     
-    if (obj().message && obj().status === "error") {
+    if (obj()) if (obj().message && obj().status === "error") {
       flashError("Error", obj().message);
       refreshListings();
     } else if (obj().message) {
