@@ -1,10 +1,10 @@
 {% extends "project_context.dtl" %}
 
-{% block page_title %}{{ project_info.name }}: {{ title }}{% endblock %}
+{% block page_title %}{{ project_info.name|escape }}: {{ title|escape }}{% endblock %}
 
 {% block header %}
-<h1>{{ project_info.name }}: {{ title }}</h1> 
-<em>{{ doctype_info.description }}</em>
+<h1>{{ project_info.name|escape }}: {{ title|escape }}</h1> 
+<em>{{ doctype_info.description|escape }}</em>
 {% endblock %}
 
 {% block javascript %}
@@ -31,13 +31,13 @@
   </div>
   
   <div 
-    data-document-doctype="{{ doctype_info._id }}" 
-    data-document-description="{{ doctype_info.description }}"
+    data-document-doctype="{{ doctype_info._id|escape }}" 
+    data-document-description="{{ doctype_info.description|escape }}"
     data-group-id="document-view-list"
     id="all-document-container">
   
     <div class="ui-widget panel" id="document-index">
-      <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id }} Index</h2>
+      <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
         <label for="index-query">Query</label>
@@ -51,7 +51,7 @@
     </div>
     
     <div class="ui-widget panel" id="document-view">
-      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id }} View</h2>
+      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape}} View</h2>
     </div>
     
     <div class="ui-widget panel" id="document-edit">
