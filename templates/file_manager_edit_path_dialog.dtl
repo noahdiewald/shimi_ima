@@ -1,0 +1,23 @@
+<div id="edit-path-dialog" title="File Path" class="hidden">
+
+  <p class="validate-tips">All fields are required.</p>
+  
+  <form>
+    <fieldset class="ui-helper-reset">
+      <p class="help-text">
+        In the space below you may specify a new location for this
+        file. Separate the directories with a forward slash ('/'). The
+        file will then be moved from its current location to the new
+        location unless there is already a file with the same name in
+        the new directory.
+      </p>
+      
+      <label for="file-path-input">File Path</label><br />
+      <input 
+        type="text" 
+        name="file-path-input" 
+        id="file-path-input" 
+        value="" 
+        class="ui-widget-content ui-corner-all input" />
+  </form>
+</div>
