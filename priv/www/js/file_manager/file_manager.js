@@ -50,6 +50,7 @@ var refreshEditButton = function (path) {
       
       $.getJSON(url, function (obj) {
         pathEditDialog(obj, path).dialog('open');
+      });
     });
 };
 
@@ -73,9 +74,9 @@ var refreshDeleteButton = function (path) {
 var pathEditDialog = function (obj, path) {
   var pathInput = $('#file-path-input');
   
-  pathInput.val(obj.path.join("/");
+  pathInput.val(obj.path.join("/"));
   
-  var dialog = $('#edit-path-dialog').dialog(
+  var dialog = $('#edit-path-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
@@ -89,7 +90,7 @@ var pathEditDialog = function (obj, path) {
         obj.path = pathInput.val().replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
         sendConfigDoc(url, obj, 'PUT', complete, dialog);
         $(this).dialog("close");
-      }
+      },
       "Cancel": function() {
         $(this).dialog("close");
       }
