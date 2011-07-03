@@ -12,7 +12,7 @@
 
 -module(jsn).
 -author('losthost@narod.ru').
--export([encoder/1, encode/1]).
+-export([encoder/1, encode/1, encode_to_list/1]).
 -export([decoder/1, decode/1]).
 -export([get_value/2, get_values/2, set_value/3, delete_value/2]).
 -export([test/0]).
@@ -66,6 +66,12 @@ encoder(Options) ->
 %% @doc Encode the given as JSON to an iolist.
 encode(Any) ->
     json_encode(Any, #encoder{}).
+    
+%% @spec encode(json_term()) -> [char()]
+%% @doc Encode the given as JSON to a normal list.
+encode_to_list(Any) ->
+    [List] = io_lib:format("~ts", [json_encode(Any, #encoder{})]),
+    List.
 
 %% @spec decoder([decoder_option()]) -> function()
 %% @doc Create a decoder/1 with the given options.

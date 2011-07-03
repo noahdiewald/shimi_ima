@@ -53,7 +53,7 @@ file_exists(R, S) ->
 %% combination specified by the URL
 
 file_path_exists(R, S) ->
-  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(X) || X <- wrq:path_tokens(R)])]),
+  Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
   file_path_exists(Path, R, S). 
   
 file_path_exists(Path, R, S) ->
@@ -100,7 +100,7 @@ files_by_path(R, S) ->
 files_by_path(Tokens, _R, S) ->
   BaseUrl = proplists:get_value(db, S) ++ "/",
   Path = "_design/file_manager/_view/by_path",
-  [Key] = io_lib:format("~ts", [jsn:encode(Tokens)]),
+  Key = jsn:encode_to_list(Tokens),
   FullUrl = BaseUrl ++ Path ++ "?key=" ++ Key,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
   jsn:decode(Json).
@@ -116,8 +116,8 @@ dirs_by_path(R, S) ->
   
   % numbers come before strings, objects after
   
-  [StartKey] = io_lib:format("~ts", [jsn:encode(lists:reverse([0|Tokens]))]),
-  [EndKey] = io_lib:format("~ts", [jsn:encode(lists:reverse([[{}]|Tokens]))]),
+  StartKey = jsn:encode_to_list(lists:reverse([0|Tokens])),
+  EndKey = jsn:encode_to_list(lists:reverse([[{}]|Tokens])),
   
   FullUrl = BaseUrl ++ Path ++ "?startkey=" ++ StartKey ++ "&endkey=" ++ EndKey ++ "&group=true&group_level=" ++ GroupLevel,
   {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
@@ -134,7 +134,7 @@ get_file(R, S) ->
   get_file(wrq:get_qs_value("id", R), R, S).
   
 get_file(undefined, R, S) ->
-  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(X) || X <- wrq:path_tokens(R)])]),
+  Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
   BaseUrl = proplists:get_value(db, S) ++ "/",
   ViewPath = "_design/file_manager/_view/full_paths",
   FullUrl = BaseUrl ++ ViewPath ++ "?key=" ++ Path,
@@ -153,7 +153,7 @@ get_file(Id, R, S) ->
 %% @doc Creates an entry
   
 create({[ContentType], [Name], _, Content, Id}, R, S) ->
-  [Path] = io_lib:format("~ts", [jsn:encode([list_to_binary(Name)])]),
+  Path = jsn:encode_to_list([list_to_binary(Name)]),
   {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(mochiweb_util:quote_plus(Path), R, S)},
   case Exists or PathExists of
     true -> halt_conflict();
@@ -168,7 +168,7 @@ update(Id, Rev, Json, R, S) ->
   Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
   Path = lists:reverse(proplists:get_value(<<"path">>, Json, [])),
   [{Filename, _}|_] = proplists:get_value(<<"_attachments">>, Json, []),
-  [Path1] = io_lib:format("~ts", [jsn:encode(lists:reverse([Filename|Path]))]),
+  Path1 = jsn:encode_to_list(lists:reverse([Filename|Path])),
   
   case file_path_exists(mochiweb_util:quote_plus(Path1), R, S) of
     {true, R, S} -> halt_conflict();
