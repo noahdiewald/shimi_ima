@@ -66,7 +66,7 @@ function fieldElems() {
         "required": fObj.required.is(':checked'),
         "order": fObj.order.val() * 1,
         "allowed": fObj.allowed.val().split(","),
-        "source": fObj.source.val(),
+        "source": fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
         "min": stringToNumber(fObj.min.val()),
         "max": stringToNumber(fObj.max.val()),
         "regex": fObj.regex.val(),
@@ -84,11 +84,22 @@ function fieldElems() {
       return fObj;
     };
     
+    fObj.decodeSource = function(subcategory, source) {
+      switch (subcategory) {
+        case "file":
+          return source.split("/");
+        default:
+          return defaults;
+      }
+    };
+    
     fObj.decodeDefaults = function(subcategory, defaults) {
       switch (subcategory) {
         case "docmultiselect":
         case "multiselect":
           return defaults.split(",").map(function (item) {return item.trim()});
+        case "file":
+          return defaults.split("/");
         default:
           return defaults;
       }
@@ -106,8 +117,11 @@ function fieldElems() {
       switch (fObj.subcategory.val()) {
         case "select":
         case "multiselect":
+          fObj.hideDisable(true);
+          break;
         case "docselect":
         case "docmultiselect":
+        case "file":
           fObj.hideDisable(true);
           fObj.source.removeAttr("disabled");
           fObj.source.parent().show();

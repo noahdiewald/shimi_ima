@@ -16,7 +16,7 @@
   data-field-default="{% if (value.subcategory == "multiselect" or value.subcategory == "docmultiselect") and value.default %}{{ value.default|join:","|force_escape }}{% else %}{{ value.default|force_escape }}{% endif %}"
   data-field-required="{{ value.required }}"
   data-field-allowed="{{ value.allowed|join:"," }}"
-  data-field-source="{{ value.source }}"
+  data-field-source="{% if value.subcategory == "file" %}{{ value.source|join:"/"|escape }}{% else %}{{ value.source|escape }}{% endif %}"
   data-field-max="{{ value.max }}"
   data-field-min="{{ value.min }}"
   data-field-regex="{{ value.regex|force_escape }}">

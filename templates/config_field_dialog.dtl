@@ -39,7 +39,8 @@
         class="input" 
         id="field-subcategory-input">
         
-        <option selected="true" value="text">Simple Text</option>
+        <option></option>
+        <option value="text">Simple Text</option>
         <option value="textarea">Text Box</option>
         <option value="date">Date</option>
         <option value="integer">Integer</option>
@@ -50,7 +51,7 @@
         <option value="multiselect">Multiple Selection</option>
         <option value="docselect">Document Selection</option>
         <option value="docmultiselect">Document Multiple Selection</option>
-        <option value="docmultiselect">File</option>
+        <option value="file">File</option>
         
       </select><br />
       
