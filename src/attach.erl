@@ -42,32 +42,25 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
+-include_lib("include/couchdb.hrl").
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+% API Functions   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
 %% @doc Determine if the entry exists by extracting the id from the URL path
-
 file_exists(R, S) ->
   Id = wrq:path_info(id, R),
   file_exists(Id, R, S).
 
 %% @doc Determine if there is at least one entry with the filename and path
 %% combination specified by the URL
-
 file_path_exists(R, S) ->
   Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
   file_path_exists(Path, R, S). 
   
-file_path_exists(Path, R, S) ->
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  ViewPath = "_design/file_manager/_view/full_paths",
-  FullUrl = BaseUrl ++ ViewPath ++ "?key=" ++ Path,
-  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
-  Json = jsn:decode(Body),
-  Total = length(proplists:get_value(<<"rows">>, Json)),
-  {Total > 0, R, S}.
-  
 %% @doc Checks for database existence. If it doesn't exist try to create it.
 %% Will raise an exception on failure.
-  
 file_database_exists(R, S) ->
   DB = proplists:get_value(db, S),
   {ok, [$2,$0|[_]], _, _} = case ibrowse:send_req(DB, [], head) of
@@ -81,77 +74,65 @@ file_database_exists(R, S) ->
 
 %% @doc Uses the by_path view in a generic way to get entry information. It
 %% will pass on any query string given when querying the view.
-
 get_all_by_path(R, S) ->  
-  Qs = get_qs(wrq:raw_path(R)),
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  Path = "_design/file_manager/_view/by_path",
-  FullUrl = BaseUrl ++ Path ++ Qs,
-  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
-  jsn:decode(Json).
+  Url = get_view_url("by_path", couch:get_vq(R), R, S),
+  get_json(Url).
 
 %% @doc Similar to get_all_by_path/2 but only uses information available
 %% in the URL path to pick out with files to list.
-
 files_by_path(R, S) ->  
   Tokens = [list_to_binary(X) || X <- wrq:path_tokens(R)],
   files_by_path(Tokens, R, S).
-  
-files_by_path(Tokens, _R, S) ->
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  Path = "_design/file_manager/_view/by_path",
-  Key = jsn:encode_to_list(Tokens),
-  FullUrl = BaseUrl ++ Path ++ "?key=" ++ Key,
-  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
-  jsn:decode(Json).
 
+%% @doc Get path portions to enable a hierarchical directory browsing
+%% interface
 dirs_by_path(R, S) ->
   % For and explanation see:
-  %  http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
-  
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  Path = "_design/file_manager/_view/paths",
+  % http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
   Tokens = [list_to_binary(X) || X <- lists:reverse(wrq:path_tokens(R))],
   GroupLevel = integer_to_list(length(Tokens) + 1),
   
   % numbers come before strings, objects after
-  
   StartKey = jsn:encode_to_list(lists:reverse([0|Tokens])),
   EndKey = jsn:encode_to_list(lists:reverse([[{}]|Tokens])),
   
-  FullUrl = BaseUrl ++ Path ++ "?startkey=" ++ StartKey ++ "&endkey=" ++ EndKey ++ "&group=true&group_level=" ++ GroupLevel,
-  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, [], get),
-  jsn:decode(Json).
+  Query = #vq{
+    startkey=StartKey,
+    endkey=EndKey,
+    group="true",
+    group_level=GroupLevel
+  },
+  Url = get_view_url("paths", Query, R, S),
+  get_json(Url).
     
 %% @doc Returns a state with the admin URL for the file database for
 %% a project
-  
 get_database(R, S) ->
   DB = ?ADMINDB ++ "files-" ++ lists:nthtail(8, wrq:path_info(project, R)),
   {R, [{db, DB}|S]}.
 
+%% @doc Retrieve a file attachment. This can be done by supplying only
+%% the path or, more effieciently if there is an id specified in the
+%% query string.
 get_file(R, S) ->
   get_file(wrq:get_qs_value("id", R), R, S).
   
+%% @doc Retrieve a file attachment by id or if the id is undefined, examine
+%% the request path to find the id of the requested file document.
 get_file(undefined, R, S) ->
   Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  ViewPath = "_design/file_manager/_view/full_paths",
-  FullUrl = BaseUrl ++ ViewPath ++ "?key=" ++ Path,
-  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
-  Json = jsn:decode(Body),
+  Url = get_view_url("full_paths", #vq{key=Path}, R, S),
+  Json = get_json(Url),
   [Row|_] = proplists:get_value(<<"rows">>, Json),
   get_file(binary_to_list(proplists:get_value(<<"id">>, Row)), R, S);
   
 get_file(Id, R, S) ->
   [Name|_] = lists:reverse(wrq:path_tokens(R)),
-  BaseUrl = proplists:get_value(db, S) ++ "/",
-  FullUrl = BaseUrl ++ Id ++ "/" ++ Name,
-  {ok, "200", _, Body} = ibrowse:send_req(FullUrl, [], get),
-  Body.
+  Url = get_url([Id, Name], [], R, S),
+  get_body(Url).
 
-%% @doc Creates an entry
-  
+%% @doc Creates an entry with information passed by processing a multi-part
+%% post
 create({[ContentType], [Name], _, Content, Id}, R, S) ->
   Path = jsn:encode_to_list([list_to_binary(Name)]),
   {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(mochiweb_util:quote_plus(Path), R, S)},
@@ -161,11 +142,9 @@ create({[ContentType], [Name], _, Content, Id}, R, S) ->
   end.
   
 %% @doc Updates an entry
-  
 update(Id, Rev, Json, R, S) ->
-  DB = proplists:get_value(db, S),
   Headers = [{"Content-Type", "application/json"}],
-  Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
+  Url = get_url([Id], ["rev=" ++ Rev], R, S),
   Path = lists:reverse(proplists:get_value(<<"path">>, Json, [])),
   [{Filename, _}|_] = proplists:get_value(<<"_attachments">>, Json, []),
   Path1 = jsn:encode_to_list(lists:reverse([Filename|Path])),
@@ -177,58 +156,90 @@ update(Id, Rev, Json, R, S) ->
       {ok, updated}
   end.
 
+%% @doc Delete an entry. The id should be in the request path.
 delete(R, S) ->
   Id = wrq:path_info(id, R),
   Rev = wrq:get_qs_value("rev", R),
-  DB = proplists:get_value(db, S),
-  Url = DB ++ "/" ++ Id ++ "?rev=" ++ Rev,
+  Url = get_url([Id], ["rev=" ++ Rev], R, S),
   Headers = [{"Content-Type","application/json"}],
   case ibrowse:send_req(Url, Headers, delete) of
     {ok, "200", _, _} -> {ok, deleted};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.
 
-get(Id, _R, S) ->
-  DB = proplists:get_value(db, S),
-  Headers = [{"Content-Type", "application/json"}],
-  Url = DB ++ "/" ++ Id,
-  {ok, "200", _, Body} = ibrowse:send_req(Url, Headers, get),
-  jsn:decode(Body).
-
+%% @doc Get a file document, where the id is in the request path.
 get(R, S) ->
   Id = wrq:path_info(id, R),
   get(Id, R, S).
-  
-file_exists(Id, R, S) ->
-  DB = proplists:get_value(db, S),
-  Headers = [{"Content-Type", "application/json"}],
-  Url = DB ++ "/" ++ Id,
-  case ibrowse:send_req(Url, Headers, head) of
-    {ok, "200", _, _} -> {true, R, [{identifier, Id}|S]};
-    _ -> {false, R, S}
-  end.
-  
-halt_conflict() ->
-  Message = jsn:encode([{<<"status">>, <<"error">>}, {<<"message">>, <<"File already exists.">>}]),
-  {409, Message}.
 
-halt_error(Name, _R, _S) ->
-  Note = ["There was a problem uploading the file: "|Name],
-  Message = jsn:encode([{<<"message">>, iolist_to_binary(Note)}]),
-  {500, Message}.
+%% @doc Get a file document, specifying the id explicitly
+get(Id, R, S) ->
+  Url = get_url([Id], [], R, S),
+  get_json(Url).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+% Helper Functions   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+%% @doc Send a get request and decode JSON body
+get_json(Url) -> 
+  {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+  jsn:decode(Json).
+
+%% @doc Send a get request and return body
+get_body(Url) -> 
+  {ok, "200", _, Body} = ibrowse:send_req(Url, [], get),
+  Body.
+
+%% @doc build an URL
+get_url(Path, Query, _R, S) ->
+  string:join([proplists:get_value(db, S)|Path], "/") ++ "?" ++ string:join(Query, "&").
+
+%% @doc build an URL
+get_view_url(View, Query, _R, S) ->
+  V = "_design/file_manager/_view",
+  string:join([proplists:get_value(db, S), V, View], "/") ++ "?" ++ couch:make_vqs(Query).
   
+%% @doc create/3 helper
 create(ContentType, Name, Content, Id, R, S) ->  
-  DB = proplists:get_value(db, S),
-  Url = DB ++ "/" ++ Id ++ "/" ++ mochiweb_util:quote_plus(Name),
+  Url = get_url([Id, mochiweb_util:quote_plus(Name)], [], R, S),
   Headers = [{"Content-Type", ContentType}],
   case ibrowse:send_req(Url, Headers, put, Content) of
     {ok, "201", _, _} -> {ok, created};
     {error, retry_later} -> halt_error(Name, R, S)
   end.
+  
+%% @doc file_path_exists/2 helper
+file_path_exists(Path, R, S) ->
+  Url = get_view_url("full_paths", #vq{key=Path}, R, S),
+  {ok, "200", _, Body} = ibrowse:send_req(Url, [], get),
+  Json = jsn:decode(Body),
+  Total = length(proplists:get_value(<<"rows">>, Json)),
+  {Total > 0, R, S}.
+  
+%% @doc files_by_path/2 helper
+files_by_path(Tokens, R, S) ->
+  Url = get_view_url("by_path", #vq{key=jsn:encode_to_list(Tokens)}, R, S),
+  {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+  jsn:decode(Json).
 
-get_qs([]) ->
-  [];  
-get_qs([$?|Rest]) ->
-  [$?|Rest];
-get_qs([_|Rest]) ->
-  get_qs(Rest).
+%% @doc  file_exists/2 helper
+file_exists(Id, R, S) ->
+  Headers = [{"Content-Type", "application/json"}],
+  Url = get_url([Id], [], R, S),
+  case ibrowse:send_req(Url, Headers, head) of
+    {ok, "200", _, _} -> {true, R, [{identifier, Id}|S]};
+    _ -> {false, R, S}
+  end.
+
+%% @doc For sending back a conflict error and message.  
+halt_conflict() ->
+  Message = jsn:encode([{<<"status">>, <<"error">>}, {<<"message">>, <<"File already exists.">>}]),
+  {409, Message}.
+
+%% @doc For sending back a 500 error that might otherwise be hidden in the
+%% couchdb interaction
+halt_error(Name, _R, _S) ->
+  Note = ["There was a problem uploading the file: "|Name],
+  Message = jsn:encode([{<<"message">>, iolist_to_binary(Note)}]),
+  {500, Message}.

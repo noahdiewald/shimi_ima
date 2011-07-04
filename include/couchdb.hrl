@@ -1,0 +1,1 @@
+-record(vq, {key, startkey, startkey_docid, endkey, endkey_docid, limit, stale, descending, skip, group, group_level, reduce, include_docs, inclusive_end}).
