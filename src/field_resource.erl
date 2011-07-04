@@ -142,12 +142,18 @@ get_field_html(Json, R, S) ->
   {ok, Html} = Template:render(get_allowed(Subcategory, Json1, R, S)),
   Html.
 
-get_allowed([$d, $o, $c|_], Json, R, S) -> get_allowed(Json, R, S);
+get_allowed([$d, $o, $c|_], Json, R, S) -> get_allowed_docs(Json, R, S);
+get_allowed("file", Json, R, S) -> get_allowed_files(Json, R, S);
 get_allowed(_, Json, _, _) -> Json.
 
-get_allowed(Json, R, S) ->
+get_allowed_docs(Json, R, S) ->
   ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
   RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
+  jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
+
+get_allowed_files(Json, R, S) ->
+  Path = binary_to_list(jsn:get_value(<<"source">>, Json)),
+  RawAllowed = attach:get_all_full_path(Path, R, S),
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
 validate_authentication(Props, R, S) ->

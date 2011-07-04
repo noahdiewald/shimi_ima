@@ -16,8 +16,8 @@
     {% endif %}
     {% for option in allowed %}
       <option
-        {% if option.value|escape == default|escape %}selected=true{% endif %}
-        value="{{ option.value|escape }}"
+        {% if option.key|join:"/"|escape == default|join:"/"|escape %}selected=true{% endif %}
+        value="{{ option.key|join:"/"|escape }}"
       >{{ option.key|escape }}</option>
     {% endfor %}
   </select>
