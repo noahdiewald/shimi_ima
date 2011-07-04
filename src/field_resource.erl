@@ -152,7 +152,7 @@ get_allowed_docs(Json, R, S) ->
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
 
 get_allowed_files(Json, R, S) ->
-  Path = binary_to_list(jsn:get_value(<<"source">>, Json)),
+  Path = jsn:get_value(<<"source">>, Json),
   RawAllowed = attach:get_all_full_path(Path, R, S),
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       

@@ -81,7 +81,9 @@ get_all_by_path(R, S) ->
 
 %% @doc Retrieve the path, including the file name, with an explicit startkey
 get_all_full_path(Key, R, S) ->
-  Url = get_view_url("full_paths", #vq{startkey=Key}, R, S),
+  StartKey = jsn:encode_to_list(lists:reverse([0|lists:reverse(Key)])),
+  EndKey = jsn:encode_to_list(lists:reverse([[{}]|lists:reverse(Key)])),
+  Url = get_view_url("full_paths", #vq{startkey=StartKey, endkey=EndKey}, R, S),
   get_json(Url).
 
 %% @doc Similar to get_all_by_path/2 but only uses information available
