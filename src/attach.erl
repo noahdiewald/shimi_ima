@@ -34,6 +34,7 @@
   files_by_path/2,
   get/2,
   get/3,
+  get_all_full_path/3,
   get_all_by_path/2,
   get_database/2,
   get_file/2,
@@ -76,6 +77,11 @@ file_database_exists(R, S) ->
 %% will pass on any query string given when querying the view.
 get_all_by_path(R, S) ->  
   Url = get_view_url("by_path", couch:get_vq(R), R, S),
+  get_json(Url).
+
+%% @doc Retrieve the path, including the file name, with an explicit startkey
+get_all_full_path(Key, R, S) ->
+  Url = get_view_url("full_paths", #vq{startkey=Key}, R, S),
   get_json(Url).
 
 %% @doc Similar to get_all_by_path/2 but only uses information available
@@ -194,14 +200,26 @@ get_body(Url) ->
   {ok, "200", _, Body} = ibrowse:send_req(Url, [], get),
   Body.
 
-%% @doc build an URL
-get_url(Path, Query, _R, S) ->
-  string:join([proplists:get_value(db, S)|Path], "/") ++ "?" ++ string:join(Query, "&").
+%% @doc Build an URL to interact with files database
+get_url(Path, Query, R, S) ->
+  case proplists:get_value(db, S) of
+    undefined ->
+      {R, S1} = get_database(R, S),
+      get_url(Path, Query, R, S1);
+    Db ->
+      string:join([Db|Path], "/") ++ "?" ++ string:join(Query, "&")
+  end.
 
-%% @doc build an URL
-get_view_url(View, Query, _R, S) ->
-  V = "_design/file_manager/_view",
-  string:join([proplists:get_value(db, S), V, View], "/") ++ "?" ++ couch:make_vqs(Query).
+%% @doc Build an URL to query a view
+get_view_url(View, Query, R, S) ->
+  case proplists:get_value(db, S) of
+    undefined ->
+      {R, S1} = get_database(R, S),
+      get_view_url(View, Query, R, S1);
+    Db ->
+      V = "_design/file_manager/_view",
+      string:join([Db, V, View], "/") ++ "?" ++ couch:make_vqs(Query)
+  end.
   
 %% @doc create/3 helper
 create(ContentType, Name, Content, Id, R, S) ->  
