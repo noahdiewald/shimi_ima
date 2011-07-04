@@ -48,7 +48,7 @@ function setFieldValue(field, value) {
     field.attr("checked", value == "true");
   } else if (value && field.is('select.multiselect')) {
     field.val(value.split(","));
-  } else if (value && (field.is('input.text')))  {
+  } else if (value && (field.is('input.text') || field.is('select.file')))  {
     field.val(decodeURIComponent(value.replace(/\+/g," ")));
   } else if (field.is('textarea.textarea')) {
     field.val(decodeURIComponent(value.replace(/\+/g," ")));

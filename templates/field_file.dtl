@@ -2,7 +2,7 @@
   
 {% block input_area %}
   <select 
-    class="field select ui-widget ui-corner-all"
+    class="field file ui-widget ui-corner-all"
     {% if default != "" %}
     data-field-default="{{ default|escape }}"
     {% endif %}
