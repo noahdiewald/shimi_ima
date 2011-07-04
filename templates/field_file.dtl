@@ -1,0 +1,24 @@
+{% extends "field.dtl" %}
+  
+{% block input_area %}
+  <select 
+    class="field select ui-widget ui-corner-all"
+    {% if default != "" %}
+    data-field-default="{{ default|escape }}"
+    {% endif %}
+    {% include 'field_common_attributes.dtl' %}
+  >
+    {% if required != 'true' %}
+    <option 
+      value=""
+      {% if default == '' %}selected=true{% endif %}
+    ></option>
+    {% endif %}
+    {% for option in allowed %}
+      <option
+        {% if option.value|escape == default|escape %}selected=true{% endif %}
+        value="{{ option.value|escape }}"
+      >{{ option.key|escape }}</option>
+    {% endfor %}
+  </select>
+{% endblock %}

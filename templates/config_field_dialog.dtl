@@ -50,6 +50,7 @@
         <option value="multiselect">Multiple Selection</option>
         <option value="docselect">Document Selection</option>
         <option value="docmultiselect">Document Multiple Selection</option>
+        <option value="docmultiselect">File</option>
         
       </select><br />
       
@@ -102,7 +103,7 @@
       </div>
       
       <div>
-        <label for="field-source-input">Values Source</label> <em>Case sensitive name of document type.</em><br />
+        <label for="field-source-input">Values Source</label> <em>Case sensitive name of document type or file path.</em><br />
         <input 
           type="text" 
           name="field-source-input" 
