@@ -37,7 +37,7 @@
   get_all_by_path/2,
   get_database/2,
   get_file/2,
-  update/5
+  update/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -142,9 +142,12 @@ create({[ContentType], [Name], _, Content, Id}, R, S) ->
   end.
   
 %% @doc Updates an entry
-update(Id, Rev, Json, R, S) ->
+update(R, S) ->
   Headers = [{"Content-Type", "application/json"}],
+  Rev = wrq:get_qs_value("rev", R),
+  Id = wrq:path_info(id, R),
   Url = get_url([Id], ["rev=" ++ Rev], R, S),
+  Json = jsn:decode(wrq:req_body(R)),
   Path = lists:reverse(proplists:get_value(<<"path">>, Json, [])),
   [{Filename, _}|_] = proplists:get_value(<<"_attachments">>, Json, []),
   Path1 = jsn:encode_to_list(lists:reverse([Filename|Path])),

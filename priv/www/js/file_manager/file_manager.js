@@ -74,7 +74,11 @@ var refreshDeleteButton = function (path) {
 var pathEditDialog = function (obj, path) {
   var pathInput = $('#file-path-input');
   
-  pathInput.val(obj.path.join("/"));
+  if (obj.path) {
+    pathInput.val(obj.path.join("/"));
+  } else {
+    pathInput.val('');
+  }
   
   var dialog = $('#edit-path-dialog').dialog({
     autoOpen: false,
@@ -87,7 +91,7 @@ var pathEditDialog = function (obj, path) {
           flashHighlight("Success", "File Moved");
         };
         
-        obj.path = pathInput.val().replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
+        obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
         sendConfigDoc(url, obj, 'PUT', complete, dialog);
         $(this).dialog("close");
       },

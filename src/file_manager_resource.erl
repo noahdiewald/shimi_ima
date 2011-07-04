@@ -25,8 +25,10 @@
 -module(file_manager_resource).
 -export([
   allowed_methods/2,
+  content_types_accepted/2,
   content_types_provided/2,
   delete_resource/2,
+  from_json/2,
   get_file/2,
   init/1,
   is_authorized/2,
@@ -75,6 +77,12 @@ content_types_provided(R, S) ->
     upload -> {[{"text/plain", to_null}], R, S}
   end.
   
+content_types_accepted(R, S) ->
+  case proplists:get_value(target, S) of
+    identifier -> {[{"application/json", from_json}], R, S};
+    _Else -> {[], R, S}
+  end.
+  
 delete_resource(R, S) ->
   case attach:delete(R, S) of
     {ok, deleted} -> {true, R, S};
@@ -84,6 +92,14 @@ delete_resource(R, S) ->
       {{halt, 409}, R1, S}
   end.
 
+from_json(R, S) ->
+  case attach:update(R, S) of
+    {ok, updated} -> {true, R, S};
+    {409, _} ->
+      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 409}, R1, S}
+  end.
 %% @doc Process a file upload
 
 process_post(R, S) ->
