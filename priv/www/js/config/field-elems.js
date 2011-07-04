@@ -89,7 +89,7 @@ function fieldElems() {
         case "file":
           return source.split("/");
         default:
-          return defaults;
+          return source;
       }
     };
     
