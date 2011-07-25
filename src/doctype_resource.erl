@@ -94,7 +94,8 @@ touch_all(R, S) ->
 % Helpers
 
 get_documents(DoctypeId, R, S) ->
-  Documents1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "ids_as_keys", R, S)),
+  {ok, Json} = couch:get_view_json(DoctypeId, "ids_as_keys", R, S),
+  Documents1 = jsn:get_value(<<"rows">>, Json),
   [jsn:get_value(<<"value">>,X) || X <- Documents1].
 
 generate_template(DoctypeId, R, S) ->
@@ -104,20 +105,22 @@ generate_template(DoctypeId, R, S) ->
   batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]).
 
 get_fieldsets(DoctypeId, R, S) ->
-  Fieldsets1 = jsn:get_value(<<"rows">>, couch:get_view_json(DoctypeId, "fieldsets", R, S)),
+  {ok, Json} = couch:get_view_json(DoctypeId, "fieldsets", R, S),
+  Fieldsets1 = jsn:get_value(<<"rows">>, Json),
   Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
   [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2].
   
 add_fields(Fieldset, R, S) ->
   Id = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
-  Fields1 = jsn:get_value(<<"rows">>, couch:get_view_json(Id, "fields", R, S)),
+  {ok, Json} = couch:get_view_json(Id, "fields", R, S),
+  Fields1 = jsn:get_value(<<"rows">>, Json),
   Fields2 = [jsn:get_value(<<"value">>,X) || X <- Fields1],
   jsn:set_value(<<"fields">>, Fields2, Fieldset).
   
 html_index(R, S) ->
   User = proplists:get_value(user, S),
   ProjJson = couch:get_json(project, R, S),
-  Json = couch:get_view_json("doctypes", "all_simple", R, S),
+  {ok, Json} = couch:get_view_json("doctypes", "all_simple", R, S),
   
   Json1 = jsn:set_value(<<"title">>, <<"All Document Types">>, Json),
   Json2 = jsn:set_value(<<"project_info">>, ProjJson, Json1),

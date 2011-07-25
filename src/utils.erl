@@ -26,7 +26,8 @@
 
 -export([
   list_dir/1,
-  read_file_info/1
+  read_file_info/1,
+  report_indexing_timeout/4
 ]).
 
 list_dir(Dir) ->
@@ -35,3 +36,12 @@ list_dir(Dir) ->
 
 read_file_info(File) ->
   file:read_file_info(File).
+  
+report_indexing_timeout(Request, Success, R, S) ->
+  case Request() of
+    {ok, Json} -> Success(Json);
+    {error, req_timedout} -> 
+      Message = jsn:encode([{<<"message">>, <<"The server is currently indexing. Try again soon.">>}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {{halt, 504}, R1, S}
+  end.

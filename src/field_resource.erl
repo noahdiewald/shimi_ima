@@ -92,7 +92,7 @@ json_field(R, S) ->
 
 json_fields(R, S) -> 
   Fieldset = wrq:path_info(fieldset, R),
-  Json = couch:get_view_json(Fieldset, "fields", R, S),
+  {ok, Json} = couch:get_view_json(Fieldset, "fields", R, S),
   Rows = jsn:get_value(<<"rows">>, Json),
   
   F = fun(Row) ->
@@ -116,7 +116,7 @@ html_fields(R, S) ->
 
 html_as_fieldset(R, S) -> 
   Fieldset = wrq:path_info(fieldset, R),
-  Json = couch:get_view_json(Fieldset, "fields", R, S),
+  {ok, Json} = couch:get_view_json(Fieldset, "fields", R, S),
   Rows = jsn:get_value(<<"rows">>, Json),
   
   F = fun(Row) ->
@@ -127,7 +127,7 @@ html_as_fieldset(R, S) ->
   
 html_as_options(R, S) ->
   Fieldset = wrq:path_info(fieldset, R),
-  Json = couch:get_view_json(Fieldset, "fields_simple", R, S),
+  {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
   {ok, Html} = options_dtl:render(Json),
   Html.
 
@@ -148,7 +148,7 @@ get_allowed(_, Json, _, _) -> Json.
 
 get_allowed_docs(Json, R, S) ->
   ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-  RawAllowed = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
+  {ok, RawAllowed} = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
   jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
 
 get_allowed_files(Json, R, S) ->

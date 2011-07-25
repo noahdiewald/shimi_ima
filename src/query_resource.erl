@@ -171,10 +171,10 @@ html_index(R, S) ->
   
   case wrq:get_qs_value("as", R) of
     "options" -> 
-      Json = couch:get_view_json("queries", "options", R, S),
+      {ok, Json} = couch:get_view_json("queries", "options", R, S),
       {ok, Html} = options_dtl:render(Json);
     _Else ->
-      Json = couch:get_view_json("queries", "all_simple", R, S),
+      {ok, Json} = couch:get_view_json("queries", "all_simple", R, S),
       {ok, Html} = query_index_dtl:render(Json)
   end,
   Html.
@@ -204,7 +204,7 @@ html_condition(R, S) ->
 html_view(R, S) ->
   QueryId = wrq:path_info(id, R),
   Limit = wrq:get_qs_value("limit", R),
-  Json = couch:get_view_json(QueryId, "index", R, S),
+  {ok, Json} = couch:get_view_json(QueryId, "index", R, S),
   Vals = [{<<"limit">>, Limit}|Json],
   {ok, Html} = query_view_dtl:render(Vals),
   Html.

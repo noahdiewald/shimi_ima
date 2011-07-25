@@ -108,8 +108,9 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
-  Json = couch:get_view_json(wrq:path_info(doctype, R), "fieldsets", R, S),
-  {render:renderings(Json, config_fieldset_list_elements_dtl), R, S}.
+  Request = fun () -> couch:get_view_json(wrq:path_info(doctype, R), "fieldsets", R, S) end,
+  Success = fun (Json) -> {render:renderings(Json, config_fieldset_list_elements_dtl), R, S} end,
+  utils:report_indexing_timeout(Request, Success, R, S).
   
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),

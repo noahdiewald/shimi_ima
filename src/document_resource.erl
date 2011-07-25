@@ -158,7 +158,7 @@ html_documents(R, S) ->
 
 html_edit(R, S) ->
   Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_view_json(Doctype, "fieldsets", R, S),
+  {ok, Json} = couch:get_view_json(Doctype, "fieldsets", R, S),
   
   Vals = [
     {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
@@ -173,7 +173,7 @@ html_index(R, S) ->
   Doctype = wrq:path_info(doctype, R),
   Limit = wrq:get_qs_value("limit", R),
   
- Json = case wrq:get_qs_value("query", R) of
+ {ok, Json} = case wrq:get_qs_value("query", R) of
     undefined -> couch:get_view_json(Doctype, "index", R, S);
     QueryId -> couch:get_view_json(QueryId, "index", R, S)
   end,

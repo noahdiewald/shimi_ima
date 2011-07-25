@@ -85,7 +85,7 @@ html_fieldset(R, S) ->
   
 html_fieldsets(R, S) -> 
   Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_view_json(Doctype, "fieldsets_simple", R, S),
+  {ok, Json} = couch:get_view_json(Doctype, "fieldsets_simple", R, S),
   {ok, Html} = options_dtl:render(Json),
   Html.
     

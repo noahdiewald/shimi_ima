@@ -100,8 +100,10 @@ get_view_json(Id, Name, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
   FullUrl = Url ++ Path ++ "?" ++ Qs,
-  {ok, "200", _, Json} = ibrowse:send_req(FullUrl, Headers, get),
-  jsn:decode(Json).
+  case ibrowse:send_req(FullUrl, Headers, get) of
+    {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
+    {error, req_timedout} -> {error, req_timedout}
+  end.
 
 get_design_rev(Name, R, _S) ->
   Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Name,
