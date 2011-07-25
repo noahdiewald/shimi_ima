@@ -155,9 +155,9 @@ update_design(Json, R, S) ->
   
   case couch:exists(Id, R, S) of
     false ->
-      couch:create(design, Design, R, S);
+      couch:create(design, jsn:encode(jsn:decode(Design)), R, S);
     _ ->
-      couch:update(design, Design, R, S)
+      couch:update(design, jsn:encode(jsn:decode(Design)), R, S)
   end.
   
 html_index(R, S) ->
