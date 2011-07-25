@@ -148,7 +148,8 @@ from_json(R, S) ->
     {ok, "201", _, _} ->
       {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut),
       {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
-      {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, iolist_to_binary(DoctypesDesign))
+      DD2 = jsn:encode(jsn:decode(DoctypesDesign)),
+      {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, DD2)
   end,
   {true, R, S}.
 
