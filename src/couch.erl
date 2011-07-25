@@ -204,33 +204,33 @@ exists(Target, R, S) ->
 %% @doc Return a list of strings representing keys and values for any fields
 %% of a vq record that have values that are lists of length greater than 0.
 make_vqs(#vq{key=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{key=undefined}, ["key=" ++ VQ#vq.key|Acc]);
+  make_vqs(VQ#vq{key=undefined}, ["key=" ++ mochiweb_util:quote_plus(VQ#vq.key)|Acc]);
 make_vqs(#vq{startkey=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{startkey=undefined}, ["startkey=" ++ VQ#vq.startkey|Acc]);
+  make_vqs(VQ#vq{startkey=undefined}, ["startkey=" ++ mochiweb_util:quote_plus(VQ#vq.startkey)|Acc]);
 make_vqs(#vq{startkey_docid=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{startkey_docid=undefined}, ["startkey_docid=" ++ VQ#vq.startkey_docid|Acc]);
+  make_vqs(VQ#vq{startkey_docid=undefined}, ["startkey_docid=" ++ mochiweb_util:quote_plus(VQ#vq.startkey_docid)|Acc]);
 make_vqs(#vq{endkey=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{endkey=undefined}, ["endkey=" ++ VQ#vq.endkey|Acc]);
+  make_vqs(VQ#vq{endkey=undefined}, ["endkey=" ++ mochiweb_util:quote_plus(VQ#vq.endkey)|Acc]);
 make_vqs(#vq{endkey_docid=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{endkey_docid=undefined}, ["endkey_docid=" ++ VQ#vq.endkey_docid|Acc]);
+  make_vqs(VQ#vq{endkey_docid=undefined}, ["endkey_docid=" ++ mochiweb_util:quote_plus(VQ#vq.endkey_docid)|Acc]);
 make_vqs(#vq{limit=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{limit=undefined}, ["limit=" ++ VQ#vq.limit|Acc]);
+  make_vqs(VQ#vq{limit=undefined}, ["limit=" ++ mochiweb_util:quote_plus(VQ#vq.limit)|Acc]);
 make_vqs(#vq{stale=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{stale=undefined}, ["stale=" ++ VQ#vq.stale|Acc]);
+  make_vqs(VQ#vq{stale=undefined}, ["stale=" ++ mochiweb_util:quote_plus(VQ#vq.stale)|Acc]);
 make_vqs(#vq{descending=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{descending=undefined}, ["descending=" ++ VQ#vq.descending|Acc]);
+  make_vqs(VQ#vq{descending=undefined}, ["descending=" ++ mochiweb_util:quote_plus(VQ#vq.descending)|Acc]);
 make_vqs(#vq{skip=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{skip=undefined}, ["skip=" ++ VQ#vq.skip|Acc]);
+  make_vqs(VQ#vq{skip=undefined}, ["skip=" ++ mochiweb_util:quote_plus(VQ#vq.skip)|Acc]);
 make_vqs(#vq{group_level=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{group_level=undefined}, ["group_level=" ++ VQ#vq.group_level|Acc]);
+  make_vqs(VQ#vq{group_level=undefined}, ["group_level=" ++ mochiweb_util:quote_plus(VQ#vq.group_level)|Acc]);
 make_vqs(#vq{group=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{group=undefined}, ["group=" ++ VQ#vq.group|Acc]);
+  make_vqs(VQ#vq{group=undefined}, ["group=" ++ mochiweb_util:quote_plus(VQ#vq.group)|Acc]);
 make_vqs(#vq{reduce=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{reduce=undefined}, ["reduce=" ++ VQ#vq.reduce|Acc]);
+  make_vqs(VQ#vq{reduce=undefined}, ["reduce=" ++ mochiweb_util:quote_plus(VQ#vq.reduce)|Acc]);
 make_vqs(#vq{include_docs=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{include_docs=undefined}, ["include_docs=" ++ VQ#vq.include_docs|Acc]);
+  make_vqs(VQ#vq{include_docs=undefined}, ["include_docs=" ++ mochiweb_util:quote_plus(VQ#vq.include_docs)|Acc]);
 make_vqs(#vq{inclusive_end=[_|_]} = VQ, Acc) ->
-  make_vqs(VQ#vq{inclusive_end=undefined}, ["inclusive_end=" ++ VQ#vq.inclusive_end|Acc]);
+  make_vqs(VQ#vq{inclusive_end=undefined}, ["inclusive_end=" ++ mochiweb_util:quote_plus(VQ#vq.inclusive_end)|Acc]);
 make_vqs(#vq{
   key=undefined, 
   startkey=undefined, 
