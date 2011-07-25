@@ -57,9 +57,20 @@
       // Wrapper to send back error message to user as JSON.
       
       var forbid = function(name, msg) {
+        var docid;
+        
+        if (newDoc._id) {
+          docid = newDoc._id;
+        } else if (saveDoc._id) {
+          docid = saveDoc._id;
+        } else {
+          docid = 'No ID';
+        }
+        
         var errorMsg = JSON.stringify({
           fieldname: name,
-          message: msg
+          message: msg,
+          docid: docid
         });
 
         throw({forbidden: errorMsg});
