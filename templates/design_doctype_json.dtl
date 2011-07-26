@@ -1,42 +1,19 @@
 {
   "_id": "_design/{{ _id }}",
+  "version": 1,
   "views": {
-    "fields": {
-      "map": "function(doc) { 
-        if (doc.category == 'field' && doc.doctype == '{{ _id }}')  { 
-          emit([doc.fieldset, doc.order], doc) 
-        } 
-      }" 
-    },
-    
-    "fields_simple": {
-      "map": "function(doc) { 
-        if (doc.category == 'field' && doc.doctype == '{{ _id }}')  { 
-          emit(doc.label, doc.name) 
-        } 
-      }" 
-    },
-    
-    "fieldsets": {
-      "map": "function(doc) { 
-        if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
+     "fieldsets": {
+       "map": "function(doc) { 
+         if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
           emit(doc.order, doc) 
         } 
       }" 
     },
-    
+
     "fieldsets_simple": {
       "map": "function(doc) { 
         if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
           emit(doc.label, doc.name) 
-        } 
-      }" 
-    },
-    
-    "alldocs": {
-      "map": "function(doc) { 
-        if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { 
-          emit(doc._id, doc) 
         } 
       }" 
     },
