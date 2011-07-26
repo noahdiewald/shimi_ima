@@ -27,16 +27,40 @@
 -export([
   list_dir/1,
   read_file_info/1,
-  report_indexing_timeout/4
+  report_indexing_timeout/4,
+  y/1
 ]).
 
-list_dir(Dir) ->
-  {ok, List} = file:list_dir(Dir),
-  {ok, lists:reverse(lists:sort(List))}.
+-include_lib("webmachine/include/webmachine.hrl").
 
+-type reqdata() :: #wm_reqdata{}.
+
+-spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.
+
+%% @doc Call file:list_dir and sort the results
+
+list_dir(Dir) ->
+  case file:list_dir(Dir) of
+    {ok, List} -> {ok, lists:reverse(lists:sort(List))};
+    {error, Reason} -> {error, Reason}
+  end.
+
+%% @doc This wrapper is required because file_lib expects that a module
+%% with list_dir/1 will have read_file_info/1 in its name space.
+  
 read_file_info(File) ->
   file:read_file_info(File).
-  
+
+-spec report_indexing_timeout(Request :: fun(() -> {'ok', Something :: any()} | {'error', 'req_timedout'}), Success :: fun(({'ok', Something :: any()}) -> any()), R :: reqdata(), S :: any()) -> any() | {{'halt', 504}, R1 :: reqdata(), S:: any()}.
+
+%% @doc Request is a fun that may return either {ok, Something} or {error,
+%% req_timedout}. Success is a fun that takes the Something that may have
+%% been returned by the request. If Request returns {error, req_timedout},
+%% a webmachine return value that results in the server responding with
+%% a 504 (gateway timeout) to the client is return. The reponse body also
+%% contains a JSON error message that assumes the timeout is due to couchdb
+%% being busy indexing. Otherwise, the Success fun is executed.
+
 report_indexing_timeout(Request, Success, R, S) ->
   case Request() of
     {ok, Json} -> Success(Json);
@@ -45,3 +69,11 @@ report_indexing_timeout(Request, Success, R, S) ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 504}, R1, S}
   end.
+
+-spec y(fun()) -> any().
+
+%% @doc A Y-combinator helper function for composing recursive funs.
+
+y(F) ->
+  G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
+  G(G).
