@@ -39,22 +39,14 @@ init(Opts) -> {ok, Opts}.
 to_html(R, S) ->
   User = proplists:get_value(user, S),
   Project = couch:get_json(project, R, S),
-  {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
-  Json = jsn:decode(DoctypesDesign),
-  DoctypesRev = couch:get_design_rev("doctypes", R, S),
-  Json1 = jsn:set_value(<<"_rev">>, DoctypesRev, Json),
-  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/doctypes",
-  Headers = [{"Content-Type","application/json"}],
-  {ok, "201", _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json1)),
-  
+  {ok, Json} = design_doctypes_json_dtl:render(),
+  {ok, _} = couch:update(design, "doctypes", Json, R, S),
   Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
-  
   {ok, Html} = config_dtl:render(Vals),
   {Html, R, S}.
 
 resource_exists(R, S) ->
   DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, R),
-  
   case ibrowse:send_req(DatabaseUrl, [], head) of
     {ok, "200", _, _} -> {true, R, S};
     {ok, "404", _, _} -> {false, R, S}
