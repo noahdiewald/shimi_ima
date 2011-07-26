@@ -108,7 +108,7 @@ get_view_json(Id, Name, R, S) ->
 get_design_rev(Name, R, _S) ->
   Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Name,
   Json = get_json_helper(Url, []),
-  jsn:get_value(<<"_rev">>, Json).
+  {jsn:get_value(<<"version">>, Json), jsn:get_value(<<"_rev">>, Json)}.
 
 get_uuid(_R, S) ->
   Headers = proplists:get_value(headers, S),
@@ -152,16 +152,17 @@ update(doc, Id, Json, R, S) ->
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
   update(Url, Headers, Json);
 
-% TODO I may want to reconsider not forcing the app to pick the design revision
-% before hand.  
 update(design, Id, Json, R, S) ->
   Json1 = jsn:decode(Json),
-  Rev = get_design_rev(wrq:path_info(id, R), R, S),
-  Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
-  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Id,
-  Headers = [{"Content-Type","application/json"}],
-  update(Url, Headers, jsn:encode(Json2)).
-
+  Version = jsn:get_value(<<"version">>, Json1),
+  case get_design_rev(Id, R, S) of
+    {Version, _} -> {ok, updated};
+    {_, Rev} ->
+      Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
+      Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Id,
+      Headers = [{"Content-Type","application/json"}],
+      update(Url, Headers, jsn:encode(Json2))
+  end.
 
 update(bulk, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
@@ -175,15 +176,8 @@ update(bulk, Json, R, S) ->
     {ok, "409", _, _} -> {409, <<"Conflict">>}
   end;
   
-% TODO I may want to reconsider not forcing the app to pick the design revision
-% before hand.  
 update(design, Json, R, S) ->
-  Json1 = jsn:decode(Json),
-  Rev = get_design_rev(wrq:path_info(id, R), R, S),
-  Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
-  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ wrq:path_info(id, R),
-  Headers = [{"Content-Type","application/json"}],
-  update(Url, Headers, jsn:encode(Json2)).
+  update(design, wrq:path_info(id, R), Json, R, S).
   
 update(Url, Headers, Json) ->
   case ibrowse:send_req(Url, Headers, put, Json) of
