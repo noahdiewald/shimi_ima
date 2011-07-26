@@ -122,15 +122,8 @@ json_create(R, S) ->
   {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
   
   {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  % FIXME
-  % The arch version of couchdb didn't like the rendered JSON.
-  % It was good JSON but the formatting that makes it easy to
-  % edit was throwing off the JSON parser. This seems to be an
-  % arch specific issue. What I'm doing below is using mochijson2
-  % to make the JSON into something easier to parse.
-  DesignJson1 = jsn:decode(DesignJson),
-  DesignJson2 = jsn:encode(DesignJson1),
-  {ok, created} = couch:create(design, DesignJson2, R, S),
+  DesignJson1 = jsn:encode(jsn:decode(DesignJson)),
+  {ok, created} = couch:create(design, DesignJson1, R, S),
   
   {true, R, S}.
 
