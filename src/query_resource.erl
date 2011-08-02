@@ -204,7 +204,7 @@ html_condition(R, S) ->
 html_view(R, S) ->
   QueryId = wrq:path_info(id, R),
   Limit = wrq:get_qs_value("limit", R),
-  {ok, Json} = couch:get_view_json(QueryId, "index", R, S),
+  {ok, Json} = utils:get_query(QueryId, R, S),
   Vals = [{<<"limit">>, Limit}|Json],
   {ok, Html} = query_view_dtl:render(Vals),
   Html.

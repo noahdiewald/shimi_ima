@@ -175,7 +175,7 @@ html_index(R, S) ->
   
  {ok, Json} = case wrq:get_qs_value("query", R) of
     undefined -> couch:get_view_json(Doctype, "index", R, S);
-    QueryId -> couch:get_view_json(QueryId, "index", R, S)
+    QueryId -> utils:get_query(QueryId, R, S) 
   end,
   
   Vals = [
@@ -200,7 +200,7 @@ html_document(R, S) ->
   
   {ok, Html} = document_view_dtl:render(Vals),
   Html.
-    
+      
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
   Name = jsn:get_value(<<"name">>, Project),

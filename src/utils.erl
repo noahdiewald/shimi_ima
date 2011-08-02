@@ -25,6 +25,7 @@
 -module(utils).
 
 -export([
+  get_query/3,
   list_dir/1,
   read_file_info/1,
   report_indexing_timeout/4,
@@ -77,3 +78,16 @@ report_indexing_timeout(Request, Success, R, S) ->
 y(F) ->
   G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
   G(G).
+
+-spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
+
+%% @doc Take an id for a saved query and return a JSON term. This term
+%% will contain either the results of querying a view or will contain only
+%% [{<<"rows">>, []}] if no conditions have been defined for the query.
+
+get_query(QueryId, R, S) ->
+  case couch:get_view_json(QueryId, "index", R, S) of
+    {ok, Json} -> {ok, Json};
+    _ -> {ok, [{<<"rows">>, []}]}
+  end.
+

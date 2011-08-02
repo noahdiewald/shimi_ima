@@ -102,6 +102,7 @@ get_view_json(Id, Name, R, S) ->
   FullUrl = Url ++ Path ++ "?" ++ Qs,
   case ibrowse:send_req(FullUrl, Headers, get) of
     {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
+    {ok, "404", _, _} -> {error, not_found};
     {error, req_timedout} -> {error, req_timedout}
   end.
 
