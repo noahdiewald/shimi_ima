@@ -35,8 +35,9 @@ function fillOptionsFromUrl(url, selectElement, callback) {
   return false;
 }
 
-function alterOperatorField(fieldDoc, fieldId) {
+function alterOperatorField(fieldDoc, fieldId, callback) {
   disableOperatorOptions(fieldDoc);
+  callback();
   
   return false;
 }
@@ -79,8 +80,10 @@ function disableOptions(options, disables) {
   return false;
 }
 
-function alterArgumentField(argumentField, operatorField, fieldField) {
+function alterArgumentField(argumentField, operatorField, fieldField, callback) {
   var fieldDoc = function () {return getDoc(fieldField.val())};
+  
+  callback();
   
   argumentField.removeAttr('disabled').datepicker('destroy');
   argumentField.removeAttr('disabled').autocomplete('destroy');

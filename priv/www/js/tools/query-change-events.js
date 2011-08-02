@@ -34,14 +34,17 @@ function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField, callbac
   return false;
 }
 
-function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
+function setQueryFieldEvents(queryDoctype, queryFieldset, queryField, callback) {
   queryField.change(function() {
     var fieldId = queryField.val();
     var fieldsetId = queryFieldset.val();
+    var callback2;
+    
+    if (callback) callback2 = callback();
     
     if (!(fieldId.isBlank())) {
       getFieldDoc(fieldId, fieldsetId, queryDoctype, function(data) {
-        alterOperatorField(data, fieldId);
+        alterOperatorField(data, fieldId, callback2);
       });
     }
   });
@@ -49,9 +52,12 @@ function setQueryFieldEvents(queryDoctype, queryFieldset, queryField) {
   return false;
 }
 
-function setQueryOperatorEvents(argumentField, operatorField, fieldField) {
+function setQueryOperatorEvents(argumentField, operatorField, fieldField, callback) {
   operatorField.change(function() {
-    alterArgumentField(argumentField, operatorField, fieldField);
+  
+    if (callback) callback2 = callback();
+    
+    alterArgumentField(argumentField, operatorField, fieldField, callback2);
   });
   
   return false;

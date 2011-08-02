@@ -1,10 +1,10 @@
 function initQueryBuilderDialog(queryDoctype) {
   var builderOr = $("#builder-or-input");
   var builderNegate = $("#builder-negate-input");
-  var builderOperator = $("#builder-operator-input");
-  var builderArgument = $("#builder-argument-input");
-  var builderFieldset = $("#builder-fieldset-input");
-  var builderField = $("#builder-field-input");
+  var builderOperator = $("#builder-operator-input").inputDisable();
+  var builderArgument = $("#builder-argument-input").inputDisable();
+  var builderFieldset = $("#builder-fieldset-input").inputDisable();
+  var builderField = $("#builder-field-input").inputDisable();
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
   var condition_url = 'queries/condition';
@@ -18,7 +18,7 @@ function initQueryBuilderDialog(queryDoctype) {
     return false;
   };
     
-  fillOptionsFromUrl(fieldset_url, builderFieldset);
+  fillOptionsFromUrl(fieldset_url, builderFieldset, function () {builderFieldset.inputEnable()});
   
   builderOr.change(function() {
     if (builderOr.is(':checked')) {
@@ -27,6 +27,39 @@ function initQueryBuilderDialog(queryDoctype) {
       $('#builder-conditions').show();
     }
   });
+  
+  var fieldsetEvents = function () {
+    setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField, function () {
+      builderOperator.inputDisable();
+      builderField.inputDisable();
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderField.inputEnable();
+      };
+    });
+  };
+  
+  var fieldEvents = function () {
+    setQueryFieldEvents(queryDoctype, builderFieldset, builderField, function () {
+      builderOperator.inputDisable();
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderOperator.inputEnable();
+      };
+    });
+  };
+  
+  var operatorEvents = function () {
+    setQueryOperatorEvents(builderArgument, builderOperator, builderField, function () {
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderArgument.inputEnable();
+      };
+    });
+  };
   
   var dialog = $("#query-builder-dialog").dialog({
     autoOpen: false,
@@ -79,9 +112,9 @@ function initQueryBuilderDialog(queryDoctype) {
     }
   });
   
-  setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField);
-  setQueryFieldEvents(queryDoctype, builderFieldset, builderField);
-  setQueryOperatorEvents(builderArgument, builderOperator, builderField);
+  fieldsetEvents();
+  fieldEvents();
+  operatorEvents();
   
   return dialog;
 }
