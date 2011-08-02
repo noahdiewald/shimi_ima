@@ -12,6 +12,8 @@
         id="query-name-input" 
         value="" 
         class="ui-widget-content ui-corner-all input" /><br />
+        
+      <p class="help-text">Using the lists below, choose a field to display results by.</p>
     
       <label for="query-doctype-input">Doctype</label><br />
       <select 
@@ -22,14 +24,13 @@
         {% for row in doctypes.rows %}
         <option>{{ row.key|escape }}</option>
         {% endfor %}
-      </select>
+      </select><br />
     
-      <p class="help-text">Using the lists below, choose a field to display results by.</p>
-      
       <label for="query-fieldset-input">Fieldset</label><br />
       <select 
         name="query-fieldset-input" 
         id="query-fieldset-input" 
+        disabled="disabled"
         class="ui-widget-content ui-corner-all input">
       </select><br />
     
@@ -37,6 +38,7 @@
       <select 
         name="query-field-input" 
         id="query-field-input" 
+        disabled="disabled"
         class="ui-widget-content ui-corner-all input">
       </select>
       

@@ -4,7 +4,20 @@
 // the doctype as a value. The queryFieldset and queryField should both
 // be select elements.
 
-function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
+function setQueryDoctypeEvents(queryDoctype, queryFieldset, callback) {
+  queryDoctype.change(function() {
+    var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
+    var callback2;
+    
+    if (callback) callback2 = callback();
+    
+    fillOptionsFromUrl(url, queryFieldset, callback2);
+  });
+  
+  return false;
+}
+
+function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField, callback) {
   queryFieldset.change(function() {
     if (!(typeof queryDoctype == "string")) {
       queryDoctype = queryDoctype.val();
@@ -13,7 +26,9 @@ function setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField) {
     var url = 'doctypes/' + queryDoctype + 
               '/fieldsets/' + queryFieldset.val() + '/fields?as=options';
     
-    fillOptionsFromUrl(url, queryField);
+    if (callback) callback2 = callback();
+    
+    fillOptionsFromUrl(url, queryField, callback2);
   });
   
   return false;

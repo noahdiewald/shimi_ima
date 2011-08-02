@@ -3,16 +3,6 @@ function initTabs() {
   return false;
 }
 
-function setQueryDoctypeEvents(queryDoctype, queryFieldset) {
-  queryDoctype.change(function() {
-    var url = 'doctypes/' + queryDoctype.val() + '/fieldsets';
-    
-    fillOptionsFromUrl(url, queryFieldset);
-  });
-  
-  return false;
-}
-
 function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
   var fieldDoc;
   var url = 'doctypes/' + doctypeId + 
@@ -36,9 +26,10 @@ function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
   }
 }
 
-function fillOptionsFromUrl(url, selectElement) {
+function fillOptionsFromUrl(url, selectElement, callback) {
   $.get(url, function(options) {
     selectElement.html(options);
+    if (callback) callback();
   });
   
   return false;
