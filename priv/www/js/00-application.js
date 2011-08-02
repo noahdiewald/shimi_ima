@@ -264,7 +264,7 @@ function flashHighlight(title, body) {
 $(function () {
   $('.notification').hide();
   
-  $('#loading').hide().ajaxStart(function() {
+  $('#loading, #ajax-notification').hide().ajaxStart(function() {
     $(this).show();
   }).ajaxStop(function() {
     $(this).hide();

@@ -1,17 +1,19 @@
 <div id="notifications-main">
   <div class="notification ui-state-highlight ui-corner-all">
-    <span class="ui-icon ui-icon-info"></span>
     <p>
-      <strong class="notification-summary"></strong>:
+      <strong class="notification-summary"></strong>
       <span class="notification-message"></span>
     </p>
   </div>
   
   <div class="notification ui-state-error ui-corner-all">
-    <span class="ui-icon ui-icon-info"></span>
     <p>
-      <strong class="notification-summary"></strong>:
+      <strong class="notification-summary"></strong>
       <span class="notification-message"></span>
     </p>
+  </div>
+  
+  <div id="ajax-notification" class="notification ui-widget-content ui-corner-all">
+    <p>Loading...</p>
   </div>
 </div>
