@@ -1,26 +1,26 @@
 function initQueryNewDialog() {
   var queryDoctype = $("#query-doctype-input");
-  var queryFieldset = $("#query-fieldset-input");
-  var queryField = $("#query-field-input");
+  var queryFieldset = $("#query-fieldset-input").inputDisable();
+  var queryField = $("#query-field-input").inputDisable();
   var queryName = $("#query-name-input");
   
   var doctypeEvents = function() {
     setQueryDoctypeEvents(queryDoctype, queryFieldset, function() {
-      queryFieldset.val('').attr('disabled', 'disabled');
-      queryField.val('').attr('disabled', 'disabled');
+      queryFieldset.inputDisable();
+      queryField.inputDisable();
       
       return function() {
-        queryFieldset.removeAttr('disabled');
+        queryFieldset.inputEnable();
       };
     });
   };
   
   var fieldsetEvents = function() {
     setQueryFieldsetEvents(queryDoctype, queryFieldset, queryField, function() {
-      queryField.val('').attr('disabled', 'disabled');
+      queryField.inputDisable();
       
       return function() {
-        queryField.removeAttr('disabled');
+        queryField.inputEnable();
       };
     });
   };
