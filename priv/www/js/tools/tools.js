@@ -224,13 +224,16 @@ function initQueryEditButtons(buttonData) {
 }
  
 function initQuerySaveButton(button, buttonData) {
+  var completeFunction;
+  var bData;
+  
   button.button({
     icons: {primary: "ui-icon-document"}
   }).click(function (e) {
-    var bData = buttonData();
+    bData = buttonData();
     
     if (!bData.length < 1) {
-      var completeFunction = function() {
+      completeFunction = function() {
         getQueryEdit(bData.attr('data-query-id'));
         flashHighlight("Success", "Your query has been saved.");
       };
