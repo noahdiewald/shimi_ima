@@ -122,8 +122,7 @@ json_create(R, S) ->
   {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
   
   {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  DesignJson1 = jsn:encode(jsn:decode(DesignJson)),
-  {ok, created} = couch:create(design, DesignJson1, R, S),
+  {ok, created} = couch:create(design, DesignJson, R, S),
   
   {true, R, S}.
 

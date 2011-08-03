@@ -155,17 +155,16 @@ update_design(Json, R, S) ->
   
   case couch:exists(Id, R, S) of
     false ->
-      couch:create(design, jsn:encode(jsn:decode(Design)), R, S);
+      couch:create(design, Design, R, S);
     _ ->
-      couch:update(design, jsn:encode(jsn:decode(Design)), R, S)
+      couch:update(design, Design, R, S)
   end.
   
 html_index(R, S) ->
   case couch:exists("_design/queries", R, S) of
     false -> 
       {ok, VJson} = design_queries_json_dtl:render(),
-      Jsn = jsn:encode(jsn:decode(VJson)),
-      {ok, created} = couch:create(design, Jsn, R, S);
+      {ok, created} = couch:create(design, VJson, R, S);
     _ -> undefined
   end,
   

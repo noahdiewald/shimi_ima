@@ -136,21 +136,17 @@ main_html(R, S) ->
   {Html, R, S}.
   
 from_json(R, S) ->
-  ContentType = {"Content-Type","application/json"},
-  Headers = [ContentType|proplists:get_value(headers, S)],
-  NewDb = "project-" ++ proplists:get_value(newid, S),
+  NewDb = ?ADMINDB ++ "project-" ++ proplists:get_value(newid, S),
+  ProjectsDb = ?COUCHDB ++ "projects",
   
   JsonIn = jsn:decode(wrq:req_body(R)),
   JsonIn1 = jsn:set_value(<<"_id">>, list_to_binary(proplists:get_value(newid, S)), JsonIn),
-  JsonOut = iolist_to_binary(jsn:encode(JsonIn1)),
+  JsonOut = jsn:encode(JsonIn1),
   
-  case ibrowse:send_req(?ADMINDB ++ NewDb, [], put) of
-    {ok, "201", _, _} ->
-      {ok, "201", _, _} = ibrowse:send_req(?COUCHDB ++ "projects", Headers, post, JsonOut),
-      {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
-      DD2 = jsn:encode(jsn:decode(DoctypesDesign)),
-      {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ NewDb, [ContentType], post, DD2)
-  end,
+  {ok, newdb} = couch:new_db(NewDb, R, S),
+  {ok, created} = couch:create(direct, JsonOut, ProjectsDb, R, S),
+  {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
+  {ok, created} = couch:create(design, DoctypesDesign, NewDb, R, S),
   {true, R, S}.
 
 % Helpers

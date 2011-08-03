@@ -61,16 +61,20 @@ file_path_exists(R, S) ->
   file_path_exists(Path, R, S). 
   
 %% @doc Checks for database existence. If it doesn't exist try to create it.
-%% Will raise an exception on failure.
+%% Will raise an exception on failure. Also updates design document.
 file_database_exists(R, S) ->
   DB = proplists:get_value(db, S),
-  {ok, [$2,$0|[_]], _, _} = case ibrowse:send_req(DB, [], head) of
+  {ok, Json} = design_file_manager_json_dtl:render(),
+  
+  case ibrowse:send_req(DB, [], head) of
     {ok, "404", _, _} -> 
-      {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(DB, [], put),
-      {ok, Json} = design_file_manager_json_dtl:render(),
-      ibrowse:send_req(DB, [{"Content-Type", "application/json"}], post, Json);
-    Else -> Else
+      {ok, newdb} = couch:new_db(DB, R, S),
+      {ok, created} = couch:create(design, Json, DB, R, S);
+    {ok, [$2,$0|[_]], _, _} ->
+      Id = jsn:get_value(<<"_id">>, jsn:decode(Json)),
+      {ok, updated} = couch:update(design, Id, Json, DB, R, S)
   end,
+  
   {true, R, S}.
 
 %% @doc Uses the by_path view in a generic way to get entry information. It

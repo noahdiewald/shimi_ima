@@ -26,23 +26,32 @@
 
 -export([
   create/4,
+  create/5,
   delete/2,
   exists/3,
+  exists/4,
   get_json/3,
   get_view_json/4,
   get_vq/1,
   get_design_rev/3,
   get_uuid/2,
   make_vqs/1,
+  new_db/3,
   normalize_vq/1,
   update/4,
-  update/5
+  update/5,
+  update/6
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/couchdb.hrl").
 
+%% @doc Make a new database
+new_db(DB, _R, _S) ->
+ {ok, "201", _, _} = ibrowse:send_req(DB, [], put),
+ {ok, newdb}.
+ 
 %% @doc Take a view_query record and return a URL query string
 make_vqs(VQ) ->
   string:join(make_vqs(VQ, []), "&").
@@ -129,18 +138,31 @@ delete(R, S) ->
     {ok, "409", _, _} -> {409, <<"Conflict">>}
   end.
 
+create(direct, Json, R, S) ->
+  create(doc, Json, ?COUCHDB ++ wrq:path_info(project, R), R, S);
+
 create(doc, Json, R, S) ->
-  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp",
+  create(doc, Json, ?COUCHDB ++ wrq:path_info(project, R), R, S);
+
+create(design, Json, R, S) ->
+  create(design, ?ADMINDB ++ wrq:path_info(project, R), Json, R, S).
+
+create(direct, Json, DB, _R, S) ->
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  create(DB, Headers, Json);
+
+create(doc, Json, DB, _R, S) ->
+  Url = DB ++ "/_design/doctypes/_update/stamp",
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
   create(Url, Headers, Json);
 
-create(design, Json, R, _S) ->
-  Url = ?ADMINDB ++ wrq:path_info(project, R),
+create(design, Json, DB, _R, _S) ->
+  Url = DB,
   Headers = [{"Content-Type","application/json"}],
   create(Url, Headers, Json).
 
 create(Url, Headers, Json) ->
-  case ibrowse:send_req(Url, Headers, post, Json) of
+  case ibrowse:send_req(Url, Headers, post, jsn:encode(jsn:decode(Json))) of
     {ok, "201", _, _} -> {ok, created};
     {ok, "403", _, Body} ->
       Resp = jsn:decode(Body),
@@ -154,16 +176,22 @@ update(doc, Id, Json, R, S) ->
   update(Url, Headers, Json);
 
 update(design, Id, Json, R, S) ->
+  update(design, Id, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
+
+update(design, Id, Json, DB, R, S) ->
   Json1 = jsn:decode(Json),
   Version = jsn:get_value(<<"version">>, Json1),
   case get_design_rev(Id, R, S) of
     {Version, _} -> {ok, updated};
     {_, Rev} ->
       Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
-      Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Id,
+      Url = DB ++ "/_design/" ++ Id,
       Headers = [{"Content-Type","application/json"}],
       update(Url, Headers, jsn:encode(Json2))
   end.
+  
+update(design, Json, R, S) ->
+  update(design, wrq:path_info(id, R), Json, R, S);
 
 update(bulk, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
@@ -175,13 +203,10 @@ update(bulk, Json, R, S) ->
       Message = jsn:get_value(<<"reason">>, Resp),
       {403, Message};
     {ok, "409", _, _} -> {409, <<"Conflict">>}
-  end;
-  
-update(design, Json, R, S) ->
-  update(design, wrq:path_info(id, R), Json, R, S).
+  end.
   
 update(Url, Headers, Json) ->
-  case ibrowse:send_req(Url, Headers, put, Json) of
+  case ibrowse:send_req(Url, Headers, put, jsn:encode(jsn:decode(Json))) of
     {ok, "201", _, _} -> {ok, updated};
     {ok, "403", _, Body} ->
       Resp = jsn:decode(Body),
@@ -191,8 +216,11 @@ update(Url, Headers, Json) ->
   end.
 
 exists(Target, R, S) ->
+  exists(Target, ?COUCHDB ++ wrq:path_info(project, R), R, S).
+
+exists(Target, DB, _R, S) ->
   Headers = proplists:get_value(headers, S),
-  BaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+  BaseUrl = DB ++ "/",
   case ibrowse:send_req(BaseUrl ++ Target, Headers, head) of
     {ok, "200", _, _} -> true;
     {ok, "404", _, _} -> false
