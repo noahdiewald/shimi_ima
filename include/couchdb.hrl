@@ -1,1 +1,15 @@
--record(vq, {key, startkey, startkey_docid, endkey, endkey_docid, limit, stale, descending, skip, group, group_level, reduce, include_docs, inclusive_end}).
+-record(vq, {key :: jsn:json_term(), 
+             startkey :: jsn:json_term(), 
+             startkey_docid :: jsn:json_string(), 
+             endkey :: jsn:json_term(), 
+             endkey_docid :: jsn:json_string(), 
+             limit :: jsn:json_number(), 
+             stale :: boolean(), 
+             descending :: boolean(), 
+             skip :: 'ok' | 'update_after', 
+             group = false :: boolean(), 
+             group_level :: jsn:json_number(), 
+             reduce = true :: boolean(), 
+             include_docs = false :: boolean(), 
+             inclusive_end = true :: boolean(),
+             update_seq = false :: boolean()}).
