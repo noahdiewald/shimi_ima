@@ -41,10 +41,9 @@
 
 -type reqdata() :: #wm_reqdata{}.
 
--spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.
-
 %% @doc Call file:list_dir and sort the results
 
+-spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.
 list_dir(Dir) ->
   case file:list_dir(Dir) of
     {ok, List} -> {ok, lists:reverse(lists:sort(List))};
@@ -57,7 +56,6 @@ list_dir(Dir) ->
 read_file_info(File) ->
   file:read_file_info(File).
 
--spec report_indexing_timeout(Request :: fun(() -> {'ok', Something :: any()} | {'error', 'req_timedout'}), Success :: fun(({'ok', Something :: any()}) -> any()), R :: reqdata(), S :: any()) -> any() | {{'halt', 504}, R1 :: reqdata(), S:: any()}.
 
 %% @doc Request is a fun that may return either {ok, Something} or {error,
 %% req_timedout}. Success is a fun that takes the Something that may have
@@ -67,6 +65,7 @@ read_file_info(File) ->
 %% contains a JSON error message that assumes the timeout is due to couchdb
 %% being busy indexing. Otherwise, the Success fun is executed.
 
+-spec report_indexing_timeout(Request :: fun(() -> {'ok', Something :: any()} | {'error', 'req_timedout'}), Success :: fun(({'ok', Something :: any()}) -> any()), R :: reqdata(), S :: any()) -> any() | {{'halt', 504}, R1 :: reqdata(), S:: any()}.
 report_indexing_timeout(Request, Success, R, S) ->
   case Request() of
     {ok, Json} -> Success(Json);
@@ -84,24 +83,24 @@ y(F) ->
   G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
   G(G).
 
--spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 
 %% @doc Take an id for a saved query and return a JSON term. This term
 %% will contain either the results of querying a view or will contain only
 %% [{<<"rows">>, []}] if no conditions have been defined for the query.
 
+-spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 get_query(QueryId, R, S) ->
   case couch:get_view_json(QueryId, "index", R, S) of
     {ok, Json} -> {ok, Json};
     _ -> {ok, [{<<"rows">>, []}]}
   end.
 
--spec clear_all(Doctype :: string(), Project :: string()) -> ok.
 
 %% @doc This is a helper for developers that can be used to clear previously
 %% added records from the database. It doesn't pay attention to return
 %% statuses.
 
+-spec clear_all(Doctype :: string(), Project :: string()) -> ok.
 clear_all(Doctype, Project) ->
   Url = ?ADMINDB ++ Project ++ "/_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
   Header = [{"Content-Type", "application/json"}],
