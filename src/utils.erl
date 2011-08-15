@@ -25,6 +25,7 @@
 -module(utils).
 
 -export([
+  clear_all/2,
   get_query/3,
   list_dir/1,
   read_file_info/1,
@@ -33,6 +34,7 @@
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
+-include_lib("include/config.hrl").
 
 -type reqdata() :: #wm_reqdata{}.
 
@@ -91,3 +93,22 @@ get_query(QueryId, R, S) ->
     _ -> {ok, [{<<"rows">>, []}]}
   end.
 
+-spec clear_all(Doctype :: string(), Project :: string()) -> ok.
+
+%% @doc This is a helper for developers that can be used to clear previously
+%% added records from the database. It doesn't pay attention to return
+%% statuses.
+
+clear_all(Doctype, Project) ->
+  Url = ?ADMINDB ++ Project ++ "/_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
+  Header = [{"Content-Type", "application/json"}],
+  DelUrl = fun (Id, Rev) -> ?ADMINDB ++ Project ++ "/" ++ Id ++ "?rev=" ++ Rev end,
+  GetV = fun (K, J) -> binary_to_list(proplists:get_value(K, proplists:get_value(<<"value">>, J))) end,
+  {ok, "200", _, Json} = ibrowse:send_req(Url, Header, get),
+  [{_, Total},_,{<<"rows">>, Rows}] = jsn:decode(Json),
+  case Total of
+    Total when Total > 0 -> 
+      [ibrowse:send_req(DelUrl(GetV(<<"_id">>, Row), GetV(<<"_rev">>, Row)), Header, delete)||Row <- Rows],
+      clear_all(Doctype, Project);
+    _ -> ok
+  end.
