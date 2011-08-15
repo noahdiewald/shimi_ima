@@ -1,15 +1,16 @@
 -record(vq, {key :: jsn:json_term(), 
              startkey :: jsn:json_term(), 
-             startkey_docid :: jsn:json_string(), 
+             startkey_docid :: string(), 
              endkey :: jsn:json_term(), 
-             endkey_docid :: jsn:json_string(), 
+             endkey_docid :: string(),
              limit :: jsn:json_number(), 
-             stale :: boolean(), 
-             descending :: boolean(), 
-             skip :: 'ok' | 'update_after', 
-             group = false :: boolean(), 
-             group_level :: jsn:json_number(), 
+             stale :: ok | update_after, 
+             descending = false :: boolean(), 
+             skip = 0 :: jsn:json_number(), 
+             group_level = exact :: jsn:json_number() | exact, 
              reduce = true :: boolean(), 
              include_docs = false :: boolean(), 
              inclusive_end = true :: boolean(),
              update_seq = false :: boolean()}).
+
+-type view_query() :: #vq{}.

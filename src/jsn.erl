@@ -51,7 +51,7 @@
 -type json_number() :: integer() | float().
 -type json_array() :: [json_term()].
 -type json_object() :: [{json_string(), json_term()}] | [{}].
--type json_term() :: json_string() | json_number() | json_array() |  json_object().
+-type json_term() :: json_string() | json_number() | json_array() |  json_object() | true | false | null.
 
 -export_type([json_string/0, json_number/0, json_array/0, json_object/0, json_term/0]).
 

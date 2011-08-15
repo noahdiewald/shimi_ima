@@ -33,8 +33,11 @@
   y/1
 ]).
 
--include_lib("webmachine/include/webmachine.hrl").
+-export_type([reqdata/0]).
+
 -include_lib("include/config.hrl").
+-include_lib("include/couchdb.hrl").
+-include_lib("webmachine/include/webmachine.hrl").
 
 -type reqdata() :: #wm_reqdata{}.
 

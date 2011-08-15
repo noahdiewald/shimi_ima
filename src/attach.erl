@@ -80,7 +80,7 @@ file_database_exists(R, S) ->
 %% @doc Uses the by_path view in a generic way to get entry information. It
 %% will pass on any query string given when querying the view.
 get_all_by_path(R, S) ->  
-  Url = get_view_url("by_path", couch:get_vq(R), R, S),
+  Url = get_view_url("by_path", view:get_vq(R), R, S),
   get_json(Url).
 
 %% @doc Retrieve the path, including the file name, with an explicit startkey
@@ -111,7 +111,6 @@ dirs_by_path(R, S) ->
   Query = #vq{
     startkey=StartKey,
     endkey=EndKey,
-    group="true",
     group_level=GroupLevel
   },
   Url = get_view_url("paths", Query, R, S),
@@ -224,7 +223,7 @@ get_view_url(View, Query, R, S) ->
       get_view_url(View, Query, R, S1);
     Db ->
       V = "_design/file_manager/_view",
-      string:join([Db, V, View], "/") ++ "?" ++ couch:make_vqs(Query)
+      string:join([Db, V, View], "/") ++ "?" ++ view:make_vqs(Query)
   end.
   
 %% @doc create/3 helper
