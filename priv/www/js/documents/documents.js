@@ -27,6 +27,10 @@ function dInfo(key, elem) {
   return getValue("document-" + key, elem);
 }
 
+function loadHash(urlHash) {
+  if (urlHash) getDocument(urlHash);
+}
+
 $(function () {
   $('body').click(function(e) {clickDispatch(e)});
   fillQueryOptions();
@@ -40,4 +44,6 @@ $(function () {
   $('#index-filter-form select').change(function() {
     getIndex();
   });
+  
+  loadHash($(location)[0].hash.split("#")[1]);
 });
