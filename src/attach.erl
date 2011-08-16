@@ -57,7 +57,7 @@ file_exists(R, S) ->
 %% @doc Determine if there is at least one entry with the filename and path
 %% combination specified by the URL
 file_path_exists(R, S) ->
-  Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
+  Path = [list_to_binary(X) || X <- wrq:path_tokens(R)],
   file_path_exists(Path, R, S). 
   
 %% @doc Checks for database existence. If it doesn't exist try to create it.
@@ -71,7 +71,7 @@ file_database_exists(R, S) ->
       {ok, newdb} = couch:new_db(DB, R, S),
       {ok, created} = couch:create(design, Json, DB, R, S);
     {ok, [$2,$0|[_]], _, _} ->
-      Id = jsn:get_value(<<"_id">>, jsn:decode(Json)),
+      Id = binary_to_list(jsn:get_value(<<"_id">>, jsn:decode(Json))),
       {ok, updated} = couch:update(design, Id, Json, DB, R, S)
   end,
   
@@ -85,8 +85,8 @@ get_all_by_path(R, S) ->
 
 %% @doc Retrieve the path, including the file name, with an explicit startkey
 get_all_full_path(Key, R, S) ->
-  StartKey = jsn:encode_to_list(lists:reverse([0|lists:reverse(Key)])),
-  EndKey = jsn:encode_to_list(lists:reverse([[{}]|lists:reverse(Key)])),
+  StartKey = lists:reverse([0|lists:reverse(Key)]),
+  EndKey = lists:reverse([[{}]|lists:reverse(Key)]),
   Url = get_view_url("full_paths", #vq{startkey=StartKey, endkey=EndKey}, R, S),
   get_json(Url).
 
@@ -102,11 +102,11 @@ dirs_by_path(R, S) ->
   % For and explanation see:
   % http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
   Tokens = [list_to_binary(X) || X <- lists:reverse(wrq:path_tokens(R))],
-  GroupLevel = integer_to_list(length(Tokens) + 1),
+  GroupLevel = length(Tokens) + 1,
   
   % numbers come before strings, objects after
-  StartKey = jsn:encode_to_list(lists:reverse([0|Tokens])),
-  EndKey = jsn:encode_to_list(lists:reverse([[{}]|Tokens])),
+  StartKey = lists:reverse([0|Tokens]),
+  EndKey = lists:reverse([[{}]|Tokens]),
   
   Query = #vq{
     startkey=StartKey,
@@ -131,7 +131,7 @@ get_file(R, S) ->
 %% @doc Retrieve a file attachment by id or if the id is undefined, examine
 %% the request path to find the id of the requested file document.
 get_file(undefined, R, S) ->
-  Path = jsn:encode_to_list([list_to_binary(X) || X <- wrq:path_tokens(R)]),
+  Path = [list_to_binary(X) || X <- wrq:path_tokens(R)],
   Url = get_view_url("full_paths", #vq{key=Path}, R, S),
   Json = get_json(Url),
   [Row|_] = proplists:get_value(<<"rows">>, Json),
@@ -145,7 +145,7 @@ get_file(Id, R, S) ->
 %% @doc Creates an entry with information passed by processing a multi-part
 %% post
 create({[ContentType], [Name], _, Content, Id}, R, S) ->
-  Path = jsn:encode_to_list([list_to_binary(Name)]),
+  Path = [list_to_binary(Name)],
   {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(mochiweb_util:quote_plus(Path), R, S)},
   case Exists or PathExists of
     true -> halt_conflict();
@@ -161,9 +161,9 @@ update(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
   Path = lists:reverse(proplists:get_value(<<"path">>, Json, [])),
   [{Filename, _}|_] = proplists:get_value(<<"_attachments">>, Json, []),
-  Path1 = jsn:encode_to_list(lists:reverse([Filename|Path])),
+  Path1 = lists:reverse([Filename|Path]),
   
-  case file_path_exists(mochiweb_util:quote_plus(Path1), R, S) of
+  case file_path_exists(Path1, R, S) of
     {true, R, S} -> halt_conflict();
     {false, R, S} ->
       {ok, [$2,$0|[_]], _, _} = ibrowse:send_req(Url, Headers, put, jsn:encode(Json)),
@@ -245,7 +245,7 @@ file_path_exists(Path, R, S) ->
   
 %% @doc files_by_path/2 helper
 files_by_path(Tokens, R, S) ->
-  Url = get_view_url("by_path", #vq{key=jsn:encode_to_list(Tokens)}, R, S),
+  Url = get_view_url("by_path", #vq{key=Tokens}, R, S),
   {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
   jsn:decode(Json).
 
