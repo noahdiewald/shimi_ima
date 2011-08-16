@@ -114,3 +114,11 @@ clear_all(Doctype, Project) ->
       clear_all(Doctype, Project);
     _ -> ok
   end.
+
+
+%% @doc Convert a record to a proplist, take an array of fields from
+%% record_info(fields, Record) and the record itself.
+
+-spec record_to_proplist(Fields :: [atom()], Record :: tuple()) -> [{atom(), any()}].
+record_to_proplist(Fields, Record) ->
+  lists:zip(Fields, tl(tuple_to_list(Record))).

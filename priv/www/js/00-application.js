@@ -154,6 +154,12 @@ function stringToNumber(string) {
   }
 }
 
+// functions added to Array
+
+Array.prototype.trimAll = function() {
+  return this.map(function (i) {return i.trim()}).filter(function (i) {return !i.match(/^$/)});
+};
+
 // Event dispatch
 
 function dispatcher(patterns) {

@@ -65,7 +65,7 @@ function fieldElems() {
         "reversal": fObj.reversal.is(':checked'),
         "required": fObj.required.is(':checked'),
         "order": fObj.order.val() * 1,
-        "allowed": fObj.allowed.val().split(","),
+        "allowed": fObj.allowed.val().split(",").trimAll(),
         "source": fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
         "min": stringToNumber(fObj.min.val()),
         "max": stringToNumber(fObj.max.val()),
@@ -87,7 +87,7 @@ function fieldElems() {
     fObj.decodeSource = function(subcategory, source) {
       switch (subcategory) {
         case "file":
-          return source.split("/");
+          return source.split("/").trimAll();
         default:
           return source;
       }
@@ -97,9 +97,9 @@ function fieldElems() {
       switch (subcategory) {
         case "docmultiselect":
         case "multiselect":
-          return defaults.split(",").map(function (item) {return item.trim()});
+          return defaults.split(",").trimAll();
         case "file":
-          return defaults.split("/");
+          return defaults.split("/").trimAll();
         default:
           return defaults;
       }
