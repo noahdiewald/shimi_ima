@@ -87,8 +87,15 @@ get_view_json(Id, Name, R, S) ->
     {error, req_timedout} -> {error, req_timedout}
   end.
 
-get_design_rev(Name, R, _S) ->
-  Url = ?ADMINDB ++ wrq:path_info(project, R) ++ "/_design/" ++ Name,
+get_design_rev(Name, R, S) ->
+  Id = case Name of
+    [$_|_] -> Name;
+    _Else -> "_design/" ++ Name
+  end,
+  Url = case proplists:get_value(db, S) of
+    undefined -> ?ADMINDB ++ wrq:path_info(project, R) ++ "/" ++ Id;
+    Db -> Db ++ "/" ++ Id
+  end,
   Json = get_json_helper(Url, []),
   {jsn:get_value(<<"version">>, Json), jsn:get_value(<<"_rev">>, Json)}.
 
