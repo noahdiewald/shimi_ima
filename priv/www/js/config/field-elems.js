@@ -14,23 +14,23 @@ function fieldElems() {
     
     fObj.attrs = fElems.attrs;
     
+    // These are fields that only some field subcategories use.
+    // Below you'll see them being disabled and reenabled depending on the
+    // chosen subcategory.
     fObj.notDefault = function() {
       return [fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
     };
     
-    fObj.hideDisable = function(blankAll) {
+    fObj.disable = function() {
       fObj.notDefault().forEach(function(field) {
         field.attr("disabled", "disabled");
-        if (blankAll) field.val('');
-        field.parent().hide();
       });
       return fObj;
     };
     
-    fObj.showEnable = function() {
+    fObj.clearDisabled = function() {
       fObj.notDefault().forEach(function(field) {
-        field.removeAttr("disabled");
-        field.parent().show();
+        if (field.attr("disabled")) field.val("");
       });
       return fObj;
     };
@@ -40,16 +40,6 @@ function fieldElems() {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
           if (source[field] == "true") fObj[field].attr('checked', true);
-        }
-      });
-      return fObj;
-    };
-    
-    fObj.hideBlanks = function() {
-      fObj.notDefault().forEach(function(field) {
-        if (field.val() == '') {
-          field.attr("disabled", "disabled");
-          field.parent().hide();
         }
       });
       return fObj;
@@ -80,7 +70,7 @@ function fieldElems() {
     
     fObj.clear = function() {
       clearValues($('#field-dialog .input')).removeClass('ui-state-error');
-      fObj.hideDisable();
+      fObj.disable();
       return fObj;
     };
     
@@ -109,32 +99,32 @@ function fieldElems() {
       switch (subcategory) {
         case "select":
         case "multiselect":
-          fObj.hideDisable(true);
+          fObj.disable();
           break;
         case "docselect":
         case "docmultiselect":
         case "file":
-          fObj.hideDisable(true);
+          fObj.disable();
           fObj.source.removeAttr("disabled");
           fObj.source.parent().show();
           break;
         case "text":
         case "textarea":
-          fObj.hideDisable(true);
+          fObj.disable();
           fObj.regex.removeAttr("disabled");
           fObj.regex.parent().show();
           break;
         case "date":
         case "integer":
         case "rational":
-          fObj.hideDisable(true);
+          fObj.disable();
           fObj.min.removeAttr("disabled");
           fObj.min.parent().show();
           fObj.max.removeAttr("disabled");
           fObj.max.parent().show();
           break;
         default:
-          fObj.hideDisable(true);
+          fObj.disable();
       }
     };
     
@@ -143,11 +133,9 @@ function fieldElems() {
     });
     
     fObj.copyValues(values);
-    fObj.showEnable();
-    fObj.hideBlanks();
     fObj.displayFields(fObj.subcategory.val());
       
-    fObj.subcategory.change(fObj.displayFields(fObj.subcategory.val()));
+    fObj.subcategory.change(function () { fObj.displayFields(fObj.subcategory.val()) });
       
     return fObj;
   };

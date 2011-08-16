@@ -8,7 +8,7 @@ function fieldDialog(url, values) {
     modal: true,
     buttons: {
       "Save": function() {
-        var obj = f.getFieldInputVals();
+        var obj = f.clearDisabled().getFieldInputVals();
         var complete = function(context) {
           populateFields(url);
           $(context).dialog("close");
