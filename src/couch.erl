@@ -117,7 +117,7 @@ create(doc, Json, R, S) ->
   create(doc, Json, ?COUCHDB ++ wrq:path_info(project, R), R, S);
 
 create(design, Json, R, S) ->
-  create(design, ?ADMINDB ++ wrq:path_info(project, R), Json, R, S).
+  create(design, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
 
 create(direct, Json, DB, _R, S) ->
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
