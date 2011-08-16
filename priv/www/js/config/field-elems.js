@@ -104,17 +104,9 @@ function fieldElems() {
           return defaults;
       }
     };
-                   
-    fObj.attrs.forEach(function(item) {
-      fObj[item] = $('#field-' + item + '-input');
-    });
     
-    fObj.copyValues(values);
-    fObj.showEnable();
-    fObj.hideBlanks();
-      
-    fObj.subcategory.change(function() {
-      switch (fObj.subcategory.val()) {
+    fObj.displayFields = function(subcategory) {
+      switch (subcategory) {
         case "select":
         case "multiselect":
           fObj.hideDisable(true);
@@ -144,7 +136,18 @@ function fieldElems() {
         default:
           fObj.hideDisable(true);
       }
+    };
+    
+    fObj.attrs.forEach(function(item) {
+      fObj[item] = $('#field-' + item + '-input');
     });
+    
+    fObj.copyValues(values);
+    fObj.showEnable();
+    fObj.hideBlanks();
+    fObj.displayFields(fObj.subcategory.val());
+      
+    fObj.subcategory.change(fObj.displayFields(fObj.subcategory.val()));
       
     return fObj;
   };
