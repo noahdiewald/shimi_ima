@@ -40,9 +40,17 @@
         } 
         
         Array.prototype.flatten = function() {
-          return this.reduce(function(acc, item) {
-            return acc.concat(item);
-          });
+          var retval;
+          
+          if (this.length > 0) {
+            retval = this.reduce(function(acc, item) {
+              return acc.concat(item);
+            });
+          } else {
+            retval = this;
+          }
+          
+          return retval;
         };
         
         var heads = [];
@@ -106,6 +114,7 @@
         function try_fieldsets(fieldsets) {
           var k = [];
           var result;
+          var retval;
           
           result = fieldsets.every(function(fieldset, index) {
             var fields_result;
@@ -126,10 +135,13 @@
           });
           
           if (result) {
-            return k.flatten();
+            retval = k.flatten();
+            if (retval.length == 0) retval = [''];
           } else {
-            return [];
+            retval = [];
           }
+          
+          return retval;
         }
         
         if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
