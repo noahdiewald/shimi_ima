@@ -31,12 +31,14 @@
 
 
 %% @doc Take a view_query record and return a URL query string
+
 -spec make_vqs(view_query()) -> string().
 make_vqs(VQ) ->
   string:join(make_vqs(VQ, []), "&").
 
 
 %% @doc Process an incoming URL query string into a view_query object
+
 -spec get_vq(utils:reqdata()) -> view_query().
 get_vq(R) ->
   #vq{
@@ -72,23 +74,15 @@ stale_val(_) -> undefined.
 
 -spec getv(string(), utils:reqdata()) -> undefined | jsn:json_term().
 getv(Key, R) ->
-  decode_or_undefined(wrq:get_qs_value(Key, R)).
+  getv(Key, R, undefined).
 
 
 -spec getv(string(), utils:reqdata(), jsn:json_term()) -> jsn:json_term().
 getv(Key, R, Default) ->
-  case decode_or_undefined(wrq:get_qs_value(Key, R)) of
+  case wrq:get_qs_value(Key, R) of
     undefined -> Default;
-    Else -> Else
+    Else -> jsn:decode(Else)
   end.
-
-
--spec decode_or_undefined(undefined | string()) -> undefined | jsn:json_term().
-decode_or_undefined(undefined) ->
-  undefined;
-  
-decode_or_undefined(Val) ->
-  jsn:decode(Val).
   
 
 -spec encode(jsn:json_term()) -> string().
