@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  
+  "version": "{{_rev}}",
   "views": {
     "index": {
       "map": "function(doc) {
