@@ -37,8 +37,8 @@ basic_test_() ->
     erlydtl:compile("../templates/javascript_validation.dtl", validation_template),
     {ok, Jiolist} = validation_template:render(),
     Jbin = iolist_to_binary(["var validate = "|Jiolist]),
-    ?assertMatch(ok, js:define(P, Jbin)),
-    ?assertMatch({ok, <<"Skipped">>}, js:call(P, <<"validate">>, [{struct, []}, {struct, []}, ?RW_USER])),
+    ?assertEqual(ok, js:define(P, Jbin)),
+    ?assertEqual({ok, <<"Skipped">>}, js:call(P, <<"validate">>, [{struct, []}, {struct, []}, ?RW_USER])),
     erlang:unlink(P)
   end,
   my_setup(Fun).
@@ -46,12 +46,18 @@ basic_test_() ->
 readonly_test_() ->
   Fun = fun(P) ->
     {error, [_,{_,Msg},_]} = vcall(P, {struct, []}, ?RO_USER),
-    ?assertMatch(<<"uncaught exception: undefined$is a read only user.$No ID">>, Msg)
+    ?assertEqual(<<"uncaught exception: undefined$is a read only user.$No ID">>, Msg)
   end,
-  my_setup(get_environment(Fun)).
+  my_setup(my_env(Fun)).
 
+simple_test_() ->
+  Fun = fun(P) ->
+    ?assertEqual({ok, <<"Valid">>}, vcall(P, from_file("simple_doc")))
+  end,
+  my_setup(my_env(Fun)).
+  
 vcall(P, Args) ->
-  vcall(Args, ?RW_USER).
+  vcall(P, Args, ?RW_USER).
 
 vcall(P, Args, User) ->
   js:call(P, <<"validate">>, [Args, {struct, [{<<"testing">>, true}]}, User]).
@@ -59,18 +65,22 @@ vcall(P, Args, User) ->
 my_setup(Fun) ->
   {setup, fun() -> erlang_js:start() end, Fun}.
   
-get_environment() ->
+my_env() ->
   {ok, P} = js_driver:new(),
   erlydtl:compile("../templates/javascript_validation.dtl", validation_template),
   {ok, Jiolist} = validation_template:render(),
-  Jbin = iolist_to_binary(["var validate = "|Jiolist]),
+  Jbin = iolist_to_binary(["var validate = "|re:replace(Jiolist, <<"\\\\\\\\">>, <<"\\\\">>, [global])]),
   js:define(P, Jbin),
   {ok, P}.
 
-get_environment(Fun) ->
+my_env(Fun) ->
   fun() ->
-    {ok, P} = get_environment(),
+    {ok, P} = my_env(),
     Fun(P),
     erlang:unlink(P)
   end.
+
+from_file(Filename) ->
+  {ok, Bin} = file:read_file("../test/files/" ++ Filename ++ ".json"),
+  mochijson2:decode([Bin]).
   
