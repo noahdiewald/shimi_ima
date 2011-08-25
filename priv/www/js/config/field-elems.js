@@ -57,8 +57,8 @@ function fieldElems() {
         "order": fObj.order.val() * 1,
         "allowed": fObj.allowed.val().split(",").trimAll(),
         "source": fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
-        "min": stringToNumber(fObj.min.val()),
-        "max": stringToNumber(fObj.max.val()),
+        "min": fObj.decodeBound(fObj.subcategory.val(), fObj.min.val()),
+        "max": fObj.decodeBound(fObj.subcategory.val(), fObj.max.val()),
         "regex": fObj.regex.val(),
         "description": fObj.description.val(),
         "doctype": fObj.doctype.val(),
@@ -72,6 +72,15 @@ function fieldElems() {
       clearValues($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
+    };
+    
+    fObj.decodeBound = function(subcategory, bound) {
+      switch (subcategory) {
+        case "date":
+          return bound;
+        default:
+          return stringToNumber(fObj.min.val());
+      }
     };
     
     fObj.decodeSource = function(subcategory, source) {
@@ -106,22 +115,18 @@ function fieldElems() {
         case "file":
           fObj.disable();
           fObj.source.removeAttr("disabled");
-          fObj.source.parent().show();
           break;
         case "text":
         case "textarea":
           fObj.disable();
           fObj.regex.removeAttr("disabled");
-          fObj.regex.parent().show();
           break;
         case "date":
         case "integer":
         case "rational":
           fObj.disable();
           fObj.min.removeAttr("disabled");
-          fObj.min.parent().show();
           fObj.max.removeAttr("disabled");
-          fObj.max.parent().show();
           break;
         default:
           fObj.disable();

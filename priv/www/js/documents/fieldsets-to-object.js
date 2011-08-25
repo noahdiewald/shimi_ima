@@ -54,8 +54,8 @@ function fieldsToObject(fields, index) {
       head: fInfo("head", field) == "true",
       reversal: fInfo("reversal", field) == "true",
       required: fInfo("required", field) == "true",
-      min: stringToNumber(fInfo("min", field)),
-      max: stringToNumber(fInfo("max", field)),
+      min: dateOrNumber(fInfo("subcategory", field), fInfo("min", field)),
+      max: dateOrNumber(fInfo("subcategory", field), fInfo("max", field)),
       instance: fInfo("instance", field),
       regex: fInfo("regex", field),
       order: fInfo("order", field) * 1,
@@ -69,6 +69,15 @@ function fieldsToObject(fields, index) {
   });
   
   return obj;
+}
+
+function dateOrNumber(subcategory, fieldvalue) {
+  switch (subcategory) {
+    case "date":
+      return fieldvalue;
+    default:
+      return stringToNumber(fInfo("max", field));
+  }
 }
 
 // Get the correct value for a boolean that can be null
