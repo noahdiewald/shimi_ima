@@ -13,4 +13,4 @@ priv/.*\.so
 dictionary_maker\.pid
 .*\~
 .*\.orig
-
+misc/importers/.*[^.]hs
