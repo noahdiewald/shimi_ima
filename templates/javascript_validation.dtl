@@ -168,50 +168,46 @@ function(newDoc, saveDoc, userCtx) {
     }
   };
 
+  var myDateToUTC = function(myDate) {
+    
+  };
+  
   // Make sure that the date is not outside of a specified range
   var dateRange = function(field) {
-    var now = new Date();
-    var given = Date.parse(field.value);
+    var pattern = (/^\\d{4}-\\d{2}-\\d{2}$/);
 
-    [isPast, isFuture, isLater, isEarlier].forEach(function(fun) {
-      fun(field, given, now);
-    });
+    if (pattern.test(field.max)) isEarlier(field);
+    if (pattern.test(field.min)) isLater(field);
+    if (field.min === 'today') isFuture(field);
+    if (field.max === 'today') isPast(field);
   };
 
   // See if a date is earlier than a maximum date. If it isn't fail.
-  var isEarlier = function(field, given, now) {
-    var max = Date.parse(field.max);
-    
-    if (!isNaN(max) && given >= max) {
-      var maxDate = new Date(max);
-      var message = 'date must be earlier than or equal to ' + maxDate.toDateString() + '.';
-
+  var isEarlier = function(field) {
+    if (field.value >= field.max) {
+      var message = 'date must be earlier than or equal to ' + field.max + '.';
       forbidField(field, message);
     }
   };
   
   // See if a date is later than a minimum date. If it isn't fail.
-  var isLater = function(field, given, now) {
-    var min = Date.parse(field.min);
-    
-    if (!isNaN(min) && given < min) {
-      var minDate = new Date(min);
-      var message = 'date must be later than ' + minDate.toDateString() + '.';
-
+  var isLater = function(field) {
+    if (field.value < field.min) {
+      var message = 'date must be later than ' + field.min + '.';
       forbidField(field, message);
     }
   };
   
   // See if a date should be in the future. If it isn't fail.
-  var isFuture = function(field, given, now) {
-    if (field.min === 'today' && given <= now) {
+  var isFuture = function(field) {
+    if (field.value <= new Date().toLocaleFormat('%Y-%m-%d') && field.max !== 'today') {
       forbidField(field, 'date must be in the future.');
     }
   };
   
   // See if a date should be in the past. If it isn't fail.
-  var isPast = function(field, given, now) {
-    if (field.max === 'today' && given > now) {
+  var isPast = function(field) {
+    if (field.value > new Date().toLocaleFormat('%Y-%m-%d')) {
       forbidField(field, 'date must be in the past.');
     }
   };
