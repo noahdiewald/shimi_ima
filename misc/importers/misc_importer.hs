@@ -51,16 +51,26 @@ processRecord
   , cheadword_speaker
   , cpos
   , cunderlying_representation
-  , cdefinition
+  , _
+  , cdefinition1
+  , cdefinition2
+  , cdefinition3
+  , cdefinition4
+  , cdefinition5
   , cexample1
   , cexample_definition1
   , cexample_speaker1
   , cexample2
   , cexample_definition2
   , cexample_speaker2
+  , cexample3
+  , cexample_definition3
+  , cexample_speaker3
   , ccross_reference
-  , cnotes
+  , cnotes1
+  , cnotes2
   , csource
+  , _
   , crecord_id
   , _
   ] = render . pp_value . showJSON $ makeDocument Entry
@@ -72,47 +82,25 @@ processRecord
     , hw_source = maybeList csource
     , underlying_representation = maybeString cunderlying_representation
     , topic = Nothing
-    , hw_notes = Just (cnotes ++ "\n\nOriginal Record ID: " ++ crecord_id) 
+    , hw_notes = Just (cnotes1 ++ "\n\n" ++ cnotes2 ++ "\n\nOriginal Record ID: " ++ crecord_id) 
     , cross_reference = maybeString ccross_reference
     , publish = False
     , codes = Just ["lw_misc"]
     }
   , hwp = HWProps Nothing Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
-  , defs = Definitions 
-    [Definition
-      { def_order = Nothing
-      , def_definition = maybeString cdefinition
-      , def_speaker = Nothing
-      , def_source = Nothing
-      , def_notes = Nothing
-      , def_elders_checked = Nothing
-      , def_elders_checked_date = Nothing
-      , def_elders_checked_initials = Nothing
-      }
-    ]
+  , defs = filterDefinitions [
+    cdefinition1
+    , cdefinition2
+    , cdefinition3
+    , cdefinition4
+    , cdefinition5
+    ] 
   , kws = Keywords []
-  , ex = Examples
-    [ Example
-      { example = maybeString cexample1
-      , translation = maybeString cexample_definition1
-      , example_sound = Nothing
-      , ex_speaker = maybeList cexample_speaker1
-      , ex_recording = Nothing
-      , ex_timestamp = Nothing
-      , example_date = Nothing
-      , ex_notes = Nothing
-      }
-    , Example
-      { example = maybeString cexample2
-      , translation = maybeString cexample_definition2
-      , example_sound = Nothing
-      , ex_speaker = maybeList cexample_speaker2
-      , ex_recording = Nothing
-      , ex_timestamp = Nothing
-      , example_date = Nothing
-      , ex_notes = Nothing
-      }
+  , ex = filterExamples [
+    (cexample1, cexample_definition1, cexample_speaker1)
+    , (cexample2, cexample_definition2, cexample_speaker2)
+    , (cexample3, cexample_definition3, cexample_speaker3)
     ]
   , ifs = InflectedForms []
   , udefs = UnusedDefinitions []
@@ -131,3 +119,55 @@ maybeString str = Just str
 maybeList :: String -> Maybe [String]
 maybeList [] = Nothing
 maybeList str = Just [str]
+
+firstNullOf3 :: (String, String, String) -> Bool
+firstNullOf3 (x, _, _) = null x
+
+filterDefinitions :: String -> Definitions
+filterDefinitions xs =  Definitions [ makeDefinition x | x <- xs, (not . null) x]
+
+filterExamples :: [(String, String, String)] -> Examples
+filterExamples xs =  Examples [ makeExample x | x <- xs, (not . firstNullOf3) x]
+
+filterInflectedForms :: [(String, String, String)] -> InflectedForms
+filterInflectedForms xs =  InflectedForms [ makeInflectedForm x | x <- xs, (not . firstNullOf3) x]
+
+makeExample :: (String, String, String) -> Example
+makeExample (ex, df, sp) = Example
+  { example = maybeString ex
+  , translation = maybeString df
+  , example_sound = Nothing
+  , ex_speaker = maybeList sp
+  , ex_recording = Nothing
+  , ex_timestamp = Nothing
+  , example_date = Nothing
+  , ex_notes = Nothing
+  }
+
+makeInflectedForm :: (String, String, String) -> InflectedForm
+makeInflectedForm (ifl, ift, ifs) = InflectedForm
+  { inflected_form = maybeString ifl
+  , inflection_type = maybeString ift
+  , if_definition = Nothing
+  , if_speaker = maybeList ifs
+  , if_elders_checked = Nothing
+  , if_elders_checked_date = Nothing
+  , if_elders_checked_initials = Nothing
+  , if_sound_sample = Nothing
+  , if_recording = Nothing
+  , if_timestamp = Nothing
+  , if_recording_date = Nothing
+  , if_notes = Nothing
+  }
+
+makeDefinition :: String -> Definition
+makeDefinition df = Definition
+  { def_order = Nothing
+  , def_definition = maybeString df
+  , def_speaker = Nothing
+  , def_source = Nothing
+  , def_notes = Nothing
+  , def_elders_checked = Nothing
+  , def_elders_checked_date = Nothing
+  , def_elders_checked_initials = Nothing
+  }
