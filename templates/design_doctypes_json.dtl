@@ -1,6 +1,6 @@
 {
   "_id": "_design/doctypes",
-  "version": 1,
+  "version": 2,
   "views": {
     "all": {
       "map": "function(doc) { 
