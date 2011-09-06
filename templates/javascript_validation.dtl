@@ -8,13 +8,26 @@ function(newDoc, saveDoc, userCtx) {
             (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
+  // For testing existence of properties of saveDoc variable
+  var testsd = function(prop) {
+    if (saveDoc) {
+      if (saveDoc[prop]) {
+        return true;
+      } else { 
+        return false;
+      }
+    } else {
+      return false;
+    }
+  };
+  
   // Wrapper to send back error message to user as JSON.
   var forbid = function(name, msg) {
     var docid;
     
     if (newDoc._id) {
       docid = newDoc._id;
-    } else if (saveDoc._id) {
+    } else if (testsd('_id')) {
       docid = saveDoc._id;
     } else {
       docid = 'No ID';
@@ -27,7 +40,7 @@ function(newDoc, saveDoc, userCtx) {
     });
 
     // A means of getting useful information out during unit testing
-    if (saveDoc.testing) throw(name + '$' + msg + '$' + docid);
+    if (testsd('testing')) throw(name + '$' + msg + '$' + docid);
     
     throw({forbidden: errorMsg});
   };
@@ -42,7 +55,7 @@ function(newDoc, saveDoc, userCtx) {
     });
 
     // A means of getting useful information out during unit testing
-    if (saveDoc.testing) throw(field.name + '$' + field.instance + '$' + msg);
+    if (testsd('testing')) throw(field.name + '$' + field.instance + '$' + msg);
     
     throw({forbidden: errorMsg});
   };

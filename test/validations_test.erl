@@ -40,9 +40,21 @@ date_test_() ->
     fun(P) -> % Test skipped document
       ?assertEqual({ok, <<"Skipped">>}, js:call(P, <<"validate">>, [{struct, []}, {struct, []}, ?RW_USER]))
     end,
+    fun(P) -> % null saveDoc is ok
+      ?assertEqual({ok, <<"Skipped">>}, js:call(P, <<"validate">>, [{struct, []}, null, ?RW_USER]))
+    end,
     fun(P) -> % Test valid document
       ?assertEqual({ok, <<"Valid">>}, vcall(P, from_file("simple_doc")))
     end,
+    
+    % Integer Tests
+
+    fun(P) -> % Integer too high
+      ?assertMatch({error, [_,{_,<<"uncaught exception: ff$4d915decf693d51ab06a2f10920cb7ee$Must be less than or equal to 0">>},_]}, vcall(P, from_file("high_integer")))
+    end,
+    
+    % Date Tests
+    
     fun(P) -> % Bad date format
       ?assertMatch({error, [_,{_,<<"uncaught exception: caltest$25250e2ead108a8f60213f2404005d38$date must be in format yyyy-mm-dd">>},_]}, vcall(P, from_file("bad_format_doc")))
     end,
