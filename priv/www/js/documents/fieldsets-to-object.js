@@ -76,7 +76,7 @@ function dateOrNumber(subcategory, fieldvalue) {
     case "date":
       return fieldvalue;
     default:
-      return stringToNumber(fInfo("max", field));
+      return stringToNumber(fieldvalue);
   }
 }
 
