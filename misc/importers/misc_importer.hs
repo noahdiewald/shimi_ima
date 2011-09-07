@@ -29,10 +29,10 @@ sendRecord str = putStrLn str >> simpleHTTP
       { uriScheme = "http:"
       , uriAuthority = Just URIAuth 
         { uriUserInfo = "database:D1ctionary_Mak3r@"
-        , uriRegName = "staging.ling.wisc.edu"
+        , uriRegName = "potawatomi.wisc.edu"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-1d629ffe875cb5f6593372c56d0d970d"
+      , uriPath = "/project-3220bb2bb5c6652da3728c4cb7000257"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -123,7 +123,7 @@ maybeList str = Just [str]
 firstNullOf3 :: (String, String, String) -> Bool
 firstNullOf3 (x, _, _) = null x
 
-filterDefinitions :: String -> Definitions
+filterDefinitions :: [String] -> Definitions
 filterDefinitions xs =  Definitions [ makeDefinition x | x <- xs, (not . null) x]
 
 filterExamples :: [(String, String, String)] -> Examples
