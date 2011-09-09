@@ -16,7 +16,7 @@ import           Text.JSON.Pretty (pp_value)
 import           Text.JSON.Pretty (render)
 import qualified Data.ByteString.Char8 as B
 
-main = parseCSVFromFile "./nouns.csv" >>= \retval ->
+main = parseCSVFromFile "./NounsCleanForImport.csv" >>= \retval ->
   convertToJson retval >>= \rjson -> sequence $ fmap sendRecord rjson
   where
     convertToJson (Left error) = return $ map messageString $ errorMessages error
@@ -32,7 +32,7 @@ sendRecord str = putStrLn str >> simpleHTTP
         , uriRegName = "localhost"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-b9ad37ea17a58d9be32160f3933b5731"
+      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -51,23 +51,58 @@ processRecord
   , cheadword_speaker
   , cpos
   , cunderlying_representation
-  , cdefinition
-  , cplural
-  , cplural_speaker
-  , cposs
-  , cposs_speaker
-  , c3poss
-  , c3poss_speaker
-  , cdim
-  , cdim_speaker
-  , cpej
-  , cpej_speaker
-  , cloc
-  , cloc_speaker
-  , cobv
-  , cobv_speaker
-  , cvoc
-  , cvoc_speaker
+  , cnotes1
+  , cdefinition1
+  , cdefinition2
+  , cdefinition3
+  , cdefinition4
+  , cdefinition5
+  , cdefinition6
+  , cinflected_form1
+  , cinflected_form_type1
+  , cinflected_form_speaker1
+  , cinflected_form2
+  , cinflected_form_type2
+  , cinflected_form_speaker2
+  , cinflected_form3
+  , cinflected_form_type3
+  , cinflected_form_speaker3
+  , cinflected_form4
+  , cinflected_form_type4
+  , cinflected_form_speaker4
+  , cinflected_form5
+  , cinflected_form_type5
+  , cinflected_form_speaker5
+  , cinflected_form6
+  , cinflected_form_type6
+  , cinflected_form_speaker6
+  , cinflected_form7
+  , cinflected_form_type7
+  , cinflected_form_speaker7
+  , cinflected_form8
+  , cinflected_form_type8
+  , cinflected_form_speaker8
+  , cinflected_form9
+  , cinflected_form_type9
+  , cinflected_form_speaker9
+  , cinflected_form10
+  , cinflected_form_type10
+  , cinflected_form_speaker10
+  , cinflected_form11
+  , cinflected_form_type11
+  , cinflected_form_speaker11
+  , cinflected_form12
+  , cinflected_form_type12
+  , cinflected_form_speaker12
+  , cinflected_form13
+  , cinflected_form_type13
+  , cinflected_form_speaker13
+  , cinflected_form14
+  , cinflected_form_type14
+  , cinflected_form_speaker14
+  , cvariant_form
+  , cvariant_form_cat
+  , cvariant_form_speaker
   , cexample1
   , cexample_definition1
   , cexample_speaker1
@@ -75,7 +110,7 @@ processRecord
   , cexample_definition2
   , cexample_speaker2
   , ccross_reference
-  , cnotes
+  , cnotes2
   , csource
   , ctape_time
   , crecord_id
@@ -89,44 +124,48 @@ processRecord
     , hw_source = maybeList csource
     , underlying_representation = maybeString cunderlying_representation
     , topic = Nothing
-    , hw_notes = Just (cnotes ++ "\n\nOriginal Record ID: " ++ crecord_id ++ "\n\nOriginal Tape Time: " ++ ctape_time) 
+    , hw_notes = Just ("Original Record ID: " ++ crecord_id ++ "\n\n" ++ cnotes1 ++ "\n\n" ++ cnotes2 ++ "\n\nOriginal Tape Time: " ++ ctape_time) 
     , cross_reference = maybeString ccross_reference
     , publish = False
     , codes = Just ["lw_nouns"]
     }
   , hwp = HWProps Nothing Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
-  , defs = Definitions 
-    [Definition
-      { def_order = Nothing
-      , def_definition = maybeString cdefinition
-      , def_speaker = Nothing
-      , def_source = Nothing
-      , def_notes = Nothing
-      , def_elders_checked = Nothing
-      , def_elders_checked_date = Nothing
-      , def_elders_checked_initials = Nothing
-      }
-    ]
+  , defs = filterDefinitions [
+    cdefinition1
+    , cdefinition2
+    , cdefinition3
+    , cdefinition4
+    , cdefinition5
+    , cdefinition6
+    ] 
   , kws = Keywords []
   , ex = filterExamples [
     (cexample1, cexample_definition1, cexample_speaker1)
     , (cexample2, cexample_definition2, cexample_speaker2)
     ]
   , ifs = filterInflectedForms [
-    (cplural, "plural", cplural_speaker)
-    , (cposs, "poss", cposs_speaker)
-    , (c3poss, "3.poss", c3poss_speaker)
-    , (cpej, "pej", cpej_speaker)
-    , (cdim, "dim", cdim_speaker)
-    , (cloc, "loc", cloc_speaker)
-    , (cobv, "obv", cobv_speaker)
-    , (cvoc, "voc", cvoc_speaker)
+    (cinflected_form1, cinflected_form_type1, cinflected_form_speaker1)
+    , (cinflected_form2, cinflected_form_type2, cinflected_form_speaker2)
+    , (cinflected_form3, cinflected_form_type3, cinflected_form_speaker3)
+    , (cinflected_form4, cinflected_form_type4, cinflected_form_speaker4)
+    , (cinflected_form5, cinflected_form_type5, cinflected_form_speaker5)
+    , (cinflected_form6, cinflected_form_type6, cinflected_form_speaker6)
+    , (cinflected_form7, cinflected_form_type7, cinflected_form_speaker7)
+    , (cinflected_form8, cinflected_form_type8, cinflected_form_speaker8)
+    , (cinflected_form9, cinflected_form_type9, cinflected_form_speaker9)
+    , (cinflected_form10, cinflected_form_type10, cinflected_form_speaker10)
+    , (cinflected_form11, cinflected_form_type11, cinflected_form_speaker11)
+    , (cinflected_form12, cinflected_form_type12, cinflected_form_speaker12)
+    , (cinflected_form13, cinflected_form_type13, cinflected_form_speaker13)
+    , (cinflected_form14, cinflected_form_type14, cinflected_form_speaker14)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
   , usg = Usage Nothing Nothing Nothing Nothing
-  , vfs = VariantForms []
+  , vfs = filterVariantForms [
+    (cvariant_form, cvariant_form_cat, cvariant_form_speaker)
+    ]
   , pic = Picture Nothing Nothing Nothing Nothing Nothing Nothing
   , cp = CheckPoints Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
   }
@@ -143,11 +182,17 @@ maybeList str = Just [str]
 firstNullOf3 :: (String, String, String) -> Bool
 firstNullOf3 (x, _, _) = null x
 
+filterDefinitions :: [String] -> Definitions
+filterDefinitions xs =  Definitions [ makeDefinition x | x <- xs, (not . null) x]
+
 filterExamples :: [(String, String, String)] -> Examples
 filterExamples xs =  Examples [ makeExample x | x <- xs, (not . firstNullOf3) x]
 
 filterInflectedForms :: [(String, String, String)] -> InflectedForms
 filterInflectedForms xs =  InflectedForms [ makeInflectedForm x | x <- xs, (not . firstNullOf3) x]
+
+filterVariantForms :: [(String, String, String)] -> VariantForms
+filterVariantForms xs =  VariantForms [ makeVariantForm x | x <- xs, (not . firstNullOf3) x]
 
 makeExample :: (String, String, String) -> Example
 makeExample (ex, df, sp) = Example
@@ -175,5 +220,28 @@ makeInflectedForm (ifl, ift, ifs) = InflectedForm
   , if_timestamp = Nothing
   , if_recording_date = Nothing
   , if_notes = Nothing
+  }
+
+makeDefinition :: String -> Definition
+makeDefinition df = Definition
+  { def_order = Nothing
+  , def_definition = maybeString df
+  , def_speaker = Nothing
+  , def_source = Nothing
+  , def_notes = Nothing
+  , def_elders_checked = Nothing
+  , def_elders_checked_date = Nothing
+  , def_elders_checked_initials = Nothing
+  }
+
+makeVariantForm :: (String, String, String) -> VariantForm
+makeVariantForm (vfm, _, vfs) = VariantForm
+  { variant_form = maybeString vfm
+  , vf_speaker = maybeList vfs
+  , vf_dialect = Nothing
+  , vf_source = Nothing
+  , vf_recording = Nothing
+  , vf_timestamp = Nothing
+  , vf_notes = Nothing
   }
 
