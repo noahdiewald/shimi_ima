@@ -89,8 +89,21 @@ label {
   height: 1.2em;
 }
 
-#edit-document-form textarea:focus {
+#edit-document-form textarea.expanded {
   height: 20em;
+}
+
+.expander {
+  float: right;
+  cursor: pointer;
+}
+
+.expander:before {
+  content: "⇩";
+}
+
+.expanded.expander:before {
+  content: "⇧";
 }
 
 label span.ui-icon-help {

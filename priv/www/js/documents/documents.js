@@ -33,6 +33,7 @@ function loadHash(urlHash) {
 
 $(function () {
   $('body').click(function(e) {clickDispatch(e)});
+  
   fillQueryOptions();
   getIndex();
   initEdit();

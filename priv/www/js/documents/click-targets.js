@@ -127,3 +127,10 @@ function showHelpDialog(target) {
   
   $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
 }
+
+function toggleTextarea(target) {
+  var textarea = $('#' + target.attr('data-group-id'));
+  
+  textarea.toggleClass('expanded');
+  target.toggleClass('expanded');
+}
