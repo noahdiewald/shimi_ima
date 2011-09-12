@@ -1,5 +1,6 @@
 {
    "_id": "_design/projects",
+   "version": 1,
    "views": {
        "all": {
            "map": "function(doc) { if (doc.name && (doc.description != null))  emit(doc.name, doc.description) }"
