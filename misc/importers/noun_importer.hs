@@ -29,10 +29,10 @@ sendRecord str = putStrLn str >> simpleHTTP
       { uriScheme = "http:"
       , uriAuthority = Just URIAuth 
         { uriUserInfo = "database:D1ctionary_Mak3r@"
-        , uriRegName = "localhost"
+        , uriRegName = "potawatomi.wisc.edu"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
+      , uriPath = "/project-3220bb2bb5c6652da3728c4cb7000257"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -100,6 +100,9 @@ processRecord
   , cinflected_form14
   , cinflected_form_type14
   , cinflected_form_speaker14
+  , cinflected_form15
+  , cinflected_form_type15
+  , cinflected_form_speaker15
   , cvariant_form
   , cvariant_form_cat
   , cvariant_form_speaker
@@ -111,6 +114,7 @@ processRecord
   , cexample_speaker2
   , ccross_reference
   , cnotes2
+  , cnotes3
   , csource
   , ctape_time
   , crecord_id
@@ -124,7 +128,7 @@ processRecord
     , hw_source = maybeList csource
     , underlying_representation = maybeString cunderlying_representation
     , topic = Nothing
-    , hw_notes = Just ("Original Record ID: " ++ crecord_id ++ "\n\n" ++ cnotes1 ++ "\n\n" ++ cnotes2 ++ "\n\nOriginal Tape Time: " ++ ctape_time) 
+    , hw_notes = Just ("Original Record ID: " ++ crecord_id ++ "\n\n" ++ cnotes1 ++ "\n\n" ++ cnotes2 ++ "\n\n" ++ cnotes3 ++ "\n\nOriginal Tape Time: " ++ ctape_time) 
     , cross_reference = maybeString ccross_reference
     , publish = False
     , codes = Just ["lw_nouns"]
@@ -159,6 +163,7 @@ processRecord
     , (cinflected_form12, cinflected_form_type12, cinflected_form_speaker12)
     , (cinflected_form13, cinflected_form_type13, cinflected_form_speaker13)
     , (cinflected_form14, cinflected_form_type14, cinflected_form_speaker14)
+    , (cinflected_form15, cinflected_form_type15, cinflected_form_speaker15)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
