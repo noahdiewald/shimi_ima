@@ -52,6 +52,9 @@ date_test_() ->
     fun(P) -> % Integer too high
       ?assertMatch({error, [_,{_,<<"uncaught exception: ff$4d915decf693d51ab06a2f10920cb7ee$Must be less than or equal to 0">>},_]}, vcall(P, from_file("high_integer")))
     end,
+    fun(P) -> % Integer too low
+      ?assertMatch({error, [_,{_,<<"uncaught exception: ff$4d915decf693d51ab06a2f10920cb7ee$Must be greater than or equal to 0">>},_]}, vcall(P, from_file("lower_integer")))
+    end,
     
     % Date Tests
     
