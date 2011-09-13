@@ -145,8 +145,8 @@ get_file(Id, R, S) ->
 %% @doc Creates an entry with information passed by processing a multi-part
 %% post
 create({[ContentType], [Name], _, Content, Id}, R, S) ->
-  Path = [list_to_binary(Name)],
-  {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(mochiweb_util:quote_plus(Path), R, S)},
+  Path = [list_to_binary(mochiweb_util:quote_plus(Name))],
+  {{Exists, _, _}, {PathExists, _, _}} = {file_exists(Id, R, S), file_path_exists(Path, R, S)},
   case Exists or PathExists of
     true -> halt_conflict();
     false -> create(ContentType, Name, Content, Id, R, S)
