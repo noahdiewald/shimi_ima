@@ -93,7 +93,7 @@ get_all_full_path(Key, R, S) ->
 %% @doc Similar to get_all_by_path/2 but only uses information available
 %% in the URL path to pick out with files to list.
 files_by_path(R, S) ->  
-  Tokens = [list_to_binary(X) || X <- wrq:path_tokens(R)],
+  Tokens = [list_to_binary(mochiweb_util:unquote(X)) || X <- wrq:path_tokens(R)],
   files_by_path(Tokens, R, S).
 
 %% @doc Get path portions to enable a hierarchical directory browsing
@@ -101,7 +101,7 @@ files_by_path(R, S) ->
 dirs_by_path(R, S) ->
   % For and explanation see:
   % http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
-  Tokens = [list_to_binary(X) || X <- lists:reverse(wrq:path_tokens(R))],
+  Tokens = [list_to_binary(mochiweb_util:unquote(X)) || X <- lists:reverse(wrq:path_tokens(R))],
   GroupLevel = length(Tokens) + 1,
   
   % numbers come before strings, objects after
@@ -131,7 +131,7 @@ get_file(R, S) ->
 %% @doc Retrieve a file attachment by id or if the id is undefined, examine
 %% the request path to find the id of the requested file document.
 get_file(undefined, R, S) ->
-  Path = [list_to_binary(X) || X <- wrq:path_tokens(R)],
+  Path = [list_to_binary(mochiweb_util:unquote(X)) || X <- wrq:path_tokens(R)],
   Url = get_view_url("full_paths", #vq{key=Path}, R, S),
   Json = get_json(Url),
   [Row|_] = proplists:get_value(<<"rows">>, Json),
