@@ -204,7 +204,7 @@ rule_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   }
   
   // open collator with locale setting
-  collator = ucol_openRules((UChar*)rule_bin.data, source_bin.size / 2, UCOL_DEFAULT, UCOL_DEFAULT_STRENGTH, &parse_status, &status);
+  collator = ucol_openRules((UChar*)rule_bin.data, rule_bin.size / 2, UCOL_DEFAULT, UCOL_DEFAULT_STRENGTH, &parse_status, &status);
   if (U_FAILURE(status)) {
     enif_release_binary(&source_bin);
     ucol_close(collator);
