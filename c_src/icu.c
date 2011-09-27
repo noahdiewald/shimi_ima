@@ -30,6 +30,7 @@
  * All binaries passed to these functions should be encoded using icu4e's
  * ustring functions.
  */
+#include <string.h>
 #include "erl_nif.h"
 #include "unicode/ustring.h"
 #include "unicode/utypes.h"
