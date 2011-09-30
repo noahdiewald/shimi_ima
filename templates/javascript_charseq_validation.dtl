@@ -1,0 +1,18 @@
+function(newDoc, saveDoc, userCtx) {
+  String.prototype.isBlank = function() {
+    return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
+  };
+    
+  var forbid = function(name, msg) {
+    var errorMsg = JSON.stringify({
+      fieldname: name,
+      message: msg
+    });
+
+    throw({forbidden: errorMsg});
+  };
+  
+  if (newDoc.category === 'charseq') {
+    if (newDoc.name.isBlank()) forbid('Name', 'must be filled in.');
+  }
+}
