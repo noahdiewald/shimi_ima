@@ -38,6 +38,7 @@
 
 -record(charseq, {
   id :: string(),
+  rev :: string(),
   category :: charseq,
   description :: string(),
   characters :: [string()],
