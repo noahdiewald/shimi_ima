@@ -38,8 +38,10 @@
 
 -record(charseq, {
   id :: string(),
+  category :: charseq,
+  description :: string(),
   characters :: [string()],
-  language_name :: string(),
+  name :: string(),
   sort_ignore :: [regex()],
   locale :: string(),
   tailoring ::  string(),
