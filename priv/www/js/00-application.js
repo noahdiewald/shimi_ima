@@ -133,8 +133,55 @@ function isBlank(value) {
 
 // functions added to String
 
+// Simple 'parser' for quoted values
+
+String.prototype.parseQuoted = function(csvline) {
+  var outArray = [];
+  var inArray = this.split('');
+  var inQuote = false;
+  var quoteCount = 0;
+  var currCell = [];
+  
+  var onQuote = function() {
+    if (inQuote && (quoteCount % 2 === 0)) {
+      ++quoteCount;
+    } else if (inQuote && (quoteCount % 2 === 1)) {
+      ++quoteCount;
+      currCell.push("'");
+    } else if (!inQuote) {
+      inQuote = true;
+    }
+  };
+  
+  var outQuote = function() {
+    outArray.push(currCell.join(''));
+    currCell = [];
+    quoteCount = 0;
+    inQuote = false;
+  };
+  
+  inArray.forEach(function(item) {
+    if (/'/.test(item)) {
+      onQuote();
+    } else if (quoteCount % 2 === 1) {
+      outQuote();
+    } else if (quoteCount % 2 === 0) {
+      quoteCount = 0;
+      if (inQuote) {
+        currCell.push(item);
+      } else if (/\S/.test(item)) {
+        throw("Invalid Quoting");
+      }
+    }
+  });
+  
+  outArray.push(currCell.join(''));
+  
+  return outArray;
+};
+
 String.prototype.isBlank = function() {
-  return ((/^\s*$/).test(this) && ! (/\S/).test(this) && ! (this == null));
+  return ((/^\s*$/).test(this) && ! (/\S/).test(this) && ! (this === null));
 };
 
 String.prototype.trim = function() {
