@@ -14,5 +14,12 @@ function(newDoc, saveDoc, userCtx) {
   
   if (newDoc.category === 'charseq') {
     if (newDoc.name.isBlank()) forbid('Name', 'must be filled in.');
+    
+    [[newDoc.characters, 'Characters'], 
+     [newDoc.sort_ignore, 'Ignore'], 
+     [newDoc.vowels, 'Vowels], 
+     [newDoc.consonants, 'Consonants']].forEach(function(item) {
+      if (item[0] === false) forbid(item[1], 'contains quoting errors.');
+    });
   }
 }

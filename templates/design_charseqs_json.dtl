@@ -2,14 +2,9 @@
   "_id": "_design/charseqs",
   "version": 1,
   "views": {
-    "all": {
+    "listing": {
       "map": "function(doc) { 
-        if (doc.category == 'charseq')  { emit(doc._id, doc) }
-      }"
-    },
-    "all_simple": {
-      "map": "function(doc) { 
-        if (doc.category == 'charseq')  { emit(doc._id, doc.description) }
+        if (doc.category == 'charseq')  { emit(doc.name, doc.description) }
       }"
     }
   },

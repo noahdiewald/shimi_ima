@@ -135,7 +135,8 @@ function isBlank(value) {
 
 // Simple 'parser' for quoted values
 
-String.prototype.parseQuoted = function(csvline) {
+String.prototype.parseQuoted = function(quoteChar) {
+  var quoteChar = (quoteChar || "'")
   var outArray = [];
   var inArray = this.split('');
   var inQuote = false;
@@ -170,7 +171,7 @@ String.prototype.parseQuoted = function(csvline) {
       if (inQuote) {
         currCell.push(item);
       } else if (/\S/.test(item)) {
-        throw("Invalid Quoting");
+        return false;
       }
     }
   });

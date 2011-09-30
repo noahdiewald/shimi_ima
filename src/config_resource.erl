@@ -39,6 +39,8 @@ to_html(R, S) ->
   Project = couch:get_json(project, R, S),
   {ok, Json} = design_doctypes_json_dtl:render(),
   {ok, _} = couch:update(design, "doctypes", Json, R, S),
+  {ok, Json1} = design_charseqs_json_dtl:render(),
+  {ok, _} = couch:update(design, "charseqs", Json1, R, S),
   Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
   {ok, Html} = config_dtl:render(Vals),
   {Html, R, S}.
