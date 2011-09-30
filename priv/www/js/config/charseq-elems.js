@@ -61,12 +61,12 @@ var charseqElems = function() {
     };
     
     cObj.clear = function() {
-      clearValues($('#doctype-dialog .input')).removeClass('ui-state-error');
+      clearValues($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
                    
     cObj.attrs.forEach(function(item) {
-      cObj[item] = $('#doctype-' + item + '-input');
+      cObj[item] = $('#charseq-' + item + '-input');
     });
     
     cObj.copyValues(values);
