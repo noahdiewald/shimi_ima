@@ -28,7 +28,7 @@
 var charseqElems = function() {
   var cElems = {};
   
-  cElems.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", iso639_tag", "charseq", "rev"];
+  cElems.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
   
   cElems.get = function(values) {
     var cObj = {};
