@@ -1,6 +1,6 @@
 // Dialog for manipulating doctypes
 
-function charseqDialog(url, values) {
+function charseqDialog(values) {
   var f = charseqElems().get(values);
   
   var dialog = $("#charseq-dialog").dialog({
@@ -9,17 +9,19 @@ function charseqDialog(url, values) {
     buttons: {
       "Save": function() {
         var obj = f.getCharseqInputVals();
+        var url = 'config/charseqs';
+        var method = 'POST';
         var complete = function(context) {
           populateCharseqTabs();
           $(context).dialog("close");
         };
         
-        if (!values.rev || values.rev.isBlank()) {
-          url.post(obj, complete, this);
-        } else {
-          obj._id = url.charseq;
-          url.put(obj, complete, this);
+        if (values.rev && (!values.rev.isBlank())) {
+          method = 'PUT';
+          url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
+        
+        sendConfigDoc(url, obj, method, complete, this);
       },
       "Cancel": function() {
         $(this).dialog("close");

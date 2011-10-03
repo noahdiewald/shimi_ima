@@ -55,7 +55,8 @@ var charseqElems = function() {
         "consonants": fObj.consonants.val().parseQuoted(),
         "ietf_tag": fObj.ietf_tag.val().parseQuoted(),
         "iso639_tag": fObj.iso639_tag.val().parseQuoted(),
-        "_id": cObj.charseq.val()
+        "_id": cObj.charseq.val(),
+        "_rev": cObj.rev.val()
       }
       return valObj;
     };

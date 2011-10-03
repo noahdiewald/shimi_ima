@@ -115,8 +115,7 @@ var addDoctypeButton = function(target) {
 };
 
 var addCharseqButton = function(target) {
-  var url = cpath(target, "doctype");
-  doctypeDialog(url, {}).dialog("open");
+  charseqDialog({}).dialog("open");
 };
 
 // Action for click event on accordion head
