@@ -117,10 +117,6 @@ from_json(R, S) ->
 json_create(R, S) ->  
   Json = jsn:decode(wrq:req_body(R)),
   {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
-  
-  {ok, DesignJson} = design_charseq_json_dtl:render(Json),
-  {ok, created} = couch:create(design, DesignJson, R, S),
-  
   {true, R, S}.
 
 json_update(R, S) ->
@@ -132,8 +128,6 @@ json_update(R, S) ->
   
   case couch:update(doc, Id, jsn:encode(Json2), R, S) of
     {ok, updated} -> 
-      {ok, DesignJson} = design_charseq_json_dtl:render(Json),
-      {ok, _} = couch:update(design, DesignJson, R, S),
       {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),

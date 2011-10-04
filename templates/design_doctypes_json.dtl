@@ -1,6 +1,6 @@
 {
   "_id": "_design/doctypes",
-  "version": 2,
+  "version": 3,
   "views": {
     "all": {
       "map": "function(doc) { 
@@ -23,11 +23,10 @@
           newDoc.created_at_ = now;
           newDoc.created_by_ = req.userCtx.name;
           message = 'Created at ' + now.toString + ' by ' + req.userCtx.name;
+        } else {
+          newDoc = null;
+          message = 'This application expects the document _id in the JSON body';
         }
-        
-        newDoc = null;
-        message = 'This application expects the document _id in the JSON body';
-        
       } else {
       
         newDoc.updated_at_ = now;

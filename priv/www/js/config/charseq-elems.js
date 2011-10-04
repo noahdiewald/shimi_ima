@@ -46,19 +46,27 @@ var charseqElems = function() {
       var valObj = {
         "category": "charseq",
         "description": cObj.description.val(),
-        "characters": JSON.parse(fObj.characters.val()),
-        "name": fObj.name.val(),
-        "sort_ignore": JSON.parse(fObj.sort_ignore.val()),
-        "locale": fObj.locale.val(),
-        "tailoring": fObj.tailoring.val(),
-        "vowels": JSON.parse(fObj.vowels.val()),
-        "consonants": JSON.parse(fObj.consonants.val()),
-        "ietf_tag": fObj.ietf_tag.val(),
-        "iso639_tag": fObj.iso639_tag.val(),
+        "characters": cObj.parse(cObj.characters.val()),
+        "name": cObj.name.val(),
+        "sort_ignore": cObj.parse(cObj.sort_ignore.val()),
+        "locale": cObj.locale.val(),
+        "tailoring": cObj.tailoring.val(),
+        "vowels": cObj.parse(cObj.vowels.val()),
+        "consonants": cObj.parse(cObj.consonants.val()),
+        "ietf_tag": cObj.ietf_tag.val(),
+        "iso639_tag": cObj.iso639_tag.val(),
         "_id": cObj.charseq.val(),
         "_rev": cObj.rev.val()
       }
       return valObj;
+    };
+    
+    cObj.parse = function(val) {
+      if (val) {
+        return JSON.parse(val);
+      } else {
+        return null;
+      }
     };
     
     cObj.clear = function() {

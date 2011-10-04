@@ -85,6 +85,26 @@ var addFieldsetButton = function(target) {
   fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
 };
 
+var editCharseqButton = function(target) {
+  var oldobj = {};
+  var attrs = charseqElems().attrs;
+   
+  attrs.forEach(function(item) {
+    oldobj[item] = getValue('charseq-' + item, target);
+  });
+  charseqDialog(oldobj).dialog("open");
+};
+
+var deleteCharseqButton = function(target) {
+  var complete = function() {
+    populateCharseqTabs();
+  };
+  
+  if (confirm("Are you sure? This is permanent.")) {
+    //url.delete(complete, this);
+  }
+};
+
 var editDoctypeButton = function(target) {
   var url = cpath(target, "doctype");
   var oldobj = {};
