@@ -1,0 +1,88 @@
+<div 
+  id="{{ _id }}"
+  data-group-id="{{ _id }}" 
+  data-charseq-charseq="{{ _id }}" 
+  data-charseq-description="{{ description|force_escape }}" 
+  data-charseq-characters="{{ characters|force_escape }}" 
+  data-charseq-name="{{ name|force_escape }}" 
+  data-charseq-sort_ignore="{{ sort_ignore|force_escape }}" 
+  data-charseq-locale="{{ locale|force_escape }}" 
+  data-charseq-tailoring="{{ tailoring|force_escape }}" 
+  data-charseq-vowels="{{ vowels|force_escape }}" 
+  data-charseq-consonants="{{ consonants|force_escape }}" 
+  data-charseq-ietf_tag="{{ ietf_tag|force_escape }}" 
+  data-charseq-iso639_tag="{{ iso639_tag|force_escape }}" 
+  data-charseq-rev="{{ _rev }}">
+  <a 
+    id="edit-{{ _id }}" 
+    data-group-id="{{ _id }}"
+    href="#"
+    class="edit-button edit-charseq-button link-button">
+    Edit Document Type</a> 
+  <a 
+    id="delete-{{ _id }}" 
+    data-group-id="{{ _id }}"
+    href="#"
+    class="delete-button delete-charseq-button link-button">
+    Delete Document Type</a><br />
+    
+  <h3>description</h3>
+
+  <p>
+    {{ description|force_escape }}
+  </p>
+  
+  <h3>characters</h3>
+
+  <p>
+    {{ characters|force_escape }}
+  </p> 
+  
+  <h3>name</h3>
+
+  <p>
+    {{ name|force_escape }}
+  </p> 
+
+  <h3>sort_ignore</h3>
+
+  <p>
+    {{ sort_ignore|force_escape }}
+  </p> 
+
+  <h3>locale</h3>
+
+  <p>
+    {{ locale|force_escape }}
+  </p> 
+
+  <h3>tailoring</h3>
+
+  <p>
+    {{ tailoring|force_escape }}
+  </p> 
+
+  <h3>vowels</h3>
+
+  <p>
+    {{ vowels|force_escape }}
+  </p> 
+
+  <h3>consonants</h3>
+
+  <p>
+    {{ consonants|force_escape }}
+  </p> 
+
+  <h3>ietf_tag</h3>
+
+  <p>
+    {{ ietf_tag|force_escape }}
+  </p> 
+
+  <h3>iso639_tag</h3>
+
+  <p>
+    {{ iso639_tag|force_escape }}
+  </p> 
+</div>
