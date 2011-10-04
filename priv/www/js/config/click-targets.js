@@ -96,12 +96,15 @@ var editCharseqButton = function(target) {
 };
 
 var deleteCharseqButton = function(target) {
+  var id = getValue('charseq-charseq', target);
+  var rev = getValue('charseq-rev', target);
+  var url = 'config/charseqs/' + id + '?rev=' + rev;
   var complete = function() {
     populateCharseqTabs();
   };
   
   if (confirm("Are you sure? This is permanent.")) {
-    //url.delete(complete, this);
+    sendConfigDoc(url, {}, 'DELETE', complete, this);
   }
 };
 

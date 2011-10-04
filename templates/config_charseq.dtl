@@ -17,12 +17,12 @@
     id="edit-{{ _id }}" 
     data-group-id="{{ _id }}"
     href="#"
-    class="edit-button edit-charseq-button link-button">Edit Document Type</a> 
+    class="edit-button edit-charseq-button link-button">Edit Character Sequence</a> 
   <a 
     id="delete-{{ _id }}" 
     data-group-id="{{ _id }}"
     href="#"
-    class="delete-button delete-charseq-button link-button">Delete Document Type</a><br />
+    class="delete-button delete-charseq-button link-button">Delete Character Sequence</a><br />
     
   <h3>{{ name|force_escape }}</h3>
 
