@@ -55,8 +55,8 @@ var charseqElems = function() {
         "consonants": cObj.parse(cObj.consonants.val()),
         "ietf_tag": cObj.ietf_tag.val(),
         "iso639_tag": cObj.iso639_tag.val(),
-        "_id": cObj.charseq.val(),
-        "_rev": cObj.rev.val()
+        "_id": (cObj.charseq.val() || undefined),
+        "rev": (cObj.rev.val() || undefined)
       }
       return valObj;
     };
@@ -65,7 +65,7 @@ var charseqElems = function() {
       if (val) {
         return JSON.parse(val);
       } else {
-        return null;
+        return "";
       }
     };
     

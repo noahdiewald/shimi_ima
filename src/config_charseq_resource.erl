@@ -81,12 +81,17 @@ post_is_create(R, S) ->
 create_path(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
   
-  Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
+  {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
+    undefined -> 
+      {ok, GenId} = couch:get_uuid(R, S),
+      {GenId, jsn:set_value(<<"_id">>, list_to_binary(GenId), Json)};
+    IdBin -> {binary_to_list(IdBin), Json}
+  end,
   
   Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
   R1 = wrq:set_resp_header("Location", Location, R),
   
-  {Id, R1, [{posted_json, Json}|S]}.
+  {Id, R1, [{posted_json, Json1}|S]}.
 
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
@@ -115,8 +120,8 @@ from_json(R, S) ->
   end.
 
 json_create(R, S) ->  
-  Json = jsn:decode(wrq:req_body(R)),
-  {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
+  Json = proplists:get_value(posted_json, S),
+  {ok, created} = couch:create(doc, jsn:encode(Json), R, S),
   {true, R, S}.
 
 json_update(R, S) ->

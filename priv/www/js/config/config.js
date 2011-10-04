@@ -70,7 +70,10 @@ function populateCharseqTabs() {
     $("#charseq-tabs-headings + .ui-tabs-panel").remove();
     $("#charseq-tabs").tabs("destroy");
     $("#charseq-tabs-headings").html(charseqs);
-    $('.link-button').button();
+    
+    var loadFun = function(event, ui) {
+      $('.link-button').button();
+    };
     
     $("#charseq-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
   });
