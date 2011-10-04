@@ -25,10 +25,12 @@
 -module(utils).
 
 -export([
+  add_charseqs_design/1,
   clear_all/2,
   get_query/3,
   list_dir/1,
   read_file_info/1,
+  record_to_proplist/2,
   report_indexing_timeout/4,
   y/1
 ]).
@@ -115,6 +117,21 @@ clear_all(Doctype, Project) ->
     _ -> ok
   end.
 
+%% @doc This function is to help in adding a design document needed for
+%% new features that did not exist in earlier versions of the software.
+
+-spec add_charseqs_design(Project :: string()) -> {ok, created} | {403, jsn:json_term()}.
+add_charseqs_design(Project) ->
+  {ok, Json} = design_charseqs_json_dtl:render(),
+  Url = ?ADMINDB ++ Project,
+  Header = [{"Content-Type", "application/json"}],
+  case ibrowse:send_req(Url,  Header, post, jsn:encode(jsn:decode(Json))) of
+    {ok, "201", _, _} -> {ok, created};
+    {ok, "403", _, Body} ->
+      Resp = jsn:decode(Body),
+      Message = jsn:get_value(<<"reason">>, Resp),
+      {403, Message}
+  end.
 
 %% @doc Convert a record to a proplist, take an array of fields from
 %% record_info(fields, Record) and the record itself.

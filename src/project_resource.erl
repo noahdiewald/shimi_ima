@@ -147,6 +147,8 @@ from_json(R, S) ->
   {ok, created} = couch:create(direct, JsonOut, ProjectsDb, R, S),
   {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
   {ok, created} = couch:create(design, DoctypesDesign, NewDb, R, S),
+  {ok, CharseqsDesign} = design_charseqs_json_dtl:render(),
+  {ok, created} = couch:create(design, CharseqsDesign, NewDb, R, S),
   {true, R, S}.
 
 % Helpers

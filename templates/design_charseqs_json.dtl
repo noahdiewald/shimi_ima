@@ -1,0 +1,12 @@
+{
+  "_id": "_design/charseqs",
+  "version": 1,
+  "views": {
+    "listing": {
+      "map": "function(doc) { 
+        if (doc.category == 'charseq')  { emit(doc.name, doc.description) }
+      }"
+    }
+  },
+  "validate_doc_update": "{% include 'javascript_charseq_validation.dtl' %}"
+}

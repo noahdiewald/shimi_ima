@@ -60,6 +60,25 @@ function populateDoctypeTabs() {
   });
 }
 
+// populate the tabs listing the charseqs
+
+function populateCharseqTabs() {
+  var url = "config/charseqs";
+  
+  $.get(url, function(charseqs) {
+    $("#charseq-tabs-headings").empty();
+    $("#charseq-tabs-headings + .ui-tabs-panel").remove();
+    $("#charseq-tabs").tabs("destroy");
+    $("#charseq-tabs-headings").html(charseqs);
+    
+    var loadFun = function(event, ui) {
+      $('.link-button').button();
+    };
+    
+    $("#charseq-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
+  });
+}
+
 // Initialize the tabs on the config page
 
 function initTabs() {
@@ -67,6 +86,7 @@ function initTabs() {
   populateDoctypeTabs();
   $("#main-tabs").tabs();
   $("#charseq-tabs").tabs();
+  populateCharseqTabs();
   
   return true;
 }
@@ -98,4 +118,5 @@ $(function () {
   initTabs(); 
   initHelpText();
   $('.link-button').button();
+  $('.simple-tabs').tabs();
 });

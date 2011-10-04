@@ -1,6 +1,6 @@
 <div id="charseqs">
-  <button id="charseq-add-button">Add Character Sequence</button>
-  <a href="#" id="charseq-info-toggle">Show Help</a>
+  <a id="charseq-add-button" class="charseq-add-button link-button">Add Character Sequence</a>
+  <a href="#" id="charseq-info-toggle" class="help-button">Show Help</a>
   
   <div class="toggler">
     <div id="charseq-info">
@@ -14,15 +14,12 @@
   </div>
   
   <div id="charseq-tabs">
-    <ul>
+    <ul id="charseq-tabs-headings">
       <li><a href="#tabs-3">Nunc tincidunt</a></li>
-      <li><a href="#tabs-4">Nunc tincidunt</a></li>
     </ul>
     <div id="tabs-3">
       <p>Proin elit arcu, rutrum commodo, vehicula tempus</p>
     </div>
-    <div id="tabs-4">
-      <p>Proin elit arcu, rutrum codsfadfasdafsddfasdmmodo, vehicula tempus</p>
-    </div>
   </div>
+
 </div>
