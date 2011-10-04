@@ -109,7 +109,7 @@ index_html(R, S) ->
   
 id_html(R, S) ->
   Json = couch:get_json(id, R, S), 
-  {ok, Html} = config_charseq_dtl:render(Json),
+  {ok, Html} = config_charseq_dtl:render(charseq:to_renderable(Json)),
   
   {Html, R, S}.
   
