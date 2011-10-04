@@ -46,15 +46,15 @@ var charseqElems = function() {
       var valObj = {
         "category": "charseq",
         "description": cObj.description.val(),
-        "characters": fObj.characters.val().parseQuoted(),
+        "characters": JSON.parse(fObj.characters.val()),
         "name": fObj.name.val(),
-        "sort_ignore": fObj.sort_ignore.val().parseQuoted(),
+        "sort_ignore": JSON.parse(fObj.sort_ignore.val()),
         "locale": fObj.locale.val(),
         "tailoring": fObj.tailoring.val(),
-        "vowels": fObj.vowels.val().parseQuoted(),
-        "consonants": fObj.consonants.val().parseQuoted(),
-        "ietf_tag": fObj.ietf_tag.val().parseQuoted(),
-        "iso639_tag": fObj.iso639_tag.val().parseQuoted(),
+        "vowels": JSON.parse(fObj.vowels.val()),
+        "consonants": JSON.parse(fObj.consonants.val()),
+        "ietf_tag": fObj.ietf_tag.val(),
+        "iso639_tag": fObj.iso639_tag.val(),
         "_id": cObj.charseq.val(),
         "_rev": cObj.rev.val()
       }
