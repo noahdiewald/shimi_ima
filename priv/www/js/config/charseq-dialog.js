@@ -4,6 +4,7 @@ function charseqDialog(values) {
   var f = charseqElems().get(values);
   
   var dialog = $("#charseq-dialog").dialog({
+    width: 650,
     autoOpen: false,
     modal: true,
     buttons: {

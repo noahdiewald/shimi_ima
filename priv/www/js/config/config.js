@@ -98,4 +98,5 @@ $(function () {
   initTabs(); 
   initHelpText();
   $('.link-button').button();
+  $('.simple-tabs').tabs();
 });
