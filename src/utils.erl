@@ -26,6 +26,7 @@
 
 -export([
   add_charseqs_design/1,
+  binary_to_hexlist/1,
   clear_all/2,
   get_query/3,
   list_dir/1,
@@ -38,7 +39,7 @@
 -export_type([reqdata/0]).
 
 -include_lib("include/config.hrl").
--include_lib("include/couchdb.hrl").
+-include_lib("include/types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
 -type reqdata() :: #wm_reqdata{}.
@@ -139,3 +140,9 @@ add_charseqs_design(Project) ->
 -spec record_to_proplist(Fields :: [atom()], Record :: tuple()) -> [{atom(), any()}].
 record_to_proplist(Fields, Record) ->
   lists:zip(Fields, tl(tuple_to_list(Record))).
+
+%% @doc Take binary and return a hexstring
+
+-spec binary_to_hexlist(binary()) -> string().
+binary_to_hexlist(Bin) ->
+  lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).

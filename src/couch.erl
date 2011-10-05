@@ -41,7 +41,7 @@
 ]).
 
 -include_lib("include/config.hrl").
--include_lib("include/couchdb.hrl").
+-include_lib("include/types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
 %% @doc Make a new database

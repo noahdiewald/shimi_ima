@@ -30,30 +30,9 @@
   to_renderable/1
 ]).
 
--export_type([charseq/0]).
-
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
-
--type regex() :: binary().
-
--record(charseq, {
-  id :: binary(),
-  rev :: binary(),
-  category :: charseq,
-  description :: binary(),
-  characters :: [binary()],
-  name :: binary(),
-  sort_ignore :: [regex()],
-  locale :: binary(),
-  tailoring ::  binary(),
-  vowels :: [binary()],
-  consonants :: [binary()],
-  ietf_tag :: binary(),
-  iso639_tag :: binary()
-}).
-
--type charseq() :: #charseq{}.
+-include_lib("include/types.hrl").
 
 %% @doc Takes a json_term() decoded by jsn:decode/1 and returns either a
 %% valid charseq() or an error with explanation.
@@ -64,13 +43,13 @@ from_json(Json) ->
     rev = jsn:get_value(<<"_rev">>, Json),
     category = charseq,
     description = jsn:get_value(<<"description">>, Json),
-    characters = jsn:get_value(<<"characters">>, Json),
+    characters = ensure_list(jsn:get_value(<<"characters">>, Json)),
     name = jsn:get_value(<<"name">>, Json),
-    sort_ignore = jsn:get_value(<<"sort_ignore">>, Json),
-    locale = jsn:get_value(<<"locale">>, Json),
-    tailoring = jsn:get_value(<<"tailoring">>, Json),
-    vowels = jsn:get_value(<<"vowels">>, Json),
-    consonants = jsn:get_value(<<"consonants">>, Json),
+    sort_ignore = ensure_list(jsn:get_value(<<"sort_ignore">>, Json)),
+    locale = binary_to_list(jsn:get_value(<<"locale">>, Json)),
+    tailoring = ustring:new(jsn:get_value(<<"tailoring">>, Json), utf8),
+    vowels = ensure_list(jsn:get_value(<<"vowels">>, Json)),
+    consonants = ensure_list(jsn:get_value(<<"consonants">>, Json)),
     ietf_tag = jsn:get_value(<<"ietf_tag">>, Json),
     iso639_tag = jsn:get_value(<<"iso639_tag">>, Json)
   }.
@@ -94,8 +73,8 @@ to_json(Charseq) ->
    {<<"characters">>, Charseq#charseq.characters},
    {<<"name">>, Charseq#charseq.name},
    {<<"sort_ignore">>, Charseq#charseq.sort_ignore},
-   {<<"locale">>, Charseq#charseq.locale},
-   {<<"tailoring">>, Charseq#charseq.tailoring},
+   {<<"locale">>, list_to_binary(Charseq#charseq.locale)},
+   {<<"tailoring">>, unicode:characters_to_binary(Charseq#charseq.tailoring, {utf16, little})},
    {<<"vowels">>, Charseq#charseq.vowels},
    {<<"consonants">>, Charseq#charseq.consonants},
    {<<"ietf_tag">>, Charseq#charseq.ietf_tag},
@@ -107,3 +86,8 @@ to_renderable_helper(Json, []) ->
   Json;
 to_renderable_helper(Json, [H|Rest]) ->
   to_renderable_helper(jsn:set_value(H, jsn:encode(jsn:get_value(H, Json)), Json), Rest).
+
+ensure_list(List=[_|_]) ->
+  List;
+ensure_list(_) ->
+  [].

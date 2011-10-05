@@ -57,6 +57,7 @@ function fieldsToObject(fields, index) {
       min: dateOrNumber(fInfo("subcategory", field), fInfo("min", field)),
       max: dateOrNumber(fInfo("subcategory", field), fInfo("max", field)),
       instance: fInfo("instance", field),
+      charseq: fInfo("charseq", field),
       regex: fInfo("regex", field),
       order: fInfo("order", field) * 1,
       subcategory: fInfo("subcategory", field),

@@ -43,7 +43,7 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
--include_lib("include/couchdb.hrl").
+-include_lib("include/types.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 % API Functions   

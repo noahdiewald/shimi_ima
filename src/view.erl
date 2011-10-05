@@ -52,7 +52,7 @@
 -export([get_vq/1, make_vqs/1, normalize_vq/1]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/couchdb.hrl").
+-include_lib("include/types.hrl").
 
 
 %% @doc Take a view_query record and return a URL query string
