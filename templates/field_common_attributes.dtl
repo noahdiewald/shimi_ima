@@ -1,5 +1,6 @@
 name="{{ name|force_escape }}" 
 data-field-subcategory="{{ subcategory }}"
+data-field-charseq="{{ charseq }}"
 data-field-label="{{ label|force_escape }}"
 data-field-order="{{ order }}"
 data-field-head="{{ head }}"
