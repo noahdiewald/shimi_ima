@@ -6,6 +6,7 @@
   data-field-fieldset="{{ value.fieldset }}"
   data-field-rev="{{ value._rev }}"
   data-field-id="{{ id }}"
+  data-field-charseq="{{ value.charseq }}"
   data-field-name="{{ value.name }}"
   data-field-label="{{ value.label }}"
   data-field-subcategory="{{ value.subcategory }}"

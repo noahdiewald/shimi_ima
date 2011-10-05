@@ -103,6 +103,17 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
+  case wrq:get_qs_value("as", R) of
+    undefined -> html_as_tabs(R, S);
+    "options" -> html_as_options(R, S)
+  end.
+  
+html_as_options(R, S) ->
+  Request = fun () -> couch:get_view_json("charseqs", "listing", R, S) end,
+  Success = fun (Json) -> {render:render(Json, options_dtl), R, S} end,
+  utils:report_indexing_timeout(Request, Success, R, S).
+  
+html_as_tabs(R, S) ->
   Request = fun () -> couch:get_view_json("charseqs", "listing", R, S) end,
   Success = fun (Json) -> {render:renderings(Json, config_charseq_list_elements_dtl), R, S} end,
   utils:report_indexing_timeout(Request, Success, R, S).

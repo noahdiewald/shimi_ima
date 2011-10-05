@@ -25,7 +25,8 @@
 -module(render).
 
 -export([
-  renderings/2
+  renderings/2,
+  render/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -33,8 +34,8 @@
 
 renderings(Json, Template) ->
   Rows = jsn:get_value(<<"rows">>, Json),
-  [render_row(Row, Template) || Row <- Rows].
+  [render(Row, Template) || Row <- Rows].
   
-render_row(Row, Template) ->
-  {ok, Rendering} = Template:render(Row),
-  iolist_to_binary(Rendering).
+render(Params, Template) ->
+  {ok, Rendering} = Template:render(Params),
+  Rendering.

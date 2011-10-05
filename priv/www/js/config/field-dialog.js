@@ -2,7 +2,7 @@
 
 function fieldDialog(url, values) {
   var f = fieldElems().get(values);
-   
+  
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,

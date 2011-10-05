@@ -16,12 +16,15 @@ var editFieldButton = function(target) {
   var url = cpath(target, "field");
   var oldobj = {};
   var attrs = fieldElems().attrs;
-   
-  attrs.forEach(function(item) {
-    oldobj[item] = getValue('field-' + item, target);
-  });
+  var charseqUrl = "config/charseqs?as=options";
   
-  fieldDialog(url, oldobj).dialog("open");
+  $.get(charseqUrl, function(charseqs) {
+    $("#field-charseq-input").html(charseqs);
+    attrs.forEach(function(item) {
+      oldobj[item] = getValue('field-' + item, target);
+    });
+    fieldDialog(url, oldobj).dialog("open");
+  });
 };
 
 // Button that opens a dialog for deleting a field
@@ -45,7 +48,12 @@ var deleteFieldButton = function(target) {
 
 var addFieldButton = function(target) {
   var url = cpath(target, "field");
-  fieldDialog(url, {fieldset: url.fieldset, doctype: url.doctype}).dialog("open");
+  var charseqUrl = "config/charseqs?as=options";
+  
+  $.get(charseqUrl, function(charseqs) {
+    $("#field-charseq-input").html(charseqs);
+    fieldDialog(url, {fieldset: url.fieldset, doctype: url.doctype}).dialog("open");
+  });
 };
 
 // Button that opens a dialog for editing a fieldset
