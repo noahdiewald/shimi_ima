@@ -32,7 +32,7 @@ sendRecord str = putStrLn str >> simpleHTTP
         , uriRegName = "staging.ling.wisc.edu"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-1d629ffe875cb5f6593372c56d0d970d"
+      , uriPath = "/project-953909a12a092dde58751600400b757a"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -52,20 +52,22 @@ processRecord
   , cpos
   , cunderlying_representation
   , cgeneral_notes
-  , cdefinition
+  , cdefinition1
+  , cdefinition2
+  , cdefinition3
+  , cdefinition4
   , cinflected_form1
-  , cinflected_form1_type
-  , cinflected_form1_speaker
+  , cinflected_form_type1
+  , cinflected_form_speaker1
   , cinflected_form2
-  , cinflected_form2_type
-  , cinflected_form2_speaker
+  , cinflected_form_type2
+  , cinflected_form_speaker2
   , cinflected_form3
-  , cinflected_form3_type
-  , cinflected_form3_augment
-  , cinflected_form3_speaker
+  , cinflected_form_type3
+  , cinflected_form_speaker3
   , cinflected_form4
-  , cinflected_form4_type
-  , cinflected_form4_speaker
+  , cinflected_form_type4
+  , cinflected_form_speaker4
   , cexample1
   , cexample_definition1
   , cexample_speaker1
@@ -73,9 +75,10 @@ processRecord
   , cexample_definition2
   , cexample_speaker2
   , ccross_reference
+  , cheadword_props_augment
   , cnotes
   , csource
-  , ctimestamp
+  , _
   , crecord_id
   , _
   ] = render . pp_value . showJSON $ makeDocument Entry
@@ -92,100 +95,24 @@ processRecord
     , publish = False
     , codes = Just ["lw_vii"]
     }
-  , hwp = HWProps (maybeBool cinflected_form3_augment) Nothing Nothing Nothing
+  , hwp = HWProps (maybeBool cheadword_props_augment) Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
-  , defs = Definitions 
-    [Definition
-      { def_order = Nothing
-      , def_definition = maybeString cdefinition
-      , def_speaker = Nothing
-      , def_source = Nothing
-      , def_notes = Nothing
-      , def_elders_checked = Nothing
-      , def_elders_checked_date = Nothing
-      , def_elders_checked_initials = Nothing
-      }
-    ]
+  , defs = filterDefinitions [
+    cdefinition1
+    , cdefinition2
+    , cdefinition3
+    , cdefinition4
+    ] 
   , kws = Keywords []
-  , ex = Examples
-    [ Example
-      { example = maybeString cexample1
-      , translation = maybeString cexample_definition1
-      , example_sound = Nothing
-      , ex_speaker = maybeList cexample_speaker1
-      , ex_recording = Nothing
-      , ex_timestamp = Nothing
-      , example_date = Nothing
-      , ex_notes = Nothing
-      }
-    , Example
-      { example = maybeString cexample2
-      , translation = maybeString cexample_definition2
-      , example_sound = Nothing
-      , ex_speaker = maybeList cexample_speaker2
-      , ex_recording = Nothing
-      , ex_timestamp = Nothing
-      , example_date = Nothing
-      , ex_notes = Nothing
-      }
+  , ex = filterExamples [
+    (cexample1, cexample_definition1, cexample_speaker1)
+    , (cexample2, cexample_definition2, cexample_speaker2)
     ]
-  , ifs = InflectedForms 
-    [ InflectedForm
-      { inflected_form = maybeString cinflected_form1
-      , inflection_type = maybeString cinflected_form1_type
-      , if_definition = Nothing
-      , if_speaker = maybeList cinflected_form1_speaker
-      , if_elders_checked = Nothing
-      , if_elders_checked_date = Nothing
-      , if_elders_checked_initials = Nothing
-      , if_sound_sample = Nothing
-      , if_recording = Nothing
-      , if_timestamp = Nothing
-      , if_recording_date = Nothing
-      , if_notes = Nothing
-      }
-    , InflectedForm
-      { inflected_form = maybeString cinflected_form2
-      , inflection_type = maybeString cinflected_form2_type
-      , if_definition = Nothing
-      , if_speaker = maybeList cinflected_form2_speaker
-      , if_elders_checked = Nothing
-      , if_elders_checked_date = Nothing
-      , if_elders_checked_initials = Nothing
-      , if_sound_sample = Nothing
-      , if_recording = Nothing
-      , if_timestamp = Nothing
-      , if_recording_date = Nothing
-      , if_notes = Nothing
-      }
-    , InflectedForm
-      { inflected_form = maybeString cinflected_form3
-      , inflection_type = maybeString cinflected_form3_type
-      , if_definition = Nothing
-      , if_speaker = maybeList cinflected_form3_speaker
-      , if_elders_checked = Nothing
-      , if_elders_checked_date = Nothing
-      , if_elders_checked_initials = Nothing
-      , if_sound_sample = Nothing
-      , if_recording = Nothing
-      , if_timestamp = Nothing
-      , if_recording_date = Nothing
-      , if_notes = Nothing
-      } 
-    , InflectedForm
-      { inflected_form = maybeString cinflected_form4
-      , inflection_type = maybeString cinflected_form4_type
-      , if_definition = Nothing
-      , if_speaker = maybeList cinflected_form4_speaker
-      , if_elders_checked = Nothing
-      , if_elders_checked_date = Nothing
-      , if_elders_checked_initials = Nothing
-      , if_sound_sample = Nothing
-      , if_recording = Nothing
-      , if_timestamp = Nothing
-      , if_recording_date = Nothing
-      , if_notes = Nothing
-      } 
+  , ifs = filterInflectedForms [
+    (cinflected_form1, cinflected_form_type1, cinflected_form_speaker1)
+    , (cinflected_form2, cinflected_form_type2, cinflected_form_speaker2)
+    , (cinflected_form3, cinflected_form_type3, cinflected_form_speaker3)
+    , (cinflected_form4, cinflected_form_type4, cinflected_form_speaker4)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
@@ -208,3 +135,55 @@ maybeBool :: String -> Maybe Bool
 maybeBool "TRUE" = Just True
 maybeBool "FALSE" = Just False
 maybeBool _ = Nothing
+
+firstNullOf3 :: (String, String, String) -> Bool
+firstNullOf3 (x, _, _) = null x
+
+filterDefinitions :: [String] -> Definitions
+filterDefinitions xs =  Definitions [ makeDefinition x | x <- xs, (not . null) x]
+
+filterExamples :: [(String, String, String)] -> Examples
+filterExamples xs =  Examples [ makeExample x | x <- xs, (not . firstNullOf3) x]
+
+filterInflectedForms :: [(String, String, String)] -> InflectedForms
+filterInflectedForms xs =  InflectedForms [ makeInflectedForm x | x <- xs, (not . firstNullOf3) x]
+
+makeExample :: (String, String, String) -> Example
+makeExample (ex, df, sp) = Example
+  { example = maybeString ex
+  , translation = maybeString df
+  , example_sound = Nothing
+  , ex_speaker = maybeList sp
+  , ex_recording = Nothing
+  , ex_timestamp = Nothing
+  , example_date = Nothing
+  , ex_notes = Nothing
+  }
+
+makeInflectedForm :: (String, String, String) -> InflectedForm
+makeInflectedForm (ifl, ift, ifs) = InflectedForm
+  { inflected_form = maybeString ifl
+  , inflection_type = maybeString ift
+  , if_definition = Nothing
+  , if_speaker = maybeList ifs
+  , if_elders_checked = Nothing
+  , if_elders_checked_date = Nothing
+  , if_elders_checked_initials = Nothing
+  , if_sound_sample = Nothing
+  , if_recording = Nothing
+  , if_timestamp = Nothing
+  , if_recording_date = Nothing
+  , if_notes = Nothing
+  }
+
+makeDefinition :: String -> Definition
+makeDefinition df = Definition
+  { def_order = Nothing
+  , def_definition = maybeString df
+  , def_speaker = Nothing
+  , def_source = Nothing
+  , def_notes = Nothing
+  , def_elders_checked = Nothing
+  , def_elders_checked_date = Nothing
+  , def_elders_checked_initials = Nothing
+  }
