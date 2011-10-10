@@ -63,17 +63,18 @@
           result = fieldset.fields.every(function(field, index) {
             var fieldId = field.id;
             var value = field.value;
+            var sortkey = field.sortkey;
             
             if (expected[fieldId] !== undefined) {
               expected[fieldId] = true;
             }
             
             if (fieldId === '{{field}}') {
-              k.push(value);
+              k.push([sortkey, value]);
             }
             
             if (field.head) {
-              heads.push(value);
+              heads.push([sortkey, value]);
             }
             
             return ({{expression}});
