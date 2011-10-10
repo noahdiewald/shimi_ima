@@ -80,7 +80,18 @@ get_sortkey(Field, R, S) ->
 
 get_sortkey(_CharseqId, <<>>, _R, _S) ->
   <<>>;
+get_sortkey(<<"undefined">>, _Value, _R, _S) ->
+  <<>>;
+get_sortkey(<<>>, _Value, _R, _S) ->
+  <<>>;
 get_sortkey(CharseqId, Value, R, S) when is_binary(CharseqId) ->
+  try get_sortkey_helper(CharseqId, Value, R, S) of
+    Sortkey -> Sortkey
+  catch
+    error:{badmatch, {ok, "404", _}} -> <<>>
+  end.
+  
+get_sortkey_helper(CharseqId, Value, R, S) ->
   Json = couch:get_json(binary_to_list(CharseqId), R, S),
   C = charseq:from_json(Json),
   case apply_patterns(C#charseq.sort_ignore, Value) of
