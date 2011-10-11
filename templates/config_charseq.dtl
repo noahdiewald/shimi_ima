@@ -1,18 +1,18 @@
 <div 
-  id="{{ _id }}"
-  data-group-id="{{ _id }}" 
-  data-charseq-charseq="{{ _id }}" 
-  data-charseq-name="{{ name|force_escape }}" 
-  data-charseq-description="{{ description|force_escape }}" 
-  data-charseq-characters="{{ characters|force_escape }}" 
-  data-charseq-sort_ignore="{{ sort_ignore|force_escape }}" 
-  data-charseq-locale="{{ locale|force_escape }}" 
-  data-charseq-tailoring="{{ tailoring|force_escape }}" 
-  data-charseq-vowels="{{ vowels|force_escape }}" 
-  data-charseq-consonants="{{ consonants|force_escape }}" 
-  data-charseq-ietf_tag="{{ ietf_tag|force_escape }}" 
-  data-charseq-iso639_tag="{{ iso639_tag|force_escape }}" 
-  data-charseq-rev="{{ _rev }}">
+  id='{{ _id }}'
+  data-group-id='{{ _id }}' 
+  data-charseq-charseq='{{ _id }}' 
+  data-charseq-name='{{ name|force_escape }}' 
+  data-charseq-description='{{ description|force_escape }}' 
+  data-charseq-characters='{{ characters|force_escape }}' 
+  data-charseq-sort_ignore='{{ sort_ignore|force_escape }}' 
+  data-charseq-locale='{{ locale|force_escape }}' 
+  data-charseq-tailoring='{{ tailoring|force_escape }}' 
+  data-charseq-vowels='{{ vowels|force_escape }}' 
+  data-charseq-consonants='{{ consonants|force_escape }}' 
+  data-charseq-ietf_tag='{{ ietf_tag|force_escape }}' 
+  data-charseq-iso639_tag='{{ iso639_tag|force_escape }}' 
+  data-charseq-rev='{{ _rev }}'>
   <a 
     id="edit-{{ _id }}" 
     data-group-id="{{ _id }}"
