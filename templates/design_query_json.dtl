@@ -74,7 +74,7 @@
             }
             
             if (field.head) {
-              heads.push([sortkey, value]);
+              heads.push([value]);
             }
             
             return ({{expression}});
