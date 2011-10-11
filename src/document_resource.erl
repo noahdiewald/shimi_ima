@@ -133,7 +133,6 @@ json_update(R, S) ->
   Rev = wrq:get_qs_value("rev", R),
   Json2 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json1),
   Json3 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json2),
-  io:format("~p", [Json3]),
   
   case couch:update(doc, Id, jsn:encode(Json3), R, S) of
     {ok, updated} -> {true, R, S};
