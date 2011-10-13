@@ -24,12 +24,21 @@
 
 -export([
   from_json/2,
+  set_sortkeys/3,
   to_json/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
+
+%% @doc Set the sortkeys for fields in fieldsets
+
+-spec set_sortkeys(jsn:json_term() | [docfieldset()], R :: utils:reqdata(), S :: any()) -> jsn:json_term().
+set_sortkeys([], _R, _S) ->
+  [];
+set_sortkeys(Fieldsets, R, S) when is_list(Fieldsets) ->
+  set_sortkeys(Fieldsets, [], R, S).
 
 %% @doc Convert a jsn:json_term() fieldset within a document to a
 %% docfieldset() record.
@@ -73,4 +82,33 @@ get_fields(false, Json) when is_list(Json) ->
   [field:from_json(doc, X) || X <- jsn:get_value(<<"fields">>, Json)];
 get_fields(true, Json) when is_list(Json) ->
   [get_fields(false, X) || X <- jsn:get_value(<<"multifields">>, Json)].
+
+set_sortkeys([], Acc, _R, _S) ->
+  lists:reverse(Acc);
+set_sortkeys([Fieldset|Rest], Acc, R, S) when is_list(Fieldset) ->
+  {FSType, Val} = case jsn:get_value(<<"multiple">>, Fieldset) of
+    true ->
+      {<<"multifields">>, multifields_sortkeys(jsn:get_value(<<"multifields">>, Fieldset), R, S)};
+    false -> 
+      {<<"fields">>, field:set_sortkeys(jsn:get_value(<<"fields">>, Fieldset), R, S)}
+  end,
+  set_sortkeys(Rest, [jsn:set_value(FSType, Val, Fieldset)|Acc], R, S);
+set_sortkeys([FS=#docfieldset{}|Rest], Acc, R, S) ->
+  Fields = case FS#docfieldset.multiple of
+    true ->
+      [field:set_sortkeys(X, R, S) || X <- FS#docfieldset.fields];
+    false -> 
+      field:set_sortkeys(FS#docfieldset.fields, R, S)
+  end,
+  set_sortkeys(Rest, [FS#docfieldset{fields=Fields}|Acc], R, S).
+
+multifields_sortkeys([], _R, _S) ->
+  [];
+multifields_sortkeys(Multifields, R, S) ->
+  multifields_sortkeys(Multifields, [], R, S).
+
+multifields_sortkeys([], Acc, _R, _S) ->
+  lists:reverse(Acc);
+multifields_sortkeys([Mfield|Rest], Acc, R, S) when is_list(Mfield) ->
+  multifields_sortkeys(Rest, [jsn:set_value(<<"fields">>, field:set_sortkeys(jsn:get_value(<<"fields">>, Mfield), R, S), Mfield)|Acc], R, S).
   

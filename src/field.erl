@@ -24,12 +24,21 @@
 
 -export([
   from_json/2,
+  set_sortkeys/3,
   to_json/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
+
+%% @doc Set the sortkeys for fields
+
+-spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
+set_sortkeys([], _R, _S) ->
+  [];
+set_sortkeys(Fields, R, S) ->
+  set_sortkeys(Fields, [], R, S).
 
 %% @doc Convert a jsn:json_term() fieldset within a document to a
 %% docfield()
@@ -92,3 +101,10 @@ get_subcategory(Bin) ->
     <<"docmultiselect">> -> docmultiselect;
     <<"file">> -> file
   end.
+
+set_sortkeys([], Acc, _R, _S) ->
+  lists:reverse(Acc);
+set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
+  set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, charseq:get_sortkey(Field, R, S), Field)|Acc], R, S);
+set_sortkeys([F=#docfield{}|Rest], Acc, R, S) ->
+  F#docfield{sortkey=charseq:get_sortkey(F, R, S)}.
