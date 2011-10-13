@@ -18,11 +18,7 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc This is a NIF library for ICU Unicode collation. For more information
-%%% on some of the concepts used here, see the ICU documentation. Also,
-%%% this NIF is supposed to be used together with the icu4e library, which
-%%% supplies functions for creating and comparing UStrings, an ICU data type,
-%%% which is basically an UTF-16 string.
+%%% @doc For testing query condition building
 
 -module(conditions_test).
 
