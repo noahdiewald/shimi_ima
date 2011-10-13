@@ -23,17 +23,41 @@
 -module(document).
 
 -export([
-  set_sortkeys/3
+  from_json/1,
+  set_sortkeys/3,
+  touch_all/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+%% @doc If configuration has changed, it may be desireable to update
+%% previously saved documents. This will update all documents of a certain
+%% doctype using the latest configuration settings.
+
+-spec touch_all(Doctype :: string(), R :: utils:reqdata(), S :: any()) -> ok.
+touch_all(_Doctype, _R, _S) ->
+  undefined.
+
+%% @doc Set the sortkeys for the fields in the document. 
+
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
 set_sortkeys(Doc, R, S) -> 
   jsn:set_value(<<"fieldsets">>, fieldsets_sortkeys(jsn:get_value(<<"fieldsets">>, Doc), R, S), Doc).
 
+%% @doc Convert a jsn:json_term() document to a document() record.
+
+-spec from_json(Json :: jsn:json_term()) -> document() | {error, Reason :: string()}.
+from_json(Json) ->
+  #document{
+    id = jsn:get_value(<<"_id">>, Json),
+    rev = jsn:get_value(<<"_rev">>, Json),
+    doctype = jsn:get_value(<<"doctype">>, Json),
+    description = jsn:get_value(<<"description">>, Json),
+    fieldsets = [fieldset:from_json(doc, X) || X <-  jsn:get_value(<<"fieldsets">>, Json)]
+  }.
+  
 fieldsets_sortkeys([], _R, _S) ->
   [];
 fieldsets_sortkeys(Fieldsets, R, S) ->
