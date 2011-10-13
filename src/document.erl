@@ -25,6 +25,7 @@
 -export([
   from_json/1,
   set_sortkeys/3,
+  to_json/1,
   touch_all/3
 ]).
 
@@ -48,7 +49,7 @@ set_sortkeys(Doc, R, S) ->
 
 %% @doc Convert a jsn:json_term() document to a document() record.
 
--spec from_json(Json :: jsn:json_term()) -> document() | {error, Reason :: string()}.
+-spec from_json(Json :: jsn:json_term()) -> document().
 from_json(Json) ->
   #document{
     id = jsn:get_value(<<"_id">>, Json),
@@ -57,7 +58,17 @@ from_json(Json) ->
     description = jsn:get_value(<<"description">>, Json),
     fieldsets = [fieldset:from_json(doc, X) || X <-  jsn:get_value(<<"fieldsets">>, Json)]
   }.
-  
+
+%% @doc Convert a document() record to a jsn:json_term() document.
+
+-spec to_json(D :: document()) -> Json :: jsn:json_term().
+to_json(D) ->
+  [{<<"_id">>, D#document.id},
+  {<<"_rev">>, D#document.rev},
+  {<<"description">>, D#document.description},
+  {<<"doctype">>, D#document.doctype},
+  {<<"fieldsets">>,[fieldset:to_json(doc, X) || X <- D#document.fieldsets]}].
+
 fieldsets_sortkeys([], _R, _S) ->
   [];
 fieldsets_sortkeys(Fieldsets, R, S) ->

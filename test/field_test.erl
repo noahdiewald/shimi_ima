@@ -37,16 +37,18 @@ json_field() ->
     {<<"min">>,<<"2001-09-27">>},
     {<<"max">>,<<"2010-08-15">>},
     {<<"instance">>,<<"25250e2ead108a8f60213f2404016d15">>},
+    {<<"charseq">>,<<>>},
     {<<"regex">>,<<>>},
     {<<"order">>,50},
     {<<"subcategory">>,<<"date">>},
-    {<<"value">>,<<"2009-08-23">>}].
+    {<<"value">>,<<"2009-08-23">>},
+    {<<"sortkey">>,<<>>}].
 
 docfield() ->
   #docfield{
     id = <<"25250e2ead108a8f60213f24040007e4">>,
     instance = <<"25250e2ead108a8f60213f2404016d15">>,
-    charseq = undefined,
+    charseq = <<>>,
     name = <<"caltest">>,
     label = <<"CalTest">>,
     head = true,
@@ -57,10 +59,16 @@ docfield() ->
     regex = <<>>,
     order = 50,
     subcategory = date,
-    value = <<"2009-08-23">>
+    value = <<"2009-08-23">>,
+    sortkey = <<>>
   }.
 
 from_json_test_() ->
  [
    ?_assertEqual(field:from_json(doc, json_field()), docfield())
+ ].
+
+to_json_test_() ->
+ [
+   ?_assertEqual(lists:reverse(field:to_json(doc, docfield())), lists:reverse(json_field()))
  ].

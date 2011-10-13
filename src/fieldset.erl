@@ -23,7 +23,8 @@
 -module(fieldset).
 
 -export([
-  from_json/2
+  from_json/2,
+  to_json/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -48,8 +49,28 @@ from_json(doc, Json) ->
     fields = Fields
   }.
 
-get_fields(false, Json) ->
+%% @doc Convert a docfieldset() record within a document to a
+%% jsn:json_term() fieldset.
+
+-spec to_json(doc, FS :: docfieldset()) -> Json :: jsn:json_term().
+to_json(doc, FS) ->
+  Multiple = FS#docfieldset.multiple,
+  [Fields] = get_fields(Multiple, FS),
+  
+  [{<<"id">>, FS#docfieldset.id},
+  {<<"multiple">>, Multiple},
+  {<<"collapse">>, FS#docfieldset.collapse},
+  {<<"name">>, FS#docfieldset.name},
+  {<<"label">>, FS#docfieldset.label},
+  {<<"order">>, FS#docfieldset.order},
+  Fields].
+
+get_fields(false, FS=#docfieldset{}) ->
+  [{<<"fields">>, [field:to_json(doc, X) || X <- FS#docfieldset.fields]}];
+get_fields(true, FS=#docfieldset{}) ->
+  [{<<"multifields">>, [get_fields(false, #docfieldset{fields = X}) || X <- FS#docfieldset.fields]}];
+get_fields(false, Json) when is_list(Json) ->
   [field:from_json(doc, X) || X <- jsn:get_value(<<"fields">>, Json)];
-get_fields(true, Json) ->
+get_fields(true, Json) when is_list(Json) ->
   [get_fields(false, X) || X <- jsn:get_value(<<"multifields">>, Json)].
   

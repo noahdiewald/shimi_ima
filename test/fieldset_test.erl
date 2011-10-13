@@ -29,10 +29,10 @@
     
 single_json() -> 
   [{<<"id">>,<<"25250e2ead108a8f60213f24040007e4">>},
-  {<<"name">>,<<"caltest">>},
-  {<<"label">>,<<"CalTest">>},
   {<<"multiple">>,false},
   {<<"collapse">>,true},
+  {<<"name">>,<<"caltest">>},
+  {<<"label">>,<<"CalTest">>},
   {<<"order">>,50},
   {<<"fields">>,[field_test:json_field(),field_test:json_field()]}].
 
@@ -48,10 +48,10 @@ single_docfieldset() ->
 
 multiple_json() -> 
   [{<<"id">>,<<"25250e2ead108a8f60213f24040007e4">>},
-  {<<"name">>,<<"caltest">>},
-  {<<"label">>,<<"CalTest">>},
   {<<"multiple">>,true},
   {<<"collapse">>,false},
+  {<<"name">>,<<"caltest">>},
+  {<<"label">>,<<"CalTest">>},
   {<<"order">>,50},
   {<<"multifields">>,[
     [{<<"fields">>,[field_test:json_field(),field_test:json_field()]}],
@@ -76,3 +76,10 @@ from_json_test_() ->
    ?_assertEqual(fieldset:from_json(doc, single_json()), single_docfieldset()),
    ?_assertEqual(fieldset:from_json(doc, multiple_json()), multiple_docfieldset())
  ].
+
+to_json_test_() ->
+ [
+   ?_assertEqual(fieldset:to_json(doc, single_docfieldset()), single_json()),
+   ?_assertEqual(fieldset:to_json(doc, multiple_docfieldset()), multiple_json())
+ ].
+ 

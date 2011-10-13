@@ -46,3 +46,9 @@ from_json_test_() ->
  [
    ?_assertEqual(document:from_json(document_json()), document())
  ].
+
+to_json_test_() ->
+ [
+   ?_assertEqual(document:to_json(document()), document_json())
+ ].
+ 

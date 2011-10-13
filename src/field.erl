@@ -23,7 +23,8 @@
 -module(field).
 
 -export([
-  from_json/2
+  from_json/2,
+  to_json/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -54,6 +55,27 @@ from_json(doc, Json) ->
     sortkey = jsn:get_value(<<"sortkey">>, Json)
   }.
 
+%% @doc Convert a docfield() record within a document() to a
+%% jsn:json_term() fieldset 
+
+-spec to_json(doc, F :: docfield()) -> Json :: jsn:json_term().
+to_json(doc, F) ->
+  [{<<"id">>, F#docfield.id},
+  {<<"name">>, F#docfield.name},
+  {<<"label">>, F#docfield.label},
+  {<<"head">>, F#docfield.head},
+  {<<"reversal">>, F#docfield.reversal},
+  {<<"required">>, F#docfield.required},
+  {<<"min">>, F#docfield.min},
+  {<<"max">>, F#docfield.max},
+  {<<"instance">>, F#docfield.instance},
+  {<<"charseq">>, F#docfield.charseq},
+  {<<"regex">>, F#docfield.regex},
+  {<<"order">>, F#docfield.order},
+  {<<"subcategory">>, atom_to_binary(F#docfield.subcategory, utf8)},
+  {<<"value">>, F#docfield.value},
+  {<<"sortkey">>, F#docfield.sortkey}].
+       
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
   case Bin of
