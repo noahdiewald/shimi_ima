@@ -23,7 +23,9 @@
 -module(field).
 
 -export([
+  from_json/1,
   from_json/2,
+  get/2,
   set_sortkeys/3,
   to_json/2
 ]).
@@ -40,7 +42,35 @@ set_sortkeys([], _R, _S) ->
 set_sortkeys(Fields, R, S) ->
   set_sortkeys(Fields, [], R, S).
 
-%% @doc Convert a jsn:json_term() fieldset within a document to a
+%% @doc Convert a jsn:json_term() field to a field()
+
+-spec from_json(Json :: jsn:json_term()) -> docfield().
+from_json(Json) ->
+  Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
+  #field{
+    id = jsn:get_value(<<"_id">>, Json),
+    rev = jsn:get_value(<<"_rev">>, Json),
+    allowed = jsn:get_value(<<"allowed">>, Json),
+    category = field,
+    charseq = jsn:get_value(<<"charseq">>, Json),
+    default = jsn:get_value(<<"default">>, Json),
+    description = jsn:get_value(<<"description">>, Json),
+    doctype = jsn:get_value(<<"doctype">>, Json),
+    fieldset = jsn:get_value(<<"fieldset">>, Json),
+    head = jsn:get_value(<<"head">>, Json),
+    label = jsn:get_value(<<"label">>, Json),
+    max = jsn:get_value(<<"max">>, Json),
+    min = jsn:get_value(<<"min">>, Json),
+    name = jsn:get_value(<<"name">>, Json),
+    order = jsn:get_value(<<"order">>, Json),
+    regex = jsn:get_value(<<"regex">>, Json),
+    required = jsn:get_value(<<"required">>, Json),
+    reversal = jsn:get_value(<<"reversal">>, Json),
+    source = jsn:get_value(<<"source">>, Json),
+    subcategory = Subcategory
+  }.
+
+%% @doc Convert a jsn:json_term() field within a document to a
 %% docfield()
 
 -spec from_json(doc, Json :: jsn:json_term()) -> docfield().
@@ -84,6 +114,14 @@ to_json(doc, F) ->
   {<<"subcategory">>, atom_to_binary(F#docfield.subcategory, utf8)},
   {<<"value">>, F#docfield.value},
   {<<"sortkey">>, F#docfield.sortkey}].
+
+%% @doc Get a field() using a field id and a project id
+
+-spec get(Project :: string(), Id :: string) -> fieldset().
+get(Project, Id) ->
+  Url = ?ADMINDB ++ Project ++ "/" ++ Id,
+  {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+  from_json(jsn:decode(Json)).
        
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
@@ -107,4 +145,4 @@ set_sortkeys([], Acc, _R, _S) ->
 set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
   set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, charseq:get_sortkey(Field, R, S), Field)|Acc], R, S);
 set_sortkeys([F=#docfield{}|Rest], Acc, R, S) ->
-  F#docfield{sortkey=charseq:get_sortkey(F, R, S)}.
+  set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, R, S)}|Acc], R, S).

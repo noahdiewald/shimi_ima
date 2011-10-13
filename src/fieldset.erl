@@ -23,7 +23,9 @@
 -module(fieldset).
 
 -export([
+  from_json/1,
   from_json/2,
+  get/2,
   set_sortkeys/3,
   to_json/2
 ]).
@@ -58,6 +60,24 @@ from_json(doc, Json) ->
     fields = Fields
   }.
 
+%% @doc Convert a jsn:json_term() fieldset within a document to a
+%% fieldset() record.
+
+-spec from_json(Json :: jsn:json_term()) -> fieldset().
+from_json(Json) ->
+  #fieldset{
+    id = jsn:get_value(<<"_id">>, Json),
+    rev = jsn:get_value(<<"_rev">>, Json),
+    category = fieldset,
+    description = jsn:get_value(<<"description">>, Json),
+    doctype = jsn:get_value(<<"doctype">>, Json),
+    label = jsn:get_value(<<"label">>, Json),
+    name = jsn:get_value(<<"name">>, Json),
+    order = jsn:get_value(<<"order">>, Json),
+    multiple = jsn:get_value(<<"multiple">>, Json),
+    collapse = jsn:get_value(<<"collapse">>, Json)
+  }.
+
 %% @doc Convert a docfieldset() record within a document to a
 %% jsn:json_term() fieldset.
 
@@ -74,6 +94,14 @@ to_json(doc, FS) ->
   {<<"order">>, FS#docfieldset.order},
   Fields].
 
+%% @doc Get a fieldset() using a fieldset id and a project id
+
+-spec get(Project :: string(), Id :: string) -> fieldset().
+get(Project, Id) ->
+  Url = ?ADMINDB ++ Project ++ "/" ++ Id,
+  {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+  from_json(jsn:decode(Json)).
+  
 get_fields(false, FS=#docfieldset{}) ->
   [{<<"fields">>, [field:to_json(doc, X) || X <- FS#docfieldset.fields]}];
 get_fields(true, FS=#docfieldset{}) ->
