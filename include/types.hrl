@@ -43,7 +43,9 @@
 
 -type subcategory() :: text | textarea | date | integer | rational | boolean | openboolean | select | multiselect | docselect | docmultiselect | file.
 
--type basicval() :: number() | binary(). %TODO | date().
+-type dateval() :: calendar:date() | today.
+
+-type basicval() :: number() | binary() | calendar:date() | null.
 
 -record(field, {
   id :: binary(),

@@ -37,30 +37,30 @@ json_field() ->
     {<<"min">>,<<"2001-09-27">>},
     {<<"max">>,<<"2010-08-15">>},
     {<<"instance">>,<<"25250e2ead108a8f60213f2404016d15">>},
-    {<<"charseq">>,<<>>},
-    {<<"regex">>,<<>>},
+    {<<"charseq">>,null},
+    {<<"regex">>,null},
     {<<"order">>,50},
     {<<"subcategory">>,<<"date">>},
     {<<"value">>,<<"2009-08-23">>},
-    {<<"sortkey">>,<<>>}].
+    {<<"sortkey">>,null}].
 
 docfield() ->
   #docfield{
     id = <<"25250e2ead108a8f60213f24040007e4">>,
     instance = <<"25250e2ead108a8f60213f2404016d15">>,
-    charseq = <<>>,
+    charseq = null,
     name = <<"caltest">>,
     label = <<"CalTest">>,
     head = true,
     reversal = false,
     required = false,
-    min = <<"2001-09-27">>,
-    max = <<"2010-08-15">>,
-    regex = <<>>,
+    min = {2001, 9, 27},
+    max = {2010, 8, 15},
+    regex = null,
     order = 50,
     subcategory = date,
-    value = <<"2009-08-23">>,
-    sortkey = <<>>
+    value = {2009, 8, 23},
+    sortkey = null
   }.
 
 from_json_test_() ->

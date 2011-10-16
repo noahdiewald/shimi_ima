@@ -26,6 +26,7 @@
   from_json/1,
   from_json/2,
   get/2,
+  merge_update/2,
   set_sortkeys/3,
   to_json/2
 ]).
@@ -84,16 +85,16 @@ from_json(doc, Json) ->
     label = jsn:get_value(<<"label">>, Json),
     order = jsn:get_value(<<"order">>, Json),
     head = jsn:get_value(<<"head">>, Json),
-    max = jsn:get_value(<<"max">>, Json),
-    min = jsn:get_value(<<"min">>, Json),
+    max = convert_value(Subcategory, jsn:get_value(<<"max">>, Json)),
+    min = convert_value(Subcategory, jsn:get_value(<<"min">>, Json)),
     regex = jsn:get_value(<<"regex">>, Json),
     required = jsn:get_value(<<"required">>, Json),
     reversal = jsn:get_value(<<"reversal">>, Json),
     subcategory = Subcategory,
-    value = jsn:get_value(<<"value">>, Json),
+    value = convert_value(Subcategory, jsn:get_value(<<"value">>, Json)),
     sortkey = jsn:get_value(<<"sortkey">>, Json)
   }.
-
+    
 %% @doc Convert a docfield() record within a document() to a
 %% jsn:json_term() fieldset 
 
@@ -105,23 +106,88 @@ to_json(doc, F) ->
   {<<"head">>, F#docfield.head},
   {<<"reversal">>, F#docfield.reversal},
   {<<"required">>, F#docfield.required},
-  {<<"min">>, F#docfield.min},
-  {<<"max">>, F#docfield.max},
+  {<<"min">>, unconvert_value(F#docfield.subcategory, F#docfield.min)},
+  {<<"max">>, unconvert_value(F#docfield.subcategory, F#docfield.max)},
   {<<"instance">>, F#docfield.instance},
-  {<<"charseq">>, F#docfield.charseq},
+  {<<"charseq">>, maybe_binary(F#docfield.charseq)},
   {<<"regex">>, F#docfield.regex},
   {<<"order">>, F#docfield.order},
   {<<"subcategory">>, atom_to_binary(F#docfield.subcategory, utf8)},
-  {<<"value">>, F#docfield.value},
+  {<<"value">>, unconvert_value(F#docfield.subcategory, F#docfield.value)},
   {<<"sortkey">>, F#docfield.sortkey}].
-
+  
 %% @doc Get a field() using a field id and a project id
 
--spec get(Project :: string(), Id :: string) -> fieldset().
+-spec get(Project :: string(), Id :: string) -> fieldset() | {error, Reason :: term()}.
 get(Project, Id) ->
   Url = ?ADMINDB ++ Project ++ "/" ++ Id,
-  {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
-  from_json(jsn:decode(Json)).
+  case ibrowse:send_req(Url, [], get) of
+    {ok, "200", _, Raw} -> convert_field(jsn:decode(Raw));
+    {ok, Status, _, _} -> {error, "HTTP status " ++ Status};
+    Error -> Error
+  end.
+
+%% @doc Take a field() and a docfield() and return a docfiled() updated so
+%% that shared items match and sortkey is updated.
+
+-spec merge_update(F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
+merge_update(F, DF) ->
+  case {F#field.id, DF#docfield.id} of
+    {Id, Id} -> do_merge(F, DF);
+    _Else -> {error, "Id's do not match."}
+  end.
+
+-spec maybe_binary(B :: term()) -> binary() | null.
+maybe_binary(<<>>) -> null;
+maybe_binary(B) when is_binary(B) -> B;
+maybe_binary(_) -> null.
+
+-spec unconvert_value(subcategory(), Value :: term()) -> jsn:json_term().
+unconvert_value(date, today) -> <<"today">>;
+unconvert_value(date, {Y, M, D}) ->
+  list_to_binary(string:right(integer_to_list(Y), 4, $0) ++ "-" ++ string:right(integer_to_list(M), 2, $0) ++ "-" ++ string:right(integer_to_list(D), 2, $0));
+unconvert_value(_, Value) -> Value.
+
+-spec convert_value(subcategory(), Value :: jsn:json_term()) -> anyval().
+convert_value(date, <<"today">>) -> today;
+convert_value(date, Value) when is_binary(Value) ->
+  Value1 = binary_to_list(Value),
+  case length(Value1) of
+    10 -> parse_date(Value1);
+    _ -> null
+  end;
+convert_value(_, Value) -> Value.
+
+-spec parse_date(string()) -> calendar:date().
+parse_date([Y1,Y2,Y3,Y4,_,M1,M2,_,D1,D2]) ->
+  {list_to_integer([Y1,Y2,Y3,Y4]), list_to_integer([M1,M2]), list_to_integer([D1,D2])}.
+
+-spec do_merge(F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
+do_merge(F, DF) ->
+  DF2 = DF#docfield{
+    charseq = F#field.charseq,
+    head = F#field.head,
+    label = F#field.label,
+    max = F#field.max,
+    min = F#field.min,
+    name = F#field.name,
+    order = F#field.order,
+    regex = F#field.regex,
+    required = F#field.required,
+    reversal = F#field.reversal,
+    subcategory = F#field.subcategory
+  },
+  update_normalize(DF, F, DF2).
+  
+-spec update_normalize(subcategory(), F :: field(), DF2 :: docfield()) -> docfield() | {error, Reason :: term()}.
+update_normalize(_, _, DF) -> DF.    
+  
+-spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
+convert_field(Json) ->  
+  case jsn:get_value(<<"category">>, Json) of
+    <<"field">> -> from_json(Json);
+    Cat -> {error, "Returned document had category " ++ binary_to_list(Cat)}
+  end.
        
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
