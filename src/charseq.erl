@@ -36,7 +36,7 @@
 -include_lib("include/types.hrl").
 
 %% @doc Get a sortkey for a jsn:json_term() referencing a charseq or
-%% a docfield()
+%% a docfield() making use of state from webmachine
 
 -spec get_sortkey(jsn:json_term() | docfield(), R :: utils:reqdata(), S :: any()) -> binary().
 get_sortkey(Json, R, S) when is_list(Json) ->
