@@ -218,36 +218,35 @@ update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
     (((S == text) or
       (S == textarea) or
       (S == select) or
-      (S == docselect) or
-      (S == file)) and
+      (S == docselect)) and
      ((S2 == text) or
-      (S2 == textarea) or
-      (S2 == select) or
-      (S2 == docselect) or
-      (S2 == file))) -> DF;
-update_normalize(#docfield{subcategory=date}, F, DF) ->
-  update_normalize(#docfield{subcategory=text}, F, DF#docfield{value=unconvert_value(date, DF#docfield.value)});
-update_normalize(#docfield{subcategory=S}, F, DF=#docfield{value=V}) when 
-    S == integer; 
-    S == rational; 
-    S == boolean; 
-    S == openboolean ->
+      (S2 == textarea))) -> DF;
+update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,value=V}) when 
+    (((S == integer) or
+      (S == rational) or
+      (S == boolean) or
+      (S == openboolean)) and
+     ((S2 == text) or
+      (S2 == textarea))) ->
   DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
   update_normalize(#docfield{subcategory=text}, F, DF2);
+update_normalize(#docfield{subcategory=date}, F, DF) ->
+  update_normalize(#docfield{subcategory=text}, F, DF#docfield{value=unconvert_value(date, DF#docfield.value)});
+update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
+    ((S == docselect) or (S == select)) and 
+    ((S2 == docselect) or (S2 == select)) -> DF;
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
     ((S == docmultiselect) or (S == multiselect)) and 
     ((S2 == docmultiselect) or (S2 == multiselect)) -> DF;
-update_normalize(#docfield{subcategory=S}, #field{default=D}, DF) when
-    ((S == docmultiselect) or (S == multiselect)) ->
+update_normalize(#docfield{subcategory=rational}, _, DF=#docfield{subcategory=integer,value=V}) ->
+  DF#docfield{value=erlang:trunc(V)};
+update_normalize(#docfield{subcategory=integer}, _, DF=#docfield{subcategory=rational,value=V}) -> 
+  DF#docfield{value=(V / 1)};
+update_normalize(#docfield{subcategory=boolean}, _, DF=#docfield{subcategory=openboolean}) -> DF;
+update_normalize(#docfield{subcategory=openboolean}, _, DF=#docfield{subcategory=boolean,value=V}) ->
+  DF#docfield{value=(V == true)};
+update_normalize(_, #field{default=D}, DF) ->
   DF#docfield{value=D}.
-  
-  
-  %(S /= integer) and 
-  %(S /= rational) and
-  %(S /= docmultiselect) and
-  %(S /= multiselect) and
-  %(S /= boolean) and
-  %(S /= openboolean) ->
   
 -spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
 convert_field(Json) ->  

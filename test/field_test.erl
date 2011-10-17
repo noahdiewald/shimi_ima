@@ -327,6 +327,44 @@ merge_update_test_() ->
     end, true)),
   
   % If the subcategory changes in the field, those changes 
+  % should be reflected in the docfield's values. Integer to rational.
+  ?_assertEqual(
+    v(fun () ->
+      set_docfield_values([{<<"subcategory">>, <<"rational">>},
+                           {<<"min">>, null},
+                           {<<"max">>, null},
+                           {<<"value">>, 9.0}])
+    end, true),
+    v(fun () ->
+      field:merge_update(set_field_values([{<<"subcategory">>, <<"rational">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]),
+                         set_docfield_values([{<<"subcategory">>, <<"integer">>},
+                                              {<<"min">>, null},
+                                              {<<"max">>, null},
+                                              {<<"value">>, 9}]))
+    end, true)),
+  
+  % If the subcategory changes in the field, those changes 
+  % should be reflected in the docfield's values. Rational to integer.
+  ?_assertEqual(
+    v(fun () ->
+      set_docfield_values([{<<"subcategory">>, <<"integer">>},
+                           {<<"min">>, null},
+                           {<<"max">>, null},
+                           {<<"value">>, -9}])
+    end, true),
+    v(fun () ->
+      field:merge_update(set_field_values([{<<"subcategory">>, <<"integer">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]),
+                         set_docfield_values([{<<"subcategory">>, <<"rational">>},
+                                              {<<"min">>, null},
+                                              {<<"max">>, null},
+                                              {<<"value">>, -9.76}]))
+    end, true)),
+  
+  % If the subcategory changes in the field, those changes 
   % should be reflected in the docfield's values. Date to text test.
   ?_assertEqual(
     v(fun () ->
