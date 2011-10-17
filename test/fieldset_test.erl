@@ -34,7 +34,7 @@ single_json() ->
   {<<"name">>,<<"caltest">>},
   {<<"label">>,<<"CalTest">>},
   {<<"order">>,50},
-  {<<"fields">>,[field_test:json_field(),field_test:json_field()]}].
+  {<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}].
 
 single_docfieldset() -> 
   #docfieldset{
@@ -54,8 +54,8 @@ multiple_json() ->
   {<<"label">>,<<"CalTest">>},
   {<<"order">>,50},
   {<<"multifields">>,[
-    [{<<"fields">>,[field_test:json_field(),field_test:json_field()]}],
-    [{<<"fields">>,[field_test:json_field(),field_test:json_field()]}]
+    [{<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}],
+    [{<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}]
    ]}].
 
 multiple_docfieldset() -> 

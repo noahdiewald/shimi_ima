@@ -49,25 +49,25 @@ set_sortkeys(Fields, R, S) ->
 from_json(Json) ->
   Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
   #field{
-    id = jsn:get_value(<<"_id">>, Json),
-    rev = jsn:get_value(<<"_rev">>, Json),
-    allowed = jsn:get_value(<<"allowed">>, Json),
+    id = get_value(<<"_id">>, Json),
+    rev = get_value(<<"_rev">>, Json),
+    allowed = get_value(<<"allowed">>, Json),
     category = field,
-    charseq = jsn:get_value(<<"charseq">>, Json),
-    default = jsn:get_value(<<"default">>, Json),
-    description = jsn:get_value(<<"description">>, Json),
-    doctype = jsn:get_value(<<"doctype">>, Json),
-    fieldset = jsn:get_value(<<"fieldset">>, Json),
-    head = jsn:get_value(<<"head">>, Json),
-    label = jsn:get_value(<<"label">>, Json),
-    max = jsn:get_value(<<"max">>, Json),
-    min = jsn:get_value(<<"min">>, Json),
-    name = jsn:get_value(<<"name">>, Json),
-    order = jsn:get_value(<<"order">>, Json),
-    regex = jsn:get_value(<<"regex">>, Json),
-    required = jsn:get_value(<<"required">>, Json),
-    reversal = jsn:get_value(<<"reversal">>, Json),
-    source = jsn:get_value(<<"source">>, Json),
+    charseq = get_value(<<"charseq">>, Json),
+    default = convert_value(Subcategory, Json, <<"default">>),
+    description = proplists:get_value(<<"description">>, Json, null),
+    doctype = proplists:get_value(<<"doctype">>, Json, null),
+    fieldset = get_value(<<"fieldset">>, Json),
+    head = get_value(<<"head">>, Json, false),
+    label = proplists:get_value(<<"label">>, Json, null),
+    max = convert_value(Subcategory, Json, <<"max">>),
+    min = convert_value(Subcategory, Json, <<"min">>),
+    name = proplists:get_value(<<"name">>, Json, null),
+    order = get_value(<<"order">>, Json),
+    regex = proplists:get_value(<<"regex">>, Json, null),
+    required = get_value(<<"required">>, Json, false),
+    reversal = get_value(<<"reversal">>, Json, false),
+    source = proplists:get_value(<<"source">>, Json, null),
     subcategory = Subcategory
   }.
 
@@ -78,23 +78,23 @@ from_json(Json) ->
 from_json(doc, Json) ->
   Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
   #docfield{
-    id = jsn:get_value(<<"id">>, Json),
-    instance = jsn:get_value(<<"instance">>, Json),
-    charseq = jsn:get_value(<<"charseq">>, Json),
-    name = jsn:get_value(<<"name">>, Json),
-    label = jsn:get_value(<<"label">>, Json),
-    order = jsn:get_value(<<"order">>, Json),
-    head = jsn:get_value(<<"head">>, Json),
-    max = convert_value(Subcategory, jsn:get_value(<<"max">>, Json)),
-    min = convert_value(Subcategory, jsn:get_value(<<"min">>, Json)),
-    regex = jsn:get_value(<<"regex">>, Json),
-    required = jsn:get_value(<<"required">>, Json),
-    reversal = jsn:get_value(<<"reversal">>, Json),
+    id = get_value(<<"id">>, Json),
+    instance = get_value(<<"instance">>, Json),
+    charseq = get_value(<<"charseq">>, Json),
+    name = get_value(<<"name">>, Json),
+    label = get_value(<<"label">>, Json),
+    order = get_value(<<"order">>, Json),
+    head = get_value(<<"head">>, Json, false),
+    max = convert_value(Subcategory, Json, <<"max">>),
+    min = convert_value(Subcategory, Json, <<"min">>),
+    regex = proplists:get_value(<<"regex">>, Json, null),
+    required = get_value(<<"required">>, Json, false),
+    reversal = get_value(<<"reversal">>, Json, false),
     subcategory = Subcategory,
-    value = convert_value(Subcategory, jsn:get_value(<<"value">>, Json)),
-    sortkey = jsn:get_value(<<"sortkey">>, Json)
+    value = convert_value(Subcategory, Json),
+    sortkey = get_value(<<"sortkey">>, Json)
   }.
-    
+  
 %% @doc Convert a docfield() record within a document() to a
 %% jsn:json_term() fieldset 
 
@@ -148,19 +148,48 @@ unconvert_value(date, {Y, M, D}) ->
   list_to_binary(string:right(integer_to_list(Y), 4, $0) ++ "-" ++ string:right(integer_to_list(M), 2, $0) ++ "-" ++ string:right(integer_to_list(D), 2, $0));
 unconvert_value(_, Value) -> Value.
 
--spec convert_value(subcategory(), Value :: jsn:json_term()) -> anyval().
-convert_value(date, <<"today">>) -> today;
-convert_value(date, Value) when is_binary(Value) ->
+-spec convert_value(subcategory(), Json :: jsn:json_term()) -> anyval().
+convert_value(S, Json) ->
+  convert_value(S, Json, <<"value">>).
+  
+-spec convert_value(subcategory(), Json :: jsn:json_term(), Key :: binary()) -> anyval().
+convert_value(boolean, Json, Key) ->
+  get_value(Key, Json, false);
+convert_value(date, Json, Key) ->
+  convert_value2(date, get_value(Key, Json));
+convert_value(Sub, Json, Key) when Sub /= text, Sub /= textarea ->
+  get_value(Key, Json);
+convert_value(_, Json, Key) ->
+  proplists:get_value(Key, Json, null).
+  
+-spec convert_value2(subcategory(), Value :: jsn:json_term()) -> anyval().
+convert_value2(_, null) -> null;
+convert_value2(date, <<"today">>) -> today;
+convert_value2(date, Value) when is_binary(Value) ->
   Value1 = binary_to_list(Value),
   case length(Value1) of
     10 -> parse_date(Value1);
     _ -> null
   end;
-convert_value(_, Value) -> Value.
+convert_value2(_, Value) -> Value.
 
 -spec parse_date(string()) -> calendar:date().
 parse_date([Y1,Y2,Y3,Y4,_,M1,M2,_,D1,D2]) ->
   {list_to_integer([Y1,Y2,Y3,Y4]), list_to_integer([M1,M2]), list_to_integer([D1,D2])}.
+
+% TODO: this is mostly to guard against bad values already entered
+% It should be altered or removed in the future.
+-spec get_value(Key :: binary(), Json :: jsn:json_term(), Default :: jsn:json_term()) -> jsn:json_term().
+get_value(Key, Json, Default) ->
+  case proplists:get_value(Key, Json, Default) of
+    <<"null">> -> null;
+    <<"undefined">> -> null;
+    Value -> Value
+  end.
+  
+-spec get_value(Key :: binary(), Json :: jsn:json_term()) -> jsn:json_term().
+get_value(Key, Json) ->
+  get_value(Key, Json, null).
 
 -spec do_merge(F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
 do_merge(F, DF) ->
@@ -179,8 +208,46 @@ do_merge(F, DF) ->
   },
   update_normalize(DF, F, DF2).
   
--spec update_normalize(subcategory(), F :: field(), DF2 :: docfield()) -> docfield() | {error, Reason :: term()}.
-update_normalize(_, _, DF) -> DF.    
+-spec update_normalize(docfield(), F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
+update_normalize(_, #field{default=null}, DF=#docfield{value=null}) ->
+  DF;    
+update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
+  DF#docfield{value=Def};
+update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when 
+    (S == S2) or
+    (((S == text) or
+      (S == textarea) or
+      (S == select) or
+      (S == docselect) or
+      (S == file)) and
+     ((S2 == text) or
+      (S2 == textarea) or
+      (S2 == select) or
+      (S2 == docselect) or
+      (S2 == file))) -> DF;
+update_normalize(#docfield{subcategory=date}, F, DF) ->
+  update_normalize(#docfield{subcategory=text}, F, DF#docfield{value=unconvert_value(date, DF#docfield.value)});
+update_normalize(#docfield{subcategory=S}, F, DF=#docfield{value=V}) when 
+    S == integer; 
+    S == rational; 
+    S == boolean; 
+    S == openboolean ->
+  DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
+  update_normalize(#docfield{subcategory=text}, F, DF2);
+update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
+    ((S == docmultiselect) or (S == multiselect)) and 
+    ((S2 == docmultiselect) or (S2 == multiselect)) -> DF;
+update_normalize(#docfield{subcategory=S}, #field{default=D}, DF) when
+    ((S == docmultiselect) or (S == multiselect)) ->
+  DF#docfield{value=D}.
+  
+  
+  %(S /= integer) and 
+  %(S /= rational) and
+  %(S /= docmultiselect) and
+  %(S /= multiselect) and
+  %(S /= boolean) and
+  %(S /= openboolean) ->
   
 -spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
 convert_field(Json) ->  
