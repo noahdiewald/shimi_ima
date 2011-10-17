@@ -26,14 +26,20 @@
   from_json/1,
   from_json/2,
   get/2,
+  get/3,
   set_sortkeys/3,
-  to_json/2
+  to_json/2,
+  touch/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+-spec touch(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
+touch(Dfs, R, S) ->
+  touch2(update(Dfs, R, S), R, S).
+  
 %% @doc Set the sortkeys for fields in fieldsets
 
 -spec set_sortkeys(jsn:json_term() | [docfieldset()], R :: utils:reqdata(), S :: any()) -> jsn:json_term().
@@ -101,6 +107,39 @@ get(Project, Id) ->
   Url = ?ADMINDB ++ Project ++ "/" ++ Id,
   {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
   from_json(jsn:decode(Json)).
+
+%% @doc Get a fieldset() using a fieldset docfieldset() and webmachine state
+
+-spec get(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> fieldset().
+get(Dfs, R, S) ->
+  from_json(couch:get_json(binary_to_list(Dfs#docfieldset.id), R, S)).
+  
+-spec touch2(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
+touch2(Dfs=#docfieldset{multiple=true,fields=F}, R, S) ->
+  Dfs#docfieldset{fields=[[field:touch(X, R, S) || X <- Y] || Y <- F]};
+touch2(Dfs=#docfieldset{multiple=false,fields=F}, R, S) ->
+  Dfs#docfieldset{fields=[field:touch(X, R, S) || X <- F]}.
+
+-spec update(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> docfieldset().
+update(Dfs, R, S) ->
+  FS = get(Dfs, R, S),
+  update_merge(Dfs, FS).
+  
+-spec update_merge(Dfs :: docfieldset(), FS :: fieldset()) -> docfieldset() | {error, Reason :: term()}.
+update_merge(Dfs, FS) ->
+  case {FS#fieldset.id, Dfs#docfieldset.id} of
+    {Id, Id} -> do_merge(Dfs, FS);
+    _Else -> {error, "Id's do not match."}
+  end.
+
+-spec do_merge(Dfs :: docfieldset(), FS :: fieldset()) -> docfieldset() | {error, Reason :: term()}.
+do_merge(Dfs, FS) ->
+  Dfs#docfieldset{
+    label = FS#fieldset.label,
+    name = FS#fieldset.name,
+    order = FS#fieldset.order,
+    collapse = FS#fieldset.collapse
+  }.
   
 get_fields(false, FS=#docfieldset{}) ->
   [{<<"fields">>, [field:to_json(doc, X) || X <- FS#docfieldset.fields]}];

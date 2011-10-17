@@ -26,14 +26,20 @@
   from_json/1,
   from_json/2,
   get/2,
-  merge_update/2,
+  get/3,
+  update_merge/2,
   set_sortkeys/3,
-  to_json/2
+  to_json/2,
+  touch/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
+
+-spec touch(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfield().
+touch(Df, R, S) ->
+ touch2(update(Df, R, S), R, S).
 
 %% @doc Set the sortkeys for fields
 
@@ -127,15 +133,30 @@ get(Project, Id) ->
     Error -> Error
   end.
 
+%% @doc Get a field() using a fieldset docfield() and webmachine state
+
+-spec get(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> fieldset().
+get(Df, R, S) ->
+  from_json(couch:get_json(binary_to_list(Df#docfield.id), R, S)).
+
 %% @doc Take a field() and a docfield() and return a docfiled() updated so
 %% that shared items match and sortkey is updated.
 
--spec merge_update(F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
-merge_update(F, DF) ->
-  case {F#field.id, DF#docfield.id} of
-    {Id, Id} -> do_merge(F, DF);
+-spec update_merge(DF :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
+update_merge(Df, F) ->
+  case {F#field.id, Df#docfield.id} of
+    {Id, Id} -> do_merge(Df, F);
     _Else -> {error, "Id's do not match."}
   end.
+
+-spec update(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfieldset().
+update(Df, R, S) ->
+  F = get(Df, R, S),
+  update_merge(Df, F).
+
+-spec touch2(Df :: docfield(), R :: utils:reqdata(), S :: any()) ->  jsn:json_term().
+touch2(Df, R, S) ->
+  Df#docfield{sortkey=charseq:get_sortkey(Df, R, S)}.
 
 -spec maybe_binary(B :: term()) -> binary() | null.
 maybe_binary(<<>>) -> null;
@@ -191,9 +212,9 @@ get_value(Key, Json, Default) ->
 get_value(Key, Json) ->
   get_value(Key, Json, null).
 
--spec do_merge(F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
-do_merge(F, DF) ->
-  DF2 = DF#docfield{
+-spec do_merge(Df :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
+do_merge(Df, F) ->
+  Df2 = Df#docfield{
     charseq = F#field.charseq,
     head = F#field.head,
     label = F#field.label,
@@ -206,7 +227,7 @@ do_merge(F, DF) ->
     reversal = F#field.reversal,
     subcategory = F#field.subcategory
   },
-  update_normalize(DF, F, DF2).
+  update_normalize(Df, F, Df2).
   
 -spec update_normalize(docfield(), F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
 update_normalize(_, #field{default=null}, DF=#docfield{value=null}) ->
@@ -272,6 +293,7 @@ get_subcategory(Bin) ->
     <<"file">> -> file
   end.
 
+-spec set_sortkeys([jsn:json_term()] | [docfield()], Acc :: [jsn:json_term()] | [docfield()], R :: utils:reqdata(), S :: any()) -> [jsn:json_term()] | [docfield()].
 set_sortkeys([], Acc, _R, _S) ->
   lists:reverse(Acc);
 set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
