@@ -64,5 +64,6 @@
         {{ update_user_ }}
       {% endif %}
       </dd>
+    <dt>ID</dt><dd>{{ _id }}</dd>
   </dl>
 </div>

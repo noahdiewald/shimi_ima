@@ -66,6 +66,11 @@ get_json(id, R, S) ->
   Id = wrq:path_info(id, R),
   get_json_helper(DataBaseUrl ++ Id, Headers);
   
+get_json(rev, R, S) ->
+  Headers = proplists:get_value(headers, S),
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ wrq:path_info(id, R) ++ "?rev=" ++ wrq:get_qs_value("rev", R),
+  get_json_helper(Url, Headers);
+  
 get_json(Id, R, S) ->
   Headers = proplists:get_value(headers, S),
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
