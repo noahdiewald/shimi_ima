@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 4,
+  "version": 5,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
@@ -47,7 +47,7 @@
           }
         }
 
-        if (doc.doctype == '{{ _id }}' && doc.fieldsets ) {
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_) {
           doc.fieldsets.forEach(function(fieldset, index) {
             if (fieldset.multiple) {
               fieldset.multifields.forEach(emitKeyVals(multifield));
@@ -63,7 +63,7 @@
       "map": "function(doc) {
         var outDoc = {};
         
-        if (doc.doctype == '{{ _id }}' && doc.fieldsets) {
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_) {
           outDoc = {
             '_id': doc._id,
             '_rev': doc._rev,
@@ -141,7 +141,7 @@
           return acc;
         }
         
-        if (doc.doctype == '{{ _id }}' && doc.fieldsets)  {
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  {
           var heads = gather([], isHead);
           var reversals = gather([], isReversal, true);
           
