@@ -72,12 +72,12 @@ allowed_methods(R, S) ->
   end.
   
 delete_resource(R, S) ->
-  case couch:delete(R, S) of
-    {ok, deleted} -> {true, R, S};
-    {409, _} ->
-      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 409}, R1, S}
+  Json = couch:get_json(rev, R, S),
+  case jsn:get_value(<<"deleted_">>, Json) of
+    true ->
+      json_update(jsn:set_value(<<"deleted_">>, false, Json), R, S);
+    _ ->
+      json_update(jsn:set_value(<<"deleted_">>, true, Json), R, S)
   end.
   
 post_is_create(R, S) ->
@@ -129,13 +129,20 @@ json_create(R, S) ->
 json_update(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
   Json1 = document:set_sortkeys(Json, R, S),
+  json_update(Json1, R, S).
+  
+json_update(Json, R, S) ->
   Id = wrq:path_info(id, R),
   Rev = wrq:get_qs_value("rev", R),
   Json2 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json1),
   Json3 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json2),
   
   case couch:update(doc, Id, jsn:encode(Json3), R, S) of
-    {ok, updated} -> {true, R, S};
+    {ok, updated} ->
+      NewJson = couch:get_json(Id, R, S),
+      Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {true, R1, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};

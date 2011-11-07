@@ -10,17 +10,29 @@ function getDocument(id, runAfterEditRefresh) {
   
   $.get(url, function(documentHtml) {
     $('#document-view').html(documentHtml);
-    
+
     if (runAfterEditRefresh) afterEditRefresh();
     
-    $('#document-edit-button').button({icons: {primary: 'ui-icon-pencil'}});
+    var restoreButton = $('#document-restore-button');
+    var editButton = $('#document-edit-button');
+    var deleteButton = $('#document-delete-button');
+   
+    editButton.button({icons: {primary: 'ui-icon-pencil'}});
+    deleteButton.button({icons: {primary: 'ui-icon-trash'}});
+    restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
     
-    $('#document-delete-button').button({icons: {primary: 'ui-icon-trash'}});
+    if (dInfo("deleted", restoreButton) === "true") {
+      editButton.hide();
+      deleteButton.hide();
+    } else {
+      restoreButton.hide();
+    }
   });
 }
 
-function deleteDocument(docid, docrev) {
+function restoreDocument(docid, docrev) {
   var url = "./documents/" + docid + "?rev=" + docrev;
+  var restoreButton = $('#document-restore-button');
   
   $.ajax({
     type: "DELETE",
@@ -28,11 +40,56 @@ function deleteDocument(docid, docrev) {
     dataType: "json",
     contentType: "application/json",
     complete: function(req, status) {
-      if (req.status == 204) {
+      if (req.status == 200) {
         var title = "Success";
-        var body = "Your document was deleted. You may undo this by clicking Edit and then Create as New.";
+        var body = "Your document was restored.";
+        var response = JSON.parse(req.responseText);
+        
+        putValue("document-rev", response.rev, restoreButton);
+        
+        $('#document-restore-button').hide();
+        $('#document-delete-button').show();
+        $('#document-edit-button').show();
+        $('#document-view h2').text("Restored Document");
+        $('#document-view').fadeTo('slow', 1);
+        
+        getIndex();
+        flashHighlight(title, body);
+      } else if (req.status == 409) {
+        var body = JSON.parse(req.responseText);
+        var title = req.statusText;
+          
+        flashError(title, body.message);
+      } else if (req.status == 404) {
+        var body = "Document was erased and cannot be restored.";
+        var title = req.statusText;
+          
+        flashError(title, body);
+      }
+    }
+  });
+}
+
+function deleteDocument(docid, docrev) {
+  var url = "./documents/" + docid + "?rev=" + docrev;
+  var restoreButton = $('#document-restore-button');
+  
+  $.ajax({
+    type: "DELETE",
+    url: url,
+    dataType: "json",
+    contentType: "application/json",
+    complete: function(req, status) {
+      if (req.status == 200) {
+        var title = "Success";
+        var body = "Your document was deleted.";
+        var response = JSON.parse(req.responseText);
+        
+        putValue("document-rev", response.rev, restoreButton);
         
         $('#document-delete-button').hide();
+        $('#document-edit-button').hide();
+        restoreButton.show();
         $('#document-view h2').text("Deleted Document");
         $('#document-view').fadeTo('slow', 0.5);
         

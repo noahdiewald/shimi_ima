@@ -10,6 +10,7 @@ function clickDispatch(e) {
     "#clear-document-button span": function(t) {clearDoc(t.parent())},
     "#document-edit-button span": function(t) {editDoc(t.parent())},
     "#document-delete-button span": function(t) {deleteDoc(t.parent())},
+    "#document-restore-button span": function(t) {restoreDoc(t.parent())},
     "#document-view-list > li > b": function(t) {collapseToggle(t)},
     "#panel-toggle li": function(t) {panelToggle(t)},
     ".expander": function(t) {toggleTextarea(t)},
