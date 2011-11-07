@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 5,
+  "version": 3,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
@@ -113,27 +113,21 @@
         
         var isHead = function(elem) {return elem.head === true};
         
-        var gatherElems = function(acc, obj, filterFun, reversal) {
+        var gatherElems = function(acc, obj, filterFun) {
           acc = acc.concat(obj.fields.filter(function(elem, index) {
             return (filterFun(elem));
-          }).map(function(elem, index) {
-            if (reversal) {
-              return [elem.value];
-            } else {
-              return [elem.sortkey, elem.value];
-            }
-          }));
+          }).map(function(elem, index) {return elem.value}));
           
           return acc;
         };
         
-        var gather = function(acc, filterFun, reversal) {
+        var gather = function(acc, filterFun) {
           doc.fieldsets.forEach(function(fieldset, index) {
             if (! fieldset.multiple) {
-              acc = gatherElems(acc, fieldset, filterFun, reversal);
+              acc = gatherElems(acc, fieldset, filterFun);
             } else {
               fieldset.multifields.forEach(function(multifield, index) {
-                acc = gatherElems(acc, multifield, filterFun, reversal);
+                acc = gatherElems(acc, multifield, filterFun);
               });
             }
           });
@@ -143,9 +137,9 @@
         
         if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  {
           var heads = gather([], isHead);
-          var reversals = gather([], isReversal, true);
+          var reversals = gather([], isReversal);
           
-          if (heads.length === 0) { heads = [['', doc._id]] };
+          if (heads.length === 0) { heads = [doc._id] };
           
           emit(heads, reversals);
         } 
