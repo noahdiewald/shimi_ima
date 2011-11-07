@@ -28,7 +28,7 @@ function saveDoc(target) {
     processData: false,
     data: JSON.stringify(obj),
     complete: function(req, status) {
-      if (req.status == 204) {
+      if (req.status == 204 || req.status == 200) {
         var title = "Success";
         var body = "Your document was saved.";
         getDocument(document, true);
@@ -108,6 +108,15 @@ function deleteDoc(target) {
     var rev = dInfo("rev", target);
     
     deleteDocument(document, rev);
+  }
+}
+
+function restoreDoc(target) {
+  if (confirm("Are you sure?")) {
+    var document = dInfo("document", target);
+    var rev = dInfo("rev", target);
+    
+    restoreDocument(document, rev);
   }
 }
 

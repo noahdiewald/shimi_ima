@@ -73,7 +73,12 @@ allowed_methods(R, S) ->
   
 delete_resource(R, S) ->
   Json = couch:get_json(rev, R, S),
-  json_update(jsn:set_value(<<"deleted_">>, true, Json), R, S).
+  case jsn:get_value(<<"deleted_">>, Json) of
+    true ->
+      json_update(jsn:set_value(<<"deleted_">>, false, Json), R, S);
+    _ ->
+      json_update(jsn:set_value(<<"deleted_">>, true, Json), R, S)
+  end.
   
 post_is_create(R, S) ->
   {true, R, S}.
@@ -131,7 +136,11 @@ json_update(Json, R, S) ->
   Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
   case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-    {ok, updated} -> {true, R, S};
+    {ok, updated} ->
+      NewJson = couch:get_json(Id, R, S),
+      Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
+      R1 = wrq:set_resp_body(Message, R),
+      {true, R1, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};
