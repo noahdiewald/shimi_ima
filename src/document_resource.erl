@@ -134,10 +134,10 @@ json_update(R, S) ->
 json_update(Json, R, S) ->
   Id = wrq:path_info(id, R),
   Rev = wrq:get_qs_value("rev", R),
-  Json2 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json1),
-  Json3 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json2),
+  Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+  Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
-  case couch:update(doc, Id, jsn:encode(Json3), R, S) of
+  case couch:update(doc, Id, jsn:encode(Json2), R, S) of
     {ok, updated} ->
       NewJson = couch:get_json(Id, R, S),
       Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
