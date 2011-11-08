@@ -1,10 +1,26 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 5,
+  "version": 6,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { 
+          emit(doc._id, doc) 
+        } 
+      }" 
+    },
+    
+    "quickdocs": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  { 
+          emit(doc._id, doc) 
+        } 
+      }" 
+    },
+    
+    "deaddocs": {
+      "map": "function(doc) { 
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && doc.deleted_)  { 
           emit(doc._id, doc) 
         } 
       }" 

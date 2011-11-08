@@ -39,7 +39,7 @@
 
 -spec touch_all(Doctype :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(Doctype, R, S) ->
-  {ok, AllDocs} = couch:get_view_json(Doctype, "alldocs", R, S),
+  {ok, AllDocs} = couch:get_view_json(Doctype, "quickdocs", R, S),
   Updated = [touch(jsn:get_value(<<"value">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
   BulkDocs = [{<<"docs">>, Updated}],
   Touched = couch:bulk_update(BulkDocs, R, S),
