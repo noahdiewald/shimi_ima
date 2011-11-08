@@ -26,7 +26,7 @@
           {% if elem|last == '~blank' %}
             <span class="help-text">blank</span>
           {% else %}
-            {{ elem|last|escape }}
+            {{ elem|last|force_escape }}
           {% endif %}
           </li>{% endfor %}
         </ul>
