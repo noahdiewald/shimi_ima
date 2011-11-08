@@ -145,7 +145,7 @@
           return retval;
         }
         
-        if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
+        if (doc.doctype == '{{doctype}}' && doc.fieldsets && !doc.deleted_)  {
           var keys = try_fieldsets(doc.fieldsets);
           
           if (expected.allVisited()) {
