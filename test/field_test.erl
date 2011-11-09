@@ -163,15 +163,15 @@ to_json_test_() ->
    ?_assertEqual(lists:reverse(field:to_json(doc, docfield())), lists:reverse(json_docfield()))
  ].
 
-merge_update_test_() ->
+update_merge_test_() ->
 [
   % If the IDs don't match, there should be an error
   ?_assertEqual({error, "Id's do not match."},
-                field:merge_update(set_field_values([{<<"_id">>, <<"tfdsadext">>}]), docfield())),
+                field:update_merge(docfield(), set_field_values([{<<"_id">>, <<"tfdsadext">>}]))),
                 
   % If parameter changes, it should be reflected in the docfield
   ?_assertEqual(field:from_json(doc, jsn:set_value(<<"head">>, false, json_docfield())),
-                field:merge_update(set_field_values([{<<"head">>, false}]), docfield())),
+                field:update_merge(docfield(), set_field_values([{<<"head">>, false}]))),
   
   % If the subcategory changes in the field, those changes 
   % should be reflected in the docfield's values. Date to text test.
@@ -183,13 +183,13 @@ merge_update_test_() ->
                            {<<"value">>, <<"9.0">>}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"rational">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"rational">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, 9.0}]))
+                                              {<<"value">>, 9.0}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -202,13 +202,13 @@ merge_update_test_() ->
                            {<<"value">>, <<"true">>}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"openboolean">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"openboolean">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, true}]))
+                                              {<<"value">>, true}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -221,13 +221,13 @@ merge_update_test_() ->
                            {<<"value">>, null}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"openboolean">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"openboolean">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, null}]))
+                                              {<<"value">>, null}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -240,13 +240,13 @@ merge_update_test_() ->
                            {<<"value">>, <<"false">>}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"boolean">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"boolean">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, false}]))
+                                              {<<"value">>, false}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -259,13 +259,13 @@ merge_update_test_() ->
                            {<<"value">>, null}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, [<<"false">>, <<"true">>]}]))
+                                              {<<"value">>, [<<"false">>, <<"true">>]}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -278,13 +278,13 @@ merge_update_test_() ->
                            {<<"value">>, null}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, [<<"false">>, <<"true">>]}]))
+                                              {<<"value">>, [<<"false">>, <<"true">>]}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -297,13 +297,13 @@ merge_update_test_() ->
                            {<<"value">>, [<<"false">>, <<"true">>]}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"docmultiselect">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, [<<"false">>, <<"true">>]}]))
+                                              {<<"value">>, [<<"false">>, <<"true">>]}]),
+                         set_field_values([{<<"subcategory">>, <<"docmultiselect">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -316,14 +316,14 @@ merge_update_test_() ->
                            {<<"value">>, <<"false">>}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null},
-                                           {<<"default">>, <<"false">>}]),
-                         set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"multiselect">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, [<<"false">>, <<"true">>]}]))
+                                              {<<"value">>, [<<"false">>, <<"true">>]}]),
+                         set_field_values([{<<"subcategory">>, <<"text">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null},
+                                           {<<"default">>, <<"false">>}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -336,13 +336,13 @@ merge_update_test_() ->
                            {<<"value">>, 9.0}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"rational">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"integer">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"integer">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, 9}]))
+                                              {<<"value">>, 9}]),
+                         set_field_values([{<<"subcategory">>, <<"rational">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -355,13 +355,13 @@ merge_update_test_() ->
                            {<<"value">>, -9}])
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"integer">>},
-                                           {<<"min">>, null},
-                                           {<<"max">>, null}]),
-                         set_docfield_values([{<<"subcategory">>, <<"rational">>},
+      field:update_merge(set_docfield_values([{<<"subcategory">>, <<"rational">>},
                                               {<<"min">>, null},
                                               {<<"max">>, null},
-                                              {<<"value">>, -9.76}]))
+                                              {<<"value">>, -9.76}]),
+                         set_field_values([{<<"subcategory">>, <<"integer">>},
+                                           {<<"min">>, null},
+                                           {<<"max">>, null}]))
     end, true)),
   
   % If the subcategory changes in the field, those changes 
@@ -371,8 +371,9 @@ merge_update_test_() ->
       field:from_json(doc, jsn:set_value(<<"subcategory">>, <<"text">>, json_docfield()))
     end, true),
     v(fun () ->
-      field:merge_update(set_field_values([{<<"subcategory">>, <<"text">>},
+      field:update_merge(docfield(), 
+                         set_field_values([{<<"subcategory">>, <<"text">>},
                                            {<<"min">>, <<"2001-09-27">>},
-                                           {<<"max">>, <<"2010-08-15">>}]), docfield())
+                                           {<<"max">>, <<"2010-08-15">>}]))
     end, true))
 ].
