@@ -1,6 +1,6 @@
 {
   "_id": "_design/doctypes",
-  "version": 3,
+  "version": 4,
   "views": {
     "all": {
       "map": "function(doc) { 
@@ -16,7 +16,7 @@
   "updates": {
     "stamp": "function(doc, req) {
       var newDoc = JSON.parse(req.body);
-      var now = (new Date()).toString();
+      var now = (new Date()).toUTCString();
 
       if (!doc) {
         if (newDoc._id) {
