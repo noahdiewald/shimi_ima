@@ -26,7 +26,7 @@
   from_json/1,
   set_sortkeys/3,
   to_json/1,
-  touch_all/3
+  touch_all/2
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -37,16 +37,16 @@
 %% previously saved documents. This will update all documents of a certain
 %% doctype using the latest configuration settings.
 
--spec touch_all(Doctype :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
-touch_all(Doctype, R, S) ->
-  {ok, AllDocs} = couch:get_view_json(Doctype, "quickdocs", R, S),
+-spec touch_all(R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
+touch_all(R, S) ->
+  {ok, AllDocs} = couch:get_view_json(wrq:path_info(id, R), "quickdocs", R, S),
   Updated = [touch(jsn:get_value(<<"value">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
   BulkDocs = [{<<"docs">>, Updated}],
   Touched = couch:bulk_update(BulkDocs, R, S),
   F = fun ([{<<"id">>, _}, {<<"error">>, <<"conflict">>}, {<<"reason">>, <<"Document update conflict.">>}]) -> true;
           ([{<<"id">>, _}, {<<"rev">>, _}]) -> false
   end,
-  lists:filter(F, jsn:get_value(<<"docs">>, Touched)).
+  lists:filter(F, Touched).
 
 -spec touch(Document :: jsn:json_term(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
 touch(D, R, S) ->

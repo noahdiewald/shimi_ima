@@ -25,6 +25,7 @@
 -module(couch).
 
 -export([
+  bulk_update/3,
   create/4,
   create/5,
   delete/2,
@@ -154,6 +155,12 @@ create(Url, Headers, Json) ->
       {403, Message}
   end.
 
+bulk_update(Docs, R, S) ->
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+  {ok, _, _, Body} = ibrowse:send_req(Url, Headers, post, jsn:encode(Docs)),
+  jsn:decode(Body).
+  
 update(doc, Id, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp/" ++ Id,
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],

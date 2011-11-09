@@ -32,17 +32,19 @@
   content_types_provided/2,
   create_path/2,
   delete_resource/2,
-  from_json/2,
   init/1, 
   is_authorized/2,
   post_is_create/2,
-  resource_exists/2,
-  id_html/2,
-  index_html/2
+  process_post/2,
+  resource_exists/2
 ]).
 
 % Custom
 -export([
+  from_json/2,
+  id_html/2,
+  index_html/2,
+  provide_null/2,
   validate_authentication/3
 ]).
 
@@ -57,7 +59,8 @@ resource_exists(R, S) ->
   Id = wrq:path_info(id, R),
   case proplists:get_value(target, S) of
     identifier -> {couch:exists(Id, R, S), R, S};
-    index -> {couch:exists([], R, S), R, S}
+    index -> {couch:exists([], R, S), R, S};
+    touch -> {couch:exists(Id, R, S), R, S}
   end.
 
 is_authorized(R, S) ->
@@ -66,6 +69,7 @@ is_authorized(R, S) ->
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     index -> {['HEAD', 'GET', 'POST'], R, S};
+    touch -> {['HEAD', 'POST'], R, S};
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
   end.
   
@@ -79,27 +83,35 @@ delete_resource(R, S) ->
   end.
   
 post_is_create(R, S) ->
-  {true, R, S}.
+  case proplists:get_value(target, S) of
+    touch -> {false, R, S};
+    _Else -> {true, R, S}
+  end.
 
 create_path(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
-  
   Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
-  
   Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
   R1 = wrq:set_resp_header("Location", Location, R),
-  
   {Id, R1, [{posted_json, Json}|S]}.
 
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
     index -> {[{"text/html", index_html}], R, S};
+    touch -> {[{"*/*", index_html}], R, S};
     identifier -> {[{"text/html", id_html}], R, S}
   end.
   
 content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
-  
+
+process_post(R, S) ->
+  spawn_link(document, touch_all, [R, S]),
+  {{halt, 204}, R, S}.
+
+provide_null(R, S) ->
+  {[<<>>], R, S}.
+    
 index_html(R, S) ->
   Request = fun () -> couch:get_view_json("doctypes", "all", R, S) end,
   Success = fun (Json) -> {render:renderings(Json, config_doctype_list_elements_dtl), R, S} end,
@@ -108,7 +120,6 @@ index_html(R, S) ->
 id_html(R, S) ->
   Json = couch:get_json(id, R, S), 
   {ok, Html} = config_doctype_dtl:render(Json),
-  
   {Html, R, S}.
   
 from_json(R, S) ->

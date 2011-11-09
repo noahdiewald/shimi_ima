@@ -127,6 +127,11 @@ var editDoctypeButton = function(target) {
   doctypeDialog(url, oldobj).dialog("open");
 };
 
+var touchDoctypeButton = function(target) {
+  var docid = getValue("doctype-doctype", target);
+  $.post("config/doctypes/" + docid + "/touch");
+};
+
 var deleteDoctypeButton = function(target) {
   var url = cpath(target, "doctype");
   var complete = function() {
