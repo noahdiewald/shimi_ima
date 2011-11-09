@@ -32,6 +32,12 @@ document_json() ->
   {<<"_rev">>,<<"25250e2ead108a8f60213f24040007e4">>},
   {<<"description">>,<<"caltest">>},
   {<<"doctype">>,<<"CalTest">>},
+  {<<"created_at_">>,<<"Tue, 08 Nov 2011 21:24:04 GMT">>},
+  {<<"created_by_">>,<<"257e4">>},
+  {<<"updated_at_">>,<<"Tue, 08 Nov 2011 21:24:04 GMT">>},
+  {<<"updated_by_">>,<<"25250e4">>},
+  {<<"prev_">>,<<"25250e2ead108a8f60213f24040007e4">>},
+  {<<"deleted_">>,false},
   {<<"fieldsets">>,[fieldset_test:single_json(),fieldset_test:multiple_json()]}].
 
 document() -> 
@@ -40,6 +46,12 @@ document() ->
     rev = <<"25250e2ead108a8f60213f24040007e4">>,
     description = <<"caltest">>,
     doctype = <<"CalTest">>,
+    prev = <<"25250e2ead108a8f60213f24040007e4">>,
+    created_by = <<"257e4">>,
+    updated_by = <<"25250e4">>,
+    deleted = false,
+    created_at = {{2011,11,8},{21,24,04}},
+    updated_at = {{2011,11,8},{21,24,04}},
     fieldsets = [fieldset_test:single_docfieldset(), fieldset_test:multiple_docfieldset()]}.
 
 from_json_test_() ->

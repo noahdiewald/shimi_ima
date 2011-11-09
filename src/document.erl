@@ -51,7 +51,9 @@ touch_all(R, S) ->
 -spec touch(Document :: jsn:json_term(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
 touch(D, R, S) ->
   Doc = from_json(D),
-  Doc2 = Doc#document{fieldsets=[fieldset:touch(FS, R, S) || FS <- Doc#document.fieldsets]},
+  Doc2 = Doc#document{
+    prev = Doc#document.rev,
+    fieldsets = [fieldset:touch(FS, R, S) || FS <- Doc#document.fieldsets]},
   to_json(Doc2).
   
 %% @doc Set the sortkeys for the fields in the document. 
@@ -69,8 +71,14 @@ from_json(Json) ->
   #document{
     id = jsn:get_value(<<"_id">>, Json),
     rev = jsn:get_value(<<"_rev">>, Json),
+    prev = proplists:get_value(<<"prev_">>, Json, null),
     doctype = jsn:get_value(<<"doctype">>, Json),
-    description = jsn:get_value(<<"description">>, Json),
+    description = proplists:get_value(<<"description">>, Json, null),
+    created_at = decode_date(proplists:get_value(<<"created_at_">>, Json, null)),
+    updated_at = decode_date(proplists:get_value(<<"updated_at_">>, Json, null)),
+    created_by = proplists:get_value(<<"created_by_">>, Json, null),
+    updated_by = proplists:get_value(<<"updated_by_">>, Json, null),
+    deleted = proplists:get_value(<<"deleted_">>, Json, false),
     fieldsets = [fieldset:from_json(doc, X) || X <-  jsn:get_value(<<"fieldsets">>, Json)]
   }.
 
@@ -82,4 +90,25 @@ to_json(D) ->
   {<<"_rev">>, D#document.rev},
   {<<"description">>, D#document.description},
   {<<"doctype">>, D#document.doctype},
+  {<<"created_at_">>, encode_date(D#document.created_at)},
+  {<<"created_by_">>, D#document.created_by},
+  {<<"updated_at_">>, encode_date(D#document.updated_at)},
+  {<<"updated_by_">>, D#document.updated_by},
+  {<<"prev_">>, D#document.prev},
+  {<<"deleted_">>, D#document.deleted},
   {<<"fieldsets">>,[fieldset:to_json(doc, X) || X <- D#document.fieldsets]}].
+
+-spec decode_date(jsn:json_term()) -> calendar:datetime().
+decode_date(null) ->
+  null;
+decode_date(Json) ->
+  case js_date:convert(binary_to_list(Json)) of
+    bad_date -> null;
+    Datetime -> Datetime
+  end.
+  
+-spec encode_date(calendar:datetime() | null) -> jsn:json_term().
+encode_date(null) ->
+  null;
+encode_date(Datetime) ->
+  list_to_binary(js_date:to_string(Datetime)).

@@ -23,7 +23,8 @@
 -module(js_date).
 
 -export([
-  convert/1
+  convert/1,
+  to_string/1
 ]).
 
 -include_lib("include/types.hrl").
@@ -31,7 +32,7 @@
 %% @doc A JavaScript date string format is converted to an Erlang
 %% calendar:datetime()
 
--spec convert(Date :: string()) -> calendar:date() | bad_date.
+-spec convert(Datetime :: string()) -> {ok, calendar:datetime()} | bad_date.
 convert([_D,_A,_Y,_SP,M,O,N,_SP,D1,D2,_SP,Y1,Y2,Y3,Y4,_SP,H1,H2,_Col,M1,M2,_Col,S1,S2|_Rest]) ->
   Year = list_to_integer([Y1, Y2, Y3, Y4]),
   Day = list_to_integer([D1, D2]),
@@ -39,6 +40,12 @@ convert([_D,_A,_Y,_SP,M,O,N,_SP,D1,D2,_SP,Y1,Y2,Y3,Y4,_SP,H1,H2,_Col,M1,M2,_Col,
   Hour = list_to_integer([H1, H2]),
   Min = list_to_integer([M1, M2]),
   Sec = list_to_integer([S1, S2]),
-  {ok, {{Year, Month, Day}, {Hour, Min, Sec}}};
-convert(Date) ->
-  httpd_util:convert_request_date(Date).
+  {{Year, Month, Day}, {Hour, Min, Sec}};
+convert(Datetime) ->
+  httpd_util:convert_request_date(Datetime).
+
+%% @doc Produce a JavaScript "UTC" date string from a calendar:datetime()
+
+-spec to_string(Datetime :: calendar:datetime()) -> {ok, string()}.
+to_string(Datetime) ->
+  erlydtl_dateformat:format(Datetime, "D, d M Y H:i:s") ++ " GMT".

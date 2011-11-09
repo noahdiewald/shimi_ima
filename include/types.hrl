@@ -133,6 +133,12 @@
   rev :: binary(),
   description :: binary(),
   doctype :: binary(),
+  created_at :: calendar:datetime(),
+  created_by :: binary(),
+  updated_at :: calendar:datetime(),
+  updated_by :: binary(),
+  prev :: binary(),
+  deleted :: boolean(),
   fieldsets :: [docfieldset()]
 }).
 
