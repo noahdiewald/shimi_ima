@@ -32,6 +32,7 @@
   exists/3,
   exists/4,
   get_json/3,
+  get_json/4,
   get_view_json/4,
   get_design_rev/3,
   get_uuid/2,
@@ -76,10 +77,21 @@ get_json(Id, R, S) ->
   Headers = proplists:get_value(headers, S),
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   get_json_helper(DataBaseUrl ++ Id, Headers).
+  
+get_json(safer, Id, R, S) ->
+  Headers = proplists:get_value(headers, S),
+  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+  get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
 get_json_helper(Url, Headers) ->  
   {ok, "200", _, Json} = ibrowse:send_req(Url, Headers, get),
   jsn:decode(Json).
+
+get_json_helper(safer, Url, Headers) ->  
+  case ibrowse:send_req(Url, Headers, get) of
+    {ok, "200", _, Json} -> jsn:decode(Json);
+    {ok, "404", _, _} -> undefined
+  end.
 
 get_view_json(Id, Name, R, S) ->
   Headers = proplists:get_value(headers, S),

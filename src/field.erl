@@ -30,12 +30,25 @@
   update_merge/2,
   set_sortkeys/3,
   to_json/2,
-  touch/3
+  touch/3,
+  touch_all/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
+
+-spec touch_all(Dfs :: [docfield()], R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
+touch_all(Dfs, R, S) ->
+  touch_all(Dfs, [], R, S).
+  
+touch_all([], Acc, _R, _S) ->
+  Acc;
+touch_all([Df|Rest], Acc, R, S) ->
+  case touch(Df, R, S) of
+    undefined -> touch_all(Rest, Acc, R, S);
+    Val -> touch_all(Rest, [Val|Acc], R, S)
+  end.
 
 -spec touch(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfield().
 touch(Df, R, S) ->
@@ -137,7 +150,10 @@ get(Project, Id) ->
 
 -spec get(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> fieldset().
 get(Df, R, S) ->
-  from_json(couch:get_json(binary_to_list(Df#docfield.id), R, S)).
+  case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
+    undefined -> undefined;
+    Val -> from_json(Val)
+  end.
 
 %% @doc Take a field() and a docfield() and return a docfiled() updated so
 %% that shared items match and sortkey is updated.
@@ -149,12 +165,16 @@ update_merge(Df, F) ->
     _Else -> {error, "Id's do not match."}
   end.
 
--spec update(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfieldset().
+-spec update(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfieldset() | undefined.
 update(Df, R, S) ->
-  F = get(Df, R, S),
-  update_merge(Df, F).
+  case get(Df, R, S) of
+    undefined -> undefined;
+    Val -> update_merge(Df, Val)
+  end.
 
--spec touch2(Df :: docfield(), R :: utils:reqdata(), S :: any()) ->  jsn:json_term().
+-spec touch2(Df :: docfield() | undefined, R :: utils:reqdata(), S :: any()) ->  jsn:json_term() | undefined.
+touch2(undefined, _R, _S) ->
+  undefined;
 touch2(Df, R, S) ->
   Df#docfield{sortkey=charseq:get_sortkey(Df, R, S)}.
 

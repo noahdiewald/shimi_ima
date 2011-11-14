@@ -29,13 +29,26 @@
   get/3,
   set_sortkeys/3,
   to_json/2,
-  touch/3
+  touch/3,
+  touch_all/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+-spec touch_all(Dfss :: [docfieldset()], R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
+touch_all(Dfss, R, S) ->
+  touch_all(Dfss, [], R, S).
+  
+touch_all([], Acc, _R, _S) ->
+  Acc;
+touch_all([Dfs|Rest], Acc, R, S) ->
+  case touch(Dfs, R, S) of
+    undefined -> touch_all(Rest, Acc, R, S);
+    Val -> touch_all(Rest, [Val|Acc], R, S)
+  end.
+  
 -spec touch(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
 touch(Dfs, R, S) ->
   touch2(update(Dfs, R, S), R, S).
@@ -112,18 +125,25 @@ get(Project, Id) ->
 
 -spec get(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> fieldset().
 get(Dfs, R, S) ->
-  from_json(couch:get_json(binary_to_list(Dfs#docfieldset.id), R, S)).
+  case couch:get_json(safer, binary_to_list(Dfs#docfieldset.id), R, S) of
+    undefined -> undefined;
+    Val -> from_json(Val)
+  end.
   
--spec touch2(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
+-spec touch2(Dfs :: docfieldset() | undefined, R :: utils:reqdata(), S :: any()) -> jsn:json_term() | undefined.
+touch2(undefined, _R, _S) ->
+  undefined;
 touch2(Dfs=#docfieldset{multiple=true,fields=F}, R, S) ->
-  Dfs#docfieldset{fields=[[field:touch(X, R, S) || X <- Y] || Y <- F]};
+  Dfs#docfieldset{fields=[field:touch_all(X, R, S) || X <- F]};
 touch2(Dfs=#docfieldset{multiple=false,fields=F}, R, S) ->
-  Dfs#docfieldset{fields=[field:touch(X, R, S) || X <- F]}.
+  Dfs#docfieldset{fields=field:touch_all(F, R, S)}.
 
 -spec update(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> docfieldset().
 update(Dfs, R, S) ->
-  FS = get(Dfs, R, S),
-  update_merge(Dfs, FS).
+  case get(Dfs, R, S) of
+    undefined -> undefined;
+    Val -> update_merge(Dfs, Val)
+  end.
   
 -spec update_merge(Dfs :: docfieldset(), FS :: fieldset()) -> docfieldset() | {error, Reason :: term()}.
 update_merge(Dfs, FS) ->

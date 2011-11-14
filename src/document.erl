@@ -45,7 +45,7 @@ touch_all(R, S) ->
 -spec touch_all(Id :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(Id, R, S) ->
   {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
-  Updated = [touch(jsn:get_value(<<"value">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
+  Updated = [touch(jsn:get_value(<<"key">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
   BulkDocs = [{<<"docs">>, Updated}],
   Touched = couch:bulk_update(BulkDocs, R, S),
   F = fun ([{<<"ok">>, true}|_]) -> false;
@@ -53,12 +53,13 @@ touch_all(Id, R, S) ->
   end,
   lists:filter(F, Touched).
 
--spec touch(Document :: jsn:json_term(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
-touch(D, R, S) ->
-  Doc = from_json(D),
+-spec touch(Id :: binary(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
+touch(Id, R, S) ->
+  Json = couch:get_json(binary_to_list(Id), R, S),
+  Doc = from_json(Json),
   Doc2 = Doc#document{
     prev = Doc#document.rev,
-    fieldsets = [fieldset:touch(FS, R, S) || FS <- Doc#document.fieldsets]},
+    fieldsets = fieldset:touch_all(Doc#document.fieldsets, R, S)},
   to_json(Doc2).
   
 %% @doc Set the sortkeys for the fields in the document. 

@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 6,
+  "version": 7,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
@@ -13,7 +13,7 @@
     "quickdocs": {
       "map": "function(doc) { 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  { 
-          emit(doc._id, doc) 
+          emit(doc._id, null) 
         } 
       }" 
     },
