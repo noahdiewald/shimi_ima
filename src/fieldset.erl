@@ -166,7 +166,8 @@ get_fields(false, FS=#docfieldset{}) ->
 get_fields(true, FS=#docfieldset{}) ->
   [{<<"multifields">>, [get_fields(false, #docfieldset{fields = X}) || X <- FS#docfieldset.fields]}];
 get_fields(false, Json) when is_list(Json) ->
-  [field:from_json(doc, X) || X <- jsn:get_value(<<"fields">>, Json)];
+  Ordering = fun (A, B) -> A#docfield.order =< B#docfield.order end,
+  lists:sort(Ordering, [field:from_json(doc, X) || X <- jsn:get_value(<<"fields">>, Json)]);
 get_fields(true, Json) when is_list(Json) ->
   [get_fields(false, X) || X <- jsn:get_value(<<"multifields">>, Json)].
 

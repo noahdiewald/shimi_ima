@@ -199,7 +199,7 @@ html_index(R, S) ->
 
 html_document(R, S) ->
   Doctype = wrq:path_info(doctype, R),
-  Json = couch:get_json(id, R, S),
+  Json = document:normalize(couch:get_json(id, R, S)),
   
   Vals = [
     {<<"title">>, list_to_binary(Doctype)}, 

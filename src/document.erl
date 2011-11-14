@@ -24,6 +24,7 @@
 
 -export([
   from_json/1,
+  normalize/1,
   set_sortkeys/3,
   to_json/1,
   touch_all/2,
@@ -74,6 +75,7 @@ set_sortkeys(D=#document{}, R, S) ->
 
 -spec from_json(Json :: jsn:json_term()) -> document().
 from_json(Json) ->
+  Ordering = fun (A, B) -> A#docfieldset.order =< B#docfieldset.order end,
   #document{
     id = jsn:get_value(<<"_id">>, Json),
     rev = jsn:get_value(<<"_rev">>, Json),
@@ -85,7 +87,7 @@ from_json(Json) ->
     created_by = proplists:get_value(<<"created_by_">>, Json, null),
     updated_by = proplists:get_value(<<"updated_by_">>, Json, null),
     deleted = proplists:get_value(<<"deleted_">>, Json, false),
-    fieldsets = [fieldset:from_json(doc, X) || X <-  jsn:get_value(<<"fieldsets">>, Json)]
+    fieldsets = lists:sort(Ordering, [fieldset:from_json(doc, X) || X <-  jsn:get_value(<<"fieldsets">>, Json)])
   }.
 
 %% @doc Convert a document() record to a jsn:json_term() document.
@@ -104,6 +106,12 @@ to_json(D) ->
   {<<"deleted_">>, D#document.deleted},
   {<<"fieldsets">>,[fieldset:to_json(doc, X) || X <- D#document.fieldsets]}].
 
+%% @doc Convert the JSON to a record and back again.
+
+-spec normalize(jsn:json_term()) -> jsn:json_term().
+normalize(Json) ->
+  to_json(from_json(Json)).
+   
 -spec decode_date(jsn:json_term()) -> calendar:datetime().
 decode_date(null) ->
   null;
