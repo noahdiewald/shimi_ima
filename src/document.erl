@@ -48,8 +48,8 @@ touch_all(Id, R, S) ->
   Updated = [touch(jsn:get_value(<<"value">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
   BulkDocs = [{<<"docs">>, Updated}],
   Touched = couch:bulk_update(BulkDocs, R, S),
-  F = fun ([{<<"id">>, _}, {<<"error">>, <<"conflict">>}, {<<"reason">>, <<"Document update conflict.">>}]) -> true;
-          ([{<<"id">>, _}, {<<"rev">>, _}]) -> false
+  F = fun ([{<<"ok">>, true}|_]) -> false;
+          (_) -> true
   end,
   lists:filter(F, Touched).
 
