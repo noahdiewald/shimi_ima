@@ -26,7 +26,8 @@
   from_json/1,
   set_sortkeys/3,
   to_json/1,
-  touch_all/2
+  touch_all/2,
+  touch_all/3
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -39,7 +40,11 @@
 
 -spec touch_all(R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(R, S) ->
-  {ok, AllDocs} = couch:get_view_json(wrq:path_info(id, R), "quickdocs", R, S),
+  touch_all(wrq:path_info(id, R), R, S).
+
+-spec touch_all(Id :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
+touch_all(Id, R, S) ->
+  {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
   Updated = [touch(jsn:get_value(<<"value">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
   BulkDocs = [{<<"docs">>, Updated}],
   Touched = couch:bulk_update(BulkDocs, R, S),

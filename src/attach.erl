@@ -66,13 +66,11 @@ file_database_exists(R, S) ->
   DB = proplists:get_value(db, S),
   {ok, Json} = design_file_manager_json_dtl:render(),
   
-  case ibrowse:send_req(DB, [], head) of
+  {ok, created} = case ibrowse:send_req(DB, [], head) of
     {ok, "404", _, _} -> 
       {ok, newdb} = couch:new_db(DB, R, S),
-      {ok, created} = couch:create(design, Json, DB, R, S);
-    {ok, [$2,$0|[_]], _, _} ->
-      Id = binary_to_list(jsn:get_value(<<"_id">>, jsn:decode(Json))),
-      {ok, updated} = couch:update(design, Id, Json, DB, R, S)
+      couch:create(design, Json, DB, R, S);
+    _ -> {ok, created}
   end,
   
   {true, R, S}.

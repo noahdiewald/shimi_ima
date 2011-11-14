@@ -16,7 +16,8 @@ function clickDispatch(e) {
     "#doctype-add-button span": function(t) {addDoctypeButton(t.parent('a'))},
     ".delete-charseq-button span": function(t) {deleteCharseqButton(t.parent('a'))},
     ".edit-charseq-button span": function(t) {editCharseqButton(t.parent('a'))},
-    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'))}
+    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'))},
+    "#maintenance-upgrade-button span": function(t) {upgradeButton(t.parent('a'))}
   });
 
   action(e);

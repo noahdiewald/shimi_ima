@@ -130,6 +130,12 @@ var editDoctypeButton = function(target) {
 var touchDoctypeButton = function(target) {
   var docid = getValue("doctype-doctype", target);
   $.post("config/doctypes/" + docid + "/touch");
+  alert("Touch In Progress");
+};
+
+var upgradeButton = function(target) {
+  $.post("config/upgrade");
+  alert("Upgrade In Progress");
 };
 
 var deleteDoctypeButton = function(target) {
