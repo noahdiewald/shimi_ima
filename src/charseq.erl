@@ -39,6 +39,8 @@
 %% a docfield() making use of state from webmachine
 
 -spec get_sortkey(jsn:json_term() | docfield(), R :: utils:reqdata(), S :: any()) -> binary().
+get_sortkey(null, _R, _S) ->
+  <<>>;
 get_sortkey(Json, R, S) when is_list(Json) ->
   case jsn:get_value(<<"charseq">>, Json) of
     undefined -> <<>>;
@@ -115,6 +117,8 @@ ensure_list(_) ->
   [].
 
 get_sortkey(_CharseqId, <<>>, _R, _S) ->
+  <<>>;
+get_sortkey(null, _Value, _R, _S) ->
   <<>>;
 get_sortkey(<<"undefined">>, _Value, _R, _S) ->
   <<>>;
