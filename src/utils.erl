@@ -26,6 +26,7 @@
 
 -export([
   add_charseqs_design/1,
+  add_encoded_keys/1,
   binary_to_hexlist/1,
   clear_all/2,
   get_query/3,
@@ -45,6 +46,20 @@
 
 -type reqdata() :: #wm_reqdata{}.
 
+%% @doc Add escaped keys to view output
+
+-spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
+add_encoded_keys(Json) ->
+  Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
+  jsn:set_value(<<"rows">>, Rows, Json).
+
+add_encoded_key(Row) ->
+  Key = jsn:get_value(<<"key">>, Row),
+  jsn:set_value(<<"encoded_key">>, json_to_base64(Key), Row).
+
+json_to_base64(Json) ->
+  base64:encode(iolist_to_binary(jsn:encode(Json))).
+  
 %% @doc Call file:list_dir and sort the results
 
 -spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.
@@ -56,7 +71,7 @@ list_dir(Dir) ->
 
 %% @doc This wrapper is required because file_lib expects that a module
 %% with list_dir/1 will have read_file_info/1 in its name space.
-  
+
 read_file_info(File) ->
   file:read_file_info(File).
 

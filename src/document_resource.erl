@@ -187,11 +187,13 @@ html_index(R, S) ->
     QueryId -> utils:get_query(QueryId, R, S) 
   end,
   
+  Index = utils:add_encoded_keys(Json),
+  
   Vals = [
     {<<"limit">>, Limit},
     {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
     {<<"project_info">>, couch:get_json(project, R, S)},
-    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
+    {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Index
   ],
   
   {ok, Html} = document_index_dtl:render(Vals),

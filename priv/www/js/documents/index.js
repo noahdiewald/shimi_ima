@@ -25,7 +25,7 @@ function getIndex(startkey, startid, prevkeys, previds) {
   }
   
   if (startkey) {
-    url = url + '&startkey=' + encodeURIComponent(JSON.stringify([startkey]));
+    url = url + '&startkey=' + escape(atob(startkey));
     
     if (startid) {
       url = url + '&startkey_docid=' + startid;

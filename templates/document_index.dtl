@@ -11,7 +11,7 @@
   {% endif %}
   {% for row in rows %}
     {% if forloop.last %}
-  data-startkey="{% for elem in row.key %}{{elem|first}}{% endfor %}"
+  data-startkey="{{row.encoded_key}}"
   data-startid="{{row.id }}"
     {% endif %}
   {% endfor %}
@@ -29,7 +29,7 @@
         {% if forloop.first %}
           id="first-index-element" 
           data-first-id="{{ row.id }}" 
-          data-first-key="{% for elem in row.key %}{{elem|first}}{% endfor %}" 
+          data-first-key="{{row.encoded_key}}" 
         {% endif %}>
         <ul class="head-elements">
           {% for elem in row.key %}
