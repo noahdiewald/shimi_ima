@@ -48,7 +48,9 @@ touch_all(Id, R, S) ->
   Tid = ets:new(touch_documents, [public]),
   S1 = [{table_id, Tid}|S],
   {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
-  [touch(jsn:get_value(<<"key">>, Row), R, S1) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
+  Rows = jsn:get_value(<<"rows">>, AllDocs),
+  F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
+  utils:peach(F, Rows, 10),
   true = ets:delete(Tid).
 
 -spec touch(Id :: binary(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().

@@ -30,6 +30,7 @@
   clear_all/2,
   get_query/3,
   list_dir/1,
+  peach/3,
   read_file_info/1,
   record_to_proplist/2,
   report_indexing_timeout/4,
@@ -146,3 +147,38 @@ record_to_proplist(Fields, Record) ->
 -spec binary_to_hexlist(binary()) -> string().
 binary_to_hexlist(Bin) ->
   lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
+
+-spec peach(F :: fun(), L :: list(), N :: integer()) -> list().
+peach(_F, [], _N) ->
+  ok;
+peach(F, L, N) ->
+  {First, Rest} = takedrop(L, N),
+  S = self(),
+  Ref = erlang:make_ref(),
+  Fun = fun(I) -> spawn(fun() -> do_f(S, Ref, F, I) end) end,
+  lists:foreach(Fun, First),
+  loop(Ref, F, Rest).
+
+do_f(Parent, Ref, F, I) ->
+  (catch F(I)),
+  Parent ! Ref.
+
+loop(_, _, []) ->
+  ok;
+loop(Ref, F, [Next|Rest]) ->
+  S = self(),
+  receive
+    Ref ->
+      spawn(fun() -> do_f(S, Ref, F, Next) end),
+      loop(Ref, F, Rest)
+    end.
+
+takedrop(L, N) ->
+  takedrop(L, [], N).
+
+takedrop([], Acc, _N) ->
+  {lists:reverse(Acc), []};
+takedrop(Rest, Acc, 0) ->
+  {lists:reverse(Acc), Rest};
+takedrop([H|Rest], Acc, N) ->
+  takedrop(Rest, [H|Acc], N - 1).
