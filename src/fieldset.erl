@@ -42,7 +42,7 @@ touch_all(Dfss, R, S) ->
   touch_all(Dfss, [], R, S).
   
 touch_all([], Acc, _R, _S) ->
-  Acc;
+  lists:reverse(Acc);
 touch_all([Dfs|Rest], Acc, R, S) ->
   case touch(Dfs, R, S) of
     undefined -> touch_all(Rest, Acc, R, S);
@@ -125,6 +125,21 @@ get(Project, Id) ->
 
 -spec get(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> fieldset().
 get(Dfs, R, S) ->
+  case proplists:get_value(table_id, S) of
+    undefined -> get_from_couch(Dfs, R, S);
+    Tid -> get_from_table(Tid, Dfs, R, S)
+  end.
+
+get_from_table(Tid, Dfs, R, S) ->
+  case ets:lookup(Tid, Dfs#docfieldset.id) of
+    [] ->
+      Val = get_from_couch(Dfs, R, S),
+      true = ets:insert(Tid, {Dfs#docfieldset.id, Val}),
+      Val;
+    [{_, Val}] -> Val
+  end.
+  
+get_from_couch(Dfs, R, S) ->
   case couch:get_json(safer, binary_to_list(Dfs#docfieldset.id), R, S) of
     undefined -> undefined;
     Val -> from_json(Val)

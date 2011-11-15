@@ -45,23 +45,24 @@ touch_all(R, S) ->
 
 -spec touch_all(Id :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(Id, R, S) ->
+  Tid = ets:new(touch_documents, [public]),
+  S1 = [{table_id, Tid}|S],
   {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
-  Updated = [touch(jsn:get_value(<<"key">>, Row), R, S) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
-  BulkDocs = [{<<"docs">>, Updated}],
-  Touched = couch:bulk_update(BulkDocs, R, S),
-  F = fun ([{<<"ok">>, true}|_]) -> false;
-          (_) -> true
-  end,
-  lists:filter(F, Touched).
+  [touch(jsn:get_value(<<"key">>, Row), R, S1) || Row <- jsn:get_value(<<"rows">>, AllDocs)],
+  true = ets:delete(Tid).
 
 -spec touch(Id :: binary(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
 touch(Id, R, S) ->
   Json = couch:get_json(binary_to_list(Id), R, S),
   Doc = from_json(Json),
-  Doc2 = Doc#document{
+  Doc2 = to_json(Doc#document{
     prev = Doc#document.rev,
-    fieldsets = fieldset:touch_all(Doc#document.fieldsets, R, S)},
-  to_json(Doc2).
+    fieldsets = fieldset:touch_all(Doc#document.fieldsets, R, S)}),
+  case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), R, S) of
+    {ok, updated} -> ok;
+    Unexpected ->
+      io:format("~p", [{Unexpected, Doc2}])
+  end.
   
 %% @doc Set the sortkeys for the fields in the document. 
 

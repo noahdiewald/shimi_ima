@@ -43,7 +43,7 @@ touch_all(Dfs, R, S) ->
   touch_all(Dfs, [], R, S).
   
 touch_all([], Acc, _R, _S) ->
-  Acc;
+  lists:reverse(Acc);
 touch_all([Df|Rest], Acc, R, S) ->
   case touch(Df, R, S) of
     undefined -> touch_all(Rest, Acc, R, S);
@@ -150,6 +150,21 @@ get(Project, Id) ->
 
 -spec get(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> fieldset().
 get(Df, R, S) ->
+  case proplists:get_value(table_id, S) of
+    undefined -> get_from_couch(Df, R, S);
+    Tid -> get_from_table(Tid, Df, R, S)
+  end.
+
+get_from_table(Tid, Df, R, S) ->
+  case ets:lookup(Tid, Df#docfield.id) of
+    [] ->
+      Val = get_from_couch(Df, R, S),
+      true = ets:insert(Tid, {Df#docfield.id, Val}),
+      Val;
+    [{_, Val}] -> Val
+  end.
+  
+get_from_couch(Df, R, S) ->
   case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
     undefined -> undefined;
     Val -> from_json(Val)
@@ -196,8 +211,23 @@ convert_value(S, Json) ->
 -spec convert_value(subcategory(), Json :: jsn:json_term(), Key :: binary()) -> anyval().
 convert_value(boolean, Json, Key) ->
   get_value(Key, Json, false);
+convert_value(openboolean, Json, Key) ->
+  case get_value(Key, Json) of
+    <<>> -> null;
+    Val -> Val
+  end;
+convert_value(multiselect, Json, Key) ->
+  case get_value(Key, Json) of
+    <<>> -> [];
+    Val -> Val
+  end;
+convert_value(docmultiselect, Json, Key) ->
+  case get_value(Key, Json) of
+    <<>> -> [];
+    Val -> Val
+  end;
 convert_value(date, Json, Key) ->
-  convert_value2(date, get_value(Key, Json));
+  convert_value2(date, get_value(Key, Json, <<>>));
 convert_value(Sub, Json, Key) when Sub /= text, Sub /= textarea ->
   get_value(Key, Json);
 convert_value(_, Json, Key) ->
@@ -205,12 +235,13 @@ convert_value(_, Json, Key) ->
   
 -spec convert_value2(subcategory(), Value :: jsn:json_term()) -> anyval().
 convert_value2(_, null) -> null;
+convert_value2(date, <<>>) -> <<>>;
 convert_value2(date, <<"today">>) -> today;
 convert_value2(date, Value) when is_binary(Value) ->
   Value1 = binary_to_list(Value),
   case length(Value1) of
     10 -> parse_date(Value1);
-    _ -> null
+    _ -> <<>>
   end;
 convert_value2(_, Value) -> Value.
 
@@ -250,10 +281,14 @@ do_merge(Df, F) ->
   update_normalize(Df, F, Df2).
   
 -spec update_normalize(docfield(), F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
-update_normalize(_, #field{default=null}, DF=#docfield{value=null}) ->
+update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
   DF;    
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
   DF#docfield{value=Def};
+update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,value=V}) when
+    (V /= true) or (V /= false) -> DF#docfield{value=Def};
+update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) when
+    ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> DF#docfield{value=Def};
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when 
     (S == S2) or
     (((S == text) or
