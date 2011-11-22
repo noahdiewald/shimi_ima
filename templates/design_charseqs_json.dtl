@@ -1,6 +1,6 @@
 {
   "_id": "_design/charseqs",
-  "version": 1,
+  "version": 2,
   "views": {
     "listing": {
       "map": "function(doc) { 
