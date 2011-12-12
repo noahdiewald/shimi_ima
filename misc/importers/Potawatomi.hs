@@ -244,7 +244,7 @@ instance DFieldset Headword where
         , f_order = 11
         , f_index = 0
         , f_subcategory = "openboolean"
-        , f_value = showJSON $ elders_checked hwRecord
+        , f_value = maybeNull $ elders_checked hwRecord
         }
       , Field { f_identifier = "eca932efabc8c0349f931369c78f0ed4"
         , f_name = "elders_checked_date"
@@ -258,7 +258,7 @@ instance DFieldset Headword where
         , f_order = 12
         , f_index = 0
         , f_subcategory = "date"
-        , f_value = showJSON $ elders_checked_date hwRecord
+        , f_value = maybeBlank $ elders_checked_date hwRecord
         }
       , Field { f_identifier = "eca932efabc8c0349f931369c78f17b4"
         , f_name = "elders_checked_initials"
@@ -272,7 +272,7 @@ instance DFieldset Headword where
         , f_order = 13
         , f_index = 0
         , f_subcategory = "docselect"
-        , f_value = showJSON $ elders_checked_initials hwRecord
+        , f_value = maybeBlank $ elders_checked_initials hwRecord
         }
       , Field { f_identifier = "d5331cbb4d62fe3d2899f142d907545b"
         , f_name = "speaker"

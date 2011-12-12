@@ -16,7 +16,7 @@ import           Text.JSON.Pretty (pp_value)
 import           Text.JSON.Pretty (render)
 import qualified Data.ByteString.Char8 as B
 
-main = parseCSVFromFile "./VII_CleanForImport.csv" >>= \retval ->
+main = parseCSVFromFile "./VTA_CleanForImport_PART_ONE.csv" >>= \retval ->
   convertToJson retval >>= \rjson -> sequence $ fmap sendRecord rjson
   where
     convertToJson (Left error) = return $ map messageString $ errorMessages error
@@ -29,10 +29,10 @@ sendRecord str = putStrLn str >> simpleHTTP
       { uriScheme = "http:"
       , uriAuthority = Just URIAuth 
         { uriUserInfo = "database:D1ctionary_Mak3r@"
-        , uriRegName = "staging.ling.wisc.edu"
+        , uriRegName = "127.0.0.1"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-91cf957b35ebf323d7814afdf1081093"
+      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -61,6 +61,14 @@ processRecord
   , cdefinition3_source
   , cdefinition4
   , cdefinition4_source
+  , cdefinition5
+  , cdefinition5_source
+  , cdefinition6
+  , cdefinition6_source
+  , cvariant_form1
+  , cvariant_form1_cat
+  , cvariant_form1_speaker
+  , cvariant_form1_source
   , cinflected_form1
   , cinflected_form1_type
   , cinflected_form1_speaker
@@ -69,14 +77,14 @@ processRecord
   , cinflected_form2_type
   , cinflected_form2_speaker
   , cinflected_form2_source
+  , cvariant_form2
+  , cvariant_form2_cat
+  , cvariant_form2_speaker
+  , cvariant_form2_source
   , cinflected_form3
   , cinflected_form3_type
   , cinflected_form3_speaker
   , cinflected_form3_source
-  , cinflected_form4
-  , cinflected_form4_type
-  , cinflected_form4_speaker
-  , cinflected_form4_source
   , cexample1
   , cexample_definition1
   , cexample_speaker1
@@ -86,7 +94,6 @@ processRecord
   , cexample_speaker2
   , cexample_source2
   , ccross_reference
-  , cheadword_augment
   , cnotes
   , csource
   , _
@@ -109,15 +116,17 @@ processRecord
     , hw_notes = Just ("Original Record ID: " ++ crecord_id ++ "\n\n" ++ cnotes ++ "\n\n" ++ cgeneral_notes) 
     , cross_reference = maybeString ccross_reference
     , unpublish = False
-    , codes = Just ["lw_vii"]
+    , codes = Just ["lw_vta"]
     }
-  , hwp = HWProps (maybeBool cheadword_augment) Nothing Nothing Nothing
+  , hwp = HWProps Nothing Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
   , defs = filterDefinitions [
     (cdefinition1, cdefinition1_source)
     , (cdefinition2, cdefinition2_source)
     , (cdefinition3, cdefinition3_source)
     , (cdefinition4, cdefinition4_source)
+    , (cdefinition5, cdefinition5_source)
+    , (cdefinition6, cdefinition6_source)
     ] 
   , kws = Keywords []
   , ex = filterExamples [
@@ -128,12 +137,14 @@ processRecord
     (cinflected_form1, cinflected_form1_type, cinflected_form1_speaker, cinflected_form1_source)
     , (cinflected_form2, cinflected_form2_type, cinflected_form2_speaker, cinflected_form2_source)
     , (cinflected_form3, cinflected_form3_type, cinflected_form3_speaker, cinflected_form3_source)
-    , (cinflected_form4, cinflected_form4_type, cinflected_form4_speaker, cinflected_form4_source)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
   , usg = Usage Nothing Nothing Nothing Nothing
-  , vfs = VariantForms []
+  , vfs = filterVariantForms [
+    (cvariant_form1, cvariant_form1_cat, cvariant_form1_speaker, cvariant_form1_source)
+    , (cvariant_form2, cvariant_form2_cat, cvariant_form2_speaker, cvariant_form2_source)
+    ]
   , pic = Picture Nothing Nothing Nothing Nothing Nothing Nothing
   , cp = CheckPoints (maybeBool cchecked_with_elders) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
   }
