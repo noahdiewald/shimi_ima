@@ -306,7 +306,7 @@ function(newDoc, saveDoc, userCtx) {
   
   // This iterates through the fields and runs the above
   // validation test for each field.
-  if (!newDoc.category && !!newDoc.doctype) {
+  if (!newDoc.category && !!newDoc.doctype && !newDoc.deleted_) {
     newDoc.fieldsets.forEach(function(fieldset) {
       if (fieldset.multiple) {
         fieldset.multifields.forEach(function(multifield) {

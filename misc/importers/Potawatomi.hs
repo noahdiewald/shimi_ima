@@ -25,6 +25,9 @@ data Entry = Entry
 data Headword = Headword
   { headword :: String
   , lexical_category :: String
+  , elders_checked :: OpenBool
+  , elders_checked_date :: Maybe Day
+  , elders_checked_initials :: Maybe String
   , hw_speaker :: Maybe [String]
   , hw_dialect :: Maybe [String]
   , hw_source :: Maybe [String]
@@ -32,7 +35,7 @@ data Headword = Headword
   , topic :: Maybe [String]
   , hw_notes :: Maybe String
   , cross_reference :: Maybe String
-  , publish :: Bool
+  , unpublish :: Bool
   , codes :: Maybe [String]
   } deriving (Show)
 
@@ -83,6 +86,7 @@ data InflectedForm = InflectedForm
   , inflection_type :: Maybe String
   , if_definition :: Maybe String
   , if_speaker :: Maybe [String]
+  , if_source :: Maybe [String]
   , if_elders_checked :: OpenBool
   , if_elders_checked_date :: Maybe Day
   , if_elders_checked_initials :: Maybe String
@@ -228,6 +232,48 @@ instance DFieldset Headword where
         , f_subcategory = "docselect"
         , f_value = showJSON $ lexical_category hwRecord
         }
+      , Field { f_identifier = "eca932efabc8c0349f931369c78efd9b"
+        , f_name = "elders_checked"
+        , f_label = "Elders Checked"
+        , f_head = False
+        , f_reversal = False
+        , f_required = False
+        , f_min = ""
+        , f_max = ""
+        , f_regex = ""
+        , f_order = 11
+        , f_index = 0
+        , f_subcategory = "openboolean"
+        , f_value = maybeNull $ elders_checked hwRecord
+        }
+      , Field { f_identifier = "eca932efabc8c0349f931369c78f0ed4"
+        , f_name = "elders_checked_date"
+        , f_label = "Elders Checked Date"
+        , f_head = False
+        , f_reversal = False
+        , f_required = False
+        , f_min = ""
+        , f_max = ""
+        , f_regex = ""
+        , f_order = 12
+        , f_index = 0
+        , f_subcategory = "date"
+        , f_value = maybeBlank $ elders_checked_date hwRecord
+        }
+      , Field { f_identifier = "eca932efabc8c0349f931369c78f17b4"
+        , f_name = "elders_checked_initials"
+        , f_label = "Elders Checked Initials"
+        , f_head = False
+        , f_reversal = False
+        , f_required = False
+        , f_min = ""
+        , f_max = ""
+        , f_regex = ""
+        , f_order = 13
+        , f_index = 0
+        , f_subcategory = "docselect"
+        , f_value = maybeBlank $ elders_checked_initials hwRecord
+        }
       , Field { f_identifier = "d5331cbb4d62fe3d2899f142d907545b"
         , f_name = "speaker"
         , f_label = "Speaker"
@@ -327,8 +373,8 @@ instance DFieldset Headword where
         , f_value = maybeBlank $ cross_reference hwRecord
         }
       , Field { f_identifier = "8e72d27187618f284e01dc9c5404afde"
-        , f_name = "publish"
-        , f_label = "Publish"
+        , f_name = "unpublish"
+        , f_label = "Do Not Publish"
         , f_head = False
         , f_reversal = False
         , f_required = False
@@ -338,7 +384,7 @@ instance DFieldset Headword where
         , f_order = 55
         , f_index = 0
         , f_subcategory = "boolean"
-        , f_value = showJSON $ publish hwRecord
+        , f_value = showJSON $ unpublish hwRecord
         }
       , Field { f_identifier = "d5331cbb4d62fe3d2899f142d907dd6f"
         , f_name = "codes"
@@ -1280,6 +1326,20 @@ instance DMultiField InflectedForm where
       , f_index = 0
       , f_subcategory = "docmultiselect"
       , f_value = maybeNull $ if_speaker inflectedForm
+      }
+    , Field { f_identifier = "eca932efabc8c0349f931369c792a1ab"
+      , f_name = "source"
+      , f_label = "Source"
+      , f_head = False
+      , f_reversal = False
+      , f_required = False
+      , f_min = ""
+      , f_max = ""
+      , f_regex = ""
+      , f_order = 21
+      , f_index = 0
+      , f_subcategory = "docmultiselect"
+      , f_value = maybeNull $ if_source inflectedForm
       }
     , Field { f_identifier = "d5331cbb4d62fe3d2899f142d90878da"
       , f_name = "elders_checked"
