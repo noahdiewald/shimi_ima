@@ -18,7 +18,7 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%% @doc Dictionary Maker resource for dealing with documents.
+%%% @doc Dictionary Maker resource for dealing with documents.
 
 -module(document_resource).
 

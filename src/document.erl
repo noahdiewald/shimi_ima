@@ -36,9 +36,8 @@
 -include_lib("include/types.hrl").
 
 %% @doc If configuration has changed, it may be desireable to update
-%% previously saved documents. This will update all documents of a certain
-%% doctype using the latest configuration settings.
-
+%% previously saved documents. This will update all documents of a
+%% certain doctype using the latest configuration settings.
 -spec touch_all(R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(R, S) ->
   touch_all(wrq:path_info(id, R), R, S).
@@ -47,7 +46,7 @@ touch_all(R, S) ->
 touch_all(Id, R, S) ->
   Tid = ets:new(touch_documents, [public]),
   S1 = [{table_id, Tid}|S],
-  {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
+  {ok, AllDocs} = couch:get_view_json(noqs, Id, "quickdocs", R, S),
   Rows = jsn:get_value(<<"rows">>, AllDocs),
   F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
   utils:peach(F, Rows, 10),
