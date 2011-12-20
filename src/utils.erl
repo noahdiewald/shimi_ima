@@ -109,7 +109,7 @@ y(F) ->
 
 -spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 get_query(QueryId, R, S) ->
-  case couch:get_view_json(QueryId, "index", R, S) of
+  case couch:get_view_json(sortkeys, QueryId, "index", R, S) of
     {ok, Json} -> {ok, Json};
     _ -> {ok, [{<<"rows">>, []}]}
   end.

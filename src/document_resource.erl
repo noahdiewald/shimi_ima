@@ -181,7 +181,7 @@ html_index(R, S) ->
   Limit = wrq:get_qs_value("limit", R),
   
  {ok, Json} = case wrq:get_qs_value("query", R) of
-    undefined -> couch:get_view_json(Doctype, "index", R, S);
+    undefined -> couch:get_view_json(sortkeys, Doctype, "index", R, S);
     QueryId -> utils:get_query(QueryId, R, S) 
   end,
   

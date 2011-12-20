@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 7,
+  "version": 8,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
@@ -8,6 +8,14 @@
           emit(doc._id, doc) 
         } 
       }" 
+    },
+
+    "head_charseqs": {
+      "map": "function(doc) {
+        if (doc.doctype === '{{ _id }}' && doc.category === 'field' && doc.head) {
+          emit(doc.order, doc.charseq);
+        }
+      }"
     },
     
     "quickdocs": {

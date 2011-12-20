@@ -106,7 +106,7 @@ set_keys_sortkeys(Id, Vq, R, S) ->
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_sortkey_by_doctype(Id, Vq, R, S) ->
-    Charseqs = couch:get_view_json(noqs, Id, "head_charseqs", R, S),
+    {ok, Charseqs} = couch:get_view_json(noqs, Id, "head_charseqs", R, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             set_sortkey_helper(<<>>, Vq, R, S);
