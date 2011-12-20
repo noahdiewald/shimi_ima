@@ -32,6 +32,7 @@
   get_json/3,
   get_json/4,
   get_view_json/4,
+  get_view_json/5,
   get_design_rev/3,
   get_uuid/2,
   new_db/3,
@@ -91,17 +92,28 @@ get_json_helper(safer, Url, Headers) ->
     {ok, "404", _, _} -> undefined
   end.
 
-get_view_json(Id, Name, R, S) ->
+get_view_json_helper(Id, Name, Qs, R, S) ->
   Headers = proplists:get_value(headers, S),
-  Qs = view:normalize_vq(R),
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
-  FullUrl = Url ++ Path ++ "?" ++ Qs,
+  FullUrl = Url ++ Path ++ Qs,
   case ibrowse:send_req(FullUrl, Headers, get) of
     {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
     {ok, "404", _, _} -> {error, not_found};
     {error, req_timedout} -> {error, req_timedout}
   end.
+
+get_view_json(Id, Name, R, S) ->
+    Qs = view:normalize_vq(R),
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+
+get_view_json(noqs, Id, Name, R, S) ->
+    get_view_json_helper(Id, Name, [], R, S);
+
+get_view_json(sortkeys, Id, Name, R, S) ->
+    Qs = view:normalize_plus_vq(Id, R, S),
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+
 
 get_design_rev(Name, R, S) ->
   Id = case Name of

@@ -19,7 +19,7 @@ function getIndex(startkey, startid, prevkeys, previds) {
   
   // Initialize some values if we're at the beginning of the listing
   if (!prevkeys) {
-    startkey = $('#index-filter').val();
+    startkey = btoa($('#index-filter').val());
     prevkeys = [];
     previds = [];
   }
