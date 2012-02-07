@@ -24,7 +24,7 @@ instance DDocument ShortKeyword where
 instance DFieldset SKeyword where
     makeFieldset skwRecord =
         SingleFieldset
-        { s_identifier = "3220bb2bb5c6652da3728c4cb70a86a6"
+        { s_identifier = "d5331cbb4d62fe3d2899f142d90ba93a"
         , s_collapse = False
         , s_name = "keyword"
         , s_label = "Keyword"
