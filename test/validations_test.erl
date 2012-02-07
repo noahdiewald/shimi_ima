@@ -91,7 +91,7 @@ vcall(P, Args, User) ->
 my_setup(Fun) ->
   {setup, 
     fun() -> 
-      erlang_js:start(),
+      erlang_js:start(0, 0),
       port_setup(),
       my_env()
     end, 

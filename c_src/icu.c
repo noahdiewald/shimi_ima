@@ -27,8 +27,8 @@
  *
  * For more information on NIFs see the erlang documentation.
  *
- * All binaries passed to these functions should be encoded using icu4e's
- * ustring functions.
+ * All binaries passed to these functions should be encoded using
+ * icu4e's ustring functions.
  */
 #include <string.h>
 #include "erl_nif.h"
@@ -102,13 +102,14 @@ get_sort_key(ErlNifEnv* env, const UCollator* coll, const UChar* source, uint32_
 }
 
 /*
-  This is an Erlang NIF function. See icu.erl for the Erlang interface.
+  This is an Erlang NIF function. See icu.erl for the Erlang
+  interface.
 
   See above for more information on NIFs.
 
-  The Erlang function icu:get_sort_key(locale, Locale, Data) when called
-  will cause this funtion to be called. Locale is in argv[0] and Data
-  is in argv[1].
+  The Erlang function icu:get_sort_key(locale, Locale, Data) when
+  called will cause this funtion to be called. Locale is in argv[0]
+  and Data is in argv[1].
 
   These values will be finesed until they can be used to open an ICU
   collator with the given Locale defining a sort order. The Data will
@@ -203,7 +204,7 @@ rule_sort_key(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return enif_make_badarg(env);
   }
   
-  // open collator with locale setting
+  // open collator
   collator = ucol_openRules((UChar*)rule_bin.data, rule_bin.size / 2, UCOL_DEFAULT, UCOL_DEFAULT_STRENGTH, &parse_status, &status);
   if (U_FAILURE(status)) {
     enif_release_binary(&source_bin);

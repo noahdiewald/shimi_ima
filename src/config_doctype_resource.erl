@@ -1,27 +1,25 @@
-%% @author Noah Diewald <noah@diewald.me>
-%% @copyright 2010 University of Wisconsin Madison Board of Regents.
-%% Copyright (c) 2010 University of Wisconsin Madison Board of Regents
-%%
-%% Permission is hereby granted, free of charge, to any person obtaining
-%% a copy of this software and associated documentation files (the
-%% "Software"), to deal in the Software without restriction, including
-%% without limitation the rights to use, copy, modify, merge, publish,
-%% distribute, sublicense, and/or sell copies of the Software, and to
-%% permit persons to whom the Software is furnished to do so, subject to
-%% the following conditions:
-%%
-%% The above copyright notice and this permission notice shall be included
-%% in all copies or substantial portions of the Software.
-%%
-%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-%% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-%% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-%% NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-%% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-%% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-%% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc The resource used accessing and editing document types in a 
-%%      configuration context.
+%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%%
+%%% This file is part of dictionary_maker.
+%%%
+%%% dictionary_maker is free software: you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation, either version 3 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% dictionary_maker is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%%% GNU General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
+%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @version {@version}
+%%% @author Noah Diewald <noah@diewald.me>
+%%% @doc The resource used accessing and editing document types in a 
+%%%      configuration context.
 
 -module(config_doctype_resource).
 
@@ -32,17 +30,19 @@
   content_types_provided/2,
   create_path/2,
   delete_resource/2,
-  from_json/2,
   init/1, 
   is_authorized/2,
   post_is_create/2,
-  resource_exists/2,
-  id_html/2,
-  index_html/2
+  process_post/2,
+  resource_exists/2
 ]).
 
 % Custom
 -export([
+  from_json/2,
+  id_html/2,
+  index_html/2,
+  provide_null/2,
   validate_authentication/3
 ]).
 
@@ -57,7 +57,8 @@ resource_exists(R, S) ->
   Id = wrq:path_info(id, R),
   case proplists:get_value(target, S) of
     identifier -> {couch:exists(Id, R, S), R, S};
-    index -> {couch:exists([], R, S), R, S}
+    index -> {couch:exists([], R, S), R, S};
+    touch -> {couch:exists(Id, R, S), R, S}
   end.
 
 is_authorized(R, S) ->
@@ -66,6 +67,7 @@ is_authorized(R, S) ->
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
     index -> {['HEAD', 'GET', 'POST'], R, S};
+    touch -> {['HEAD', 'POST'], R, S};
     identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
   end.
   
@@ -79,27 +81,35 @@ delete_resource(R, S) ->
   end.
   
 post_is_create(R, S) ->
-  {true, R, S}.
+  case proplists:get_value(target, S) of
+    touch -> {false, R, S};
+    _Else -> {true, R, S}
+  end.
 
 create_path(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
-  
   Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
-  
   Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
   R1 = wrq:set_resp_header("Location", Location, R),
-  
   {Id, R1, [{posted_json, Json}|S]}.
 
 content_types_provided(R, S) ->
   case proplists:get_value(target, S) of
     index -> {[{"text/html", index_html}], R, S};
+    touch -> {[{"*/*", index_html}], R, S};
     identifier -> {[{"text/html", id_html}], R, S}
   end.
   
 content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
-  
+
+process_post(R, S) ->
+  spawn_link(document, touch_all, [R, S]),
+  {{halt, 204}, R, S}.
+
+provide_null(R, S) ->
+  {[<<>>], R, S}.
+    
 index_html(R, S) ->
   Request = fun () -> couch:get_view_json("doctypes", "all", R, S) end,
   Success = fun (Json) -> {render:renderings(Json, config_doctype_list_elements_dtl), R, S} end,
@@ -108,7 +118,6 @@ index_html(R, S) ->
 id_html(R, S) ->
   Json = couch:get_json(id, R, S), 
   {ok, Html} = config_doctype_dtl:render(Json),
-  
   {Html, R, S}.
   
 from_json(R, S) ->
@@ -134,10 +143,7 @@ json_update(R, S) ->
   Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
   
   case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-    {ok, updated} -> 
-      {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-      {ok, _} = couch:update(design, DesignJson, R, S),
-      {true, R, S};
+    {ok, updated} -> {true, R, S};
     {403, Message} ->
       R1 = wrq:set_resp_body(Message, R),
       {{halt, 403}, R1, S};

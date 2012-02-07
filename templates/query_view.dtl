@@ -8,7 +8,7 @@
   {% endif %}
   {% for row in rows %}
     {% if forloop.last %}
-  data-startkey="{{row.key|first|escape}}"
+  data-startkey="{% for elem in row.key %}{{elem|first}}{% endfor %}"
   data-startid="{{row.id }}"
     {% endif %}
   {% endfor %}
@@ -20,13 +20,13 @@
     {% if rows|length < limit or not forloop.last  %} 
   <tr>
     <th>
-      <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{{row.key|first|escape}}" {% endif %}>
+      <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{% for elem in row.key %}{{elem|first}}{% endfor %}" {% endif %}>
         <ul class="head-elements">
           {% for elem in row.key %}<li>
-          {% if elem == '~blank' %}
+          {% if elem|last == '~blank' %}
             <span class="help-text">blank</span>
           {% else %}
-            {{ elem|escape }}
+            {{ elem|last|force_escape }}
           {% endif %}
           </li>{% endfor %}
         </ul>

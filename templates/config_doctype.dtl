@@ -18,6 +18,12 @@
     class="delete-button delete-doctype-button link-button">
     Delete Document Type</a>
   <a 
+    id="touch-{{ _id }}" 
+    data-group-id="{{ _id }}"
+    href="#"
+    class="touch-button touch-doctype-button link-button">
+    Touch Document Type</a>
+  <a 
     id="add-fieldset-to-{{ _id }}" 
     data-group-id="{{ _id }}"
     href="#"

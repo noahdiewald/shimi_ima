@@ -29,10 +29,10 @@ sendRecord str = putStrLn str >> simpleHTTP
       { uriScheme = "http:"
       , uriAuthority = Just URIAuth 
         { uriUserInfo = "database:D1ctionary_Mak3r@"
-        , uriRegName = "potawatomi.wisc.edu"
+        , uriRegName = "127.0.0.1"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-d153156fa3ed39fc1d4a21d57ce9c6d5"
+      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
       , uriQuery = ""
       , uriFragment = ""
       }

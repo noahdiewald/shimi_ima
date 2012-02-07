@@ -9,8 +9,10 @@
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
     <link href="/css/smoothness/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
     <link href="/css/screen.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
+    <!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>-->
+    <script type="text/javascript" src="/jquery.min.js"></script>
+    <script type="text/javascript" src="/jquery-ui.min.js"></script>
     {% block javascript %}{% endblock %}
   </head>
   <body>

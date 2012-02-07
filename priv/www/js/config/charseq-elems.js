@@ -62,10 +62,10 @@ var charseqElems = function() {
     };
     
     cObj.parse = function(val) {
-      if (val) {
+      if (val && !val.isBlank()) {
         return JSON.parse(val);
       } else {
-        return "";
+        return [];
       }
     };
     

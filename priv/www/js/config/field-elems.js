@@ -7,7 +7,7 @@ function fieldElems() {
   fElems.attrs = ["name", "label", "order", "description", "subcategory", 
                   "head", "reversal", "default", "required", "allowed", 
                   "source", "max", "min", "regex", "doctype", "fieldset",
-                  "rev", "field"];
+                  "charseq", "rev", "field"];
                
   fElems.get = function(values) {
     var fObj = {};
@@ -18,7 +18,7 @@ function fieldElems() {
     // Below you'll see them being disabled and reenabled depending on the
     // chosen subcategory.
     fObj.notDefault = function() {
-      return [fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
+      return [fObj.charseq, fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
     };
     
     fObj.disable = function() {
@@ -61,6 +61,7 @@ function fieldElems() {
         "max": fObj.decodeBound(fObj.subcategory.val(), fObj.max.val()),
         "regex": fObj.regex.val(),
         "description": fObj.description.val(),
+        "charseq": fObj.charseq.val(),
         "doctype": fObj.doctype.val(),
         "fieldset": fObj.fieldset.val(),
         "subcategory": fObj.subcategory.val()
@@ -119,6 +120,7 @@ function fieldElems() {
         case "text":
         case "textarea":
           fObj.disable();
+          fObj.charseq.removeAttr("disabled");
           fObj.regex.removeAttr("disabled");
           break;
         case "date":

@@ -23,8 +23,10 @@
   <ul>
     <li><a href="#doctypes">Document Types</a></li>
     <li><a href="#charseqs">Character Sequences</a></li>
+    <li><a href="#maintenance">Maintenance</a></li>
   </ul>
 {% include 'config_doctype_tab.dtl' %}
 {% include 'config_charseq_tab.dtl' %}
+{% include 'config_maintenance_tab.dtl' %}
 </div>
 {% endblock %}

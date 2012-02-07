@@ -83,6 +83,14 @@
           class="ui-corner-all input" /><br />
       </div>
       
+      <div>  
+        <label for="field-charseq-input">Character Sequence</label><br />
+        <select 
+          name="field-charseq-input" 
+          class="input" 
+          id="field-charseq-input"></select><br />
+      </div>
+      
       <div>
         <label for="field-default-input">Default Value</label><br />
         <input 

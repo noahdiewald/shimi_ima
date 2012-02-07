@@ -12,10 +12,12 @@ function clickDispatch(e) {
     "h3.accordion-head a": function(t) {accordionHead(t)},
     ".delete-doctype-button span": function(t) {deleteDoctypeButton(t.parent('a'))},
     ".edit-doctype-button span": function(t) {editDoctypeButton(t.parent('a'))},
+    ".touch-doctype-button span": function(t) {touchDoctypeButton(t.parent('a'))},
     "#doctype-add-button span": function(t) {addDoctypeButton(t.parent('a'))},
     ".delete-charseq-button span": function(t) {deleteCharseqButton(t.parent('a'))},
     ".edit-charseq-button span": function(t) {editCharseqButton(t.parent('a'))},
-    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'))}
+    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'))},
+    "#maintenance-upgrade-button span": function(t) {upgradeButton(t.parent('a'))}
   });
 
   action(e);

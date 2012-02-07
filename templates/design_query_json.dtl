@@ -63,17 +63,18 @@
           result = fieldset.fields.every(function(field, index) {
             var fieldId = field.id;
             var value = field.value;
+            var sortkey = field.sortkey;
             
             if (expected[fieldId] !== undefined) {
               expected[fieldId] = true;
             }
             
             if (fieldId === '{{field}}') {
-              k.push(value);
+              k.push([sortkey, value]);
             }
             
             if (field.head) {
-              heads.push(value);
+              heads.push([value]);
             }
             
             return ({{expression}});
@@ -144,18 +145,18 @@
           return retval;
         }
         
-        if (doc.doctype == '{{doctype}}' && doc.fieldsets)  {
+        if (doc.doctype == '{{doctype}}' && doc.fieldsets && !doc.deleted_)  {
           var keys = try_fieldsets(doc.fieldsets);
           
           if (expected.allVisited()) {
             keys.forEach(function(item) {
-              if (typeof item == 'string') {
-                if (item.isBlank()) {
-                  item = '~blank';
+              if (typeof item[1] == 'string') {
+                if (item[1].isBlank()) {
+                  item[1] = '~blank';
                 }
                 emit([item], heads);
               } else {
-                emit(item, heads);
+                emit([item], heads);
               }
             });
           }

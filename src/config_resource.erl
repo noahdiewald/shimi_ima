@@ -22,8 +22,13 @@
 
 -module(config_resource).
 -export([
+  allowed_methods/2,
+  content_types_accepted/2,
+  content_types_provided/2,
   init/1,
   is_authorized/2, 
+  post_is_create/2,
+  process_post/2,
   resource_exists/2,
   to_html/2,
   validate_authentication/3
@@ -34,17 +39,6 @@
 
 init(Opts) -> {ok, Opts}.
 
-to_html(R, S) ->
-  User = proplists:get_value(user, S),
-  Project = couch:get_json(project, R, S),
-  {ok, Json} = design_doctypes_json_dtl:render(),
-  {ok, _} = couch:update(design, "doctypes", Json, R, S),
-  {ok, Json1} = design_charseqs_json_dtl:render(),
-  {ok, _} = couch:update(design, "charseqs", Json1, R, S),
-  Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
-  {ok, Html} = config_dtl:render(Vals),
-  {Html, R, S}.
-
 resource_exists(R, S) ->
   DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, R),
   case ibrowse:send_req(DatabaseUrl, [], head) of
@@ -54,6 +48,38 @@ resource_exists(R, S) ->
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+
+allowed_methods(R, S) ->
+  case proplists:get_value(target, S) of
+    main -> {['HEAD', 'GET'], R, S};
+    upgrade -> {['HEAD', 'POST'], R, S}
+  end.
+  
+post_is_create(R, S) ->
+  case proplists:get_value(target, S) of
+    upgrade -> {false, R, S};
+    _Else -> {true, R, S}
+  end.
+
+content_types_provided(R, S) ->
+  case proplists:get_value(target, S) of
+    main -> {[{"text/html", to_html}], R, S};
+    upgrade -> {[{"*/*", to_html}], R, S}
+  end.
+  
+content_types_accepted(R, S) ->
+  {[{"application/json", from_json}], R, S}.
+
+process_post(R, S) ->
+  spawn_link(project, upgrade, [R, S]),
+  {{halt, 204}, R, S}.
+
+to_html(R, S) ->
+  User = proplists:get_value(user, S),
+  Project = couch:get_json(project, R, S),
+  Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
+  {ok, Html} = config_dtl:render(Vals),
+  {Html, R, S}.
 
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),

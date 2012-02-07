@@ -19,13 +19,13 @@ function getIndex(startkey, startid, prevkeys, previds) {
   
   // Initialize some values if we're at the beginning of the listing
   if (!prevkeys) {
-    startkey = $('#index-filter').val();
+    startkey = btoa(JSON.stringify($('#index-filter').val()));
     prevkeys = [];
     previds = [];
   }
   
   if (startkey) {
-    url = url + '&startkey=' + encodeURIComponent(JSON.stringify([startkey]));
+    url = url + '&startkey=' + escape(atob(startkey));
     
     if (startid) {
       url = url + '&startkey_docid=' + startid;

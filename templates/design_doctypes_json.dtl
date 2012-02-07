@@ -16,7 +16,7 @@
   "updates": {
     "stamp": "function(doc, req) {
       var newDoc = JSON.parse(req.body);
-      var now = (new Date()).toString();
+      var now = (new Date()).toUTCString();
 
       if (!doc) {
         if (newDoc._id) {

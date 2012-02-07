@@ -1,37 +1,38 @@
-%% @author Noah Diewald <noah@diewald.me>
-%% @copyright 2010 University of Wisconsin Madison Board of Regents.
-%% Copyright (c) 2010 University of Wisconsin Madison Board of Regents
-%%
-%% Permission is hereby granted, free of charge, to any person obtaining
-%% a copy of this software and associated documentation files (the
-%% "Software"), to deal in the Software without restriction, including
-%% without limitation the rights to use, copy, modify, merge, publish,
-%% distribute, sublicense, and/or sell copies of the Software, and to
-%% permit persons to whom the Software is furnished to do so, subject to
-%% the following conditions:
-%%
-%% The above copyright notice and this permission notice shall be included
-%% in all copies or substantial portions of the Software.
-%%
-%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-%% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-%% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-%% NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-%% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-%% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-%% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc Application specific CouchDB utility and helper functions
+%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%%
+%%% This file is part of dictionary_maker.
+%%%
+%%% dictionary_maker is free software: you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation, either version 3 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% dictionary_maker is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%%% GNU General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
+%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @version {@version}
+%%% @author Noah Diewald <noah@diewald.me>
+%%% @doc Application specific CouchDB utility and helper functions
 
 -module(couch).
 
 -export([
+  bulk_update/3,
   create/4,
   create/5,
   delete/2,
   exists/3,
   exists/4,
   get_json/3,
+  get_json/4,
   get_view_json/4,
+  get_view_json/5,
   get_design_rev/3,
   get_uuid/2,
   new_db/3,
@@ -41,7 +42,7 @@
 ]).
 
 -include_lib("include/config.hrl").
--include_lib("include/couchdb.hrl").
+-include_lib("include/types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
 %% @doc Make a new database
@@ -75,22 +76,44 @@ get_json(Id, R, S) ->
   Headers = proplists:get_value(headers, S),
   DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   get_json_helper(DataBaseUrl ++ Id, Headers).
+  
+get_json(safer, Id, R, S) ->
+  Headers = proplists:get_value(headers, S),
+  DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+  get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
 get_json_helper(Url, Headers) ->  
   {ok, "200", _, Json} = ibrowse:send_req(Url, Headers, get),
   jsn:decode(Json).
 
-get_view_json(Id, Name, R, S) ->
+get_json_helper(safer, Url, Headers) ->  
+  case ibrowse:send_req(Url, Headers, get) of
+    {ok, "200", _, Json} -> jsn:decode(Json);
+    {ok, "404", _, _} -> undefined
+  end.
+
+get_view_json_helper(Id, Name, Qs, R, S) ->
   Headers = proplists:get_value(headers, S),
-  Qs = view:normalize_vq(R),
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
   Path = "_design/" ++ Id ++ "/_view/" ++ Name,
-  FullUrl = Url ++ Path ++ "?" ++ Qs,
+  FullUrl = Url ++ Path ++ Qs,
   case ibrowse:send_req(FullUrl, Headers, get) of
     {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
     {ok, "404", _, _} -> {error, not_found};
     {error, req_timedout} -> {error, req_timedout}
   end.
+
+get_view_json(Id, Name, R, S) ->
+    Qs = view:normalize_vq(R),
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+
+get_view_json(noqs, Id, Name, R, S) ->
+    get_view_json_helper(Id, Name, [], R, S);
+
+get_view_json(sortkeys, Id, Name, R, S) ->
+    Qs = view:normalize_plus_vq(Id, R, S),
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+
 
 get_design_rev(Name, R, S) ->
   Id = case Name of
@@ -154,6 +177,12 @@ create(Url, Headers, Json) ->
       {403, Message}
   end.
 
+bulk_update(Docs, R, S) ->
+  Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+  Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+  {ok, _, _, Body} = ibrowse:send_req(Url, Headers, post, jsn:encode(Docs)),
+  jsn:decode(Body).
+  
 update(doc, Id, Json, R, S) ->
   Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_design/doctypes/_update/stamp/" ++ Id,
   Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
