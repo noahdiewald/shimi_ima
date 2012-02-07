@@ -16,7 +16,7 @@ import           Text.JSON.Pretty (pp_value)
 import           Text.JSON.Pretty (render)
 import qualified Data.ByteString.Char8 as B
 
-main = parseCSVFromFile "./VAI_CleanForImport.csv" >>= \retval ->
+main = parseCSVFromFile "./VTI_CleanForImport.csv" >>= \retval ->
   convertToJson retval >>= \rjson -> sequence $ fmap sendRecord rjson
   where
     convertToJson (Left error) = return $ map messageString $ errorMessages error
@@ -54,7 +54,6 @@ processRecord
   , cheadword_speaker
   , cpos
   , cunderlying_representation
-  , cgeneral_notes
   , cdefinition1
   , cdefinition1_source
   , cdefinition2
@@ -63,6 +62,11 @@ processRecord
   , cdefinition3_source
   , cdefinition4
   , cdefinition4_source
+  , cdefinition5
+  , cdefinition5_source
+  , cvariant_form1
+  , cvariant_form1_speaker
+  , cvariant_form1_source
   , cinflected_form1
   , cinflected_form1_type
   , cinflected_form1_speaker
@@ -71,20 +75,10 @@ processRecord
   , cinflected_form2_type
   , cinflected_form2_speaker
   , cinflected_form2_source
-  , cshort_prefix
-  , clong_prefix
   , cinflected_form3
   , cinflected_form3_type
   , cinflected_form3_speaker
   , cinflected_form3_source
-  , cinflected_form4
-  , cinflected_form4_type
-  , cinflected_form4_speaker
-  , cinflected_form4_source
-  , cinflected_form5
-  , cinflected_form5_type
-  , cinflected_form5_speaker
-  , cinflected_form5_source
   , cexample1
   , cexample_definition1
   , cexample_speaker1
@@ -99,7 +93,8 @@ processRecord
   , _
   , crecord_id
   , _
-  , cjdn
+  , _
+  , cjdn_id
   , cchecked_with_elders
   ] = render . pp_value . showJSON $ makeDocument Entry
   { hw = Headword
@@ -113,18 +108,19 @@ processRecord
     , hw_source = sourceList csource
     , underlying_representation = maybeString cunderlying_representation
     , topic = Nothing
-    , hw_notes = Just (makeNotes crecord_id cnotes cjdn cgeneral_notes)
+    , hw_notes = Just (makeNotes crecord_id cnotes cjdn_id "")
     , cross_reference = maybeString ccross_reference
     , unpublish = False
-    , codes = Just ["lw_vai", "quarantine"]
+    , codes = Just ["lw_vti", "quarantine"]
     }
-  , hwp = HWProps Nothing (maybeBool cshort_prefix) (maybeBool clong_prefix) Nothing
+  , hwp = HWProps Nothing Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
   , defs = filterDefinitions [
     (cdefinition1, csource)
     , (cdefinition2, csource)
     , (cdefinition3, csource)
     , (cdefinition4, csource)
+    , (cdefinition5, csource)
     ] 
   , kws = Keywords []
   , ex = filterExamples [
@@ -135,13 +131,13 @@ processRecord
     (cinflected_form1, cinflected_form1_type, cinflected_form1_speaker, csource)
     , (cinflected_form2, cinflected_form2_type, cinflected_form2_speaker, csource)
     , (cinflected_form3, cinflected_form3_type, cinflected_form3_speaker, csource)
-    , (cinflected_form4, cinflected_form4_type, cinflected_form4_speaker, csource)
-    , (cinflected_form5, cinflected_form5_type, cinflected_form5_speaker, csource)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
   , usg = Usage Nothing Nothing Nothing Nothing
-  , vfs = VariantForms []
+  , vfs = filterVariantForms [
+    (cvariant_form1, "", cvariant_form1_speaker, csource)
+    ]
   , pic = Picture Nothing Nothing Nothing Nothing Nothing Nothing
   , cp = CheckPoints (maybeBool cchecked_with_elders) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
   }
@@ -156,7 +152,7 @@ makeNotes r n j g = f_r r ++ f_n n ++ f_j j ++ f_n g
     f_j j = "\n\nJDN Number: " ++ j
     f_n [] = []
     f_n s = "\n\n" ++ n
-
+    
 maybeString :: String -> Maybe String
 maybeString [] = Nothing
 maybeString str = Just str
