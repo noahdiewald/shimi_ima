@@ -169,35 +169,19 @@ peach(F, L, N) ->
     {First, Rest} = takedrop(L, N),
     S = self(),
     Ref = erlang:make_ref(),
-<<<<<<< local
     Ref2 = erlang:make_ref(),
     Loop = spawn(fun() -> loop(Ref, {Ref2, S}, F, Rest) end),
     Fun = fun(I) -> spawn(fun() -> do_f({Ref, Loop}, {Ref2, S}, F, I) end) end,
-=======
-    Fun = fun(I) -> spawn(fun() -> do_f(S, Ref, F, I) end) end,
->>>>>>> other
     lists:foreach(Fun, First),
-<<<<<<< local
     counter(Ref2, length(L)).
-=======
-    wait_loop(Ref, length(First)),
-    peach(F, Rest, N).
->>>>>>> other
 
-<<<<<<< local
 counter(_, 0) -> ok;
 counter(Ref, N) ->
     receive
         Ref ->
             counter(Ref, N - 1)
     end.
-=======
-do_f(Parent, Ref, F, I) ->
-    F(I),
-    Parent ! Ref.
->>>>>>> other
 
-<<<<<<< local
 do_f({Ref, Parent}, {Ref2, Counter}, F, I) ->
     case (catch F(I)) of
         {'EXIT', Error} ->
@@ -212,18 +196,10 @@ loop(_, _, _, []) ->
     ok;
 loop(Ref, Counter, F, [Next|Rest]) ->
     S = self(),
-=======
-wait_loop(_, 0) -> done;
-wait_loop(Ref, N) ->
->>>>>>> other
     receive
-<<<<<<< local
         Ref ->
             spawn(fun() -> do_f({Ref, S}, Counter, F, Next) end),
             loop(Ref, Counter, F, Rest)
-=======
-        Ref -> wait_loop(Ref, N - 1)
->>>>>>> other
     end.
 
 takedrop(L, N) ->

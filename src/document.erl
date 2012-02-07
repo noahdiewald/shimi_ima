@@ -44,7 +44,6 @@ touch_all(R, S) ->
 
 -spec touch_all(Id :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
 touch_all(Id, R, S) ->
-<<<<<<< local
     Tid = ets:new(touch_documents, [public]),
     error_logger:info_report([{touch_all, starting}]),
     S1 = [{table_id, Tid}|S],
@@ -54,15 +53,6 @@ touch_all(Id, R, S) ->
     utils:peach(F, Rows, 10),
     error_logger:info_report([{touch_all, finished}]),
     true = ets:delete(Tid).
-=======
-  Tid = ets:new(touch_documents, [public]),
-  S1 = [{table_id, Tid}|S],
-  {ok, AllDocs} = couch:get_view_json(noqs, Id, "quickdocs", R, S),
-  Rows = jsn:get_value(<<"rows">>, AllDocs),
-  F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
-  utils:peach(F, Rows, 10),
-  true = ets:delete(Tid).
->>>>>>> other
 
 -spec touch(Id :: binary(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
 touch(Id, R, S) ->
