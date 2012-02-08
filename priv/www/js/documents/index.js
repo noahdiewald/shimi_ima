@@ -91,8 +91,8 @@ function getIndex(startkey, startid, prevkeys, previds) {
 }
 
 function fillQueryOptions() {
-  url = "/projects/project-" + $('#container').attr('data-project-id') +
-        "/queries?as=options"
+  var url = "/projects/project-" + $('#container').attr('data-project-id') +
+        "/queries?as=options";
         
   $.get(url, function(data) {
     $('#index-query').html(data);
