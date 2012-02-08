@@ -47,47 +47,60 @@ function getIndex(startkey, startid, prevkeys, previds) {
     url = url + '&query=' + query;
   }
   
-  $.get(url, function(documentIndexHtml) {
-    $('#document-index #index-listing').html(documentIndexHtml);
+  $.get(url, function(documentIndexHtml) 
+        {
+          $('#document-index #index-listing').html(documentIndexHtml);
+          
+          $('#previous-index-page').button(
+            {
+              icons: {primary:'ui-icon-circle-arrow-w'} 
+            }).click(function() 
+                     {
+                       getIndex(prevkeys.pop(), 
+                                previds.pop(), 
+                                prevkeys, 
+                                previds);
+                     });
     
-    $('#previous-index-page').button({
-      icons: {primary:'ui-icon-circle-arrow-w'} 
-    }).click(function() {
-      getIndex(prevkeys.pop(), previds.pop(), prevkeys, previds);
-    });
-    
-    // Collect the values needed for paging from the HTML
-    $('#next-index-page').button({
-      icons: {secondary:'ui-icon-circle-arrow-e'}
-    }).click(function() {
-      var nextkey = $(this).attr('data-startkey');
-      var nextid = $(this).attr('data-startid');
-      var prevkey = $('#first-index-element').attr('data-first-key');
-      var previd = $('#first-index-element').attr('data-first-id');
-      prevkeys.push(prevkey);
-      previds.push(previd);
+          // Collect the values needed for paging from the HTML
+          $('#next-index-page').button(
+            {
+              icons: {secondary:'ui-icon-circle-arrow-e'}
+            }).click(function() 
+                     {
+                       var nextkey = $(this).attr('data-startkey');
+                       var nextid = $(this).attr('data-startid');
+                       var prevkey = 
+                         $('#first-index-element').attr('data-first-key');
+                       var previd = 
+                         $('#first-index-element').attr('data-first-id');
+                       prevkeys.push(prevkey);
+                       previds.push(previd);
       
-      getIndex(nextkey, nextid, prevkeys, previds);
-    });
+                       getIndex(nextkey, nextid, prevkeys, previds);
+                     });
     
-    // Disable the previous button if we're at the beginning
-    if (prevkeys.length == 0) {
-      $('#previous-index-page').button("disable");
-    }
+          // Disable the previous button if we're at the beginning
+          if (prevkeys.length == 0) {
+            $('#previous-index-page').button("disable");
+          }
     
-    // Disable the next button if we're at the end
-    if ($('#next-index-page').attr('data-last-page')) {
-      $('#next-index-page').button("disable");
-    }
+          // Disable the next button if we're at the end
+          if ($('#next-index-page').attr('data-last-page')) {
+            $('#next-index-page').button("disable");
+          }
   
-    $('nav.pager').buttonset();
+          $('nav.pager').buttonset();
     
-    // Allows the document for the listed item to be displayed
-    // in the correct pane on click.
-    $('.view-document-link').click(function() {
-      getDocument(this.hash.slice(1));
-    });
-  });
+          // Allows the document for the listed item to be displayed
+          // in the correct pane on click.
+          $('.view-document-link').click(
+            function() 
+            {
+              clearDoc();
+              getDocument(this.hash.slice(1));
+            });
+        });
 }
 
 function fillQueryOptions() {
