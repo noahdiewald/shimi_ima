@@ -22,7 +22,7 @@ function setKeyboardEvents() {
   var inputable = 'input, select';
   var t = $('#edit-tabs');
   
-  selectInput = function() {
+  var selectInput = function() {
     var cur = t.find('.ui-tabs-selected a').attr('href');
     $(cur).find(inputable + ", textarea").first().focus();
   };
@@ -176,8 +176,8 @@ function afterRefresh() {
 
 function resetFields() {
   $('.field').each(function(index) {
-    field = $(this);
-    thedefault = field.attr('data-field-default');
+    var field = $(this);
+    var thedefault = field.attr('data-field-default');
     
     if (thedefault && thedefault != '') {
       if (field.is('select.multiselect')) {
