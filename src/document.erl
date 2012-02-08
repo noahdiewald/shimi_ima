@@ -80,7 +80,6 @@ set_sortkeys(D=#document{}, R, S) ->
     D#document{fieldsets=fieldset:set_sortkeys(D#document.fieldsets, R, S)}.
 
 %% @doc Convert a jsn:json_term() document to a document() record.
-
 -spec from_json(Json :: jsn:json_term()) -> document().
 from_json(Json) ->
     Ordering = fun (A, B) -> A#docfieldset.order =< B#docfieldset.order end,
@@ -107,7 +106,6 @@ from_json(Json) ->
              }.
 
 %% @doc Convert a document() record to a jsn:json_term() document.
-
 -spec to_json(D :: document()) -> Json :: jsn:json_term().
 to_json(D) ->
     [{<<"_id">>, D#document.id},
@@ -124,7 +122,6 @@ to_json(D) ->
                           X <- D#document.fieldsets]}].
 
 %% @doc Convert the JSON to a record and back again.
-
 -spec normalize(jsn:json_term()) -> jsn:json_term().
 normalize(Json) ->
     to_json(from_json(Json)).
