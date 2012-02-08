@@ -1,22 +1,24 @@
 /*
  h1. Application Wide Utility Functions
  
- The sections of this application are usually divided into separate files
- that do not share code. Much of the code that is used by more than one
- section and hasn't been moved to its own file can be found here.
+ The sections of this application are usually divided into separate
+ files that do not share code. Much of the code that is used by more
+ than one section and hasn't been moved to its own file can be found
+ here.
  
  h2. Data Attribute Key Value Stores
  
- There are two functions provided for treating HTML elements like key value stores.
+ There are two functions provided for treating HTML elements like key
+ value stores.
   
   @getValue(key, elem)@
   
   This funtion takes a key that corresponds to the name of the data
-  attribute without the data- prefix. It also takes a jQuery object. The
-  assumption is that the jQuery object will hold only one element but
-  it may work either way. The element is expected to have an attribute
-  data-group-id with a value that is the id of the element actually
-  holding the data.
+  attribute without the data- prefix. It also takes a jQuery
+  object. The assumption is that the jQuery object will hold only one
+  element but it may work either way. The element is expected to have
+  an attribute data-group-id with a value that is the id of the
+  element actually holding the data.
  
  Example:
 
@@ -62,8 +64,8 @@
  
  Each section of the application calls this function with an object
  composed of keys of CSS patterns of elements which should have click
- event actions bound to them and values of functions that will be called
- if a click event occurs and the key pattern matches.
+ event actions bound to them and values of functions that will be
+ called if a click event occurs and the key pattern matches.
 
   @dispatcher(patterns)@
   
@@ -79,9 +81,9 @@
   @isBlank(value)@
   
   This tests an object of several types for the concept of
-  'blankness'. For a string this means only whitespace, for instance. See
-  the code below for details. It is idiosyncratic but matches what I
-  want, usually.
+  'blankness'. For a string this means only whitespace, for
+  instance. See the code below for details. It is idiosyncratic but
+  matches what I want, usually.
   
   @String.isBlank()@
   
@@ -136,7 +138,7 @@ function isBlank(value) {
 // Simple 'parser' for quoted values
 
 String.prototype.parseQuoted = function(quoteChar) {
-  var quoteChar = (quoteChar || "'")
+  var quoteChar = (quoteChar || "'");
   var outArray = [];
   var inArray = this.split('');
   var inQuote = false;
@@ -205,7 +207,11 @@ function stringToNumber(string) {
 // functions added to Array
 
 Array.prototype.trimAll = function() {
-  return this.map(function (i) {return i.trim()}).filter(function (i) {return !i.match(/^$/)});
+  return this.map(function (i) {
+                    return i.trim();
+                  }).filter(function (i) {
+                              return !i.match(/^$/);
+                            });
 };
 
 // Event dispatch
@@ -231,7 +237,7 @@ function dispatcher(patterns) {
 //       as alternative to variable passing.
 function clearValues(inputFields) {
   inputFields.each(function(index) {
-    inputField = $(this);
+    var inputField = $(this);
     
     if (! inputField.attr('data-retain')) {
       if (inputField.is(':checked')) {
