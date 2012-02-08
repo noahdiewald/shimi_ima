@@ -41,8 +41,8 @@
   update/6
 ]).
 
--include_lib("include/config.hrl").
--include_lib("include/types.hrl").
+-include_lib("config.hrl").
+-include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
 %% @doc Make a new database
