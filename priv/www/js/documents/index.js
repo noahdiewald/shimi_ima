@@ -99,6 +99,7 @@ function getIndex(startkey, startid, prevkeys, previds) {
           $('.view-document-link').click(
             function() 
             {
+              $("#document-view").html("<em>Loading...</em>");
               clearDoc();
               getDocument(this.hash.slice(1));
             });
