@@ -61,7 +61,7 @@ function createDoc(target) {
   createButton.button('disable');
   $.extend(obj, fieldsetsToObject(root));
   
-  postUrl = $.ajax({
+  var postUrl = $.ajax({
     type: "POST",
     dataType: "json",
     contentType: "application/json",
