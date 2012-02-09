@@ -33,6 +33,8 @@ function loadHash(urlHash) {
 
 $(
   function () {
+    var getIndexTimer;
+
     $('body').click(function(e) {clickDispatch(e);});
     
     fillQueryOptions();
@@ -41,7 +43,8 @@ $(
 
     $('#index-filter-form input').keyup(
       function() {
-        setTimeout(function () {getIndex();}, 500);
+        clearTimeout(getIndexTimer);
+        getIndexTimer = setTimeout(function () {getIndex();}, 500);
       });
   
     $('#index-filter-form select').change(
