@@ -1,8 +1,8 @@
 // Helper for building the url to access a fieldset for a document
 function buildUrl(project, doctype, fieldset) {
   return "/projects/" + project +
-         "/doctypes/" + doctype +
-         "/fieldsets/" + fieldset;
+    "/doctypes/" + doctype +
+    "/fieldsets/" + fieldset;
 }
 
 function fsContainer(id) {
@@ -31,20 +31,23 @@ function loadHash(urlHash) {
   if (urlHash) getDocument(urlHash);
 }
 
-$(function () {
-  $('body').click(function(e) {clickDispatch(e)});
-  
-  fillQueryOptions();
-  getIndex();
-  initEdit();
-  
-  $('#index-filter-form input').keyup(function() {
+$(
+  function () {
+    $('body').click(function(e) {clickDispatch(e);});
+    
+    fillQueryOptions();
     getIndex();
-  });
+    initEdit();
+
+    $('#index-filter-form input').keyup(
+      function() {
+        setTimeout(function () {getIndex();}, 500);
+      });
   
-  $('#index-filter-form select').change(function() {
-    getIndex();
-  });
+    $('#index-filter-form select').change(
+      function() {
+        getIndex();
+      });
   
-  loadHash($(location)[0].hash.split("#")[1]);
-});
+    loadHash($(location)[0].hash.split("#")[1]);
+  });
