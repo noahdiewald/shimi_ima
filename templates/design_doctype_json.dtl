@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 8,
+  "version": 9,
   "views": {
     "alldocs": {
       "map": "function(doc) { 
@@ -74,7 +74,7 @@
         if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_) {
           doc.fieldsets.forEach(function(fieldset, index) {
             if (fieldset.multiple) {
-              fieldset.multifields.forEach(emitKeyVals(multifield));
+              fieldset.multifields.forEach(function(multifield) {emitKeyVals(multifield);});
             } else if (!fieldset.multiple) {
               emitKeyVals(fieldset);
             }
