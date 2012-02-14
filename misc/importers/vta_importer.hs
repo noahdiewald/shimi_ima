@@ -16,7 +16,7 @@ import           Text.JSON.Pretty (pp_value)
 import           Text.JSON.Pretty (render)
 import qualified Data.ByteString.Char8 as B
 
-main = parseCSVFromFile "./VTA_CleanForImport_PART_ONE.csv" >>= \retval ->
+main = parseCSVFromFile "./VTA.csv" >>= \retval ->
   convertToJson retval >>= \rjson -> sequence $ fmap sendRecord rjson
   where
     convertToJson (Left error) = return $ map messageString $ errorMessages error
@@ -29,10 +29,12 @@ sendRecord str = putStrLn str >> simpleHTTP
       { uriScheme = "http:"
       , uriAuthority = Just URIAuth 
         { uriUserInfo = "database:D1ctionary_Mak3r@"
-        , uriRegName = "127.0.0.1"
+        , uriRegName = "144.92.237.11"
+--        , uriRegName = "127.0.0.1"
         , uriPort = ":5984"
         }
-      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
+--      , uriPath = "/project-4d915decf693d51ab06a2f109210a0b8"
+      , uriPath = "/project-d153156fa3ed39fc1d4a21d57ce9c6d5"
       , uriQuery = ""
       , uriFragment = ""
       }
@@ -52,7 +54,6 @@ processRecord
   , cheadword_source
   , cpos
   , cunderlying_representation
-  , cgeneral_notes
   , cdefinition1
   , cdefinition1_source
   , cdefinition2
@@ -66,7 +67,6 @@ processRecord
   , cdefinition6
   , cdefinition6_source
   , cvariant_form1
-  , cvariant_form1_cat
   , cvariant_form1_speaker
   , cvariant_form1_source
   , cinflected_form1
@@ -77,14 +77,14 @@ processRecord
   , cinflected_form2_type
   , cinflected_form2_speaker
   , cinflected_form2_source
-  , cvariant_form2
-  , cvariant_form2_cat
-  , cvariant_form2_speaker
-  , cvariant_form2_source
   , cinflected_form3
   , cinflected_form3_type
   , cinflected_form3_speaker
   , cinflected_form3_source
+  , cinflected_form4
+  , cinflected_form4_type
+  , cinflected_form4_speaker
+  , cinflected_form4_source
   , cexample1
   , cexample_definition1
   , cexample_speaker1
@@ -94,11 +94,15 @@ processRecord
   , cexample_speaker2
   , cexample_source2
   , ccross_reference
-  , cnotes
+  , cnote_revised
+  , cnote_changed
+  , clw_review
+  , cnote_original
+  , _
   , csource
   , _
   , crecord_id
-  , _
+  , cjdn_id
   , _
   , cchecked_with_elders
   ] = render . pp_value . showJSON $ makeDocument Entry
@@ -110,46 +114,59 @@ processRecord
     , elders_checked_initials = Nothing
     , hw_speaker = maybeList cheadword_speaker
     , hw_dialect = Nothing 
-    , hw_source = maybeList cheadword_source
+    , hw_source = sourceList csource
     , underlying_representation = maybeString cunderlying_representation
     , topic = Nothing
-    , hw_notes = Just ("Original Record ID: " ++ crecord_id ++ "\n\n" ++ cnotes ++ "\n\n" ++ cgeneral_notes) 
+    , hw_notes = Just (makeNotes cnote_revised cnote_changed cnote_original crecord_id cjdn_id)
     , cross_reference = maybeString ccross_reference
     , unpublish = False
-    , codes = Just ["lw_vta"]
+    , codes = makeCodes clw_review
     }
   , hwp = HWProps Nothing Nothing Nothing Nothing
   , hws = HWSound Nothing Nothing Nothing Nothing Nothing
   , defs = filterDefinitions [
-    (cdefinition1, cdefinition1_source)
-    , (cdefinition2, cdefinition2_source)
-    , (cdefinition3, cdefinition3_source)
-    , (cdefinition4, cdefinition4_source)
-    , (cdefinition5, cdefinition5_source)
-    , (cdefinition6, cdefinition6_source)
+    (cdefinition1, csource)
+    , (cdefinition2, csource)
+    , (cdefinition3, csource)
+    , (cdefinition4, csource)
+    , (cdefinition5, csource)
+    , (cdefinition6, csource) 
     ] 
   , kws = Keywords []
   , ex = filterExamples [
-    (cexample1, cexample_definition1, cexample_speaker1, cexample_source1)
-    , (cexample2, cexample_definition2, cexample_speaker2, cexample_source2)
+    (cexample1, cexample_definition1, cexample_speaker1, csource)
+    , (cexample2, cexample_definition2, cexample_speaker2, csource)
     ]
   , ifs = filterInflectedForms [
-    (cinflected_form1, cinflected_form1_type, cinflected_form1_speaker, cinflected_form1_source)
-    , (cinflected_form2, cinflected_form2_type, cinflected_form2_speaker, cinflected_form2_source)
-    , (cinflected_form3, cinflected_form3_type, cinflected_form3_speaker, cinflected_form3_source)
+    (cinflected_form1, cinflected_form1_type, cinflected_form1_speaker, csource)
+    , (cinflected_form2, cinflected_form2_type, cinflected_form2_speaker, csource)
+    , (cinflected_form3, cinflected_form3_type, cinflected_form3_speaker, csource)
     ]
   , udefs = UnusedDefinitions []
   , ofs = OtherForms []
   , usg = Usage Nothing Nothing Nothing Nothing
   , vfs = filterVariantForms [
-    (cvariant_form1, cvariant_form1_cat, cvariant_form1_speaker, cvariant_form1_source)
-    , (cvariant_form2, cvariant_form2_cat, cvariant_form2_speaker, cvariant_form2_source)
+    (cvariant_form1, "", cvariant_form1_speaker, csource)
     ]
   , pic = Picture Nothing Nothing Nothing Nothing Nothing Nothing
   , cp = CheckPoints (maybeBool cchecked_with_elders) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
   }
 processRecord _ = ""
 
+makeNotes :: String -> String -> String -> String -> String -> String
+makeNotes rev chang orig r j = f_r r ++ f_o orig ++ f_rev rev ++ f_c chang ++ f_j j
+  where 
+    f_r [] = []
+    f_r s = "Original Record ID: " ++ s
+    f_j [] = []
+    f_j j = "\n\nJDN Number: " ++ j
+    f_rev [] = []
+    f_rev s = "\n\nLW Post-Review Note: " ++ s
+    f_o [] = []
+    f_o s = "\n\nLW Original Note: " ++ s
+    f_c [] = []
+    f_c s = "\n\nTammy's Changes: " ++ s
+    
 maybeString :: String -> Maybe String
 maybeString [] = Nothing
 maybeString str = Just str
@@ -162,6 +179,10 @@ maybeBool :: String -> Maybe Bool
 maybeBool "TRUE" = Just True
 maybeBool "FALSE" = Just False
 maybeBool _ = Nothing
+
+sourceList :: String -> Maybe [String]
+sourceList [] = Just ["LBW"]
+sourceList str = Just [str, "LBW"]
 
 firstNullOf4 :: (String, String, String, String) -> Bool
 firstNullOf4 (x, _, _, _) = null x
@@ -181,6 +202,10 @@ filterInflectedForms xs =  InflectedForms [ makeInflectedForm x | x <- xs, (not 
 filterVariantForms :: [(String, String, String, String)] -> VariantForms
 filterVariantForms xs =  VariantForms [ makeVariantForm x | x <- xs, (not . firstNullOf4) x]
 
+makeCodes :: String -> Maybe [String]
+makeCodes "TRUE" = Just ["lw_reviewed", "lw_vta", "quarantine"]
+makeCodes _ = Just ["lw_vta", "quarantine"]
+
 makeExample :: (String, String, String, String) -> Example
 makeExample (ex, df, sp, _) = Example
   { example = maybeString ex
@@ -199,7 +224,7 @@ makeInflectedForm (ifl, ift, ifs, ifsou) = InflectedForm
   , inflection_type = maybeString ift
   , if_definition = Nothing
   , if_speaker = maybeList ifs
-  , if_source = maybeList ifsou
+  , if_source = sourceList ifsou
   , if_elders_checked = Nothing
   , if_elders_checked_date = Nothing
   , if_elders_checked_initials = Nothing
@@ -215,7 +240,7 @@ makeDefinition (df, dfs) = Definition
   { def_order = Nothing
   , def_definition = maybeString df
   , def_speaker = Nothing
-  , def_source = maybeList dfs
+  , def_source = sourceList dfs
   , def_notes = Nothing
   , def_elders_checked = Nothing
   , def_elders_checked_date = Nothing
@@ -227,7 +252,7 @@ makeVariantForm (vfm, _, vfs, ifsou) = VariantForm
   { variant_form = maybeString vfm
   , vf_speaker = maybeList vfs
   , vf_dialect = Nothing
-  , vf_source =  maybeList ifsou
+  , vf_source =  sourceList ifsou
   , vf_recording = Nothing
   , vf_timestamp = Nothing
   , vf_notes = Nothing
