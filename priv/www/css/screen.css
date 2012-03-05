@@ -355,3 +355,7 @@ th a {
 #file-upload-target {
   display: none;
 }
+
+#total-rows-info {
+  background: #CCC;
+}

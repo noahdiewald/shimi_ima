@@ -14,6 +14,9 @@
   {% endfor %}
 >Next</button>
 </nav>
+<div id="total-rows-info">
+  <b>Total</b>: {{ total_rows }}
+</div>
     
 <table id="query-view-listing">
   {% for row in rows %}

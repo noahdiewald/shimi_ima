@@ -17,7 +17,9 @@
   {% endfor %}
 >Next</button>
 </nav>
-    
+<div id="total-rows-info">
+  <b>Total</b>: {{ total_rows }}
+</div>
 <table>
   {% for row in rows %}
     {% if rows|length < limit or not forloop.last  %} 
