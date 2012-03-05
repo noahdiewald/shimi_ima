@@ -21,6 +21,14 @@
   data-document-document="{{ _id }}" 
   data-document-rev="{{ _rev }}">
 
+{% for r in revs_info %}
+  {% if r.status == "available" %}
+    <a
+      href="#{{ _id }}"
+      data-document-rev="{{ r.rev }}">{{ forloop.revcounter }}</a>
+  {% endif %}
+{% endfor %}
+
 {% for fieldset in fieldsets %}
   <li 
     class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 

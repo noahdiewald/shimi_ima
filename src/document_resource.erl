@@ -206,12 +206,15 @@ html_index(R, S) ->
 
 html_document(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    Json = document:normalize(couch:get_json(id, R, S)),
-  
+    OrigJson = couch:get_json(id, R, S),
+    RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
+    NormJson = document:normalize(OrigJson),
+    
     Vals = [
             {<<"title">>, list_to_binary(Doctype)}, 
             {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
+            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
+            {<<"revs_info">>, RevsInfo}|NormJson
            ],
   
     {ok, Html} = document_view_dtl:render(Vals),
