@@ -26,6 +26,8 @@
     <a
       href="#{{ _id }}"
       data-document-rev="{{ r.rev }}">{{ forloop.revcounter }}</a>
+  {% else %}
+    {{ forloop.revcounter }}
   {% endif %}
 {% endfor %}
 
