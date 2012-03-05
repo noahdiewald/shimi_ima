@@ -1,3 +1,7 @@
+{% if deleted_ %}
+  <div id="deleted-message"><b>DELETED</b></div>
+{% endif %}
+<ul>
 {% for fieldset in fieldsets %}
   <li 
     class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 

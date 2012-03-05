@@ -2,6 +2,19 @@
 // are generally pulling in data. Functions preceded by "init" are generally
 // generating parts of a form.
 
+// Get a document revision and display it in the middle column
+var getRevision = function(id, rev) {
+  var url = "documents/" + id + "/" + rev;
+  var dvt = $('#document-view-tree');
+
+  dvt.hide();
+
+  $.get(url, function(documentHtml) {
+          dvt.html(documentHtml);
+          dvt.show();
+        });
+};
+
 // Get a document and display it in the middle column
 function getDocument(id, runAfterEditRefresh) {
   var url = "documents/" + id;

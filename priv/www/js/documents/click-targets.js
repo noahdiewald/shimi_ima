@@ -143,3 +143,17 @@ function toggleTextarea(target) {
   textarea.toggleClass('expanded');
   target.toggleClass('expanded');
 }
+
+var fetchRevision = function(target) {
+  var id = dInfo("document", target);
+  var rev = dInfo("rev", target);
+  var oldrev = target.attr("data-document-oldrev");
+
+  if (rev != oldrev) {
+    $('#document-view-tree').addClass('oldrev');
+  } else {
+    $('#document-view-tree').removeClass('oldrev');
+  }
+
+  getRevision(id, oldrev);
+};

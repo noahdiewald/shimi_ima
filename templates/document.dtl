@@ -33,7 +33,7 @@
   <div 
     data-document-doctype="{{ doctype_info._id|escape }}" 
     data-document-description="{{ doctype_info.description|escape }}"
-    data-group-id="document-view-list"
+    data-group-id="document-view-info"
     id="all-document-container">
   
     <div class="ui-widget panel" id="document-index">

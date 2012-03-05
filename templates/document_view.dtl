@@ -1,35 +1,40 @@
 <h2 class="ui-widget ui-widget-header">{{ title|force_escape }} View</h2>
 
+<div
+  id="document-view-info"
+  data-document-deleted="{{ deleted_ }}"
+  data-document-document="{{ _id }}" 
+  data-document-rev="{{ _rev }}"></div>
+
 <a 
   id="document-restore-button"
-  data-group-id="document-view-list">
+  data-group-id="document-view-info">
   Restore</a>
 
 <a 
   id="document-edit-button"
-  data-group-id="document-view-list">
+  data-group-id="document-view-info">
   Edit</a>
 
 <a 
   id="document-delete-button"
-  data-group-id="document-view-list">
+  data-group-id="document-view-info">
   Delete</a>
 
-<ul 
-  id="document-view-list"
-  data-document-deleted="{{ deleted_ }}"
-  data-document-document="{{ _id }}" 
-  data-document-rev="{{ _rev }}">
-
+<nav id="history">
 {% for r in revs_info %}
   {% if r.status == "available" %}
     <a
       href="#{{ _id }}"
-      data-document-rev="{{ r.rev }}">{{ forloop.revcounter }}</a>
-  {% else %}
-    {{ forloop.revcounter }}
+      class="revision-link"
+      data-group-id="document-view-info"
+      {% if forloop.first %}
+        id="current-revision-link"
+      {% endif %}
+      data-document-oldrev="{{ r.rev }}">{{ forloop.revcounter }}</a>
   {% endif %}
 {% endfor %}
+</nav>
 
 <div id="document-view-tree">
   {% include 'document_view_tree.dtl' %}
