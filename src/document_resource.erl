@@ -55,6 +55,7 @@ resource_exists(R, S) ->
   
     case proplists:get_value(target, S) of
         identifier -> {couch:exists(Id, R, S), R, S};
+        revision -> {couch:exists(Id, R, S), R, S};
         _ -> {couch:exists(Doctype, R, S), R, S}
     end. 
 
@@ -66,6 +67,7 @@ allowed_methods(R, S) ->
         main -> {['HEAD', 'GET', 'POST'], R, S};
         index -> {['HEAD', 'GET'], R, S};
         identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
+        revision -> {['HEAD', 'GET'], R, S};
         edit -> {['HEAD', 'GET'], R, S}
     end.
   
@@ -104,7 +106,8 @@ to_html(R, S) ->
         edit -> {html_edit(R, S), R, S};
         main -> {html_documents(R, S), R, S};
         index -> {html_index(R, S), R, S};
-        identifier -> {html_document(R, S), R, S}
+        identifier -> {html_document(R, S), R, S};
+        revision -> {html_revision(R, S), R, S}
     end.
   
 from_json(R, S) ->
@@ -219,7 +222,12 @@ html_document(R, S) ->
   
     {ok, Html} = document_view_dtl:render(Vals),
     Html.
-      
+
+html_revision(R, S) ->      
+    Json = document:normalize(couch:get_json(rev, R, S)),
+    {ok, Html} = document_view_tree_dtl:render(Json),
+    Html.
+
 validate_authentication(Props, R, S) ->
     Project = couch:get_json(project, R, S),
     Name = jsn:get_value(<<"name">>, Project),

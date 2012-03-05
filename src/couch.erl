@@ -69,9 +69,14 @@ get_json(id, R, S) ->
     get_json_helper(Url, Headers);
   
 get_json(rev, R, S) ->
+    Revision = case wrq:get_qs_value("rev", R) of
+              undefined ->
+                  wrq:path_info(rev, R);
+              Rev -> Rev
+          end,
     Headers = proplists:get_value(headers, S),
     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ 
-        wrq:path_info(id, R) ++ "?rev=" ++ wrq:get_qs_value("rev", R),
+        wrq:path_info(id, R) ++ "?rev=" ++ Revision,
     get_json_helper(Url, Headers);
   
 get_json(Id, R, S) ->

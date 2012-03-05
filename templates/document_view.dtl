@@ -31,55 +31,6 @@
   {% endif %}
 {% endfor %}
 
-{% for fieldset in fieldsets %}
-  <li 
-    class="fieldset-view {% if fieldset.collapse %}collapsed{% endif %}" 
-    data-fieldset-fieldset="{{ fieldset.id }}" 
-    data-group-id="{{ fieldset.id }}">
-    <b>{{ fieldset.label|force_escape }}</b>:
-    {% if fieldset.multiple %}
-      <ol>
-        {% for multifield in fieldset.multifields %}
-        <li>
-          <ul class="multifield">
-            {% for field in multifield.fields %}
-              {% include 'document_view_field.dtl' %}
-            {% endfor %}
-          </ul>
-        </li>
-        {% endfor %}
-      </ol>
-    {% else %}
-      <ul>
-        {% for field in fieldset.fields %}
-          {% include 'document_view_field.dtl' %}
-        {% endfor %}
-      </ul>
-    {% endif %}
-  </li>
-{% endfor %}
-</ul>
-
-<div class="timestamps">
-  <dl>
-    <dt>Created At</dt><dd>{{ created_at_ }}</dd>
-    <dt>Created By</dt>
-      <dd>
-      {% if created_by_ %}
-        {{ created_by_ }}
-      {% else %}
-        {{ create_user_ }}
-      {% endif %}
-      </dd>
-    <dt>Updated At</dt><dd>{{ updated_at_ }}</dd>
-    <dt>Updated By</dt>
-      <dd>
-      {% if updated_by_ %}
-        {{ updated_by_ }}
-      {% else %}
-        {{ update_user_ }}
-      {% endif %}
-      </dd>
-    <dt>ID</dt><dd>{{ _id }}</dd>
-  </dl>
+<div id="document-view-tree">
+  {% include 'document_view_tree.dtl' %}
 </div>

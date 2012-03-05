@@ -12,7 +12,7 @@ function clickDispatch(e) {
       "#document-edit-button span": function(t) {editDoc(t.parent());},
       "#document-delete-button span": function(t) {deleteDoc(t.parent());},
       "#document-restore-button span": function(t) {restoreDoc(t.parent());},
-      "#document-view-list > li > b": function(t) {collapseToggle(t);},
+      "#document-view-tree > li > b": function(t) {collapseToggle(t);},
       "#panel-toggle li": function(t) {panelToggle(t);},
       ".expander": function(t) {toggleTextarea(t);},
       "label span": function(t) {showHelpDialog(t);}

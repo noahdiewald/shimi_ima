@@ -271,11 +271,11 @@ nav.pager button {
   color: #630000;
 }
 
-#document-view-list > li.collapsed.fieldset-view > b:before {
+#document-view-tree > li.collapsed.fieldset-view > b:before {
   content: "▸ ";
 }
 
-#document-view-list > li.fieldset-view > b:before {
+#document-view-tree > li.fieldset-view > b:before {
   content: "▾ ";
 }
 
