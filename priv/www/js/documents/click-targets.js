@@ -7,6 +7,13 @@ function removeFieldset(target) {
 
 function saveDoc(target) {
   var saveButton = target;
+
+  if (saveButton.hasClass('oldrev')) {
+    if (!confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
+      return false;
+    }
+  }
+  
   var root = $('#edit-document-form');
   var document = dInfo("document", saveButton);
   var rev = dInfo("rev", saveButton);
@@ -21,32 +28,33 @@ function saveDoc(target) {
   $.extend(obj, fieldsetsToObject(root));
   
   $.ajax({
-    type: "PUT",
-    url: url,
-    dataType: "json",
-    contentType: "application/json",
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function(req, status) {
-      if (req.status == 204 || req.status == 200) {
-        var title = "Success";
-        var body = "Your document was saved.";
-        getDocument(document, true);
-        getIndex();
-        flashHighlight(title, body);
-        saveButton.button('enable');
-      } else if (req.status == 403) {
-        setInvalidError(req);
-        saveButton.button('enable');
-      } else if (req.status == 409) {
-        var body = JSON.parse(req.responseText);
-        var title = req.statusText;
-        
-        flashError(title, body.message);
-        saveButton.button('enable');
-      }
-    }
-  });
+           type: "PUT",
+           url: url,
+           dataType: "json",
+           contentType: "application/json",
+           processData: false,
+           data: JSON.stringify(obj),
+           complete: function(req, status) {
+             if (req.status == 204 || req.status == 200) {
+               var title = "Success";
+               var body = "Your document was saved.";
+               getDocument(document, true);
+               getIndex();
+               flashHighlight(title, body);
+               saveButton.removeClass('oldrev');
+               saveButton.button('enable');
+             } else if (req.status == 403) {
+               setInvalidError(req);
+               saveButton.button('enable');
+             } else if (req.status == 409) {
+               var body = JSON.parse(req.responseText);
+               var title = req.statusText;
+               
+               flashError(title, body.message);
+               saveButton.button('enable');
+             }
+           }
+         });
 }
 
 function createDoc(target) {
@@ -99,6 +107,11 @@ function clearDoc(target) {
 
 function editDoc(target) {
   resetFields();
+  if ($('#document-view-tree').hasClass('oldrev')) {
+    $('#save-document-button').addClass('oldrev');
+  } else {
+    $('#save-document-button').removeClass('oldrev');
+  }
   fillFieldsets();
 }
 
