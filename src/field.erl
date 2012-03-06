@@ -286,7 +286,7 @@ update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
   DF#docfield{value=Def};
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,value=V}) when
-    (V /= true) or (V /= false) -> DF#docfield{value=Def};
+    (V /= true) and (V /= false) -> DF#docfield{value=Def};
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) when
     ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> DF#docfield{value=Def};
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when 
