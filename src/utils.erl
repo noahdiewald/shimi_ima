@@ -1,26 +1,24 @@
-%% @author Noah Diewald <noah@diewald.me>
-%% @copyright 2011 University of Wisconsin Madison Board of Regents.
-%% Copyright (c) 2011 University of Wisconsin Madison Board of Regents
-%%
-%% Permission is hereby granted, free of charge, to any person obtaining
-%% a copy of this software and associated documentation files (the
-%% "Software"), to deal in the Software without restriction, including
-%% without limitation the rights to use, copy, modify, merge, publish,
-%% distribute, sublicense, and/or sell copies of the Software, and to
-%% permit persons to whom the Software is furnished to do so, subject to
-%% the following conditions:
-%%
-%% The above copyright notice and this permission notice shall be included
-%% in all copies or substantial portions of the Software.
-%%
-%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-%% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-%% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-%% NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-%% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-%% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-%% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc Application specific CouchDB utility and helper functions
+%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%%
+%%% This file is part of dictionary_maker.
+%%%
+%%% dictionary_maker is free software: you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation, either version 3 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% dictionary_maker is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%%% GNU General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
+%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @version {@version}
+%%% @author Noah Diewald <noah@diewald.me>
+%%% @doc Utility functions
 
 -module(utils).
 
@@ -35,6 +33,7 @@
          read_file_info/1,
          record_to_proplist/2,
          report_indexing_timeout/4,
+         update_all_by/2,
          y/1
         ]).
 
@@ -46,8 +45,42 @@
 
 -type reqdata() :: #wm_reqdata{}.
 
-%% @doc Add escaped keys to view output
+%% @doc Takes a tuple that describes a view path and a function. The
+%% function argument takes a document and returns {ok, document} or
+%% the atom 'null'. It is applied to every document returned by the
+%% view, which will be queried using the include_docs option. The
+%% result of the function argument will be used to update the
+%% document.
+-spec update_all_by({Project :: string(), Id :: string(), View :: string()}, 
+                    fun((jsn:json_term()) -> {ok, jsn:json_term()} | null)) -> 
+                           ok.
+update_all_by({Project, Id, View}, Fun) ->
+    Url = ?ADMINDB ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View ++
+        "?include_docs=true",
+    ViewData = case ibrowse:send_req(Url, [], get) of
+                   {ok, "200", _, Json} -> jsn:decode(Json)
+               end,
+    Rows = jsn:get_value(<<"rows">>, ViewData),
+    Run = fun (X) ->
+                  Doc = jsn:get_value(<<"doc">>, X),
+                  case Fun(Doc) of
+                      null -> ok;
+                      {ok, NewDoc} ->
+                          update_doc(Project, NewDoc)
+                  end
+          end,
+    peach(Run, Rows, 20),
+    ok.
 
+%% @doc A couchdb update function that doesn't require webmachine
+%% info.
+update_doc(Project, Doc) ->
+    Url = ?ADMINDB ++ Project ++ "/" ++ "/_design/doctypes/_update/stamp/" ++
+        binary_to_list(jsn:get_value(<<"_id">>, Doc)),
+    ibrowse:send_req(Url, [{"Content-Type", "application/json"}], put, 
+                     jsn:encode(Doc)).
+
+%% @doc Add escaped keys to view output
 -spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
 add_encoded_keys(Json) ->
     Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
@@ -61,7 +94,6 @@ json_to_base64(Json) ->
     base64:encode(iolist_to_binary(jsn:encode(Json))).
 
 %% @doc Call file:list_dir and sort the results
-
 -spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.
 list_dir(Dir) ->
     case file:list_dir(Dir) of
@@ -69,21 +101,21 @@ list_dir(Dir) ->
         {error, Reason} -> {error, Reason}
     end.
 
-%% @doc This wrapper is required because file_lib expects that a module
-%% with list_dir/1 will have read_file_info/1 in its name space.
-
+%% @doc This wrapper is required because file_lib expects that a
+%% module with list_dir/1 will have read_file_info/1 in its name
+%% space.
 read_file_info(File) ->
     file:read_file_info(File).
 
 
-%% @doc Request is a fun that may return either {ok, Something} or {error,
-%% req_timedout}. Success is a fun that takes the Something that may have
-%% been returned by the request. If Request returns {error, req_timedout},
-%% a webmachine return value that results in the server responding with
-%% a 504 (gateway timeout) to the client is return. The reponse body also
-%% contains a JSON error message that assumes the timeout is due to couchdb
-%% being busy indexing. Otherwise, the Success fun is executed.
-
+%% @doc Request is a fun that may return either {ok, Something} or
+%% {error, req_timedout}. Success is a fun that takes the Something
+%% that may have been returned by the request. If Request returns
+%% {error, req_timedout}, a webmachine return value that results in
+%% the server responding with a 504 (gateway timeout) to the client is
+%% return. The reponse body also contains a JSON error message that
+%% assumes the timeout is due to couchdb being busy
+%% indexing. Otherwise, the Success fun is executed.
 -spec report_indexing_timeout(Request :: fun(() -> {'ok', Something :: any()} | {'error', 'req_timedout'}), Success :: fun(({'ok', Something :: any()}) -> any()), R :: reqdata(), S :: any()) -> any() | {{'halt', 504}, R1 :: reqdata(), S:: any()}.
 report_indexing_timeout(Request, Success, R, S) ->
     case Request() of
@@ -97,16 +129,15 @@ report_indexing_timeout(Request, Success, R, S) ->
 -spec y(fun()) -> any().
 
 %% @doc A Y-combinator helper function for composing recursive funs.
-
 y(F) ->
     G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
     G(G).
 
 
 %% @doc Take an id for a saved query and return a JSON term. This term
-%% will contain either the results of querying a view or will contain only
-%% [{<<"rows">>, []}] if no conditions have been defined for the query.
-
+%% will contain either the results of querying a view or will contain
+%% only [{<<"rows">>, []}] if no conditions have been defined for the
+%% query.
 -spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 get_query(QueryId, R, S) ->
     case couch:get_view_json(sortkeys, QueryId, "index", R, S) of
@@ -115,10 +146,9 @@ get_query(QueryId, R, S) ->
     end.
 
 
-%% @doc This is a helper for developers that can be used to clear previously
-%% added records from the database. It doesn't pay attention to return
-%% statuses.
-
+%% @doc This is a helper for developers that can be used to clear
+%% previously added records from the database. It doesn't pay
+%% attention to return statuses.
 -spec clear_all(Doctype :: string(), Project :: string()) -> ok.
 clear_all(Doctype, Project) ->
     Url = ?ADMINDB ++ Project ++ "/_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
@@ -134,10 +164,11 @@ clear_all(Doctype, Project) ->
         _ -> ok
     end.
 
-%% @doc This function is to help in adding a design document needed for
-%% new features that did not exist in earlier versions of the software.
-
--spec add_charseqs_design(Project :: string()) -> {ok, created} | {403, jsn:json_term()}.
+%% @doc This function is to help in adding a design document needed
+%% for new features that did not exist in earlier versions of the
+%% software.
+-spec add_charseqs_design(Project :: string()) -> 
+                                 {ok, created} | {403, jsn:json_term()}.
 add_charseqs_design(Project) ->
     {ok, Json} = design_charseqs_json_dtl:render(),
     Url = ?ADMINDB ++ Project,
@@ -152,8 +183,8 @@ add_charseqs_design(Project) ->
 
 %% @doc Convert a record to a proplist, take an array of fields from
 %% record_info(fields, Record) and the record itself.
-
--spec record_to_proplist(Fields :: [atom()], Record :: tuple()) -> [{atom(), any()}].
+-spec record_to_proplist(Fields :: [atom()], Record :: tuple()) ->
+                                [{atom(), any()}].
 record_to_proplist(Fields, Record) ->
     lists:zip(Fields, tl(tuple_to_list(Record))).
 
@@ -162,7 +193,10 @@ record_to_proplist(Fields, Record) ->
 binary_to_hexlist(Bin) ->
     lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
 
--spec peach(F :: fun(), L :: list(), N :: integer()) -> list().
+%% @doc Take a function a list and a number and run the function over
+%% list items in parallel. The number limits the number of concurrent
+%% workers. The operation is run as a side effect, returning the atom ok.
+-spec peach(F :: fun(), L :: list(), N :: integer()) -> ok.
 peach(_F, [], _N) ->
     ok;
 peach(F, L, N) ->
