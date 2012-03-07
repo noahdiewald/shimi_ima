@@ -30,28 +30,58 @@
   set_sortkeys/3,
   to_json/2,
   touch/3,
-  touch_all/3
+  touch_all/4
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
--spec touch_all(Dfss :: [docfieldset()], R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
-touch_all(Dfss, R, S) ->
-  touch_all(Dfss, [], R, S).
-  
-touch_all([], Acc, _R, _S) ->
+-spec touch_all([docfieldset()], [binary()], utils:reqdata(), any()) -> [docfieldset()].
+touch_all(Dfss, FsIds, R, S) ->
+    Dfss2 = add_missing(Dfss, FsIds, []),
+    touch_all2(Dfss2, [], R, S).
+
+touch_all2([], Acc, _R, _S) ->
   lists:reverse(Acc);
-touch_all([Dfs|Rest], Acc, R, S) ->
+touch_all2([Dfs|Rest], Acc, R, S) ->
   case touch(Dfs, R, S) of
-    undefined -> touch_all(Rest, Acc, R, S);
-    Val -> touch_all(Rest, [Val|Acc], R, S)
+    undefined -> touch_all2(Rest, Acc, R, S);
+    Val -> touch_all2(Rest, [Val|Acc], R, S)
   end.
+
+%% @doc Given the current set of fieldsets in a document, a list of
+%% ids and an empty accumulator, make sure that the current fieldsets
+%% are complete according to the latest configuration and in the
+%% correct order.
+-spec add_missing([docfieldset()], [binary()], []) -> [docfieldset()].
+add_missing(_Current, [], Complete) ->
+    lists:reverse(Complete);
+add_missing(Current, [Required|Rest], Acc) ->
+    case find_required(Required, Current) of
+        undefined ->
+            add_missing(Current, Rest, [#docfieldset{id=Required}|Acc]);
+        Found ->
+            add_missing(Current, Rest, [Found|Acc])
+    end.
+
+%% @doc Search for a fieldset with a particular id in a list of
+%% docfieldsets.
+-spec find_required(binary(), [docfieldset()]) -> docfieldset() | undefined.
+find_required(_, []) ->    
+    undefined;
+find_required(Id, [Found=#docfieldset{id=Id}|_]) ->
+    Found;
+find_required(Id, [_|Rest]) ->
+    find_required(Id, Rest).
   
 -spec touch(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
 touch(Dfs, R, S) ->
-  touch2(update(Dfs, R, S), R, S).
+    {ok, Fields} = couch:get_view_json(
+                     binary_to_list(Dfs#docfieldset.id), "fields", R, S),
+    FieldsIds = [jsn:get_value(<<"id">>, X) || 
+                    X <- jsn:get_value(<<"rows">>, Fields)],
+    touch2(update(Dfs, R, S), FieldsIds, R, S).
   
 %% @doc Set the sortkeys for fields in fieldsets
 
@@ -145,13 +175,17 @@ get_from_couch(Dfs, R, S) ->
     Val -> from_json(Val)
   end.
   
--spec touch2(Dfs :: docfieldset() | undefined, R :: utils:reqdata(), S :: any()) -> jsn:json_term() | undefined.
-touch2(undefined, _R, _S) ->
+-spec touch2(docfieldset() | undefined, [binary()], utils:reqdata(), any()) -> docfieldset() | undefined.
+touch2(undefined, _Fids, _R, _S) ->
   undefined;
-touch2(Dfs=#docfieldset{multiple=true,fields=F}, R, S) ->
-  Dfs#docfieldset{fields=[field:touch_all(X, R, S) || X <- F]};
-touch2(Dfs=#docfieldset{multiple=false,fields=F}, R, S) ->
-  Dfs#docfieldset{fields=field:touch_all(F, R, S)}.
+touch2(Dfs=#docfieldset{multiple=true,fields=undefined}, Fids, R, S) ->
+  Dfs#docfieldset{fields=[field:touch_all(X, Fids, R, S) || X <- [[]]]};
+touch2(Dfs=#docfieldset{multiple=true,fields=F}, Fids, R, S) ->
+  Dfs#docfieldset{fields=[field:touch_all(X, Fids, R, S) || X <- F]};
+touch2(Dfs=#docfieldset{multiple=false,fields=undefined}, Fids, R, S) ->
+  Dfs#docfieldset{fields=field:touch_all([], Fids, R, S)};
+touch2(Dfs=#docfieldset{multiple=false,fields=F}, Fids, R, S) ->
+  Dfs#docfieldset{fields=field:touch_all(F, Fids, R, S)}.
 
 -spec update(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> docfieldset().
 update(Dfs, R, S) ->
@@ -173,9 +207,15 @@ do_merge(Dfs, FS) ->
     label = FS#fieldset.label,
     name = FS#fieldset.name,
     order = FS#fieldset.order,
+    multiple = set_if_undefined(Dfs#docfieldset.multiple, FS#fieldset.multiple),
     collapse = FS#fieldset.collapse
   }.
-  
+
+set_if_undefined(undefined, Val) ->
+    Val;
+set_if_undefined(Val, _) ->
+    Val.
+
 get_fields(false, FS=#docfieldset{}) ->
   [{<<"fields">>, [field:to_json(doc, X) || X <- FS#docfieldset.fields]}];
 get_fields(true, FS=#docfieldset{}) ->

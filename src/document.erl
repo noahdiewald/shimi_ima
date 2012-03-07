@@ -58,10 +58,16 @@ touch_all(Id, R, S) ->
 touch(Id, R, S) ->
     Json = couch:get_json(binary_to_list(Id), R, S),
     Doc = from_json(Json),
+    {ok, Fieldsets} = couch:get_view_json(
+                        binary_to_list(Doc#document.doctype), 
+                        "fieldsets", R, S),
+    FieldsetIds = [jsn:get_value(<<"id">>, X) || 
+                      X <- jsn:get_value(<<"rows">>, Fieldsets)],
     Doc2 = to_json(
              Doc#document{
                prev = Doc#document.rev,
-               fieldsets = fieldset:touch_all(Doc#document.fieldsets, R, S)}),
+               fieldsets = fieldset:touch_all(
+                             Doc#document.fieldsets, FieldsetIds, R, S)}),
     case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), R, S) of
         {ok, updated} -> ok;
         Unexpected ->

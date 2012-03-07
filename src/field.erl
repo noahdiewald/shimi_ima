@@ -31,24 +31,50 @@
   set_sortkeys/3,
   to_json/2,
   touch/3,
-  touch_all/3
+  touch_all/4
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
--spec touch_all(Dfs :: [docfield()], R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
-touch_all(Dfs, R, S) ->
-  touch_all(Dfs, [], R, S).
-  
-touch_all([], Acc, _R, _S) ->
+-spec touch_all([docfield()], [binary()], utils:reqdata(), any()) -> [docfield()].
+touch_all(Dfs, FIds, R, S) ->
+    Dfs2 = add_missing(Dfs, FIds, []),
+    touch_all2(Dfs2, [], R, S).
+
+touch_all2([], Acc, _R, _S) ->
   lists:reverse(Acc);
-touch_all([Df|Rest], Acc, R, S) ->
+touch_all2([Df|Rest], Acc, R, S) ->
   case touch(Df, R, S) of
-    undefined -> touch_all(Rest, Acc, R, S);
-    Val -> touch_all(Rest, [Val|Acc], R, S)
+    undefined -> touch_all2(Rest, Acc, R, S);
+    Val -> touch_all2(Rest, [Val|Acc], R, S)
   end.
+
+%% @doc Given the current set of fields in a document, a list of ids
+%% and an empty accumulator, make sure that the current fields are
+%% complete according to the latest configuration and in the correct
+%% order.
+-spec add_missing([docfield()], [binary()], []) -> [docfield()].
+add_missing(_Current, [], Complete) ->
+    lists:reverse(Complete);
+add_missing(Current, [Required|Rest], Acc) ->
+    case find_required(Required, Current) of
+        undefined ->
+            add_missing(Current, Rest, [#docfield{id=Required}|Acc]);
+        Found ->
+            add_missing(Current, Rest, [Found|Acc])
+    end.
+
+%% @doc Search for a field with a particular id in a list of
+%% docfields.
+-spec find_required(binary(), [docfield()]) -> docfield() | undefined.
+find_required(_, []) ->    
+    undefined;
+find_required(Id, [Found=#docfield{id=Id}|_]) ->
+    Found;
+find_required(Id, [_|Rest]) ->
+    find_required(Id, Rest).
 
 -spec touch(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfield().
 touch(Df, R, S) ->
