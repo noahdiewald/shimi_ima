@@ -55,14 +55,14 @@
                     fun((jsn:json_term()) -> {ok, jsn:json_term()} | null)) -> 
                            ok.
 update_all_by({Project, Id, View}, Fun) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View ++
-        "?include_docs=true",
+    Url = ?ADMINDB ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
     ViewData = case ibrowse:send_req(Url, [], get) of
                    {ok, "200", _, Json} -> jsn:decode(Json)
                end,
     Rows = jsn:get_value(<<"rows">>, ViewData),
     Run = fun (X) ->
-                  Doc = jsn:get_value(<<"doc">>, X),
+                  DocId = jsn:get_value(<<"id">>, X),
+                  Doc = get_doc(Project, DocId),
                   case Fun(Doc) of
                       null -> ok;
                       {ok, NewDoc} ->
@@ -71,6 +71,11 @@ update_all_by({Project, Id, View}, Fun) ->
           end,
     peach(Run, Rows, 20),
     ok.
+
+get_doc(Project, Doc) ->
+    Url = ?ADMINDB ++ Project ++ "/" ++ binary_to_list(Doc),
+    {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+    jsn:decode(Json).
 
 %% @doc A couchdb update function that doesn't require webmachine
 %% info.
