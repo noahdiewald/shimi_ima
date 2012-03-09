@@ -343,14 +343,23 @@ select[multiple=true] {
   height: 5em;
 }
 
+#query-index-listing {
+    height: 500px;
+}
+
+#query-index-listing ul {
+    -moz-column-count: auto;
+    -webkit-column-count: auto;
+    -moz-column-width: 150px;
+    -webkit-column-count: 150px;
+    list-style: none;
+    margin-right: 20px;
+}
+
 #query-index-listing li {
   background: white;
   padding-left: 0.5em;
   padding-right: 0.5em;
-  border-style: dotted;
-  border-width: thin;
-  border-color: #1C94C4;
-  display: inline;
 }
 
 #query-index-listing a {

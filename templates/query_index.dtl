@@ -1,5 +1,5 @@
   <ul>
   {% for row in rows %}
-    <li><a href="#" data-query-id="{{row.key}}">{{row.value}}</a></li>
+    <li><a href="#" data-query-id="{{row.id}}">{{row.key}}</a></li>
   {% endfor %}
   </ul>

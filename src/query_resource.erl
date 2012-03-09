@@ -170,13 +170,13 @@ html_index(R, S) ->
             {ok, created} = couch:create(design, VJson, R, S);
         _ -> undefined
     end,
-  
+    
+    {ok, Json} = couch:get_view_json("queries", "options", R, S),
+
     case wrq:get_qs_value("as", R) of
         "options" -> 
-            {ok, Json} = couch:get_view_json("queries", "options", R, S),
             {ok, Html} = options_dtl:render(Json);
         _Else ->
-            {ok, Json} = couch:get_view_json("queries", "all_simple", R, S),
             {ok, Html} = query_index_dtl:render(Json)
     end,
     Html.
