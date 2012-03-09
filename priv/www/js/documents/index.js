@@ -41,8 +41,8 @@ function getIndex(startkey, startid, prevkeys, previds) {
   } else {
     // Ten is the default and I don't let people leave it blank
     // because the list could be huge.
-    $('#index-limit').val(10);
-    url = url + '&limit=11';
+    $('#index-limit').val(25);
+    url = url + '&limit=26';
   }
   
   if (query) {
