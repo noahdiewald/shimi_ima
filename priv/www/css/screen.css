@@ -12,7 +12,7 @@
   
 body {
   font-family: sans-serif;
-  font-size: 10pt;
+  font-size: 9pt;
   background: white;
   text-align: center;
   padding: 0;
@@ -64,17 +64,45 @@ nav {
 
 table {
   width: 100%;
+  background: white;
 }
 
 .ui-dialog-content {
   text-align: left;
 }
 
-label {
-  vertical-align: top;
+.head-elements, .reversal-elements {
+    padding: 0;
+    margin: 0;
+}
+
+.reversal-elements {
+    list-style: none;
+}
+
+.reversal-elements li:before {
+    content: "·";
+}
+
+#edit-document-form p {
+    font-size: 8pt;
+    margin: 2px;
+}
+
+#edit-document-form .fields {
+    padding: 1px;
 }
 
 #edit-document-form label {
+  height: 1.4em;
+  margin: 1px;
+  margin-right: -4px;
+  vertical-align: top;
+  border-style: solid;
+  border-width: thin;
+  border-color: #CCC;
+  background: #EEE;
+  overflow: hidden;
   width: 35%;
   position: relative;
   display: inline-block;
@@ -84,7 +112,7 @@ label {
   padding-left: 1em;
 }
 
-#edit-document-form input[type=text] {
+#edit-document-form input[type=text], #edit-document-form select {
   width: 60%;
 }
 
@@ -119,6 +147,30 @@ label span.ui-icon-help {
 
 .ui-dialog-content input[type=text], .ui-dialog-content textarea {
   width: 100%;
+}
+
+.ui-tabs .ui-tabs-panel {
+    padding: 0;
+}
+
+.ui-buttonset {
+    margin: 0px;
+}
+
+.ui-button-text-icon-primary .ui-button-text, .ui-button-text-icon-secondary .ui-button-text, .ui-button-text-icons .ui-button-text {
+    padding: 0.1em 1em 0.1em 2.1em;
+}
+
+.ui-corner-all, .ui-corner-right, .ui-corner-left {
+    border-radius: 0;
+}
+
+select, input, textarea {
+    background: white;
+    border-style: solid;
+    border-width: thin;
+    border-color: #CCC;
+    margin: 1px;
 }
 
 .accordion-head {
@@ -228,7 +280,7 @@ nav ul li, #panel-toggle ul li {
   font-weight: bold;
 }
 
-nav.pager button {
+nav.pager a {
   width: 50%;
 }
 
@@ -339,7 +391,7 @@ input[disabled] {
   padding: 10px;
 }
 
-#button-bar button {
+#button-bar a {
   padding: -4px;
   margin: -4px;
 }
@@ -350,6 +402,8 @@ input[disabled] {
 
 th a {
   text-decoration: none;
+  font-weight: normal;
+  color: black;
 }
 
 #file-upload-target {
@@ -376,4 +430,15 @@ nav#history a {
   text-decoration: none;
   color: black;
   font-weight: bold;
+}
+
+th, td {
+    border-style: solid;
+    border-color: #CCC;
+    border-width: thin;
+}
+
+th {
+    background: #EEE;
+    vertical-align: top;
 }

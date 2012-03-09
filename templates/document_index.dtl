@@ -1,9 +1,11 @@
 <nav class="pager">
-<button 
+<a
+  href="#" 
   title="Previous Page"
   id="previous-index-page"
 >Previous</button> 
-<button 
+<a
+  href="#"
   title="Next Page"
   id="next-index-page"
   {% if rows|length < limit %}
@@ -15,7 +17,7 @@
   data-startid="{{row.id }}"
     {% endif %}
   {% endfor %}
->Next</button>
+>Next</a>
 </nav>
 <div id="total-rows-info">
   <b>Total</b>: {{ total_rows }}
