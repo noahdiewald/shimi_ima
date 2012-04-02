@@ -184,9 +184,15 @@ select, input, textarea {
 #notifications-main {
   top: 0;
   right: 0;
+  opacity: 0.8;
+  text-align: center;
   width: 50%;
   position: fixed;
   z-index: 100;
+}
+
+#notifications-main div {
+  padding: 0.5em;
 }
 
 .notification span.ui-icon {
@@ -296,9 +302,18 @@ nav ul li, #panel-toggle ul li {
 }
 
 #loading {
+  border-width: thin;
+  border-style: solid;
+  border-color: #CCC;
+  background: white;
+  opacity: 0.8;
   position: fixed;
+  width: 100px;
+  height: 100px;
+  padding-top: 20px;
+  margin-left: -50px;
   left: 50%;
-  top: 50%;
+  top: 40%;
 }
 
 #tabs-container {

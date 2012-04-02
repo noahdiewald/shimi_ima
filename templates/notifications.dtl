@@ -16,8 +16,4 @@
       <a href="#" class="close">Close</a>
     </p>
   </div>
-  
-  <div id="ajax-notification" class="notification ui-widget-content ui-corner-all">
-    <p>Loading...</p>
-  </div>
 </div>

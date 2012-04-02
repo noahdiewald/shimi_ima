@@ -334,7 +334,7 @@ var flashHighlight = function(title, body) {
 $(function () {
   $('.notification').hide();
   
-  $('#loading, #ajax-notification').hide().ajaxStart(function() {
+  $('#loading').hide().ajaxStart(function() {
     $(this).show();
   }).ajaxStop(function() {
     $(this).hide();
