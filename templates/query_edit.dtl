@@ -13,12 +13,13 @@
 <table>
   <thead>
     <tr class="ui-widget-header ui-corner-all">
-      <th></th>
+      <td></td>
       <th>Negate</th>
       <th>Fieldset</th>
       <th>Field</th>
       <th>Condition</th>
-      <th colspan=2>Value</th>
+      <th>Value</th>
+      <td></td>
     </tr>
   </thead>
   <tbody>
