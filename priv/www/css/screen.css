@@ -344,7 +344,8 @@ select[multiple=true] {
 }
 
 #query-index-listing {
-    height: 500px;
+    height: 200px;
+    overflow-y: scroll;
 }
 
 #query-index-listing ul {
