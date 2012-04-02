@@ -86,8 +86,8 @@ function disableOptions(options, disables) {
 }
 
 function alterArgumentField(argumentField, operatorField, fieldField, callback) {
-  var fieldDoc = function () {return getDoc(fieldField.val())};
-  
+  var fieldDoc = function () {return getDoc(fieldField.val());};
+
   callback();
   
   argumentField.removeAttr('disabled').datepicker('destroy');
@@ -104,8 +104,10 @@ function alterArgumentField(argumentField, operatorField, fieldField, callback) 
     
     return false;
   }
+
+  var fdoc = fieldDoc();
   
-  if (fdoc = fieldDoc()) {
+  if (fdoc) {
     switch (operatorField.val()) {
       case "true":
       case "blank":
