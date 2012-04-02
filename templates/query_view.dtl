@@ -1,6 +1,11 @@
 <nav class="pager">
-  <button title="Previous Page" id="previous-page">Previous</button> 
-<button 
+<a
+  href="#"
+  title="Previous Page"
+  id="previous-page"
+>Previous</a> 
+<a
+  href="#"
   title="Next Page"
   id="next-page"
   {% if rows|length < limit %}
@@ -8,11 +13,11 @@
   {% endif %}
   {% for row in rows %}
     {% if forloop.last %}
-  data-startkey="{% for elem in row.key %}{{elem|first}}{% endfor %}"
+  data-startkey="{{row.encoded_key}}"
   data-startid="{{row.id }}"
     {% endif %}
   {% endfor %}
->Next</button>
+>Next</a>
 </nav>
 <div id="total-rows-info">
   <b>Total</b>: {{ total_rows }}
@@ -23,22 +28,31 @@
     {% if rows|length < limit or not forloop.last  %} 
   <tr>
     <th>
-      <a href="#{{ row.id }}" class="view-document-link" {% if forloop.first %}id="first-index-element" data-first-id="{{ row.id }}" data-first-key="{% for elem in row.key %}{{elem|first}}{% endfor %}" {% endif %}>
+      <a 
+        href="#{{ row.id }}" 
+        class="view-document-link"
+        {% if forloop.first %}
+          id="first-index-element" 
+          data-first-id="{{ row.id }}" 
+          data-first-key="{{ row.encoded_key }}"
+        {% endif %}>
         <ul class="head-elements">
-          {% for elem in row.key %}<li>
-          {% if elem|last == '~blank' %}
-            <span class="help-text">blank</span>
-          {% else %}
-            {{ elem|last|force_escape }}
-          {% endif %}
-          </li>{% endfor %}
+          {% for elem in row.key %}
+            <li>
+            {% if elem|last == '~blank' %}
+              <span class="help-text">blank</span>
+            {% else %}
+              {{ elem|last|force_escape }}
+            {% endif %}
+            </li>
+          {% endfor %}
         </ul>
       </a>
     </th>
     <td>
       <ul class="reversal-elements">
       {% for elem in row.value %}
-        {% if elem %}<li>{{ elem|escape }}</li>{% endif %}
+        {% if elem %}<li>{{ elem|force_escape }}</li>{% endif %}
       {% endfor %}
       </ul>
     </td>

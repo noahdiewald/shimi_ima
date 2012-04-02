@@ -208,7 +208,8 @@ html_view(R, S) ->
     QueryId = wrq:path_info(id, R),
     Limit = wrq:get_qs_value("limit", R),
     {ok, Json} = utils:get_query(QueryId, R, S),
-    Vals = [{<<"limit">>, Limit}|Json],
+    Index = utils:add_encoded_keys(Json),
+    Vals = [{<<"limit">>, Limit}|Index],
     {ok, Html} = query_view_dtl:render(Vals),
     Html.
     

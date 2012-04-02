@@ -157,8 +157,12 @@ label span.ui-icon-help {
     margin: 0px;
 }
 
-.ui-button-text-icon-primary .ui-button-text, .ui-button-text-icon-secondary .ui-button-text, .ui-button-text-icons .ui-button-text {
+.ui-button-text-icon-primary .ui-button-text, .ui-button-text-icons .ui-button-text {
     padding: 0.1em 1em 0.1em 2.1em;
+}
+
+.ui-button-text-icon-secondary .ui-button-text {
+    padding: 0.1em 2.1em 0.1em 1em;
 }
 
 .ui-corner-all, .ui-corner-right, .ui-corner-left {
@@ -202,12 +206,12 @@ ul.head-elements li {
   display: inline;
 }
 
-ul.head-elements li::before {
+ul.head-elements li:before {
   content: ", ";
   white-space: pre;
 }
 
-ul.head-elements li:first-child::before {
+ul.head-elements li:first-child:before {
   content:"";
 }
 
@@ -261,6 +265,16 @@ nav#main-navigation a {
   color: white;
 }
 
+nav.pager {
+  width: 100%;
+}
+
+nav.pager a, nav.pager.ui-buttonset a {
+  width: 50%;
+  border-left: none;
+  border-right: none;
+}
+
 #panel-toggle {
   width: 100%;
   opacity: 0.5;
@@ -278,10 +292,6 @@ nav ul, #panel-toggle ul {
 nav ul li, #panel-toggle ul li {
   display: inline;
   font-weight: bold;
-}
-
-nav.pager a {
-  width: 50%;
 }
 
 #loading {

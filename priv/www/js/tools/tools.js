@@ -290,13 +290,15 @@ function getQueryView(startkey, startid, prevkeys, previds) {
   
   // Initialize some values if we're at the beginning of the listing
   if (!prevkeys) {
-    startkey = $('#query-filter').val();
+    var supplied_val = $('#query-filter').val();
+    var json_encoded = JSON.stringify(supplied_val);
+    startkey = btoa(unescape(encodeURIComponent(json_encoded)));
     prevkeys = [];
     previds = [];
   }
   
   if (startkey) {
-    url = url + '&startkey=' + encodeURIComponent(JSON.stringify([startkey]));
+    url = url + '&startkey=' + escape(atob(startkey));
     
     if (startid) {
       url = url + '&startkey_docid=' + startid;
@@ -315,41 +317,50 @@ function getQueryView(startkey, startid, prevkeys, previds) {
   }
   
   $.get(url, function(data) {
-    $('#query-list-view').html(data);
+          $('#query-list-view').html(data);
     
-    $('#previous-page').button({
-      icons: {primary:'ui-icon-circle-arrow-w'} 
-    }).click(function() {
-      getQueryView(prevkeys.pop(), previds.pop(), prevkeys, previds);
-    });
+          $('#previous-page').button(
+            {
+              icons: {primary:'ui-icon-circle-arrow-w'} 
+            }).click(function() 
+                     {
+                       getQueryView(prevkeys.pop(), 
+                                    previds.pop(), 
+                                    prevkeys, 
+                                    previds);
+                     });
     
-    // Collect the values needed for paging from the HTML
-    $('#next-page').button({
-      icons: {secondary:'ui-icon-circle-arrow-e'}
-    }).click(function() {
-      var nextkey = $(this).attr('data-startkey');
-      var nextid = $(this).attr('data-startid');
-      var prevkey = $('#first-index-element').attr('data-first-key');
-      var previd = $('#first-index-element').attr('data-first-id');
-      prevkeys.push(prevkey);
-      previds.push(previd);
-      
-      getQueryView(nextkey, nextid, prevkeys, previds);
-    });
+          // Collect the values needed for paging from the HTML
+          $('#next-page').button(
+            {
+              icons: {secondary:'ui-icon-circle-arrow-e'}
+            }).click(function() 
+                     {
+                       var nextkey = $(this).attr('data-startkey');
+                       var nextid = $(this).attr('data-startid');
+                       var prevkey = 
+                         $('#first-index-element').attr('data-first-key');
+                       var previd = 
+                         $('#first-index-element').attr('data-first-id');
+                       prevkeys.push(prevkey);
+                       previds.push(previd);
+                       
+                       getQueryView(nextkey, nextid, prevkeys, previds);
+                     });
     
-    // Disable the previous button if we're at the beginning
-    if (prevkeys.length == 0) {
-      $('#previous-page').button("disable");
-    }
+          // Disable the previous button if we're at the beginning
+          if (prevkeys.length == 0) {
+            $('#previous-page').button("disable");
+          }
     
-    // Disable the next button if we're at the end
-    if ($('#next-page').attr('data-last-page')) {
-      $('#next-page').button("disable");
-    }
+          // Disable the next button if we're at the end
+          if ($('#next-page').attr('data-last-page')) {
+            $('#next-page').button("disable");
+          }
   
-    $('nav.pager').buttonset();
+          $('nav.pager').buttonset();
     
-  });
+        });
 
 }
 
