@@ -260,7 +260,7 @@ function getQueryEdit(queryId) {
   $.get(url, function(queryData) {
     target.html(queryData);
     // TODO don't repeat this code. It is also in initQueryBuilderDialog
-    tableBody = $('#query-conditions-listing tbody');
+    var tableBody = $('#query-conditions-listing tbody');
     tableBody.sortable();
     initConditionRemoveButtons(tableBody);
     getQueryView();
