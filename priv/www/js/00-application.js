@@ -309,17 +309,27 @@ function initDateFields() {
 
 // Display notifications
 
-function flashError(title, body) {
-  $('#notifications-main .ui-state-error .notification-summary').text(title + ": ");
-  $('#notifications-main .ui-state-error .notification-message').text(body);
-  $('#notifications-main .ui-state-error').fadeIn().delay(7000).fadeOut('slow');
-}
+var flash = function(flasher, title, body) {
+  var fadeout = function() {
+    flasher.fadeOut();
+  };
+  flasher.find('.notification-summary').text(title + ": ");
+  flasher.find('.notification-message').text(body);
+  var timeout = setTimeout(fadeout, 7000);
+  flasher.fadeIn();
+  flasher.find('.close').click(function () {
+                                     clearTimeout(timeout);
+                                     flasher.hide();
+                                   });
+};
 
-function flashHighlight(title, body) {
-  $('#notifications-main .ui-state-highlight .notification-summary').text(title + ": ");
-  $('#notifications-main .ui-state-highlight .notification-message').text(body);
-  $('#notifications-main .ui-state-highlight').fadeIn('slow').delay(7000).fadeOut('slow');
-}
+var flashError = function(title, body) {
+  flash($('#notifications-main .ui-state-error'), title, body);
+};
+
+var flashHighlight = function(title, body) {
+  flash($('#notifications-main .ui-state-highlight'), title, body);
+};
  
 $(function () {
   $('.notification').hide();

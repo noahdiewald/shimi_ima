@@ -186,6 +186,7 @@ select, input, textarea {
   right: 0;
   width: 50%;
   position: fixed;
+  z-index: 100;
 }
 
 .notification span.ui-icon {
@@ -393,7 +394,7 @@ select[multiple=true] {
   text-align: right;
 }
 
-.help-text {
+.help-text, .close {
   font-size: 85%;
   background: white;
   padding-left: 0.5em;

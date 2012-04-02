@@ -3,6 +3,8 @@
     <p>
       <strong class="notification-summary"></strong>
       <span class="notification-message"></span>
+
+      <a href="#" class="close">Close</a>
     </p>
   </div>
   
@@ -10,6 +12,8 @@
     <p>
       <strong class="notification-summary"></strong>
       <span class="notification-message"></span>
+
+      <a href="#" class="close">Close</a>
     </p>
   </div>
   
