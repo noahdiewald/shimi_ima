@@ -4,24 +4,29 @@ function initTabs() {
 }
 
 function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
-  var fieldDoc;
+  var fieldDoc = getDoc(fieldId);
   var url = 'doctypes/' + doctypeId + 
             '/fieldsets/' + fieldsetId + 
             '/fields/' + fieldId + '?format=json';
             
-  if (fieldDoc = getDoc(fieldId)) {
+  if (fieldDoc) {
     if (callback) {
       callback(fieldDoc);
     }
     return fieldDoc;
   } else {
-    $.getJSON(url, function(data) {
-      putDoc(data);
-      if (callback) {
-        callback(getDoc(fieldId));
-      }
-    });
-    
+    $.ajax({
+             url: url,
+             async: false,
+             dataType: 'json',
+             success: function(data) {
+               putDoc(data);
+               if (callback) {
+                 callback(getDoc(fieldId));
+               }
+             }
+           });
+          
     return getDoc(fieldId);
   }
 }
@@ -131,21 +136,22 @@ function fixArgumentType(argument, subcategory) {
 function getQueryConditions(doctypeId, rows) {
   var conditions = rows.map(function(index, row) {
     row = $(row);
-    var fieldId = row.find('td.field-condition').attr('data-value');
-    var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-    var argument = row.find('td.argument-condition').attr('data-value');
-    var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
     var is_or = row.find('td.or-condition').attr('data-value') == "true";
-    var negate = row.find('td.negate-condition').attr('data-value') == "true";
-    var operator = row.find('td.operator-condition').attr('data-value');
     var condition;
     
     if (is_or) {
       condition = { "is_or": true };
     } else {
+      var fieldId = row.find('td.field-condition').attr('data-value');
+      var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+      var argument = row.find('td.argument-condition').attr('data-value');
+      var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
+      var negate = row.find('td.negate-condition').attr('data-value') == "true";
+      var operator = row.find('td.operator-condition').attr('data-value');
+
       argument = fixArgumentType(argument, fieldDoc.subcategory);
       
-      var condition = {
+      condition = {
         "is_or": false,
         "negate": negate,
         "fieldset": fieldsetId,
