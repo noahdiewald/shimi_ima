@@ -184,7 +184,7 @@ select, input, textarea {
 #notifications-main {
   top: 0;
   right: 0;
-  opacity: 0.8;
+  opacity: 0.9;
   text-align: center;
   width: 50%;
   position: fixed;
@@ -306,7 +306,7 @@ nav ul li, #panel-toggle ul li {
   border-style: solid;
   border-color: #CCC;
   background: white;
-  opacity: 0.8;
+  opacity: 0.9;
   position: fixed;
   width: 100px;
   height: 100px;
