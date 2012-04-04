@@ -2,6 +2,16 @@
 // are generally pulling in data. Functions preceded by "init" are generally
 // generating parts of a form.
 
+var formatTimestamps = function() {
+  $('.timestamp').each(
+    function(i, item) {
+      var newDate = (new Date($(item).text())).toLocaleString();
+      if (newDate !== "Invalid Date") {
+        $(item).text(newDate);
+      }
+    });
+};
+
 // Get a document revision and display it in the middle column
 var getRevision = function(id, rev) {
   var url = "documents/" + id + "/" + rev;
@@ -11,6 +21,7 @@ var getRevision = function(id, rev) {
 
   $.get(url, function(documentHtml) {
           dvt.html(documentHtml);
+          formatTimestamps();
           dvt.show();
         });
 };
@@ -23,6 +34,8 @@ function getDocument(id, runAfterEditRefresh) {
   
   $.get(url, function(documentHtml) {
     $('#document-view').html(documentHtml);
+
+    formatTimestamps();
 
     if (runAfterEditRefresh) afterEditRefresh();
     

@@ -138,7 +138,7 @@ decode_date(null) ->
 decode_date(Json) ->
     case js_date:convert(binary_to_list(Json)) of
         bad_date -> null;
-        Datetime -> Datetime
+        {ok, Datetime} -> Datetime
     end.
   
 -spec encode_date(calendar:datetime() | null) -> jsn:json_term().

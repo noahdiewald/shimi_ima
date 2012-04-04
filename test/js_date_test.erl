@@ -28,12 +28,25 @@
 -include_lib("include/types.hrl").
 
 convert_test_() ->
- [
-   ?_assertEqual(js_date:convert("Tue Nov 08 2011 21:24:04 GMT-0600 (CST)"), {{2011,11,8},{21,24,04}}),
-   ?_assertEqual(js_date:convert("Te Nov 08 2011 21:24:04 GMT-0600 (CST)"), bad_date)
- ].
+    [
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 21:24:04 GMT-0600 (CST)"), {ok, {{2011,11,9},{3,24,4}}}),
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 21:24:04 GMT+0600"), {ok, {{2011,11,8},{15,24,4}}}),
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 01:24:04 GMT+0600"), {ok, {{2011,11,7},{19,24,4}}}),
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 01:24:04 GMT-0600 (CST)"), {ok, {{2011,11,8},{7,24,4}}}),
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 01:24:04 GMT-0630"), {ok, {{2011,11,8},{7,54,4}}}),
+     ?_assertEqual(js_date:convert("Tue Nov 08 2011 23:33:04 GMT-0030"), {ok, {{2011,11,9},{0,3,4}}}),
+     ?_assertEqual(js_date:convert("Te Nov 08 2011 21:24:04 GMT-0600 (CST)"), bad_date)
+    ].
 
 to_string_test_() ->
- [
-   ?_assertEqual(js_date:to_string({{2011,11,8},{21,24,04}}), "Tue, 08 Nov 2011 21:24:04 GMT")
- ].
+    [
+     ?_assertEqual(js_date:to_string({{2011,11,8},{21,24,04}}), "Tue, 08 Nov 2011 21:24:04 GMT")
+    ].
+
+both_test_() ->
+    [
+     ?_assertEqual(js_date:to_string(no_ok(js_date:convert("Tue Nov 08 2011 01:24:04 GMT+0600"))), "Mon, 07 Nov 2011 19:24:04 GMT")
+     ].
+
+no_ok({ok, Ok}) ->
+    Ok.

@@ -33,7 +33,7 @@
 
 <div class="timestamps">
   <dl>
-    <dt>Created At</dt><dd>{{ created_at_ }}</dd>
+    <dt>Created At</dt><dd class="timestamp">{{ created_at_ }}</dd>
     <dt>Created By</dt>
       <dd>
       {% if created_by_ %}
@@ -42,7 +42,7 @@
         {{ create_user_ }}
       {% endif %}
       </dd>
-    <dt>Updated At</dt><dd>{{ updated_at_ }}</dd>
+    <dt>Updated At</dt><dd class="timestamp">{{ updated_at_ }}</dd>
     <dt>Updated By</dt>
       <dd>
       {% if updated_by_ %}
