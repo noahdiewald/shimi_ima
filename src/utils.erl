@@ -35,6 +35,7 @@
          report_indexing_timeout/4,
          update_all_by/2,
          update_all_by/3,
+         uuid/0,
          y/1
         ]).
 
@@ -45,6 +46,10 @@
 -include_lib("webmachine/include/webmachine.hrl").
 
 -type reqdata() :: #wm_reqdata{}.
+
+%% @doc Return a unique id
+uuid() ->
+  binary_to_hexlist(crypto:rand_bytes(16)).
 
 %% @doc Takes a tuple that describes a view path and a function. The
 %% function argument takes a document and returns {ok, document} or

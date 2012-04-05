@@ -134,11 +134,10 @@ get_design_rev(Name, R, S) ->
     Json = get_json_helper(Url, []),
     {jsn:get_value(<<"version">>, Json), jsn:get_value(<<"_rev">>, Json)}.
 
-get_uuid(_R, S) ->
-    Headers = proplists:get_value(headers, S),
-    {ok, "200", _, Json} = ibrowse:send_req(?COUCHDB ++ "_uuids", Headers, get),
-    [Uuid] = jsn:get_value(<<"uuids">>, jsn:decode(Json)),
-    {ok, binary_to_list(Uuid)}.
+% TODO: this once queried couchdb. Now the callers could just use the
+% function directly.
+get_uuid(_R, _S) ->
+    utils:uuid().
 
 delete(R, S) ->
     Id = wrq:path_info(id, R),

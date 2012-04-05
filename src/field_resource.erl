@@ -41,7 +41,7 @@
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
+-include_lib("config.hrl").
 
 % Standard webmachine functions
 
@@ -134,7 +134,7 @@ html_as_options(R, S) ->
   
 get_field_html(Json, R, S) ->
   % One time use identifier
-  {ok, UUID} = couch:get_uuid(R, S),
+  UUID = utils:uuid(),
   Json1 = jsn:set_value(<<"instance_id">>, list_to_binary(UUID), Json),
   
   Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json1)),

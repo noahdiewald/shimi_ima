@@ -32,8 +32,8 @@
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
--include_lib("include/types.hrl").
+-include_lib("config.hrl").
+-include_lib("types.hrl").
 
 %% @doc If configuration has changed, it may be desireable to update
 %% previously saved documents. This will update all documents of a
