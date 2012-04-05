@@ -1,4 +1,4 @@
-<h2 class="ui-widget ui-widget-header">{{ title|force_escape }} View</h2>
+{% include "document_view_header.dtl" %}
 
 <div
   id="document-view-info"

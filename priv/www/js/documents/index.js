@@ -96,13 +96,7 @@ function getIndex(startkey, startid, prevkeys, previds) {
     
           // Allows the document for the listed item to be displayed
           // in the correct pane on click.
-          $('.view-document-link').click(
-            function() 
-            {
-              $("#document-view").html("<em>Loading...</em>");
-              clearDoc();
-              getDocument(this.hash.slice(1));
-            });
+          $('.view-document-link').click(function () {loadDocument(this.hash.slice(1));});
         });
 }
 

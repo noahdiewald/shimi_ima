@@ -1,0 +1,6 @@
+<h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape}} View</h2>
+
+<form id="view-jump">
+  <label for="view-jump-id">Id</label>
+  <input type="text" id="view-jump-id" name="view-jump-id">
+</form>

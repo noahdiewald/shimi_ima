@@ -31,6 +31,23 @@ function loadHash(urlHash) {
   if (urlHash) getDocument(urlHash);
 }
 
+var jumpForm = function() {
+  $('#view-jump-id')
+    .live("keydown", 
+          function(e) {
+            if (e.which === 13) {
+              var docid = $('#view-jump-id').val();
+              loadDocument(docid);
+            }
+          });  
+};
+
+var loadDocument = function(docid) {
+  $("#document-view").html("<em>Loading...</em>");
+  clearDoc();
+  getDocument(docid);
+};
+
 $(
   function () {
     var getIndexTimer;
@@ -39,6 +56,7 @@ $(
     
     fillQueryOptions();
     getIndex();
+    jumpForm();
     initEdit();
 
     $('#index-filter-form input').keyup(
