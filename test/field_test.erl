@@ -73,6 +73,14 @@ field() ->
     subcategory = date
   }.
 
+json_docfield(Changes) ->
+    field:to_json(
+      doc, field:from_json(doc, json_docfield(Changes, json_docfield()))).
+
+json_docfield([], DocField) -> DocField;
+json_docfield([{Key, Value}|Rest], DocField) ->
+    json_docfield(Rest, jsn:set_value(Key, Value, DocField)).
+    
 json_docfield() ->
   [{<<"id">>,<<"25250e2ead108a8f60213f24040007e4">>},
     {<<"name">>,<<"caltest">>},

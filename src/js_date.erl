@@ -40,7 +40,10 @@ convert([_D,_A,_Y,_SP,M,O,N,_SP,D1,D2,_SP,Y1,Y2,Y3,Y4,_SP,H1,H2,_Col,M1,M2,_Col,
     Sec = list_to_integer([S1, S2]),
     convert2({{Year, Month, Day}, {Hour, Min, Sec}}, Rest);
 convert(Datetime) ->
-    httpd_util:convert_request_date(Datetime).
+    case httpd_util:convert_request_date(Datetime) of
+        bad_date -> bad_date;
+        Datetime2 -> {ok, Datetime2}
+    end.
 
 -spec convert2(calendar:datetime(), string()) -> {ok, calendar:datetime()} | bad_date.
 convert2(Datetime, [$\ ,$G,$M,$T,Sign,Hr1,Hr2,Min1,Min2|_Rest]) ->

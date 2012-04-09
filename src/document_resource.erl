@@ -121,7 +121,8 @@ from_json(R, S) ->
 json_create(R, S) ->
     Json = proplists:get_value(posted_json, S),
     Json1 = document:set_sortkeys(Json, R, S),
-    case couch:create(doc, jsn:encode(Json1), R, S) of
+    NormJson = document:normalize(Json1),
+    case couch:create(doc, jsn:encode(NormJson), R, S) of
         {ok, created} -> {true, R, S};
         {403, Message} ->
             R1 = wrq:set_resp_body(Message, R),
@@ -138,8 +139,9 @@ json_update(Json, R, S) ->
     Rev = wrq:get_qs_value("rev", R),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+    NormJson = document:normalize(Json2),
   
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
+    case couch:update(doc, Id, jsn:encode(NormJson), R, S) of
         {ok, updated} ->
             NewJson = couch:get_json(Id, R, S),
             Message = jsn:encode([{<<"rev">>, 

@@ -25,7 +25,7 @@
 -compile(export_all).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("include/types.hrl").
+-include_lib("types.hrl").
     
 single_json() -> 
   [{<<"id">>,<<"25250e2ead108a8f60213f24040007e4">>},
@@ -33,9 +33,12 @@ single_json() ->
   {<<"collapse">>,true},
   {<<"name">>,<<"caltest">>},
   {<<"label">>,<<"CalTest">>},
-  {<<"order">>,50},
+  {<<"order">>,1},
   {<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}].
 
+single_json(Fields) ->
+    jsn:set_value(<<"fields">>, Fields, single_json()).
+    
 single_docfieldset() -> 
   #docfieldset{
     id = <<"25250e2ead108a8f60213f24040007e4">>,
@@ -43,7 +46,7 @@ single_docfieldset() ->
     collapse = true,
     name = <<"caltest">>,
     label = <<"CalTest">>,
-    order = 50,
+    order = 1,
     fields = [field_test:docfield(), field_test:docfield()]}.
 
 multiple_json() -> 
@@ -52,11 +55,19 @@ multiple_json() ->
   {<<"collapse">>,false},
   {<<"name">>,<<"caltest">>},
   {<<"label">>,<<"CalTest">>},
-  {<<"order">>,50},
+  {<<"order">>,2},
   {<<"multifields">>,[
     [{<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}],
     [{<<"fields">>,[field_test:json_docfield(),field_test:json_docfield()]}]
    ]}].
+
+multiple_json(Fields) ->
+    multiple_json(Fields, []).
+
+multiple_json([], Acc) ->
+    jsn:set_value(<<"multifields">>, lists:reverse(Acc), multiple_json());
+multiple_json([Fields|Rest], Acc) ->
+    multiple_json(Rest, [[{<<"fields">>, Fields}]|Acc]).
 
 multiple_docfieldset() -> 
   #docfieldset{
@@ -65,7 +76,7 @@ multiple_docfieldset() ->
     collapse = false,
     name = <<"caltest">>,
     label = <<"CalTest">>,
-    order = 50,
+    order = 2,
     fields = [
       [field_test:docfield(), field_test:docfield()],
       [field_test:docfield(), field_test:docfield()]

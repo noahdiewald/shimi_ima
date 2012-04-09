@@ -1,4 +1,21 @@
-% Types for use with CouchDB
+-type regex() :: binary().
+-type subcategory() :: text | textarea | date | integer | rational | boolean | 
+                       openboolean | select | multiselect | docselect | 
+                       docmultiselect | file.
+-type dateval() :: calendar:date() | today.
+-type basicval() :: number() | binary() | calendar:date() | null.
+-type anyval() :: basicval() | [binary()] | boolean() | null.
+-type sortkey() :: binary().
+-type fieldid() :: binary().
+-type fieldsetid() :: binary().
+-type doctypeid() :: binary().
+-type documentid() :: binary().
+-type charseqid() :: binary().
+-type rev() :: binary().
+-type text() :: binary(). % for longer text
+-type bstring() :: binary(). % binary form of string
+-type charstring() :: binary(). % this is a string representing a character
+-type sortkey_val() :: [sortkey() | anyval()]. % this should be a two item list
 
 -record(vq, {
           key :: jsn:json_term(), 
@@ -17,129 +34,116 @@
           update_seq = false :: boolean()
          }).
 
--type view_query() :: #vq{}.
-
-% Types for use with frequently used structures
-
--type regex() :: binary().
-
 -record(charseq, {
-          id :: binary(),
-          rev :: binary(),
+          id :: charseqid(),
+          rev :: rev(),
           category :: charseq,
-          description :: binary(),
-          characters :: [binary()],
-          name :: binary(),
+          description :: text(),
+          characters :: [charstring()],
+          name :: bstring(),
           sort_ignore :: [regex()],
           locale :: string(),
-          tailoring ::  icu:ustring(),
-          vowels :: [binary()],
-          consonants :: [binary()],
-          ietf_tag :: binary(),
-          iso639_tag :: binary()
+          tailoring :: icu:ustring(),
+          vowels :: [charstring()],
+          consonants :: [charstring()],
+          ietf_tag :: bstring(),
+          iso639_tag :: bstring()
          }).
 
--type charseq() :: #charseq{}.
-
--type subcategory() :: text | textarea | date | integer | rational | boolean | openboolean | select | multiselect | docselect | docmultiselect | file.
-
--type dateval() :: calendar:date() | today.
-
--type basicval() :: number() | binary() | calendar:date() | null.
-
 -record(field, {
-          id :: binary(),
-          rev :: binary(),
+          id :: fieldid(),
+          rev :: rev(),
           allowed :: [basicval()],
           category :: field,
-          charseq :: binary(),
+          charseq :: charseqid(),
           default :: basicval(),
-          description :: binary(),
-          doctype :: binary(),
-          fieldset :: binary(),
+          description :: text(),
+          doctype :: doctypeid(),
+          fieldset :: fieldsetid(),
           head :: boolean(),
-          label :: boolean(),
+          label :: bstring(),
           max :: basicval(),
           min :: basicval(),
-          name :: boolean(),
+          name :: bstring(),
           order :: integer(),
           regex :: regex(),
           required :: boolean(),
           reversal :: boolean(),
-          source :: binary(),
+          source :: doctypeid(),
           subcategory :: subcategory()
          }).
 
 -record(fieldset, {
-          id :: binary(),
-          rev :: binary(),
+          id :: fieldsetid(),
+          rev :: rev(),
           category :: fieldset,
-          description :: binary(),
-          doctype :: binary(),
-          label :: boolean(),
-          name :: boolean(),
+          description :: text(),
+          doctype :: doctypeid(),
+          label :: bstring(),
+          name :: bstring(),
           order :: integer(),
           multiple :: boolean(),
           collapse :: boolean()
          }).
 
 -record(doctype, {
-          id :: binary(),
-          rev :: binary(),
+          id :: doctypeid(),
+          rev :: rev(),
           category :: doctype,
-          description :: binary()
+          description :: text()
          }).
 
--type field() :: #field{}.
--type fieldset() :: #fieldset{}.
--type doctype() :: #doctype{}.
-
--type anyval() :: basicval() | [binary()] | boolean() | null.
-
 -record(docfield, {
-          id :: binary(),
+          id :: fieldid(),
           instance :: binary(),
-          charseq :: binary(),
+          charseq :: charseqid(),
           head :: boolean(),
-          label :: boolean(),
+          label :: bstring(),
           max :: basicval(),
           min :: basicval(),
-          name :: boolean(),
+          name :: bstring(),
           order :: integer(),
           regex :: regex(),
           required :: boolean(),
           reversal :: boolean(),
           subcategory :: subcategory(),
           value :: anyval(),
-          sortkey :: binary()
+          sortkey :: sortkey()
          }).
 
--type docfield() :: #docfield{}.
-
 -record(docfieldset, {
-          id :: binary(),
-          label :: boolean(),
-          name :: boolean(),
+          id :: fieldsetid(),
+          label :: bstring(),
+          name :: bstring(),
           order :: integer(),
           multiple :: boolean(),
           collapse :: boolean(),
           fields :: [docfield()] | [[docfield()]]
          }).
 
--type docfieldset() :: #docfieldset{}.
-
 -record(document, {
-          id :: binary(),
-          rev :: binary(),
-          description :: binary(),
-          doctype :: binary(),
+          id :: documentid(),
+          rev :: rev(),
+          description :: text(),
+          doctype :: doctypeid(),
           created_at :: calendar:datetime(),
-          created_by :: binary(),
+          created_by :: bstring(),
           updated_at :: calendar:datetime(),
-          updated_by :: binary(),
-          prev :: binary(),
+          updated_by :: bstring(),
+          prev :: rev(),
           deleted :: boolean(),
-          fieldsets :: [docfieldset()]
+          fieldsets :: [docfieldset()],
+          index :: [{fieldid(),sortkey_val() | [sortkey_val()]}],
+          head :: [fieldid()],
+          reverse :: [fieldid()]
          }).
 
+-type view_query() :: #vq{}.
+-type charseq() :: #charseq{}.
+-type field() :: #field{}.
+-type fieldset() :: #fieldset{}.
+-type doctype() :: #doctype{}.
+-type docfield() :: #docfield{}.
+-type docfieldset() :: #docfieldset{}.
 -type document() :: #document{}.
+

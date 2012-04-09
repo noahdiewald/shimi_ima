@@ -89,6 +89,11 @@ set_sortkeys(D=#document{}, R, S) ->
 -spec from_json(Json :: jsn:json_term()) -> document().
 from_json(Json) ->
     Ordering = fun (A, B) -> A#docfieldset.order =< B#docfieldset.order end,
+    Fieldsets = lists:sort(
+                  Ordering, 
+                  [fieldset:from_json(doc, X) || 
+                      X <-  jsn:get_value(<<"fieldsets">>, Json)]),
+    {Index, Head, Reverse} = lookups:build(Fieldsets),
     #document{
                id = jsn:get_value(<<"_id">>, Json),
                rev = jsn:get_value(<<"_rev">>, Json),
@@ -105,15 +110,17 @@ from_json(Json) ->
                created_by = proplists:get_value(<<"created_by_">>, Json, null),
                updated_by = proplists:get_value(<<"updated_by_">>, Json, null),
                deleted = proplists:get_value(<<"deleted_">>, Json, false),
-               fieldsets = lists:sort(
-                             Ordering, 
-                             [fieldset:from_json(doc, X) || 
-                                 X <-  jsn:get_value(<<"fieldsets">>, Json)])
+               fieldsets = Fieldsets,
+               index = Index,
+               head = Head,
+               reverse = Reverse
              }.
 
 %% @doc Convert a document() record to a jsn:json_term() document.
 -spec to_json(D :: document()) -> Json :: jsn:json_term().
 to_json(D) ->
+    Fieldsets = [fieldset:to_json(doc, X) || X <- D#document.fieldsets],
+    {Index, Head, Reverse} = lookups:build(Fieldsets),
     [{<<"_id">>, D#document.id},
      {<<"_rev">>, D#document.rev},
      {<<"description">>, D#document.description},
@@ -124,8 +131,10 @@ to_json(D) ->
      {<<"updated_by_">>, D#document.updated_by},
      {<<"prev_">>, D#document.prev},
      {<<"deleted_">>, D#document.deleted},
-     {<<"fieldsets">>,[fieldset:to_json(doc, X) || 
-                          X <- D#document.fieldsets]}].
+     {<<"fieldsets">>, Fieldsets},
+     {<<"index">>, Index},
+     {<<"head">>, Head},
+     {<<"reverse">>, Reverse}].
 
 %% @doc Convert the JSON to a record and back again.
 -spec normalize(jsn:json_term()) -> jsn:json_term().
@@ -146,3 +155,4 @@ encode_date(null) ->
     null;
 encode_date(Datetime) ->
     list_to_binary(js_date:to_string(Datetime)).
+
