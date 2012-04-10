@@ -1,3 +1,4 @@
+{% if rows %}
 <div class="total-rows-info">
   <b>Total</b>: {{ rows|length }}
 </div>
@@ -14,3 +15,6 @@
   </tr>
   {% endfor %}
 </table>
+{% else %}
+<em>No Results</em>
+{% endif %}

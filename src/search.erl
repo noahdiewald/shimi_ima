@@ -28,6 +28,8 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 
+values(_, [], _, _) ->
+    [{<<"rows">>, false}];
 values(Doctype, Query, R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
     {ok, Json} = couch:get_view_json(Doctype, "all_vals", R, S),
