@@ -1,9 +1,28 @@
 {
    "_id": "_design/{{ _id }}",
-   "version": 1,
+   "version": 2,
    "views": {
-       "alldocs": {
-           "map": "function(doc) { if (doc.category == '{{ doctype }}' && doc.field_{{ _id }})  { emit(doc.field_{{ _id }}, doc) } }" 
+       "all_vals": {
+           "map": "function(doc) { 
+             if (doc.doctype === '{{ doctype }}' && 
+                 doc.index && 
+                 doc.deleted_ === false)  { 
+
+               var indexVal = doc.index['{{ _id }}'];
+               var isArray = function(anArray) {
+                 return Object.prototype.toString.apply(anArray) === 
+                   '[object Array]';
+               };
+
+               if (!isArray(indexVal[0])) {
+                 emit(indexVal, null);
+               } else {
+                 indexVal.forEach(function(val) {
+                   emit(val, null);
+                 });
+               }
+             } 
+           }" 
        }
    }
 }
