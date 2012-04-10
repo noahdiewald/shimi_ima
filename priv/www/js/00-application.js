@@ -330,6 +330,16 @@ var flashError = function(title, body) {
 var flashHighlight = function(title, body) {
   flash($('#notifications-main .ui-state-highlight'), title, body);
 };
+
+
+var fillOptionsFromUrl = function(url, selectElement, callback) {
+  $.get(url, function(options) {
+    selectElement.html(options);
+    if (callback) callback();
+  });
+  
+  return false;
+};
  
 $(function () {
   $('.notification').hide();
