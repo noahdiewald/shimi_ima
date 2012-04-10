@@ -87,7 +87,7 @@ post_is_create(R, S) ->
 create_path(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
   
-    {ok, Id} = couch:get_uuid(R, S),
+    Id = couch:get_uuid(R, S),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
     Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
@@ -123,7 +123,9 @@ from_json(R, S) ->
 json_create(R, S) ->
     Json = proplists:get_value(posted_json, S),
     Json1 = document:set_sortkeys(Json, R, S),
-    NormJson = document:normalize(Json1),
+    % Normalization assumes a complete record, which would normally
+    % contain a revision
+    NormJson = jsn:delete_value(<<"_rev">>, document:normalize(Json1)),
     case couch:create(doc, jsn:encode(NormJson), R, S) of
         {ok, created} -> {true, R, S};
         {403, Message} ->
