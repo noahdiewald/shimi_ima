@@ -33,7 +33,7 @@ function loadHash(urlHash) {
 
 var jumpForm = function() {
   $('#view-jump-id')
-    .on("keydown", 
+    .live("keydown", 
           function(e) {
             if (e.which === 13) {
               var docid = $('#view-jump-id').val();
@@ -45,7 +45,7 @@ var jumpForm = function() {
 
 var searchForm = function() {
   $('#document-search-term')
-    .on("keydown",
+    .live("keydown",
           function(e) {
             if (e.which === 13) {
               var query = $('#document-search-term').val();
@@ -70,8 +70,10 @@ var documentLinks = function() {
   // Allows the document for the listed item to be displayed
   // in the correct pane on click.
   $('.view-document-link')
-    .on("click", 
-          function () {loadDocument(this.hash.slice(1));});
+    .live("click", 
+          function () {
+            loadDocument(this.hash.slice(1));
+          });
 };
 
 $(
