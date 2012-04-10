@@ -478,3 +478,7 @@ th {
     background: #EEE;
     vertical-align: top;
 }
+
+#search-field-label {
+    font-weight: bold;
+}

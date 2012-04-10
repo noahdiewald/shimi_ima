@@ -214,8 +214,9 @@ html_index(R, S) ->
 html_search(R, S) ->
     Doctype = wrq:path_info(doctype, R),
     Query = wrq:get_qs_value("q", R),
+    Field = wrq:get_qs_value("field", R),
     {ok, Html} = document_search_dtl:render(
-                   search:values(Doctype, Query, R, S)),
+                   search:values(Doctype, Query, Field, R, S)),
     Html.
 
 html_document(R, S) ->

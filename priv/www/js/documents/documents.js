@@ -44,6 +44,8 @@ var jumpForm = function() {
 };
 
 var searchForm = function() {
+  searchAllFieldsSwitch();
+  fieldViews();
   $('#document-search-term')
     .live("keydown",
           function(e) {
@@ -53,6 +55,27 @@ var searchForm = function() {
               return false;
             }
             return true;
+          });
+};
+
+var searchAllFieldsSwitch = function() {
+  $('#search-all-fields-switch')
+    .live("click", function(e) {
+            $('#document-search-field').val('');
+            $(e.target).hide();
+            $('#search-field-label').hide();
+          });
+};
+
+var fieldViews = function() {
+  $('.field-view b, .field-container label span')
+    .live('dblclick', function(e) {
+            var fieldid = $(e.target).closest('[data-field-field]')
+              .attr('data-field-field');
+            var fieldLabel = $(e.target).text();
+            $('#document-search-field').val(fieldid);
+            $('#search-field-label').html(fieldLabel).show();
+            $('#search-all-fields-switch').show();
           });
 };
 

@@ -23,19 +23,23 @@
 -module(search).
 
 -export([
-         values/4
+         values/5
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 
-values(_, [], _, _) ->
+values(_, [], _, _, _) ->
     [{<<"rows">>, false}];
-values(Doctype, Query, R, S) ->
+values(Doctype, Query, undefined, R, S) ->
+    values(Doctype, Query, [], R, S);
+values(Doctype, Query, [], R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
     {ok, Json} = couch:get_view_json(Doctype, "all_vals", R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Rows2 = filter(Rows, RE, []),
-    jsn:set_value(<<"rows">>, Rows2, Json).
+    jsn:set_value(<<"rows">>, Rows2, Json);
+values(_Doctype, Query, Field, R, S) ->
+    values(Field, Query, [], R, S).
 
 filter([], _Query, Acc) ->
     lists:reverse(Acc);
