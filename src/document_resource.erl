@@ -68,7 +68,8 @@ allowed_methods(R, S) ->
         index -> {['HEAD', 'GET'], R, S};
         identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
         revision -> {['HEAD', 'GET'], R, S};
-        edit -> {['HEAD', 'GET'], R, S}
+        edit -> {['HEAD', 'GET'], R, S};
+        search -> {['HEAD', 'GET'], R, S}
     end.
   
 delete_resource(R, S) ->
@@ -107,7 +108,8 @@ to_html(R, S) ->
         main -> {html_documents(R, S), R, S};
         index -> {html_index(R, S), R, S};
         identifier -> {html_document(R, S), R, S};
-        revision -> {html_revision(R, S), R, S}
+        revision -> {html_revision(R, S), R, S};
+        search -> {html_search(R, S), R, S}
     end.
   
 from_json(R, S) ->
@@ -207,6 +209,13 @@ html_index(R, S) ->
            ],
   
     {ok, Html} = document_index_dtl:render(Vals),
+    Html.
+
+html_search(R, S) ->
+    Doctype = wrq:path_info(doctype, R),
+    Query = wrq:get_qs_value("q", R),
+    {ok, Html} = document_search_dtl:render(
+                   search:values(Doctype, Query, R, S)),
     Html.
 
 html_document(R, S) ->

@@ -1,24 +1,32 @@
 {
    "_id": "_design/{{ _id }}",
-   "version": 2,
+   "version": 4,
    "views": {
        "all_vals": {
            "map": "function(doc) { 
              if (doc.doctype === '{{ doctype }}' && 
                  doc.index && 
-                 doc.deleted_ === false)  { 
+                 !doc.deleted_ )  { 
 
                var indexVal = doc.index['{{ _id }}'];
                var isArray = function(anArray) {
                  return Object.prototype.toString.apply(anArray) === 
                    '[object Array]';
                };
-
+               var notBlank = function(val) {
+                 return (val !== null && val.toString() !== '');
+               };
+               var condEmit = function(val) {
+                 if (notBlank(val[1])) {
+                   emit([val[0], val[1].toString()]);
+                 }
+               };
+     
                if (!isArray(indexVal[0])) {
-                 emit(indexVal, null);
+                 condEmit(indexVal);
                } else {
                  indexVal.forEach(function(val) {
-                   emit(val, null);
+                   condEmit(val);
                  });
                }
              } 

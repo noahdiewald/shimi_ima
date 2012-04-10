@@ -33,13 +33,31 @@ function loadHash(urlHash) {
 
 var jumpForm = function() {
   $('#view-jump-id')
-    .live("keydown", 
+    .on("keydown", 
           function(e) {
             if (e.which === 13) {
               var docid = $('#view-jump-id').val();
               loadDocument(docid);
             }
+            return true;
           });  
+};
+
+var searchForm = function() {
+  $('#document-search-term')
+    .on("keydown",
+          function(e) {
+            if (e.which === 13) {
+              var query = $('#document-search-term').val();
+              getSearch(query);
+              return false;
+            }
+            return true;
+          });
+};
+
+var loadSearchResults = function(query) {
+  getSearch(query);
 };
 
 var loadDocument = function(docid) {
@@ -48,15 +66,25 @@ var loadDocument = function(docid) {
   getDocument(docid);
 };
 
+var documentLinks = function() {
+  // Allows the document for the listed item to be displayed
+  // in the correct pane on click.
+  $('.view-document-link')
+    .on("click", 
+          function () {loadDocument(this.hash.slice(1));});
+};
+
 $(
   function () {
     var getIndexTimer;
 
     $('body').click(function(e) {clickDispatch(e);});
     
+    documentLinks();
     fillQueryOptions();
     getIndex();
     jumpForm();
+    searchForm();
     initEdit();
 
     $('#index-filter-form input').keyup(

@@ -446,7 +446,7 @@ th a {
   display: none;
 }
 
-#total-rows-info {
+.total-rows-info {
   background: #CCC;
 }
 

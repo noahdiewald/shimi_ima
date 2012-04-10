@@ -19,7 +19,7 @@
   {% endfor %}
 >Next</a>
 </nav>
-<div id="total-rows-info">
+<div class="total-rows-info">
   <b>Total</b>: {{ total_rows }}
 </div>
 <table>

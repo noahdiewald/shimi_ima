@@ -1,7 +1,38 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 9,
+  "version": 11,
   "views": {
+    "all_vals": {
+      "map": "function(doc) {
+        if (doc.doctype === '{{ _id }}' && doc.index && !doc.deleted_ ) {
+          var isArray = function(anArray) {
+            return Object.prototype.toString.apply(anArray) === 
+              '[object Array]';
+          };
+          var notBlank = function(val) {
+            return (val !== null && val.toString() !== '');
+          };
+          var condEmit = function(val, key) {
+            if (notBlank(val[1])) {
+              emit(['', val[1].toString()], key);
+            }
+          };
+
+          Object.keys(doc.index).forEach(function(key) {
+            var indexVal = doc.index[key];
+            
+            if (!isArray(indexVal[0])) {
+              condEmit(indexVal, key);
+            } else {
+              indexVal.forEach(function(val) {
+                condEmit(val, key);
+              });
+            }
+          });
+        }
+      }"
+    },
+
     "alldocs": {
       "map": "function(doc) { 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { 

@@ -24,7 +24,7 @@
   <div id="panel-toggle">
     <ul>
       <li data-panel="document-index">Index</li>
-      <li data-panel="index-filter-form">Filter</li>
+      <li data-panel="document-search">Search</li>
       <li data-panel="document-view">View</li>
       <li data-panel="document-edit">Edit</li>
     </ul>
@@ -35,9 +35,19 @@
     data-document-description="{{ doctype_info.description|escape }}"
     data-group-id="document-view-info"
     id="all-document-container">
-  
+
+    <div class="ui-widget panel hidden" id="document-search">
+      <h2 class="ui-widget ui-widget-header">Search</h2>
+
+      <form id="document-search-form">
+        <label for="document-search-term">Search</label>
+        <input type="text" name="document-search-term" id="document-search-term" />
+      </form>
+      <div id="search-listing"></div>
+    </div>
+
     <div class="ui-widget panel" id="document-index">
-      <h2 class="ui-widget ui-widget-header ui-corner-tl">{{ doctype_info._id|escape }} Index</h2>
+      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
         <label for="index-query">Query</label>
