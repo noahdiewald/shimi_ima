@@ -10,7 +10,7 @@ function initQueryBuilderDialog(queryDoctype) {
   var condition_url = 'queries/condition';
   
   var appendCondition = function(builderRow) {
-    tableBody = $('#query-conditions-listing tbody');
+    var tableBody = $('#query-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
     initConditionRemoveButtons(tableBody);
