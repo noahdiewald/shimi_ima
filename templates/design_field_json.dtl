@@ -1,6 +1,6 @@
 {
    "_id": "_design/{{ _id }}",
-   "version": 4,
+   "version": 6,
    "views": {
        "all_vals": {
            "map": "function(doc) { 
@@ -16,9 +16,24 @@
                var notBlank = function(val) {
                  return (val !== null && val.toString() !== '');
                };
+               var head = function() {
+                 hd = doc.head;
+                 return hd.map(function(h) {
+                   var v = doc.index[h];
+                   if (isArray(v[0])) {
+                     if (notBlank(v[0][1])) {
+                       return v[0][1] + '...';
+                     } else {
+                       return '...';
+                     }
+                   } else {
+                     return v[1];
+                   }
+                 }).join(', ');
+               };
                var condEmit = function(val) {
                  if (notBlank(val[1])) {
-                   emit([val[0], val[1].toString()]);
+                   emit([val[0], val[1].toString()], head());
                  }
                };
      

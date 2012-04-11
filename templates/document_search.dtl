@@ -2,7 +2,7 @@
 <div class="total-rows-info">
   <b>Total</b>: {{ rows|length }}
 </div>
-<table>
+<table class="search-results">
   {% for row in rows %}
   <tr>
     <th>
@@ -12,6 +12,17 @@
         {{ row.key|last|force_escape }}
       </a>
     </th>
+    <td {% if row.id|length == row.value|length %}
+        class="search-result-field-id search-result-context"
+        data-field-field="{{ row.value }}">
+      <a href="#">{{ row.value }}</a>
+        {% else %}
+        class="search-result-context">
+      <a href="#{{ row.id }}" class="view-document-link">
+        {{ row.value|force_escape }}
+      </a>
+        {% endif %}
+    </td>
   </tr>
   {% endfor %}
 </table>

@@ -23,23 +23,33 @@
 -module(search).
 
 -export([
-         values/5
+         values/6
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 
-values(_, [], _, _, _) ->
+values(_Doctype, [], _Fields, _Exclude, _R, _S) ->
     [{<<"rows">>, false}];
-values(Doctype, Query, undefined, R, S) ->
-    values(Doctype, Query, [], R, S);
-values(Doctype, Query, [], R, S) ->
+values(Doctype, Query, [], false, R, S) ->
+    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    prep_ret(filter(Rows, RE, []), Json);
+values(_Doctype, Query, [Field|[]], false, R, S) ->
+    values(binary_to_list(Field), Query, [], false, R, S);
+values(Doctype, Query, Fields=[_,_|_], false, R, S) ->
+    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    prep_ret(filter(Rows, RE, Fields, true, []), Json);
+values(Doctype, Query, Fields, true, R, S) ->
+    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    prep_ret(filter(Rows, RE, Fields, false, []), Json).
+
+prep_ret(Rows, Json) ->
+    jsn:set_value(<<"rows">>, Rows, Json).
+
+get_filter_args(Query, Design, R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = couch:get_view_json(Doctype, "all_vals", R, S),
+    {ok, Json} = couch:get_view_json(Design, "all_vals", R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
-    Rows2 = filter(Rows, RE, []),
-    jsn:set_value(<<"rows">>, Rows2, Json);
-values(_Doctype, Query, Field, R, S) ->
-    values(Field, Query, [], R, S).
+    {RE, Rows, Json}.
 
 filter([], _Query, Acc) ->
     lists:reverse(Acc);
@@ -48,4 +58,18 @@ filter([Row|T], Query, Acc) ->
     case re:run(K, Query) of
         nomatch -> filter(T, Query, Acc);
         _ -> filter(T, Query, [Row|Acc])
+    end.
+
+filter([], _Query, _Fields, _Answer, Acc) ->
+    lists:reverse(Acc);
+filter([Row|T], Query, Fields, Answer, Acc) ->
+    [_, K] = jsn:get_value(<<"key">>, Row),
+    V = jsn:get_value(<<"value">>, Row),
+    F = fun () -> filter(T,  Query, Fields, Answer, Acc) end,
+    case {re:run(K, Query), lists:member(V, Fields)} of
+        {nomatch, _} -> F();
+        {_, Answer} ->
+            io:format("(~p)", [V]),
+            filter(T, Query, Fields, Answer, [Row|Acc]);
+        _ -> F()
     end.

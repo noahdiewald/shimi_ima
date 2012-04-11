@@ -340,6 +340,10 @@ var fillOptionsFromUrl = function(url, selectElement, callback) {
   
   return false;
 };
+
+var validID = function(id) {
+  return !!id.match(/^[a-f0-9]{32}$/);
+};
  
 $(function () {
   $('.notification').hide();

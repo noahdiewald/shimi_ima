@@ -75,7 +75,7 @@ var searchFieldItems = function() {
 };
 
 var fieldViews = function() {
-  $('.field-view b, .field-container label span')
+  $('.search-result-field-id a, .field-view b, .field-container label span')
     .live('dblclick', function(e) {
             searches.addSearchField(e);
           });

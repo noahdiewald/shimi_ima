@@ -216,9 +216,16 @@ html_index(R, S) ->
 html_search(R, S) ->
     Doctype = wrq:path_info(doctype, R),
     Query = wrq:get_qs_value("q", R),
-    Field = wrq:get_qs_value("field", R),
+    Fields = case wrq:get_qs_value("field", R) of
+                 undefined -> [];
+                 Fs -> jsn:decode(Fs)
+             end,
+    Exclude = case wrq:get_qs_value("exclude", R) of
+                  undefined -> false;
+                  Ex -> jsn:decode(Ex)
+              end,
     {ok, Html} = document_search_dtl:render(
-                   search:values(Doctype, Query, Field, R, S)),
+                   search:values(Doctype, Query, Fields, Exclude, R, S)),
     Html.
 
 html_document(R, S) ->
