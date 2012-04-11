@@ -19,16 +19,16 @@
     
 {% block main_content %}
 
-<div class="ui-widget ui-corner-all" data-project-id="{{ project_info._id }}" id="container">
+<div id="panel-toggle">
+  <ul>
+    <li data-panel="document-index">Index</li>
+    <li data-panel="document-search">Search</li>
+    <li data-panel="document-view">View</li>
+    <li data-panel="document-edit">Edit</li>
+  </ul>
+</div>
 
-  <div id="panel-toggle">
-    <ul>
-      <li data-panel="document-index">Index</li>
-      <li data-panel="document-search">Search</li>
-      <li data-panel="document-view">View</li>
-      <li data-panel="document-edit">Edit</li>
-    </ul>
-  </div>
+<div class="ui-widget ui-corner-all" data-project-id="{{ project_info._id }}" id="container">
   
   <div 
     data-document-doctype="{{ doctype_info._id|escape }}" 

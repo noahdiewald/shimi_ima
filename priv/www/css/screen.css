@@ -24,7 +24,7 @@ body {
 }
 
 h1 {
-  color: white;
+  color: #555;
   font-size: 12pt;
   margin: 0;
 }
@@ -42,9 +42,7 @@ header {
   padding-left: 0.5em;
   text-align: left;
   margin: 0;
-  background: #008080;
-  border-bottom: solid;
-  border-width: thin;
+  background: white;
 }
 
 nav {
@@ -55,7 +53,6 @@ nav {
   text-align: left;
   margin: auto;
   background: #EEE;
-  padding: 1px;
 }
 
 #main-content #main-tabs {
@@ -223,11 +220,12 @@ ul.head-elements li:first-child:before {
 }
 
 #container {
-  display: table;
-  width: 100%;
+    display: table;
+    width: 100%;
 }
 
 #all-document-container {
+    background: #eee;
   display: table-row;
 }
 
@@ -283,8 +281,13 @@ nav.pager a, nav.pager.ui-buttonset a {
 }
 
 #panel-toggle {
-  width: 100%;
-  opacity: 0.5;
+    margin: 0;
+    padding-top: 2px;
+    background: #f0a265;
+}
+
+#panel-toggle ul {
+    opacity: 0.7;
 }
 
 nav#main-navigation:hover, #panel-toggle:hover {
@@ -338,15 +341,11 @@ nav ul li, #panel-toggle ul li {
 }
 
 #document-view li b {
-  font-weight: normal;
-  font-family: serif;
-  font-size: 95%;
-  color: #0D465C;
+  color: black;
 }
 
 #document-view li ul b {
-  font-weight: normal;
-  color: #630000;
+  color: #BA5D12;
 }
 
 #document-view-tree > ul > li.collapsed.fieldset-view > b:before {
@@ -486,4 +485,44 @@ th {
 .search-field-item {
     margin-left: 2px;
     background: #CCC;
+}
+
+.ui-widget-header {
+    border: none;
+    color: white;
+    background: #F07818;
+}
+
+li.ui-corner-all.ui-state-default.ui-tabs-selected.ui-state-active,
+li.ui-corner-all.ui-state-default.ui-state-hover,
+li.ui-corner-all.ui-state-default {
+    border: none;
+    padding: 0;
+}
+
+#edit-tabs.ui-widget.ui-widget-content {
+    border: none;
+}
+
+.fields.ui-widget.ui-widget-content {
+    border-color: #ccc;
+}
+
+.ui-tabs-nav {
+    background: #555;
+}
+
+#edit-tabs li {
+    position: static;
+    margin: 1px;
+    width: 19%;
+    overflow: hide;
+}
+
+#edit-tabs li.ui-state-active {
+    background: #F07818;
+}
+
+tr.ui-widget-header th {
+    color: black;
 }
