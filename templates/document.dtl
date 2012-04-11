@@ -40,10 +40,20 @@
       <h2 class="ui-widget ui-widget-header">Search</h2>
 
       <form id="document-search-form">
-        <a class="hidden" id="search-all-fields-switch" href="#">Search All Fields</a><br /><br />
+        <div id="search-all-fields-switch" class="search-optional hidden">
+          <a href="#">Search All Fields</a><br />
+        </div>
         <input type="hidden" name="document-search-field" id="document-search-field" />
-        <label for="document-search-term">Search <span class="hidden" id="search-field-label"></span></label>
+        <label for="document-search-term">
+          <span class="hidden" id="search-exclude-label"><em>Do Not</em></span>
+          Search
+          <span class="search-optional hidden" id="search-field-label"></span>
+        </label>
         <input type="text" name="document-search-term" id="document-search-term" />
+        <div class="search-optional hidden">
+          <input type="checkbox" name="document-search-exclude" id="document-search-exclude" />
+          <label for="document-search-exclude">Exclude Fields</label><br />
+        </div>
       </form>
       <div id="search-listing"></div>
     </div>

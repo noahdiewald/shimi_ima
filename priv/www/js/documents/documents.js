@@ -44,14 +44,16 @@ var jumpForm = function() {
 };
 
 var searchForm = function() {
+  searches.clearSearchVals();
   searchAllFieldsSwitch();
+  searchFieldItems();
   fieldViews();
+  excludeCheck();
   $('#document-search-term')
     .live("keydown",
           function(e) {
             if (e.which === 13) {
-              var query = $('#document-search-term').val();
-              getSearch(query);
+              searches.getSearch();
               return false;
             }
             return true;
@@ -59,28 +61,31 @@ var searchForm = function() {
 };
 
 var searchAllFieldsSwitch = function() {
-  $('#search-all-fields-switch')
+  $('#search-all-fields-switch a')
     .live("click", function(e) {
-            $('#document-search-field').val('');
-            $(e.target).hide();
-            $('#search-field-label').hide();
+            searches.clearSearchVals(e);
+          });
+};
+
+var searchFieldItems = function() {
+  $('.search-field-item')
+    .live("click", function(e) {
+            searches.removeSearchField(e);
           });
 };
 
 var fieldViews = function() {
   $('.field-view b, .field-container label span')
     .live('dblclick', function(e) {
-            var fieldid = $(e.target).closest('[data-field-field]')
-              .attr('data-field-field');
-            var fieldLabel = $(e.target).text();
-            $('#document-search-field').val(fieldid);
-            $('#search-field-label').html(fieldLabel).show();
-            $('#search-all-fields-switch').show();
+            searches.addSearchField(e);
           });
 };
 
-var loadSearchResults = function(query) {
-  getSearch(query);
+var excludeCheck = function() {
+  $('#document-search-exclude')
+    .live("change", function(e) {
+            searches.toggleExclusion(e);
+          });
 };
 
 var loadDocument = function(docid) {

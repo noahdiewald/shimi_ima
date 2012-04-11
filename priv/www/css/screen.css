@@ -482,3 +482,8 @@ th {
 #search-field-label {
     font-weight: bold;
 }
+
+.search-field-item {
+    margin-left: 2px;
+    background: #CCC;
+}
