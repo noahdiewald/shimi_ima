@@ -14,7 +14,6 @@ function clickDispatch(e) {
       "#document-restore-button span": function(t) {restoreDoc(t.parent());},
       "#document-view-tree > ul > li > b": function(t) {collapseToggle(t);},
       ".revision-link": function(t) {fetchRevision(t);},
-      "#panel-toggle li": function(t) {panelToggle(t);},
       ".expander": function(t) {toggleTextarea(t);},
       "label span": function(t) {showHelpDialog(t);}
     });

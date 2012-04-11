@@ -104,12 +104,24 @@ var documentLinks = function() {
           });
 };
 
+var panelTogglers = function() {
+  $("#panel-toggle li")
+    .live("click", function(e) {
+            panelToggle(e);
+        });
+  $(".panel > h2")
+    .live("dblclick", function(e) {
+            panelToggle(e);
+          });
+}
+
 $(
   function () {
     var getIndexTimer;
 
     $('body').click(function(e) {clickDispatch(e);});
     
+    panelTogglers();
     documentLinks();
     fillQueryOptions();
     getIndex();

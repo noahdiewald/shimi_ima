@@ -137,8 +137,14 @@ function collapseToggle(target) {
   target.parent('li').toggleClass('collapsed');
 }
 
-function panelToggle(target) {
-  var panel = $('#' + target.attr('data-panel'));
+function panelToggle(e) {
+  var panel;
+
+  if ($(e.target).attr('data-panel')) {
+    panel = $('#' + $(e.target).attr('data-panel'));
+  } else {
+    panel = $(e.target).closest('.panel');
+  }
   panel.toggle();
 }
 

@@ -526,3 +526,8 @@ li.ui-corner-all.ui-state-default {
 tr.ui-widget-header th {
     color: black;
 }
+
+.search-result-context a {
+    text-decoration: none;
+    color: black;
+}
