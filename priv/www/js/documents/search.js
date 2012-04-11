@@ -40,8 +40,27 @@ var searches = {
     return lookup;
   },
 
-  toggleExclusion: function(e) {
+  lookup: function(item) {
+    var stored = localStorage.getItem(item);
+    if (stored === "") {
+      return null;
+    } else {
+      return stored;
+    }
+  },
+
+  excludedVal: function() {
     var exclude = $('#document-search-exclude').is(':checked');
+
+    if (!exclude) {
+      return null;
+    } else {
+      return exclude;
+    }
+  },
+
+  toggleExclusion: function(e) {
+    var exclude = searches.excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
     if (exclude) {
@@ -49,13 +68,41 @@ var searches = {
     } else {
       excludeLabel.hide();
     }
+
+    localStorage.setItem("searchExclude", exclude);
   },
 
-  clearSearchVals: function(e) {
+  clearSearchVals: function(initial) {
     $('#document-search-field').val('');
     $('#document-search-exclude:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
+    if (!initial) {
+      localStorage.setItem("searchLabels", null);
+      localStorage.setItem("searchFields", null);
+      localStorage.setItem("searchExclude", null);
+    }
+  },
+
+  loadSearchVals: function() {
+    var fieldids = searches.lookup("searchFields");
+
+    if (fieldids) {
+      $('#document-search-field').val(fieldids);
+      $('#search-field-label').html(localStorage.getItem("searchLabels"));
+
+      if (searches.lookup("searchExclude") != searches.excludedVal()) {
+        $('#document-search-exclude').click();
+      }
+
+      $('.search-optional').show();
+    }
+  },
+
+  updateSearchVals: function(fieldids, labels, exclude) {
+    localStorage.setItem("searchLabels", labels);
+    localStorage.setItem("searchFields", fieldids);
+    localStorage.setItem("searchExclude", exclude);
   },
 
   removeSearchField: function(e) {
@@ -64,7 +111,9 @@ var searches = {
     var searchField = $('#document-search-field');
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    
+    var exclude = searches.excludedVal();
+    var newVal = null;
+
     if (valDecoded.length === 1) {
       searches.clearSearchVals();
     } else {
@@ -72,11 +121,14 @@ var searches = {
       
       if (index >= 0) {
         valDecoded.splice(index, 1);
+        newVal = JSON.stringify(valDecoded);
         searchField.val(JSON.stringify(valDecoded));
       }
 
       item.remove();
     }
+    
+    searches.updateSearchVals(newVal, $('#search-field-label').html(), exclude);
   },
 
   addSearchField: function(e) {
@@ -88,19 +140,23 @@ var searches = {
       var searchField = $('#document-search-field');
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var newIndex;
+      var exclude = searches.excludedVal();
       var newDecoded;
+      var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + 
         '" class="search-field-item" title="click to remove">' + 
         fieldLabel + '</a>';
+
       var setSearchVals = function(value) {
         if (searchLabel.html()) {
           searchLabel.children().last().after(newAnchor);
         } else {
           searchLabel.html(newAnchor);
         }
-
-        searchField.val(JSON.stringify(value));
+        
+        newVal = JSON.stringify(value);
+        searchField.val(newVal);
+        searches.updateSearchVals(newVal, searchLabel.html(), exclude);
       };
 
       if (currentVal !== '') {

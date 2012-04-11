@@ -44,7 +44,8 @@ var jumpForm = function() {
 };
 
 var searchForm = function() {
-  searches.clearSearchVals();
+  searches.clearSearchVals(true);
+  searches.loadSearchVals();
   searchAllFieldsSwitch();
   searchFieldItems();
   fieldViews();
