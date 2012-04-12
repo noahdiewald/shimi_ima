@@ -218,155 +218,63 @@
 
 escape_test() ->
     [
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/9\\\\9/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\\\9/))">>, 
         conditions:trans(?SLASH)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/9é9/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9é9/))">>, 
         conditions:trans(?ACCENT)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/9\\\\w9/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\\\w9/))">>, 
         conditions:trans(?ESCAPE)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/9\\'9/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\'9/))">>,
         conditions:trans(?QUOTE)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/9\\\"9/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\\"9/))">>, 
         conditions:trans(?DOUBLE_QUOTE))
-    ].
-
-expected_test_() ->
-    [
-     ?_assertEqual(
-        "{'d5331cbb4d62fe3d2899f142d90486fd': false, " ++
-            "'allVisited': function () " ++
-            "{return (this['d5331cbb4d62fe3d2899f142d90486fd'])}}",
-        conditions:expect(?EQUAL)),
-    
-     ?_assertEqual(
-        "{'d5331cbb4d62fe3d2899f142d9058ce0': false, " ++
-            "'d5331cbb4d62fe3d2899f142d90486fd': false, "
-        "'allVisited': function () " ++
-            "{return (this['d5331cbb4d62fe3d2899f142d9058ce0'] && " ++
-            "this['d5331cbb4d62fe3d2899f142d90486fd'])}}",
-        conditions:expect(?COMPLEX1))
     ].
 
 trans_test_() ->
     [
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == '99'))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
         conditions:trans(?EQUAL)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == 99))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd',99))">>, 
         conditions:trans(?EQUAL_INT)),
      
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == 99.9))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd',99.9))">>, 
         conditions:trans(?EQUAL_FLOAT)),
     
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value > '99'))", 
+     ?_assertEqual(<<"(greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
         conditions:trans(?GREATER)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value < '99'))", 
+     ?_assertEqual(<<"(lessThan('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
         conditions:trans(?LESS)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value.isBlank()))", 
+     ?_assertEqual(<<"(isBlank('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
         conditions:trans(?BLANK)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value.indexOf('99') > -1))",
+     ?_assertEqual(<<"(hasMember('d5331cbb4d62fe3d2899f142d90486fd','99'))">>,
         conditions:trans(?MEMBER)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == true))", 
+     ?_assertEqual(<<"(isTrue('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
         conditions:trans(?TRUE)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "((/99/).test(value)))", 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/99/))">>, 
         conditions:trans(?MATCH)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == '99')) && " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
-            "(value == '888'))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
         conditions:trans(?DOUBLE)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == '99')) || " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
-            "(value == '888'))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) || (equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
         conditions:trans(?WITH_OR)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "!(value == '99'))", 
+     ?_assertEqual(<<"(!equals('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
         conditions:trans(?NEGATIVE)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == '99')) || " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
-            "!(value == '888'))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
         conditions:trans(?COMPLEX1)),
   
-     ?_assertEqual(
-        "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "(value == '99')) && " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "!((/99/).test(value))) || " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d90486fd') && " ++
-            "!(value > '99')) || " ++
-            "(!(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') || " ++
-            "(fieldId === 'd5331cbb4d62fe3d2899f142d9058ce0') && " ++
-            "!(value == '888'))", 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) || (!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
         conditions:trans(?COMPLEX2))
     ].
