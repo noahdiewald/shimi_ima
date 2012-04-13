@@ -88,7 +88,8 @@ normalize_vq(R) ->
 % Helper Functions
 
 -spec decide_plus(view_query()) -> boolean().
-decide_plus(Vq=#vq{startkey_docid=undefined}) when is_binary(Vq#vq.startkey) ->
+decide_plus(Vq=#vq{startkey_docid=undefined}) 
+  when is_binary(Vq#vq.startkey), Vq#vq.startkey /= <<>> ->
     true;
 decide_plus(_) ->
     false.

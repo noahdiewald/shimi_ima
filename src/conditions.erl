@@ -29,9 +29,7 @@
 %% predicate string.
 -spec trans(jsn:json_term()) -> binary().
 trans(Conditions) ->
-    T = trans(Conditions, []),
-    io:format("-- ~p --", [T]),
-    T.
+    trans(Conditions, []).
 
 %% @doc Take a list of conditions as JSON terms plus an accumulator
 %% and convert it in to a predicate string.

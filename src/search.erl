@@ -69,7 +69,6 @@ filter([Row|T], Query, Fields, Answer, Acc) ->
     case {re:run(K, Query), lists:member(V, Fields)} of
         {nomatch, _} -> F();
         {_, Answer} ->
-            io:format("(~p)", [V]),
             filter(T, Query, Fields, Answer, [Row|Acc]);
         _ -> F()
     end.

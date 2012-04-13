@@ -129,9 +129,9 @@
               var formatted = format(fieldVal[1]);
 
               if (display_fields.lenghth > 1) {
-                emit(['', formatted], head());
+                emit([['', formatted]], ['', head()]);
               } else {
-                emit([fieldVal[0], formatted], head());
+                emit([[fieldVal[0], formatted]], ['', head()]);
               }
             }
           };
