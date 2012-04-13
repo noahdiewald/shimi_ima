@@ -43,6 +43,11 @@
             return retval;
           };
 
+          var runShapeTest = function(fieldid, value, pred) {
+            var fieldVal = index[fieldid];
+            return pred(fieldVal, value);
+          };
+
           var equals = function(fieldid, value) {
             var pred = function(value1, value2) {
               return value1 === value2;
@@ -71,6 +76,39 @@
             return runTest(fieldid, value, pred);
           };
 
+          var hasExactly = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              var retval = false;
+              if (value1) {
+                retval = value1.length === value2;
+              }
+              return retval;             
+            };
+            runShapeTest(fieldid, value, pred);
+          };
+
+          var hasGreater = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              var retval = false;
+              if (value1) {
+                retval = value1.length > value2;
+              }
+              return retval;             
+            };
+            runShapeTest(fieldid, value, pred);
+          };
+
+          var hasLess = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              var retval = false;
+              if (value1) {
+                retval = value1.length < value2;
+              }
+              return retval;             
+            };
+            runShapeTest(fieldid, value, pred);
+          };
+
           var hasMember = function(fieldid, value) {
             var pred = function(value1, value2) {
               return value1.indexOf(value2) >= 0;
@@ -78,11 +116,15 @@
             return runTest(fieldid, value, pred);
           };
 
-          var isTrue = function(fieldid) {
+          var isDefined = function(fieldid) {
             var pred = function(value1, value2) {
-              return value1 === true;
+              return value1 !== value2;
             };
-            return runTest(fieldid, null, pred);
+            return runShapeTest(fieldid, undefined, pred);
+          };
+
+          var isTrue = function(fieldid) {
+            return equals(fieldid, true);
           };
 
           var isBlank = function(fieldid) {
@@ -119,7 +161,7 @@
               if (notBlank(val)) {
                 return val.toString();
               } else {
-                return '';
+                return '_BLANK_';
               }       
             }
           };
@@ -139,12 +181,12 @@
           var emitForField = function(fieldid) {
             var fieldVal = doc.index[fieldid];
             
-            if (isArray(fieldVal[0])) {
+            if (!notBlank(fieldVal)) {
+              emitIf(['', '_UNDEFINED_']);
+            } else if (isArray(fieldVal[0])) {
               fieldVal.forEach(function(item) {
                 emitIf(item);
               });
-            } else if (!notBlank(fieldVal)) {
-              emitIf(['', '']);
             } else {
               emitIf(fieldVal);
             }

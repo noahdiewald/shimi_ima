@@ -88,8 +88,7 @@ normalize_vq(R) ->
 % Helper Functions
 
 -spec decide_plus(view_query()) -> boolean().
-decide_plus(Vq=#vq{startkey_docid=undefined}) 
-  when is_binary(Vq#vq.startkey), Vq#vq.startkey /= <<>> ->
+decide_plus(Vq=#vq{startkey_docid=undefined}) when is_binary(Vq#vq.startkey) ->
     true;
 decide_plus(_) ->
     false.
@@ -99,8 +98,11 @@ set_keys_sortkeys(Id, Vq, R, S) ->
     Json = couch:get_json(Id, R, S),
     case jsn:get_value(<<"category">>, Json) of
         <<"query">> ->
-            Field = jsn:get_value(<<"field">>, Json),
-            set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+            case jsn:get_value(<<"fields">>, Json) of
+                [Field] ->
+                    set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+                _ -> Vq
+            end;
         <<"doctype">> ->
             set_sortkey_by_doctype(Id, Vq, R, S)
     end.
