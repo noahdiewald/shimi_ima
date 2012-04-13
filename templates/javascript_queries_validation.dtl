@@ -2,6 +2,10 @@ function(newDoc, saveDoc, userCtx) {
   String.prototype.isBlank = function() {
     return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
   };
+
+  var isArray = function(anArray) {
+    return Object.prototype.toString.apply(anArray) == '[object Array]';
+  };
   
   var forbid = function(name, msg) {
     var errorMsg = JSON.stringify({
@@ -13,12 +17,23 @@ function(newDoc, saveDoc, userCtx) {
   };
   
   if (newDoc.category === 'query') {
-    [newDoc.doctype, newDoc.name, newDoc.fieldset, newDoc.field].forEach(function(field) {
-      if (field.isBlank()) forbid('All fields', 'must be filled in.');
-    });
+    [newDoc.doctype, newDoc.name]
+      .forEach(
+        function(field) {
+          if (field.isBlank()) forbid('All fields', 'must be filled in.');
+        });
     
+    if (newDoc.fields.length === 0 || newDoc.fieldLabel === 0) {
+      forbid('All fields', 'must be filled in.');  
+    }
+
+    if (typeof newDoc.show_deleted !== "boolean") {
+      forbid('Show deleted', 'must be true or false');
+    }
+
     if (!(/^\\w*$/).test(newDoc.name)) {
-      forbid('Name', 'may only contain alphanumeric characters and underscores.');
+      forbid('Name', 
+             'may only contain alphanumeric characters and underscores.');
     }
     
     if (newDoc.conditions && newDoc.conditions.length > 0) {

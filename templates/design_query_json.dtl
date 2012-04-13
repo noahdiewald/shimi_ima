@@ -4,163 +4,156 @@
   "views": {
     "index": {
       "map": "function(doc) {
-        String.prototype.isBlank = function() {
-          return ((/^\\s*$/).test(this) && !(/\\S/).test(this) && !(this === null));
-        };
-        
-        // From MDC
-        // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Reduce
-        // This was needed because this code was originally developed using
-        // a more recent spidermonkey version where I made use of it. Instead
-        // of rewriting to not use reduce, I look forward to the next spidermonkey
-        // version some day coming to Arch.
-        if ( !Array.prototype.reduce ) {
-          Array.prototype.reduce = function (accumlator){
-            var i, l = this.length, curr;
-
-            if (typeof accumlator !== 'function')  throw new TypeError('First argument is not callable');
-
-            if ((l == 0 || l === null) && (arguments.length <= 1)) throw new TypeError('Array length is 0 and no second argument');
-        
-            if (arguments.length <= 1) {
-              for (i = 0; i == l;)
-                throw new TypeError('Empty array and no second argument');
-              
-              curr = this[i++];
-            } else {
-              curr = arguments[1];
-            }
-        
-            for(i = i || 0 ; i < l ; i++){
-              if (i in this) curr = accumlator.call(undefined, curr, this[i], i, this);
-            }
-        
-            return curr;
+        if (doc.doctype === '{{doctype}}' && !(doc.category) && doc.index &&
+            (!!doc.deleted_) === {{show_deleted}}) {
+          
+          var display_fields = [
+            {% for field in fields %}
+              {% if forloop.last %}
+              '{{field}}'
+              {% else %}
+              '{{field}}',
+              {% endif %}
+            {% endfor %}
+          ];
+           
+          var isArray = function(anArray) {
+            return Object.prototype.toString.apply(anArray) ===
+              '[object Array]';
           };
-        } 
-        
-        Array.prototype.flatten = function() {
-          var retval;
-          
-          if (this.length > 0) {
-            retval = this.reduce(function(acc, item) {
-              return acc.concat(item);
-            });
-          } else {
-            retval = this;
-          }
-          
-          return retval;
-        };
-        
-        var heads = [];
-        var expected = {{expected}};
-        
-        function try_fields(fieldset) {
-          var k = [];
-          var result;
-          
-          result = fieldset.fields.every(function(field, index) {
-            var fieldId = field.id;
-            var value = field.value;
-            var sortkey = field.sortkey;
-            
-            if (expected[fieldId] !== undefined) {
-              expected[fieldId] = true;
-            }
-            
-            if (fieldId === '{{field}}') {
-              k.push([sortkey, value]);
-            }
-            
-            if (field.head) {
-              heads.push([value]);
-            }
-            
-            return ({{expression}});
-          });
-          
-          if (result) {
-            return {keys: k, result: result};
-          } else {
-            return {result: result};
-          }
-        }
-        
-        function try_multifields(multifields) {
-          var results;
-          var result;
-          var k = [];
-          
-          results = multifields.map(function(multifield, index) {
-            fields_result = try_fields(multifield);
-            if (fields_result.result) k.push(fields_result.keys);
-            return fields_result.result;
-          });
-          
-          result = results.some(function(r) {return r});
-          
-          // Non-existent multifields are vacuusly true. There is an
-          // additional check to see if all fields that should have had
-          // their values tested were visited.
-          if (multifields.length === 0) {
-            return {keys: [], result: true};
-          } else if (result) {
-            return {keys: k.flatten(), result: result};
-          } else {
-            return {result: result};
-          }
-        }
-        
-        function try_fieldsets(fieldsets) {
-          var k = [];
-          var result;
-          var retval;
-          
-          result = fieldsets.every(function(fieldset, index) {
-            var fields_result;
-            
-            if (! fieldset.multiple) {
-              fields_result = try_fields(fieldset);
-            } else {
-              fields_result = try_multifields(fieldset.multifields);
-            }
-            
-            if (fields_result.result) {
-              if (fields_result.keys.length > 0) {
-                k.push(fields_result.keys);
+
+          var notBlank = function(val) {
+            return (val !== undefined && val !== null && val.toString() !== '');
+          };
+
+          var runTest = function(fieldid, value, pred) {
+            var fieldVal = doc.index[fieldid];
+            var retval = false;
+
+            if (notBlank(fieldVal)) {
+              if (!isArray(fieldVal[0])) {
+                retval =  pred(fieldVal[1], value);
+              } else {
+                retval = fieldVal.some(function(fVal) {
+                  return pred(fVal[1], value);
+                });
               }
             }
 
-            return fields_result.result;
-          });
-          
-          if (result) {
-            retval = k.flatten();
-            if (retval.length == 0) retval = [''];
-          } else {
-            retval = [];
-          }
-          
-          return retval;
-        }
-        
-        if (doc.doctype == '{{doctype}}' && doc.fieldsets && !doc.deleted_)  {
-          var keys = try_fieldsets(doc.fieldsets);
-          
-          if (expected.allVisited()) {
-            keys.forEach(function(item) {
-              if (typeof item[1] == 'string') {
-                if (item[1].isBlank()) {
-                  item[1] = '~blank';
+            return retval;
+          };
+
+          var equals = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              return value1 === value2;
+            };
+            return runTest(fieldid, value, pred);
+          };
+
+          var greaterThan = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              return value1 > value2;
+            };
+            return runTest(fieldid, value, pred);
+          };
+
+          var lessThan = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              return value1 < value2;
+            };
+            return runTest(fieldid, value, pred);
+          };
+
+          var matches = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              return !!value1.match(value2);
+            };
+            return runTest(fieldid, value, pred);
+          };
+
+          var hasMember = function(fieldid, value) {
+            var pred = function(value1, value2) {
+              return value1.indexOf(value2) >= 0;
+            };
+            return runTest(fieldid, value, pred);
+          };
+
+          var isTrue = function(fieldid) {
+            var pred = function(value1, value2) {
+              return value1 === true;
+            };
+            return runTest(fieldid, null, pred);
+          };
+
+          var isBlank = function(fieldid) {
+            var pred = function(value1, value2) {
+              return !notBlank(value1);
+            };
+            return runTest(fieldid, null, pred);
+          };
+ 
+          var head = function() {
+            var hd = doc.head;
+            return hd.map(function(h) {
+              var v = doc.index[h];
+              if (isArray(v[0])) {
+                if (notBlank(v[0][1])) {
+                  return v[0][1] + '...';
+                } else {
+                  return '...';
                 }
-                emit([item], heads);
               } else {
-                emit([item], heads);
+                return v[1];
               }
-            });
-          }
-        } 
+            }).join(', ');
+          };
+ 
+          var condition = function() {
+            return ({{expression}});
+          };
+
+          var format = function(val) {
+            if (isArray(val)) {
+              return val.map(function(i) {return i.toString();}).join(', ');
+            } else {
+              if (notBlank(val)) {
+                return val.toString();
+              } else {
+                return '';
+              }       
+            }
+          };
+
+          var emitIf = function(fieldVal) {
+            if (condition()) {
+              var formatted = format(fieldVal[1]);
+
+              if (display_fields.lenghth > 1) {
+                emit(['', formatted], head());
+              } else {
+                emit([fieldVal[0], formatted], head());
+              }
+            }
+          };
+
+          var emitForField = function(fieldid) {
+            var fieldVal = doc.index[fieldid];
+            
+            if (isArray(fieldVal[0])) {
+              fieldVal.forEach(function(item) {
+                emitIf(item);
+              });
+            } else if (!notBlank(fieldVal)) {
+              emitIf(['', '']);
+            } else {
+              emitIf(fieldVal);
+            }
+          };
+
+          display_fields.forEach(function(item) {
+            emitForField(item);
+          });
+        }
       }" 
     }
   }

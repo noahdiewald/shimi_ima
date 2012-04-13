@@ -25,56 +25,65 @@
 -export([upgrade/2]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
--include_lib("include/types.hrl").
+-include_lib("config.hrl").
+-include_lib("types.hrl").
 
 %% @doc Update a project's design documents.
 
 -spec upgrade(R :: utils:reqdata(), S :: any()) -> ok.
 upgrade(R, S) ->
-  {ok, updated} = upgrade_doctypes(R, S),
-  {ok, updated} = upgrade_charseqs(R, S),
-  {ok, updated} = upgrade_file_manager(R, S),
-  upgrade_all_doctypes(R, S),
-  ok.
+    {ok, updated} = upgrade_doctypes(R, S),
+    {ok, updated} = upgrade_charseqs(R, S),
+    {ok, updated} = upgrade_queries(R, S),
+    {ok, updated} = upgrade_file_manager(R, S),
+    upgrade_all_doctypes(R, S),
+    ok.
+
+upgrade_queries(R, S) ->
+    {ok, Queries} = design_queries_json_dtl:render(),
+    couch:update(design, "queries", Queries, R, S).
 
 upgrade_doctypes(R, S) ->
-  {ok, Dtypes} = design_doctypes_json_dtl:render(),
-  couch:update(design, "doctypes", Dtypes, R, S).
+    {ok, Dtypes} = design_doctypes_json_dtl:render(),
+    couch:update(design, "doctypes", Dtypes, R, S).
 
 upgrade_charseqs(R, S) ->
-  {ok, Csets} = design_charseqs_json_dtl:render(),
-  couch:update(design, "charseqs", Csets, R, S).
+    {ok, Csets} = design_charseqs_json_dtl:render(),
+    couch:update(design, "charseqs", Csets, R, S).
 
 upgrade_file_manager(R, S) -> 
-  {ok, Fmanager} = design_file_manager_json_dtl:render(),
-  {R, S1} = attach:get_database(R, S),
-  Id = binary_to_list(jsn:get_value(<<"_id">>, jsn:decode(Fmanager))),
-  DB = proplists:get_value(db, S1),
-  couch:update(design, Id, Fmanager, DB, R, S1).
+    {ok, Fmanager} = design_file_manager_json_dtl:render(),
+    {R, S1} = attach:get_database(R, S),
+    Id = binary_to_list(jsn:get_value(<<"_id">>, jsn:decode(Fmanager))),
+    DB = proplists:get_value(db, S1),
+    couch:update(design, Id, Fmanager, DB, R, S1).
 
 upgrade_all_doctypes(R, S) ->
-  {ok, VJson} = couch:get_view_json("doctypes", "all", R, S),
-  Doctypes = [jsn:get_value(<<"value">>, X) || X <- jsn:get_value(<<"rows">>, VJson)],
-  lists:map(fun (Doctype) -> upgrade_doctype(Doctype, R, S) end, Doctypes).
+    {ok, VJson} = couch:get_view_json("doctypes", "all", R, S),
+    Doctypes = [jsn:get_value(<<"value">>, X) || 
+                   X <- jsn:get_value(<<"rows">>, VJson)],
+    lists:map(fun (Doctype) -> upgrade_doctype(Doctype, R, S) end, Doctypes).
 
 upgrade_doctype(Doctype, R, S) ->
-  {ok, Json} = design_doctype_json_dtl:render(Doctype),
-  VId = binary_to_list(jsn:get_value(<<"_id">>, Doctype)),
-  {ok, updated} = couch:update(design, VId, Json, R, S),
-  {ok, VJson} = couch:get_view_json(VId, "fieldsets", R, S),
-  Fieldsets = [jsn:get_value(<<"value">>, X) || X <- jsn:get_value(<<"rows">>, VJson)],
-  lists:map(fun (Fieldset) -> upgrade_fieldset(Fieldset, R, S) end, Fieldsets).
+    {ok, Json} = design_doctype_json_dtl:render(Doctype),
+    VId = binary_to_list(jsn:get_value(<<"_id">>, Doctype)),
+    {ok, updated} = couch:update(design, VId, Json, R, S),
+    {ok, VJson} = couch:get_view_json(VId, "fieldsets", R, S),
+    Fieldsets = [jsn:get_value(<<"value">>, X) || 
+                    X <- jsn:get_value(<<"rows">>, VJson)],
+    lists:map(fun (Fieldset) -> upgrade_fieldset(Fieldset, R, S) end, 
+              Fieldsets).
   
 upgrade_fieldset(Fieldset, R, S) ->
-  {ok, Json} = design_fieldset_json_dtl:render(Fieldset),
-  VId = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
-  {ok, updated} = couch:update(design, VId, Json, R, S),
-  {ok, VJson} = couch:get_view_json(VId, "fields", R, S),
-  Fields = [jsn:get_value(<<"value">>, X) || X <- jsn:get_value(<<"rows">>, VJson)],
-  lists:map(fun (Field) -> upgrade_field(Field, R, S) end, Fields).
+    {ok, Json} = design_fieldset_json_dtl:render(Fieldset),
+    VId = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
+    {ok, updated} = couch:update(design, VId, Json, R, S),
+    {ok, VJson} = couch:get_view_json(VId, "fields", R, S),
+    Fields = [jsn:get_value(<<"value">>, X) || 
+                 X <- jsn:get_value(<<"rows">>, VJson)],
+    lists:map(fun (Field) -> upgrade_field(Field, R, S) end, Fields).
 
 upgrade_field(Field, R, S) ->
-  {ok, Json} = design_field_json_dtl:render(Field),
-  VId = binary_to_list(jsn:get_value(<<"_id">>, Field)),
-  {ok, updated} = couch:update(design, VId, Json, R, S).
+    {ok, Json} = design_field_json_dtl:render(Field),
+    VId = binary_to_list(jsn:get_value(<<"_id">>, Field)),
+    {ok, updated} = couch:update(design, VId, Json, R, S).

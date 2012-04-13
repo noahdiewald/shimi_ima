@@ -85,7 +85,7 @@ post_is_create(R, S) ->
 create_path(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
   
-    {ok, Id} = couch:get_uuid(R, S),
+    Id = couch:get_uuid(R, S),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
     Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
@@ -182,7 +182,16 @@ html_index(R, S) ->
 html_identifier(R, S) ->
     Json = couch:get_json(id, R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
-  
+
+    Json1 = jsn:set_value(<<"fields">>,
+                          iolist_to_binary(
+                            jsn:encode(jsn:get_value(<<"fields">>, Json))),
+                          Json),
+    Labels = jsn:get_value(<<"fields_label">>, Json1),
+    Json2 = jsn:set_value(<<"fields_label">>, 
+                          iolist_to_binary(jsn:encode(Labels)),
+                          Json1),
+
     F = fun(X) -> 
                 render_conditions(jsn, get_value, X, R, S)
         end,
@@ -191,10 +200,8 @@ html_identifier(R, S) ->
   
     Vals = [
             {<<"rendered_conditions">>, RenderedConditions},
-            {<<"fieldset_label">>, 
-             get_label(jsn:get_value(<<"fieldset">>, Json), R, S)},
-            {<<"field_label">>, get_label(jsn:get_value(<<"field">>, Json), R, S)}
-            |Json],
+            {<<"label">>, jsn:get_value(<<"fields_label">>, Json)}
+            |Json2],
   
     {ok, Html} = query_edit_dtl:render(Vals),
     Html.

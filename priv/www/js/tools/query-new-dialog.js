@@ -25,6 +25,15 @@ function initQueryNewDialog() {
     });
   };
   
+  var getLabelForVal = function(val) {
+    return $('option[value="'+ val + '"]').text();
+  };
+
+  var getLabel = function() {
+    return [getLabelForVal(queryFieldset.val()), 
+            getLabelForVal(queryField.val())].join(":");
+  };
+
   var dialog = $("#query-new-dialog").dialog({
     autoOpen: false,
     modal: true,
@@ -32,17 +41,18 @@ function initQueryNewDialog() {
       "Create": function() {
         $('.input').removeClass('ui-state-error');
         
-        // place holder for client side validation
+         // place holder for client side validation
         var checkResult = true;
         
         if (checkResult) {
           var obj = {
             "category": "query", 
-            "name": queryName.val(), 
+            "name": queryName.val(),
+            "show_deleted": false,
             "conditions": [], 
             "doctype": queryDoctype.val(),
-            "fieldset": queryFieldset.val(),
-            "field": queryField.val()
+            "fields_label": [getLabel()],
+            "fields": [queryField.val()]
           },
           complete = function(context) {
             initQueryIndex();
