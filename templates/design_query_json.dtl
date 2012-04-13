@@ -154,16 +154,28 @@
             return ({{expression}});
           };
 
+          {% if replace_pattern %}
+          var runReplace = function(val) {
+            return = val.replace({{match_pattern}}, {{replace_pattern}});
+          };
+          {% endif %}
+
           var format = function(val) {
+            var retval = '_BLANK_';
+
             if (isArray(val)) {
-              return val.map(function(i) {return i.toString();}).join(', ');
+              retval = val.map(function(i) {return i.toString();}).join(',');
             } else {
               if (notBlank(val)) {
-                return val.toString();
-              } else {
-                return '_BLANK_';
-              }       
+                retval = val.toString();
+              }
             }
+
+            {% if replace_pattern %}
+            return runReplace(retval);
+            {% else %}
+            return retval;
+            {% endif %}
           };
 
           var emitIf = function(fieldVal) {
@@ -173,7 +185,11 @@
               if (display_fields.lenghth > 1) {
                 emit([['', formatted]], ['', head()]);
               } else {
+                {% if replace_pattern %}
+                emit([['', formatted]], ['', head()]);
+                {% else %}
                 emit([[fieldVal[0], formatted]], ['', head()]);
+                {% endif %}
               }
             }
           };
