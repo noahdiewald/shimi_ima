@@ -18,7 +18,7 @@ function initQueryBuilderDialog(queryDoctype) {
     return false;
   };
     
-  fillOptionsFromUrl(fieldset_url, builderFieldset, function () {builderFieldset.inputEnable()});
+  fillOptionsFromUrl(fieldset_url, builderFieldset, function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
     if (builderOr.is(':checked')) {

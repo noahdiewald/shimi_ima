@@ -7,5 +7,4 @@
     "options": {"map": "function(doc) { if (doc.category == 'query')  { emit(doc.name) }}"}
   },
   "validate_doc_update": "{% include 'javascript_queries_validation.dtl' %}"
-
 }

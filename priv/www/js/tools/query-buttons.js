@@ -1,6 +1,7 @@
 function initQueryChooseButton() {
-  $('#choose-query-button').button({
-    icons: {primary: "ui-icon-arrowreturnthick-1-s"}
+  $('#choose-query-button')
+    .button({
+              icons: {primary: "ui-icon-arrowreturnthick-1-s"}
   }).click(function() {
     $('#query-index-listing').slideToggle();
   });

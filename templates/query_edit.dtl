@@ -1,11 +1,11 @@
 <div 
-  id="query-editing-data" 
+  id="query-editing-data"
   data-query-doctype="{{doctype}}" 
   data-query-fieldset="{{fieldset}}" 
   data-query-field="{{field}}" 
   data-query-name="{{name}}" 
   data-query-id="{{_id}}" 
-  data-query-rev="{{_rev}}">
+  data-query-rev="{{_rev}}">    
   <p><em>{{name}}</em> will list <b>{{doctype}}</b> documents. They will be listed by <b>{{fieldset_label}}: {{field_label}}</b>.</p>
 </div>
 

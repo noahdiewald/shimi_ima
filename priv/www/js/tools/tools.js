@@ -368,7 +368,7 @@ $(function () {
   initTabs(); 
   $('#query-builder-dialog').hide();
   $('#query-new-dialog').hide();
-  initQueryEditButtons(function () {return $('#query-editing-data')});
+  initQueryEditButtons(function () {return $('#query-editing-data');});
   initQueryNewButton();
   initQueryChooseButton();
   $('#button-bar').buttonset();
