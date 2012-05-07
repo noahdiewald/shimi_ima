@@ -18,8 +18,7 @@ function initQueryBuilderDialog(queryDoctype) {
     return false;
   };
     
-  fillOptionsFromUrl(fieldset_url, builderFieldset, 
-                     function () {builderFieldset.inputEnable();});
+  fillOptionsFromUrl(fieldset_url, builderFieldset, function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
     if (builderOr.is(':checked')) {
@@ -30,93 +29,88 @@ function initQueryBuilderDialog(queryDoctype) {
   });
   
   var fieldsetEvents = function () {
-    setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField, 
-                           function () {
-                             builderOperator.inputDisable();
-                             builderField.inputDisable();
-                             builderArgument.inputDisable();
-                             
-                             return function () {
-                               builderField.inputEnable();
-                             };
-                           });
+    setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField, function () {
+      builderOperator.inputDisable();
+      builderField.inputDisable();
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderField.inputEnable();
+      };
+    });
   };
   
   var fieldEvents = function () {
-    setQueryFieldEvents(queryDoctype, builderFieldset, builderField, 
-                        function () {
-                          builderOperator.inputDisable();
-                          builderArgument.inputDisable();
-                          
-                          return function () {
-                            builderOperator.inputEnable();
-                          };
-                        });
+    setQueryFieldEvents(queryDoctype, builderFieldset, builderField, function () {
+      builderOperator.inputDisable();
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderOperator.inputEnable();
+      };
+    });
   };
   
   var operatorEvents = function () {
-    setQueryOperatorEvents(builderArgument, builderOperator, builderField, 
-                           function () {
-                             builderArgument.inputDisable();
-                             
-                             return function () {
-                               builderArgument.inputEnable();
-                             };
-                           });
+    setQueryOperatorEvents(builderArgument, builderOperator, builderField, function () {
+      builderArgument.inputDisable();
+      
+      return function () {
+        builderArgument.inputEnable();
+      };
+    });
   };
   
-  var dialog = $("#query-builder-dialog")
-    .dialog({
-              autoOpen: false,
-              modal: true,
-              buttons: {
-                "Create": function() {
-                  $('.input').removeClass('ui-state-error');
+  var dialog = $("#query-builder-dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Create": function() {
+        $('.input').removeClass('ui-state-error');
         
-                  // place holder for client side validation
-                  var checkResult = true;
+        // place holder for client side validation
+        var checkResult = true;
         
-                  if (!builderOr.is(':checked')) {
-                    notBlank.forEach(function(item) {
-                                       if (item.val().isBlank()) {
-                                         item.addClass('ui-state-error');
-                                         checkResult = false;
-                                       } else {
-                                         item.removeClass('ui-state-error');
-                                       }
-                                     });
-                  }
+        if (!builderOr.is(':checked')) {
+          notBlank.forEach(function(item) {
+            if (item.val().isBlank()) {
+              item.addClass('ui-state-error');
+              checkResult = false;
+            } else {
+              item.removeClass('ui-state-error');
+            }
+          });
+        }
         
-                  if (checkResult) {
-                    if (builderOr.is(':checked')) {
-                      $.get(condition_url, {"is_or": true}, 
-                            function(data) {appendCondition(data);});
-                    } else {
-                      $.get(condition_url, {
-                              "is_or": false,
-                              "negate": builderNegate.is(':checked'),
-                              "fieldset": builderFieldset.val(),
-                              "field": builderField.val(),
-                              "operator": builderOperator.val(),
-                              "argument": builderArgument.val()
-                            }, function(data) {appendCondition(data);});
-                    }
+        if (checkResult) {
+          if (builderOr.is(':checked')) {
+            $.get(condition_url, {"is_or": true}, function(data) {appendCondition(data)});
+          } else {
+            $.get(condition_url, {
+              "is_or": false,
+              "negate": builderNegate.is(':checked'),
+              "fieldset": builderFieldset.val(),
+              "field": builderField.val(),
+              "operator": builderOperator.val(),
+              "argument": builderArgument.val()
+            }, function(data) {appendCondition(data)});
+          }
           
-                    $(this).dialog("close");
-                  }
-                },
-                "Cancel": function() {
-                  $(this).dialog("close");
-                }
-              },
-              close: function() {
-                $('#builder-conditions').show();
-                builderFieldset.unbind('change');
-                builderField.unbind('change');
-                builderOperator.unbind('change');
-                clearValues($('.input')).removeClass('ui-state-error');
-              }
-            });
+          $(this).dialog("close");
+        }
+      },
+      "Cancel": function() {
+        $(this).dialog("close");
+      }
+    },
+    close: function() {
+      $('#builder-conditions').show();
+      builderFieldset.unbind('change');
+      builderField.unbind('change');
+      builderOperator.unbind('change');
+      clearValues($('.input')).removeClass('ui-state-error');
+    }
+  });
   
   fieldsetEvents();
   fieldEvents();

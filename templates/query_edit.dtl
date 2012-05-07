@@ -1,19 +1,12 @@
 <div 
-   id="query-editing-data" 
-   data-query-doctype="{{doctype}}" 
-   data-query-fields_label={{fields_label|force_escape}}
-   data-query-fields={{fields|force_escape}}
-   data-query-name="{{name}}"
-   data-query-show_deleted="{{show_deleted}}"
-   data-query-id="{{_id}}" 
-   data-query-rev="{{_rev}}">
-  <p>
-    <em>{{name}}</em>
-    will list
-    <b>{{doctype}}</b>
-    documents. They will be listed by 
-    <b>{{label|join:", "}}</b>.
-  </p>
+  id="query-editing-data"
+  data-query-doctype="{{doctype}}" 
+  data-query-fieldset="{{fieldset}}" 
+  data-query-field="{{field}}" 
+  data-query-name="{{name}}" 
+  data-query-id="{{_id}}" 
+  data-query-rev="{{_rev}}">    
+  <p><em>{{name}}</em> will list <b>{{doctype}}</b> documents. They will be listed by <b>{{fieldset_label}}: {{field_label}}</b>.</p>
 </div>
 
 <div id="query-conditions-listing">

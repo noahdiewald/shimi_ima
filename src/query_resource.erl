@@ -2,10 +2,10 @@
 %%%
 %%% This file is part of dictionary_maker.
 %%%
-%%% dictionary_maker is free software: you can redistribute it and/or modify
-%%% it under the terms of the GNU General Public License as published by
-%%% the Free Software Foundation, either version 3 of the License, or
-%%% (at your option) any later version.
+%%% dictionary_maker is free software: you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation, either version 3 of the
+%%% License, or (at your option) any later version.
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -231,7 +231,6 @@ validate_authentication(Props, R, S) ->
 % This is passed the a getter function depending on the origin of the
 % request. It may have been a JSON post or put but could also be an
 % URL encoded query string.
-
 render_conditions(Module, Function, Arg, R, S) ->
     {ok, Html} = 
         case Module:Function("is_or", Arg) of
@@ -263,3 +262,4 @@ render_conditions(Module, Function, Arg, R, S) ->
 get_label(Id, R, S) ->
     Json = couch:get_json(Id, R, S),
     jsn:get_value(<<"label">>, Json).
+

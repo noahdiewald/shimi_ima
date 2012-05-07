@@ -6,13 +6,13 @@ function initQueryNewDialog() {
   
   var doctypeEvents = function() {
     setQueryDoctypeEvents(queryDoctype, queryFieldset, function() {
-      queryFieldset.inputDisable();
-      queryField.inputDisable();
-      
-      return function() {
-        queryFieldset.inputEnable();
-      };
-    });
+                            queryFieldset.inputDisable();
+                            queryField.inputDisable();
+                            
+                            return function() {
+                              queryFieldset.inputEnable();
+                            };
+                          });
   };
   
   var fieldsetEvents = function() {

@@ -1,13 +1,13 @@
-var initTabs = function() {
+function initTabs() {
   $("#main-tabs").tabs();
   return false;
-};
+}
 
-var getFieldDoc = function(fieldId, fieldsetId, doctypeId, callback) {
+function getFieldDoc(fieldId, fieldsetId, doctypeId, callback) {
   var fieldDoc = getDoc(fieldId);
   var url = 'doctypes/' + doctypeId + 
-    '/fieldsets/' + fieldsetId + 
-    '/fields/' + fieldId + '?format=json';
+            '/fieldsets/' + fieldsetId + 
+            '/fields/' + fieldId + '?format=json';
             
   if (fieldDoc) {
     if (callback) {
@@ -29,87 +29,86 @@ var getFieldDoc = function(fieldId, fieldsetId, doctypeId, callback) {
           
     return getDoc(fieldId);
   }
-};
+}
 
-var fillOptionsFromUrl = function(url, selectElement, callback) {
+function fillOptionsFromUrl(url, selectElement, callback) {
   $.get(url, function(options) {
-          selectElement.html(options);
-          if (callback) callback();
-        });
+    selectElement.html(options);
+    if (callback) callback();
+  });
   
   return false;
-};
+}
 
-var alterOperatorField = function(fieldDoc, fieldId, callback) {
+function alterOperatorField(fieldDoc, fieldId, callback) {
   disableOperatorOptions(fieldDoc);
   callback();
   
   return false;
-};
+}
 
-var disableOperatorOptions = function(fieldDoc) {
+function disableOperatorOptions(fieldDoc) {
   var options = $('#builder-operator-input');
   
   switch (fieldDoc.subcategory) {
-  case "select":
-  case "docselect":
-  case "text":
-  case "textarea":
-    disableOptions(options, ["member", "true"]);
-    break;
-  case "integer":
-  case "rational":
-  case "date":
-    disableOptions(options, ["member", "true", "match"]);
-    break;
-  case "boolean":
-  case "openboolean":
-    disableOptions(options, ["equal", "greater", "less", "member", "match"]);
-    break;
-  case "multiselect":
-  case "docmultiselect":
-    disableOptions(options, ["equal", "greater", "less", "true", "match"]);
-    break;
+    case "select":
+    case "docselect":
+    case "text":
+    case "textarea":
+      disableOptions(options, ["member", "true"]);
+      break;
+    case "integer":
+    case "rational":
+    case "date":
+      disableOptions(options, ["member", "true", "match"]);
+      break;
+    case "boolean":
+    case "openboolean":
+      disableOptions(options, ["equal", "greater", "less", "member", "match"]);
+      break;
+    case "multiselect":
+    case "docmultiselect":
+      disableOptions(options, ["equal", "greater", "less", "true", "match"]);
+      break;
   }
   
   return false;
-};
+}
 
-var disableOptions = function(options, disables) {
+function disableOptions(options, disables) {
   options.children().show();
   
   disables.forEach(function(item) {
-                     options.children('option:contains(' + item + ')').hide();
-                   });
+    options.children('option:contains(' + item + ')').hide();
+  });
   
   return false;
-};
+}
 
-var alterArgumentField = 
-  function(argumentField, operatorField, fieldField, callback) {
-    var fieldDoc = function () {return getDoc(fieldField.val());};
+function alterArgumentField(argumentField, operatorField, fieldField, callback) {
+  var fieldDoc = function () {return getDoc(fieldField.val());};
 
-    callback();
+  callback();
   
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
+  argumentField.removeAttr('disabled').datepicker('destroy');
+  argumentField.removeAttr('disabled').autocomplete('destroy');
   
-    var dateOrText = function(argumentField, fdoc) {
-      if (fdoc.subcategory == 'date') {
-        argumentField.removeAttr('disabled');
-        argumentField.datepicker({dateFormat: "yy-mm-dd"});
-      } else {
-        argumentField.removeAttr('disabled');
-        argumentField.autocomplete({source: fdoc.allowed});
-      }
+  function dateOrText(argumentField, fdoc) {
+    if (fdoc.subcategory == 'date') {
+      argumentField.removeAttr('disabled');
+      argumentField.datepicker({dateFormat: "yy-mm-dd"});
+    } else {
+      argumentField.removeAttr('disabled');
+      argumentField.autocomplete({source: fdoc.allowed});
+    }
     
-      return false;
-    };
+    return false;
+  }
 
-    var fdoc = fieldDoc();
+  var fdoc = fieldDoc();
   
-    if (fdoc) {
-      switch (operatorField.val()) {
+  if (fdoc) {
+    switch (operatorField.val()) {
       case "true":
       case "blank":
         argumentField.attr('disabled', 'disabled').val("");
@@ -123,56 +122,56 @@ var alterArgumentField =
       }
     
     }
-  };
+    
+  }
+}
 
-var fixArgumentType = function(argument, subcategory) {
+function fixArgumentType(argument, subcategory) {
   switch (subcategory) {
-  case "integer":
-  case "rational":
-    argument = argument * 1;
-    break;
+    case "integer":
+    case "rational":
+      argument = argument * 1;
+      break;
   }
   
   return argument;
-};
+}
 
-var getQueryConditions = function(doctypeId, rows) {
-  var conditions = rows.map(
-    function(index, row) {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') == "true";
-      var condition;
+function getQueryConditions(doctypeId, rows) {
+  var conditions = rows.map(function(index, row) {
+    row = $(row);
+    var is_or = row.find('td.or-condition').attr('data-value') == "true";
+    var condition;
     
-      if (is_or) {
-        condition = { "is_or": true };
-      } else {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate = 
-          row.find('td.negate-condition').attr('data-value') == "true";
-        var operator = row.find('td.operator-condition').attr('data-value');
+    if (is_or) {
+      condition = { "is_or": true };
+    } else {
+      var fieldId = row.find('td.field-condition').attr('data-value');
+      var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+      var argument = row.find('td.argument-condition').attr('data-value');
+      var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
+      var negate = row.find('td.negate-condition').attr('data-value') == "true";
+      var operator = row.find('td.operator-condition').attr('data-value');
 
-        argument = fixArgumentType(argument, fieldDoc.subcategory);
+      argument = fixArgumentType(argument, fieldDoc.subcategory);
       
-        condition = {
-          "is_or": false,
-          "negate": negate,
-          "fieldset": fieldsetId,
-          "field": fieldId,
-          "operator": operator,
-          "argument": argument
-        };
-      }
+      condition = {
+        "is_or": false,
+        "negate": negate,
+        "fieldset": fieldsetId,
+        "field": fieldId,
+        "operator": operator,
+        "argument": argument
+      };
+    }
     
-      return condition;
-    }).toArray();
+    return condition;
+  }).toArray();
   
   return conditions;
-};
+}
 
-var saveQuery = function(buttonData, completeFunction) {
+function saveQuery(buttonData, completeFunction) {
   var queryId = buttonData.attr('data-query-id');
   var queryRev = buttonData.attr('data-query-rev');
   var url = "queries/" + queryId + "?rev=" + queryRev;
@@ -182,9 +181,8 @@ var saveQuery = function(buttonData, completeFunction) {
     "_id": queryId,
     "category": "query",
     "doctype": doctype,
-    "show_deleted": buttonData.attr('data-query-show_deleted'),
-    "fields": JSON.parse(buttonData.attr('data-query-fields')),
-    "fields_label": JSON.parse(buttonData.attr('data-query-fields_label')),
+    "fieldset": buttonData.attr('data-query-fieldset'),
+    "field": buttonData.attr('data-query-field'),
     "name": buttonData.attr('data-query-name'),
     "conditions": getQueryConditions(doctype, $('#query-conditions-listing tbody tr'))
   };
@@ -192,104 +190,101 @@ var saveQuery = function(buttonData, completeFunction) {
   sendConfigDoc(url, obj, 'PUT', completeFunction, this);
 
   return false;  
-};
+}
 
-var deleteQuery = 
-  function(queryId, queryRev, completeMessage, completeFunction) {
-    var url = "queries/" + queryId + "?rev=" + queryRev;
+function deleteQuery(queryId, queryRev, completeMessage, completeFunction) {
+  var url = "queries/" + queryId + "?rev=" + queryRev;
   
-    $.ajax(
-      {
-        type: "DELETE",
-        url: url,
-        dataType: "json",
-        contentType: "application/json",
-        complete: function(req, status) {
-          if (req.status == 204) {
-            var title = "Success";
-            var body = completeMessage;
+  $.ajax({
+    type: "DELETE",
+    url: url,
+    dataType: "json",
+    contentType: "application/json",
+    complete: function(req, status) {
+      if (req.status == 204) {
+        var title = "Success";
+        var body = completeMessage;
         
-            completeFunction();
+        completeFunction();
         
-            flashHighlight(title, body);
-          } else if (req.status == 409) {
-            var body = JSON.parse(req.responseText);
-            var title = req.statusText;
+        flashHighlight(title, body);
+      } else if (req.status == 409) {
+        var body = JSON.parse(req.responseText);
+        var title = req.statusText;
           
-            flashError(title, body.message);
-          } else if (req.status == 404) {
-            var body = "Query appears to have been deleted already.";
-            var title = req.statusText;
-            
-            flashError(title, body);
-          }
-        }
-      });
+        flashError(title, body.message);
+      } else if (req.status == 404) {
+        var body = "Query appears to have been deleted already.";
+        var title = req.statusText;
+          
+        flashError(title, body);
+      }
+    }
+  });
 
-    return false;  
-  };
+  return false;  
+}
 
-var initQueryEditButtons = function(buttonData) {
+function initQueryEditButtons(buttonData) {
   initQuerySaveButton($('#save-query-button'), buttonData);
   initQueryDeleteButton($('#delete-query-button'), buttonData);
   initQueryAddConditionButton($('#add-query-condition-button'), buttonData);
   
   return false;
-};
+}
  
-var initQuerySaveButton = function(button, buttonData) {
+function initQuerySaveButton(button, buttonData) {
   var completeFunction;
   var bData;
   
-  button.button(
-    {
-      icons: {primary: "ui-icon-document"}
-    }).click(function (e) {
-               bData = buttonData();
+  button.button({
+    icons: {primary: "ui-icon-document"}
+  }).click(function (e) {
+    bData = buttonData();
     
-               if (!bData.length < 1) {
-                 completeFunction = function() {
-                   getQueryEdit(bData.attr('data-query-id'));
-                   flashHighlight("Success", "Your query has been saved.");
-                 };
+    if (!bData.length < 1) {
+      completeFunction = function() {
+        getQueryEdit(bData.attr('data-query-id'));
+        flashHighlight("Success", "Your query has been saved.");
+      };
       
-                 saveQuery(bData, completeFunction);
-               } else {
-                 flashHighlight("Info", "No query has been chosen to save.");
-               }
-             });
-};
+      saveQuery(bData, completeFunction);
+    } else {
+      flashHighlight("Info", "No query has been chosen to save.");
+    }
+  });
+}
 
-var getQueryEdit = function(queryId) {
+function getQueryEdit(queryId) {
   var url = "queries/" + queryId;
   var target = $('#query-edit');
   
   $.get(url, function(queryData) {
-          target.html(queryData);
-          // TODO don't repeat this code. It is also in initQueryBuilderDialog
-          var tableBody = $('#query-conditions-listing tbody');
-          tableBody.sortable();
-          initConditionRemoveButtons(tableBody);
-          getQueryView();
-        });
+    target.html(queryData);
+    // TODO don't repeat this code. It is also in initQueryBuilderDialog
+    var tableBody = $('#query-conditions-listing tbody');
+    tableBody.sortable();
+    initConditionRemoveButtons(tableBody);
+    getQueryView();
+  });
   
   return false;
-};
+}
 
-var initQueryIndex = function() {
+function initQueryIndex() {
   var url = "queries";
   var target = $('#query-index-listing');
   
   $.get(url, function(index) {
-          target.html(index);
-          target.click(function(e) {
-                         getQueryEdit($(e.target).attr('data-query-id'));
-                         target.slideToggle();
-                       });
-        });
-};
+    target.html(index);
+    target.click(function(e) {
+      getQueryEdit($(e.target).attr('data-query-id'));
+      target.slideToggle();
+    });
+  });
+}
 
-var getQueryView = function(startkey, startid, prevkeys, previds) {
+function getQueryView(startkey, startid, prevkeys, previds) {
   var queryInfo = $('#query-editing-data');
   var queryId = queryInfo.attr('data-query-id');
   var url = "queries/" + queryId + "/view?";
@@ -369,18 +364,18 @@ var getQueryView = function(startkey, startid, prevkeys, previds) {
     
         });
 
-};
+}
 
 $(function () {
-    initTabs(); 
-    $('#query-builder-dialog').hide();
-    $('#query-new-dialog').hide();
-    initQueryEditButtons(function () {return $('#query-editing-data');});
-    initQueryNewButton();
-    initQueryChooseButton();
-    $('#button-bar').buttonset();
-    initQueryIndex();
-    $('#query-filter-form input').keyup(function() {
-                                          getQueryView();
-                                        });
+  initTabs(); 
+  $('#query-builder-dialog').hide();
+  $('#query-new-dialog').hide();
+  initQueryEditButtons(function () {return $('#query-editing-data');});
+  initQueryNewButton();
+  initQueryChooseButton();
+  $('#button-bar').buttonset();
+  initQueryIndex();
+  $('#query-filter-form input').keyup(function() {
+    getQueryView();
   });
+});
