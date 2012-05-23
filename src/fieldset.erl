@@ -166,6 +166,7 @@ get_from_table(Tid, Dfs, R, S) ->
 get_from_couch(Dfs, R, S) ->
     case couch:get_json(safer, binary_to_list(Dfs#docfieldset.id), R, S) of
         undefined -> undefined;
+        {error, req_timedout} -> get(Df, R, S);
         Val -> from_json(Val)
     end.
   

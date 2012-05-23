@@ -23,16 +23,16 @@
 -module(field).
 
 -export([
-  from_json/1,
-  from_json/2,
-  get/2,
-  get/3,
-  update_merge/2,
-  set_sortkeys/3,
-  to_json/2,
-  touch/3,
-  touch_all/4
-]).
+         from_json/1,
+         from_json/2,
+         get/2,
+         get/3,
+         update_merge/2,
+         set_sortkeys/3,
+         to_json/2,
+         touch/3,
+         touch_all/4
+        ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
@@ -44,12 +44,12 @@ touch_all(Dfs, FIds, R, S) ->
     touch_all2(Dfs2, [], R, S).
 
 touch_all2([], Acc, _R, _S) ->
-  lists:reverse(Acc);
+    lists:reverse(Acc);
 touch_all2([Df|Rest], Acc, R, S) ->
-  case touch(Df, R, S) of
-    undefined -> touch_all2(Rest, Acc, R, S);
-    Val -> touch_all2(Rest, [Val|Acc], R, S)
-  end.
+    case touch(Df, R, S) of
+        undefined -> touch_all2(Rest, Acc, R, S);
+        Val -> touch_all2(Rest, [Val|Acc], R, S)
+    end.
 
 %% @doc Given the current set of fields in a document, a list of ids
 %% and an empty accumulator, make sure that the current fields are
@@ -78,146 +78,140 @@ find_required(Id, [_|Rest]) ->
 
 -spec touch(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfield().
 touch(Df, R, S) ->
- touch2(update(Df, R, S), R, S).
+    touch2(update(Df, R, S), R, S).
 
 %% @doc Set the sortkeys for fields
-
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
 set_sortkeys([], _R, _S) ->
-  [];
+    [];
 set_sortkeys(Fields, R, S) ->
-  set_sortkeys(Fields, [], R, S).
+    set_sortkeys(Fields, [], R, S).
 
 %% @doc Convert a jsn:json_term() field to a field()
-
 -spec from_json(Json :: jsn:json_term()) -> docfield().
 from_json(Json) ->
-  Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
-  #field{
-    id = get_value(<<"_id">>, Json),
-    rev = get_value(<<"_rev">>, Json),
-    allowed = get_value(<<"allowed">>, Json),
-    category = field,
-    charseq = get_value(<<"charseq">>, Json),
-    default = convert_value(Subcategory, Json, <<"default">>),
-    description = proplists:get_value(<<"description">>, Json, null),
-    doctype = proplists:get_value(<<"doctype">>, Json, null),
-    fieldset = get_value(<<"fieldset">>, Json),
-    head = get_value(<<"head">>, Json, false),
-    label = proplists:get_value(<<"label">>, Json, null),
-    max = convert_value(Subcategory, Json, <<"max">>),
-    min = convert_value(Subcategory, Json, <<"min">>),
-    name = proplists:get_value(<<"name">>, Json, null),
-    order = get_value(<<"order">>, Json),
-    regex = proplists:get_value(<<"regex">>, Json, null),
-    required = get_value(<<"required">>, Json, false),
-    reversal = get_value(<<"reversal">>, Json, false),
-    source = proplists:get_value(<<"source">>, Json, null),
-    subcategory = Subcategory
-  }.
+    Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
+    #field{
+            id = get_value(<<"_id">>, Json),
+            rev = get_value(<<"_rev">>, Json),
+            allowed = get_value(<<"allowed">>, Json),
+            category = field,
+            charseq = get_value(<<"charseq">>, Json),
+            default = convert_value(Subcategory, Json, <<"default">>),
+            description = proplists:get_value(<<"description">>, Json, null),
+            doctype = proplists:get_value(<<"doctype">>, Json, null),
+            fieldset = get_value(<<"fieldset">>, Json),
+            head = get_value(<<"head">>, Json, false),
+            label = proplists:get_value(<<"label">>, Json, null),
+            max = convert_value(Subcategory, Json, <<"max">>),
+            min = convert_value(Subcategory, Json, <<"min">>),
+            name = proplists:get_value(<<"name">>, Json, null),
+            order = get_value(<<"order">>, Json),
+            regex = proplists:get_value(<<"regex">>, Json, null),
+            required = get_value(<<"required">>, Json, false),
+            reversal = get_value(<<"reversal">>, Json, false),
+            source = proplists:get_value(<<"source">>, Json, null),
+            subcategory = Subcategory
+          }.
 
 %% @doc Convert a jsn:json_term() field within a document to a
 %% docfield()
-
 -spec from_json(doc, Json :: jsn:json_term()) -> docfield().
 from_json(doc, Json) ->
-  Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
-  #docfield{
-    id = get_value(<<"id">>, Json),
-    instance = get_value(<<"instance">>, Json),
-    charseq = get_value(<<"charseq">>, Json),
-    name = get_value(<<"name">>, Json),
-    label = get_value(<<"label">>, Json),
-    order = get_value(<<"order">>, Json),
-    head = get_value(<<"head">>, Json, false),
-    max = convert_value(Subcategory, Json, <<"max">>),
-    min = convert_value(Subcategory, Json, <<"min">>),
-    regex = proplists:get_value(<<"regex">>, Json, null),
-    required = get_value(<<"required">>, Json, false),
-    reversal = get_value(<<"reversal">>, Json, false),
-    subcategory = Subcategory,
-    value = convert_value(Subcategory, Json),
-    sortkey = get_value(<<"sortkey">>, Json)
-  }.
+    Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
+    #docfield{
+               id = get_value(<<"id">>, Json),
+               instance = get_value(<<"instance">>, Json),
+               charseq = get_value(<<"charseq">>, Json),
+               name = get_value(<<"name">>, Json),
+               label = get_value(<<"label">>, Json),
+               order = get_value(<<"order">>, Json),
+               head = get_value(<<"head">>, Json, false),
+               max = convert_value(Subcategory, Json, <<"max">>),
+               min = convert_value(Subcategory, Json, <<"min">>),
+               regex = proplists:get_value(<<"regex">>, Json, null),
+               required = get_value(<<"required">>, Json, false),
+               reversal = get_value(<<"reversal">>, Json, false),
+               subcategory = Subcategory,
+               value = convert_value(Subcategory, Json),
+               sortkey = get_value(<<"sortkey">>, Json)
+             }.
   
 %% @doc Convert a docfield() record within a document() to a
 %% jsn:json_term() fieldset 
-
 -spec to_json(doc, F :: docfield()) -> Json :: jsn:json_term().
 to_json(doc, F) ->
-  [{<<"id">>, F#docfield.id},
-  {<<"name">>, F#docfield.name},
-  {<<"label">>, F#docfield.label},
-  {<<"head">>, F#docfield.head},
-  {<<"reversal">>, F#docfield.reversal},
-  {<<"required">>, F#docfield.required},
-  {<<"min">>, unconvert_value(F#docfield.subcategory, F#docfield.min)},
-  {<<"max">>, unconvert_value(F#docfield.subcategory, F#docfield.max)},
-  {<<"instance">>, F#docfield.instance},
-  {<<"charseq">>, maybe_binary(F#docfield.charseq)},
-  {<<"regex">>, F#docfield.regex},
-  {<<"order">>, F#docfield.order},
-  {<<"subcategory">>, atom_to_binary(F#docfield.subcategory, utf8)},
-  {<<"value">>, unconvert_value(F#docfield.subcategory, F#docfield.value)},
-  {<<"sortkey">>, F#docfield.sortkey}].
+    [{<<"id">>, F#docfield.id},
+     {<<"name">>, F#docfield.name},
+     {<<"label">>, F#docfield.label},
+     {<<"head">>, F#docfield.head},
+     {<<"reversal">>, F#docfield.reversal},
+     {<<"required">>, F#docfield.required},
+     {<<"min">>, unconvert_value(F#docfield.subcategory, F#docfield.min)},
+     {<<"max">>, unconvert_value(F#docfield.subcategory, F#docfield.max)},
+     {<<"instance">>, F#docfield.instance},
+     {<<"charseq">>, maybe_binary(F#docfield.charseq)},
+     {<<"regex">>, F#docfield.regex},
+     {<<"order">>, F#docfield.order},
+     {<<"subcategory">>, atom_to_binary(F#docfield.subcategory, utf8)},
+     {<<"value">>, unconvert_value(F#docfield.subcategory, F#docfield.value)},
+     {<<"sortkey">>, F#docfield.sortkey}].
   
 %% @doc Get a field() using a field id and a project id
-
 -spec get(Project :: string(), Id :: string) -> fieldset() | {error, Reason :: term()}.
 get(Project, Id) ->
-  Url = ?ADMINDB ++ Project ++ "/" ++ Id,
-  case ibrowse:send_req(Url, [], get) of
-    {ok, "200", _, Raw} -> convert_field(jsn:decode(Raw));
-    {ok, Status, _, _} -> {error, "HTTP status " ++ Status};
-    Error -> Error
-  end.
+    Url = ?ADMINDB ++ Project ++ "/" ++ Id,
+    case ibrowse:send_req(Url, [], get) of
+        {ok, "200", _, Raw} -> convert_field(jsn:decode(Raw));
+        {ok, Status, _, _} -> {error, "HTTP status " ++ Status};
+        Error -> Error
+    end.
 
 %% @doc Get a field() using a fieldset docfield() and webmachine state
-
 -spec get(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> fieldset().
 get(Df, R, S) ->
-  case proplists:get_value(table_id, S) of
-    undefined -> get_from_couch(Df, R, S);
-    Tid -> get_from_table(Tid, Df, R, S)
-  end.
+    case proplists:get_value(table_id, S) of
+        undefined -> get_from_couch(Df, R, S);
+        Tid -> get_from_table(Tid, Df, R, S)
+    end.
 
 get_from_table(Tid, Df, R, S) ->
-  case ets:lookup(Tid, Df#docfield.id) of
-    [] ->
-      Val = get_from_couch(Df, R, S),
-      true = ets:insert(Tid, {Df#docfield.id, Val}),
-      Val;
-    [{_, Val}] -> Val
-  end.
+    case ets:lookup(Tid, Df#docfield.id) of
+        [] ->
+            Val = get_from_couch(Df, R, S),
+            true = ets:insert(Tid, {Df#docfield.id, Val}),
+            Val;
+        [{_, Val}] -> Val
+    end.
   
 get_from_couch(Df, R, S) ->
-  case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
-    undefined -> undefined;
-    Val -> from_json(Val)
-  end.
+    case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
+        undefined -> undefined;
+        {error, req_timedout} -> get(Df, R, S);
+        Val -> from_json(Val)
+    end.
 
 %% @doc Take a field() and a docfield() and return a docfiled() updated so
 %% that shared items match and sortkey is updated.
-
 -spec update_merge(DF :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
 update_merge(Df, F) ->
-  case {F#field.id, Df#docfield.id} of
-    {Id, Id} -> do_merge(Df, F);
-    _Else -> {error, "Id's do not match."}
-  end.
+    case {F#field.id, Df#docfield.id} of
+        {Id, Id} -> do_merge(Df, F);
+        _Else -> {error, "Id's do not match."}
+    end.
 
 -spec update(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfieldset() | undefined.
 update(Df, R, S) ->
-  case get(Df, R, S) of
-    undefined -> undefined;
-    Val -> update_merge(Df, Val)
-  end.
+    case get(Df, R, S) of
+        undefined -> undefined;
+        Val -> update_merge(Df, Val)
+    end.
 
 -spec touch2(Df :: docfield() | undefined, R :: utils:reqdata(), S :: any()) ->  jsn:json_term() | undefined.
 touch2(undefined, _R, _S) ->
-  undefined;
+    undefined;
 touch2(Df, R, S) ->
-  Df#docfield{sortkey=charseq:get_sortkey(Df, R, S)}.
+    Df#docfield{sortkey=charseq:get_sortkey(Df, R, S)}.
 
 -spec maybe_binary(B :: term()) -> binary() | null.
 maybe_binary(<<>>) -> null;
@@ -227,94 +221,98 @@ maybe_binary(_) -> null.
 -spec unconvert_value(subcategory(), Value :: term()) -> jsn:json_term().
 unconvert_value(date, today) -> <<"today">>;
 unconvert_value(date, {Y, M, D}) ->
-  list_to_binary(string:right(integer_to_list(Y), 4, $0) ++ "-" ++ string:right(integer_to_list(M), 2, $0) ++ "-" ++ string:right(integer_to_list(D), 2, $0));
+    list_to_binary(string:right(integer_to_list(Y), 4, $0) ++ "-" ++ 
+                       string:right(integer_to_list(M), 2, $0) ++ "-" ++ 
+                       string:right(integer_to_list(D), 2, $0));
 unconvert_value(_, Value) -> Value.
 
 -spec convert_value(subcategory(), Json :: jsn:json_term()) -> anyval().
 convert_value(S, Json) ->
-  convert_value(S, Json, <<"value">>).
+    convert_value(S, Json, <<"value">>).
   
 -spec convert_value(subcategory(), Json :: jsn:json_term(), Key :: binary()) -> anyval().
 convert_value(boolean, Json, Key) ->
-  get_value(Key, Json, false);
+    get_value(Key, Json, false);
 convert_value(openboolean, Json, Key) ->
-  case get_value(Key, Json) of
-    <<>> -> null;
-    Val -> Val
-  end;
+    case get_value(Key, Json) of
+        <<>> -> null;
+        Val -> Val
+    end;
 convert_value(multiselect, Json, Key) ->
-  case get_value(Key, Json) of
-    <<>> -> [];
-    Val -> Val
-  end;
+    case get_value(Key, Json) of
+        <<>> -> [];
+        Val -> Val
+    end;
 convert_value(docmultiselect, Json, Key) ->
-  case get_value(Key, Json) of
-    <<>> -> [];
-    Val -> Val
-  end;
+    case get_value(Key, Json) of
+        <<>> -> [];
+        Val -> Val
+    end;
 convert_value(date, Json, Key) ->
-  convert_value2(date, get_value(Key, Json, <<>>));
+    convert_value2(date, get_value(Key, Json, <<>>));
 convert_value(Sub, Json, Key) when Sub /= text, Sub /= textarea ->
-  get_value(Key, Json);
+    get_value(Key, Json);
 convert_value(_, Json, Key) ->
-  proplists:get_value(Key, Json, null).
+    proplists:get_value(Key, Json, null).
   
 -spec convert_value2(subcategory(), Value :: jsn:json_term()) -> anyval().
 convert_value2(_, null) -> null;
 convert_value2(date, <<>>) -> <<>>;
 convert_value2(date, <<"today">>) -> today;
 convert_value2(date, Value) when is_binary(Value) ->
-  Value1 = binary_to_list(Value),
-  case length(Value1) of
-    10 -> parse_date(Value1);
-    _ -> <<>>
-  end;
+    Value1 = binary_to_list(Value),
+    case length(Value1) of
+        10 -> parse_date(Value1);
+        _ -> <<>>
+    end;
 convert_value2(_, Value) -> Value.
 
 -spec parse_date(string()) -> calendar:date().
 parse_date([Y1,Y2,Y3,Y4,_,M1,M2,_,D1,D2]) ->
-  {list_to_integer([Y1,Y2,Y3,Y4]), list_to_integer([M1,M2]), list_to_integer([D1,D2])}.
+    {list_to_integer([Y1,Y2,Y3,Y4]), list_to_integer([M1,M2]), 
+     list_to_integer([D1,D2])}.
 
 % TODO: this is mostly to guard against bad values already entered
 % It should be altered or removed in the future.
 -spec get_value(Key :: binary(), Json :: jsn:json_term(), Default :: jsn:json_term()) -> jsn:json_term().
 get_value(Key, Json, Default) ->
-  case proplists:get_value(Key, Json, Default) of
-    <<"null">> -> null;
-    <<"undefined">> -> null;
-    Value -> Value
-  end.
+    case proplists:get_value(Key, Json, Default) of
+        <<"null">> -> null;
+        <<"undefined">> -> null;
+        Value -> Value
+    end.
   
 -spec get_value(Key :: binary(), Json :: jsn:json_term()) -> jsn:json_term().
 get_value(Key, Json) ->
-  get_value(Key, Json, null).
+    get_value(Key, Json, null).
 
 -spec do_merge(Df :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
 do_merge(Df, F) ->
-  Df2 = Df#docfield{
-    charseq = F#field.charseq,
-    head = F#field.head,
-    label = F#field.label,
-    max = F#field.max,
-    min = F#field.min,
-    name = F#field.name,
-    order = F#field.order,
-    regex = F#field.regex,
-    required = F#field.required,
-    reversal = F#field.reversal,
-    subcategory = F#field.subcategory
-  },
-  update_normalize(Df, F, Df2).
+    Df2 = Df#docfield{
+            charseq = F#field.charseq,
+            head = F#field.head,
+            label = F#field.label,
+            max = F#field.max,
+            min = F#field.min,
+            name = F#field.name,
+            order = F#field.order,
+            regex = F#field.regex,
+            required = F#field.required,
+            reversal = F#field.reversal,
+            subcategory = F#field.subcategory
+           },
+    update_normalize(Df, F, Df2).
   
 -spec update_normalize(docfield(), F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
 update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
-  DF;    
+    DF;    
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
-  DF#docfield{value=Def};
+    DF#docfield{value=Def};
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,value=V}) when
-    (V /= true) and (V /= false) -> DF#docfield{value=Def};
+      (V /= true) and (V /= false) -> DF#docfield{value=Def};
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) when
-    ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> DF#docfield{value=Def};
+      ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> 
+    DF#docfield{value=Def};
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when 
     (S == S2) or
     (((S == text) or
@@ -330,10 +328,12 @@ update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,value=
       (S == openboolean)) and
      ((S2 == text) or
       (S2 == textarea))) ->
-  DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
-  update_normalize(#docfield{subcategory=text}, F, DF2);
+    DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
+    update_normalize(#docfield{subcategory=text}, F, DF2);
 update_normalize(#docfield{subcategory=date}, F, DF) ->
-  update_normalize(#docfield{subcategory=text}, F, DF#docfield{value=unconvert_value(date, DF#docfield.value)});
+    update_normalize(#docfield{subcategory=text}, F, 
+                     DF#docfield{value=unconvert_value(date, 
+                                                       DF#docfield.value)});
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
     ((S == docselect) or (S == select)) and 
     ((S2 == docselect) or (S2 == select)) -> DF;
@@ -343,41 +343,44 @@ update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
 update_normalize(#docfield{subcategory=rational}, _, DF=#docfield{subcategory=integer,value=V}) ->
   DF#docfield{value=erlang:trunc(V)};
 update_normalize(#docfield{subcategory=integer}, _, DF=#docfield{subcategory=rational,value=V}) -> 
-  DF#docfield{value=(V / 1)};
+    DF#docfield{value=(V / 1)};
 update_normalize(#docfield{subcategory=boolean}, _, DF=#docfield{subcategory=openboolean}) -> DF;
 update_normalize(#docfield{subcategory=openboolean}, _, DF=#docfield{subcategory=boolean,value=V}) ->
-  DF#docfield{value=(V == true)};
+    DF#docfield{value=(V == true)};
 update_normalize(_, #field{default=D}, DF) ->
-  DF#docfield{value=D}.
+    DF#docfield{value=D}.
   
 -spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
 convert_field(Json) ->  
-  case jsn:get_value(<<"category">>, Json) of
-    <<"field">> -> from_json(Json);
-    Cat -> {error, "Returned document had category " ++ binary_to_list(Cat)}
-  end.
+    case jsn:get_value(<<"category">>, Json) of
+        <<"field">> -> from_json(Json);
+        Cat -> {error, "Returned document had category " ++ binary_to_list(Cat)}
+    end.
        
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
-  case Bin of
-    <<"text">> -> text;
-    <<"textarea">> -> textarea;
-    <<"date">> -> date;
-    <<"integer">> -> integer;
-    <<"rational">> -> rational;
-    <<"boolean">> -> boolean;
-    <<"openboolean">> -> openboolean;
-    <<"select">> -> select;
-    <<"multiselect">> -> multiselect;
-    <<"docselect">> -> docselect;
-    <<"docmultiselect">> -> docmultiselect;
-    <<"file">> -> file
-  end.
+    case Bin of
+        <<"text">> -> text;
+        <<"textarea">> -> textarea;
+        <<"date">> -> date;
+        <<"integer">> -> integer;
+        <<"rational">> -> rational;
+        <<"boolean">> -> boolean;
+        <<"openboolean">> -> openboolean;
+        <<"select">> -> select;
+        <<"multiselect">> -> multiselect;
+        <<"docselect">> -> docselect;
+        <<"docmultiselect">> -> docmultiselect;
+        <<"file">> -> file
+    end.
 
 -spec set_sortkeys([jsn:json_term()] | [docfield()], Acc :: [jsn:json_term()] | [docfield()], R :: utils:reqdata(), S :: any()) -> [jsn:json_term()] | [docfield()].
 set_sortkeys([], Acc, _R, _S) ->
-  lists:reverse(Acc);
+    lists:reverse(Acc);
 set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
-  set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, charseq:get_sortkey(Field, R, S), Field)|Acc], R, S);
+    set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, 
+                                      charseq:get_sortkey(Field, R, S), 
+                                      Field)|Acc], R, S);
 set_sortkeys([F=#docfield{}|Rest], Acc, R, S) ->
-  set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, R, S)}|Acc], R, S).
+    set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, R, S)}|Acc], 
+                 R, S).
