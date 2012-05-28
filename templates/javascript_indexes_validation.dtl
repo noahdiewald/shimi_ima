@@ -16,7 +16,7 @@ function(newDoc, saveDoc, userCtx) {
     throw({forbidden: errorMsg});
   };
   
-  if (newDoc.category === 'query') {
+  if (newDoc.category === 'index') {
     [newDoc.doctype, newDoc.name]
       .forEach(
         function(field) {
@@ -27,7 +27,7 @@ function(newDoc, saveDoc, userCtx) {
       forbid('All fields', 'must be filled in.');  
     }
 
-    if (typeof newDoc.show_deleted !== "boolean") {
+    if (typeof newDoc.show_deleted !== 'boolean') {
       forbid('Show deleted', 'must be true or false');
     }
 

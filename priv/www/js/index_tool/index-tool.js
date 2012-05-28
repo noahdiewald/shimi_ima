@@ -1,8 +1,3 @@
-var initTabs = function() {
-  $("#main-tabs").tabs();
-  return false;
-};
-
 var getFieldDoc = function(fieldId, fieldsetId, doctypeId, callback) {
   var fieldDoc = getDoc(fieldId);
   var url = 'doctypes/' + doctypeId + 
@@ -136,7 +131,7 @@ var fixArgumentType = function(argument, subcategory) {
   return argument;
 };
 
-var getQueryConditions = function(doctypeId, rows) {
+var getIndexConditions = function(doctypeId, rows) {
   var conditions = rows.map(
     function(index, row) {
       row = $(row);
@@ -172,21 +167,21 @@ var getQueryConditions = function(doctypeId, rows) {
   return conditions;
 };
 
-var saveQuery = function(buttonData, completeFunction) {
-  var queryId = buttonData.attr('data-query-id');
-  var queryRev = buttonData.attr('data-query-rev');
-  var url = "queries/" + queryId + "?rev=" + queryRev;
-  var doctype = buttonData.attr('data-query-doctype');
+var saveIndex = function(buttonData, completeFunction) {
+  var indexId = buttonData.attr('data-index-id');
+  var indexRev = buttonData.attr('data-index-rev');
+  var url = "indexes/" + indexId + "?rev=" + indexRev;
+  var doctype = buttonData.attr('data-index-doctype');
   
   var obj = {
-    "_id": queryId,
-    "category": "query",
+    "_id": indexId,
+    "category": "index",
     "doctype": doctype,
-    "show_deleted": buttonData.attr('data-query-show_deleted'),
-    "fields": JSON.parse(buttonData.attr('data-query-fields')),
-    "fields_label": JSON.parse(buttonData.attr('data-query-fields_label')),
-    "name": buttonData.attr('data-query-name'),
-    "conditions": getQueryConditions(doctype, $('#query-conditions-listing tbody tr'))
+    "show_deleted": buttonData.attr('data-index-show_deleted'),
+    "fields": JSON.parse(buttonData.attr('data-index-fields')),
+    "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
+    "name": buttonData.attr('data-index-name'),
+    "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
   };
   
   sendConfigDoc(url, obj, 'PUT', completeFunction, this);
@@ -194,9 +189,9 @@ var saveQuery = function(buttonData, completeFunction) {
   return false;  
 };
 
-var deleteQuery = 
-  function(queryId, queryRev, completeMessage, completeFunction) {
-    var url = "queries/" + queryId + "?rev=" + queryRev;
+var deleteIndex = 
+  function(indexId, indexRev, completeMessage, completeFunction) {
+    var url = "indexes/" + indexId + "?rev=" + indexRev;
   
     $.ajax(
       {
@@ -218,7 +213,7 @@ var deleteQuery =
           
             flashError(title, body.message);
           } else if (req.status == 404) {
-            var body = "Query appears to have been deleted already.";
+            var body = "Index appears to have been deleted already.";
             var title = req.statusText;
             
             flashError(title, body);
@@ -229,15 +224,15 @@ var deleteQuery =
     return false;  
   };
 
-var initQueryEditButtons = function(buttonData) {
-  initQuerySaveButton($('#save-query-button'), buttonData);
-  initQueryDeleteButton($('#delete-query-button'), buttonData);
-  initQueryAddConditionButton($('#add-query-condition-button'), buttonData);
+var initIndexEditButtons = function(buttonData) {
+  initIndexSaveButton($('#save-index-button'), buttonData);
+  initIndexDeleteButton($('#delete-index-button'), buttonData);
+  initIndexAddConditionButton($('#add-index-condition-button'), buttonData);
   
   return false;
 };
  
-var initQuerySaveButton = function(button, buttonData) {
+var initIndexSaveButton = function(button, buttonData) {
   var completeFunction;
   var bData;
   
@@ -249,55 +244,54 @@ var initQuerySaveButton = function(button, buttonData) {
     
                if (!bData.length < 1) {
                  completeFunction = function() {
-                   getQueryEdit(bData.attr('data-query-id'));
-                   flashHighlight("Success", "Your query has been saved.");
+                   getIndexEdit(bData.attr('data-index-id'));
+                   flashHighlight("Success", "Your index has been saved.");
                  };
       
-                 saveQuery(bData, completeFunction);
+                 saveIndex(bData, completeFunction);
                } else {
-                 flashHighlight("Info", "No query has been chosen to save.");
+                 flashHighlight("Info", "No index has been chosen to save.");
                }
              });
 };
 
-var getQueryEdit = function(queryId) {
-  var url = "queries/" + queryId;
-  var target = $('#query-edit');
+var getIndexEdit = function(indexId) {
+  var url = "indexes/" + indexId;
+  var target = $('#index-edit');
   
-  $.get(url, function(queryData) {
-          target.html(queryData);
-          // TODO don't repeat this code. It is also in initQueryBuilderDialog
-          var tableBody = $('#query-conditions-listing tbody');
+  $.get(url, function(indexData) {
+          target.html(indexData);
+          // TODO don't repeat this code. It is also in initIndexBuilderDialog
+          var tableBody = $('#index-conditions-listing tbody');
           tableBody.sortable();
           initConditionRemoveButtons(tableBody);
-          getQueryView();
+          getIndexView();
         });
   
   return false;
 };
 
-var initQueryIndex = function() {
-  var url = "queries";
-  var target = $('#query-index-listing');
+var initIndexIndex = function() {
+  var url = "indexes";
+  var target = $('#index-index-listing');
   
   $.get(url, function(index) {
           target.html(index);
           target.click(function(e) {
-                         getQueryEdit($(e.target).attr('data-query-id'));
-                         target.slideToggle();
+                         getIndexEdit($(e.target).attr('data-index-id'));
                        });
         });
 };
 
-var getQueryView = function(startkey, startid, prevkeys, previds) {
-  var queryInfo = $('#query-editing-data');
-  var queryId = queryInfo.attr('data-query-id');
-  var url = "queries/" + queryId + "/view?";
-  var limit = $('#query-limit').val() * 1;
+var getIndexView = function(startkey, startid, prevkeys, previds) {
+  var indexInfo = $('#index-editing-data');
+  var indexId = indexInfo.attr('data-index-id');
+  var url = "indexes/" + indexId + "/view?";
+  var limit = $('#index-limit').val() * 1;
   
   // Initialize some values if we're at the beginning of the listing
   if (!prevkeys) {
-    var supplied_val = $('#query-filter').val();
+    var supplied_val = $('#index-filter').val();
     var json_encoded = JSON.stringify(supplied_val);
     startkey = btoa(unescape(encodeURIComponent(json_encoded)));
     prevkeys = [];
@@ -319,19 +313,19 @@ var getQueryView = function(startkey, startid, prevkeys, previds) {
   } else {
     // Ten is the default and I don't let people leave it blank
     // because the list could be huge.
-    $('#query-limit').val(10);
+    $('#index-limit').val(10);
     url = url + '&limit=11';
   }
   
   $.get(url, function(data) {
-          $('#query-list-view').html(data);
+          $('#index-list-view').html(data);
     
           $('#previous-page').button(
             {
               icons: {primary:'ui-icon-circle-arrow-w'} 
             }).click(function() 
                      {
-                       getQueryView(prevkeys.pop(), 
+                       getIndexView(prevkeys.pop(), 
                                     previds.pop(), 
                                     prevkeys, 
                                     previds);
@@ -352,7 +346,7 @@ var getQueryView = function(startkey, startid, prevkeys, previds) {
                        prevkeys.push(prevkey);
                        previds.push(previd);
                        
-                       getQueryView(nextkey, nextid, prevkeys, previds);
+                       getIndexView(nextkey, nextid, prevkeys, previds);
                      });
     
           // Disable the previous button if we're at the beginning
@@ -372,15 +366,13 @@ var getQueryView = function(startkey, startid, prevkeys, previds) {
 };
 
 $(function () {
-    initTabs(); 
-    $('#query-builder-dialog').hide();
-    $('#query-new-dialog').hide();
-    initQueryEditButtons(function () {return $('#query-editing-data');});
-    initQueryNewButton();
-    initQueryChooseButton();
+    $('#index-builder-dialog').hide();
+    $('#index-new-dialog').hide();
+    initIndexEditButtons(function () {return $('#index-editing-data');});
+    initIndexNewButton();
     $('#button-bar').buttonset();
-    initQueryIndex();
-    $('#query-filter-form input').keyup(function() {
-                                          getQueryView();
+    initIndexIndex();
+    $('#index-filter-form input').keyup(function() {
+                                          getIndexView();
                                         });
   });

@@ -1,24 +1,24 @@
-<div id="query-new-dialog" title="New Query">
+<div id="index-new-dialog" title="New Index">
 
   <p class="validate-tips help-text">All fields are required.</p>
   
   <form>
     <fieldset class="ui-helper-reset">
     
-      <label for="query-name-input">Name</label><br />
+      <label for="index-name-input">Name</label><br />
       <input 
         type="text" 
-        name="query-name-input" 
-        id="query-name-input" 
+        name="index-name-input" 
+        id="index-name-input" 
         value="" 
         class="ui-widget-content ui-corner-all input" /><br />
         
       <p class="help-text">Using the lists below, choose a field to display results by.</p>
     
-      <label for="query-doctype-input">Doctype</label><br />
+      <label for="index-doctype-input">Doctype</label><br />
       <select 
-        name="query-doctype-input" 
-        id="query-doctype-input" 
+        name="index-doctype-input" 
+        id="index-doctype-input" 
         class="ui-widget-content ui-corner-all input">
         <option></option>
         {% for row in doctypes.rows %}
@@ -26,18 +26,18 @@
         {% endfor %}
       </select><br />
     
-      <label for="query-fieldset-input">Fieldset</label><br />
+      <label for="index-fieldset-input">Fieldset</label><br />
       <select 
-        name="query-fieldset-input" 
-        id="query-fieldset-input" 
+        name="index-fieldset-input" 
+        id="index-fieldset-input" 
         disabled="disabled"
         class="ui-widget-content ui-corner-all input">
       </select><br />
     
-      <label for="query-field-input">Field</label><br />
+      <label for="index-field-input">Field</label><br />
       <select 
-        name="query-field-input" 
-        id="query-field-input" 
+        name="index-field-input" 
+        id="index-field-input" 
         disabled="disabled"
         class="ui-widget-content ui-corner-all input">
       </select>

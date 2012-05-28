@@ -1,20 +1,9 @@
-var initQueryChooseButton = function() {
-  $('#choose-query-button').button(
-    {
-      icons: {primary: "ui-icon-arrowreturnthick-1-s"}
-    }).click(function() {
-               $('#query-index-listing').slideToggle();
-             });
-  
-  return false;
-};
-
-var initQueryNewButton = function() {
-  $('#new-query-button').button(
+var initIndexNewButton = function() {
+  $('#new-index-button').button(
     {
       icons: {primary: "ui-icon-plus"}
     }).click(function() {
-               initQueryNewDialog().dialog("open");
+               initIndexNewDialog().dialog("open");
              });
   
   return false;
@@ -31,7 +20,7 @@ var initConditionRemoveButtons = function(tableBody) {
   return false;
 };
 
-var initQueryDeleteButton = function(button, buttonData) {
+var initIndexDeleteButton = function(button, buttonData) {
   button.button(
     {icons: {primary: "ui-icon-trash"}
     }).click(function (e) {
@@ -39,38 +28,38 @@ var initQueryDeleteButton = function(button, buttonData) {
                
                if (!bData.length < 1) {
                  var deleteButton = $(e.target);
-                 var queryId = bData.attr('data-query-id');
-                 var queryRev = bData.attr('data-query-rev');
-                 var completeMessage = "Your query has been deleted.";
+                 var indexId = bData.attr('data-index-id');
+                 var indexRev = bData.attr('data-index-rev');
+                 var completeMessage = "Your index has been deleted.";
                  var completeFunction = function() {
-                   $('#query-edit').empty();
-                   initQueryIndex();
+                   $('#index-edit').empty();
+                   initIndexIndex();
                  };
                  
                  if (confirm("Are you sure?")) {
-                   deleteQuery(queryId, queryRev, completeMessage, 
+                   deleteIndex(indexId, indexRev, completeMessage, 
                                completeFunction);
                  }
                } else {
-                 flashHighlight("Info", "No query has been chosen to delete.");
+                 flashHighlight("Info", "No index has been chosen to delete.");
                }
              });
   
   return false;
 };
 
-var initQueryAddConditionButton = function(button, buttonData) {
+var initIndexAddConditionButton = function(button, buttonData) {
   button.button({
                   icons: {primary: "ui-icon-plus"}
                 }).click(function (e) {
                            var bData = buttonData();
                            
                            if (!bData.length < 1) {
-                             initQueryBuilderDialog(
-                               bData.attr('data-query-doctype')).dialog("open");
+                             initIndexBuilderDialog(
+                               bData.attr('data-index-doctype')).dialog("open");
                            } else {
                              flashHighlight("Info", 
-                                            "You must choose a query first.");
+                                            "You must choose a index first.");
                            }
                          });
 

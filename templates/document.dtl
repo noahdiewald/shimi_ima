@@ -62,8 +62,8 @@
       <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
-        <label for="index-query">Query</label>
-        <select name="index-query" id="index-query"></select><br />
+        <label for="index-index">Index</label>
+        <select name="index-index" id="index-index"></select><br />
         <label for="index-filter">Filter</label>
         <input type="text" name="index-filter" id="index-filter" /><br />
         <label for="index-limit">Limit</label>

@@ -27,7 +27,7 @@
          add_encoded_keys/1,
          binary_to_hexlist/1,
          clear_all/2,
-         get_query/3,
+         get_index/3,
          list_dir/1,
          peach/3,
          read_file_info/1,
@@ -186,13 +186,13 @@ y(F) ->
     G(G).
 
 
-%% @doc Take an id for a saved query and return a JSON term. This term
+%% @doc Take an id for a saved index and return a JSON term. This term
 %% will contain either the results of querying a view or will contain
 %% only [{<<"rows">>, []}] if no conditions have been defined for the
 %% query.
--spec get_query(QueryId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
-get_query(QueryId, R, S) ->
-    case couch:get_view_json(sortkeys, QueryId, "index", R, S) of
+-spec get_index(IndexId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
+get_index(IndexId, R, S) ->
+    case couch:get_view_json(sortkeys, IndexId, "index", R, S) of
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.

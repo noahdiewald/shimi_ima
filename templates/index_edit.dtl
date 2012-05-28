@@ -1,12 +1,12 @@
 <div 
-   id="query-editing-data" 
-   data-query-doctype="{{doctype}}" 
-   data-query-fields_label={{fields_label|force_escape}}
-   data-query-fields={{fields|force_escape}}
-   data-query-name="{{name}}"
-   data-query-show_deleted="{{show_deleted}}"
-   data-query-id="{{_id}}" 
-   data-query-rev="{{_rev}}">
+   id="index-editing-data" 
+   data-index-doctype="{{doctype}}" 
+   data-index-fields_label={{fields_label|force_escape}}
+   data-index-fields={{fields|force_escape}}
+   data-index-name="{{name}}"
+   data-index-show_deleted="{{show_deleted}}"
+   data-index-id="{{_id}}" 
+   data-index-rev="{{_rev}}">
   <p>
     <em>{{name}}</em>
     will list
@@ -16,7 +16,7 @@
   </p>
 </div>
 
-<div id="query-conditions-listing">
+<div id="index-conditions-listing">
 <table>
   <thead>
     <tr class="ui-widget-header ui-corner-all">

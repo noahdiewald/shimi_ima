@@ -18,9 +18,9 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc Query resource.
+%%% @doc Index resource.
 
--module(query_resource).
+-module(index_resource).
 
 % Webmachine API
 -export([
@@ -70,7 +70,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Msg = <<"This query has been edited or deleted by another user.">>,
+    Msg = <<"This index has been edited or deleted by another user.">>,
     case couch:delete(R, S) of
         {ok, deleted} -> {true, R, S};
         {409, _} ->
@@ -85,7 +85,7 @@ post_is_create(R, S) ->
 create_path(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
   
-    Id = couch:get_uuid(R, S),
+    Id = utils:uuid(),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
     Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
@@ -131,7 +131,7 @@ json_update(R, S) ->
     Rev = wrq:get_qs_value("rev", R),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This document has been edited or deleted by another user.">>,
+    Msg = <<"This index has been edited or deleted by another user.">>,
 
     case couch:update(doc, Id, jsn:encode(Json2), R, S) of
         {ok, updated} -> 
@@ -150,7 +150,7 @@ update_design(Json, R, S) ->
     % Translate the conditions to javascript
     Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
     {ok, Design} = 
-        design_query_json_dtl:render(
+        design_index_json_dtl:render(
           [{<<"expression">>, Expression}|Json]),
     Id = "_design/" ++ wrq:path_info(id, R),
   
@@ -162,20 +162,20 @@ update_design(Json, R, S) ->
     end.
   
 html_index(R, S) ->
-    case couch:exists("_design/queries", R, S) of
+    case couch:exists("_design/indexes", R, S) of
         false -> 
-            {ok, VJson} = design_queries_json_dtl:render(),
+            {ok, VJson} = design_indexes_json_dtl:render(),
             {ok, created} = couch:create(design, VJson, R, S);
         _ -> undefined
     end,
     
-    {ok, Json} = couch:get_view_json("queries", "options", R, S),
+    {ok, Json} = couch:get_view_json("indexes", "options", R, S),
 
     case wrq:get_qs_value("as", R) of
         "options" -> 
             {ok, Html} = options_dtl:render(Json);
         _Else ->
-            {ok, Html} = query_index_dtl:render(Json)
+            {ok, Html} = index_index_dtl:render(Json)
     end,
     Html.
 
@@ -203,19 +203,19 @@ html_identifier(R, S) ->
             {<<"label">>, jsn:get_value(<<"fields_label">>, Json)}
             |Json2],
   
-    {ok, Html} = query_edit_dtl:render(Vals),
+    {ok, Html} = index_edit_dtl:render(Vals),
     Html.
 
 html_condition(R, S) ->
     render_conditions(wrq, get_qs_value, R, R, S).
   
 html_view(R, S) ->
-    QueryId = wrq:path_info(id, R),
+    IndexId = wrq:path_info(id, R),
     Limit = wrq:get_qs_value("limit", R),
-    {ok, Json} = utils:get_query(QueryId, R, S),
+    {ok, Json} = utils:get_index(IndexId, R, S),
     Index = utils:add_encoded_keys(Json),
     Vals = [{<<"limit">>, Limit}|Index],
-    {ok, Html} = query_view_dtl:render(Vals),
+    {ok, Html} = index_view_dtl:render(Vals),
     Html.
     
 validate_authentication(Props, R, S) ->
@@ -236,9 +236,9 @@ render_conditions(Module, Function, Arg, R, S) ->
     {ok, Html} = 
         case Module:Function("is_or", Arg) of
             true -> 
-                query_condition_dtl:render([{<<"is_or">>, true}]);
+                index_condition_dtl:render([{<<"is_or">>, true}]);
             "true" -> 
-                query_condition_dtl:render([{<<"is_or">>, true}]);
+                index_condition_dtl:render([{<<"is_or">>, true}]);
             _ ->
                 Negate = Module:Function("negate", Arg),
                 Vals = [
@@ -255,7 +255,7 @@ render_conditions(Module, Function, Arg, R, S) ->
                         {<<"field_label">>, 
                          get_label(
                            Module:Function("field", Arg), R, S)}],
-                query_condition_dtl:render(Vals)
+                index_condition_dtl:render(Vals)
         end,
 
     Html.

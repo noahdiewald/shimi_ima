@@ -23,7 +23,7 @@
   <b>Total</b>: {{ total_rows }}
 </div>
     
-<table id="query-view-listing">
+<table id="index-view-listing">
   {% for row in rows %}
     {% if rows|length < limit or not forloop.last  %} 
   <tr>

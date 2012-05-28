@@ -1,4 +1,4 @@
-function initQueryBuilderDialog(queryDoctype) {
+function initIndexBuilderDialog(indexDoctype) {
   var builderOr = $("#builder-or-input");
   var builderNegate = $("#builder-negate-input");
   var builderOperator = $("#builder-operator-input").inputDisable();
@@ -6,11 +6,11 @@ function initQueryBuilderDialog(queryDoctype) {
   var builderFieldset = $("#builder-fieldset-input").inputDisable();
   var builderField = $("#builder-field-input").inputDisable();
   var notBlank = [builderOperator, builderFieldset, builderField];
-  var fieldset_url = 'doctypes/' + queryDoctype + '/fieldsets';
-  var condition_url = 'queries/condition';
+  var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
+  var condition_url = 'indexes/condition';
   
   var appendCondition = function(builderRow) {
-    var tableBody = $('#query-conditions-listing tbody');
+    var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
     initConditionRemoveButtons(tableBody);
@@ -22,15 +22,15 @@ function initQueryBuilderDialog(queryDoctype) {
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
-    if (builderOr.is(':checked')) {
-      $('#builder-conditions').hide();
-    } else {
-      $('#builder-conditions').show();
-    }
-  });
+                     if (builderOr.is(':checked')) {
+                       $('#builder-conditions').hide();
+                     } else {
+                       $('#builder-conditions').show();
+                     }
+                   });
   
   var fieldsetEvents = function () {
-    setQueryFieldsetEvents(queryDoctype, builderFieldset, builderField, 
+    setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
                            function () {
                              builderOperator.inputDisable();
                              builderField.inputDisable();
@@ -43,7 +43,7 @@ function initQueryBuilderDialog(queryDoctype) {
   };
   
   var fieldEvents = function () {
-    setQueryFieldEvents(queryDoctype, builderFieldset, builderField, 
+    setIndexFieldEvents(indexDoctype, builderFieldset, builderField, 
                         function () {
                           builderOperator.inputDisable();
                           builderArgument.inputDisable();
@@ -55,7 +55,7 @@ function initQueryBuilderDialog(queryDoctype) {
   };
   
   var operatorEvents = function () {
-    setQueryOperatorEvents(builderArgument, builderOperator, builderField, 
+    setIndexOperatorEvents(builderArgument, builderOperator, builderField, 
                            function () {
                              builderArgument.inputDisable();
                              
@@ -65,7 +65,7 @@ function initQueryBuilderDialog(queryDoctype) {
                            });
   };
   
-  var dialog = $("#query-builder-dialog")
+  var dialog = $("#index-builder-dialog")
     .dialog({
               autoOpen: false,
               modal: true,

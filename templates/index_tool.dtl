@@ -1,0 +1,48 @@
+{% extends "project_context.dtl" %}
+
+{% block page_title %}Indexes: {{ project_info.name|escape }}{% endblock %}
+
+{% block header %}
+<h1>Indexes: {{ project_info.name|escape }}</h1>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="/javascript/index_tool"></script>
+{% endblock %}
+    
+{% block main_content %}
+<div class="ui-widget" id="container">
+  
+  <div id="all-index-container">
+    <div id="index-index">
+      <div id="index-index-listing"></div>
+    </div>
+
+    <div id="button-bar">
+      <button id="new-index-button">New</button>
+      <button id="save-index-button">Save</button>
+      <button id="delete-index-button">Delete</button>
+      <button id="add-index-condition-button">Add Condition</button>
+    </div>
+    
+    <div id="index-edit"></div>
+    
+    <div id="index-view">
+      <form id="index-filter-form">
+        <label for="index-filter">Filter</label>
+        <input type="text" name="index-filter" id="index-filter" />
+        <label for="index-limit">Limit</label>
+        <input type="text" name="index-limit" id="index-limit" />
+      </form>
+      <div id="index-list-view">
+      </div>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}
+
+{% block dialogs %}
+  {% include 'index_tool_builder_dialog.dtl' %}
+  {% include 'index_tool_new_dialog.dtl' %}
+{% endblock %}
