@@ -14,7 +14,7 @@
 
 function getIndex(startkey, startid, prevkeys, previds) {
   var url = "documents/index?";
-  var index = $('#index-index').val();
+  var index = $('#index-index-input').val();
   var limit = $('#index-limit').val() * 1;
   
   // Initialize some values if we're at the beginning of the listing
@@ -102,6 +102,6 @@ function fillQueryOptions() {
         "/indexes?as=options";
         
   $.get(url, function(data) {
-    $('#index-index').html(data);
+    $('#index-index-input').html(data);
   });
 }
