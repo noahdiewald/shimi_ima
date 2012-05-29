@@ -16,12 +16,16 @@
     
       <div id="builder-conditions">
       
-        <p class="help-text">This will make the condition match the oposite of what you specify for a condition. For instance, equal will become not equal.</p>
+        <p class="help-text">
+          This will make the condition match the oposite of what you
+          specify for a condition. For instance, equal will become not
+          equal.
+        </p>
         
         <label for="builder-negate-input">Negate</label><br />
         <input 
           name="builder-negate-input" 
-          id="builder-negate-input" 
+           id="builder-negate-input" 
           type="checkbox"
           class="ui-widget-content ui-corner-all input" /> Check to negate the condition.<br />
       

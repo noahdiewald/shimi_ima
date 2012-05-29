@@ -12,6 +12,18 @@
         id="index-name-input" 
         value="" 
         class="ui-widget-content ui-corner-all input" /><br />
+      
+        <p class="help-text">
+          Check if you would like this to be an index of previously
+          deleted items.
+        </p>
+        
+        <label for="index-show_deleted-input">Show Deleted</label><br />
+        <input 
+           name="index-show_deleted-input" 
+           id="index-show_deleted-input" 
+           type="checkbox"
+           class="ui-widget-content ui-corner-all input" /> Check to show deleted items.<br />
         
       <p class="help-text">Using the lists below, choose a field to display results by.</p>
     

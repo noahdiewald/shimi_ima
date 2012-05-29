@@ -3,7 +3,8 @@ function initIndexNewDialog() {
   var indexFieldset = $("#index-fieldset-input").inputDisable();
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
-  
+  var indexShowDeleted = $("#index-show_deleted-input");
+
   var doctypeEvents = function() {
     setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
                             indexFieldset.inputDisable();
@@ -49,7 +50,7 @@ function initIndexNewDialog() {
                     var obj = {
                       "category": "index", 
                       "name": indexName.val(),
-                      "show_deleted": false,
+                      "show_deleted": indexShowDeleted.is(':checked'),
                       "conditions": [], 
                       "doctype": indexDoctype.val(),
                       "fields_label": [getLabel()],
