@@ -224,17 +224,17 @@ ul.head-elements li:first-child:before {
     width: 100%;
 }
 
-#all-document-container {
+#all-document-container, #all-index-container {
     background: #eee;
-  display: table-row;
+    display: table-row;
 }
 
-#document-index {
+#document-index, #index-index {
   width: 25%;
   display: table-cell;
 }
 
-#document-view {
+#document-view, #index-view {
   vertical-align: top;
   width: 25%;
   padding-top: 0;
@@ -245,14 +245,14 @@ span.retain-white {
   white-space: pre-wrap;
 }
 
-#document-edit {
+#document-edit, #index-edit {
   vertical-align: top;
   width: 50%;
   padding-top: 0;
   display: table-cell;
 }
 
-#all-document-container h2 {
+#all-document-container h2, #all-index-container h2 {
   margin-top: 0;
 }
 

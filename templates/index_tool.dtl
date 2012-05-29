@@ -11,26 +11,41 @@
 {% endblock %}
     
 {% block main_content %}
-<div class="ui-widget" id="container">
+<div id="panel-toggle">
+  <ul>
+    <li data-panel="index-index">Indexes</li>
+    <li data-panel="index-edit">Edit</li>
+    <li data-panel="index-view">Preview</li>
+  </ul>
+</div>
+
+<div class="ui-widget ui-corner-all" id="container">
   
   <div id="all-index-container">
-    <div id="index-index">
+    <div class="ui-widget panel" id="index-index">
+      <h2 class="ui-widget ui-widget-header">Indexes</h2>
       <div id="index-index-listing"></div>
     </div>
 
-    <div id="button-bar">
-      <button id="new-index-button">New</button>
-      <button id="save-index-button">Save</button>
-      <button id="delete-index-button">Delete</button>
-      <button id="add-index-condition-button">Add Condition</button>
+    <div class="ui-widget panel" id="index-edit">
+      <h2 class="ui-widget ui-widget-header">Edit Index</h2>
+
+      <div id="button-bar">
+        <button id="new-index-button">New</button>
+        <button id="save-index-button">Save</button>
+        <button id="delete-index-button">Delete</button>
+        <button id="add-index-condition-button">Add Condition</button>
+      </div>
+
+      <div id="index-conditions"></div>
     </div>
     
-    <div id="index-edit"></div>
-    
-    <div id="index-view">
+    <div class="ui-widget hidden panel" id="index-view">
+      <h2 class="ui-widget ui-widget-header">Preview Index</h2>
+
       <form id="index-filter-form">
         <label for="index-filter">Filter</label>
-        <input type="text" name="index-filter" id="index-filter" />
+        <input type="text" name="index-filter" id="index-filter" /><br />
         <label for="index-limit">Limit</label>
         <input type="text" name="index-limit" id="index-limit" />
       </form>

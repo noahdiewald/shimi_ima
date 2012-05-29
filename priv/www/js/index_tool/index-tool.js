@@ -257,7 +257,7 @@ var initIndexSaveButton = function(button, buttonData) {
 
 var getIndexEdit = function(indexId) {
   var url = "indexes/" + indexId;
-  var target = $('#index-edit');
+  var target = $('#index-conditions');
   
   $.get(url, function(indexData) {
           target.html(indexData);
