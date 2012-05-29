@@ -40,7 +40,7 @@
       <div id="index-conditions"></div>
     </div>
     
-    <div class="ui-widget hidden panel" id="index-view">
+    <div class="ui-widget panel hidden" id="index-view">
       <h2 class="ui-widget ui-widget-header">Preview Index</h2>
 
       <form id="index-filter-form">
