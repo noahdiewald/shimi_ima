@@ -177,7 +177,7 @@ var saveIndex = function(buttonData, completeFunction) {
     "_id": indexId,
     "category": "index",
     "doctype": doctype,
-    "show_deleted": buttonData.attr('data-index-show_deleted'),
+    "show_deleted": buttonData.attr('data-index-show_deleted') === "true",
     "fields": JSON.parse(buttonData.attr('data-index-fields')),
     "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
     "name": buttonData.attr('data-index-name'),

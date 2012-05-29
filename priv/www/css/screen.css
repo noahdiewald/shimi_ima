@@ -229,12 +229,17 @@ ul.head-elements li:first-child:before {
     display: table-row;
 }
 
-#document-index, #index-index {
+#document-index {
   width: 25%;
   display: table-cell;
 }
 
-#document-view, #index-view {
+#index-index {
+    width: 10%;
+    display: table-cell;
+}
+
+#document-view {
   vertical-align: top;
   width: 25%;
   padding-top: 0;
