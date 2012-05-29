@@ -106,6 +106,7 @@ var alterArgumentField =
     if (fdoc) {
       switch (operatorField.val()) {
       case "true":
+      case "isDefined":
       case "blank":
         argumentField.attr('disabled', 'disabled').val("");
         break;
@@ -113,6 +114,9 @@ var alterArgumentField =
       case "member":
       case "greater":
       case "less":
+      case "hasExactly":
+      case "hasGreater":
+      case "hasLess":
         dateOrText(argumentField, fdoc);
         break;
       }
@@ -120,11 +124,19 @@ var alterArgumentField =
     }
   };
 
-var fixArgumentType = function(argument, subcategory) {
+var fixArgumentType = function(argument, subcategory, operator) {
   switch (subcategory) {
   case "integer":
   case "rational":
     argument = argument * 1;
+    break;
+  }
+
+  switch (operator) {
+  case "hasExactly":
+  case "hasGreater":
+  case "hasLess":
+    argument = Math.floor(argument * 1);
     break;
   }
   
@@ -149,7 +161,7 @@ var getIndexConditions = function(doctypeId, rows) {
           row.find('td.negate-condition').attr('data-value') == "true";
         var operator = row.find('td.operator-condition').attr('data-value');
 
-        argument = fixArgumentType(argument, fieldDoc.subcategory);
+        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
       
         condition = {
           "is_or": false,

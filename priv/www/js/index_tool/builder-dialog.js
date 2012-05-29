@@ -1,4 +1,4 @@
-function initIndexBuilderDialog(indexDoctype) {
+var initIndexBuilderDialog = function(indexDoctype) {
   var builderOr = $("#builder-or-input");
   var builderNegate = $("#builder-negate-input");
   var builderOperator = $("#builder-operator-input").inputDisable();
@@ -123,4 +123,4 @@ function initIndexBuilderDialog(indexDoctype) {
   operatorEvents();
   
   return dialog;
-}
+};

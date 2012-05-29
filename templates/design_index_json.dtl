@@ -44,7 +44,7 @@
           };
 
           var runShapeTest = function(fieldid, value, pred) {
-            var fieldVal = index[fieldid];
+            var fieldVal = doc.index[fieldid];
             return pred(fieldVal, value);
           };
 
@@ -84,7 +84,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasGreater = function(fieldid, value) {
@@ -95,7 +95,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasLess = function(fieldid, value) {
@@ -106,7 +106,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasMember = function(fieldid, value) {

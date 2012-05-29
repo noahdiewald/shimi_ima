@@ -62,6 +62,10 @@ build_expression(Condition) ->
         <<"less">> -> build_expression(Prefix, "lessThan", Condition);
         <<"match">> -> build_expression(Prefix, "matches", Condition);
         <<"member">> -> build_expression(Prefix, "hasMember", Condition);
+        <<"hasExactly">> -> build_expression(Prefix, "hasExactly", Condition);
+        <<"hasGreater">> -> build_expression(Prefix, "hasGreater", Condition);
+        <<"hasLess">> -> build_expression(Prefix, "hasLess", Condition);
+        <<"isDefined">> -> build_expression(Prefix, "isDefined", Condition);
         <<"true">> -> build_expression(Prefix, "isTrue", Condition);
         <<"blank">> -> build_expression(Prefix, "isBlank", Condition)
     end.

@@ -56,6 +56,10 @@
           <option>less</option>
           <option>match</option>
           <option>member</option>
+          <option>hasExactly</option>
+          <option>hasGreater</option>
+          <option>hasLess</option>
+          <option>isDefined</option>
           <option>blank</option>
           <option>true</option>
         </select><br />
