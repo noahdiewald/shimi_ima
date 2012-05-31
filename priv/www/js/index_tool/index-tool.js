@@ -196,6 +196,10 @@ var saveIndex = function(buttonData, completeFunction) {
     "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
   };
   
+  if (buttonData.attr('data-index-replace_function')) {
+    obj.replace_function = buttonData.attr('data-index-replace_function');
+  }
+
   sendConfigDoc(url, obj, 'PUT', completeFunction, this);
 
   return false;  
@@ -240,6 +244,7 @@ var initIndexEditButtons = function(buttonData) {
   initIndexSaveButton($('#save-index-button'), buttonData);
   initIndexDeleteButton($('#delete-index-button'), buttonData);
   initIndexAddConditionButton($('#add-index-condition-button'), buttonData);
+  initReplaceButton($('#replace-button'), buttonData);
   
   return false;
 };
@@ -380,6 +385,7 @@ var getIndexView = function(startkey, startid, prevkeys, previds) {
 $(function () {
     $('#index-builder-dialog').hide();
     $('#index-new-dialog').hide();
+    $('#index-replace-dialog').hide();
     initIndexEditButtons(function () {return $('#index-editing-data');});
     initIndexNewButton();
     $('#button-bar').buttonset();

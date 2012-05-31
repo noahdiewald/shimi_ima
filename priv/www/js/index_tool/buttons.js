@@ -59,7 +59,24 @@ var initIndexAddConditionButton = function(button, buttonData) {
                                bData.attr('data-index-doctype')).dialog("open");
                            } else {
                              flashHighlight("Info", 
-                                            "You must choose a index first.");
+                                            "You must choose an index first.");
+                           }
+                         });
+
+  return false;
+};
+
+var initReplaceButton = function(button, buttonData) {
+  button.button({
+                  icons: {primary: "ui-icon-shuffle"}
+                }).click(function (e) {
+                           var bData = buttonData();
+                           
+                           if (!bData.length < 1) {
+                             initReplaceDialog().dialog("open");
+                           } else {
+                             flashHighlight("Info", 
+                                            "You must choose an index first.");
                            }
                          });
 

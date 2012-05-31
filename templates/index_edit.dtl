@@ -1,10 +1,13 @@
 <div 
    id="index-editing-data" 
    data-index-doctype="{{doctype}}" 
-   data-index-fields_label="{{fields_label|force_escape}}"
-   data-index-fields="{{fields|force_escape}}"
+   data-index-fields_label="{{fields_label|escape}}"
+   data-index-fields="{{fields|escape}}"
    data-index-name="{{name}}"
    data-index-show_deleted="{{show_deleted}}"
+   {% if replace_function %}
+   data-index-replace_function="{{replace_function|escape}}"
+   {% endif %}
    data-index-id="{{_id}}" 
    data-index-rev="{{_rev}}">
   <p>
@@ -13,6 +16,11 @@
     <b>{{doctype}}</b>
     documents. They will be listed by 
     <b>{{label|join:", "}}</b>.
+    <span id="replace-function-message">
+    {% if replace_function %}
+    This index has a replacement function.
+    {% endif %}
+    </span>
   </p>
 </div>
 

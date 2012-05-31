@@ -1,0 +1,19 @@
+<div id="index-replace-dialog" title="Replace Text">
+
+  <form>
+    <fieldset class="ui-helper-reset">
+      
+      <p class="help-text">
+        This is an advanced capability. Please do not edit unless you
+        are sure you know what you are doing.
+      </p>
+    
+      <label for="index-replace_function-input">Replace Function</label><br />
+      <textarea
+        name="index-replace_function-input"
+        id="index-replace_function-input" 
+        class="ui-widget-content ui-corner-all input" /></textarea><br />
+      
+    </fieldset>
+  </form>
+</div>

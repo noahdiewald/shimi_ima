@@ -35,6 +35,7 @@
         <button id="save-index-button">Save</button>
         <button id="delete-index-button">Delete</button>
         <button id="add-index-condition-button">Add Condition</button>
+        <button id="replace-button">Replace Text</button>
       </div>
 
       <div id="index-conditions"></div>
@@ -60,4 +61,5 @@
 {% block dialogs %}
   {% include 'index_tool_builder_dialog.dtl' %}
   {% include 'index_tool_new_dialog.dtl' %}
+  {% include 'index_tool_replace_dialog.dtl' %}
 {% endblock %}
