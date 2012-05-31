@@ -97,7 +97,7 @@ decide_plus(_) ->
 set_keys_sortkeys(Id, Vq, R, S) ->
     Json = couch:get_json(Id, R, S),
     case jsn:get_value(<<"category">>, Json) of
-        <<"query">> ->
+        <<"index">> ->
             case {jsn:get_value(<<"fields">>, Json),
                   jsn:get_value(<<"replace_pattern">>, Json)} of
                 % TODO: This is here until feature is fully implemented.

@@ -344,16 +344,39 @@ var fillOptionsFromUrl = function(url, selectElement, callback) {
 var validID = function(id) {
   return !!id.match(/^[a-f0-9]{32}$/);
 };
+
+// General UI Stuff
+
+var panelToggle = function() {
+  var toggler = function(e) {
+    var panel;
+    
+    if ($(e.target).attr('data-panel')) {
+      panel = $('#' + $(e.target).attr('data-panel'));
+    } else {
+      panel = $(e.target).closest('.panel');
+    }
+    panel.toggle();
+  };
+
+  $('#panel-toggle li')
+    .live("click", function(e) {toggler(e);});
+  $('.panel > h2')
+    .live("dblclick", function(e) {toggler(e);});
+};
  
 $(function () {
-  $('.notification').hide();
+    $('.notification').hide();
   
-  $('#loading').hide().ajaxStart(function() {
-    $(this).show();
-  }).ajaxStop(function() {
-    $(this).hide();
-  });
-  
+    $('#loading').hide()
+      .ajaxStart(function() {
+                   $(this).show();
+                 })
+      .ajaxStop(function() {
+                  $(this).hide();
+                });
+
+    panelToggle();    
   // Buttons
   
   $(".remove-button").button({

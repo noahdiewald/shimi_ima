@@ -16,7 +16,7 @@ function(newDoc, saveDoc, userCtx) {
     throw({forbidden: errorMsg});
   };
   
-  if (newDoc.category === 'query') {
+  if (newDoc.category === 'index') {
     [newDoc.doctype, newDoc.name]
       .forEach(
         function(field) {
@@ -27,7 +27,7 @@ function(newDoc, saveDoc, userCtx) {
       forbid('All fields', 'must be filled in.');  
     }
 
-    if (typeof newDoc.show_deleted !== "boolean") {
+    if (typeof newDoc.show_deleted !== 'boolean') {
       forbid('Show deleted', 'must be true or false');
     }
 
@@ -67,18 +67,25 @@ function(newDoc, saveDoc, userCtx) {
           } 
           
           switch (operator) {
+            case 'hasGreater':
+            case 'hasLess':
+            case 'hasExactly':
+              if (typeof argument !== 'number' || (argument % 1) > 0) {
+                forbid('Condition ' + index, 'integer argument required.');
+              }
             case 'equal':
             case 'match':
             case 'greater': 
             case 'less':
             case 'match':
             case 'member':
-              if (argument.isBlank()) {
+              if (typeof argument === 'string' && argument.isBlank()) {
                 forbid('Condition ' + index, 'blank argument is not allowed.');
               }
               break;
             case 'true':
             case 'blank':
+            case 'isDefined':
               if (!argument.isBlank()) {
                 forbid('Condition ' + index, 'no argument allowed for this condition.');
               }

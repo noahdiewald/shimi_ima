@@ -90,13 +90,16 @@ get_json(safer, Id, R, S) ->
     get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
 get_json_helper(Url, Headers) ->  
-    {ok, "200", _, Json} = ibrowse:send_req(Url, Headers, get),
-    jsn:decode(Json).
+    case ibrowse:send_req(Url, Headers, get) of
+        {ok, "200", _, Json} -> jsn:decode(Json);
+        {error, req_timedout} -> {error, req_timedout}
+    end.
 
 get_json_helper(safer, Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
         {ok, "200", _, Json} -> jsn:decode(Json);
-        {ok, "404", _, _} -> undefined
+        {ok, "404", _, _} -> undefined;
+        {error, req_timedout} -> {error, req_timedout}
     end.
 
 get_view_json_helper(Id, Name, Qs, R, S) ->

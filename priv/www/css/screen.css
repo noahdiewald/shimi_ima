@@ -224,14 +224,19 @@ ul.head-elements li:first-child:before {
     width: 100%;
 }
 
-#all-document-container {
+#all-document-container, #all-index-container {
     background: #eee;
-  display: table-row;
+    display: table-row;
 }
 
 #document-index {
   width: 25%;
   display: table-cell;
+}
+
+#index-index {
+    width: 10%;
+    display: table-cell;
 }
 
 #document-view {
@@ -245,14 +250,14 @@ span.retain-white {
   white-space: pre-wrap;
 }
 
-#document-edit {
+#document-edit, #index-edit {
   vertical-align: top;
   width: 50%;
   padding-top: 0;
   display: table-cell;
 }
 
-#all-document-container h2 {
+#all-document-container h2, #all-index-container h2 {
   margin-top: 0;
 }
 
@@ -368,35 +373,26 @@ select[multiple=true] {
   height: 5em;
 }
 
-#query-index-listing {
-    height: 200px;
-    overflow-y: scroll;
+#index-index-listing {
+    width: 25%;
 }
 
-#query-index-listing ul {
-    -moz-column-count: auto;
-    -webkit-column-count: auto;
-    -moz-column-width: 150px;
-    -webkit-column-count: 150px;
-    list-style: none;
-    margin-right: 20px;
+#index-index-listing ul {
 }
 
-#query-index-listing li {
+#index-index-listing li {
   background: white;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
 }
 
-#query-index-listing a {
+#index-index-listing a {
   text-decoration: none;
 }
 
-#query-conditions-listing table {
+#index-conditions-listing table {
   border-collapse: collapse;
 }
 
-#query-conditions-listing tr {
+#index-conditions-listing tr {
   cursor: move;
 }
 

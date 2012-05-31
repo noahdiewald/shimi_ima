@@ -14,7 +14,7 @@
 
 function getIndex(startkey, startid, prevkeys, previds) {
   var url = "documents/index?";
-  var query = $('#index-query').val();
+  var index = $('#index-index-input').val();
   var limit = $('#index-limit').val() * 1;
   
   // Initialize some values if we're at the beginning of the listing
@@ -45,8 +45,8 @@ function getIndex(startkey, startid, prevkeys, previds) {
     url = url + '&limit=26';
   }
   
-  if (query) {
-    url = url + '&query=' + query;
+  if (index) {
+    url = url + '&index=' + index;
   }
   
   $.get(url, function(documentIndexHtml) 
@@ -99,9 +99,9 @@ function getIndex(startkey, startid, prevkeys, previds) {
 
 function fillQueryOptions() {
   var url = "/projects/project-" + $('#container').attr('data-project-id') +
-        "/queries?as=options";
+        "/indexes?as=options";
         
   $.get(url, function(data) {
-    $('#index-query').html(data);
+    $('#index-index-input').html(data);
   });
 }

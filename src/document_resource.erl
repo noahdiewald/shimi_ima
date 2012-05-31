@@ -194,11 +194,11 @@ html_index(R, S) ->
     Doctype = wrq:path_info(doctype, R),
     Limit = wrq:get_qs_value("limit", R),
   
-    {ok, Json} = case wrq:get_qs_value("query", R) of
+    {ok, Json} = case wrq:get_qs_value("index", R) of
                      undefined -> 
                          couch:get_view_json(sortkeys, Doctype, "index", R, S);
-                     QueryId -> 
-                         utils:get_query(QueryId, R, S) 
+                     IndexId -> 
+                         utils:get_index(IndexId, R, S) 
                  end,
   
     Index = utils:add_encoded_keys(Json),

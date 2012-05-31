@@ -11,7 +11,7 @@
     {% endfor %}
   {% endif %}
   <li><a href="/projects/project-{{ project_info._id }}/file_manager">File Manager</a></li>
-  <li><a href="/projects/project-{{ project_info._id }}/tools">Tools</a></li>
+  <li><a href="/projects/project-{{ project_info._id }}/index_tool">Indexes</a></li>
   <li><a href="/projects/project-{{ project_info._id }}/doctypes">Document Type Listing</a></li>
 {% endblock %}
 

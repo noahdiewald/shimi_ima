@@ -137,17 +137,6 @@ function collapseToggle(target) {
   target.parent('li').toggleClass('collapsed');
 }
 
-function panelToggle(e) {
-  var panel;
-
-  if ($(e.target).attr('data-panel')) {
-    panel = $('#' + $(e.target).attr('data-panel'));
-  } else {
-    panel = $(e.target).closest('.panel');
-  }
-  panel.toggle();
-}
-
 function showHelpDialog(target) {
   if (target.is('.label-text')) {
     target = target.parent('label').find('.ui-icon-help');

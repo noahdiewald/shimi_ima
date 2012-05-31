@@ -34,14 +34,14 @@
 upgrade(R, S) ->
     {ok, updated} = upgrade_doctypes(R, S),
     {ok, updated} = upgrade_charseqs(R, S),
-    {ok, updated} = upgrade_queries(R, S),
+    {ok, updated} = upgrade_indexes(R, S),
     {ok, updated} = upgrade_file_manager(R, S),
     upgrade_all_doctypes(R, S),
     ok.
 
-upgrade_queries(R, S) ->
-    {ok, Queries} = design_queries_json_dtl:render(),
-    couch:update(design, "queries", Queries, R, S).
+upgrade_indexes(R, S) ->
+    {ok, Indexes} = design_indexes_json_dtl:render(),
+    couch:update(design, "indexes", Indexes, R, S).
 
 upgrade_doctypes(R, S) ->
     {ok, Dtypes} = design_doctypes_json_dtl:render(),

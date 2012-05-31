@@ -44,7 +44,7 @@
           };
 
           var runShapeTest = function(fieldid, value, pred) {
-            var fieldVal = index[fieldid];
+            var fieldVal = doc.index[fieldid];
             return pred(fieldVal, value);
           };
 
@@ -84,7 +84,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasGreater = function(fieldid, value) {
@@ -95,7 +95,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasLess = function(fieldid, value) {
@@ -106,7 +106,7 @@
               }
               return retval;             
             };
-            runShapeTest(fieldid, value, pred);
+            return runShapeTest(fieldid, value, pred);
           };
 
           var hasMember = function(fieldid, value) {
@@ -154,10 +154,8 @@
             return ({{expression}});
           };
 
-          {% if replace_pattern %}
-          var runReplace = function(val) {
-            return = val.replace({{match_pattern}}, {{replace_pattern}});
-          };
+          {% if replace_function %}
+          var runReplace = {{replace_function}}
           {% endif %}
 
           var format = function(val) {
@@ -171,7 +169,7 @@
               }
             }
 
-            {% if replace_pattern %}
+            {% if replace_function %}
             return runReplace(retval);
             {% else %}
             return retval;
@@ -185,7 +183,7 @@
               if (display_fields.lenghth > 1) {
                 emit([['', formatted]], ['', head()]);
               } else {
-                {% if replace_pattern %}
+                {% if replace_function %}
                 emit([['', formatted]], ['', head()]);
                 {% else %}
                 emit([[fieldVal[0], formatted]], ['', head()]);

@@ -99,6 +99,38 @@
           {<<"argument">>,<<"">>}]]
        ).
 
+-define(HAS_EXACTLY,
+        [[{<<"is_or">>,false},{<<"negate">>,false},
+          {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+          {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+          {<<"operator">>,<<"hasExactly">>},
+          {<<"argument">>,3}]]
+       ).
+
+-define(HAS_GREATER,
+        [[{<<"is_or">>,false},{<<"negate">>,false},
+          {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+          {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+          {<<"operator">>,<<"hasGreater">>},
+          {<<"argument">>,1}]]
+       ).
+
+-define(HAS_LESS,
+        [[{<<"is_or">>,false},{<<"negate">>,false},
+          {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+          {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+          {<<"operator">>,<<"hasLess">>},
+          {<<"argument">>,2}]]
+       ).
+
+-define(IS_DEFINED,
+        [[{<<"is_or">>,false},{<<"negate">>,false},
+          {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+          {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+          {<<"operator">>,<<"isDefined">>},
+          {<<"argument">>,<<"">>}]]
+       ).
+
 -define(DOUBLE,
         [[{<<"is_or">>,false},{<<"negate">>,false},
           {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
@@ -257,6 +289,18 @@ trans_test_() ->
   
      ?_assertEqual(<<"(hasMember('d5331cbb4d62fe3d2899f142d90486fd','99'))">>,
         conditions:trans(?MEMBER)),
+  
+     ?_assertEqual(<<"(hasExactly('d5331cbb4d62fe3d2899f142d90486fd',3))">>,
+        conditions:trans(?HAS_EXACTLY)),
+  
+     ?_assertEqual(<<"(hasGreater('d5331cbb4d62fe3d2899f142d90486fd',1))">>,
+        conditions:trans(?HAS_GREATER)),
+  
+     ?_assertEqual(<<"(hasLess('d5331cbb4d62fe3d2899f142d90486fd',2))">>,
+        conditions:trans(?HAS_LESS)),
+  
+     ?_assertEqual(<<"(isDefined('d5331cbb4d62fe3d2899f142d90486fd'))">>,
+        conditions:trans(?IS_DEFINED)),
   
      ?_assertEqual(<<"(isTrue('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
         conditions:trans(?TRUE)),

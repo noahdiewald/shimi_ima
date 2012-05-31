@@ -1,123 +1,95 @@
-%% @author Noah Diewald <noah@diewald.me>
-%% @copyright 2010 University of Wisconsin Madison Board of Regents.
-%% Copyright (c) 2010 University of Wisconsin Madison Board of Regents
-%%
-%% Permission is hereby granted, free of charge, to any person obtaining
-%% a copy of this software and associated documentation files (the
-%% "Software"), to deal in the Software without restriction, including
-%% without limitation the rights to use, copy, modify, merge, publish,
-%% distribute, sublicense, and/or sell copies of the Software, and to
-%% permit persons to whom the Software is furnished to do so, subject to
-%% the following conditions:
-%%
-%% The above copyright notice and this permission notice shall be included
-%% in all copies or substantial portions of the Software.
-%%
-%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-%% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-%% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-%% NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-%% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-%% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-%% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%%
-%% @doc Convert an array of condition proplists to JavaScript expression.
+%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%%
+%%% This file is part of dictionary_maker.
+%%%
+%%% dictionary_maker is free software: you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation, either version 3 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% dictionary_maker is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%%% GNU General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
+%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @version {@version}
+%%% @author Noah Diewald <noah@diewald.me>
+%%% @doc Convert an array of condition proplists to JavaScript
+%%% expression.
 
 -module(conditions).
 
--export([expect/1, trans/1]).
+-export([trans/1]).
 
-expect(Conditions) ->
-  expect(Conditions, [], []).
-  
-expect([], Acc1, Acc2) ->
-  "{" ++ string:join(Acc1, ", ") ++ ", 'allVisited': function () {return (" ++ string:join(Acc2, " && ") ++ ")}}";
-
-expect([H|Rest], Acc1, Acc2) ->
-  case proplists:get_value(<<"field">>, H) of
-    undefined -> expect(Rest, Acc1, Acc2);
-    Fid ->
-      Fid1 = lists:reverse(binary_to_list(Fid)),
-      Fid2 = [$e,$s,$l,$a,$f,$ ,$: ,$'|Fid1],
-      Fid3 = [$],$'|Fid1],
-      expect(Rest, [[$'|lists:reverse(Fid2)]|Acc1], [[$t,$h,$i,$s,$[,$'|lists:reverse(Fid3)]|Acc2])
-  end.
-  
+%% @doc Take a list of conditions as JSON terms and convert it in to a
+%% predicate string.
+-spec trans(jsn:json_term()) -> binary().
 trans(Conditions) ->
-  trans(Conditions, [], []).
+    trans(Conditions, []).
 
-trans([], [], Acc2) ->
-  string:join(lists:reverse(Acc2), " || ");
-  
-trans([], Acc1, Acc2) ->
-  trans([], [], [join_and(Acc1)|Acc2]);
-    
-trans([Condition|Conditions], Acc1, Acc2) ->
-  case proplists:get_value(<<"is_or">>, Condition) of
-    true ->
-      trans(Conditions, [], [join_and(Acc1)|Acc2]);
-    _ ->
-      trans(Conditions, [build_expression(Condition)|Acc1], Acc2)
-  end.
-  
+%% @doc Take a list of conditions as JSON terms plus an accumulator
+%% and convert it in to a predicate string.
+-spec trans(jsn:json_term(), [string()]) -> binary().
+trans([], Acc) ->
+    list_to_binary(lists:reverse(Acc));
+trans([Condition|Conditions], Acc=[" || "|_]) ->
+    trans(Conditions, [build_expression(Condition)|Acc]);
+trans([Condition|Conditions], Acc=[]) ->
+    trans(Conditions, [build_expression(Condition)|Acc]);
+trans([Condition|Conditions], Acc) ->
+    case proplists:get_value(<<"is_or">>, Condition) of
+        true ->
+            trans(Conditions, [" || "|Acc]);
+        _ ->
+            trans(Conditions, [build_expression(Condition), " && "|Acc])
+    end.
+
+%% @doc Takes a condition as a JSON term and converts it in to a
+%% predicate string.
+-spec build_expression(jsn:json_term()) -> string().  
 build_expression(Condition) ->
-  case proplists:get_value(<<"operator">>, Condition) of
-    <<"equal">> -> build_expression(equal, Condition);
-    <<"greater">> -> build_expression(greater, Condition);
-    <<"less">> -> build_expression(less, Condition);
-    <<"match">> -> build_expression(match, Condition);
-    <<"member">> -> build_expression(member, Condition);
-    <<"true">> -> build_expression(true, Condition);
-    <<"blank">> -> build_expression(blank, Condition)
-  end.
+    Prefix = case proplists:get_value(<<"negate">>, Condition) of
+                 true -> "!";
+                 _ -> ""
+             end,
+    case proplists:get_value(<<"operator">>, Condition) of
+        <<"equal">> -> build_expression(Prefix, "equals", Condition);
+        <<"greater">> -> build_expression(Prefix, "greaterThan", Condition);
+        <<"less">> -> build_expression(Prefix, "lessThan", Condition);
+        <<"match">> -> build_expression(Prefix, "matches", Condition);
+        <<"member">> -> build_expression(Prefix, "hasMember", Condition);
+        <<"hasExactly">> -> build_expression(Prefix, "hasExactly", Condition);
+        <<"hasGreater">> -> build_expression(Prefix, "hasGreater", Condition);
+        <<"hasLess">> -> build_expression(Prefix, "hasLess", Condition);
+        <<"isDefined">> -> build_expression(Prefix, "isDefined", Condition);
+        <<"true">> -> build_expression(Prefix, "isTrue", Condition);
+        <<"blank">> -> build_expression(Prefix, "isBlank", Condition)
+    end.
 
-build_expression(greater, Condition) ->
-  Exp = build_expression(">", "value", proplists:get_value(<<"argument">>, Condition)),
-  negate(Exp, Condition);
-  
-build_expression(less, Condition) ->
-  Exp = build_expression("<", "value", proplists:get_value(<<"argument">>, Condition)),
-  negate(Exp, Condition);
+%% @doc Helper function for build_expression/1.
+-spec build_expression(string(), string(), jsn:json_term()) -> string().
+build_expression(Prefix, Function=[$i,$s|_], Condition) ->
+    "(" ++ Prefix ++ Function ++ "('" ++
+        binary_to_list(proplists:get_value(<<"field">>, Condition)) ++ "'))";
+build_expression(Prefix, Function, Condition) -> 
+    "(" ++ Prefix ++ Function ++ "('" ++ 
+        binary_to_list(proplists:get_value(<<"field">>, Condition)) ++ "'," ++
+        process_arg(
+          Function, proplists:get_value(<<"argument">>, Condition)) ++ "))".
 
-build_expression(equal, Condition) ->
-  Exp = build_expression("==", "value", proplists:get_value(<<"argument">>, Condition)),
-  negate(Exp, Condition);
+-spec process_arg(string(), binary()) -> string().
+process_arg("matches", Arg) ->
+    "/" ++ convert_binary(Arg) ++ "/";
+process_arg(_, Arg) when is_integer(Arg); is_float(Arg) ->
+    convert_number(Arg);
+process_arg(_, Arg) ->
+    "'" ++ convert_binary(Arg) ++ "'".
 
-build_expression(true, Condition) ->
-  Exp = build_expression("==", "value", "true"),
-  negate(Exp, Condition);
-  
-build_expression(match, Condition) ->
-  Exp = "((/" ++ 
-        convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ 
-        "/).test(value))",
-  negate(Exp, Condition);
-  
-build_expression(blank, Condition) ->
-  Exp = "(value.isBlank())",
-  negate(Exp, Condition);
-  
-build_expression(member, Condition) ->
-  Exp = "(value.indexOf('" ++ 
-        convert_binary(proplists:get_value(<<"argument">>, Condition)) ++ 
-        "') > -1)",
-  negate(Exp, Condition);
-  
-build_expression(field, Condition) ->
-  build_expression("===", "fieldId", proplists:get_value(<<"field">>, Condition));
-  
-build_expression(fieldset, Condition) ->
-  build_expression("===", "fieldsetId", proplists:get_value(<<"fieldset">>, Condition)).
-
-build_expression(Operator, ScriptVar, Val) when is_binary(Val) ->
-  build_expression(Operator, ScriptVar, "'" ++ convert_binary(Val) ++ "'");
-
-build_expression(Operator, ScriptVar, Val) when is_integer(Val); is_float(Val) ->
-  build_expression(Operator, ScriptVar, convert_number(Val));
-
-build_expression(Operator, ScriptVar, Val) when is_list(Val) ->
-  string:join(["(" ++ ScriptVar, Operator, Val ++ ")"], " ").
-
+-spec convert_binary(binary()) -> string().
 convert_binary(Bin) ->
   String = binary_to_list(Bin),
   escape_arg(String, []).
@@ -143,15 +115,3 @@ escape_arg([$"|Rest], Acc) ->
 escape_arg([H|Rest], Acc) ->
   escape_arg(Rest, [H|Acc]).
   
-join_expressions(Exp, Condition) ->    
-  Field = build_expression(field, Condition),
-  "(!" ++ Field ++ " || " ++ join_and([Exp, Field]) ++ ")".
-
-negate(Exp, Condition) ->  
-  case proplists:get_value(<<"negate">>, Condition) of
-    true -> join_expressions([$!|Exp], Condition);
-    _ -> join_expressions(Exp, Condition)
-  end.
-  
-join_and(Conditions) ->
-  string:join(lists:reverse(Conditions), " && ").
