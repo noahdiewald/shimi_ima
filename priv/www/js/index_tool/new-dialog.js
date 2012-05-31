@@ -27,7 +27,7 @@ function initIndexNewDialog() {
   };
   
   var getLabelForVal = function(val) {
-    return $('option[value="'+ val + '"]').text();
+    return $('#index-new-dialog option[value="'+ val + '"]').text();
   };
 
   var getLabel = function() {
