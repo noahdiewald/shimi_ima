@@ -32,7 +32,7 @@ var initIndexDeleteButton = function(button, buttonData) {
                  var indexRev = bData.attr('data-index-rev');
                  var completeMessage = "Your index has been deleted.";
                  var completeFunction = function() {
-                   $('#index-edit').empty();
+                   $('#index-conditions').empty();
                    initIndexIndex();
                  };
                  
