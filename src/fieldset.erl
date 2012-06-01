@@ -77,11 +77,14 @@ find_required(Id, [_|Rest]) ->
   
 -spec touch(Dfs :: docfieldset(), R :: utils:reqdata(), S :: any()) -> Fieldset2 :: jsn:json_term().
 touch(Dfs, R, S) ->
-    {ok, Fields} = couch:get_view_json(
-                     binary_to_list(Dfs#docfieldset.id), "fields", R, S),
-    FieldsIds = [jsn:get_value(<<"id">>, X) || 
-                    X <- jsn:get_value(<<"rows">>, Fields)],
-    touch2(update(Dfs, R, S), FieldsIds, R, S).
+    case couch:get_view_json(
+           binary_to_list(Dfs#docfieldset.id), "fields", R, S) of
+        {ok, Fields} ->
+            FieldsIds = [jsn:get_value(<<"id">>, X) || 
+                            X <- jsn:get_value(<<"rows">>, Fields)],
+            touch2(update(Dfs, R, S), FieldsIds, R, S);
+        {error, req_timedout} -> touch(Dfs, R, S)
+    end.
   
 %% @doc Set the sortkeys for fields in fieldsets
 -spec set_sortkeys(jsn:json_term() | [docfieldset()], R :: utils:reqdata(), S :: any()) -> jsn:json_term().
