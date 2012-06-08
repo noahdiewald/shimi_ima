@@ -69,17 +69,8 @@ function restoreDocument(docid, docrev) {
       if (req.status == 200) {
         var title = "Success";
         var body = "Your document was restored.";
-        var response = JSON.parse(req.responseText);
-        
-        putValue("document-rev", response.rev, restoreButton);
-        
-        $('#document-restore-button').hide();
-        $('#document-delete-button').show();
-        $('#document-edit-button').show();
-        $('#document-view h2').text("Restored Document");
-        $('#document-view').fadeTo('slow', 1);
-        
-        getIndex();
+
+        getDocument(docid, function() {getIndex();});
         flashHighlight(title, body);
       } else if (req.status == 409) {
         var body = JSON.parse(req.responseText);
