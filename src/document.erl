@@ -54,25 +54,36 @@ touch_all(Id, R, S) ->
     error_logger:info_report([{touch_all, finished}]),
     true = ets:delete(Tid).
 
--spec touch(Id :: binary(), R :: utils:reqdata(), S :: any()) -> Document2 :: jsn:json_term().
+-spec touch(binary(), utils:reqdata(), any()) -> ok.
 touch(Id, R, S) ->
-    Json = couch:get_json(binary_to_list(Id), R, S),
+    Json = touch_get_json(Id, R, S),
     Doc = from_json(Json),
-    {ok, Fieldsets} = couch:get_view_json(
-                        binary_to_list(Doc#document.doctype), 
-                        "fieldsets", R, S),
-    FieldsetIds = [jsn:get_value(<<"id">>, X) || 
-                      X <- jsn:get_value(<<"rows">>, Fieldsets)],
-    Doc2 = to_json(
-             Doc#document{
-               prev = Doc#document.rev,
-               fieldsets = fieldset:touch_all(
-                             Doc#document.fieldsets, FieldsetIds, R, S)}),
-    case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), R, S) of
-        {ok, updated} -> ok;
-        Unexpected ->
-            error_logger:error_report(
-              [{touch_document_update, {Unexpected, Doc2}}])
+    case couch:get_view_json(binary_to_list(Doc#document.doctype), "fieldsets",
+                             R, S) of
+        {ok, Fieldsets} ->
+            FieldsetIds = [jsn:get_value(<<"id">>, X) || 
+                              X <- jsn:get_value(<<"rows">>, Fieldsets)],
+            Doc2 = to_json(
+                     Doc#document{
+                       prev = Doc#document.rev,
+                       fieldsets = fieldset:touch_all(Doc#document.fieldsets, 
+                                                      FieldsetIds, R, S)}),
+            case couch:update(doc, binary_to_list(Id), 
+                              jsn:encode(Doc2), R, S) of
+                {ok, updated} -> ok;
+                Unexpected ->
+                    error_logger:error_report(
+                      [{touch_document_update, {Unexpected, Doc2}}])
+            end;
+        {error, req_timedout} -> touch(Id, R, S)
+    end.
+
+-spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
+touch_get_json(Id, R, S) ->                
+    case couch:get_json(binary_to_list(Id), R, S) of
+        {error, req_timedout} ->
+            touch_get_json(Id, R, S);
+        Json -> Json
     end.
   
 %% @doc Set the sortkeys for the fields in the document. 
