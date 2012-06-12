@@ -9,7 +9,13 @@
       <a 
          href="#{{ row.id }}" 
          class="view-document-link">
-        {{ row.key|last|force_escape }}
+        {% if index_listing %}
+        {% for elem in row.key %}
+        {{ elem|last|escape }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        {% else %}
+        {{ row.key|last|escape }}
+        {% endif %}
       </a>
     </th>
     <td {% if row.id|length == row.value|length %}

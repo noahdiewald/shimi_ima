@@ -33,7 +33,7 @@ values(_Index, [], _R, _S) ->
     [{<<"rows">>, false}];
 values(Index, Query, R, S) ->
     {RE, Rows, Json} = get_filter_args("index", Query, Index, R, S),
-    prep_ret(i_filter(Rows, RE, []), Json).
+    [{<<"index_listing">>, true}|prep_ret(i_filter(Rows, RE, []), Json)].
     
 values(_Doctype, [], _Fields, _Exclude, _R, _S) ->
     [{<<"rows">>, false}];
