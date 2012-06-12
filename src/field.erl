@@ -27,6 +27,8 @@
          from_json/2,
          get/2,
          get/3,
+         is_meta/1,
+         option_list/2,
          update_merge/2,
          set_sortkeys/3,
          to_json/2,
@@ -38,6 +40,33 @@
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+option_list(R, S) ->
+    case wrq:path_info(fieldset, R) of
+        "metadata" -> meta_options();
+        Fieldset -> 
+            {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
+            Json
+    end.
+
+is_meta(Id) ->
+    is_meta(list_to_binary(Id), jsn:get_value(<<"rows">>, meta_options())).
+
+is_meta(_Id, []) ->
+    false;
+is_meta(Id, [H|T]) ->
+    case jsn:get_value(<<"id">>, H) of
+        Id -> true;
+        _ -> is_meta(Id, T)
+    end.
+
+meta_options() ->
+    [{<<"rows">>, [[{<<"key">>, <<"Created by">>}, 
+                    {<<"value">>, <<"created_by_">>},
+                    {<<"id">>, <<"created_by_">>}],
+                   [{<<"key">>, <<"Updated by">>}, 
+                    {<<"value">>, <<"updated_by_">>},
+                    {<<"id">>, <<"updated_by_">>}]]}].
+    
 -spec touch_all([docfield()], [binary()], utils:reqdata(), any()) -> [docfield()].
 touch_all(Dfs, FIds, R, S) ->
     Dfs2 = add_missing(Dfs, FIds, []),

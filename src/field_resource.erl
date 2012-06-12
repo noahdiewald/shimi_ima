@@ -50,9 +50,18 @@ resource_exists(R, S) ->
     Id = wrq:path_info(id, R),
   
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        index -> {couch:exists(Fieldset, R, S), R, S}
+        identifier -> identifier_exists(Id, R, S);
+        index -> index_exists(Fieldset, R, S)
     end. 
+
+identifier_exists(Id, R, S) ->
+    case field:is_meta(Id) of
+        true -> {true, R, S};
+        _ -> {couch:exists(Id, R, S), R, S}
+    end.
+
+index_exists("metadata", R, S) -> {true, R, S};
+index_exists(Fieldset, R, S) -> {couch:exists(Fieldset, R, S), R, S}.
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -126,8 +135,7 @@ html_as_fieldset(R, S) ->
     lists:map(F, Rows).
   
 html_as_options(R, S) ->
-    Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
+    Json = field:option_list(R, S),
     {ok, Html} = options_dtl:render(Json),
     Html.
 
