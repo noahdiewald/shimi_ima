@@ -97,7 +97,7 @@ var searches = {
     var fieldids = searches.lookup("searchFields");
 
     if (index) {
-      $('#document-search-field').val(index);
+      $('#document-search-index').val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
       $('#document-search-exclude').parent('div').hide();
