@@ -527,3 +527,7 @@ tr.ui-widget-header th {
     text-decoration: none;
     color: black;
 }
+
+#index-index-input-label {
+    text-decoration: underline;
+}

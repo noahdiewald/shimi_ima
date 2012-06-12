@@ -23,34 +23,59 @@
 -module(search).
 
 -export([
+         values/4,
          values/6
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 
+values(_Index, [], _R, _S) ->
+    [{<<"rows">>, false}];
+values(Index, Query, R, S) ->
+    {RE, Rows, Json} = get_filter_args("index", Query, Index, R, S),
+    prep_ret(i_filter(Rows, RE, []), Json).
+    
 values(_Doctype, [], _Fields, _Exclude, _R, _S) ->
     [{<<"rows">>, false}];
 values(Doctype, Query, [], false, R, S) ->
-    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
     prep_ret(filter(Rows, RE, []), Json);
 values(_Doctype, Query, [Field|[]], false, R, S) ->
     values(binary_to_list(Field), Query, [], false, R, S);
 values(Doctype, Query, Fields=[_,_|_], false, R, S) ->
-    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
     prep_ret(filter(Rows, RE, Fields, true, []), Json);
 values(Doctype, Query, Fields, true, R, S) ->
-    {RE, Rows, Json} = get_filter_args(Query, Doctype, R, S),
+    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
     prep_ret(filter(Rows, RE, Fields, false, []), Json).
 
 prep_ret(Rows, Json) ->
     jsn:set_value(<<"rows">>, Rows, Json).
 
-get_filter_args(Query, Design, R, S) ->
+get_filter_args(View, Query, Design, R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = couch:get_view_json(Design, "all_vals", R, S),
+    {ok, Json} = couch:get_view_json(Design, View, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     {RE, Rows, Json}.
 
+%% @doc filter for searches on indexes
+i_filter([], _Query, Acc) ->
+    lists:reverse(Acc);
+i_filter([Row|T], Query, Acc) ->
+    case i_filter2(jsn:get_value(<<"key">>, Row), Query) of
+        false -> i_filter(T, Query, Acc);
+        _ -> i_filter(T, Query, [Row|Acc])
+    end.
+
+i_filter2([], _Query) ->
+    false;
+i_filter2([[_,K]|T], Query) ->
+    case re:run(K, Query) of
+        nomatch -> i_filter2(T, Query);
+        _ -> true
+    end.
+
+%% @doc simple filter
 filter([], _Query, Acc) ->
     lists:reverse(Acc);
 filter([Row|T], Query, Acc) ->
@@ -60,6 +85,7 @@ filter([Row|T], Query, Acc) ->
         _ -> filter(T, Query, [Row|Acc])
     end.
 
+%% @doc filter for included/excluded fields
 filter([], _Query, _Fields, _Answer, Acc) ->
     lists:reverse(Acc);
 filter([Row|T], Query, Fields, Answer, Acc) ->
