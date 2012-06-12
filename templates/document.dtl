@@ -43,11 +43,16 @@
         <div id="search-all-fields-switch" class="search-optional hidden">
           <a href="#">Search All Fields</a><br />
         </div>
+
         <input type="hidden" name="document-search-field" id="document-search-field" />
+
+        <input type="hidden" name="document-search-index" id="document-search-index" />
+
         <label for="document-search-term">
           <span class="hidden" id="search-exclude-label"><em>Do Not</em></span>
           Search
           <span class="search-optional hidden" id="search-field-label"></span>
+          <span class="search-optional hidden" id="search-index-label"></span>
         </label>
         <input type="text" name="document-search-term" id="document-search-term" />
         <div class="search-optional hidden">
@@ -62,7 +67,8 @@
       <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
-        <label for="index-index-input">Index</label>
+        <label id="index-index-input-label" 
+               for="index-index-input">Index</label>
         <select name="index-index-input" id="index-index-input"></select><br />
         <label for="index-filter">Filter</label>
         <input type="text" name="index-filter" id="index-filter" /><br />

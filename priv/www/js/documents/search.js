@@ -4,14 +4,18 @@ var searches = {
     var url = "documents/search?q=" + encodeURIComponent(query);
     var field = $('#document-search-field').val();
     var exclude = $('#document-search-exclude').is(':checked');
+    var index = $('#document-search-index').val();
     var lookup = searches.fieldLookup();
 
-    if (field) {
-      url = url + "&field=" + field;
-    }
-
-    if (exclude) {
-      url = url + "&exclude=true";
+    if (index) {
+      url = url + "&index=" + index; 
+    } else {
+      if (field) {
+        url = url + "&field=" + field;
+      }
+      if (exclude) {
+        url = url + "&exclude=true";
+      }
     }
 
     $('#search-listing').hide();
@@ -73,21 +77,31 @@ var searches = {
   },
 
   clearSearchVals: function(initial) {
-    $('#document-search-field').val('');
+    $('#document-search-field').val(null);
+    $('#document-search-index').val(null);
     $('#document-search-exclude:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
+    $('#search-index-label').empty();
     if (!initial) {
       localStorage.setItem("searchLabels", null);
       localStorage.setItem("searchFields", null);
       localStorage.setItem("searchExclude", null);
+      localStorage.setItem("searchIndex", null);
+      localStorage.setItem("searchIndexLabel", null);
     }
   },
 
   loadSearchVals: function() {
+    var index = searches.lookup("searchIndex");
     var fieldids = searches.lookup("searchFields");
 
-    if (fieldids) {
+    if (index) {
+      $('#document-search-field').val(index);
+      $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
+      $('.search-optional').show();
+      $('#document-search-exclude').parent('div').hide();
+    } else if (fieldids) {
       $('#document-search-field').val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
@@ -99,10 +113,20 @@ var searches = {
     }
   },
 
-  updateSearchVals: function(fieldids, labels, exclude) {
-    localStorage.setItem("searchLabels", labels);
-    localStorage.setItem("searchFields", fieldids);
-    localStorage.setItem("searchExclude", exclude);
+  updateSearchVals: function(fieldids, labels, exclude, index) {
+    if (index) {
+      localStorage.setItem("searchIndex", index);
+      localStorage.setItem("searchIndexLabel", labels);
+      localStorage.setItem("searchLabels", null);
+      localStorage.setItem("searchFields", null);
+      localStorage.setItem("searchExclude", null);
+    } else {
+      localStorage.setItem("searchIndex", null);
+      localStorage.setItem("searchIndexLabel", null);
+      localStorage.setItem("searchLabels", labels);
+      localStorage.setItem("searchFields", fieldids);
+      localStorage.setItem("searchExclude", exclude);
+    }
   },
 
   removeSearchField: function(e) {
@@ -129,6 +153,22 @@ var searches = {
     }
     
     searches.updateSearchVals(newVal, $('#search-field-label').html(), exclude);
+  },
+
+  addSearchIndex: function(e) {
+    var indexVal = $('#index-index-input').val();
+    var indexLabel = $('option[value=' + indexVal + ']').text();
+
+    if (validID(indexVal)) {
+      $('#search-all-fields-switch').show();
+      $('#search-field-label').hide();
+      $('#search-exclude-label').empty();
+      $('#document-search-field').val(null);
+      $('#document-search-exclude').parent('div').hide();
+      $('#search-index-label').html(indexLabel).show();
+      $('#document-search-index').val(indexVal);
+      searches.updateSearchVals(null, indexLabel, null, indexVal);
+    }
   },
 
   addSearchField: function(e) {

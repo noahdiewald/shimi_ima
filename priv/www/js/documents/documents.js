@@ -50,6 +50,7 @@ var searchForm = function() {
   searchFieldItems();
   fieldViews();
   excludeCheck();
+  searchIndex();
   $('#document-search-term')
     .live("keydown",
           function(e) {
@@ -63,8 +64,8 @@ var searchForm = function() {
 
 var searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
-    .live("click", function(e) {
-            searches.clearSearchVals(e);
+    .live("click", function() {
+            searches.clearSearchVals();
           });
 };
 
@@ -80,6 +81,13 @@ var fieldViews = function() {
     .live('dblclick', function(e) {
             searches.addSearchField(e);
           });
+};
+
+var searchIndex = function() {
+  $('#index-index-input-label')
+    .live('dblclick', function(e) {
+            searches.addSearchIndex(e);
+          });  
 };
 
 var excludeCheck = function() {
