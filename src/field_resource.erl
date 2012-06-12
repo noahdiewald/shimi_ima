@@ -56,7 +56,7 @@ resource_exists(R, S) ->
 
 identifier_exists(Id, R, S) ->
     case field:is_meta(Id) of
-        true -> {true, R, S};
+        true -> {true, R, [{is_meta, list_to_binary(Id)}|S]};
         _ -> {couch:exists(Id, R, S), R, S}
     end.
 
@@ -94,9 +94,14 @@ to_html(R, S) ->
 % Helpers
 
 json_field(R, S) ->
-    Json = couch:get_json(id, R, S),
-    Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-    jsn:encode(get_allowed(Subcategory, Json, R, S)).
+    case proplists:get_value(is_meta, S) of
+        undefined ->
+            Json = couch:get_json(id, R, S),
+            Subcategory = 
+                binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
+            jsn:encode(get_allowed(Subcategory, Json, R, S));
+        Id -> field:meta_field(Id)
+    end.
 
 json_fields(R, S) -> 
     Fieldset = wrq:path_info(fieldset, R),
