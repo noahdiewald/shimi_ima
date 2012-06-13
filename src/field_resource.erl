@@ -50,9 +50,18 @@ resource_exists(R, S) ->
     Id = wrq:path_info(id, R),
   
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        index -> {couch:exists(Fieldset, R, S), R, S}
+        identifier -> identifier_exists(Id, R, S);
+        index -> index_exists(Fieldset, R, S)
     end. 
+
+identifier_exists(Id, R, S) ->
+    case field:is_meta(Id) of
+        true -> {true, R, [{is_meta, list_to_binary(Id)}|S]};
+        _ -> {couch:exists(Id, R, S), R, S}
+    end.
+
+index_exists("metadata", R, S) -> {true, R, S};
+index_exists(Fieldset, R, S) -> {couch:exists(Fieldset, R, S), R, S}.
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -85,9 +94,15 @@ to_html(R, S) ->
 % Helpers
 
 json_field(R, S) ->
-    Json = couch:get_json(id, R, S),
-    Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-    jsn:encode(get_allowed(Subcategory, Json, R, S)).
+    Field = case proplists:get_value(is_meta, S) of
+                undefined ->
+                    Json = couch:get_json(id, R, S),
+                    Subcategory = 
+                        binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
+                    get_allowed(Subcategory, Json, R, S);
+                Id -> field:meta_field(Id)
+            end,
+    jsn:encode(Field).
 
 json_fields(R, S) -> 
     Fieldset = wrq:path_info(fieldset, R),
@@ -126,8 +141,7 @@ html_as_fieldset(R, S) ->
     lists:map(F, Rows).
   
 html_as_options(R, S) ->
-    Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
+    Json = field:option_list(R, S),
     {ok, Html} = options_dtl:render(Json),
     Html.
 

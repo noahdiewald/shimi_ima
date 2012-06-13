@@ -16,7 +16,24 @@
               {% endif %}
             {% endfor %}
           ];
-           
+          
+          var lookup = function(fieldid) {
+            var retval;
+
+            switch(fieldid) {
+              case 'created_by_':
+              case 'updated_by_':
+              case 'created_at_':
+              case 'updated_at_':
+                retval = ['', doc[fieldid]];
+                break;
+              default:
+                retval = doc.index[fieldid];
+            }
+
+            return retval;
+          };
+
           var isArray = function(anArray) {
             return Object.prototype.toString.apply(anArray) ===
               '[object Array]';
@@ -27,7 +44,7 @@
           };
 
           var runTest = function(fieldid, value, pred) {
-            var fieldVal = doc.index[fieldid];
+            var fieldVal = lookup(fieldid);
             var retval = false;
 
             if (notBlank(fieldVal)) {
@@ -44,7 +61,7 @@
           };
 
           var runShapeTest = function(fieldid, value, pred) {
-            var fieldVal = doc.index[fieldid];
+            var fieldVal = lookup(fieldid);
             return pred(fieldVal, value);
           };
 
@@ -137,7 +154,7 @@
           var head = function() {
             var hd = doc.head;
             return hd.map(function(h) {
-              var v = doc.index[h];
+              var v = lookup(h);
               if (isArray(v[0])) {
                 if (notBlank(v[0][1])) {
                   return v[0][1] + '...';
@@ -193,7 +210,7 @@
           };
 
           var emitForField = function(fieldid) {
-            var fieldVal = doc.index[fieldid];
+            var fieldVal = lookup(fieldid);
             
             if (!notBlank(fieldVal)) {
               emitIf(['', '_UNDEFINED_']);

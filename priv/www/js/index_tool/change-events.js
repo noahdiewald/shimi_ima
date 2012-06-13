@@ -28,13 +28,15 @@ function setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField,
               if (!(typeof indexDoctype == "string")) {
                 indexDoctype = indexDoctype.val();
               }
+              
+              if (indexFieldset.val()) {
+                var url = 'doctypes/' + indexDoctype + 
+                  '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
     
-              var url = 'doctypes/' + indexDoctype + 
-                '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+                if (callback) callback2 = callback();
     
-              if (callback) callback2 = callback();
-    
-              fillOptionsFromUrl(url, indexField, callback2);
+                fillOptionsFromUrl(url, indexField, callback2);
+              }
             });
   
   return false;

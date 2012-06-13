@@ -38,12 +38,15 @@
          new_db/3,
          update/4,
          update/5,
-         update/6
+         update/6,
+         user_list/0
         ]).
 
 -include_lib("config.hrl").
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
+
+user_list() -> [].
 
 %% @doc Make a new database
 new_db(DB, _R, _S) ->

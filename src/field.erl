@@ -27,6 +27,9 @@
          from_json/2,
          get/2,
          get/3,
+         is_meta/1,
+         meta_field/1,
+         option_list/2,
          update_merge/2,
          set_sortkeys/3,
          to_json/2,
@@ -38,6 +41,49 @@
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+option_list(R, S) ->
+    case wrq:path_info(fieldset, R) of
+        "metadata" -> meta_options();
+        Fieldset -> 
+            {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
+            Json
+    end.
+
+is_meta(Id) when is_list(Id) ->
+    is_meta(list_to_binary(Id));
+is_meta(Id) ->
+    is_meta(Id, jsn:get_value(<<"rows">>, meta_options())).
+
+is_meta(_Id, []) ->
+    false;
+is_meta(Id, [H|T]) ->
+    case jsn:get_value(<<"id">>, H) of
+        Id -> true;
+        _ -> is_meta(Id, T)
+    end.
+
+meta_options() ->
+    [{<<"rows">>, [[{<<"key">>, <<"Created by">>}, 
+                    {<<"value">>, <<"created_by_">>},
+                    {<<"id">>, <<"created_by_">>}],
+                   [{<<"key">>, <<"Updated by">>}, 
+                    {<<"value">>, <<"updated_by_">>},
+                    {<<"id">>, <<"updated_by_">>}]]}].
+
+meta_field(Id) when is_list(Id) ->
+    meta_field(list_to_binary(Id));
+meta_field(Id) when Id =:= <<"created_by_">> ->
+    user_field(Id, <<"Created By">>);
+meta_field(Id) when Id =:= <<"updated_by_">> -> 
+    user_field(Id, <<"Updated By">>).
+
+user_field(Id, Label) ->
+    Field = #field{id = Id,
+                   label = Label,
+                   allowed = couch:user_list(),
+                   subcategory = select},
+    to_json(Field).
+            
 -spec touch_all([docfield()], [binary()], utils:reqdata(), any()) -> [docfield()].
 touch_all(Dfs, FIds, R, S) ->
     Dfs2 = add_missing(Dfs, FIds, []),
@@ -136,7 +182,30 @@ from_json(doc, Json) ->
                value = convert_value(Subcategory, Json),
                sortkey = get_value(<<"sortkey">>, Json)
              }.
-  
+
+%% @doc Convert field() to jsn:term()
+to_json(F) ->  
+    [{<<"_id">>, F#field.id},
+     {<<"_rev">>, F#field.rev},
+     {<<"allowed">>, F#field.allowed},
+     {<<"category">>, field},
+     {<<"charseq">>, maybe_binary(F#field.charseq)},
+     {<<"default">>, F#field.default},
+     {<<"description">>, F#field.description},
+     {<<"doctype">>, F#field.doctype},
+     {<<"fieldset">>, <<"metadata">>},
+     {<<"head">>, F#field.head},
+     {<<"label">>, F#field.label},
+     {<<"max">>, unconvert_value(F#field.subcategory, F#field.max)},
+     {<<"min">>, unconvert_value(F#field.subcategory, F#field.min)},
+     {<<"name">>, F#field.name},
+     {<<"order">>, F#field.order},
+     {<<"regex">>, F#field.regex},
+     {<<"required">>, F#field.required},
+     {<<"reversal">>, F#field.reversal},
+     {<<"source">>, F#field.source},
+     {<<"subcategory">>, atom_to_binary(F#field.subcategory, utf8)}].
+    
 %% @doc Convert a docfield() record within a document() to a
 %% jsn:json_term() fieldset 
 -spec to_json(doc, F :: docfield()) -> Json :: jsn:json_term().
