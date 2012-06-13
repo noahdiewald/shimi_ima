@@ -124,8 +124,12 @@ set_sortkey_by_doctype(Id, Vq, R, S) ->
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_sortkey_by_field(Field, Vq, R, S) ->
-    Json = couch:get_json(Field, R, S),
-    Charseq = jsn:get_value(<<"charseq">>, Json),
+    Charseq = case field:is_meta(Field) of
+                  false ->
+                      Json = couch:get_json(Field, R, S),
+                      jsn:get_value(<<"charseq">>, Json);
+                  _ -> null
+              end,
     set_sortkey_helper(Charseq, Vq, R, S).
 
 -spec set_sortkey_helper(binary(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().

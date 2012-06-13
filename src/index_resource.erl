@@ -259,7 +259,15 @@ render_conditions(Module, Function, Arg, R, S) ->
 
     Html.
 
+get_label(<<"metadata">>, _R, _S) ->
+    <<"Metadata">>;
+get_label("metadata", _R, _S) ->
+    <<"Metadata">>;
 get_label(Id, R, S) ->
-    Json = couch:get_json(Id, R, S),
+    Json = case field:is_meta(Id) of
+               false ->
+                   couch:get_json(Id, R, S);
+               _ ->
+                   field:meta_field(Id)
+           end,
     jsn:get_value(<<"label">>, Json).
-

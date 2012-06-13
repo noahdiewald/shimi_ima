@@ -94,14 +94,15 @@ to_html(R, S) ->
 % Helpers
 
 json_field(R, S) ->
-    case proplists:get_value(is_meta, S) of
-        undefined ->
-            Json = couch:get_json(id, R, S),
-            Subcategory = 
-                binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-            jsn:encode(get_allowed(Subcategory, Json, R, S));
-        Id -> field:meta_field(Id)
-    end.
+    Field = case proplists:get_value(is_meta, S) of
+                undefined ->
+                    Json = couch:get_json(id, R, S),
+                    Subcategory = 
+                        binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
+                    get_allowed(Subcategory, Json, R, S);
+                Id -> field:meta_field(Id)
+            end,
+    jsn:encode(Field).
 
 json_fields(R, S) -> 
     Fieldset = wrq:path_info(fieldset, R),

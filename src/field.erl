@@ -49,8 +49,10 @@ option_list(R, S) ->
             Json
     end.
 
+is_meta(Id) when is_list(Id) ->
+    is_meta(list_to_binary(Id));
 is_meta(Id) ->
-    is_meta(list_to_binary(Id), jsn:get_value(<<"rows">>, meta_options())).
+    is_meta(Id, jsn:get_value(<<"rows">>, meta_options())).
 
 is_meta(_Id, []) ->
     false;
@@ -68,11 +70,18 @@ meta_options() ->
                     {<<"value">>, <<"updated_by_">>},
                     {<<"id">>, <<"updated_by_">>}]]}].
 
-meta_field(Id) when Id =:= <<"created_by_">>; Id =:= <<"updated_by_">> -> 
-    user_field(Id).
+meta_field(Id) when is_list(Id) ->
+    meta_field(list_to_binary(Id));
+meta_field(Id) when Id =:= <<"created_by_">> ->
+    user_field(Id, <<"Created By">>);
+meta_field(Id) when Id =:= <<"updated_by_">> -> 
+    user_field(Id, <<"Updated By">>).
 
-user_field(Id) ->
-    Field = #field{id = Id, allowed = couch:user_list(), subcategory = select},
+user_field(Id, Label) ->
+    Field = #field{id = Id,
+                   label = Label,
+                   allowed = couch:user_list(),
+                   subcategory = select},
     to_json(Field).
             
 -spec touch_all([docfield()], [binary()], utils:reqdata(), any()) -> [docfield()].
@@ -176,15 +185,15 @@ from_json(doc, Json) ->
 
 %% @doc Convert field() to jsn:term()
 to_json(F) ->  
-    [{<<"id">>, F#field.id},
-     {<<"rev">>, F#field.rev},
+    [{<<"_id">>, F#field.id},
+     {<<"_rev">>, F#field.rev},
      {<<"allowed">>, F#field.allowed},
      {<<"category">>, field},
      {<<"charseq">>, maybe_binary(F#field.charseq)},
      {<<"default">>, F#field.default},
      {<<"description">>, F#field.description},
      {<<"doctype">>, F#field.doctype},
-     {<<"fieldset">>, F#field.fieldset},
+     {<<"fieldset">>, <<"metadata">>},
      {<<"head">>, F#field.head},
      {<<"label">>, F#field.label},
      {<<"max">>, unconvert_value(F#field.subcategory, F#field.max)},
