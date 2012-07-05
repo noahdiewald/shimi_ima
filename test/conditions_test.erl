@@ -249,6 +249,61 @@
           {<<"argument">>,<<"9\"9">>}]]
        ).
 
+grouped1() ->
+    [[{<<"is_or">>,false},{<<"negate">>,false},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"equal">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,false},{<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"match">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,true},{<<"negate">>,false}],
+     [{<<"is_or">>,false},{<<"parens">>,<<"open">>},{<<"negate">>,false}],
+     [{<<"is_or">>,false},{<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"greater">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,true},{<<"negate">>,false}],
+     [{<<"is_or">>,false},
+      {<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d9039eed">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d9058ce0">>},
+      {<<"operator">>,<<"equal">>},
+      {<<"argument">>,<<"888">>}],
+    [{<<"is_or">>,false},{<<"parens">>,<<"close">>},{<<"negate">>,false}]].
+
+grouped2() ->
+    [[{<<"is_or">>,false},{<<"negate">>,false},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"equal">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,false},{<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"match">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,false},{<<"parens">>,<<"open">>},{<<"negate">>,false}],
+     [{<<"is_or">>,false},{<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+      {<<"operator">>,<<"greater">>},
+      {<<"argument">>,<<"99">>}],
+     [{<<"is_or">>,true},{<<"negate">>,false}],
+     [{<<"is_or">>,false},
+      {<<"negate">>,true},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d9039eed">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d9058ce0">>},
+      {<<"operator">>,<<"equal">>},
+      {<<"argument">>,<<"888">>}],
+     [{<<"is_or">>,false},
+      {<<"parens">>,<<"close">>},
+      {<<"negate">>,false}]].
+
 escape_test() ->
     [
      ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\\\9/))">>, 
@@ -270,56 +325,62 @@ escape_test() ->
 trans_test_() ->
     [
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
-        conditions:trans(?EQUAL)),
+                   conditions:trans(?EQUAL)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd',99))">>, 
-        conditions:trans(?EQUAL_INT)),
+                   conditions:trans(?EQUAL_INT)),
      
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd',99.9))">>, 
-        conditions:trans(?EQUAL_FLOAT)),
+                   conditions:trans(?EQUAL_FLOAT)),
     
      ?_assertEqual(<<"(greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
-        conditions:trans(?GREATER)),
+                   conditions:trans(?GREATER)),
   
      ?_assertEqual(<<"(lessThan('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
-        conditions:trans(?LESS)),
+                   conditions:trans(?LESS)),
   
      ?_assertEqual(<<"(isBlank('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
-        conditions:trans(?BLANK)),
+                   conditions:trans(?BLANK)),
   
      ?_assertEqual(<<"(hasMember('d5331cbb4d62fe3d2899f142d90486fd','99'))">>,
-        conditions:trans(?MEMBER)),
+                   conditions:trans(?MEMBER)),
   
      ?_assertEqual(<<"(hasExactly('d5331cbb4d62fe3d2899f142d90486fd',3))">>,
-        conditions:trans(?HAS_EXACTLY)),
+                   conditions:trans(?HAS_EXACTLY)),
   
      ?_assertEqual(<<"(hasGreater('d5331cbb4d62fe3d2899f142d90486fd',1))">>,
-        conditions:trans(?HAS_GREATER)),
+                   conditions:trans(?HAS_GREATER)),
   
      ?_assertEqual(<<"(hasLess('d5331cbb4d62fe3d2899f142d90486fd',2))">>,
-        conditions:trans(?HAS_LESS)),
+                   conditions:trans(?HAS_LESS)),
   
      ?_assertEqual(<<"(isDefined('d5331cbb4d62fe3d2899f142d90486fd'))">>,
-        conditions:trans(?IS_DEFINED)),
+                   conditions:trans(?IS_DEFINED)),
   
      ?_assertEqual(<<"(isTrue('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
-        conditions:trans(?TRUE)),
+                   conditions:trans(?TRUE)),
   
      ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/99/))">>, 
-        conditions:trans(?MATCH)),
+                   conditions:trans(?MATCH)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
-        conditions:trans(?DOUBLE)),
+                   conditions:trans(?DOUBLE)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) || (equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
-        conditions:trans(?WITH_OR)),
+                   conditions:trans(?WITH_OR)),
   
      ?_assertEqual(<<"(!equals('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
-        conditions:trans(?NEGATIVE)),
+                   conditions:trans(?NEGATIVE)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
-        conditions:trans(?COMPLEX1)),
+                   conditions:trans(?COMPLEX1)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) || (!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
-        conditions:trans(?COMPLEX2))
+                   conditions:trans(?COMPLEX2)),
+     
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) || ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
+                   conditions:trans(grouped1())),
+
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) && ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
+                   conditions:trans(grouped2()))
     ].

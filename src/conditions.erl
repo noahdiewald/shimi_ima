@@ -36,16 +36,35 @@ trans(Conditions) ->
 -spec trans(jsn:json_term(), [string()]) -> binary().
 trans([], Acc) ->
     list_to_binary(lists:reverse(Acc));
+trans([Condition|Conditions], Acc=["("|_]) ->
+    trans(Conditions, [build_expression(Condition)|Acc]);
+trans([Condition|Conditions], Acc=[")"|_]) ->
+    trans(Conditions, [build_expression(Condition)|Acc]);
 trans([Condition|Conditions], Acc=[" || "|_]) ->
-    trans(Conditions, [build_expression(Condition)|Acc]);
+    case proplists:get_value(<<"parens">>, Condition) of
+        <<"open">> -> trans(Conditions, ["("|Acc]);
+        _ -> trans(Conditions, [build_expression(Condition)|Acc])
+    end;
 trans([Condition|Conditions], Acc=[]) ->
-    trans(Conditions, [build_expression(Condition)|Acc]);
+    case proplists:get_value(<<"parens">>, Condition) of
+        <<"open">> -> trans(Conditions, ["("|Acc]);
+        _ -> trans(Conditions, [build_expression(Condition)|Acc])
+    end;
 trans([Condition|Conditions], Acc) ->
     case proplists:get_value(<<"is_or">>, Condition) of
         true ->
-            trans(Conditions, [" || "|Acc]);
+            [C2|Cs2] = Conditions,
+            case proplists:get_value(<<"parens">>, C2) of
+                <<"open">> -> trans(Cs2, ["(", " || "|Acc]);
+                _ -> trans(Conditions, [" || "|Acc])
+            end;
         _ ->
-            trans(Conditions, [build_expression(Condition), " && "|Acc])
+            case proplists:get_value(<<"parens">>, Condition) of
+                <<"open">> -> trans(Conditions, ["(", " && "|Acc]);
+                <<"close">> -> trans(Conditions, [")"|Acc]);
+                _ ->
+                    trans(Conditions, [build_expression(Condition), " && "|Acc])
+            end
     end.
 
 %% @doc Takes a condition as a JSON term and converts it in to a
