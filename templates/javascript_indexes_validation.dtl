@@ -61,14 +61,16 @@ function(newDoc, saveDoc, userCtx) {
                 var argument = condition.argument;
                 var operator = condition.operator;
                 var field = condition.field;
-                var fieldset = condition. fieldset;
+                var fieldset = condition.fieldset;
+                var parens = condition.parens;
         
                 if (parenCount < 0) {
                     forbid('Condition ' + index, 
                            'improperly grouped expression.');
                 }
 
-                if (is_or != true) {
+                if (is_or !== true && 
+                    (parens !== 'open' || parens !== 'close')) {
         
                     if (negate != true && negate != false) {
                         forbid('Condition ' + index, 
@@ -115,7 +117,13 @@ function(newDoc, saveDoc, userCtx) {
                     default:
                         forbid('Condition ' + index, 'invalid operator.');
                     }
-                } 
+                }
+
+                if (parens === 'open') {
+                    parenCount = parenCount + 1;
+                } else if (parens === 'close') {
+                    parenCount = parenCount - 1;
+                }
             });
 
             if (parenCount !== 0) {
