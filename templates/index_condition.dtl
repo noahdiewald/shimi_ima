@@ -4,6 +4,17 @@
     <td colspan=5 class="or-condition" data-value="true">OR</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
   {% else %}
+    {% if parens %}
+      {% if parens == 'close' %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td colspan=5 class="paren-condition" data-value="close">)</td>
+    <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
+      {% else %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td colspan=5 class="paren-condition" data-value="open">(</td>
+    <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
+      {% endif %}
+    {% else %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
     <td class="negate-condition" data-value="{{ negate }}">{% if negate %}NOT{% endif %}</td>
     <td class="fieldset-condition" data-value="{{ fieldset }}">{{ fieldset_label }}</td>
@@ -11,5 +22,6 @@
     <td class="operator-condition" data-value="{{ operator }}">{{ operator }}</td>
     <td class="argument-condition" data-value="{{ argument|force_escape }}">{{ argument|force_escape }}</td>
     <td class="remove-condition-button-cell"><a href="#" class="remove-condition-button">Remove</a></td>
+    {% endif %}
   {% endif %}
 </tr>

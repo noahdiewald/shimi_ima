@@ -148,10 +148,13 @@ var getIndexConditions = function(doctypeId, rows) {
     function(index, row) {
       row = $(row);
       var is_or = row.find('td.or-condition').attr('data-value') == "true";
+      var paren = row.find('td.paren-condition').attr('data-value');
       var condition;
     
       if (is_or) {
-        condition = { "is_or": true };
+        condition = {"is_or": true, "parens": false};
+      } else if (paren) {
+        condition = {"is_or": false, "parens": paren};
       } else {
         var fieldId = row.find('td.field-condition').attr('data-value');
         var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
@@ -165,6 +168,7 @@ var getIndexConditions = function(doctypeId, rows) {
       
         condition = {
           "is_or": false,
+          "parens": false,
           "negate": negate,
           "fieldset": fieldsetId,
           "field": fieldId,

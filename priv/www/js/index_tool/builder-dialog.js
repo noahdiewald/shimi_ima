@@ -1,5 +1,6 @@
 var initIndexBuilderDialog = function(indexDoctype) {
   var builderOr = $("#builder-or-input");
+  var builderParen = $("#builder-paren-input");
   var builderNegate = $("#builder-negate-input");
   var builderOperator = $("#builder-operator-input").inputDisable();
   var builderArgument = $("#builder-argument-input").inputDisable();
@@ -9,6 +10,8 @@ var initIndexBuilderDialog = function(indexDoctype) {
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
   
+  $('.ui-helper-reset div').show();
+
   var appendCondition = function(builderRow) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
@@ -24,10 +27,22 @@ var initIndexBuilderDialog = function(indexDoctype) {
   builderOr.change(function() {
                      if (builderOr.is(':checked')) {
                        $('#builder-conditions').hide();
+                       $('#builder-parens').hide();
                      } else {
                        $('#builder-conditions').show();
+                       $('#builder-parens').show();
                      }
                    });
+  
+  builderParen.change(function() {
+                        if (builderParen.val()) {
+                          $('#builder-or').hide();
+                          $('#builder-conditions').hide();
+                        } else {
+                          $('#builder-or').show();
+                          $('#builder-conditions').show();
+                        }
+                      });
   
   var fieldsetEvents = function () {
     setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
@@ -76,7 +91,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
                   // place holder for client side validation
                   var checkResult = true;
         
-                  if (!builderOr.is(':checked')) {
+                  if (!builderOr.is(':checked') && !builderParen.val()) {
                     notBlank.forEach(function(item) {
                                        if (item.val().isBlank()) {
                                          item.addClass('ui-state-error');
@@ -91,9 +106,16 @@ var initIndexBuilderDialog = function(indexDoctype) {
                     if (builderOr.is(':checked')) {
                       $.get(condition_url, {"is_or": true}, 
                             function(data) {appendCondition(data);});
+                    } else if (builderParen.val()) {
+                      $.get(condition_url, {
+                              "is_or": false,
+                              "parens": builderParen.val(),
+                              "negate": false
+                            },function(data) {appendCondition(data);});
                     } else {
                       $.get(condition_url, {
                               "is_or": false,
+                              "parens": false,
                               "negate": builderNegate.is(':checked'),
                               "fieldset": builderFieldset.val(),
                               "field": builderField.val(),
