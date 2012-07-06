@@ -69,8 +69,8 @@ function(newDoc, saveDoc, userCtx) {
                            'improperly grouped expression.');
                 }
 
-                if (is_or !== true && 
-                    (parens !== 'open' || parens !== 'close')) {
+                if (is_or !== true &&
+                    (parens !== 'open' && parens !== 'close')) {
         
                     if (negate != true && negate != false) {
                         forbid('Condition ' + index, 

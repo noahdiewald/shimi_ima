@@ -4,16 +4,36 @@
   
   <form>
     <fieldset class="ui-helper-reset">
-    
-      <p class="help-text">This will allow you to specify that you want either of two conditions to be true.</p>
+
+      <div id="builder-or">
+
+        <p class="help-text">This will allow you to specify that you want either of two conditions to be true.</p>
       
-      <label for="builder-or-input">Insert 'or'</label><br />
-      <input 
-        name="builder-or-input" 
-        id="builder-or-input" 
-        type="checkbox"
-        class="ui-widget-content ui-corner-all input" /> Check to add an 'or' line.<br />
+        <label for="builder-or-input">Insert 'or'</label><br />
+        <input 
+           name="builder-or-input" 
+           id="builder-or-input" 
+           type="checkbox"
+           class="ui-widget-content ui-corner-all input" />
+        Check to add an 'or' line.<br />
     
+      </div>
+
+      <div id="builder-parens">
+
+        <p class="help-text">These allow you to group expressions.</p>
+      
+        <label for="builder-open_paren-input">Insert Parenthesis</label><br />
+        <select 
+           name="builder-paren-input"
+           id="builder-paren-input"
+           class="ui-widget-content ui-corner-all input">
+          <option></option>
+          <option value="open">Openning '('</option>
+          <option value="close">Closing ')'</option>
+        </select>
+      </div>
+
       <div id="builder-conditions">
       
         <p class="help-text">

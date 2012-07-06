@@ -240,23 +240,34 @@ render_conditions(Module, Function, Arg, R, S) ->
                 index_condition_dtl:render([{<<"is_or">>, true}]);
             _ ->
                 Negate = Module:Function("negate", Arg),
-                Vals = [
-                        {<<"is_or">>, false},
-                        {<<"negate">>, 
-                         (Negate =:= true) or (Negate =:= "true")},
-                        {<<"fieldset">>, Module:Function("fieldset", Arg)},
-                        {<<"field">>, Module:Function("field", Arg)},
-                        {<<"operator">>, Module:Function("operator", Arg)},
-                        {<<"argument">>, Module:Function("argument", Arg)},
-                        {<<"fieldset_label">>, 
-                         get_label(
-                           Module:Function("fieldset", Arg), R, S)},
-                        {<<"field_label">>, 
-                         get_label(
-                           Module:Function("field", Arg), R, S)}],
+                Vals = case Module:Function("parens", Arg) of
+                           "open" -> [{<<"is_or">>, false},
+                                      {<<"parens">>, <<"open">>}];
+                           <<"open">> -> [{<<"is_or">>, false},
+                                          {<<"parens">>, <<"open">>}];
+                           "close" -> [{<<"is_or">>, false},
+                                       {<<"parens">>, <<"close">>}];
+                           <<"close">> -> [{<<"is_or">>, false},
+                                           {<<"parens">>, <<"close">>}];
+                           _ -> [{<<"is_or">>, false},
+                                 {<<"negate">>, 
+                                  (Negate =:= true) or (Negate =:= "true")},
+                                 {<<"fieldset">>, 
+                                  Module:Function("fieldset", Arg)},
+                                 {<<"field">>, Module:Function("field", Arg)},
+                                 {<<"operator">>, 
+                                  Module:Function("operator", Arg)},
+                                 {<<"argument">>, 
+                                  Module:Function("argument", Arg)},
+                                 {<<"fieldset_label">>, 
+                                  get_label(
+                                    Module:Function("fieldset", Arg), R, S)},
+                                 {<<"field_label">>, 
+                                  get_label(
+                                    Module:Function("field", Arg), R, S)}]
+                       end,
                 index_condition_dtl:render(Vals)
         end,
-
     Html.
 
 get_label(<<"metadata">>, _R, _S) ->
