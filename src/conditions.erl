@@ -39,7 +39,20 @@ trans([], Acc) ->
 trans([Condition|Conditions], Acc=["("|_]) ->
     trans(Conditions, [build_expression(Condition)|Acc]);
 trans([Condition|Conditions], Acc=[")"|_]) ->
-    trans(Conditions, [build_expression(Condition)|Acc]);
+    case proplists:get_value(<<"parens">>, Condition) of
+        <<"open">> -> trans(Conditions, ["(", " && "|Acc]);
+        _ -> 
+            case proplists:get_value(<<"is_or">>, Condition) of
+                true ->
+                    [C2|Cs2] = Conditions,
+                    case proplists:get_value(<<"parens">>, C2) of
+                        <<"open">> -> trans(Cs2, ["(", " || "|Acc]);
+                        _ -> trans(Conditions, [" || "|Acc])
+                    end;
+                _ ->
+                    trans(Conditions, [build_expression(Condition)|Acc])
+            end
+    end;
 trans([Condition|Conditions], Acc=[" || "|_]) ->
     case proplists:get_value(<<"parens">>, Condition) of
         <<"open">> -> trans(Conditions, ["("|Acc]);
@@ -51,6 +64,7 @@ trans([Condition|Conditions], Acc=[]) ->
         _ -> trans(Conditions, [build_expression(Condition)|Acc])
     end;
 trans([Condition|Conditions], Acc) ->
+%    io:format("-- ~p --", [Acc]),
     case proplists:get_value(<<"is_or">>, Condition) of
         true ->
             [C2|Cs2] = Conditions,
@@ -86,7 +100,8 @@ build_expression(Condition) ->
         <<"hasLess">> -> build_expression(Prefix, "hasLess", Condition);
         <<"isDefined">> -> build_expression(Prefix, "isDefined", Condition);
         <<"true">> -> build_expression(Prefix, "isTrue", Condition);
-        <<"blank">> -> build_expression(Prefix, "isBlank", Condition)
+        <<"blank">> -> build_expression(Prefix, "isBlank", Condition);
+        undefined -> io:format("== ~p ==", [Condition])
     end.
 
 %% @doc Helper function for build_expression/1.
