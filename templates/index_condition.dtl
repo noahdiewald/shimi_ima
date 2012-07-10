@@ -7,11 +7,11 @@
     {% if parens %}
       {% if parens == 'close' %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
-    <td colspan=5 class="paren-condition" data-value="close">)</td>
+    <td colspan=5 class="paren-condition" data-value="close">⏝</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
       {% else %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
-    <td colspan=5 class="paren-condition" data-value="open">(</td>
+    <td colspan=5 class="paren-condition" data-value="open">⏜</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
       {% endif %}
     {% else %}

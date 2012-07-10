@@ -400,6 +400,12 @@ select[multiple=true] {
   text-align: center;
 }
 
+.paren-condition {
+    background: #AAA;
+    font-weight: bold;
+    text-align: center;
+}
+
 .remove-condition-button-cell {
   text-align: right;
 }
