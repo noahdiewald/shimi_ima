@@ -357,6 +357,24 @@ complex_parens() ->
       {<<"argument">>,<<"2011-06-01">>}],
      [{<<"is_or">>,false},{<<"parens">>,<<"close">>}]].
 
+simple_existential() ->
+    [[{<<"is_or">>,false},{<<"parens">>,<<"existential">>}],
+     [{<<"is_or">>,false},
+      {<<"parens">>,false},
+      {<<"negate">>,false},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d9039eed">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d905a4d7">>},
+      {<<"operator">>,<<"member">>},
+      {<<"argument">>,<<"fieldwork">>}],
+     [{<<"is_or">>,false},
+      {<<"parens">>,false},
+      {<<"negate">>,false},
+      {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d9039eed">>},
+      {<<"field">>,<<"d5331cbb4d62fe3d2899f142d905dafa">>},
+      {<<"operator">>,<<"greater">>},
+      {<<"argument">>,<<"2011-06-01">>}],
+     [{<<"is_or">>,false},{<<"parens">>,<<"close">>}]].
+
 escape_test() ->
     [
      ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/9\\\\9/))">>, 
@@ -438,5 +456,8 @@ trans_test_() ->
                    conditions:trans(grouped2())),
 
      ?_assertEqual(<<"((equals('created_by_','lindsay')) || (equals('updated_by_','lindsay'))) && ((hasMember('d5331cbb4d62fe3d2899f142d905a4d7','fieldwork')) || (hasMember('4df410fea47fcdc8d509c025929706d3','fieldwork'))) && ((greaterThan('d5331cbb4d62fe3d2899f142d905dafa','2011-06-01')) || (greaterThan('d5331cbb4d62fe3d2899f142d9064c95','2011-06-01')))">>,
-                   conditions:trans(complex_parens()))
+                   conditions:trans(complex_parens())),
+
+     ?_assertEqual(<<"(existentialTest(['d5331cbb4d62fe3d2899f142d905a4d7','d5331cbb4d62fe3d2899f142d905dafa'],[function (x) {return (hasMember('d5331cbb4d62fe3d2899f142d905a4d7','fieldwork',x));}, function (x) {return (greaterThan('d5331cbb4d62fe3d2899f142d905dafa','2011-06-01',x))}]))">>,
+                   conditions:trans(simple_existential()))
     ].
