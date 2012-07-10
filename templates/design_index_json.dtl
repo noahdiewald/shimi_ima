@@ -42,18 +42,22 @@
           var notBlank = function(val) {
             return (val !== undefined && val !== null && val.toString() !== '');
           };
-
-          var runTest = function(fieldid, value, pred) {
+          
+          var runTest = function(fieldid, value, pred, existential) {
             var fieldVal = lookup(fieldid);
             var retval = false;
 
             if (notBlank(fieldVal)) {
               if (!isArray(fieldVal[0])) {
-                retval =  pred(fieldVal[1], value);
+                retval = pred(fieldVal[1], value);
               } else {
-                retval = fieldVal.some(function(fVal) {
-                  return pred(fVal[1], value);
-                });
+                if (typeof existential === 'number') {
+                  retval = pred(fieldVal[existential][1], value);
+                } else {
+                  retval = fieldVal.some(function(fVal) {
+                    return pred(fVal[1], value);
+                  });
+                }
               }
             }
 
@@ -65,32 +69,32 @@
             return pred(fieldVal, value);
           };
 
-          var equals = function(fieldid, value) {
+          var equals = function(fieldid, value, existential) {
             var pred = function(value1, value2) {
               return value1 === value2;
             };
-            return runTest(fieldid, value, pred);
+            return runTest(fieldid, value, pred, existential);
           };
 
-          var greaterThan = function(fieldid, value) {
+          var greaterThan = function(fieldid, value, existential) {
             var pred = function(value1, value2) {
               return value1 > value2;
             };
-            return runTest(fieldid, value, pred);
+            return runTest(fieldid, value, pred, existential);
           };
 
-          var lessThan = function(fieldid, value) {
+          var lessThan = function(fieldid, value, existential) {
             var pred = function(value1, value2) {
               return value1 < value2;
             };
-            return runTest(fieldid, value, pred);
+            return runTest(fieldid, value, pred, existential);
           };
 
-          var matches = function(fieldid, value) {
+          var matches = function(fieldid, value, existential) {
             var pred = function(value1, value2) {
               return !!value1.match(value2);
             };
-            return runTest(fieldid, value, pred);
+            return runTest(fieldid, value, pred, existential);
           };
 
           var hasExactly = function(fieldid, value) {
@@ -126,11 +130,11 @@
             return runShapeTest(fieldid, value, pred);
           };
 
-          var hasMember = function(fieldid, value) {
+          var hasMember = function(fieldid, value, existential) {
             var pred = function(value1, value2) {
               return value1.indexOf(value2) >= 0;
             };
-            return runTest(fieldid, value, pred);
+            return runTest(fieldid, value, pred, existential);
           };
 
           var isDefined = function(fieldid) {
@@ -140,17 +144,30 @@
             return runShapeTest(fieldid, undefined, pred);
           };
 
-          var isTrue = function(fieldid) {
-            return equals(fieldid, true);
+          var isTrue = function(fieldid, existential) {
+            return equals(fieldid, true, existential);
           };
 
-          var isBlank = function(fieldid) {
+          var isBlank = function(fieldid, existential) {
             var pred = function(value1, value2) {
               return !notBlank(value1);
             };
-            return runTest(fieldid, null, pred);
+            return runTest(fieldid, null, pred, existential);
           };
  
+          var existentialTest = function(fieldids, testFuns) {
+            var retval = false;
+            var firstFields = lookup(fieldids[0]);
+            
+            firstFields.forEach(function(v,i) {
+              retval = retval || testFuns.every(function (fun) {
+                return fun(i);
+              });
+            });
+
+            return retval;
+          };
+
           var head = function() {
             var hd = doc.head;
             return hd.map(function(h) {
