@@ -155,14 +155,12 @@
             return runTest(fieldid, null, pred, existential);
           };
  
-          var existentialTest = function(fieldids, testFuns) {
+          var existentialTest = function(fieldid, testFuns) {
             var retval = false;
-            var firstFields = lookup(fieldids[0]);
+            var fields = lookup(fieldid);
             
-            firstFields.forEach(function(v,i) {
-              retval = retval || testFuns.every(function (fun) {
-                return fun(i);
-              });
+            retval = fields.some(function(v,i) {
+              return testFun(i);
             });
 
             return retval;
