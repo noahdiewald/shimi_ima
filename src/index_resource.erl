@@ -290,11 +290,11 @@ is_true(true) ->
 is_true(_) ->
     false.
 
-to_binary(false) ->
-    false;
 to_binary(List) when is_list(List) ->
     list_to_binary(List);
 to_binary(Binary) when is_binary(Binary) ->
-    Binary.
+    Binary;
+to_binary(Other) ->
+    Other.
 
 

@@ -155,7 +155,7 @@
             return runTest(fieldid, null, pred, existential);
           };
  
-          var existentialTest = function(fieldid, testFuns) {
+          var existentialTest = function(fieldid, testFun) {
             var retval = false;
             var fields = lookup(fieldid);
             
