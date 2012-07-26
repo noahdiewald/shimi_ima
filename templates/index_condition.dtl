@@ -7,11 +7,19 @@
     {% if parens %}
       {% if parens == 'close' %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
-    <td colspan=5 class="paren-condition" data-value="close">⏝</td>
+    <td colspan=5 class="paren-condition normal" data-value="close"><div title="normal closing parenthesis"></div></td>
+    <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
+      {% elif parens == 'exclose' %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td colspan=5 class="paren-condition existential" data-value="exclose"><div title="existential closing paranthesis">∃</div></td>
+    <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
+      {% elif parens == 'exopen' %}
+    <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
+    <td colspan=5 class="paren-condition existential" data-value="exopen"><div title="existential openning parenthesis">∃</td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
       {% else %}
     <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
-    <td colspan=5 class="paren-condition" data-value="open">⏜</td>
+    <td colspan=5 class="paren-condition normal" data-value="open"><div title="normal openning parenthesis"></div></td>
     <td class="remove-condition-button-cell"><button class="remove-condition-button">Remove</button></td>
       {% endif %}
     {% else %}

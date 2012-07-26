@@ -29,8 +29,10 @@
            id="builder-paren-input"
            class="ui-widget-content ui-corner-all input">
           <option></option>
-          <option value="open">Openning '('</option>
-          <option value="close">Closing ')'</option>
+          <option value="open">Normal Openning</option>
+          <option value="close">Normal Closing</option>
+          <option value="exopen">Existential Openning</option>
+          <option value="exclose">Existential Closing</option>
         </select>
       </div>
 

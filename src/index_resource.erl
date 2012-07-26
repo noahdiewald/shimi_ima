@@ -234,39 +234,38 @@ validate_authentication(Props, R, S) ->
 % URL encoded query string.
 render_conditions(Module, Function, Arg, R, S) ->
     {ok, Html} = 
-        case Module:Function("is_or", Arg) of
+        case is_true(Module:Function("is_or", Arg)) of
             true -> 
-                index_condition_dtl:render([{<<"is_or">>, true}]);
-            "true" -> 
                 index_condition_dtl:render([{<<"is_or">>, true}]);
             _ ->
                 Negate = Module:Function("negate", Arg),
-                Vals = case Module:Function("parens", Arg) of
-                           "open" -> [{<<"is_or">>, false},
-                                      {<<"parens">>, <<"open">>}];
-                           <<"open">> -> [{<<"is_or">>, false},
-                                          {<<"parens">>, <<"open">>}];
-                           "close" -> [{<<"is_or">>, false},
-                                       {<<"parens">>, <<"close">>}];
-                           <<"close">> -> [{<<"is_or">>, false},
-                                           {<<"parens">>, <<"close">>}];
-                           _ -> [{<<"is_or">>, false},
-                                 {<<"negate">>, 
-                                  (Negate =:= true) or (Negate =:= "true")},
-                                 {<<"fieldset">>, 
-                                  Module:Function("fieldset", Arg)},
-                                 {<<"field">>, Module:Function("field", Arg)},
-                                 {<<"operator">>, 
-                                  Module:Function("operator", Arg)},
-                                 {<<"argument">>, 
-                                  Module:Function("argument", Arg)},
-                                 {<<"fieldset_label">>, 
-                                  get_label(
-                                    Module:Function("fieldset", Arg), R, S)},
-                                 {<<"field_label">>, 
-                                  get_label(
-                                    Module:Function("field", Arg), R, S)}]
-                       end,
+                Vals = 
+                    case to_binary(Module:Function("parens", Arg)) of
+                        <<"open">> -> [{<<"is_or">>, false},
+                                       {<<"parens">>, <<"open">>}];
+                        <<"close">> -> [{<<"is_or">>, false},
+                                        {<<"parens">>, <<"close">>}];
+                        <<"exopen">> -> [{<<"is_or">>, false},
+                                         {<<"parens">>, <<"exopen">>}];
+                        <<"exclose">> -> [{<<"is_or">>, false},
+                                          {<<"parens">>, <<"exclose">>}];
+                        _ -> [{<<"is_or">>, false},
+                              {<<"negate">>, 
+                               (Negate =:= true) or (Negate =:= "true")},
+                              {<<"fieldset">>, 
+                               Module:Function("fieldset", Arg)},
+                              {<<"field">>, Module:Function("field", Arg)},
+                              {<<"operator">>, 
+                               Module:Function("operator", Arg)},
+                              {<<"argument">>, 
+                               Module:Function("argument", Arg)},
+                              {<<"fieldset_label">>, 
+                               get_label(
+                                 Module:Function("fieldset", Arg), R, S)},
+                              {<<"field_label">>, 
+                               get_label(
+                                 Module:Function("field", Arg), R, S)}]
+                    end,
                 index_condition_dtl:render(Vals)
         end,
     Html.
@@ -283,3 +282,19 @@ get_label(Id, R, S) ->
                    field:meta_field(Id)
            end,
     jsn:get_value(<<"label">>, Json).
+
+is_true("true") ->
+    true;
+is_true(true) ->
+    true;
+is_true(_) ->
+    false.
+
+to_binary(false) ->
+    false;
+to_binary(List) when is_list(List) ->
+    list_to_binary(List);
+to_binary(Binary) when is_binary(Binary) ->
+    Binary.
+
+
