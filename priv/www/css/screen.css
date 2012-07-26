@@ -401,9 +401,41 @@ select[multiple=true] {
 }
 
 .paren-condition {
-    background: #AAA;
     font-weight: bold;
     text-align: center;
+    padding: 0;
+}
+
+[data-value=close].paren-condition div,
+[data-value=exclose].paren-condition div {
+    width: 95%;
+    height: 3ex;
+    margin: auto;
+    border-width: 0 thick thick thick;
+    border-color: #EEE;
+    border-style: solid;
+    border-bottom-right-radius: 3em;
+    border-bottom-left-radius: 3em;
+}
+
+[data-value=open].paren-condition div,
+[data-value=exopen].paren-condition div {
+    width: 95%;
+    height: 3ex;
+    margin: auto;
+    border-width: thick thick 0 thick;
+    border-color: #EEE;
+    border-style: solid;
+    border-top-right-radius: 3em;
+    border-top-left-radius: 3em;
+}
+
+.paren-condition.normal div {
+    background: #F0A265;
+}
+
+.paren-condition.existential div {
+    background: #F07818;
 }
 
 .remove-condition-button-cell {

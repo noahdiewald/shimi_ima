@@ -1,134 +1,164 @@
 function(newDoc, saveDoc, userCtx) {
-    String.prototype.isBlank = function() {
-        return ((/^\\s*$/).test(this) && 
-                !(/\\S/).test(this) && 
-                !(this === null));
-    };
+  String.prototype.isBlank = function() {
+    return ((/^\\s*$/).test(this) && 
+            !(/\\S/).test(this) && 
+            !(this === null));
+  };
 
-    var isArray = function(anArray) {
-        return Object.prototype.toString.apply(anArray) == '[object Array]';
-    };
+  var isArray = function(anArray) {
+    return Object.prototype.toString.apply(anArray) == '[object Array]';
+  };
   
-    var forbid = function(name, msg) {
-        var errorMsg = JSON.stringify({
-            fieldname: name,
-            message: msg
+  var forbid = function(name, msg) {
+    var errorMsg = 
+      JSON.stringify({
+                       fieldname: name,
+                       message: msg
+                     });
+
+    throw({forbidden: errorMsg});
+  };
+  
+  if (newDoc.category === 'index') {
+    [newDoc.doctype, newDoc.name]
+      .forEach(
+        function(field) {
+          if (field.isBlank()) {
+            forbid('All fields', 'must be filled in.');
+          }
+        });
+    
+    if (newDoc.fields.length === 0 || newDoc.fieldLabel === 0) {
+      forbid('All fields', 'must be filled in.');  
+    }
+
+    if (typeof newDoc.show_deleted !== 'boolean') {
+      forbid('Show deleted', 'must be true or false');
+    }
+
+    if (!(/^\\w*$/).test(newDoc.name)) {
+      forbid('Name', 
+             'may only contain alphanumeric characters and underscores.');
+    }
+    
+    if (newDoc.conditions && newDoc.conditions.length > 0) {
+      var firstCondition = newDoc.conditions[0];
+      var lastCondition = newDoc.conditions[newDoc.conditions.length - 1];
+      var parenCount = 0;
+      var exParenCount = 0;
+      var exParenFS = false;
+      
+      if (firstCondition.is_or == true || lastCondition.is_or == true) {
+        forbid('Conditions', 'may not begin or end with OR.');
+      }
+
+      if (firstCondition.parens === 'close' ||
+          firstCondition.parens === 'exclose' ||
+          lastCondition.parens === 'exopen' ||
+          lastCondition.parens === 'open') {
+        forbid('Conditions', 
+               'begin or end with improper parenthesis.');
+      }
+      
+      newDoc.conditions.forEach(
+        function(condition, index) {
+          var is_or = condition.is_or;
+          var negate = condition.negate;
+          var argument = condition.argument;
+          var operator = condition.operator;
+          var field = condition.field;
+          var fieldset = condition.fieldset;
+          var parens = condition.parens;
+        
+          if (parenCount < 0 || exParenCount < 0) {
+            forbid('Condition ' + index, 
+                   'too many closing parenthesis.');
+          }
+
+          if (exParenCount > 1) {
+            forbid('Condition ' + index,
+                   'existential parenthesis cannot be nexted.');
+          }
+
+          if (is_or !== true &&
+              (parens !== 'open' && parens !== 'close' &&
+               parens !== 'exopen' && parens !== 'exclose')
+             ) {
+        
+               if (negate != true && negate != false) {
+                 forbid('Condition ' + index, 
+                               'negate must be true or false');
+               }
+          
+               if (field.isBlank() || !(/^\\w*$/).test(field)) {
+                 forbid('Condition ' + index, 'invalid field.');
+               }
+          
+               if (fieldset.isBlank() || !(/^\\w*$/).test(fieldset)) {
+                 forbid('Condition ' + index, 'invalid fieldset.');
+               } 
+          
+               switch (operator) {
+               case 'hasGreater':
+               case 'hasLess':
+               case 'hasExactly':
+                 if (typeof argument !== 'number' || 
+                     (argument % 1) > 0) {
+                   forbid('Condition ' + index, 
+                          'integer argument required.');
+                 }
+               case 'equal':
+               case 'match':
+               case 'greater': 
+               case 'less':
+               case 'match':
+               case 'member':
+                 if (typeof argument === 'string' && 
+                     argument.isBlank()) {
+                   forbid('Condition ' + index, 
+                          'blank argument is not allowed.');
+                 }
+                 break;
+               case 'true':
+               case 'blank':
+               case 'isDefined':
+                 if (!argument.isBlank()) {
+                   forbid('Condition ' + index, 
+                          'no argument allowed for this condition.');
+                 }
+                 break;
+               default:
+                 forbid('Condition ' + index, 'invalid operator.');
+               }
+             }
+
+          if (parens === 'open') {
+            parenCount = parenCount + 1;
+          } else if (parens === 'close') {
+            parenCount = parenCount - 1;
+          } else if (parens === 'exopen') {
+            exParenCount = exParenCount + 1;
+          } else if (parens === 'exclose') {
+            exParenCount = exParenCount - 1;
+            exParenFS = false;
+          }
+
+          if (!parens && exParenCount === 1) {
+            if (exParenFS) {
+              if (exParenFS !== fieldset && !is_or) {
+                forbid('Condition ' + index, 
+                       'all conditions within existential scope must have ' + 
+                       'the same fieldset.');
+              }
+            } else {
+              exParenFS = fieldset;
+            }
+          }
         });
 
-        throw({forbidden: errorMsg});
-    };
-  
-    if (newDoc.category === 'index') {
-        [newDoc.doctype, newDoc.name]
-            .forEach(
-                function(field) {
-                    if (field.isBlank()) {
-                        forbid('All fields', 'must be filled in.');
-                    }
-                });
-    
-        if (newDoc.fields.length === 0 || newDoc.fieldLabel === 0) {
-            forbid('All fields', 'must be filled in.');  
-        }
-
-        if (typeof newDoc.show_deleted !== 'boolean') {
-            forbid('Show deleted', 'must be true or false');
-        }
-
-        if (!(/^\\w*$/).test(newDoc.name)) {
-            forbid('Name', 
-                   'may only contain alphanumeric characters and underscores.');
-        }
-    
-        if (newDoc.conditions && newDoc.conditions.length > 0) {
-            var firstCondition = newDoc.conditions[0];
-            var lastCondition = newDoc.conditions[newDoc.conditions.length - 1];
-            var parenCount = 0;
-      
-            if (firstCondition.is_or == true || lastCondition.is_or == true) {
-                forbid('Conditions', 'may not begin or end with OR.');
-            }
-
-            if (firstCondition.parens === 'close' || 
-                lastCondition.parens === 'open') {
-                forbid('Conditions', 
-                       'begin or end with improper grouping term.');
-            }
-      
-            newDoc.conditions.forEach(function(condition, index) {
-                var is_or = condition.is_or;
-                var negate = condition.negate;
-                var argument = condition.argument;
-                var operator = condition.operator;
-                var field = condition.field;
-                var fieldset = condition.fieldset;
-                var parens = condition.parens;
-        
-                if (parenCount < 0) {
-                    forbid('Condition ' + index, 
-                           'improperly grouped expression.');
-                }
-
-                if (is_or !== true &&
-                    (parens !== 'open' && parens !== 'close')) {
-        
-                    if (negate != true && negate != false) {
-                        forbid('Condition ' + index, 
-                               'negate must be true or false');
-                    }
-          
-                    if (field.isBlank() || !(/^\\w*$/).test(field)) {
-                        forbid('Condition ' + index, 'invalid field.');
-                    }
-          
-                    if (fieldset.isBlank() || !(/^\\w*$/).test(fieldset)) {
-                        forbid('Condition ' + index, 'invalid fieldset.');
-                    } 
-          
-                    switch (operator) {
-                    case 'hasGreater':
-                    case 'hasLess':
-                    case 'hasExactly':
-                        if (typeof argument !== 'number' || 
-                            (argument % 1) > 0) {
-                            forbid('Condition ' + index, 
-                                   'integer argument required.');
-                        }
-                    case 'equal':
-                    case 'match':
-                    case 'greater': 
-                    case 'less':
-                    case 'match':
-                    case 'member':
-                        if (typeof argument === 'string' && 
-                            argument.isBlank()) {
-                            forbid('Condition ' + index, 
-                                   'blank argument is not allowed.');
-                        }
-                        break;
-                    case 'true':
-                    case 'blank':
-                    case 'isDefined':
-                        if (!argument.isBlank()) {
-                            forbid('Condition ' + index, 
-                                   'no argument allowed for this condition.');
-                        }
-                        break;
-                    default:
-                        forbid('Condition ' + index, 'invalid operator.');
-                    }
-                }
-
-                if (parens === 'open') {
-                    parenCount = parenCount + 1;
-                } else if (parens === 'close') {
-                    parenCount = parenCount - 1;
-                }
-            });
-
-            if (parenCount !== 0) {
-                forbid('Condition', 'unclosed group expression.');
-            }
-        }
+      if (parenCount !== 0 || exParenCount !== 0) {
+        forbid('Condition', 'unclosed parenthesis.');
+      }
     }
+  }
 }

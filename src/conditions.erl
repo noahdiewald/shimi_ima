@@ -29,91 +29,108 @@
 %% predicate string.
 -spec trans(jsn:json_term()) -> binary().
 trans(Conditions) ->
-    trans(Conditions, []).
+    trans(Conditions, [], false).
 
 %% @doc Take a list of conditions as JSON terms plus an accumulator
 %% and convert it in to a predicate string.
--spec trans(jsn:json_term(), [string()]) -> binary().
-trans([], Acc) ->
+-spec trans(jsn:json_term(), [string()], boolean()) -> binary().
+trans([], Acc, _) ->
     list_to_binary(lists:reverse(Acc));
-trans([Condition|Conditions], Acc=["("|_]) ->
-    trans(Conditions, [build_expression(Condition)|Acc]);
-trans([Condition|Conditions], Acc=[")"|_]) ->
-    case proplists:get_value(<<"parens">>, Condition) of
-        <<"open">> -> trans(Conditions, ["(", " && "|Acc]);
-        _ -> 
-            case proplists:get_value(<<"is_or">>, Condition) of
-                true ->
-                    [C2|Cs2] = Conditions,
-                    case proplists:get_value(<<"parens">>, C2) of
-                        <<"open">> -> trans(Cs2, ["(", " || "|Acc]);
-                        _ -> trans(Conditions, [" || "|Acc])
-                    end;
-                _ ->
-                    trans(Conditions, [build_expression(Condition)|Acc])
-            end
-    end;
-trans([Condition|Conditions], Acc=[" || "|_]) ->
-    case proplists:get_value(<<"parens">>, Condition) of
-        <<"open">> -> trans(Conditions, ["("|Acc]);
-        _ -> trans(Conditions, [build_expression(Condition)|Acc])
-    end;
-trans([Condition|Conditions], Acc=[]) ->
-    case proplists:get_value(<<"parens">>, Condition) of
-        <<"open">> -> trans(Conditions, ["("|Acc]);
-        _ -> trans(Conditions, [build_expression(Condition)|Acc])
-    end;
-trans([Condition|Conditions], Acc) ->
-%    io:format("-- ~p --", [Acc]),
+trans(Conditions, Acc=[[$(,$e,$x|_]|_], true) ->
+    simple_trans(Conditions, Acc, true);
+trans(Conditions, Acc=["("|_], Ex) ->
+    simple_trans(Conditions, Acc, Ex);
+trans(Conditions, Acc=[")"|_], Ex) ->
+    and_or(Conditions, Acc, Ex);
+trans(Conditions, Acc=[" || "|_], Ex) ->
+    simple_trans(Conditions, Acc, Ex);
+trans(Conditions, Acc=[], Ex) ->
+    simple_trans(Conditions, Acc, Ex);
+trans(Conditions, Acc, Ex) ->
+    and_or(Conditions, Acc, Ex).
+
+exopener([Condition|_], false) ->
+    Field = binary_to_list(proplists:get_value(<<"field">>, Condition)),
+    "(existentialTest('" ++ Field ++ "'," ++ "function (x) {return ".
+
+and_or([Condition|Conditions], Acc, Ex) ->
     case proplists:get_value(<<"is_or">>, Condition) of
         true ->
             [C2|Cs2] = Conditions,
             case proplists:get_value(<<"parens">>, C2) of
-                <<"open">> -> trans(Cs2, ["(", " || "|Acc]);
-                _ -> trans(Conditions, [" || "|Acc])
+                <<"open">> -> trans(Cs2, ["(", " || "|Acc], Ex);
+                <<"exopen">> -> trans(Cs2, [exopener(Conditions, Ex),
+                                            " || "|Acc], true);
+                false -> trans(Conditions, [" || "|Acc], Ex)
             end;
-        _ ->
-            case proplists:get_value(<<"parens">>, Condition) of
-                <<"open">> -> trans(Conditions, ["(", " && "|Acc]);
-                <<"close">> -> trans(Conditions, [")"|Acc]);
-                _ ->
-                    trans(Conditions, [build_expression(Condition), " && "|Acc])
-            end
+        false ->
+            and_parens([Condition|Conditions], Acc, Ex)
     end.
 
+and_parens([Condition|Conditions], Acc, Ex) ->
+    case proplists:get_value(<<"parens">>, Condition) of
+        <<"open">> -> trans(Conditions, ["(", " && "|Acc], Ex);
+        <<"exopen">> -> trans(Conditions, [exopener(Conditions, Ex),
+                                           " && "|Acc], true);
+        <<"close">> -> trans(Conditions, [")"|Acc], Ex);
+        <<"exclose">> -> trans(Conditions, [")", ";})"|Acc], false);
+        false ->
+            trans(Conditions, 
+                  [build_expression(Condition, Ex), " && "|Acc], Ex)
+    end.
+
+simple_trans([Condition|Conditions], Acc, Ex) ->    
+    case proplists:get_value(<<"parens">>, Condition) of
+        <<"open">> -> trans(Conditions, ["("|Acc], Ex);
+        <<"exopen">> -> trans(Conditions, 
+                              [exopener(Conditions, Ex)|Acc], true);
+        false -> trans(Conditions, 
+                             [build_expression(Condition, Ex)|Acc], Ex)
+    end.
+    
 %% @doc Takes a condition as a JSON term and converts it in to a
 %% predicate string.
--spec build_expression(jsn:json_term()) -> string().  
-build_expression(Condition) ->
+-spec build_expression(jsn:json_term(), boolean()) -> string().  
+build_expression(Condition, Ex) ->
     Prefix = case proplists:get_value(<<"negate">>, Condition) of
                  true -> "!";
                  _ -> ""
              end,
     case proplists:get_value(<<"operator">>, Condition) of
-        <<"equal">> -> build_expression(Prefix, "equals", Condition);
-        <<"greater">> -> build_expression(Prefix, "greaterThan", Condition);
-        <<"less">> -> build_expression(Prefix, "lessThan", Condition);
-        <<"match">> -> build_expression(Prefix, "matches", Condition);
-        <<"member">> -> build_expression(Prefix, "hasMember", Condition);
-        <<"hasExactly">> -> build_expression(Prefix, "hasExactly", Condition);
-        <<"hasGreater">> -> build_expression(Prefix, "hasGreater", Condition);
-        <<"hasLess">> -> build_expression(Prefix, "hasLess", Condition);
-        <<"isDefined">> -> build_expression(Prefix, "isDefined", Condition);
-        <<"true">> -> build_expression(Prefix, "isTrue", Condition);
-        <<"blank">> -> build_expression(Prefix, "isBlank", Condition);
-        undefined -> io:format("== ~p ==", [Condition])
+        <<"equal">> -> build_expression(Prefix, "equals", Condition, Ex);
+        <<"greater">> -> build_expression(Prefix, "greaterThan", Condition, Ex);
+        <<"less">> -> build_expression(Prefix, "lessThan", Condition, Ex);
+        <<"match">> -> build_expression(Prefix, "matches", Condition, Ex);
+        <<"member">> -> build_expression(Prefix, "hasMember", Condition, Ex);
+        <<"hasExactly">> -> 
+            build_expression(Prefix, "hasExactly", Condition, false);
+        <<"hasGreater">> -> 
+            build_expression(Prefix, "hasGreater", Condition, false);
+        <<"hasLess">> -> build_expression(Prefix, "hasLess", Condition, false);
+        <<"isDefined">> -> 
+            build_expression(Prefix, "isDefined", Condition, false);
+        <<"true">> -> build_expression(Prefix, "isTrue", Condition, Ex);
+        <<"blank">> -> build_expression(Prefix, "isBlank", Condition, Ex)
     end.
 
 %% @doc Helper function for build_expression/1.
--spec build_expression(string(), string(), jsn:json_term()) -> string().
-build_expression(Prefix, Function=[$i,$s|_], Condition) ->
+-spec build_expression(string(), string(), jsn:json_term(), boolean()) -> string().
+build_expression(Prefix, Function=[$i,$s|_], Condition, Ex) ->
     "(" ++ Prefix ++ Function ++ "('" ++
-        binary_to_list(proplists:get_value(<<"field">>, Condition)) ++ "'))";
-build_expression(Prefix, Function, Condition) -> 
+        binary_to_list(proplists:get_value(<<"field">>, Condition)) ++ "'" ++ 
+        add_ex(Ex) ++ "))";
+build_expression(Prefix, Function, Condition, Ex) -> 
     "(" ++ Prefix ++ Function ++ "('" ++ 
         binary_to_list(proplists:get_value(<<"field">>, Condition)) ++ "'," ++
         process_arg(
-          Function, proplists:get_value(<<"argument">>, Condition)) ++ "))".
+          Function, proplists:get_value(<<"argument">>, Condition)) ++ 
+        add_ex(Ex) ++ "))".
+
+-spec add_ex(boolean()) -> string().
+add_ex(true) ->
+    ",x";
+add_ex(_) ->
+    "".
 
 -spec process_arg(string(), binary()) -> string().
 process_arg("matches", Arg) ->
