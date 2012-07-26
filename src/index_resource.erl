@@ -127,7 +127,6 @@ json_create(R, S) ->
   
 json_update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
-    io:format("-- ~p --", [Json]),
     Id = wrq:path_info(id, R),
     Rev = wrq:get_qs_value("rev", R),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),

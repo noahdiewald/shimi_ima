@@ -1,6 +1,6 @@
 {
   "_id": "_design/indexes",
-  "version": 8,
+  "version": 9,
   "views": {
     "all": {
       "map": "function(doc) {
