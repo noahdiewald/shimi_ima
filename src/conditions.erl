@@ -50,6 +50,7 @@ trans(Conditions, Acc, Ex) ->
     and_or(Conditions, Acc, Ex).
 
 exopener([Condition|_], false) ->
+    io:format("~p", [Condition]),
     Field = binary_to_list(proplists:get_value(<<"field">>, Condition)),
     "(existentialTest('" ++ Field ++ "'," ++ "function (x) {return ".
 
@@ -59,7 +60,7 @@ and_or([Condition|Conditions], Acc, Ex) ->
             [C2|Cs2] = Conditions,
             case proplists:get_value(<<"parens">>, C2) of
                 <<"open">> -> trans(Cs2, ["(", " || "|Acc], Ex);
-                <<"exopen">> -> trans(Cs2, [exopener(Conditions, Ex),
+                <<"exopen">> -> trans(Cs2, [exopener(Cs2, Ex),
                                             " || "|Acc], true);
                 false -> trans(Conditions, [" || "|Acc], Ex)
             end;
