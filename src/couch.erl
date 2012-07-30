@@ -124,7 +124,7 @@ get_view_json(noqs, Id, Name, R, S) ->
     get_view_json_helper(Id, Name, [], R, S);
 
 get_view_json(sortkeys, Id, Name, R, S) ->
-    Qs = view:normalize_plus_vq(Id, R, S),
+    Qs = view:normalize_sortkey_vq(Id, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
 %% get_views(R, S) ->

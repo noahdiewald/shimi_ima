@@ -25,11 +25,10 @@
 -export([
          from_list/1,
          from_reqdata/1,
-         get_plus_vq/3,
-         make_vqs/1,
          new/0,
-         normalize_plus_vq/3,
-         normalize_vq/1
+         normalize_sortkey_vq/3,
+         normalize_vq/1,
+         to_string/1
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -50,8 +49,8 @@ from_reqdata(R) ->
     from_list(wrq:req_qs(R)).
 
 %% @doc Take a view_query record and return a URL query string
--spec make_vqs(view_query()) -> string().
-make_vqs(VQ) ->
+-spec to_string(view_query()) -> string().
+to_string(VQ) ->
     string:join(make_vqs(VQ, []), "&").
 
 %% @doc Process an incoming proplist into a view_query record.
@@ -76,10 +75,10 @@ get_vq(R) ->
 %% @doc Takes the unique portion of a design document id and
 %% webmachine state and will possibly alter the default return value
 %% of from_reqdata/1 to set sortkeys for the startkey, if needed.
--spec get_plus_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
-get_plus_vq(Id, R, S) ->
+-spec get_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
+get_sortkey_vq(Id, R, S) ->
     Vq = from_reqdata(R),
-    case decide_plus(Vq) of
+    case decide_sortkey(Vq) of
         true ->
             set_keys_sortkeys(Id, Vq, R, S);
         false ->
@@ -87,10 +86,10 @@ get_plus_vq(Id, R, S) ->
     end.
 
 %% @doc This is like normal normalize_vq/1 except that it uses
-%% get_plus_vq/3
--spec normalize_plus_vq(string(), utils:reqdata(), [{any(),any()}]) -> string().
-normalize_plus_vq(Id, R, S) ->
-    make_vqs(get_plus_vq(Id, R, S)).
+%% get_sortkey_vq/3
+-spec normalize_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> string().
+normalize_sortkey_vq(Id, R, S) ->
+    to_string(get_sortkey_vq(Id, R, S)).
 
 %% @doc This takes the query string from the webmachine request state
 %% and first transforms it into a view_query() using get_vq/1 before
@@ -99,14 +98,14 @@ normalize_plus_vq(Id, R, S) ->
 %% and normalize them.
 -spec normalize_vq(utils:reqdata()) -> string().
 normalize_vq(R) ->
-    make_vqs(from_reqdata(R)).
+    to_string(from_reqdata(R)).
 
 % Helper Functions
 
--spec decide_plus(view_query()) -> boolean().
-decide_plus(Vq=#vq{startkey_docid=undefined}) when is_binary(Vq#vq.startkey) ->
+-spec decide_sortkey(view_query()) -> boolean().
+decide_sortkey(Vq=#vq{startkey_docid=undefined}) when is_binary(Vq#vq.startkey) ->
     true;
-decide_plus(_) ->
+decide_sortkey(_) ->
     false.
 
 -spec set_keys_sortkeys(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().

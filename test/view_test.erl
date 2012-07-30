@@ -43,7 +43,7 @@ creation_test_() ->
       {"From reqdata",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>}, 
                      view:from_reqdata(fake_reqdata()))},
-      {"From list with list JSON values",
+      {"From list with list JSON values as provided by wrq:req_qs/1",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
                      view:from_list([{"startkey", "\"_design/\""}, 
                                      {"endkey", "\"_design0\""}]))},
