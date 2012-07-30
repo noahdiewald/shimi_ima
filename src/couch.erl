@@ -29,11 +29,12 @@
          delete/2,
          exists/3,
          exists/4,
+         get_design_rev/3,
          get_json/3,
          get_json/4,
          get_view_json/4,
          get_view_json/5,
-         get_design_rev/3,
+         get_views/1,
          get_uuid/2,
          new_db/3,
          update/4,
@@ -127,10 +128,39 @@ get_view_json(sortkeys, Id, Name, R, S) ->
     Qs = view:normalize_sortkey_vq(Id, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
-%% get_views(R, S) ->
-%%     Headers = proplists:get_value(headers, S),
-%%     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ "_all_docs",
-%%     Qs = 
+%% @doc Given a row from a query of all db design documents, find all
+%% the view paths for a given design document.
+-spec get_view_path(jsn:json_term()) -> [[binary()]].
+get_view_path(Row) ->
+    Id = proplists:get_value(<<"id">>, Row),
+    Doc = proplists:get_value(<<"doc">>, Row),
+    F = fun({ViewName, _}, Acc) ->
+                [iolist_to_binary([Id, <<"/_view/">>, ViewName])|Acc]
+        end,
+    case proplists:get_value(<<"views">>, Doc) of
+        undefined ->
+            undefined;
+        Views ->
+            lists:foldl(F, [], Views)
+    end.
+
+get_views(Project) when is_binary(Project) ->
+    get_views(binary_to_list(Project));
+get_views(Project) when is_list(Project) ->
+    Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
+                                        {"endkey", <<"_design0">>},
+                                        {"include_docs", true}])),
+    Url = ?ADMINDB ++ Project ++ "/" ++ "_all_docs" ++ "?" ++ Qs,
+    Designs = proplists:get_value(<<"rows">>, get_json_helper(Url, [])),
+    Filter = fun(X) -> 
+                     case X of
+                         undefined -> false;
+                         _ -> true 
+                     end 
+             end,
+    lists:filter(Filter, lists:map(fun get_view_path/1, Designs));
+get_views(R) when is_tuple(R) ->
+    get_views(wrq:path_info(project, R)).
 
 get_design_rev(Name, R, S) ->
     Id = case Name of
