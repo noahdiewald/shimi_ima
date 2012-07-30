@@ -23,9 +23,11 @@
 -module(view).
 
 -export([
+         from_list/1,
+         from_reqdata/1,
          get_plus_vq/3,
-         get_vq/1,
          make_vqs/1,
+         new/0,
          normalize_plus_vq/3,
          normalize_vq/1
         ]).
@@ -33,22 +35,36 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
+-spec new() -> view_query().
+new() ->
+    #vq{}.
+
+%% @doc Process an incoming proplist into a view_query record.
+-spec from_list(list(tuple())) -> view_query().
+from_list(L) ->
+    get_vq(L).
+
+%% @doc Process webmachine reqdata into a view_query record.
+-spec from_reqdata(utils:reqdata()) -> view_query().
+from_reqdata(R) ->
+    from_list(wrq:req_qs(R)).
+
 %% @doc Take a view_query record and return a URL query string
 -spec make_vqs(view_query()) -> string().
 make_vqs(VQ) ->
     string:join(make_vqs(VQ, []), "&").
 
-%% @doc Process an incoming URL query string into a view_query object
--spec get_vq(utils:reqdata()) -> view_query().
+%% @doc Process an incoming proplist into a view_query record.
+-spec get_vq(list(tuple())) -> view_query().
 get_vq(R) ->
     #vq{
         key = getv("key", R), 
         startkey = getv("startkey", R), 
-        startkey_docid = wrq:get_qs_value("startkey_docid", R), 
+        startkey_docid = proplists:get_value("startkey_docid", R), 
         endkey = getv("endkey", R), 
-        endkey_docid = wrq:get_qs_value("endkey_docid", R), 
+        endkey_docid = proplists:get_value("endkey_docid", R), 
         limit = getv("limit", R), 
-        stale = stale_val(wrq:get_qs_value("stale", R)), 
+        stale = stale_val(proplists:get_value("stale", R)), 
         descending = getv("descending", R, false), 
         skip = getv("skip", R, 0), 
         group_level = getv("group_level", R, exact), 
@@ -59,10 +75,10 @@ get_vq(R) ->
 
 %% @doc Takes the unique portion of a design document id and
 %% webmachine state and will possibly alter the default return value
-%% of get_vq/1 to set sortkeys for the startkey, if needed.
+%% of from_reqdata/1 to set sortkeys for the startkey, if needed.
 -spec get_plus_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
 get_plus_vq(Id, R, S) ->
-    Vq = get_vq(R),
+    Vq = from_reqdata(R),
     case decide_plus(Vq) of
         true ->
             set_keys_sortkeys(Id, Vq, R, S);
@@ -83,7 +99,7 @@ normalize_plus_vq(Id, R, S) ->
 %% and normalize them.
 -spec normalize_vq(utils:reqdata()) -> string().
 normalize_vq(R) ->
-    make_vqs(get_vq(R)).
+    make_vqs(from_reqdata(R)).
 
 % Helper Functions
 
@@ -150,10 +166,39 @@ getv(Key, R) ->
 
 -spec getv(string(), utils:reqdata(), jsn:json_term()) -> jsn:json_term().
 getv(Key, R, Default) ->
-    case wrq:get_qs_value(Key, R) of
+    case proplists:get_value(Key, R) of
         undefined -> Default;
-        Else -> jsn:decode(Else)
+        Else -> decode_qs_value(Else)
     end.
+
+% TODO: this could be more accurate and should probably go in the jsn
+% module itself. The big problem is cases where there are lists of
+% numbers that happen to coincide with characters.
+-spec decode_qs_value(jsn:json_term()|list()) -> jsn:json_term().
+decode_qs_value(Bin) when is_binary(Bin) ->
+    Bin;
+decode_qs_value(Atom) when is_atom(Atom) ->
+    Atom;
+decode_qs_value(Num) when is_number(Num) ->
+    Num;
+decode_qs_value(String=[$"|_]) ->
+    jsn:decode(String);
+decode_qs_value(List=[$[|_]) ->
+    jsn:decode(List);
+decode_qs_value(Obj=[${|_]) ->
+    jsn:decode(Obj);
+decode_qs_value(Num=[F|_]) when F >= 48, F =< 57 ->
+    jsn:decode(Num);
+decode_qs_value(Num=[$-,F|_]) when F >= 48, F =< 57 ->
+    jsn:decode(Num);
+decode_qs_value("true") ->
+    true;
+decode_qs_value("false") ->
+    false;
+decode_qs_value("null") ->
+    null;
+decode_qs_value(List=[_|_]) ->
+    List.
 
 -spec encode(jsn:json_term()) -> string().
 encode(Term) ->

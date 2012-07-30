@@ -77,7 +77,7 @@ file_database_exists(R, S) ->
 %% information. It will pass on any query string given when querying
 %% the view.
 get_all_by_path(R, S) ->  
-    Url = get_view_url("by_path", view:get_vq(R), R, S),
+    Url = get_view_url("by_path", view:from_reqdata(R), R, S),
     get_json(Url).
 
 %% @doc Retrieve the path, including the file name, with an explicit startkey

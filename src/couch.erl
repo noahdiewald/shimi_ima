@@ -127,6 +127,10 @@ get_view_json(sortkeys, Id, Name, R, S) ->
     Qs = view:normalize_plus_vq(Id, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
+%% get_views(R, S) ->
+%%     Headers = proplists:get_value(headers, S),
+%%     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ "_all_docs",
+%%     Qs = 
 
 get_design_rev(Name, R, S) ->
     Id = case Name of
