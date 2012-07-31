@@ -66,7 +66,8 @@ handle_call(_Request, _From, S) ->
     {noreply, S}.
 
 handle_cast(DB, S) ->
-    {ok, S1} = update_views(DB, S),
+    io:format("Called!!!"),
+    S1 = update_views(DB, S),
     {noreply, S1}.
 
 handle_info(_Msg, S) ->
@@ -79,6 +80,7 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_views(DB, S=#state{db_seqs = DBSeq}) ->
+    io:format("--~p--~p--", [DB, DBSeq]),
     case proplists:get_value(DB, DBSeq) of
         undefined ->
             S1 = find_new_database(DB, S),
@@ -98,9 +100,12 @@ update_views(DB, OldSeq, S) ->
 update_views(DB, OldSeq, NewSeq, S) when (NewSeq - OldSeq) > 10 ->
     Views = utils:shuffle(couch:get_views(DB)),
     lists:map(fun (X) -> update_view(DB, X) end, Views),
-    #state{db_seqs = proplists:set_value(DB, NewSeq, S#state.db_seqs)}.
+    Seq = proplists:delete(DB, S#state.db_seqs),
+    #state{db_seqs = [{DB, NewSeq}|Seq]};
+update_views(_, _, _, S) ->
+    S.
 
-update_view(DB, Path) ->
+update_view(DB, [Path]) ->
     case couch:get_silent(DB, binary_to_list(Path)) of
         ok -> ok;
         {error, req_timedout} -> update_view(DB, Path)
@@ -108,4 +113,4 @@ update_view(DB, Path) ->
 
 find_new_database(DB, S) ->
     {ok, Seq} = couch:get_db_seq(DB),
-    #state{db_seqs = proplists:set_value(DB, Seq, S#state.db_seqs)}.
+    #state{db_seqs = [{DB, Seq}|S#state.db_seqs]}.
