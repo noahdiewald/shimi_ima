@@ -66,7 +66,6 @@ handle_call(_Request, _From, S) ->
     {noreply, S}.
 
 handle_cast(DB, S) ->
-
     S1 = update_views(DB, S),
     {noreply, S1}.
 
