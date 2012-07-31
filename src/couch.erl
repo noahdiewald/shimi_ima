@@ -98,9 +98,7 @@ get_json(safer, Id, R, S) ->
 
 get_db_seq(Project) ->
     case get_db_info(Project) of
-        undefined -> undefined;
-        {error,req_timedout} -> get_db_seq(Project);
-        Json -> {ok, jsn:get_value(<<"update_seq">>, Json)}
+        Json when is_list(Json) -> {ok, jsn:get_value(<<"update_seq">>, Json)}
     end.
 
 get_dbs() ->

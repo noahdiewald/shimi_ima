@@ -76,7 +76,4 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_view(DB, Path) ->
-    case couch:get_silent(DB, binary_to_list(Path)) of
-        ok -> ok;
-        {error, req_timedout} -> update_view(DB, Path)
-    end.
+    ok = couch:get_silent(DB, binary_to_list(Path)).
