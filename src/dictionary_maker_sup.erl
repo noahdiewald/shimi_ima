@@ -75,5 +75,8 @@ init([]) ->
     Ibrowse = {ibrowse, 
                {ibrowse, start_link, []},
                permanent, 2000, worker, dynamic},
-    Processes = [Web, Ibrowse],
+    ViewUpdater = {view_updater,
+                   {view_updater, start_link, []},
+                   permanent, 2000, worker, dynamic},
+    Processes = [Web, Ibrowse, ViewUpdater],
     {ok, { {one_for_one, 10, 10}, Processes} }.

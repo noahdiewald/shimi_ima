@@ -29,9 +29,11 @@
          delete/2,
          exists/3,
          exists/4,
+         get_db_seq/1,
          get_design_rev/3,
          get_json/3,
          get_json/4,
+         get_silent/2,
          get_view_json/4,
          get_view_json/5,
          get_views/1,
@@ -92,6 +94,23 @@ get_json(safer, Id, R, S) ->
     Headers = proplists:get_value(headers, S),
     DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
     get_json_helper(safer, DataBaseUrl ++ Id, Headers).
+
+get_db_seq(Project) ->
+    case get_db_info(Project) of
+        undefined -> undefined;
+        Json -> jsn:get_value(<<"update_seq">>, Json)
+    end.
+
+get_db_info(Project) ->
+    Url = ?ADMINDB ++ Project,
+    get_json_helper(safer, Url, []).
+    
+get_silent(Project, ViewPath) ->
+    Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath,
+    case ibrowse:send_req(Url, [], get) of
+        {ok, "200", _, _} -> ok;
+        {error, req_timedout} -> {error, req_timedout}
+    end.
 
 get_json_helper(Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
@@ -230,10 +249,16 @@ bulk_update(Docs, R, S) ->
     jsn:decode(Body).
   
 update(doc, Id, Json, R, S) ->
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ 
-        "/_design/doctypes/_update/stamp/" ++ Id,
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-    update(Url, Headers, Json);
+    Project =  wrq:path_info(project, R),
+    Url = ?COUCHDB ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
+    Headers = [{"Content-Type","application/json"}|
+               proplists:get_value(headers, S)],
+    case update(Url, Headers, Json) of
+        {ok, updated} ->
+            view_updater:update_views(Project),
+            {ok, updated};
+        Otherwise -> Otherwise
+    end;
 
 update(design, Id, Json, R, S) ->
     update(design, Id, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
