@@ -66,7 +66,7 @@ handle_call(_Request, _From, S) ->
     {noreply, S}.
 
 handle_cast(DB, S) ->
-    io:format("Called!!!"),
+
     S1 = update_views(DB, S),
     {noreply, S1}.
 
@@ -80,7 +80,6 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_views(DB, S=#state{db_seqs = DBSeq}) ->
-    io:format("--~p--~p--", [DB, DBSeq]),
     case proplists:get_value(DB, DBSeq) of
         undefined ->
             S1 = find_new_database(DB, S),
