@@ -25,17 +25,9 @@
 
 -behaviour(gen_server).
 
--type database() :: string(). % A database name.
--type update_seq() :: integer(). % The current update sequence.
-
--record(state, {
-          db_seqs :: [{database(), update_seq()}]
-          }).
-
--type state() :: #state{}.
+-define(SERVER, ?MODULE).
 
 -export([
-         start_link/1,
          update_views/1
         ]).
 
@@ -48,28 +40,33 @@
          code_change/3
          ]).
 
--spec start_link([{database(), update_seq()}]) -> {ok, pid()} | ignore | {error, term()}.
-start_link(Args) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
-
--spec update_views(database()) -> ok.
+-spec update_views(string()) -> ok.
 update_views(DB) ->
-    gen_server:cast(?MODULE, DB),
-    ok.
+    Views = utils:shuffle(couch:get_views(DB)),
+    gen_server:start({local, ?SERVER}, ?MODULE, {DB, Views}, []).
 
--spec init([{database(), update_seq()}]) -> {ok, state()}.
-init(DBSeqs) ->
-    S = #state{db_seqs = DBSeqs},
+-spec init({string(), [binary()]}) -> {ok, {string(), [binary()]}}.
+init(S) ->
+    erlang:send_after(1000, ?MODULE, trigger),
     {ok, S}.
 
 handle_call(_Request, _From, S) ->
     {noreply, S}.
 
-handle_cast(DB, S) ->
-    S1 = update_views(DB, S),
-    {noreply, S1}.
+handle_cast(_Msg, S) ->
+    {noreply, S}.
 
-handle_info(_Msg, S) ->
+handle_info(trigger, S={_, []}) ->
+    {stop, normal, S};
+handle_info(trigger, {DB, Views}) ->
+    erlang:send(?MODULE, {DB, Views}),
+    {noreply, {DB, []}};
+handle_info({_DB, []}, S) ->
+    erlang:send_after(1000, ?MODULE, trigger),
+    {noreply, S};
+handle_info({DB, [Path|Rest]}, S) ->
+    update_view(DB, Path),
+    erlang:send_after(1000, ?MODULE, {DB, Rest}),
     {noreply, S}.
 
 terminate(_Reason, _S) ->
@@ -78,37 +75,8 @@ terminate(_Reason, _S) ->
 code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
-update_views(DB, S=#state{db_seqs = DBSeq}) ->
-    case proplists:get_value(DB, DBSeq) of
-        undefined ->
-            S1 = find_new_database(DB, S),
-            update_views(DB, S1);
-        OldSeq ->
-            update_views(DB, OldSeq, S)
-    end.
-    
-update_views(DB, OldSeq, S) ->
-    case couch:get_db_seq(DB) of
-        undefined ->
-            #state{db_seqs = proplists:delete(DB, S#state.db_seqs)};
-        {ok, NewSeq} -> 
-            update_views(DB, OldSeq, NewSeq, S)
-    end.
-
-update_views(DB, OldSeq, NewSeq, S) when (NewSeq - OldSeq) > 10 ->
-    Views = utils:shuffle(couch:get_views(DB)),
-    lists:map(fun (X) -> update_view(DB, X) end, Views),
-    Seq = proplists:delete(DB, S#state.db_seqs),
-    #state{db_seqs = [{DB, NewSeq}|Seq]};
-update_views(_, _, _, S) ->
-    S.
-
-update_view(DB, [Path]) ->
+update_view(DB, Path) ->
     case couch:get_silent(DB, binary_to_list(Path)) of
         ok -> ok;
         {error, req_timedout} -> update_view(DB, Path)
     end.
-
-find_new_database(DB, S) ->
-    {ok, Seq} = couch:get_db_seq(DB),
-    #state{db_seqs = [{DB, Seq}|S#state.db_seqs]}.

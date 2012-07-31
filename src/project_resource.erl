@@ -120,12 +120,8 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
-  Headers = proplists:get_value(headers, S),
-  
-  {ok, "200", _, JsonIn} = ibrowse:send_req(?COUCHDB ++ "projects/_design/projects/_view/all", Headers, get),
-  JsonStruct = jsn:decode(JsonIn),
-  
-  {renderings(JsonStruct), R, S}.
+  Json = couch:get_dbs(),
+  {renderings(Json), R, S}.
   
 main_html(R, S) ->
   User = proplists:get_value(user, S),

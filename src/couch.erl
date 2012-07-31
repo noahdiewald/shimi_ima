@@ -30,6 +30,7 @@
          exists/3,
          exists/4,
          get_db_seq/1,
+         get_dbs/0,
          get_design_rev/3,
          get_json/3,
          get_json/4,
@@ -98,8 +99,13 @@ get_json(safer, Id, R, S) ->
 get_db_seq(Project) ->
     case get_db_info(Project) of
         undefined -> undefined;
+        {error,req_timedout} -> get_db_seq(Project);
         Json -> {ok, jsn:get_value(<<"update_seq">>, Json)}
     end.
+
+get_dbs() ->
+    Url = ?ADMINDB ++ "/projects/_design/projects/_view/all",
+    get_json_helper(Url, []).
 
 get_db_info(Project) ->
     Url = ?ADMINDB ++ Project,
@@ -130,10 +136,10 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ Qs,
-    case ibrowse:send_req(FullUrl, Headers, get) of
-        {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
-        {ok, "404", _, _} -> {error, not_found};
-        {error, req_timedout} -> {error, req_timedout}
+    case get_json_helper(safer, FullUrl, Headers) of
+        undefined -> {error, not_found};
+        {error, req_timedout} -> {error, req_timedout};
+        Json -> {ok, Json}
     end.
 
 get_view_json(Id, Name, R, S) ->
@@ -177,7 +183,8 @@ get_views(Project) when is_list(Project) ->
                          _ -> true 
                      end 
              end,
-    lists:filter(Filter, lists:map(fun get_view_path/1, Designs));
+    lists:flatten(
+      lists:filter(Filter, lists:map(fun get_view_path/1, Designs)));
 get_views(R) when is_tuple(R) ->
     get_views(wrq:path_info(project, R)).
 
@@ -253,16 +260,9 @@ update(doc, Id, Json, R, S) ->
     Url = ?COUCHDB ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
                proplists:get_value(headers, S)],
-    case update(Url, Headers, Json) of
-        {ok, updated} ->
-            view_updater:update_views(Project),
-            {ok, updated};
-        Otherwise -> Otherwise
-    end;
-
+    update(Url, Headers, Json);
 update(design, Id, Json, R, S) ->
     update(design, Id, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
-
 update(design, Id, Json, DB, R, S) ->
     Json1 = jsn:decode(Json),
     Version = jsn:get_value(<<"version">>, Json1),
