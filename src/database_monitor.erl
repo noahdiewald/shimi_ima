@@ -48,7 +48,7 @@ start_link() ->
 
 -spec init(dict()) -> {ok, dict()}.
 init(DBSeqs) ->
-    erlang:send_after(1000, ?MODULE, trigger),
+    erlang:send_after(300000, ?MODULE, trigger),
     {ok, DBSeqs}.
 
 handle_call(_Request, _From, S) ->
@@ -62,11 +62,11 @@ handle_info(trigger, S) ->
   erlang:send(?MODULE, DBs),
   {noreply, S1};
 handle_info([], S) ->
-  erlang:send_after(1000, ?MODULE, trigger),
+  erlang:send_after(300000, ?MODULE, trigger),
   {noreply, S};
 handle_info([{DB,_}|Rest], S) ->
   view_updater:update_views(DB),
-  erlang:send_after(1000, ?MODULE, Rest),
+  erlang:send_after(300000, ?MODULE, Rest),
   {noreply, S}.
 
 terminate(_Reason, _S) ->
