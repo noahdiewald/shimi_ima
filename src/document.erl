@@ -50,7 +50,7 @@ touch_all(Id, R, S) ->
     {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
     Rows = jsn:get_value(<<"rows">>, AllDocs),
     F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
-    utils:peach(F, Rows, 10),
+    utils:peach(F, Rows, 5),
     error_logger:info_report([{touch_all, finished}]),
     true = ets:delete(Tid).
 
