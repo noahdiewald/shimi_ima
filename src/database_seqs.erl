@@ -18,16 +18,19 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc Loop through the views continuously making get requests so
-%%% that users aren't surprised by excessive lag time.
+%%% @doc Keep track of database update sequences.
 
--module(database_monitor).
+-module(database_seqs).
 
 -behaviour(gen_server).
 
 -define(SERVER, ?MODULE).
 
 -export([
+         get_all/0,
+         get_seq/1,
+         set_all/1,
+         set_seq/2,
          start_link/0
         ]).
 
@@ -40,33 +43,45 @@
          code_change/3
         ]).
 
--spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
-    DBSeqs = database_seqs:get_all(),
+    Json = couch:get_dbs(),
+    DBSeqs = make_seqs(Json),
     gen_server:start_link({local, ?SERVER}, ?MODULE, DBSeqs, []).
 
--spec init(dict()) -> {ok, dict()}.
+get_all() ->
+    gen_server:call(?SERVER, get_all).
+
+get_seq(DB) ->
+    gen_server:call(?SERVER, {get, DB}).
+
+set_all(DBSeqs) ->
+    gen_server:call(?SERVER, {set_all, DBSeqs}).
+
+set_seq(DB, Seq) ->
+    gen_server:call(?SERVER, {set, DB, Seq}).
+
 init(DBSeqs) ->
-    erlang:send_after(300000, ?MODULE, trigger),
     {ok, DBSeqs}.
 
-handle_call(_Request, _From, S) ->
+handle_call({get, DB}, _From, S) ->
+    case dict:find(DB, S) of
+        {ok, Val} -> {reply, Val, S};
+        error -> {reply, undefined, S}
+    end;
+handle_call({set, DB, Seq}, _From, S) ->
+    S1 = dict:store(DB, Seq, S),
+    {reply, S1, S1};
+handle_call(get_all, _From, S) ->
+    {reply, S, S};
+handle_call({set_all, S1}, _From, _S) ->
+    {reply, S1, S1};
+handle_call(_Msg, _From, S) ->
     {noreply, S}.
 
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info(trigger, S) ->
-    {DBs, S1} = get_ready_dbs(S),
-    database_seqs:set_all(S),
-    erlang:send(?MODULE, DBs),
-    {noreply, S1};
-handle_info([], S) ->
-    erlang:send_after(300000, ?MODULE, trigger),
-    {noreply, S};
-handle_info([{DB,_}|Rest], S) ->
-    view_updater:update_views(DB),
-    erlang:send_after(300000, ?MODULE, Rest),
+handle_info(_Msg, S) ->
     {noreply, S}.
 
 terminate(_Reason, _S) ->
@@ -75,13 +90,21 @@ terminate(_Reason, _S) ->
 code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
-get_ready_dbs(DBSeqs) ->
-    Pred = fun(DB, OldSeq) ->
-                   case couch:get_db_seq(DB) of
-                       undefined -> false;
-                       {ok, NewSeq} -> (NewSeq - OldSeq) > 10
-                   end
-           end,
-    Merger = fun(_, V, _) -> V end,
-    Ready = dict:filter(Pred, DBSeqs),
-    {dict:to_list(Ready), dict:merge(Merger, Ready, DBSeqs)}.
+make_seqs(Json) ->
+    Rows = jsn:get_value(<<"rows">>, Json),
+    DBs = get_all_dbs(Rows, []),
+    set_seqs(DBs, dict:new()).
+
+get_all_dbs([], Acc) ->
+    Acc;
+get_all_dbs([H|T], Acc) ->
+    Id = binary_to_list(jsn:get_value(<<"id">>, H)),
+    get_all_dbs(T, ["project-" ++ Id, "files-" ++ Id|Acc]).
+
+set_seqs([], Acc) ->
+    Acc;
+set_seqs([H|T], Acc) ->
+    case couch:get_db_seq(H) of
+        undefined -> set_seqs(T, Acc);
+        {ok, Seq} -> set_seqs(T, dict:store(H, Seq, Acc))
+    end.
