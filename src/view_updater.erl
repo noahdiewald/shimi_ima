@@ -76,4 +76,4 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_view(DB, Path) ->
-    ok = couch:get_silent(DB, binary_to_list(Path)).
+    spawn(couch, get_silent, [DB, binary_to_list(Path)]).
