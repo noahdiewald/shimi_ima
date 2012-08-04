@@ -166,7 +166,7 @@ get_from_table(Tid, Dfs, R, S) ->
 get_from_couch(Dfs, R, S) ->
     case couch:get_json(safer, binary_to_list(Dfs#docfieldset.id), R, S) of
         undefined -> undefined;
-        Val -> from_json(Val)
+        {ok, Val} -> from_json(Val)
     end.
   
 -spec touch2(docfieldset() | undefined, [binary()], utils:reqdata(), any()) -> docfieldset() | undefined.
