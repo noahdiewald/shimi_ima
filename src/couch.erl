@@ -125,8 +125,8 @@ get_json_helper(Url, Headers) ->
 
 get_json_helper(safer, Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
-        {ok, "200", _, Json} -> jsn:decode(Json);
-        {ok, "404", _, _} -> undefined;
+        {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
+        {ok, "404", _, _} -> {error, undefined};
         {error, req_timedout} -> {error, req_timedout}
     end.
 

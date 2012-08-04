@@ -256,8 +256,7 @@ get_from_table(Tid, Df, R, S) ->
 get_from_couch(Df, R, S) ->
     case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
         undefined -> undefined;
-        {error, req_timedout} -> get(Df, R, S);
-        Val -> from_json(Val)
+        {ok, Val} -> from_json(Val)
     end.
 
 %% @doc Take a field() and a docfield() and return a docfiled() updated so

@@ -80,10 +80,8 @@ touch(Id, R, S) ->
 
 -spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
 touch_get_json(Id, R, S) ->                
-    case couch:get_json(binary_to_list(Id), R, S) of
-        {error, req_timedout} ->
-            touch_get_json(Id, R, S);
-        Json -> Json
+    case couch:get_json(safer, binary_to_list(Id), R, S) of
+        {ok, Json} -> Json
     end.
   
 %% @doc Set the sortkeys for the fields in the document. 
