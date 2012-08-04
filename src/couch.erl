@@ -99,7 +99,7 @@ get_json(safer, Id, R, S) ->
 get_db_seq(Project) ->
     case get_db_info(Project) of
         undefined -> undefined;
-        Json when is_list(Json) -> {ok, jsn:get_value(<<"update_seq">>, Json)}
+        {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)}
     end.
 
 get_dbs() ->
@@ -138,7 +138,7 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
     case get_json_helper(safer, FullUrl, Headers) of
         undefined -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout};
-        Json -> {ok, Json}
+        {ok, Json} -> {ok, Json}
     end.
 
 get_view_json(Id, Name, R, S) ->
