@@ -1,12 +1,13 @@
 {
    "_id": "_design/{{ _id }}",
-   "version": 6,
+   "version": 7,
    "views": {
        "all_vals": {
            "map": "function(doc) { 
              if (doc.doctype === '{{ doctype }}' && 
+                 !doc.deleted_ &&
                  doc.index && 
-                 !doc.deleted_ )  { 
+                 doc.index['{{ _id }}'] !== undefined)  { 
 
                var indexVal = doc.index['{{ _id }}'];
                var isArray = function(anArray) {
