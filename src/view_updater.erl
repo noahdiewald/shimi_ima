@@ -62,11 +62,11 @@ handle_info(trigger, {DB, Views}) ->
     erlang:send(?MODULE, {DB, Views}),
     {noreply, {DB, []}};
 handle_info({_DB, []}, S) ->
-    erlang:send_after(1000, ?MODULE, trigger),
+    erlang:send_after(30000, ?MODULE, trigger),
     {noreply, S};
 handle_info({DB, [Path|Rest]}, S) ->
     update_view(DB, Path),
-    erlang:send_after(1000, ?MODULE, {DB, Rest}),
+    erlang:send_after(30000, ?MODULE, {DB, Rest}),
     {noreply, S}.
 
 terminate(_Reason, _S) ->
