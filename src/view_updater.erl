@@ -42,21 +42,32 @@
 
 -spec update_views(string()) -> ok.
 update_views(DB) ->
-    Views = utils:shuffle(couch:get_views(DB)),
-    gen_server:start({local, ?SERVER}, ?MODULE, {DB, Views}, []).
+    case lists:member(?SERVER, registered()) of
+        false ->
+            Views = utils:shuffle(couch:get_views(DB)),
+            gen_server:start({local, ?SERVER}, ?MODULE, {DB, Views}, []);
+        true -> ok
+    end.
 
 -spec init({string(), [binary()]}) -> {ok, {string(), [binary()]}}.
 init(S) ->
-    erlang:send_after(1000, ?MODULE, trigger),
+    erlang:send(?MODULE, trigger),
     {ok, S}.
 
+handle_call(current_db, _From, S={DB, _}) ->
+    {reply, DB, S};
 handle_call(_Request, _From, S) ->
     {noreply, S}.
 
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info(trigger, S={_, []}) ->
+handle_info(trigger, S={DB, []}) ->
+    case couch:get_db_seq(DB) of
+        undefined -> database_seqs:delete_seq(DB);
+        {error, _} -> ok;
+        {ok, Seq} -> database_seqs:set_seq(DB, Seq)
+    end,
     {stop, normal, S};
 handle_info(trigger, {DB, Views}) ->
     erlang:send(?MODULE, {DB, Views}),

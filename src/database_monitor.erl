@@ -47,8 +47,8 @@ start_link() ->
 
 -spec init(dict()) -> {ok, dict()}.
 init(DBSeqs) ->
-    erlang:send_after(300000, ?MODULE, trigger),
-    {ok, DBSeqs}.
+    erlang:send(?SERVER, {trigger, DBSeqs}),
+    {ok, []}.
 
 handle_call(_Request, _From, S) ->
     {noreply, S}.
@@ -56,17 +56,24 @@ handle_call(_Request, _From, S) ->
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info(trigger, S) ->
-    {DBs, S1} = get_ready_dbs(S),
-    database_seqs:set_all(S),
-    erlang:send(?MODULE, DBs),
-    {noreply, S1};
-handle_info([], S) ->
-    erlang:send_after(300000, ?MODULE, trigger),
+handle_info({trigger, DBSeqs}, S) ->
+    error_logger:info_msg("Triggered"),
+    {DBs, DBSeqs1} = get_ready_dbs(DBSeqs),
+    erlang:send_after(30000, ?SERVER, {DBs, DBSeqs1}),
     {noreply, S};
-handle_info([{DB,_}|Rest], S) ->
-    view_updater:update_views(DB),
-    erlang:send_after(300000, ?MODULE, Rest),
+handle_info({[], DBSeqs}, S) ->
+    error_logger:info_msg("Finished Running"),
+    erlang:send_after(30000, ?SERVER, {trigger, DBSeqs}),
+    {noreply, S};
+handle_info(Args={[{DB,_}|Rest], DBSeqs}, S) ->
+    case view_updater:update_views(DB) of
+        {ok, _} -> 
+            error_logger:info_msg("Not Running"),
+            erlang:send_after(300000, ?SERVER, {Rest, DBSeqs});
+        _ ->
+            error_logger:info_msg("Already Running"),
+            erlang:send_after(300000, ?SERVER, Args)
+    end,
     {noreply, S}.
 
 terminate(_Reason, _S) ->

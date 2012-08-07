@@ -27,6 +27,7 @@
 -define(SERVER, ?MODULE).
 
 -export([
+         delete_seq/1,
          get_all/0,
          get_seq/1,
          set_all/1,
@@ -48,6 +49,9 @@ start_link() ->
     DBSeqs = make_seqs(Json),
     gen_server:start_link({local, ?SERVER}, ?MODULE, DBSeqs, []).
 
+delete_seq(DB) ->
+    gen_server:call(?SERVER, {delete, DB}).
+
 get_all() ->
     gen_server:call(?SERVER, get_all).
 
@@ -63,6 +67,9 @@ set_seq(DB, Seq) ->
 init(DBSeqs) ->
     {ok, DBSeqs}.
 
+handle_call({delete, DB}, _From, S) ->
+    S1 = dict:erase(DB, S),
+    {reply, S1, S1};
 handle_call({get, DB}, _From, S) ->
     case dict:find(DB, S) of
         {ok, Val} -> {reply, Val, S};

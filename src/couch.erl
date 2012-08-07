@@ -98,8 +98,8 @@ get_json(safer, Id, R, S) ->
 
 get_db_seq(Project) ->
     case get_db_info(Project) of
-        undefined -> undefined;
-        {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)}
+        {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)};
+        Otherwise -> Otherwise
     end.
 
 get_dbs() ->
