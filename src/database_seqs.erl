@@ -112,6 +112,6 @@ set_seqs([], Acc) ->
     Acc;
 set_seqs([H|T], Acc) ->
     case couch:get_db_seq(H) of
-        undefined -> set_seqs(T, Acc);
+        {error, not_found} -> set_seqs(T, Acc);
         {ok, Seq} -> set_seqs(T, dict:store(H, Seq, Acc))
     end.
