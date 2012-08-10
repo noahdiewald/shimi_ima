@@ -62,11 +62,13 @@ file_path_exists(R, S) ->
 %% Will raise an exception on failure. Also updates design document.
 file_database_exists(R, S) ->
     DB = proplists:get_value(db, S),
+    DBName = DB -- ?ADMINDB,
     {ok, Json} = design_file_manager_json_dtl:render(),
   
     {ok, created} = case ibrowse:send_req(DB, [], head) of
                         {ok, "404", _, _} -> 
                             {ok, newdb} = couch:new_db(DB, R, S),
+                            database_seqs:set_seq(DBName, 0),
                             couch:create(design, Json, DB, R, S);
                         _ -> {ok, created}
                     end,
