@@ -27,6 +27,15 @@
 
 -define(SERVER, ?MODULE).
 
+-define(FREQ, 5000).
+
+-record(state, {
+          db :: string(),
+          views :: [binary()],
+          server :: atom(),
+          start_seq :: integer()
+         }).
+
 -export([
          update_views/1
         ]).
@@ -42,42 +51,50 @@
 
 -spec update_views(string()) -> ok.
 update_views(DB) ->
-    case lists:member(?SERVER, registered()) of
+    Server = list_to_atom(atom_to_list(?SERVER) ++ DB),
+    case lists:member(Server, registered()) of
         false ->
             Views = utils:shuffle(couch:get_views(DB)),
-            gen_server:start({local, ?SERVER}, ?MODULE, {DB, Views}, []);
-        true -> ok
+            StartSeq = database_seqs:get_seq(DB),
+            InitState = #state{db = DB,
+                               views = Views,
+                               server = Server,
+                               start_seq = StartSeq},
+            gen_server:start({local, Server}, ?MODULE, InitState, []);
+        true -> already_started
     end.
 
 -spec init({string(), [binary()]}) -> {ok, {string(), [binary()]}}.
-init(S) ->
-    erlang:send(?MODULE, trigger),
+init(S=#state{server=Server}) ->
+    erlang:send(Server, trigger),
     {ok, S}.
 
-handle_call(current_db, _From, S={DB, _}) ->
-    {reply, DB, S};
 handle_call(_Request, _From, S) ->
     {noreply, S}.
 
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info(trigger, S={DB, []}) ->
+handle_info(trigger, S=#state{db=DB, views=[], start_seq=StartSeq}) ->
     case couch:get_db_seq(DB) of
         undefined -> database_seqs:delete_seq(DB);
         {error, _} -> ok;
-        {ok, Seq} -> database_seqs:set_seq(DB, Seq)
+        {ok, EndSeq} ->
+            % If the difference is great enough, write load may be
+            % high enough to take another pass.
+            database_seqs:set_seq(DB, (EndSeq + StartSeq) div 2)
     end,
     {stop, normal, S};
-handle_info(trigger, {DB, Views}) ->
-    erlang:send(?MODULE, {DB, Views}),
-    {noreply, {DB, []}};
+handle_info(trigger, S={db=DB, views=Views, server=Server}) ->
+    erlang:send(Server, {DB, Views}),
+    {noreply, S#state{views=[]}};
 handle_info({_DB, []}, S) ->
-    erlang:send_after(30000, ?MODULE, trigger),
+    erlang:send(S#state.server, trigger),
     {noreply, S};
 handle_info({DB, [Path|Rest]}, S) ->
+    io:format("~p Left", [length(Rest)]),
     update_view(DB, Path),
-    erlang:send_after(30000, ?MODULE, {DB, Rest}),
+    erlang:send(S#state.server, {DB, Rest}),
     {noreply, S}.
 
 terminate(_Reason, _S) ->
@@ -87,4 +104,4 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_view(DB, Path) ->
-    spawn(couch, get_silent, [DB, binary_to_list(Path)]).
+    couch:get_silent(DB, binary_to_list(Path)).

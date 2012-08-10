@@ -58,18 +58,18 @@ handle_cast(_Msg, S) ->
 
 handle_info({trigger, DBSeqs}, S) ->
     {DBs, DBSeqs1} = get_ready_dbs(DBSeqs),
-    erlang:send_after(30000, ?SERVER, {DBs, DBSeqs1}),
+    erlang:send(?SERVER, {DBs, DBSeqs1}),
     {noreply, S};
-handle_info({[], DBSeqs}, S) ->
-    erlang:send_after(30000, ?SERVER, {trigger, DBSeqs}),
+handle_info(refresh, S) ->
+    DBSeqs = database_seqs:get_all(),
+    erlang:send(?SERVER, {trigger, DBSeqs}),
     {noreply, S};
-handle_info(Args={[{DB,_}|Rest], DBSeqs}, S) ->
-    case view_updater:update_views(DB) of
-        {ok, _} -> 
-            erlang:send_after(300000, ?SERVER, {Rest, DBSeqs});
-        _ ->
-            erlang:send_after(300000, ?SERVER, Args)
-    end,
+handle_info({[], _}, S) ->
+    erlang:send_after(30000, ?SERVER, refresh),
+    {noreply, S};
+handle_info({[{DB, _}|Rest], DBSeqs}, S) ->
+    view_updater:update_views(DB),
+    erlang:send(?SERVER, {Rest, DBSeqs}),
     {noreply, S}.
 
 terminate(_Reason, _S) ->
