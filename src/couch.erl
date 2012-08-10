@@ -111,11 +111,8 @@ get_db_info(Project) ->
     get_json_helper(safer, Url, []).
     
 get_silent(Project, ViewPath) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath,
-    case ibrowse:send_req(Url, [], get) of
-        {ok, "200", _, _} -> ok;
-        {error, req_timedout} -> {error, req_timedout}
-    end.
+    Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath ++ "?limit=1",
+    ibrowse:send_req(Url, [], get).
 
 get_json_helper(Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
