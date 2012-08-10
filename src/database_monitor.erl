@@ -81,7 +81,7 @@ code_change(_OldVsn, S, _Extra) ->
 get_ready_dbs(DBSeqs) ->
     Pred = fun(DB, OldSeq) ->
                    case couch:get_db_seq(DB) of
-                       undefined -> false;
+                       {error, not_found} -> false;
                        {ok, NewSeq} -> (NewSeq - OldSeq) > 10
                    end
            end,

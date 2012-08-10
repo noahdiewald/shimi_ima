@@ -92,7 +92,13 @@ handle_info({_DB, []}, S) ->
     erlang:send(S#state.server, trigger),
     {noreply, S};
 handle_info({DB, [Path|Rest]}, S) ->
-    io:format("~p Left", [length(Rest)]),
+    LR = length(Rest),
+    if 
+        (LR rem 10) == 0 ->
+            error_logger:info_msg("View updating ~p: ~p views left~n", 
+                                  [DB, LR]);
+         true -> ok
+    end,
     update_view(DB, Path),
     erlang:send(S#state.server, {DB, Rest}),
     {noreply, S}.
