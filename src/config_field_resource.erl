@@ -93,7 +93,7 @@ create_path(R, S) ->
   
   {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
     undefined -> 
-      {ok, GenId} = couch:get_uuid(R, S),
+      GenId = utils:uuid(),
       {GenId, jsn:set_value(<<"_id">>, list_to_binary(GenId), Json)};
     IdBin -> {binary_to_list(IdBin), Json}
   end,
