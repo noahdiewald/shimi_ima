@@ -85,7 +85,7 @@ handle_info(trigger, S=#state{db=DB, views=[], start_seq=StartSeq}) ->
             database_seqs:set_seq(DB, (EndSeq + StartSeq) div 2)
     end,
     {stop, normal, S};
-handle_info(trigger, S={db=DB, views=Views, server=Server}) ->
+handle_info(trigger, S=#state{db=DB, views=Views, server=Server}) ->
     erlang:send(Server, {DB, Views}),
     {noreply, S#state{views=[]}};
 handle_info({_DB, []}, S) ->
