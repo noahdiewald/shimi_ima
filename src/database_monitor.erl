@@ -57,21 +57,17 @@ handle_cast(_Msg, S) ->
     {noreply, S}.
 
 handle_info({trigger, DBSeqs}, S) ->
-    error_logger:info_msg("Triggered"),
     {DBs, DBSeqs1} = get_ready_dbs(DBSeqs),
     erlang:send_after(30000, ?SERVER, {DBs, DBSeqs1}),
     {noreply, S};
 handle_info({[], DBSeqs}, S) ->
-    error_logger:info_msg("Finished Running"),
     erlang:send_after(30000, ?SERVER, {trigger, DBSeqs}),
     {noreply, S};
 handle_info(Args={[{DB,_}|Rest], DBSeqs}, S) ->
     case view_updater:update_views(DB) of
         {ok, _} -> 
-            error_logger:info_msg("Not Running"),
             erlang:send_after(300000, ?SERVER, {Rest, DBSeqs});
         _ ->
-            error_logger:info_msg("Already Running"),
             erlang:send_after(300000, ?SERVER, Args)
     end,
     {noreply, S}.
