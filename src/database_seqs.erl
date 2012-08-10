@@ -76,7 +76,6 @@ handle_call({get, DB}, _From, S) ->
         error -> {reply, undefined, S}
     end;
 handle_call({set, DB, Seq}, _From, S) ->
-    io:format("DB ~p Seq is ~p ~n", [DB, Seq]), 
     S1 = dict:store(DB, Seq, S),
     {reply, S1, S1};
 handle_call(get_all, _From, S) ->
