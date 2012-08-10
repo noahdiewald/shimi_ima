@@ -75,5 +75,11 @@ init([]) ->
     Ibrowse = {ibrowse, 
                {ibrowse, start_link, []},
                permanent, 2000, worker, dynamic},
-    Processes = [Web, Ibrowse],
+    DBSeqs = {database_seqs,
+              {database_seqs, start_link, []},
+              permanent, 2000, worker, dynamic},
+    DBMonitor = {database_monitor,
+                 {database_monitor, start_link, []},
+                 permanent, 2000, worker, dynamic},
+    Processes = [Web, Ibrowse, DBSeqs, DBMonitor],
     {ok, { {one_for_one, 10, 10}, Processes} }.

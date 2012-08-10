@@ -29,11 +29,15 @@
          delete/2,
          exists/3,
          exists/4,
+         get_db_seq/1,
+         get_dbs/0,
+         get_design_rev/3,
          get_json/3,
          get_json/4,
+         get_silent/2,
          get_view_json/4,
          get_view_json/5,
-         get_design_rev/3,
+         get_views/1,
          get_uuid/2,
          new_db/3,
          update/4,
@@ -92,6 +96,24 @@ get_json(safer, Id, R, S) ->
     DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
     get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
+get_db_seq(Project) ->
+    case get_db_info(Project) of
+        {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)};
+        Otherwise -> Otherwise
+    end.
+
+get_dbs() ->
+    Url = ?ADMINDB ++ "/projects/_design/projects/_view/all",
+    get_json_helper(Url, []).
+
+get_db_info(Project) ->
+    Url = ?ADMINDB ++ Project,
+    get_json_helper(safer, Url, []).
+    
+get_silent(Project, ViewPath) ->
+    Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath ++ "?limit=1",
+    ibrowse:send_req(Url, [], get).
+
 get_json_helper(Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
         {ok, "200", _, Json} -> jsn:decode(Json);
@@ -100,8 +122,8 @@ get_json_helper(Url, Headers) ->
 
 get_json_helper(safer, Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
-        {ok, "200", _, Json} -> jsn:decode(Json);
-        {ok, "404", _, _} -> undefined;
+        {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
+        {ok, "404", _, _} -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout}
     end.
 
@@ -110,10 +132,10 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ Qs,
-    case ibrowse:send_req(FullUrl, Headers, get) of
-        {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
-        {ok, "404", _, _} -> {error, not_found};
-        {error, req_timedout} -> {error, req_timedout}
+    case get_json_helper(safer, FullUrl, Headers) of
+        undefined -> {error, not_found};
+        {error, req_timedout} -> {error, req_timedout};
+        {ok, Json} -> {ok, Json}
     end.
 
 get_view_json(Id, Name, R, S) ->
@@ -124,9 +146,43 @@ get_view_json(noqs, Id, Name, R, S) ->
     get_view_json_helper(Id, Name, [], R, S);
 
 get_view_json(sortkeys, Id, Name, R, S) ->
-    Qs = view:normalize_plus_vq(Id, R, S),
+    Qs = view:normalize_sortkey_vq(Id, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
+%% @doc Given a row from a query of all db design documents, find all
+%% the view paths for a given design document.
+-spec get_view_path(jsn:json_term()) -> [[binary()]].
+get_view_path(Row) ->
+    Id = proplists:get_value(<<"id">>, Row),
+    Doc = proplists:get_value(<<"doc">>, Row),
+    F = fun({ViewName, _}, Acc) ->
+                [iolist_to_binary([Id, <<"/_view/">>, ViewName])|Acc]
+        end,
+    case proplists:get_value(<<"views">>, Doc) of
+        undefined ->
+            undefined;
+        Views ->
+            lists:foldl(F, [], Views)
+    end.
+
+get_views(Project) when is_binary(Project) ->
+    get_views(binary_to_list(Project));
+get_views(Project) when is_list(Project) ->
+    Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
+                                        {"endkey", <<"_design0">>},
+                                        {"include_docs", true}])),
+    Url = ?ADMINDB ++ Project ++ "/" ++ "_all_docs" ++ "?" ++ Qs,
+    Designs = proplists:get_value(<<"rows">>, get_json_helper(Url, [])),
+    Filter = fun(X) -> 
+                     case X of
+                         undefined -> false;
+                         _ -> true 
+                     end 
+             end,
+    lists:flatten(
+      lists:filter(Filter, lists:map(fun get_view_path/1, Designs)));
+get_views(R) when is_tuple(R) ->
+    get_views(wrq:path_info(project, R)).
 
 get_design_rev(Name, R, S) ->
     Id = case Name of
@@ -196,14 +252,13 @@ bulk_update(Docs, R, S) ->
     jsn:decode(Body).
   
 update(doc, Id, Json, R, S) ->
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ 
-        "/_design/doctypes/_update/stamp/" ++ Id,
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+    Project =  wrq:path_info(project, R),
+    Url = ?COUCHDB ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
+    Headers = [{"Content-Type","application/json"}|
+               proplists:get_value(headers, S)],
     update(Url, Headers, Json);
-
 update(design, Id, Json, R, S) ->
     update(design, Id, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
-
 update(design, Id, Json, DB, R, S) ->
     Json1 = jsn:decode(Json),
     Version = jsn:get_value(<<"version">>, Json1),

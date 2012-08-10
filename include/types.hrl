@@ -16,7 +16,24 @@
 -type bstring() :: binary(). % binary form of string
 -type charstring() :: binary(). % this is a string representing a character
 -type sortkey_val() :: [sortkey() | anyval()]. % this should be a two item list
+-type view_update_list() :: [{binary(), integer()}].
 
+-record(maint_doc, {
+          view_update_info :: view_update_list()}).
+
+-record(db_info, {
+          db_name :: binary(),
+          doc_count :: integer(),
+          doc_del_count :: integer(),
+          update_seq :: integer(),
+          purge_seq :: integer(),
+          compact_running :: boolean(),
+          disk_size :: integer(),
+          data_size :: integer(),
+          instance_start_time :: binary(),
+          disk_format_version :: integer(),
+          committed_update_seq :: integer()}).
+          
 -record(vq, {
           key :: jsn:json_term(), 
           startkey :: jsn:json_term(), 

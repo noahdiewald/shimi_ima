@@ -33,6 +33,7 @@
          read_file_info/1,
          record_to_proplist/2,
          report_indexing_timeout/4,
+         shuffle/1,
          update_all_by/2,
          update_all_by/3,
          uuid/0,
@@ -261,6 +262,34 @@ peach(F, L, N) ->
     lists:foreach(Fun, First),
     counter(Ref2, length(L)).
 
+%% @doc Randomly shuffle a list. Found on
+%% http://www.trapexit.org/RandomShuffle. We associate each element in
+%% the list with a random number. The list is then sorted based on the
+%% generated number. We repeat this process log(n) times to ensure a
+%% fair shuffle.
+-spec shuffle(list()) -> list().
+shuffle(List) ->
+    % Determine the log n portion then randomize the list.
+    randomize(round(math:log(length(List)) + 0.5), List).
+
+-spec randomize(integer(), list()) -> list().
+randomize(1, List) ->
+    randomize(List);
+randomize(T, List) ->
+    Fun = fun(_E, Acc) ->
+                  randomize(Acc)
+          end,
+    lists:foldl(Fun, randomize(List), lists:seq(1, (T - 1))).
+
+-spec randomize(list()) -> list().
+randomize(List) ->
+    Fun = fun(A) ->
+                  {random:uniform(), A}
+          end,
+    D = lists:map(Fun, List),
+    {_, D1} = lists:unzip(lists:keysort(1, D)),
+    D1.
+    
 counter(_, 0) -> ok;
 counter(Ref, N) ->
     receive

@@ -50,7 +50,7 @@ touch_all(Id, R, S) ->
     {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
     Rows = jsn:get_value(<<"rows">>, AllDocs),
     F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
-    utils:peach(F, Rows, 10),
+    utils:peach(F, Rows, 5),
     error_logger:info_report([{touch_all, finished}]),
     true = ets:delete(Tid).
 
@@ -80,11 +80,8 @@ touch(Id, R, S) ->
 
 -spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
 touch_get_json(Id, R, S) ->                
-    case couch:get_json(binary_to_list(Id), R, S) of
-        {error, req_timedout} ->
-            touch_get_json(Id, R, S);
-        Json -> Json
-    end.
+    {ok, Json} = couch:get_json(safer, binary_to_list(Id), R, S),
+    Json.
   
 %% @doc Set the sortkeys for the fields in the document. 
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().

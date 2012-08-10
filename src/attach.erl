@@ -62,11 +62,13 @@ file_path_exists(R, S) ->
 %% Will raise an exception on failure. Also updates design document.
 file_database_exists(R, S) ->
     DB = proplists:get_value(db, S),
+    DBName = DB -- ?ADMINDB,
     {ok, Json} = design_file_manager_json_dtl:render(),
   
     {ok, created} = case ibrowse:send_req(DB, [], head) of
                         {ok, "404", _, _} -> 
                             {ok, newdb} = couch:new_db(DB, R, S),
+                            database_seqs:set_seq(DBName, 0),
                             couch:create(design, Json, DB, R, S);
                         _ -> {ok, created}
                     end,
@@ -77,7 +79,7 @@ file_database_exists(R, S) ->
 %% information. It will pass on any query string given when querying
 %% the view.
 get_all_by_path(R, S) ->  
-    Url = get_view_url("by_path", view:get_vq(R), R, S),
+    Url = get_view_url("by_path", view:from_reqdata(R), R, S),
     get_json(Url).
 
 %% @doc Retrieve the path, including the file name, with an explicit startkey
@@ -85,7 +87,8 @@ get_all_full_path(Key, R, S) ->
     StartKey = lists:reverse([0|lists:reverse(Key)]),
     EndKey = lists:reverse([[{}]|lists:reverse(Key)]),
     Url = get_view_url(
-            "full_paths", #vq{startkey=StartKey, endkey=EndKey}, R, S),
+            "full_paths", 
+            view:from_list([{"startkey",StartKey}, {"endkey", EndKey}]), R, S),
     get_json(Url).
 
 %% @doc Similar to get_all_by_path/2 but only uses information
@@ -97,7 +100,7 @@ files_by_path(R, S) ->
 %% @doc Get path portions to enable a hierarchical directory browsing
 %% interface
 dirs_by_path(R, S) ->
-    % For and explanation see:
+    % For an explanation see:
     % http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
     Tokens = [list_to_binary(mochiweb_util:unquote(X)) || X <- lists:reverse(wrq:path_tokens(R))],
     GroupLevel = length(Tokens) + 1,
@@ -106,11 +109,9 @@ dirs_by_path(R, S) ->
     StartKey = lists:reverse([0|Tokens]),
     EndKey = lists:reverse([[{}]|Tokens]),
   
-    Query = #vq{
-      startkey=StartKey,
-      endkey=EndKey,
-      group_level=GroupLevel
-     },
+    Query = view:from_list([{"startkey", StartKey},
+                            {"endkey", EndKey},
+                            {"group_level", GroupLevel}]),
     Url = get_view_url("paths", Query, R, S),
     get_json(Url).
     
@@ -132,7 +133,7 @@ get_file(R, S) ->
 get_file(undefined, R, S) ->
     Path = [list_to_binary(mochiweb_util:unquote(X)) || 
                X <- wrq:path_tokens(R)],
-    Url = get_view_url("full_paths", #vq{key=Path}, R, S),
+    Url = get_view_url("full_paths", view:from_list([{"key", Path}]), R, S),
     Json = get_json(Url),
     [Row|_] = proplists:get_value(<<"rows">>, Json),
     get_file(binary_to_list(proplists:get_value(<<"id">>, Row)), R, S);
@@ -225,7 +226,7 @@ get_view_url(View, Query, R, S) ->
             get_view_url(View, Query, R, S1);
         Db ->
             V = "_design/file_manager/_view",
-            string:join([Db, V, View], "/") ++ "?" ++ view:make_vqs(Query)
+            string:join([Db, V, View], "/") ++ "?" ++ view:to_string(Query)
     end.
   
 %% @doc create/3 helper
@@ -239,7 +240,7 @@ create(ContentType, Name, Content, Id, R, S) ->
   
 %% @doc file_path_exists/2 helper
 file_path_exists(Path, R, S) ->
-    Url = get_view_url("full_paths", #vq{key=Path}, R, S),
+    Url = get_view_url("full_paths", view:from_list([{"key", Path}]), R, S),
     {ok, "200", _, Body} = ibrowse:send_req(Url, [], get),
     Json = jsn:decode(Body),
     Total = length(proplists:get_value(<<"rows">>, Json)),
@@ -247,7 +248,7 @@ file_path_exists(Path, R, S) ->
   
 %% @doc files_by_path/2 helper
 files_by_path(Tokens, R, S) ->
-    Url = get_view_url("by_path", #vq{key=Tokens}, R, S),
+    Url = get_view_url("by_path", view:from_list([{"key", Tokens}]), R, S),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     jsn:decode(Json).
 

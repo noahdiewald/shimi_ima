@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 11,
+  "version": 12,
   "views": {
     "all_vals": {
       "map": "function(doc) {
@@ -53,14 +53,6 @@
       "map": "function(doc) { 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  { 
           emit(doc._id, null) 
-        } 
-      }" 
-    },
-    
-    "deaddocs": {
-      "map": "function(doc) { 
-        if (doc.doctype == '{{ _id }}' && doc.fieldsets && doc.deleted_)  { 
-          emit(doc._id, doc) 
         } 
       }" 
     },
