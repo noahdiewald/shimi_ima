@@ -99,8 +99,10 @@ handle_info({DB, [Path|Rest]}, S) ->
                                   [DB, LR]);
          true -> ok
     end,
-    update_view(DB, Path),
-    erlang:send(S#state.server, {DB, Rest}),
+    case update_view(DB, Path) of
+        true -> erlang:send(S#state.server, {DB, Rest});
+        false -> erlang:send_after(600000, S#state.server, {DB, Rest})
+    end,
     {noreply, S}.
 
 terminate(_Reason, _S) ->
@@ -110,4 +112,4 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_view(DB, Path) ->
-    couch:get_silent(DB, binary_to_list(Path)).
+    not couch:should_wait(DB, binary_to_list(Path)).

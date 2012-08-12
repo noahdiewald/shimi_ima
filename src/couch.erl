@@ -34,12 +34,12 @@
          get_design_rev/3,
          get_json/3,
          get_json/4,
-         get_silent/2,
          get_view_json/4,
          get_view_json/5,
          get_views/1,
          get_uuid/2,
          new_db/3,
+         should_wait/2,
          update/4,
          update/5,
          update/6,
@@ -110,9 +110,12 @@ get_db_info(Project) ->
     Url = ?ADMINDB ++ Project,
     get_json_helper(safer, Url, []).
     
-get_silent(Project, ViewPath) ->
+should_wait(Project, ViewPath) ->
     Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath ++ "?limit=1",
-    ibrowse:send_req(Url, [], get).
+    case ibrowse:send_req(Url, [], get) of
+        {error, req_timedout} -> true;
+        _ -> false
+    end.
 
 get_json_helper(Url, Headers) ->  
     case ibrowse:send_req(Url, Headers, get) of
