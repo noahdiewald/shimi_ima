@@ -101,7 +101,7 @@ handle_info({DB, [Path|Rest]}, S) ->
     end,
     case update_view(DB, Path) of
         true -> erlang:send(S#state.server, {DB, Rest});
-        false -> erlang:send_after(600000, S#state.server, {DB, Rest})
+        false -> erlang:send_after(150000, S#state.server, {DB, Rest})
     end,
     {noreply, S}.
 
