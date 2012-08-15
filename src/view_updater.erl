@@ -1,4 +1,4 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
 %%% This file is part of dictionary_maker.
 %%%
@@ -27,8 +27,6 @@
 
 -define(SERVER, ?MODULE).
 
--define(FREQ, 5000).
-
 -record(state, {
           db :: string(),
           views :: [binary()],
@@ -51,7 +49,7 @@
 
 -spec update_views(string()) -> ok.
 update_views(DB) ->
-    Server = list_to_atom(atom_to_list(?SERVER) ++ DB),
+    Server = list_to_atom(atom_to_list(?SERVER) ++ "-" ++ DB),
     case lists:member(Server, registered()) of
         false ->
             Views = utils:shuffle(couch:get_views(DB)),

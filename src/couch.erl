@@ -1,4 +1,4 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
 %%% This file is part of dictionary_maker.
 %%%
