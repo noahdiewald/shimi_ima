@@ -27,62 +27,12 @@
          normalize/1,
          set_sortkeys/3,
          to_json/1,
-         touch_all/2,
-         touch_all/3
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("config.hrl").
 -include_lib("types.hrl").
 
-%% @doc If configuration has changed, it may be desireable to update
-%% previously saved documents. This will update all documents of a
-%% certain doctype using the latest configuration settings.
--spec touch_all(R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
-touch_all(R, S) ->
-    touch_all(wrq:path_info(id, R), R, S).
-
--spec touch_all(Id :: string(), R :: utils:reqdata(), S :: any()) -> Conflicts :: jsn:json_term().
-touch_all(Id, R, S) ->
-    Tid = ets:new(touch_documents, [public]),
-    error_logger:info_report([{touch_all, starting}]),
-    S1 = [{table_id, Tid}|S],
-    {ok, AllDocs} = couch:get_view_json(Id, "quickdocs", R, S),
-    Rows = jsn:get_value(<<"rows">>, AllDocs),
-    F = fun (Row) -> touch(jsn:get_value(<<"key">>, Row), R, S1) end,
-    utils:peach(F, Rows, 5),
-    error_logger:info_report([{touch_all, finished}]),
-    true = ets:delete(Tid).
-
--spec touch(binary(), utils:reqdata(), any()) -> ok.
-touch(Id, R, S) ->
-    Json = touch_get_json(Id, R, S),
-    Doc = from_json(Json),
-    case couch:get_view_json(binary_to_list(Doc#document.doctype), "fieldsets",
-                             R, S) of
-        {ok, Fieldsets} ->
-            FieldsetIds = [jsn:get_value(<<"id">>, X) || 
-                              X <- jsn:get_value(<<"rows">>, Fieldsets)],
-            Doc2 = to_json(
-                     Doc#document{
-                       prev = Doc#document.rev,
-                       fieldsets = fieldset:touch_all(Doc#document.fieldsets, 
-                                                      FieldsetIds, R, S)}),
-            case couch:update(doc, binary_to_list(Id), 
-                              jsn:encode(Doc2), R, S) of
-                {ok, updated} -> ok;
-                Unexpected ->
-                    error_logger:error_report(
-                      [{touch_document_update, {Unexpected, Doc2}}])
-            end;
-        {error, req_timedout} -> touch(Id, R, S)
-    end.
-
--spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
-touch_get_json(Id, R, S) ->                
-    {ok, Json} = couch:get_json(safer, binary_to_list(Id), R, S),
-    Json.
-  
 %% @doc Set the sortkeys for the fields in the document. 
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
 set_sortkeys(Doc, R, S) when is_list(Doc) -> 
