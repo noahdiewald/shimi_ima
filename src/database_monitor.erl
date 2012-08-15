@@ -42,12 +42,14 @@
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
-    DBSeqs = database_seqs:get_all(),
-    gen_server:start_link({local, ?SERVER}, ?MODULE, DBSeqs, []).
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 -spec init(dict()) -> {ok, dict()}.
-init(DBSeqs) ->
-    erlang:send(?SERVER, {trigger, DBSeqs}),
+init([]) ->
+    % Sometimes load can be quite large on slow machines and couchdb
+    % runs out of resources. This just sets a delay at startup to
+    % ensure that couchdb has time to restart before we try again.
+    erlang:send_after(30000, ?SERVER, initialize),
     {ok, []}.
 
 handle_call(_Request, _From, S) ->
@@ -56,6 +58,10 @@ handle_call(_Request, _From, S) ->
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
+handle_info(initialize, S) ->
+    DBSeqs = database_seqs:get_all(),
+    erlang:send(?SERVER, {trigger, DBSeqs}),
+    {noreply, S};
 handle_info({trigger, DBSeqs}, S) ->
     {DBs, DBSeqs1} = get_ready_dbs(DBSeqs),
     erlang:send(?SERVER, {DBs, DBSeqs1}),

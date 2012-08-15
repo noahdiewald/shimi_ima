@@ -1,4 +1,4 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
 %%% This file is part of dictionary_maker.
 %%%
@@ -27,8 +27,6 @@
 
 -define(SERVER, ?MODULE).
 
--define(FREQ, 5000).
-
 -record(state, {
           db :: string(),
           views :: [binary()],
@@ -51,7 +49,7 @@
 
 -spec update_views(string()) -> ok.
 update_views(DB) ->
-    Server = list_to_atom(atom_to_list(?SERVER) ++ DB),
+    Server = list_to_atom(atom_to_list(?SERVER) ++ "-" ++ DB),
     case lists:member(Server, registered()) of
         false ->
             Views = utils:shuffle(couch:get_views(DB)),
@@ -99,8 +97,10 @@ handle_info({DB, [Path|Rest]}, S) ->
                                   [DB, LR]);
          true -> ok
     end,
-    update_view(DB, Path),
-    erlang:send(S#state.server, {DB, Rest}),
+    case update_view(DB, Path) of
+        true -> erlang:send(S#state.server, {DB, Rest});
+        false -> erlang:send_after(150000, S#state.server, {DB, Rest})
+    end,
     {noreply, S}.
 
 terminate(_Reason, _S) ->
@@ -110,4 +110,4 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 update_view(DB, Path) ->
-    couch:get_silent(DB, binary_to_list(Path)).
+    not couch:should_wait(DB, binary_to_list(Path)).

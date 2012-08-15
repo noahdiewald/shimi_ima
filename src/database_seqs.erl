@@ -45,9 +45,7 @@
         ]).
 
 start_link() ->
-    Json = couch:get_dbs(),
-    DBSeqs = make_seqs(Json),
-    gen_server:start_link({local, ?SERVER}, ?MODULE, DBSeqs, []).
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 delete_seq(DB) ->
     gen_server:call(?SERVER, {delete, DB}).
@@ -64,8 +62,9 @@ set_all(DBSeqs) ->
 set_seq(DB, Seq) ->
     gen_server:call(?SERVER, {set, DB, Seq}).
 
-init(DBSeqs) ->
-    {ok, DBSeqs}.
+init([]) ->
+    erlang:send_after(5000, ?SERVER, initialize),
+    {ok, dict:new()}.
 
 handle_call({delete, DB}, _From, S) ->
     S1 = dict:erase(DB, S),
@@ -88,8 +87,10 @@ handle_call(_Msg, _From, S) ->
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info(_Msg, S) ->
-    {noreply, S}.
+handle_info(initialize, _S) ->
+    Json = couch:get_dbs(),
+    DBSeqs = make_seqs(Json),
+    {noreply, DBSeqs}.
 
 terminate(_Reason, _S) ->
     ok.
