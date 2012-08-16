@@ -39,18 +39,13 @@
         ]).
 
 start(_, []) ->
-    no_documents;
+    {error, no_documents};
 start(Doctype, Documents) ->
-    F = fun([{<<"id">>, Id}|_]) ->
-                {Id, Id}
-        end,
     Server = me(Doctype),
-    case lists:member(Server, registered()) of
-        false ->
-            Ids = dict:from_list(lists:map(F, Documents)),
-            gen_server:start({local, ?SERVER}, ?MODULE, Ids, []);
-        true -> already_started
-    end.
+    gen_server:start({local, Server}, ?MODULE, [], []).
+
+exists(Doctype) ->
+    lists:member(me(Doctype), registered()).
 
 me(Doctype) ->
     list_to_atom(atom_from_list(?SERVER) ++ "-" ++ Doctype).
@@ -61,7 +56,11 @@ delete(Doctype, Id) ->
 reload(Doctype) ->
     gen_server:call(me(Doctype), reload).
 
-init(Ids) ->
+init([]) ->
+    F = fun([{<<"id">>, Id}|_]) ->
+                {Id, Id}
+        end,
+    Ids = dict:from_list(lists:map(F, Documents)),
     {ok, Ids}.
 
 handle_call(reload, Ids) ->
