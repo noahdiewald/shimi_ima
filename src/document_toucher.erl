@@ -114,76 +114,43 @@ code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
 
 % Private
-    
-%% -spec touch(binary(), utils:reqdata(), any()) -> ok.
-%% touch(Id, S) ->
-%%     Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
-%%     Doc = document:from_json(Json),
-%%     Doc2 = document:to_json(
-%%              Doc#document{
-%%                prev = Doc#document.rev,
-%%                fieldsets = fieldset_touch_all(Doc#document.fieldsets, S)}),
-%%     case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), R, S) of
-%%         {ok, updated} -> ok;
-%%         Unexpected ->
-%%             error_logger:error_report(
-%%               [{touch_document_update, {Unexpected, Doc2}}])
-%%     end.
 
 -spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
 touch_get_json(Id, R, S) ->                
     {ok, Json} = couch:get_json(safer, binary_to_list(Id), R, S),
     Json.
 
-%% @doc Take a function a list and a number and run the function over
-%% list items in parallel. The number limits the number of concurrent
-%% workers. The operation is run as a side effect, returning the atom ok.
-%% -spec peach(F :: fun(), L :: list(), N :: integer()) -> ok.
-%% peach(_F, [], _N) ->
-%%     ok;
-%% peach(F, L, N) ->
-%%     {First, Rest} = lists:split(N, L),
-%%     S = self(),
-%%     Ref = erlang:make_ref(),
-%%     Ref2 = erlang:make_ref(),
-%%     Loop = spawn(fun() -> loop(Ref, {Ref2, S}, F, Rest) end),
-%%     Fun = fun(I) -> spawn(fun() -> do_f({Ref, Loop}, {Ref2, S}, F, I) end) end,
-%%     lists:foreach(Fun, First),
-%%     counter(Ref2, length(L)).
-    
-%% counter(_, 0) -> ok;
-%% counter(Ref, N) ->
-%%     receive
-%%         Ref ->
-%%             counter(Ref, N - 1)
-%%     end.
-
-%% do_f({Ref, Parent}, {Ref2, Counter}, F, I) ->
-%%     case (catch F(I)) of
-%%         {'EXIT', Error} ->
-%%             error_logger:error_report(
-%%               [{error_in_peach, {Error, {with_args, I}}}]);
-%%         _ -> ok
-%%     end,
-%%     Parent ! Ref,
-%%     Counter ! Ref2.
-
-%% loop(_, _, _, []) ->
-%%     ok;
-%% loop(Ref, Counter, F, [Next|Rest]) ->
-%%     S = self(),
-%%     receive
-%%         Ref ->
-%%             spawn(fun() -> do_f({Ref, S}, Counter, F, Next) end),
-%%             loop(Ref, Counter, F, Rest)
-%%     end.
-
+%% @doc After initialization is complete, begin the touch operation.
+-spec run(string()) -> ok.
 run(Doctype) ->
     gen_server:cast(me(Doctype), initialize).
 
+%% @doc Use a doctype argument to retreive the current server's name.
+-spec me(string()) -> atom().
 me(Doctype) ->
     list_to_atom(atom_to_list(?SERVER) ++ "-" ++ Doctype).
 
+%% @doc Touch a document. This means that it will be made to conform
+%% to the current state of its doctype's configuration.
+-spec touch_document(string(), state()) -> ok.
+touch_document(Id, S) ->
+    Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
+    Doc = document:from_json(Json),
+    Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
+    Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
+                                         fieldsets = Fieldsets}),
+    case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), S#state.wrq, 
+                      S#state.wm_state) of
+        {ok, updated} ->
+            untouched:delete(Id),
+            ok;
+        Unexpected ->
+            error_logger:error_report(
+              [{touch_document_update, {Unexpected, Doc2}}])
+    end.
+
+%% @doc Perform the portion of a touch operation that is specific to the
+%% fieldsets.
 -spec touch_fieldsets([docfieldset()], state()) -> [docfieldset()].
 touch_fieldsets(FSs, S) ->
     FSs2 = add_missing(FSs, S),
@@ -195,6 +162,8 @@ touch_fieldsets(FSs, S) ->
           end,
     lists:foldl(Fun, [], FSs2). 
 
+%% @doc Perform the portion of a touch operation that is specific to
+%% the fields.
 -spec touch_fields([docfield()], atom(), state()) -> [docfield()].
 touch_fields(Fs, FTid, S) ->        
     Fs2 = add_missing(Fs, FTid),
@@ -205,7 +174,9 @@ touch_fields(Fs, FTid, S) ->
                   end
           end,
     lists:foldl(Fun, [], Fs2).
-    
+
+%% @doc Perform the portion of a touch operation that is specific to a
+%% single fieldset.
 -spec touch_fieldset(docfieldset(), state()) -> docfieldset() | undefined.
 touch_fieldset(DFS, S) ->
     case ets:lookup(S#state.tid, DFS#docfieldset.id) of
@@ -230,6 +201,8 @@ touch_fieldset(DFS, S) ->
             DFS2#docfieldset{fields=Fs}
     end.
 
+%% @doc Perform the portions of the touch operation that is specific
+%% to a single field.
 -spec touch_field(docfield(), atom(), state()) -> docfield() | undefined.
 touch_field(DF, FTid, S) ->
     case ets:lookup(FTid, DF#docfield.id) of
@@ -253,28 +226,15 @@ touch_field(DF, FTid, S) ->
               sortkey=charseq:get_sortkey(DF3, S#state.wrq, S#state.wm_state)}
     end.
 
+%% @doc Used to choose which value to set in case one is undefined.
+-spec set_if_undefined(undefined | term(), term()) -> term().
 set_if_undefined(undefined, Val) ->
     Val;
 set_if_undefined(Val, _) ->
     Val.
 
--spec touch_document(string(), state()) -> ok.
-touch_document(Id, S) ->
-    Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
-    Doc = document:from_json(Json),
-    Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
-    Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
-                                         fieldsets = Fieldsets}),
-    case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), S#state.wrq, 
-                      S#state.wm_state) of
-        {ok, updated} ->
-            untouched:delete(Id),
-            ok;
-        Unexpected ->
-            error_logger:error_report(
-              [{touch_document_update, {Unexpected, Doc2}}])
-    end.
-
+%% @doc There may be new fields or fieldsets since the last time the
+%% document was updated. This will add the new ones.
 -spec add_missing([docfieldset()], state() | atom()) -> [docfieldset()] | [docfield()].
 add_missing(Fs, FTid) when is_atom(FTid) ->
     Ids = [X#docfield.id || X <- Fs],
@@ -294,7 +254,10 @@ add_missing(FSs, S) ->
                   end
           end,
     ets:foldl(Fun, FSs, S#state.tid).
-    
+
+%% @doc Retrieve the ids of the documents that need to be
+%% processed. These are kept in the untouched server so that the
+%% process can be restarted if there is a network error.
 -spec get_docs(state()) -> reference() | ok.
 get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
     case untouched:start(Doctype, []) of
@@ -310,6 +273,11 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
             end
     end.
 
+%% @doc Fill an ets table that hold the fieldsets so that they can be
+%% referred to later without adding to server load. The means of
+%% retrieving the fieldsets is to use a view and querying the view
+%% while updating many documents can cause processing to be slowed
+%% while view indexing takes place.
 -spec fill_fieldset_table(state()) -> reference() | ok.
 fill_fieldset_table(#state{doctype=Doctype,wrq=R,wm_state=WMS,tid=Tid}) ->
     case couch:get_view_json(Doctype, "fieldsets", R, WMS) of
@@ -328,6 +296,11 @@ fill_fieldset_table(#state{doctype=Doctype,wrq=R,wm_state=WMS,tid=Tid}) ->
             erlang:send_after(150000, me(Doctype), fill_tab)
     end.
 
+%% @doc Create and fill ets tables that hold the fields so that they
+%% can be referred to later without adding to server load. The means
+%% of retrieving the fields is to use a view and querying the view
+%% while updating many documents can cause processing to be slowed
+%% while view indexing takes place.
 -spec fill_field_tables([string()], state()) -> reference() | ok.
 fill_field_tables([], S) ->
     erlang:send(me(S#state.doctype), get_docs);
