@@ -34,6 +34,8 @@
           start_seq :: integer()
          }).
 
+-type state() :: #state{}.
+
 -export([
          update_views/1
         ]).
@@ -50,17 +52,16 @@
 -spec update_views(string()) -> {ok, pid()} | ignore | {error, term()} | already_started.
 update_views(DB) ->
     Server = list_to_atom(atom_to_list(?SERVER) ++ "-" ++ DB),
-    gen_server:start({local, Server}, ?MODULE, #state{server=Server}, []).
+    gen_server:start({local, Server}, ?MODULE, #state{server=Server,db=DB}, []).
 
--spec init({string(), [binary()]}) -> {ok, {string(), [binary()]}}.
-init(S=#state{server=Server}) ->
+-spec init(state()) -> {ok, state()}.
+init(S=#state{server=Server,db=DB}) ->
     Views = utils:shuffle(couch:get_views(DB)),
     StartSeq = database_seqs:get_seq(DB),
-    InitState = S#state{db = DB,
-                        views = Views,
+    InitState = S#state{views = Views,
                         start_seq = StartSeq},
     erlang:send(Server, trigger),
-    {ok, S}.
+    {ok, InitState}.
 
 handle_call(_Request, _From, S) ->
     {noreply, S}.

@@ -25,16 +25,12 @@
 -export([
          from_json/1,
          from_json/2,
-         get/2,
-         get/3,
          is_meta/1,
          meta_field/1,
          option_list/2,
-         update_merge/2,
          set_sortkeys/3,
          to_json/2,
-         touch/3,
-         touch_all/4
+         unconvert_value/2
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
@@ -83,48 +79,6 @@ user_field(Id, Label) ->
                    allowed = couch:user_list(),
                    subcategory = select},
     to_json(Field).
-            
--spec touch_all([docfield()], [binary()], utils:reqdata(), any()) -> [docfield()].
-touch_all(Dfs, FIds, R, S) ->
-    Dfs2 = add_missing(Dfs, FIds, []),
-    touch_all2(Dfs2, [], R, S).
-
-touch_all2([], Acc, _R, _S) ->
-    lists:reverse(Acc);
-touch_all2([Df|Rest], Acc, R, S) ->
-    case touch(Df, R, S) of
-        undefined -> touch_all2(Rest, Acc, R, S);
-        Val -> touch_all2(Rest, [Val|Acc], R, S)
-    end.
-
-%% @doc Given the current set of fields in a document, a list of ids
-%% and an empty accumulator, make sure that the current fields are
-%% complete according to the latest configuration and in the correct
-%% order.
--spec add_missing([docfield()], [binary()], []) -> [docfield()].
-add_missing(_Current, [], Complete) ->
-    lists:reverse(Complete);
-add_missing(Current, [Required|Rest], Acc) ->
-    case find_required(Required, Current) of
-        undefined ->
-            add_missing(Current, Rest, [#docfield{id=Required}|Acc]);
-        Found ->
-            add_missing(Current, Rest, [Found|Acc])
-    end.
-
-%% @doc Search for a field with a particular id in a list of
-%% docfields.
--spec find_required(binary(), [docfield()]) -> docfield() | undefined.
-find_required(_, []) ->    
-    undefined;
-find_required(Id, [Found=#docfield{id=Id}|_]) ->
-    Found;
-find_required(Id, [_|Rest]) ->
-    find_required(Id, Rest).
-
--spec touch(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfield().
-touch(Df, R, S) ->
-    touch2(update(Df, R, S), R, S).
 
 %% @doc Set the sortkeys for fields
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
@@ -226,61 +180,6 @@ to_json(doc, F) ->
      {<<"value">>, unconvert_value(F#docfield.subcategory, F#docfield.value)},
      {<<"sortkey">>, F#docfield.sortkey}].
   
-%% @doc Get a field() using a field id and a project id
--spec get(Project :: string(), Id :: string) -> fieldset() | {error, Reason :: term()}.
-get(Project, Id) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ Id,
-    case ibrowse:send_req(Url, [], get) of
-        {ok, "200", _, Raw} -> convert_field(jsn:decode(Raw));
-        {ok, Status, _, _} -> {error, "HTTP status " ++ Status};
-        Error -> Error
-    end.
-
-%% @doc Get a field() using a fieldset docfield() and webmachine state
--spec get(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> fieldset().
-get(Df, R, S) ->
-    case proplists:get_value(table_id, S) of
-        undefined -> get_from_couch(Df, R, S);
-        Tid -> get_from_table(Tid, Df, R, S)
-    end.
-
-get_from_table(Tid, Df, R, S) ->
-    case ets:lookup(Tid, Df#docfield.id) of
-        [] ->
-            Val = get_from_couch(Df, R, S),
-            true = ets:insert(Tid, {Df#docfield.id, Val}),
-            Val;
-        [{_, Val}] -> Val
-    end.
-  
-get_from_couch(Df, R, S) ->
-    case couch:get_json(safer, binary_to_list(Df#docfield.id), R, S) of
-        undefined -> undefined;
-        {ok, Val} -> from_json(Val)
-    end.
-
-%% @doc Take a field() and a docfield() and return a docfiled() updated so
-%% that shared items match and sortkey is updated.
--spec update_merge(DF :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
-update_merge(Df, F) ->
-    case {F#field.id, Df#docfield.id} of
-        {Id, Id} -> do_merge(Df, F);
-        _Else -> {error, "Id's do not match."}
-    end.
-
--spec update(Df :: docfield(), R :: utils:reqdata(), S :: any()) -> docfieldset() | undefined.
-update(Df, R, S) ->
-    case get(Df, R, S) of
-        undefined -> undefined;
-        Val -> update_merge(Df, Val)
-    end.
-
--spec touch2(Df :: docfield() | undefined, R :: utils:reqdata(), S :: any()) ->  jsn:json_term() | undefined.
-touch2(undefined, _R, _S) ->
-    undefined;
-touch2(Df, R, S) ->
-    Df#docfield{sortkey=charseq:get_sortkey(Df, R, S)}.
-
 -spec maybe_binary(B :: term()) -> binary() | null.
 maybe_binary(<<>>) -> null;
 maybe_binary(B) when is_binary(B) -> B;
@@ -353,70 +252,6 @@ get_value(Key, Json, Default) ->
 -spec get_value(Key :: binary(), Json :: jsn:json_term()) -> jsn:json_term().
 get_value(Key, Json) ->
     get_value(Key, Json, null).
-
--spec do_merge(Df :: docfield(), F :: field()) -> docfield() | {error, Reason :: term()}.
-do_merge(Df, F) ->
-    Df2 = Df#docfield{
-            charseq = F#field.charseq,
-            head = F#field.head,
-            label = F#field.label,
-            max = F#field.max,
-            min = F#field.min,
-            name = F#field.name,
-            order = F#field.order,
-            regex = F#field.regex,
-            required = F#field.required,
-            reversal = F#field.reversal,
-            subcategory = F#field.subcategory
-           },
-    update_normalize(Df, F, Df2).
-  
--spec update_normalize(docfield(), F :: field(), DF :: docfield()) -> docfield() | {error, Reason :: term()}.
-update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
-    DF;    
-update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
-    DF#docfield{value=Def};
-update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,value=V}) when
-      (V /= true) and (V /= false) -> DF#docfield{value=Def};
-update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) when
-      ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> 
-    DF#docfield{value=Def};
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when 
-    (S == S2) or
-    (((S == text) or
-      (S == textarea) or
-      (S == select) or
-      (S == docselect)) and
-     ((S2 == text) or
-      (S2 == textarea))) -> DF;
-update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,value=V}) when 
-    (((S == integer) or
-      (S == rational) or
-      (S == boolean) or
-      (S == openboolean)) and
-     ((S2 == text) or
-      (S2 == textarea))) ->
-    DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
-    update_normalize(#docfield{subcategory=text}, F, DF2);
-update_normalize(#docfield{subcategory=date}, F, DF) ->
-    update_normalize(#docfield{subcategory=text}, F, 
-                     DF#docfield{value=unconvert_value(date, 
-                                                       DF#docfield.value)});
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
-    ((S == docselect) or (S == select)) and 
-    ((S2 == docselect) or (S2 == select)) -> DF;
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
-    ((S == docmultiselect) or (S == multiselect)) and 
-    ((S2 == docmultiselect) or (S2 == multiselect)) -> DF;
-update_normalize(#docfield{subcategory=rational}, _, DF=#docfield{subcategory=integer,value=V}) ->
-  DF#docfield{value=erlang:trunc(V)};
-update_normalize(#docfield{subcategory=integer}, _, DF=#docfield{subcategory=rational,value=V}) -> 
-    DF#docfield{value=(V / 1)};
-update_normalize(#docfield{subcategory=boolean}, _, DF=#docfield{subcategory=openboolean}) -> DF;
-update_normalize(#docfield{subcategory=openboolean}, _, DF=#docfield{subcategory=boolean,value=V}) ->
-    DF#docfield{value=(V == true)};
-update_normalize(_, #field{default=D}, DF) ->
-    DF#docfield{value=D}.
   
 -spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
 convert_field(Json) ->  

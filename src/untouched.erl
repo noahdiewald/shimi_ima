@@ -30,6 +30,13 @@
 -define(SERVER, ?MODULE).
 
 -export([
+         delete/2,
+         exists/1,
+         reload/1,
+         start/2
+        ]).
+
+-export([
          init/1,
          handle_call/3,
          handle_cast/2,
@@ -42,13 +49,13 @@ start(_, []) ->
     {error, no_documents};
 start(Doctype, Documents) ->
     Server = me(Doctype),
-    gen_server:start({local, Server}, ?MODULE, [], []).
+    gen_server:start({local, Server}, ?MODULE, Documents, []).
 
 exists(Doctype) ->
     lists:member(me(Doctype), registered()).
 
 me(Doctype) ->
-    list_to_atom(atom_from_list(?SERVER) ++ "-" ++ Doctype).
+    list_to_atom(atom_to_list(?SERVER) ++ "-" ++ Doctype).
 
 delete(Doctype, Id) ->
     gen_server:cast(me(Doctype), {delete, Id}).
@@ -56,20 +63,20 @@ delete(Doctype, Id) ->
 reload(Doctype) ->
     gen_server:call(me(Doctype), reload).
 
-init([]) ->
+init(Documents) ->
     F = fun([{<<"id">>, Id}|_]) ->
                 {Id, Id}
         end,
     Ids = dict:from_list(lists:map(F, Documents)),
     {ok, Ids}.
 
-handle_call(reload, Ids) ->
+handle_call(reload, _From, Ids) ->
     F = fun({Id, Id}) ->
                 [{<<"id">>, Id}, {<<"key">>, Id}, {<<"value">>, null}]
         end,
     Untouched = lists:map(F, dict:to_list(Ids)),
     {reply, Untouched, Ids};
-handle_call(_Msg, Ids) ->
+handle_call(_Msg, _From, Ids) ->
     {noreply, Ids}.
 
 handle_cast({delete, Id}, Ids) ->

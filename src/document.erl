@@ -26,7 +26,7 @@
          from_json/1,
          normalize/1,
          set_sortkeys/3,
-         to_json/1,
+         to_json/1
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").

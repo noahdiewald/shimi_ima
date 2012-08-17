@@ -246,6 +246,22 @@ record_to_proplist(Fields, Record) ->
 binary_to_hexlist(Bin) ->
     lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
 
+%% @doc Take a function a list and a number and run the function over
+%% list items in parallel. The number limits the number of concurrent
+%% workers. The operation is run as a side effect, returning the atom ok.
+-spec peach(F :: fun(), L :: list(), N :: integer()) -> ok.
+peach(_F, [], _N) ->
+    ok;
+peach(F, L, N) ->
+    {First, Rest} = takedrop(L, N),
+    S = self(),
+    Ref = erlang:make_ref(),
+    Ref2 = erlang:make_ref(),
+    Loop = spawn(fun() -> loop(Ref, {Ref2, S}, F, Rest) end),
+    Fun = fun(I) -> spawn(fun() -> do_f({Ref, Loop}, {Ref2, S}, F, I) end) end,
+    lists:foreach(Fun, First),
+    counter(Ref2, length(L)).
+
 %% @doc Randomly shuffle a list. Found on
 %% http://www.trapexit.org/RandomShuffle. We associate each element in
 %% the list with a random number. The list is then sorted based on the
@@ -273,3 +289,40 @@ randomize(List) ->
     D = lists:map(Fun, List),
     {_, D1} = lists:unzip(lists:keysort(1, D)),
     D1.
+    
+counter(_, 0) -> ok;
+counter(Ref, N) ->
+    receive
+        Ref ->
+            counter(Ref, N - 1)
+    end.
+
+do_f({Ref, Parent}, {Ref2, Counter}, F, I) ->
+    case (catch F(I)) of
+        {'EXIT', Error} ->
+            error_logger:error_report(
+              [{error_in_peach, {Error, {with_args, I}}}]);
+        _ -> ok
+    end,
+    Parent ! Ref,
+    Counter ! Ref2.
+
+loop(_, _, _, []) ->
+    ok;
+loop(Ref, Counter, F, [Next|Rest]) ->
+    S = self(),
+    receive
+        Ref ->
+            spawn(fun() -> do_f({Ref, S}, Counter, F, Next) end),
+            loop(Ref, Counter, F, Rest)
+    end.
+
+takedrop(L, N) ->
+    takedrop(L, [], N).
+
+takedrop([], Acc, _N) ->
+    {lists:reverse(Acc), []};
+takedrop(Rest, Acc, 0) ->
+    {lists:reverse(Acc), Rest};
+takedrop([H|Rest], Acc, N) ->
+    takedrop(Rest, [H|Acc], N - 1).
