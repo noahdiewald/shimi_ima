@@ -32,7 +32,6 @@
 -export([
          delete/2,
          exists/1,
-         reload/1,
          start/2
         ]).
 
@@ -45,45 +44,42 @@
          code_change/3
         ]).
 
+% API
+
 start(_, []) ->
     {error, no_documents};
 start(Doctype, Documents) ->
     Server = me(Doctype),
     gen_server:start({local, Server}, ?MODULE, Documents, []).
 
+get(Doctype) ->
+    gen_server:call(me(Doctype), get).
+
 exists(Doctype) ->
     lists:member(me(Doctype), registered()).
-
-me(Doctype) ->
-    list_to_atom(atom_to_list(?SERVER) ++ "-" ++ Doctype).
 
 delete(Doctype, Id) ->
     gen_server:cast(me(Doctype), {delete, Id}).
 
-reload(Doctype) ->
-    gen_server:call(me(Doctype), reload).
+% Gen Server
 
 init(Documents) ->
     F = fun([{<<"id">>, Id}|_]) ->
                 {Id, Id}
         end,
-    Ids = dict:from_list(lists:map(F, Documents)),
+    Ids = lists:map(F, Documents),
     {ok, Ids}.
 
-handle_call(reload, _From, Ids) ->
-    F = fun({Id, Id}) ->
-                [{<<"id">>, Id}, {<<"key">>, Id}, {<<"value">>, null}]
-        end,
-    Untouched = lists:map(F, dict:to_list(Ids)),
-    {reply, Untouched, Ids};
+handle_call(get, _From, Ids) ->
+    {reply, Ids, Ids};
 handle_call(_Msg, _From, Ids) ->
     {noreply, Ids}.
 
 handle_cast({delete, Id}, Ids) ->
-    NewIds = dict:erase(Id, Ids),
-    case dict:size(NewIds) of
-        0 -> {stop, normal, NewIds};
-        _ -> {noreply, Ids}
+    NewIds = list:delete(Id, Ids),
+    case NewIds of
+        [] -> {stop, normal, NewIds};
+        _ -> {noreply, NewIds}
     end;
 handle_cast(_Msg, Ids) ->
     {noreply, Ids}.
@@ -96,3 +92,8 @@ terminate(_Reason, _S) ->
 
 code_change(_OldVsn, S, _Extra) ->
     {ok, S}.
+
+% Private 
+
+me(Doctype) ->
+    list_to_atom(atom_to_list(?SERVER) ++ "-" ++ Doctype).
