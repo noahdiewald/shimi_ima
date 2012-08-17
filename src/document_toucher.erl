@@ -205,26 +205,6 @@ touch_fields(Fs, FTid, S) ->
                   end
           end,
     lists:foldl(Fun, [], Fs2).
-
--spec add_missing([docfieldset()], state() | atom()) -> [docfieldset()] | [docfield()].
-add_missing(Fs, FTid) when is_atom(FTid) ->
-    Ids = [X#docfield.id || X <- Fs],
-    Fun = fun({Id, _}, Acc) ->
-                  case lists:member(Id, Ids) of
-                      false -> [#docfield{id=Id}|Acc];
-                      true -> Acc
-                  end
-          end,
-    ets:foldl(Fun, Fs, FTid);
-add_missing(FSs, S) ->
-    Ids = [X#docfieldset.id || X <- FSs],
-    Fun = fun({Id, _}, Acc) ->
-                  case lists:member(Id, Ids) of
-                      false -> [#docfieldset{id=Id}|Acc];
-                      true -> Acc
-                  end
-          end,
-    ets:foldl(Fun, FSs, S#state.tid).
     
 -spec touch_fieldset(docfieldset(), state()) -> docfieldset() | undefined.
 touch_fieldset(DFS, S) ->
@@ -294,6 +274,26 @@ touch_document(Id, S) ->
             error_logger:error_report(
               [{touch_document_update, {Unexpected, Doc2}}])
     end.
+
+-spec add_missing([docfieldset()], state() | atom()) -> [docfieldset()] | [docfield()].
+add_missing(Fs, FTid) when is_atom(FTid) ->
+    Ids = [X#docfield.id || X <- Fs],
+    Fun = fun({Id, _}, Acc) ->
+                  case lists:member(Id, Ids) of
+                      false -> [#docfield{id=Id}|Acc];
+                      true -> Acc
+                  end
+          end,
+    ets:foldl(Fun, Fs, FTid);
+add_missing(FSs, S) ->
+    Ids = [X#docfieldset.id || X <- FSs],
+    Fun = fun({Id, _}, Acc) ->
+                  case lists:member(Id, Ids) of
+                      false -> [#docfieldset{id=Id}|Acc];
+                      true -> Acc
+                  end
+          end,
+    ets:foldl(Fun, FSs, S#state.tid).
     
 -spec get_docs(state()) -> reference() | ok.
 get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
@@ -346,19 +346,30 @@ fill_field_tables([H|T], #state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
 
 %% @doc These are the fairly complex rules that deal with a fields
 %% value when default values, categories or other options have
-%% changed.
+%% changed. The first argument is the previous state of the document
+%% field. The second is the field that the docfield is based on and
+%% the third argument is the version of the docfield being updated,
+%% which is already partially processed.
 -spec update_normalize(docfield(), field(), docfield()) -> docfield() | {error, Reason :: term()}.
+% if the value of the docfield is the default, leave it.
 update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
-    DF;    
+    DF;
+% if the value is null, set it to the default.
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
     DF#docfield{value=Def};
+% this is partially to avoid having undefined be the value. This will
+% ensure the default or null.
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,
                                                       value=V}) when
       (V /= true) and (V /= false) -> DF#docfield{value=Def};
+%  this is partially to avoid having undefined be the value. If the
+%  value isn't a list, then it is unset and the default should be set.
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) 
   when
       ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> 
     DF#docfield{value=Def};
+% if the subcategory hasen't changed or is changing from a string type
+% to text or textarea, leave it alone.
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) 
   when 
     (S == S2) or
@@ -368,6 +379,9 @@ update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2})
       (S == docselect)) and
      ((S2 == text) or
       (S2 == textarea))) -> DF;
+% if the previous subcategory was of a type that is simple to convert
+% to a string, do so. Take another pass through to deal with any
+% consequences of this action.
 update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,
                                                            value=V}) when 
     (((S == integer) or
@@ -378,26 +392,39 @@ update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,
       (S2 == textarea))) ->
     DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
     update_normalize(#docfield{subcategory=text}, F, DF2);
+% Having established that the subcategory has changed, if the old
+% subcategory is a date, convert the value to a string and make
+% another pass through to sort out any issues that this move may have
+% brought up.
 update_normalize(#docfield{subcategory=date}, F, DF) ->
     update_normalize(#docfield{subcategory=text}, F, 
                      DF#docfield{
                        value=field:unconvert_value(date, DF#docfield.value)});
+% There is no need to change anything if the change is from docselect
+% to select or vice versa.
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
     ((S == docselect) or (S == select)) and 
     ((S2 == docselect) or (S2 == select)) -> DF;
+% The same as above but for multiselects.
 update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
     ((S == docmultiselect) or (S == multiselect)) and 
     ((S2 == docmultiselect) or (S2 == multiselect)) -> DF;
+% Convert from rationals to integers by truncating the fractional
+% part.
 update_normalize(#docfield{subcategory=rational}, _, 
                  DF=#docfield{subcategory=integer,value=V}) ->
     DF#docfield{value=erlang:trunc(V)};
+% Convert integers to rationals by dividing by 1.
 update_normalize(#docfield{subcategory=integer}, _, 
                  DF=#docfield{subcategory=rational,value=V}) -> 
     DF#docfield{value=(V / 1)};
+% Going from boolean to openboolean will not cause any problems.
 update_normalize(#docfield{subcategory=boolean}, _, 
                  DF=#docfield{subcategory=openboolean}) -> DF;
+% Going from openboolean to boolean, set null to false.
 update_normalize(#docfield{subcategory=openboolean}, _, 
                  DF=#docfield{subcategory=boolean,value=V}) ->
     DF#docfield{value=(V == true)};
+% If none of the above condtions match, set the value to default.
 update_normalize(_, #field{default=D}, DF) ->
     DF#docfield{value=D}.
