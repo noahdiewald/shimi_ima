@@ -54,7 +54,8 @@
           wm_state :: any(),
           tid :: ets:tid(),
           doctype :: string(),
-          counter :: integer()
+          counter :: integer(),
+          me :: atom()
           }).
 
 -type state() :: #state{}.
@@ -86,54 +87,66 @@ exists(Doctype) ->
 init({Doctype, R, WMS}) ->
     error_logger:info_msg("~p started~n", [me(Doctype)]),
     Tid = ets:new(list_to_atom(Doctype ++ "-" ++ "fs_table"), []),
-    {ok, #state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid, counter=5}}.
+    {ok, #state{doctype=Doctype, 
+                wrq=R, 
+                wm_state=WMS, 
+                tid=Tid, 
+                counter=5, 
+                me=me(Doctype)}}.
 
 handle_call(_Msg, _From, S) ->    
     {noreply, S}.
 
 handle_cast(initialize, S) ->
-    Me = me(S#state.doctype),
+    Me = S#state.me,
     error_logger:info_msg("~p initializing~n", [Me]),
     erlang:send(Me, fill_tab),
     {noreply, S};
 handle_cast(stop, S) ->
     {stop, normal, S};
+handle_cast(process_docs, S) ->
+    case process_docs(S) of
+        false ->
+            erlang:send_after(150000, S#state.me, get_docs); 
+        true ->
+            gen_server:cast(S#state.me, stop)
+    end,
+    {noreply, S};
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
 handle_info({fill_tab, []}, S) ->
-    erlang:send(me(S#state.doctype), get_docs),
+    erlang:send(S#state.me, get_docs),
     {noreply, S};
 handle_info({fill_tab, FS}, S) ->
     case fill_field_tables(FS, S) of
         {ok, FS2} -> 
-            erlang:send(me(S#state.doctype), {fill_tab, FS2});
+            erlang:send(S#state.me, {fill_tab, FS2});
         {error, req_timedout, FS} -> 
-            erlang:send_after(150000, me(S#state.doctype), {fill_tab, FS})
+            erlang:send_after(150000, S#state.me, {fill_tab, FS})
     end,
     {noreply, S};
 handle_info(fill_tab, S) ->
     case fill_fieldset_table(S) of
         {ok, FSIds} ->
-            erlang:send(me(S#state.doctype), {fill_tab, FSIds});
+            erlang:send(S#state.me, {fill_tab, FSIds});
         {error, req_timedout} ->
-            erlang:send_after(150000, me(S#state.doctype), fill_tab)
+            erlang:send_after(150000, S#state.me, fill_tab)
     end,
     {noreply, S};
 handle_info(get_docs, S) ->
     case get_docs(S) of
         ok -> 
-            process_docs(S),
-            {stop, normal, S};
+            gen_server:cast(S#state.doctype, process_docs);
         {error, req_timedout} ->
-            erlang:send_after(150000, S#state.doctype, get_docs),
-            {noreply, S}
-    end;
+            erlang:send_after(150000, S#state.doctype, get_docs)
+    end,
+    {noreply, S};
 handle_info(_Msg, S) ->
     {noreply, S}.
   
 terminate(_Msg, S) ->
-    error_logger:info_msg("Stoping ~p~n", [me(S#state.doctype)]),
+    error_logger:info_msg("Stoping ~p~n", [S#state.me]),
     ok.
 
 code_change(_OldVsn, S, _Extra) ->
@@ -161,7 +174,7 @@ me(Doctype) ->
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
-    error_logger:info_msg("~p touching: ~n~p", [me(S#state.doctype), Id]),
+    error_logger:info_msg("~p touching: ~n~p", [S#state.me, Id]),
     Doc = document:from_json(Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
@@ -171,9 +184,12 @@ touch_document(Id, S) ->
         {ok, updated} ->
             untouched:delete(S#state.doctype, Id),
             ok;
-        Unexpected ->
+        {409, _} ->
             error_logger:error_report(
-              [{touch_document_update, {Unexpected, Doc2}}])
+              [{S#state.me, {conflict, Doc2}}]);
+        {error, req_timedout} ->
+            error_logger:error_report(
+              [{S#state.me, {req_timedout, Doc2}}])
     end.
 
 %% @doc Perform the portion of a touch operation that is specific to the
@@ -303,17 +319,18 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
     end.
 
 %% @doc Run touch on each document that is still untouched.
--spec process_docs(state()) -> ok.
+-spec process_docs(state()) -> boolean().
 process_docs(S) ->
     case untouched:get(S#state.doctype) of
         [] -> 
             untouched:delete(S#state.doctype, ""),
-            ok;
+            not untouched:exists(S#state.doctype);
         DocIds ->
             error_logger:info_msg("~p will touch ~p documents~n", 
-                                  [me(S#state.doctype), length(DocIds)]),
+                                  [S#state.me, length(DocIds)]),
             F = fun(X) -> touch_document(X, S) end,
-            utils:peach(F, DocIds, 5)
+            utils:peach(F, DocIds, S#state.counter),
+            not untouched:exists(S#state.doctype)
     end.
 
 %% @doc Fill an ets table that hold the fieldsets so that they can be
