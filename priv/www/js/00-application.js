@@ -8,8 +8,8 @@
  
  h2. Data Attribute Key Value Stores
  
- There are two functions provided for treating HTML elements like key
- value stores.
+ There are two functions provided for getting values from keys
+ embedded in HTML elements.
   
   @getValue(key, elem)@
   
