@@ -32,7 +32,8 @@
 -export([
          exists/1,
          start/2,
-         start/3
+         start/3,
+         stop/1
         ]).
 
 -export([
@@ -74,9 +75,12 @@ start(Doctype, R, WMS) ->
         Else -> Else
     end.
 
+stop(Doctype) ->
+    gen_server:cast(me(Doctype), stop).
+
 exists(Doctype) ->
     lists:member(me(Doctype), registered()).
-
+    
 % Gen Server
 
 init({Doctype, R, WMS}) ->
@@ -92,6 +96,8 @@ handle_cast(initialize, S) ->
     error_logger:info_msg("~p initializing~n", [Me]),
     erlang:send(Me, fill_tab),
     {noreply, S};
+handle_cast(stop, S) ->
+    {stop, normal, S};
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
@@ -302,6 +308,8 @@ process_docs(S) ->
             untouched:delete(S#state.doctype, ""),
             ok;
         DocIds ->
+            error_logger:info_msg("~p will touch ~p documents~n", 
+                                  [me(S#state.doctype), length(DocIds)]),
             F = fun(X) -> touch_document(X, S) end,
             utils:peach(F, DocIds, 5)
     end.
