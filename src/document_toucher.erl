@@ -30,6 +30,7 @@
 -define(SERVER, ?MODULE).
 
 -export([
+         exists/1,
          start/2,
          start/3
         ]).
@@ -73,10 +74,13 @@ start(Doctype, R, WMS) ->
         Else -> Else
     end.
 
+exists(Doctype) ->
+    lists:member(me(Doctype), registered()).
+
 % Gen Server
 
 init({Doctype, R, WMS}) ->
-    error_logger:info_report([{touch_all, started}]),
+    error_logger:info_msg("~p started~n", [me(Doctype)]),
     Tid = ets:new(list_to_atom(Doctype ++ "-" ++ "fs_table"), []),
     {ok, #state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid, counter=5}}.
 
@@ -84,8 +88,9 @@ handle_call(_Msg, _From, S) ->
     {noreply, S}.
 
 handle_cast(initialize, S) ->
-    error_logger:info_report([{touch_all, initializing}]),
-    erlang:send(me(S#state.doctype), fill_tab),
+    Me = me(S#state.doctype),
+    error_logger:info_msg("~p initializing~n", [Me]),
+    erlang:send(Me, fill_tab),
     {noreply, S};
 handle_cast({document, Id}, S) when is_binary(Id) ->
     touch_document(Id, S),
@@ -93,16 +98,33 @@ handle_cast({document, Id}, S) when is_binary(Id) ->
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
+handle_info({fill_tab, []}, S) ->
+    erlang:send(S#state.doctype, get_docs),
+    {noreply, S};
 handle_info({fill_tab, FS}, S) ->
-    fill_field_tables(FS, S),
+    case fill_field_tables(FS, S) of
+        {ok, FS2} -> erlang:send(S#state.doctype, {fill_tab, FS2});
+        {error, req_timedout, FS} -> 
+            erlang:send_after(150000, S#state.doctype, {fill_tab, FS})
+    end,
     {noreply, S};
 handle_info(fill_tab, S) ->
-    fill_fieldset_table(S),
+    case fill_fieldset_table(S) of
+        {ok, FSIds} ->
+            erlang:send(me(S#state.doctype), {fill_tab, FSIds});
+        {error, req_timedout} ->
+            erlang:send_after(150000, me(S#state.doctype), fill_tab)
+    end,
     {noreply, S};
 handle_info(get_docs, S) ->
-    get_docs(S),
-    %process_docs(S),
-    {noreply, S};
+    case get_docs(S) of
+        ok -> 
+            process_docs(S),
+            {stop, normal, S};
+        {error, req_timedout} ->
+            erlang:send_after(150000, S#state.doctype, get_docs),
+            {noreply, S}
+    end;
 handle_info(_Msg, S) ->
     {noreply, S}.
   
@@ -258,7 +280,7 @@ add_missing(FSs, S) ->
 %% @doc Retrieve the ids of the documents that need to be
 %% processed. These are kept in the untouched server so that the
 %% process can be restarted if there is a network error.
--spec get_docs(state()) -> reference() | ok.
+-spec get_docs(state()) -> ok | {error, req_timedout}.
 get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
     case untouched:start(Doctype, []) of
         {error, already_started} -> ok;
@@ -269,17 +291,24 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
                     {ok, _} = untouched:start(Doctype, Rows),
                     ok;
                 {error, req_timedout} ->
-                    erlang:send_after(150000, me(Doctype), get_docs)
+                    {error, req_timedout}
             end
     end.
+
+%% @doc Run touch on each document that is still untouched.
+-spec process_docs(state()) -> ok.
+process_docs(S) ->
+    DocIds = untouched:get(S#state.doctype),
+    F = fun(X) -> touch_document(X, S) end,
+    utils:peach(F, DocIds, 5). 
 
 %% @doc Fill an ets table that hold the fieldsets so that they can be
 %% referred to later without adding to server load. The means of
 %% retrieving the fieldsets is to use a view and querying the view
 %% while updating many documents can cause processing to be slowed
 %% while view indexing takes place.
--spec fill_fieldset_table(state()) -> reference() | ok.
-fill_fieldset_table(#state{doctype=Doctype,wrq=R,wm_state=WMS,tid=Tid}) ->
+-spec fill_fieldset_table(state()) -> {ok, [string()]} | {error, req_timedout}.
+fill_fieldset_table(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
     case couch:get_view_json(Doctype, "fieldsets", R, WMS) of
         {ok, FSJson} ->
             F = fun(X, {Ids, Recs}) ->
@@ -291,9 +320,9 @@ fill_fieldset_table(#state{doctype=Doctype,wrq=R,wm_state=WMS,tid=Tid}) ->
             {FSIds, FSRecs} = lists:foldl(F, {[], []}, 
                                           jsn:get_value(<<"rows">>, FSJson)),
             true = ets:insert(Tid, FSRecs),
-            erlang:send(me(Doctype), {fill_tab, FSIds});
+            {ok, FSIds};
         {error, req_timedout} ->
-            erlang:send_after(150000, me(Doctype), fill_tab)
+            {error, req_timedout}
     end.
 
 %% @doc Create and fill ets tables that hold the fields so that they
@@ -301,10 +330,8 @@ fill_fieldset_table(#state{doctype=Doctype,wrq=R,wm_state=WMS,tid=Tid}) ->
 %% of retrieving the fields is to use a view and querying the view
 %% while updating many documents can cause processing to be slowed
 %% while view indexing takes place.
--spec fill_field_tables([string()], state()) -> reference() | ok.
-fill_field_tables([], S) ->
-    erlang:send(me(S#state.doctype), get_docs);
-fill_field_tables([H|T], #state{doctype=Doctype, wrq=R, wm_state=WMS}) -> 
+-spec fill_field_tables([string()], state()) -> {ok, [string()]} | {error, req_timedout, [string()]}.
+fill_field_tables([H|T], #state{wrq=R, wm_state=WMS}) -> 
     case couch:get_view_json(H, "fields", R, WMS) of
         {ok, FJson} ->
             FRecs = [{jsn:get_value(<<"id">>, X), 
@@ -312,9 +339,9 @@ fill_field_tables([H|T], #state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
                         X <- jsn:get_value(<<"rows">>, FJson)],
             Tid = ets:new(atom_to_list(H), [named_table]),
             true = ets:insert(Tid, FRecs),
-            erlang:send(me(Doctype), {fill_tab, T});
+            {ok, T};
         {error, req_timedout} ->
-            erlang:send_after(150000, me(Doctype), {fill_tab, [H|T]})
+            {error, req_timedout, [H|T]}
     end.
 
 %% @doc These are the fairly complex rules that deal with a fields

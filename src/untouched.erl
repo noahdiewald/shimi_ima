@@ -32,6 +32,7 @@
 -export([
          delete/2,
          exists/1,
+         get/1,
          start/2
         ]).
 
