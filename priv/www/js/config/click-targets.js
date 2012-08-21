@@ -38,7 +38,7 @@ var deleteFieldButton = function(target) {
       url.field = false;
       url.rev = false;
       
-      populateFields(url)
+      populateFields(url);
     };
     url.delete(complete, this);
   }

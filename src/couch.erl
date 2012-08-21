@@ -291,12 +291,16 @@ update(bulk, Json, R, S) ->
   
 update(Url, Headers, Json) ->
     case ibrowse:send_req(Url, Headers, put, jsn:encode(jsn:decode(Json))) of
-        {ok, "201", _, _} -> {ok, updated};
+        {ok, "201", _, _} -> 
+            {ok, updated};
+        {error, req_timedout} -> 
+            {error, req_timedout};
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
             Message = jsn:get_value(<<"reason">>, Resp),
             {403, Message};
-        {ok, "409", _, _} -> {409, <<"Conflict">>}
+        {ok, "409", _, _} -> 
+            {409, <<"Conflict">>}
     end.
 
 exists(Target, R, S) ->

@@ -107,14 +107,17 @@ function path(source, category, section) {
   path.type = prefix + "path";
   path.valid_components = ["doctype", "fieldset", "field"];
   
-  path.valid_components.forEach(function(item) {
-    path[item] = (function() {
-      var value = getValue(prefix + item, path.origin);
-      return value;
-    })();
-  });
+  path.valid_components.forEach(
+    function(item) {
+      path[item] = (function() {
+                      var value = getValue(prefix + item, path.origin);
+                      return value;
+                    })();
+    });
   
   path.rev = getValue(prefix + 'rev', path.origin);
+
+  path.doctype = getValue(prefix + 'doctype', path.origin);
   
   path.send = function(object, method, callback, context) {
     sendConfigDoc(path.toString(), object, method, callback, context);
@@ -139,18 +142,25 @@ function path(source, category, section) {
   path.toString = function() {
     var rev;
       
-    pathString = path.string.concat(path.valid_components.map(function(item) {
-      var plural = item + "s";
-      var value = path[item];
-      
-      if (value) {
-        return plural + "/" + value;
-      } else if (item == path.category) {
-        return plural;
-      }
-    }).filter(function(item) {
-      return (typeof item == "string" && !item.isBlank());
-    }).join("/"));
+    var pathString = 
+      path.string.concat(
+        path.valid_components.map(
+          function(item) {
+            var plural = item + "s";
+            var value = path[item];
+            var retval = null;
+            
+            if (value) {
+              retval = plural + "/" + value;
+            } else if (item == path.category) {
+              retval = plural;
+            }
+            
+            return retval;
+          }).filter(
+            function(item) {
+              return (typeof item == "string" && !item.isBlank());
+            }).join("/"));
       
     if (path.rev) {
       pathString = pathString.concat("?rev=" + path.rev);

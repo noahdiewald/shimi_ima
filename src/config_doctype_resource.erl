@@ -18,33 +18,33 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc The resource used accessing and editing document types in a 
-%%%      configuration context.
+%%% @doc The resource used accessing and editing document types in a
+%%% configuration context.
 
 -module(config_doctype_resource).
 
 % Webmachine API
 -export([
-  allowed_methods/2,
-  content_types_accepted/2,
-  content_types_provided/2,
-  create_path/2,
-  delete_resource/2,
-  init/1, 
-  is_authorized/2,
-  post_is_create/2,
-  process_post/2,
-  resource_exists/2
-]).
+         allowed_methods/2,
+         content_types_accepted/2,
+         content_types_provided/2,
+         create_path/2,
+         delete_resource/2,
+         init/1, 
+         is_authorized/2,
+         post_is_create/2,
+         process_post/2,
+         resource_exists/2
+        ]).
 
 % Custom
 -export([
-  from_json/2,
-  id_html/2,
-  index_html/2,
-  provide_null/2,
-  validate_authentication/3
-]).
+         from_json/2,
+         id_html/2,
+         index_html/2,
+         provide_null/2,
+         validate_authentication/3
+        ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
@@ -56,9 +56,9 @@ init(Opts) -> {ok, Opts}.
 resource_exists(R, S) ->
   Id = wrq:path_info(id, R),
   case proplists:get_value(target, S) of
-    identifier -> {couch:exists(Id, R, S), R, S};
-    index -> {couch:exists([], R, S), R, S};
-    touch -> {couch:exists(Id, R, S), R, S}
+      identifier -> {couch:exists(Id, R, S), R, S};
+      index -> {couch:exists([], R, S), R, S};
+      touch -> {couch:exists(Id, R, S), R, S}
   end.
 
 is_authorized(R, S) ->
@@ -66,46 +66,48 @@ is_authorized(R, S) ->
 
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
-    index -> {['HEAD', 'GET', 'POST'], R, S};
-    touch -> {['HEAD', 'POST'], R, S};
-    identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
+      index -> {['HEAD', 'GET', 'POST'], R, S};
+      touch -> {['HEAD', 'POST'], R, S};
+      identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
   end.
   
 delete_resource(R, S) ->
-  case couch:delete(R, S) of
-    {ok, deleted} -> {true, R, S};
-    {409, _} ->
-      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 409}, R1, S}
-  end.
+    Msg = <<"This document has been edited or deleted by another user.">>,
+    case couch:delete(R, S) of
+        {ok, deleted} -> {true, R, S};
+        {409, _} ->
+            Message = jsn:encode([{<<"message">>, Msg}]),
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 409}, R1, S}
+    end.
   
 post_is_create(R, S) ->
-  case proplists:get_value(target, S) of
-    touch -> {false, R, S};
-    _Else -> {true, R, S}
-  end.
+    case proplists:get_value(target, S) of
+        touch -> {false, R, S};
+        _Else -> {true, R, S}
+    end.
 
 create_path(R, S) ->
-  Json = jsn:decode(wrq:req_body(R)),
-  Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
-  Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ wrq:path(R) ++ "/" ++ Id,
-  R1 = wrq:set_resp_header("Location", Location, R),
-  {Id, R1, [{posted_json, Json}|S]}.
+    Json = jsn:decode(wrq:req_body(R)),
+    Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
+    Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
+        wrq:path(R) ++ "/" ++ Id,
+    R1 = wrq:set_resp_header("Location", Location, R),
+    {Id, R1, [{posted_json, Json}|S]}.
 
 content_types_provided(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> {[{"text/html", index_html}], R, S};
-    touch -> {[{"*/*", index_html}], R, S};
-    identifier -> {[{"text/html", id_html}], R, S}
-  end.
+    case proplists:get_value(target, S) of
+        index -> {[{"text/html", index_html}], R, S};
+        touch -> {[{"*/*", index_html}], R, S};
+        identifier -> {[{"text/html", id_html}], R, S}
+    end.
   
 content_types_accepted(R, S) ->
-  {[{"application/json", from_json}], R, S}.
+    {[{"application/json", from_json}], R, S}.
 
 process_post(R, S) ->
-  spawn_link(document, touch_all, [R, S]),
-  {{halt, 204}, R, S}.
+    document_toucher:start(R, S),
+    {{halt, 204}, R, S}.
 
 provide_null(R, S) ->
   {[<<>>], R, S}.
@@ -116,7 +118,7 @@ index_html(R, S) ->
   utils:report_indexing_timeout(Request, Success, R, S).
   
 id_html(R, S) ->
-  Json = couch:get_json(id, R, S), 
+  Json = couch:get_json(id, R, S),
   {ok, Html} = config_doctype_dtl:render(Json),
   {Html, R, S}.
   
