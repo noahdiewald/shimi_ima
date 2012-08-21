@@ -187,20 +187,22 @@ touch_fieldsets(FSs, S) ->
                       FS -> [FS|Acc]
                   end
           end,
-    lists:foldl(Fun, [], FSs2). 
+    SFun = fun(X, Y) -> X#docfieldset.order =< Y#docfieldset.order end,
+    lists:sort(SFun, lists:foldl(Fun, [], FSs2)). 
 
 %% @doc Perform the portion of a touch operation that is specific to
 %% the fields.
 -spec touch_fields([docfield()], atom(), state()) -> [docfield()].
 touch_fields(Fs, FTid, S) ->        
     Fs2 = add_missing(Fs, FTid),
-    Fun = fun(X, Acc) ->
+    FFun = fun(X, Acc) ->
                   case touch_field(X, FTid, S) of
                       undefined -> Acc;
                       F -> [F|Acc]
                   end
           end,
-    lists:foldl(Fun, [], Fs2).
+    SFun = fun(X, Y) -> X#docfield.order =< Y#docfield.order end,
+    lists:sort(SFun, lists:foldl(FFun, [], Fs2)).
 
 %% @doc Perform the portion of a touch operation that is specific to a
 %% single fieldset.
