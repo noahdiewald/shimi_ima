@@ -47,8 +47,6 @@
 
 % API
 
-start(_, []) ->
-    {error, no_documents};
 start(Doctype, Documents) ->
     Server = me(Doctype),
     gen_server:start({local, Server}, ?MODULE, Documents, []).
@@ -66,7 +64,7 @@ delete(Doctype, Id) ->
 
 init(Documents) ->
     F = fun([{<<"id">>, Id}|_]) ->
-                {Id, Id}
+                Id
         end,
     Ids = lists:map(F, Documents),
     {ok, Ids}.
@@ -77,7 +75,7 @@ handle_call(_Msg, _From, Ids) ->
     {noreply, Ids}.
 
 handle_cast({delete, Id}, Ids) ->
-    NewIds = list:delete(Id, Ids),
+    NewIds = lists:delete(Id, Ids),
     case NewIds of
         [] -> {stop, normal, NewIds};
         _ -> {noreply, NewIds}

@@ -92,20 +92,18 @@ handle_cast(initialize, S) ->
     error_logger:info_msg("~p initializing~n", [Me]),
     erlang:send(Me, fill_tab),
     {noreply, S};
-handle_cast({document, Id}, S) when is_binary(Id) ->
-    touch_document(Id, S),
-    {noreply, S};
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
 handle_info({fill_tab, []}, S) ->
-    erlang:send(S#state.doctype, get_docs),
+    erlang:send(me(S#state.doctype), get_docs),
     {noreply, S};
 handle_info({fill_tab, FS}, S) ->
     case fill_field_tables(FS, S) of
-        {ok, FS2} -> erlang:send(S#state.doctype, {fill_tab, FS2});
+        {ok, FS2} -> 
+            erlang:send(me(S#state.doctype), {fill_tab, FS2});
         {error, req_timedout, FS} -> 
-            erlang:send_after(150000, S#state.doctype, {fill_tab, FS})
+            erlang:send_after(150000, me(S#state.doctype), {fill_tab, FS})
     end,
     {noreply, S};
 handle_info(fill_tab, S) ->
@@ -128,8 +126,8 @@ handle_info(get_docs, S) ->
 handle_info(_Msg, S) ->
     {noreply, S}.
   
-terminate(_Msg, _S) ->
-    error_logger:info_report([{touch_all, finished}]),
+terminate(_Msg, S) ->
+    error_logger:info_msg("Stoping ~p~n", [me(S#state.doctype)]),
     ok.
 
 code_change(_OldVsn, S, _Extra) ->
@@ -157,6 +155,7 @@ me(Doctype) ->
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
+    error_logger:info_msg("~p touching: ~n~p", [me(S#state.doctype), Id]),
     Doc = document:from_json(Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
@@ -164,7 +163,7 @@ touch_document(Id, S) ->
     case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), S#state.wrq, 
                       S#state.wm_state) of
         {ok, updated} ->
-            untouched:delete(Id),
+            untouched:delete(S#state.doctype, Id),
             ok;
         Unexpected ->
             error_logger:error_report(
@@ -203,7 +202,7 @@ touch_fields(Fs, FTid, S) ->
 touch_fieldset(DFS, S) ->
     case ets:lookup(S#state.tid, DFS#docfieldset.id) of
         [] -> undefined;
-        [FS] ->
+        [{_, FS}] ->
             DFS2 = DFS#docfieldset{
                      label = FS#fieldset.label,
                      name = FS#fieldset.name,
@@ -229,7 +228,7 @@ touch_fieldset(DFS, S) ->
 touch_field(DF, FTid, S) ->
     case ets:lookup(FTid, DF#docfield.id) of
         [] -> undefined;
-        [F] ->
+        [{_, F}] ->
             DF2 = DF#docfield{
                     charseq = F#field.charseq,
                     head = F#field.head,
@@ -282,9 +281,9 @@ add_missing(FSs, S) ->
 %% process can be restarted if there is a network error.
 -spec get_docs(state()) -> ok | {error, req_timedout}.
 get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
-    case untouched:start(Doctype, []) of
-        {error, already_started} -> ok;
-        {error, no_documents} -> 
+    case untouched:exists(Doctype) of
+        true -> ok;
+        false -> 
             case couch:get_view_json(Doctype, "quickdocs", R, WMS) of
                 {ok, AllDocs} ->
                     Rows = jsn:get_value(<<"rows">>, AllDocs),
@@ -298,9 +297,14 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
 %% @doc Run touch on each document that is still untouched.
 -spec process_docs(state()) -> ok.
 process_docs(S) ->
-    DocIds = untouched:get(S#state.doctype),
-    F = fun(X) -> touch_document(X, S) end,
-    utils:peach(F, DocIds, 5). 
+    case untouched:get(S#state.doctype) of
+        [] -> 
+            untouched:delete(S#state.doctype, ""),
+            ok;
+        DocIds ->
+            F = fun(X) -> touch_document(X, S) end,
+            utils:peach(F, DocIds, 5)
+    end.
 
 %% @doc Fill an ets table that hold the fieldsets so that they can be
 %% referred to later without adding to server load. The means of
@@ -337,7 +341,7 @@ fill_field_tables([H|T], #state{wrq=R, wm_state=WMS}) ->
             FRecs = [{jsn:get_value(<<"id">>, X), 
                       field:from_json(jsn:get_value(<<"value">>, X))} || 
                         X <- jsn:get_value(<<"rows">>, FJson)],
-            Tid = ets:new(atom_to_list(H), [named_table]),
+            Tid = ets:new(list_to_atom(H), [named_table]),
             true = ets:insert(Tid, FRecs),
             {ok, T};
         {error, req_timedout} ->
