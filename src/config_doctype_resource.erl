@@ -118,7 +118,7 @@ index_html(R, S) ->
   utils:report_indexing_timeout(Request, Success, R, S).
   
 id_html(R, S) ->
-  Json = couch:get_json(id, R, S), 
+  Json = couch:get_json(id, R, S),
   {ok, Html} = config_doctype_dtl:render(Json),
   {Html, R, S}.
   
