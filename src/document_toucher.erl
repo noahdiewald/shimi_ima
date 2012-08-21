@@ -137,9 +137,9 @@ handle_info(fill_tab, S) ->
 handle_info(get_docs, S) ->
     case get_docs(S) of
         ok -> 
-            gen_server:cast(S#state.doctype, process_docs);
+            gen_server:cast(S#state.me, process_docs);
         {error, req_timedout} ->
-            erlang:send_after(150000, S#state.doctype, get_docs)
+            erlang:send_after(150000, S#state.me, get_docs)
     end,
     {noreply, S};
 handle_info(_Msg, S) ->
