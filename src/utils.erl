@@ -27,6 +27,7 @@
          add_encoded_keys/1,
          binary_to_hexlist/1,
          clear_all/2,
+         delete_all_design_docs/1,
          get_index/3,
          list_dir/1,
          peach/3,
@@ -326,3 +327,15 @@ takedrop(Rest, Acc, 0) ->
     {lists:reverse(Acc), Rest};
 takedrop([H|Rest], Acc, N) ->
     takedrop(Rest, [H|Acc], N - 1).
+
+delete_all_design_docs(DB) ->
+    Url = ?ADMINDB ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{"startkey", <<"_design/">>},{"endkey", <<"_design0">>}])),
+    {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+    Designs = proplists:get_value(<<"rows">>, jsn:decode(Json)),
+    F = fun(X) ->
+                Id = proplists:get_value(<<"id">>, X),
+                Rev = proplists:get_value(<<"rev">>, proplists:get_value(<<"value">>, X)),
+                Urrl = ?ADMINDB ++ DB ++ "/" ++ binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev),
+                ibrowse:send_req(Urrl, [], delete)
+        end,
+    lists:map(F, Designs).
