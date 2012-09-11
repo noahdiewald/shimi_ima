@@ -31,8 +31,7 @@
   init/1, 
   is_authorized/2,
   resource_exists/2,
-  to_html/2,
-  touch_all/2
+  to_html/2
 ]).
 
 % Custom
@@ -48,74 +47,21 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  
-  case proplists:get_value(target, S) of
-    index -> {couch:exists([], R, S), R, S};
-    touch -> {couch:exists(Doctype, R, S), R, S}
-  end.
+  {couch:exists([], R, S), R, S}.
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> {['HEAD', 'GET'], R, S};
-    touch -> {['HEAD', 'GET'], R, S}
-  end.
+  {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> {[{"text/html", to_html}], R, S};
-    touch -> {[{"application/json", touch_all}], R, S}
-  end.
+    {[{"text/html", to_html}], R, S}.
   
 to_html(R, S) ->
   {html_index(R, S), R, S}.
   
-touch_all(R, S) ->
-  DoctypeId = wrq:path_info(doctype, R),
-  {ok, Template} = generate_template(DoctypeId, R, S),
-  {ok, bulk_template} = erlydtl:compile(iolist_to_binary(Template), bulk_template),
-  Documents = get_documents(DoctypeId, R, S),
-  {ok, Rendering} = bulk_template:render([{<<"documents">>, Documents}]),
-  
-  case couch:update(bulk, Rendering, R, S) of
-    {ok, Body} -> {Body, R, S};
-    {403, Message} ->
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 403}, R1, S};
-    {409, _} ->
-      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 409}, R1, S}
-  end.
-  
 % Helpers
-
-get_documents(DoctypeId, R, S) ->
-  {ok, Json} = couch:get_view_json(DoctypeId, "ids_as_keys", R, S),
-  Documents1 = jsn:get_value(<<"rows">>, Json),
-  [jsn:get_value(<<"value">>,X) || X <- Documents1].
-
-generate_template(DoctypeId, R, S) ->
-  Doctype1 = couch:get_json(doctype, R, S),
-  Fieldsets = get_fieldsets(DoctypeId, R, S),
-  Doctype2 = jsn:set_value(<<"fieldsets">>, Fieldsets, Doctype1),
-  batch_document_dtl:render([{<<"doctype">>, Doctype2}, {<<"ov">>, <<"{{">>}, {<<"cv">>, <<"}}">>}, {<<"ot">>, <<"{%">>}, {<<"ct">>, <<"%}">>}]).
-
-get_fieldsets(DoctypeId, R, S) ->
-  {ok, Json} = couch:get_view_json(DoctypeId, "fieldsets", R, S),
-  Fieldsets1 = jsn:get_value(<<"rows">>, Json),
-  Fieldsets2 = [jsn:get_value(<<"value">>,X) || X <- Fieldsets1],
-  [add_fields(Fieldset, R, S) || Fieldset <- Fieldsets2].
-  
-add_fields(Fieldset, R, S) ->
-  Id = binary_to_list(jsn:get_value(<<"_id">>, Fieldset)),
-  {ok, Json} = couch:get_view_json(Id, "fields", R, S),
-  Fields1 = jsn:get_value(<<"rows">>, Json),
-  Fields2 = [jsn:get_value(<<"value">>,X) || X <- Fields1],
-  jsn:set_value(<<"fields">>, Fields2, Fieldset).
   
 html_index(R, S) ->
   User = proplists:get_value(user, S),
