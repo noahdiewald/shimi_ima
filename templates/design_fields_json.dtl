@@ -1,21 +1,16 @@
 {
-   "_id": "_design/{{ _id }}",
-   "version": 8,
+   "_id": "_design/fields",
+   "version": 1,
    "views": {
-       "all_vals": {
+       "search": {
            "map": "function(doc) { 
-             if (doc.doctype === '{{ doctype }}' && 
-                 !doc.deleted_ &&
-                 doc.index && 
-                 doc.index['{{ _id }}'] !== undefined)  { 
-
-               var indexVal = doc.index['{{ _id }}'];
+             if (!doc.deleted_ && doc.index) { 
                var isArray = function(anArray) {
                  return Object.prototype.toString.apply(anArray) === 
                    '[object Array]';
                };
                var notBlank = function(val) {
-                 return (val !== null && val.toString() !== '');
+                 return (val !== undefined && val !== null && val.toString() !== '');
                };
                var head = function() {
                  hd = doc.head;
@@ -32,20 +27,22 @@
                    }
                  }).join(', ');
                };
-               var condEmit = function(val) {
+               var condEmit = function(key, val) {
                  if (notBlank(val[1])) {
-                   emit([val[0], val[1].toString()], head());
+                   emit([doc.doctype, key, val[0], val[1].toString()], head());
                  }
                };
-     
-               if (!isArray(indexVal[0])) {
-                 condEmit(indexVal);
-               } else {
-                 indexVal.forEach(function(val) {
-                   condEmit(val);
-                 });
-               }
-             } 
+               
+               Object.keys(doc.index).forEach(function(indexKey) {
+                 if (!isArray(doc.index[indexKey][0])) {
+                   condEmit(indexKey, doc.index[indexKey][0]);
+                 } else {
+                   doc.index[indexKey].forEach(function(val) {
+                     condEmit(indexKey, val);
+                   });
+                 }
+               });
+             }
            }" 
        }
    }
