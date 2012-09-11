@@ -115,8 +115,9 @@ index_html(R, S) ->
 
     {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
-    Rows2 = fieldset:arrange(Rows),
-    {render:renderings([{<<"rows">>, Rows2}], config_fieldset_list_elements_dtl), R, S}.
+    Fieldsets = fieldset:arrange(Rows),
+    {render:renderings([{<<"rows">>, Fieldsets}], 
+                       config_fieldset_list_elements_dtl), R, S}.
 
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),

@@ -23,6 +23,7 @@
 -module(field).
 
 -export([
+         arrange/1,
          from_json/1,
          from_json/2,
          is_meta/1,
@@ -36,6 +37,14 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
+
+-spec arrange(jsn:json_term()) -> jsn:json_term().
+arrange(Fields) ->
+    F = fun(X) ->
+                Doc = jsn:get_value(<<"doc">>, X),
+                [{<<"field">>, Doc}]
+        end,
+    lists:map(F, Fields).
 
 option_list(R, S) ->
     case wrq:path_info(fieldset, R) of
@@ -253,13 +262,6 @@ get_value(Key, Json, Default) ->
 get_value(Key, Json) ->
     get_value(Key, Json, null).
   
--spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
-convert_field(Json) ->  
-    case jsn:get_value(<<"category">>, Json) of
-        <<"field">> -> from_json(Json);
-        Cat -> {error, "Returned document had category " ++ binary_to_list(Cat)}
-    end.
-       
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
     case Bin of

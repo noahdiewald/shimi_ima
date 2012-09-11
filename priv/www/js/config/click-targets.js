@@ -160,10 +160,3 @@ var addCharseqButton = function(target) {
   charseqDialog({}).dialog("open");
 };
 
-// Action for click event on accordion head
-
-var accordionHead = function(target) {
-  var url = cpath(target, "field");
-  populateFields(url);
-};
-

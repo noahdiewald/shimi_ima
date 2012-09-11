@@ -9,7 +9,6 @@ function clickDispatch(e) {
     ".edit-fieldset-button span": function(t) {editFieldsetButton(t.parent('a'))},
     ".delete-fieldset-button span": function(t) {deleteFieldsetButton(t.parent('a'))},
     ".add-fieldset-button span": function(t) {addFieldsetButton(t.parent('a'))},
-    "h3.accordion-head a": function(t) {accordionHead(t)},
     ".delete-doctype-button span": function(t) {deleteDoctypeButton(t.parent('a'))},
     ".edit-doctype-button span": function(t) {editDoctypeButton(t.parent('a'))},
     ".touch-doctype-button span": function(t) {touchDoctypeButton(t.parent('a'))},
