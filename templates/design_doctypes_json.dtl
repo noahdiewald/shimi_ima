@@ -46,7 +46,7 @@
 
         } else if (doc.category === 'doctype') {
 
-          emit([doc.doctype, null], doc.description);
+          emit(doc._id, doc.description);
 
         }                  
       }"

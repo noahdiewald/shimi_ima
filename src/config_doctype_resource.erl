@@ -113,9 +113,11 @@ provide_null(R, S) ->
   {[<<>>], R, S}.
     
 index_html(R, S) ->
-  Request = fun () -> couch:get_view_json("doctypes", "all", R, S) end,
-  Success = fun (Json) -> {render:renderings(Json, config_doctype_list_elements_dtl), R, S} end,
-  utils:report_indexing_timeout(Request, Success, R, S).
+    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
+                                        {"endkey", <<"z">>},
+                                        {"include_docs", true}])),
+    {ok, Json} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
+    {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),

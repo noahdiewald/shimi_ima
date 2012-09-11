@@ -23,6 +23,7 @@
 -module(fieldset).
 
 -export([
+         arrange/1,
          from_json/1,
          from_json/2,
          set_sortkeys/3,
@@ -88,6 +89,30 @@ to_json(doc, FS) ->
      {<<"label">>, FS#docfieldset.label},
      {<<"order">>, FS#docfieldset.order},
      Fields].
+
+-spec arrange(jsn:json_term()) -> jsn:json_term().
+arrange(Fieldsets) ->
+    arrange(Fieldsets, []).
+
+-spec arrange(jsn:json_term(), []) -> jsn:json_term().
+arrange([], Acc) ->  
+    F = fun(A, B) ->
+                [_, _, _, Num1] = proplists:get_value(<<"key">>, A),
+                [_, _, _, Num2] = proplists:get_value(<<"key">>, B),
+                Num1 =< Num2
+        end,
+    lists:sort(F, Acc);
+arrange([H|T], []) ->
+    arrange(T, [jsn:set_value(<<"fields">>, [], H)]);
+arrange([H|T], [AccH|AccT]) ->
+    case jsn:get_value(<<"key">>, H) of
+        [_, _, <<"fieldset">>, _] ->
+            arrange(T, [jsn:set_value(<<"fields">>, [], H), AccH|AccT]);
+        [_, _, <<"fieldset-field">>, _] ->
+            Field = jsn:get_value(<<"doc">>, H),
+            Fields = jsn:get_value(<<"fields">>, AccH),
+            arrange(T, [jsn:set_value(<<"fields">>, [Field|Fields], AccH)|AccT])
+    end.
 
 get_fields(false, FS=#docfieldset{}) ->
     [{<<"fields">>, [field:to_json(doc, X) || X <- FS#docfieldset.fields]}];
