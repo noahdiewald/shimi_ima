@@ -30,6 +30,7 @@
                var condEmit = function(key, val) {
                  if (notBlank(val[1])) {
                    emit([doc.doctype, key, val[0], val[1].toString()], head());
+                   emit(['nocharseq', doc.doctype, key, val[1].toString()], head());
                  }
                };
                
