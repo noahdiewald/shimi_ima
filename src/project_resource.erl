@@ -159,6 +159,7 @@ validate_authentication(Props, R, S) ->
         false -> {proplists:get_value(auth_head, S), R, S}
     end.
 
+% TODO: This is stupid. Fix it.
 renderings(Json) ->
     Rows = jsn:get_value(<<"rows">>, Json),
     [render_row(Project) || Project <- Rows].

@@ -103,7 +103,7 @@ get_db_seq(Project) ->
     end.
 
 get_dbs() ->
-    Url = ?ADMINDB ++ "/projects/_design/projects/_view/all",
+    Url = ?ADMINDB ++ "/projects/_all_docs?include_docs=true",
     get_json_helper(Url, []).
 
 get_db_info(Project) ->
