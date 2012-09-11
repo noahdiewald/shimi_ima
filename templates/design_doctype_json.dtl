@@ -1,6 +1,6 @@
 {
   "_id": "_design/{{ _id }}",
-  "version": 12,
+  "version": 13,
   "views": {
     "all_vals": {
       "map": "function(doc) {
@@ -36,7 +36,7 @@
     "alldocs": {
       "map": "function(doc) { 
         if (doc.doctype == '{{ _id }}' && doc.fieldsets)  { 
-          emit(doc._id, doc) 
+          emit(doc._id, null) 
         } 
       }" 
     },
@@ -60,7 +60,7 @@
      "fieldsets": {
        "map": "function(doc) { 
          if (doc.category == 'fieldset' && doc.doctype == '{{ _id }}')  { 
-          emit(doc.order, doc) 
+          emit(doc.order, null) 
         } 
       }" 
     },
@@ -149,7 +149,7 @@
             }
           });
           
-          emit(doc._id, outDoc);
+          emit(doc._id, null);
         }
       }"
     },

@@ -1,10 +1,10 @@
 {
   "_id": "_design/indexes",
-  "version": 9,
+  "version": 10,
   "views": {
     "all": {
       "map": "function(doc) {
-        if (doc.category == 'index')  { emit(doc._id, doc); }
+        if (doc.category == 'index')  { emit(doc._id, null); }
       }"
     },
 

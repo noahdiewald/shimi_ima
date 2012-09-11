@@ -1,6 +1,6 @@
 {
    "_id": "_design/{{ _id }}",
-   "version": 7,
+   "version": 8,
    "views": {
        "all_vals": {
            "map": "function(doc) { 

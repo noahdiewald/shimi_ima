@@ -1,7 +1,7 @@
 {
   "_id": "_design/file_manager",
   "language": "javascript",
-  "version": 0,
+  "version": 1,
   "views": {
     "paths": {
       "map": "function(doc) { 
