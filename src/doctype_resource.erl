@@ -64,16 +64,21 @@ to_html(R, S) ->
 % Helpers
   
 html_index(R, S) ->
-  User = proplists:get_value(user, S),
-  ProjJson = couch:get_json(project, R, S),
-  {ok, Json} = couch:get_view_json("doctypes", "all_simple", R, S),
+    User = proplists:get_value(user, S),
+    ProjJson = couch:get_json(project, R, S),
+    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
+                                        % Up to the end of private use, why not?
+                                        {"endkey", <<239,131,191>>}])),
+
+    {ok, Json} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
   
-  Json1 = jsn:set_value(<<"title">>, <<"All Document Types">>, Json),
-  Json2 = jsn:set_value(<<"project_info">>, ProjJson, Json1),
-  Json3 = jsn:set_value(<<"user">>, User, Json2),
+    Vals = [{<<"title">>, <<"All Document Types">>},
+            {<<"project_info">>, ProjJson},
+            {<<"user">>, User},
+            {<<"doctypes">>, jsn:get_value(<<"rows">>, Json)}],
   
-  {ok, Html} = doctype_index_dtl:render(Json3),
-  Html.
+    {ok, Html} = doctype_index_dtl:render(Vals),
+    Html.
 
 validate_authentication(Props, R, S) ->
   Project = couch:get_json(project, R, S),
