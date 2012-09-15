@@ -145,7 +145,6 @@ html_as_options(R, S) ->
     {ok, Html} = options_dtl:render(Json),
     Html.
 
-  
 get_field_html(Json, R, S) ->
     % One time use identifier
     UUID = utils:uuid(),

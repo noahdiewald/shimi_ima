@@ -35,12 +35,28 @@ upgrade(R, S) ->
     [ok, ok, ok, ok, ok] = lists:map(fun(X) -> upgrade_design(X, R, S) end,
                                      ["doctypes", "indexes", "charseqs", 
                                       "fieldsets", "fields"]),
+    upgrade_doctype_designs(R, S),
     %{ok, updated} = upgrade_file_manager(R, S),
     ok.
 
+upgrade_doctype_designs(R, S) ->
+    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
+                                        % Up to the end of private use, why not?
+                                        {"endkey", <<239,131,191>>}])),
+    {ok, Json} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
+    F = fun(X) ->
+                Id = jsn:get_value(<<"id">>, X),
+                {ok, Design} = design_doctype_json_dtl:render(X),
+                do_upgrade(Id, Design, R, S)
+        end,
+    lists:map(F, jsn:get_value(<<"rows">>, Json)).
+    
 upgrade_design(Id, R, S) ->
     Template = list_to_atom("design_" ++ Id ++ "_json_dtl"),
     {ok, Json} = Template:render(),
+    do_upgrade(Id, Json, R, S).
+
+do_upgrade(Id, Json, R, S) ->
     case couch:update(design, Id, Json, R, S) of
         {ok, updated} ->
             ok;

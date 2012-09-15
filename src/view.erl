@@ -128,13 +128,20 @@ set_keys_sortkeys(Id, Vq, R, S) ->
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_sortkey_by_doctype(Id, Vq, R, S) ->
-    {ok, Charseqs} = couch:get_view_json(noqs, Id, "head_charseqs", R, S),
+    QS = view:to_string(view:from_list([{"startkey", 
+                                         [<<"_head-charseq">>, 
+                                          list_to_binary(Id), 0]},
+                                        {"endkey", 
+                                         [<<"_head-charseq">>,
+                                          list_to_binary(Id), []]},
+                                        {"include_docs", true}])),
+    {ok, Charseqs} = couch:get_view_json("fieldsets", "all", QS, R, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             set_sortkey_helper(<<>>, Vq, R, S);
         [First|_] ->
-            Charseq = jsn:get_value(<<"value">>, First),
-            set_sortkey_helper(Charseq, Vq, R, S)
+            Charseq = jsn:get_value(<<"doc">>, First),
+            set_sortkey_helper(Charseq, Vq)
     end.
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
@@ -152,6 +159,12 @@ set_sortkey_helper(Charseq, Vq, R, S) ->
     Val = Vq#vq.startkey,
     Input = [{<<"charseq">>, Charseq},{<<"value">>, Val}],
     Sortkey = charseq:get_sortkey(Input, R, S),
+    Vq#vq{startkey = [[Sortkey, Val]]}.
+
+-spec set_sortkey_helper(binary(), view_query()) -> view_query().
+set_sortkey_helper(Charseq, Vq) ->
+    Val = Vq#vq.startkey,
+    Sortkey = charseq:get_sortkey(charseq:from_json(Charseq), Val),
     Vq#vq{startkey = [[Sortkey, Val]]}.
 
 -spec stale_val(string() | undefined) -> 'ok' | 'update_after' | 'undefined'.
