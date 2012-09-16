@@ -33,16 +33,14 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("config.hrl").
+-include_lib("types.hrl").
 
 init(Opts) -> {ok, Opts}.
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),
     Project = couch:get_json(project, R, S),
-    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
-                                        % Up to the end of private use, why not?
-                                        {"endkey", <<239,131,191>>}])),
-    {ok, Doctypes} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
+    {ok, Doctypes} = couch:get_view_json("doctypes", "all", R, S),
   
     Vals = [{<<"user">>, User},
             {<<"project_info">>, Project},

@@ -1,8 +1,8 @@
 {
   "_id": "_design/charseqs",
-  "version": 2,
+  "version": 3,
   "views": {
-    "listing": {
+    "all": {
       "map": "function(doc) { 
         if (doc.category == 'charseq')  { emit(doc.name, doc.description) }
       }"

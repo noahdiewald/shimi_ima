@@ -48,6 +48,7 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
+-include_lib("include/types.hrl").
 
 % Standard webmachine functions
 
@@ -113,10 +114,8 @@ provide_null(R, S) ->
   {[<<>>], R, S}.
     
 index_html(R, S) ->
-    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
-                                        {"endkey", <<"z">>},
-                                        {"include_docs", true}])),
-    {ok, Json} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
+    QS = view:to_string(#vq{include_docs = true}),
+    {ok, Json} = couch:get_view_json("doctypes", "all", QS, R, S),
     {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->

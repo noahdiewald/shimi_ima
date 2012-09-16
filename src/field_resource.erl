@@ -40,6 +40,7 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("config.hrl").
+-include_lib("include/types.hrl").
 
 % Standard webmachine functions
 
@@ -130,12 +131,20 @@ html_fields(R, S) ->
     end.
 
 html_as_fieldset(R, S) -> 
+    Doctype = wrq:path_info(doctype, R),
     Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = couch:get_view_json(Fieldset, "fields", R, S),
+    VQ = #vq{startkey = [list_to_binary(Doctype), list_to_binary(Fieldset),
+                         <<"fieldset-field">>, 0],
+             endkey = [list_to_binary(Doctype), list_to_binary(Fieldset), 
+                       <<"fieldset-field">>, -1000],
+             include_docs = true,
+             descending = true},
+    QS = view:to_string(VQ),
+    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
-                get_field_html(jsn:get_value(<<"value">>, Row), R, S)
+                get_field_html(jsn:get_value(<<"doc">>, Row), R, S)
         end,
   
     lists:map(F, Rows).
@@ -161,8 +170,13 @@ get_allowed(_, Json, _, _) -> Json.
 
 get_allowed_docs(Json, R, S) ->
     ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-    {ok, RawAllowed} = couch:get_view_json(ForeignDoctype, "as_key_vals", R, S),
-    jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
+    {ok, Keys} = couch:get_view_json(ForeignDoctype, "index", R, S),
+    F = fun(X) ->
+                [[_|[H|_]]|_] = jsn:get_value(<<"key">>, X),
+                [{<<"key">>, H}, {<<"value">>, H}]
+        end,
+    Allowed = lists:map(F, jsn:get_value(<<"rows">>, Keys)),
+    jsn:set_value(<<"allowed">>, Allowed, Json).
 
 get_allowed_files(Json, R, S) ->
     Path = jsn:get_value(<<"source">>, Json),

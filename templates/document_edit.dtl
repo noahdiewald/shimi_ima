@@ -9,8 +9,8 @@
       <ul id="tab-list">
       {% for fieldset in fieldsets %}
         <li>
-          <a href="#{{ fieldset.id }}">
-            {{ fieldset.value.label|force_escape }}
+          <a href="#{{ fieldset.doc._id }}">
+            {{ fieldset.doc.label|force_escape }}
           </a>
         </li>
       {% endfor %}

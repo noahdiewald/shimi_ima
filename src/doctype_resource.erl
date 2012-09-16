@@ -66,11 +66,8 @@ to_html(R, S) ->
 html_index(R, S) ->
     User = proplists:get_value(user, S),
     ProjJson = couch:get_json(project, R, S),
-    QS = view:to_string(view:from_list([{"startkey", <<"0">>},
-                                        % Up to the end of private use, why not?
-                                        {"endkey", <<239,131,191>>}])),
 
-    {ok, Json} = couch:get_view_json("doctypes", "alldocs", QS, R, S),
+    {ok, Json} = couch:get_view_json("doctypes", "all", R, S),
   
     Vals = [{<<"title">>, <<"All Document Types">>},
             {<<"project_info">>, ProjJson},
