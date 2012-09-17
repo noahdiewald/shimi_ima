@@ -22,7 +22,7 @@
 -module(search).
 
 -export([
-%         values/4,
+         values/4,
          values/6
         ]).
 
@@ -31,11 +31,15 @@
 
 %% @doc Retrieve values for a search over a user defined index.
 %% -spec values(string(), string(), utils:reqdata(), any()) -> [{any(),any()}].
-%% values(_Index, [], _R, _S) ->
-%%     [{<<"rows">>, false}];
-%% values(Index, Query, R, S) ->
-%%     {RE, Rows, Json} = get_filter_args("index", Query, Index, R, S),
-%%     [{<<"index_listing">>, true}|prep_ret(i_filter(Rows, RE, []), Json)].
+values(_Index, [], _R, _S) ->
+    [{<<"rows">>, false}];
+values(Index, Query, R, S) ->
+    {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
+    {ok, Json} = couch:get_view_json(Index, "index", R, S),
+    Rows = jsn:get_value(<<"rows">>, Json),
+    Filtered = i_filter(Rows, RE, []),
+    [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, 
+     {<<"total_rows">>, length(Filtered)}].
 
 %% @doc Retrieve values for a search over fields found in a a document
 %% of a particular type.
@@ -73,19 +77,19 @@ get_matches(RE, QS, R, S) ->
     filter(jsn:get_value(<<"rows">>, Json), RE, []).
 
 %% @doc filter for searches on indexes
-i_filter([], _Query, Acc) ->
+i_filter([], _RE, Acc) ->
     lists:reverse(Acc);
-i_filter([Row|T], Query, Acc) ->
-    case i_filter2(jsn:get_value(<<"key">>, Row), Query) of
-        false -> i_filter(T, Query, Acc);
-        _ -> i_filter(T, Query, [Row|Acc])
+i_filter([Row|T], RE, Acc) ->
+    case i_filter2(jsn:get_value(<<"key">>, Row), RE) of
+        false -> i_filter(T, RE, Acc);
+        _ -> i_filter(T, RE, [Row|Acc])
     end.
 
-i_filter2([], _Query) ->
+i_filter2([], _RE) ->
     false;
-i_filter2([[_,K]|T], Query) ->
-    case re:run(K, Query) of
-        nomatch -> i_filter2(T, Query);
+i_filter2([[_,K]|T], RE) ->
+    case re:run(K, RE) of
+        nomatch -> i_filter2(T, RE);
         _ -> true
     end.
 

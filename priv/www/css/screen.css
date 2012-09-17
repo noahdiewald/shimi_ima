@@ -578,9 +578,13 @@ tr.ui-widget-header th {
 }
 
 .search-results {
-    display: none;
-    max-height: 50ex;
+    max-height: 70ex;
     overflow-y: scroll;
+}
+
+h5 + .search-results {
+    max-height: 50ex;
+    display: none;
 }
 
 .highlight {

@@ -3,44 +3,35 @@
   <b>Total</b>: {{ total_rows }}
 </div>
 
-  {% for field in rows %}
-  <h5 class="search-result-field-id toggler"
-      data-field-field="{{ field.id }}"
-      data-target="results-for-field-{{ field.id }}">
-    <a href="#">
-      {{ field.id }}
-    </a> 
-    ({{ field.total_rows }})
-  </h5>
+{% if index_listing %}
+<div class="search-results">
+  <table>
+    {% for row in rows %}
+    {% include 'document_search_results.dtl' %}
+    {% endfor %}
+  </table>
+</div>
+{% else %}
+{% for field in rows %}
+<h5 class="search-result-field-id toggler"
+    data-field-field="{{ field.id }}"
+    data-target="results-for-field-{{ field.id }}">
+  <a href="#">
+    {{ field.id }}
+  </a> 
+  ({{ field.total_rows }})
+</h5>
 
-  <div class="search-results"
-       id="results-for-field-{{ field.id }}">
-    <table>
-      {% for row in field.rows %}
-      <tr>
-        <th>
-          <a 
-             href="#{{ row.id }}" 
-             class="view-document-link">
-            {% if index_listing %}
-            {% for elem in row.key %}
-            {{ elem|last|escape }}{% if not forloop.last %},{% endif %}
-            {% endfor %}
-            {% else %}
-            {{ row.key|escape }}
-            {% endif %}
-          </a>
-        </th>
-        <td class="search-result-context">
-          <a href="#{{ row.id }}" class="view-document-link">
-            {{ row.value|force_escape }}
-          </a>
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-  {% endfor %}
-  {% else %}
-  <em>No Results</em>
-  {% endif %}
+<div class="search-results"
+     id="results-for-field-{{ field.id }}">
+  <table>
+    {% for row in field.rows %}
+    {% include 'document_search_results.dtl' %}
+    {% endfor %}
+  </table>
+</div>
+{% endfor %}
+{% endif %}
+{% else %}
+<em>No Results</em>
+{% endif %}
