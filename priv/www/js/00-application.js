@@ -347,6 +347,19 @@ var validID = function(id) {
 
 // General UI Stuff
 
+var uiToggle = function() {
+  var toggler = function(e) {
+    var toggleElem;
+
+    if ($(e.target).attr('data-target')) {
+      toggleElem = $('#' + $(e.target).attr('data-target'));
+      toggleElem.toggle();
+    }
+  };
+
+  $('.toggler').live("click", function(e) {toggler(e);});
+};
+
 var panelToggle = function() {
   var toggler = function(e) {
     var panel;
@@ -376,7 +389,8 @@ $(function () {
                   $(this).hide();
                 });
 
-    panelToggle();    
+    panelToggle();
+    uiToggle();    
   // Buttons
   
   $(".remove-button").button({

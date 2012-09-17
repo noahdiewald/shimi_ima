@@ -14,7 +14,6 @@
 %%%
 %%% You should have received a copy of the GNU General Public License
 %%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
-
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
@@ -23,40 +22,55 @@
 -module(search).
 
 -export([
-         values/4,
+%         values/4,
          values/6
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
+-include_lib("types.hrl").
 
-values(_Index, [], _R, _S) ->
+%% @doc Retrieve values for a search over a user defined index.
+%% -spec values(string(), string(), utils:reqdata(), any()) -> [{any(),any()}].
+%% values(_Index, [], _R, _S) ->
+%%     [{<<"rows">>, false}];
+%% values(Index, Query, R, S) ->
+%%     {RE, Rows, Json} = get_filter_args("index", Query, Index, R, S),
+%%     [{<<"index_listing">>, true}|prep_ret(i_filter(Rows, RE, []), Json)].
+
+%% @doc Retrieve values for a search over fields found in a a document
+%% of a particular type.
+-spec values(binary(), string(), [binary()], [binary()], utils:reqdata(), any()) -> [{binary(), list()|boolean()}].
+values(_Doctype, [], _Fields, _Exclude, _R, _S) -> % No query
     [{<<"rows">>, false}];
-values(Index, Query, R, S) ->
-    {RE, Rows, Json} = get_filter_args("index", Query, Index, R, S),
-    [{<<"index_listing">>, true}|prep_ret(i_filter(Rows, RE, []), Json)].
-    
-values(_Doctype, [], _Fields, _Exclude, _R, _S) ->
-    [{<<"rows">>, false}];
-values(Doctype, Query, [], false, R, S) ->
-    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
-    prep_ret(filter(Rows, RE, []), Json);
-values(_Doctype, Query, [Field|[]], false, R, S) ->
-    values(binary_to_list(Field), Query, [], false, R, S);
-values(Doctype, Query, Fields=[_,_|_], false, R, S) ->
-    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
-    prep_ret(filter(Rows, RE, Fields, true, []), Json);
-values(Doctype, Query, Fields, true, R, S) ->
-    {RE, Rows, Json} = get_filter_args("all_vals", Query, Doctype, R, S),
-    prep_ret(filter(Rows, RE, Fields, false, []), Json).
-
-prep_ret(Rows, Json) ->
-    jsn:set_value(<<"rows">>, Rows, Json).
-
-get_filter_args(View, Query, Design, R, S) ->
+values(Doctype, Query, [], ExFields, R, S) -> % All fields, or exclusive fields
+    Fields = get_fields(Doctype, ExFields, R, S),
+    values(Doctype, Query, Fields, [], R, S);
+values(Doctype, Query, Fields, [], R, S) -> % Inclusive fields
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = couch:get_view_json(Design, View, R, S),
-    Rows = jsn:get_value(<<"rows">>, Json),
-    {RE, Rows, Json}.
+    TID = ets:new(list_to_atom("search-" ++ utils:uuid()), [public]),
+    ets:insert(TID, {total, 0}),
+    F = fun(X) ->
+                do_search(Doctype, RE, X, TID, R, S)
+        end,
+    ok = utils:peach(F, Fields, 10),
+    Complete = prep_ret(TID),
+    ets:delete(TID),
+    Complete.
+
+prep_ret(TID) ->
+    F = fun(X, Acc) ->
+                case X of
+                    {total, _} -> Acc;
+                    {Id, Field} when is_binary(Id) -> [Field|Acc]
+                end
+        end,
+    [{total, Total}] = ets:lookup(TID, total),
+    Rows = ets:foldl(F, [], TID),
+    [{<<"total_rows">>, Total}, {<<"rows">>, Rows}].
+
+get_matches(RE, QS, R, S) ->
+    {ok, Json} = couch:get_view_json("fields", "search", QS, R, S),
+    filter(jsn:get_value(<<"rows">>, Json), RE, []).
 
 %% @doc filter for searches on indexes
 i_filter([], _Query, Acc) ->
@@ -76,25 +90,65 @@ i_filter2([[_,K]|T], Query) ->
     end.
 
 %% @doc simple filter
-filter([], _Query, Acc) ->
-    lists:reverse(Acc);
-filter([Row|T], Query, Acc) ->
-    [_, K] = jsn:get_value(<<"key">>, Row),
-    case re:run(K, Query) of
-        nomatch -> filter(T, Query, Acc);
-        _ -> filter(T, Query, [Row|Acc])
+filter([], _RE, Acc) ->
+    Acc;
+filter([H|T], RE, Acc) ->
+    [_, _, _, K] = jsn:get_value(<<"key">>, H),
+    case re:run(K, RE) of
+        nomatch -> filter(T, RE, Acc);
+        _ -> filter(T, RE, [jsn:set_value(<<"key">>, K, H)|Acc])
     end.
 
-%% @doc filter for included/excluded fields
-filter([], _Query, _Fields, _Answer, Acc) ->
-    lists:reverse(Acc);
-filter([Row|T], Query, Fields, Answer, Acc) ->
-    [_, K] = jsn:get_value(<<"key">>, Row),
-    V = jsn:get_value(<<"value">>, Row),
-    F = fun () -> filter(T,  Query, Fields, Answer, Acc) end,
-    case {re:run(K, Query), lists:member(V, Fields)} of
-        {nomatch, _} -> F();
-        {_, Answer} ->
-            filter(T, Query, Fields, Answer, [Row|Acc]);
-        _ -> F()
+do_search(Doctype, RE, Field, TID, R, S) ->
+    VQ = #vq{startkey = [Doctype, Field, []],
+             endkey = [Doctype, Field, <<"">>],
+             descending = true},
+    Matches = get_matches(RE, view:to_string(VQ), R, S),
+    case length(Matches) of
+        0 ->
+            ok;
+        Num ->
+            Total = case ets:lookup(TID, total) of
+                        [] -> Num;
+                        [{total, OldTotal}] -> OldTotal + Num
+                    end, 
+            ets:insert(TID, [{total, Total},
+                             {Field, [{<<"id">>, Field}, 
+                                      {<<"total_rows">>, Num}, 
+                                      {<<"rows">>, Matches}]}]),
+            ok
     end.
+
+%% do_search(_Doctype, _RE, [], Acc, _R, _S) ->
+%%     Acc;
+%% do_search(Doctype, RE, [H|T], Acc, R, S) ->
+%%     VQ = #vq{startkey = [Doctype, H, []],
+%%              endkey = [Doctype, H, <<"">>],
+%%              descending = true},
+%%     Matches = get_matches(RE, view:to_string(VQ), R, S),
+%%     case length(Matches) of
+%%         0 ->
+%%             do_search(Doctype, RE, T, Acc, R, S);
+%%         _ ->
+%%             do_search(Doctype, RE, T, [[{<<"id">>, H}, 
+%%                                         {<<"total_rows">>, length(Matches)}, 
+%%                                         {<<"rows">>, Matches}]|Acc], R, S)
+%%     end.
+
+get_fields(Doctype, ExFields, R, S) ->
+    VQ = #vq{startkey = [Doctype, <<"">>],
+             endkey = [Doctype, []]},
+    QS = view:to_string(VQ),
+    F = fun(X, Acc) ->
+                [_, _, Type, _] = jsn:get_value(<<"key">>, X),
+                Id = jsn:get_value(<<"id">>, X),
+                case(Type =:= <<"fieldset-field">>) and 
+                    not (lists:member(Id, ExFields)) of
+                    true -> [Id|Acc];
+                    _ -> Acc
+                end
+        end,
+    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
+
+                

@@ -349,8 +349,15 @@ nav ul li, #panel-toggle ul li {
   color: black;
 }
 
-#document-view li ul b {
+#document-view li ul b, h5 a {
   color: #BA5D12;
+  text-decoration: none;
+}
+
+h5 {
+  font-size: 10pt;
+  padding: 0;
+  margin: 0;
 }
 
 #document-view-tree > ul > li.collapsed.fieldset-view > b:before {
@@ -568,4 +575,14 @@ tr.ui-widget-header th {
 
 #index-index-input-label {
     text-decoration: underline;
+}
+
+.search-results {
+    display: none;
+    max-height: 50ex;
+    overflow-y: scroll;
+}
+
+.highlight {
+    background: yellow;
 }

@@ -25,7 +25,14 @@ var searches = {
             $('.search-result-field-id')
               .each(function(index, item) {
                       var label = lookup[$(item).attr('data-field-field')];
-                      $(item).children('a').html(label);
+                      $(item).children('a').first().html(label);
+                    });
+            $('.search-results th')
+              .each(function(index, item) {
+                      var itemText = $.trim($(item).children('a').html());
+                      var re = new RegExp("(" + query + ")", "g");
+                      var newText = itemText.replace(re, "<span class='highlight'>$1</span>");
+                      $(item).children('a').html(newText);
                     });
             $('#search-listing').show();
           });
@@ -57,7 +64,7 @@ var searches = {
     var exclude = $('#document-search-exclude').is(':checked');
 
     if (!exclude) {
-      return null;
+      return "null";
     } else {
       return exclude;
     }
@@ -96,12 +103,12 @@ var searches = {
     var index = searches.lookup("searchIndex");
     var fieldids = searches.lookup("searchFields");
 
-    if (index) {
+    if (index !== null && index !== "null") {
       $('#document-search-index').val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
       $('#document-search-exclude').parent('div').hide();
-    } else if (fieldids) {
+    } else if (fieldids !== null && fieldids !== "null") {
       $('#document-search-field').val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
