@@ -3,7 +3,7 @@
 {% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
 
 {% block javascript %}
-    <script type="text/javascript" src="/javascript/base"></script>
+<script type="text/javascript" src="/javascript/base"></script>
 {% endblock %}
 
 {% block header %}
@@ -21,10 +21,14 @@
       </tr>
     </thead>
     <tbody>
-      {% for row in rows %}
+      {% for doctype in doctypes %}
       <tr>
-        <th><a href="./doctypes/{{ row.key }}/documents">{{ row.key }}</a></th>
-        <td>{{ row.value }}</td>
+        <th>
+          <a href="./doctypes/{{ doctype.key }}/documents">
+            {{ doctype.key }}
+          </a>
+        </th>
+        <td>{{ doctype.value }}</td>
       </tr>
       {% endfor %}
     </tbody>

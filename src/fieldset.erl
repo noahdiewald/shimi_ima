@@ -23,6 +23,8 @@
 -module(fieldset).
 
 -export([
+         arrange/1,
+         arrange/2,
          from_json/1,
          from_json/2,
          set_sortkeys/3,
@@ -32,6 +34,39 @@
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("config.hrl").
 -include_lib("types.hrl").
+
+-spec arrange(jsn:json_term()) -> jsn:json_term().
+arrange(Fieldsets) ->
+    arrange(Fieldsets, []).
+
+-spec arrange(jsn:json_term(), [] | nofields) -> jsn:json_term().
+arrange(Everything, nofields) ->
+    PredF = fun(X) ->
+                    case jsn:get_value(<<"key">>, X) of
+                        [_, _, <<"fieldset">>, _] -> true;
+                        _ -> false
+                    end
+            end,
+    SortF = fun(A, B) ->
+                    [_, _, _, Num1] = jsn:get_value(<<"key">>, A),
+                    [_, _, _, Num2] = jsn:get_value(<<"key">>, B),
+                    Num1 =< Num2
+        end,
+    Fieldsets = lists:filter(PredF, Everything),
+    lists:sort(SortF, Fieldsets);
+arrange([], Acc) ->  
+    arrange(Acc, nofields);
+arrange([H|T], []) ->
+    arrange(T, [jsn:set_value(<<"fields">>, [], H)]);
+arrange([H|T], [AccH|AccT]) ->
+    case jsn:get_value(<<"key">>, H) of
+        [_, _, <<"fieldset">>, _] ->
+            arrange(T, [jsn:set_value(<<"fields">>, [], H), AccH|AccT]);
+        [_, _, <<"fieldset-field">>, _] ->
+            Field = jsn:get_value(<<"doc">>, H),
+            Fields = jsn:get_value(<<"fields">>, AccH),
+            arrange(T, [jsn:set_value(<<"fields">>, [Field|Fields], AccH)|AccT])
+    end.
   
 %% @doc Set the sortkeys for fields in fieldsets
 -spec set_sortkeys(jsn:json_term() | [docfieldset()], R :: utils:reqdata(), S :: any()) -> jsn:json_term().

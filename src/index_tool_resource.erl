@@ -33,13 +33,14 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("config.hrl").
+-include_lib("types.hrl").
 
 init(Opts) -> {ok, Opts}.
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),
     Project = couch:get_json(project, R, S),
-    {ok, Doctypes} = couch:get_view_json("doctypes", "all_simple", R, S),
+    {ok, Doctypes} = q:doctypes(R, S),
   
     Vals = [{<<"user">>, User},
             {<<"project_info">>, Project},

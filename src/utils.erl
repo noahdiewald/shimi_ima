@@ -27,12 +27,12 @@
          add_encoded_keys/1,
          binary_to_hexlist/1,
          clear_all/2,
+         delete_all_design_docs/1,
          get_index/3,
          list_dir/1,
          peach/3,
          read_file_info/1,
          record_to_proplist/2,
-         report_indexing_timeout/4,
          shuffle/1,
          update_all_by/2,
          update_all_by/3,
@@ -160,32 +160,11 @@ list_dir(Dir) ->
 read_file_info(File) ->
     file:read_file_info(File).
 
-
-%% @doc Request is a fun that may return either {ok, Something} or
-%% {error, req_timedout}. Success is a fun that takes the Something
-%% that may have been returned by the request. If Request returns
-%% {error, req_timedout}, a webmachine return value that results in
-%% the server responding with a 504 (gateway timeout) to the client is
-%% return. The reponse body also contains a JSON error message that
-%% assumes the timeout is due to couchdb being busy
-%% indexing. Otherwise, the Success fun is executed.
--spec report_indexing_timeout(Request :: fun(() -> {'ok', Something :: any()} | {'error', 'req_timedout'}), Success :: fun(({'ok', Something :: any()}) -> any()), R :: reqdata(), S :: any()) -> any() | {{'halt', 504}, R1 :: reqdata(), S:: any()}.
-report_indexing_timeout(Request, Success, R, S) ->
-    case Request() of
-        {ok, Json} -> Success(Json);
-        {error, req_timedout} -> 
-            Message = jsn:encode([{<<"message">>, <<"The server is currently indexing. Try again soon.">>}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 504}, R1, S}
-    end.
-
--spec y(fun()) -> any().
-
 %% @doc A Y-combinator helper function for composing recursive funs.
+-spec y(fun()) -> any().
 y(F) ->
     G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
     G(G).
-
 
 %% @doc Take an id for a saved index and return a JSON term. This term
 %% will contain either the results of querying a view or will contain
@@ -193,7 +172,7 @@ y(F) ->
 %% query.
 -spec get_index(IndexId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 get_index(IndexId, R, S) ->
-    case couch:get_view_json(sortkeys, IndexId, "index", R, S) of
+    case q:altered_startkey(IndexId, R, S) of
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.
@@ -326,3 +305,15 @@ takedrop(Rest, Acc, 0) ->
     {lists:reverse(Acc), Rest};
 takedrop([H|Rest], Acc, N) ->
     takedrop(Rest, [H|Acc], N - 1).
+
+delete_all_design_docs(DB) ->
+    Url = ?ADMINDB ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{"startkey", <<"_design/">>},{"endkey", <<"_design0">>}])),
+    {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
+    Designs = proplists:get_value(<<"rows">>, jsn:decode(Json)),
+    F = fun(X) ->
+                Id = proplists:get_value(<<"id">>, X),
+                Rev = proplists:get_value(<<"rev">>, proplists:get_value(<<"value">>, X)),
+                Urrl = ?ADMINDB ++ DB ++ "/" ++ binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev),
+                ibrowse:send_req(Urrl, [], delete)
+        end,
+    lists:map(F, Designs).

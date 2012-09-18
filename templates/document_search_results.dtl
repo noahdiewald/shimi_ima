@@ -1,0 +1,20 @@
+<tr>
+  <th>
+    <a 
+       href="#{{ row.id }}" 
+       class="view-document-link">
+      {% if index_listing %}
+      {% for elem in row.key %}
+      {{ elem|last|escape }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      {% else %}
+      {{ row.key|escape }}
+      {% endif %}
+    </a>
+  </th>
+  <td class="search-result-context">
+    <a href="#{{ row.id }}" class="view-document-link">
+      {{ row.value|force_escape }}
+    </a>
+  </td>
+</tr>

@@ -7,46 +7,46 @@
   <div id="edit-tabs">
     <div id="tabs-container">
       <ul id="tab-list">
-      {% for fieldset in rows %}
+      {% for fieldset in fieldsets %}
         <li>
-          <a href="#{{ fieldset.value._id }}">
-            {{ fieldset.value.label|force_escape }}
+          <a href="#{{ fieldset.doc._id }}">
+            {{ fieldset.doc.label|force_escape }}
           </a>
         </li>
       {% endfor %}
       </ul>
     </div>
   
-  {% for fieldset in rows %}
+  {% for fieldset in fieldsets %}
   
   <fieldset 
-    id="{{ fieldset.value._id }}" 
+    id="{{ fieldset.id }}" 
     class="ui-widget ui-widget-content ui-corner-all fieldset"
-    data-group-id="{{ fieldset.value._id }}"
-    data-field-fieldset="{{ fieldset.value._id }}" 
+    data-group-id="{{ fieldset.id }}"
+    data-field-fieldset="{{ fieldset.id }}" 
     data-field-project="project-{{ project_info._id }}"
     data-field-doctype="{{ doctype_info._id }}"
-    data-fieldset-fieldset="{{ fieldset.value._id }}" 
-    data-fieldset-multiple="{{ fieldset.value.multiple }}"
-    data-fieldset-collapse="{{ fieldset.value.collapse }}"
-    data-fieldset-name="{{ fieldset.value.name|force_escape }}"
-    data-fieldset-label="{{ fieldset.value.label|force_escape }}"
-    data-fieldset-order="{{ fieldset.value.order }}"
+    data-fieldset-fieldset="{{ fieldset.id }}" 
+    data-fieldset-multiple="{{ fieldset.doc.multiple }}"
+    data-fieldset-collapse="{{ fieldset.doc.collapse }}"
+    data-fieldset-name="{{ fieldset.doc.name|force_escape }}"
+    data-fieldset-label="{{ fieldset.doc.label|force_escape }}"
+    data-fieldset-order="{{ fieldset.doc.order }}"
     data-fieldset-project="project-{{ project_info._id }}"
     data-fieldset-doctype="{{ doctype_info._id }}">
     
-    <p>{{ fieldset.value.description }}</p>
+    <p>{{ fieldset.doc.description }}</p>
     
     <div 
-      id="container-{{ fieldset.value._id }}" 
+      id="container-{{ fieldset.id }}" 
       class="fieldset-container"
-      data-group-id="{{ fieldset.value._id }}"></div>
+      data-group-id="{{ fieldset.id }}"></div>
     
-  {% if fieldset.value.multiple %}
+  {% if fieldset.doc.multiple %}
   
   <a 
     class="add-button" 
-    data-group-id="{{ fieldset.value._id }}">
+    data-group-id="{{ fieldset.id }}">
    Add Additional
   </a>
   

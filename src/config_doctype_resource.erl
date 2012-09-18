@@ -48,6 +48,7 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/config.hrl").
+-include_lib("include/types.hrl").
 
 % Standard webmachine functions
 
@@ -113,9 +114,8 @@ provide_null(R, S) ->
   {[<<>>], R, S}.
     
 index_html(R, S) ->
-  Request = fun () -> couch:get_view_json("doctypes", "all", R, S) end,
-  Success = fun (Json) -> {render:renderings(Json, config_doctype_list_elements_dtl), R, S} end,
-  utils:report_indexing_timeout(Request, Success, R, S).
+    {ok, Json} = q:doctypes(true, R, S),
+    {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),

@@ -162,14 +162,7 @@ update_design(Json, R, S) ->
     end.
   
 html_index(R, S) ->
-    case couch:exists("_design/indexes", R, S) of
-        false -> 
-            {ok, VJson} = design_indexes_json_dtl:render(),
-            {ok, created} = couch:create(design, VJson, R, S);
-        _ -> undefined
-    end,
-    
-    {ok, Json} = couch:get_view_json("indexes", "options", R, S),
+    {ok, Json} = q:indexes_options(R, S),
 
     case wrq:get_qs_value("as", R) of
         "options" -> 

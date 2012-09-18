@@ -103,7 +103,7 @@ get_db_seq(Project) ->
     end.
 
 get_dbs() ->
-    Url = ?ADMINDB ++ "/projects/_design/projects/_view/all",
+    Url = ?ADMINDB ++ "/projects/_all_docs?include_docs=true",
     get_json_helper(Url, []).
 
 get_db_info(Project) ->
@@ -143,13 +143,14 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
 
 get_view_json(Id, Name, R, S) ->
     Qs = view:normalize_vq(R),
-    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+    get_view_json(Id, Name, Qs, R, S).
 
 get_view_json(noqs, Id, Name, R, S) ->
     get_view_json_helper(Id, Name, [], R, S);
-
 get_view_json(sortkeys, Id, Name, R, S) ->
     Qs = view:normalize_sortkey_vq(Id, R, S),
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S);
+get_view_json(Id, Name, Qs, R, S) ->
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
 %% @doc Given a row from a query of all db design documents, find all
@@ -180,7 +181,7 @@ get_views(Project) when is_list(Project) ->
                      case X of
                          undefined -> false;
                          _ -> true 
-                     end 
+                     end
              end,
     lists:flatten(
       lists:filter(Filter, lists:map(fun get_view_path/1, Designs)));
@@ -196,8 +197,12 @@ get_design_rev(Name, R, S) ->
               undefined -> ?ADMINDB ++ wrq:path_info(project, R) ++ "/" ++ Id;
               Db -> Db ++ "/" ++ Id
           end,
-    Json = get_json_helper(Url, []),
-    {jsn:get_value(<<"version">>, Json), jsn:get_value(<<"_rev">>, Json)}.
+    case get_json_helper(safer, Url, []) of
+        {ok, Json} ->
+            {jsn:get_value(<<"version">>, Json), 
+             jsn:get_value(<<"_rev">>, Json)};
+        Else -> Else
+    end.
 
 % TODO: this once queried couchdb. Now the callers could just use the
 % function directly.
@@ -267,6 +272,7 @@ update(design, Id, Json, DB, R, S) ->
     Version = jsn:get_value(<<"version">>, Json1),
     case get_design_rev(Id, R, S) of
         {Version, _} -> {ok, updated};
+        {error, Error} -> {error, Error};
         {_, Rev} ->
             Json2 = jsn:set_value(<<"_rev">>, Rev, Json1),
             Url = DB ++ "/_design/" ++ Id,

@@ -112,10 +112,14 @@ content_types_provided(R, S) ->
 content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
-index_html(R, S) ->  
-  Request = fun () -> couch:get_view_json(wrq:path_info(fieldset, R), "fields", R, S) end,
-  Success = fun (Json) -> {render:renderings(Json, config_field_list_elements_dtl), R, S} end,
-  utils:report_indexing_timeout(Request, Success, R, S).
+index_html(R, S) ->
+    DT = list_to_binary(wrq:path_info(doctype, R)),
+    FS = list_to_binary(wrq:path_info(fieldset, R)),
+    {ok, Json} = q:field(DT, FS, R, S),
+    Rows = jsn:get_value(<<"rows">>, Json),
+    Fields = field:arrange(Rows),
+    {render:renderings([{<<"rows">>, Fields}], 
+                       config_field_list_elements_dtl), R, S}.
 
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),

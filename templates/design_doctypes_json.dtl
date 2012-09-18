@@ -1,15 +1,12 @@
 {
   "_id": "_design/doctypes",
-  "version": 4,
+  "version": 7,
   "views": {
-    "all": {
-      "map": "function(doc) { 
-        if (doc.category == 'doctype')  { emit(doc._id, doc) }
-      }"
-    },
-    "all_simple": {
-      "map": "function(doc) { 
-        if (doc.category == 'doctype')  { emit(doc._id, doc.description) }
+    "all" : {
+      "map": "function(doc) {
+        if (doc.category === 'doctype') {
+          emit(doc._id, doc.description);
+        }                  
       }"
     }
   },

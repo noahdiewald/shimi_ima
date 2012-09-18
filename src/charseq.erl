@@ -26,6 +26,7 @@
 -module(charseq).
 
 -export([
+         get_sortkey/2,
          get_sortkey/3,
          from_json/1,
          to_json/1,
@@ -36,8 +37,14 @@
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+%% @doc Get a sortkey for a string.
+-spec get_sortkey({charseq(), binary()}) -> binary().
+get_sortkey(Charseq, Value) ->
+    get_sortkey_helper(Charseq, Value).
+
 %% @doc Get a sortkey for a jsn:json_term() referencing a charseq or a
-%% docfield() making use of state from webmachine
+%% docfield() making use of state from webmachine. This is used when
+%% the charseq needs to be fetched from the database.
 -spec get_sortkey(jsn:json_term() | docfield(), R :: utils:reqdata(), S :: any()) -> binary().
 get_sortkey(null, _R, _S) ->
     <<>>;
@@ -136,16 +143,20 @@ get_sortkey(CharseqId, Value, R, S) when is_binary(CharseqId) ->
   
 get_sortkey_helper(CharseqId, Value, R, S) ->
     Json = couch:get_json(binary_to_list(CharseqId), R, S),
-    C = charseq:from_json(Json),
-    case apply_patterns(C#charseq.sort_ignore, Value) of
+    Charseq = charseq:from_json(Json),
+    get_sortkey_helper(Charseq, Value).
+
+get_sortkey_helper(Charseq, Value) ->
+    case apply_patterns(Charseq#charseq.sort_ignore, Value) of
         <<>> -> <<>>;
-        Value1 -> get_sortkey(C, Value1)
+        Value1 -> get_sortkey({Charseq, Value1})
     end.
   
-get_sortkey(C, Value) ->
+get_sortkey({Charseq, Value}) ->
     {ok, Key} = 
-        case C#charseq.tailoring of
-            <<>> -> icu:sortkey(C#charseq.locale, ustring:new(Value, utf8));
+        case Charseq#charseq.tailoring of
+            <<>> -> icu:sortkey(Charseq#charseq.locale, 
+                                ustring:new(Value, utf8));
             Rules -> icu:sortkey(Rules, ustring:new(Value, utf8))
         end,
     list_to_binary(utils:binary_to_hexlist(Key)).

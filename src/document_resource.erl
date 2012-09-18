@@ -179,12 +179,14 @@ html_documents(R, S) ->
 
 html_edit(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = couch:get_view_json(Doctype, "fieldsets", R, S),
+    {ok, Json} = q:fieldset(Doctype, R, S),
+    Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
   
     Vals = [
             {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
             {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
+            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
+            {<<"fieldsets">>, Fieldsets}
            ],
   
     {ok, Html} = document_edit_dtl:render(Vals),
@@ -193,10 +195,10 @@ html_edit(R, S) ->
 html_index(R, S) ->
     Doctype = wrq:path_info(doctype, R),
     Limit = wrq:get_qs_value("limit", R),
-  
+
     {ok, Json} = case wrq:get_qs_value("index", R) of
                      undefined -> 
-                         couch:get_view_json(sortkeys, Doctype, "index", R, S);
+                         q:altered_startkey(Doctype, R, S);
                      IndexId -> 
                          utils:get_index(IndexId, R, S) 
                  end,
@@ -214,19 +216,22 @@ html_index(R, S) ->
     Html.
 
 html_search(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
+    DT = list_to_binary(wrq:path_info(doctype, R)),
     Query = wrq:get_qs_value("q", R),
     Params = case wrq:get_qs_value("index", R) of
                  undefined ->
-                     Fields = case wrq:get_qs_value("field", R) of
-                                  undefined -> [];
-                                  Fs -> jsn:decode(Fs)
-                              end,
-                     Exclude = case wrq:get_qs_value("exclude", R) of
-                                   undefined -> false;
-                                   Ex -> jsn:decode(Ex)
-                               end,
-                     search:values(Doctype, Query, Fields, Exclude, R, S);
+                     case wrq:get_qs_value("field", R) of
+                         undefined ->
+                             search:values(DT, Query, [], [], R, S);
+                         Fields ->
+                             Fs = jsn:decode(Fields),
+                             case wrq:get_qs_value("exclude", R) of
+                                 "true" ->
+                                     search:values(DT, Query, [], Fs, R, S);
+                                 _ ->
+                                     search:values(DT, Query, Fs, [], R, S)
+                             end
+                     end;
                  Index ->
                      search:values(Index, Query, R, S)
              end,

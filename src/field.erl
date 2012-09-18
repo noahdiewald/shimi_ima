@@ -23,6 +23,7 @@
 -module(field).
 
 -export([
+         arrange/1,
          from_json/1,
          from_json/2,
          is_meta/1,
@@ -37,12 +38,29 @@
 -include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 
+-spec arrange(jsn:json_term()) -> jsn:json_term().
+arrange(Fields) ->
+    F = fun(X) ->
+                Doc = jsn:get_value(<<"doc">>, X),
+                [{<<"field">>, Doc}]
+        end,
+    lists:map(F, Fields).
+
 option_list(R, S) ->
+    Doctype = wrq:path_info(doctype, R),
+    F = fun(X) ->
+                [Label, Name] = jsn:get_value(<<"value">>, X),
+                Id = jsn:get_value(<<"id">>, X),
+                [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
+        end,
     case wrq:path_info(fieldset, R) of
         "metadata" -> meta_options();
         Fieldset -> 
-            {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
-            Json
+            {ok, Json} = 
+                q:field(Doctype, Fieldset, false, R, S),
+            jsn:set_value(<<"rows">>, 
+                          lists:map(F, jsn:get_value(<<"rows">>, Json)), 
+                          Json)
     end.
 
 is_meta(Id) when is_list(Id) ->
@@ -253,13 +271,6 @@ get_value(Key, Json, Default) ->
 get_value(Key, Json) ->
     get_value(Key, Json, null).
   
--spec convert_field(Json :: jsn:json_term()) -> fieldset() | {error, Reason :: term()}.
-convert_field(Json) ->  
-    case jsn:get_value(<<"category">>, Json) of
-        <<"field">> -> from_json(Json);
-        Cat -> {error, "Returned document had category " ++ binary_to_list(Cat)}
-    end.
-       
 -spec get_subcategory(binary()) -> subcategory().
 get_subcategory(Bin) ->
     case Bin of

@@ -1,34 +1,34 @@
 <h3 id="head-{{ id }}" class="accordion-head">
-  <a href="#" data-group-id="add-field-to-{{ id }}">{{ value.label }}</a>
+  <a href="#" data-group-id="add-field-to-{{ id }}">{{ doc.label }}</a>
 </h3>
 
 <div id="{{ id }}"
-  data-fieldset-doctype="{{ value.doctype }}" 
-  data-fieldset-fieldset="{{ id }}"
-  data-fieldset-name="{{ value.name }}" 
-  data-fieldset-label="{{ value.label }}" 
-  data-fieldset-description="{{ value.description }}" 
-  data-fieldset-collapse="{{ value.collapse }}" 
-  data-fieldset-multiple="{{ value.multiple }}" 
-  data-fieldset-order="{{ value.order }}" 
-  data-fieldset-rev="{{ value._rev }}">
+     data-fieldset-doctype="{{ doc.doctype }}" 
+     data-fieldset-fieldset="{{ id }}"
+     data-fieldset-name="{{ doc.name }}" 
+     data-fieldset-label="{{ doc.label }}" 
+     data-fieldset-description="{{ doc.description }}" 
+     data-fieldset-collapse="{{ doc.collapse }}" 
+     data-fieldset-multiple="{{ doc.multiple }}" 
+     data-fieldset-order="{{ doc.order }}" 
+     data-fieldset-rev="{{ doc._rev }}">
   <a 
-    id="edit-{{ id }}"
-    data-group-id="{{ id }}"
-    href="#"
-    class="edit-fieldset-button link-button">Edit Fieldset</a>  
+     id="edit-{{ id }}"
+     data-group-id="{{ id }}"
+     href="#"
+     class="edit-fieldset-button link-button">Edit Fieldset</a>  
   <a 
-    id="delete-{{ id }}"
-    data-group-id="{{ id }}"
-    href="#"
-    class="delete-fieldset-button link-button">Delete Fieldset</a>  
+     id="delete-{{ id }}"
+     data-group-id="{{ id }}"
+     href="#"
+     class="delete-fieldset-button link-button">Delete Fieldset</a>  
   <a 
-    data-field-doctype="{{ value.doctype }}" 
-    data-field-fieldset="{{ id }}"
-    id="add-field-to-{{ id }}"
-    data-group-id="add-field-to-{{ id }}"
-    href="#"
-    class="add-field-button link-button">Add Field</a>
+     data-field-doctype="{{ doc.doctype }}" 
+     data-field-fieldset="{{ id }}"
+     id="add-field-to-{{ id }}"
+     data-group-id="add-field-to-{{ id }}"
+     href="#"
+     class="add-field-button link-button">Add Field</a>
   <table class="fields ui-widget ui-widget-content">
     <thead>
       <tr class="ui-widget-header">
@@ -38,10 +38,14 @@
       </tr>
     </thead>
     <tbody id="fields-{{ id }}">
+      {% for field in fields %}
+      {% include "config_field_list_elements.dtl" %}
+      {% endfor %}
+
     </tbody>
   </table>
   
-  <p><b>Description:</b> {{ value.description }}</p>
-  <p><b>Multiple:</b> {{ value.multiple }}</p>
-  <p><b>Collapse:</b> {{ value.collapse }}</p>
+  <p><b>Description:</b> {{ doc.description }}</p>
+  <p><b>Multiple:</b> {{ doc.multiple }}</p>
+  <p><b>Collapse:</b> {{ doc.collapse }}</p>
 </div>
