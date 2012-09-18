@@ -23,7 +23,7 @@ function doctypeElems() {
         "category": "doctype",
         "description": fObj.description.val(),
         "_id": fObj.doctype.val()
-      }
+      };
       return valObj;
     };
     

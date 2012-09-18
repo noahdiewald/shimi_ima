@@ -55,22 +55,22 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-  Id = wrq:path_info(id, R),
-  case proplists:get_value(target, S) of
-      identifier -> {couch:exists(Id, R, S), R, S};
-      index -> {couch:exists([], R, S), R, S};
-      touch -> {couch:exists(Id, R, S), R, S}
-  end.
+    Id = wrq:path_info(id, R),
+    case proplists:get_value(target, S) of
+        identifier -> {couch:exists(Id, R, S), R, S};
+        index -> {couch:exists([], R, S), R, S};
+        touch -> {couch:exists(Id, R, S), R, S}
+    end.
 
 is_authorized(R, S) ->
-  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+    proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-  case proplists:get_value(target, S) of
-      index -> {['HEAD', 'GET', 'POST'], R, S};
-      touch -> {['HEAD', 'POST'], R, S};
-      identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
-  end.
+    case proplists:get_value(target, S) of
+        index -> {['HEAD', 'GET', 'POST'], R, S};
+        touch -> {['HEAD', 'POST'], R, S};
+        identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
+    end.
   
 delete_resource(R, S) ->
     Msg = <<"This document has been edited or deleted by another user.">>,
@@ -111,57 +111,55 @@ process_post(R, S) ->
     {{halt, 204}, R, S}.
 
 provide_null(R, S) ->
-  {[<<>>], R, S}.
+    {[<<>>], R, S}.
     
 index_html(R, S) ->
     {ok, Json} = q:doctypes(true, R, S),
     {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-  Json = couch:get_json(id, R, S),
-  {ok, Html} = config_doctype_dtl:render(Json),
-  {Html, R, S}.
+    Json = couch:get_json(id, R, S),
+    {ok, Html} = config_doctype_dtl:render(Json),
+    {Html, R, S}.
   
 from_json(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> json_create(R, S);
-    identifier -> json_update(R, S)
-  end.
+    case proplists:get_value(target, S) of
+        index -> json_create(R, S);
+        identifier -> json_update(R, S)
+    end.
 
 json_create(R, S) ->  
-  Json = jsn:decode(wrq:req_body(R)),
-  {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
-  
-  {ok, DesignJson} = design_doctype_json_dtl:render(Json),
-  {ok, created} = couch:create(design, DesignJson, R, S),
-  
-  {true, R, S}.
+    Json = jsn:decode(wrq:req_body(R)),
+    {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
+    {ok, DesignJson} = design_doctype_json_dtl:render(Json),
+    {ok, created} = couch:create(design, DesignJson, R, S),
+    {true, R, S}.
 
 json_update(R, S) ->
-  Json = jsn:decode(wrq:req_body(R)),
-  Id = wrq:path_info(id, R),
-  Rev = wrq:get_qs_value("rev", R),
-  Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-  Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-  
-  case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-    {ok, updated} -> {true, R, S};
-    {403, Message} ->
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 403}, R1, S};
-    {409, _} ->
-      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 409}, R1, S}
-  end.
+    Json = jsn:decode(wrq:req_body(R)),
+    Id = wrq:path_info(id, R),
+    Rev = wrq:get_qs_value("rev", R),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+    Msg = <<"This document has been edited or deleted by another user.">>,
+
+    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
+        {ok, updated} -> {true, R, S};
+        {403, Message} ->
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 403}, R1, S};
+        {409, _} ->
+            Message = jsn:encode([{<<"message">>, Msg}]),
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 409}, R1, S}
+    end.
 
 % Helpers
 
 validate_authentication(Props, R, S) ->
-  ValidRoles = [<<"_admin">>, <<"manager">>],
-  IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
-  case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-    true -> {true, R, S};
-    false -> {proplists:get_value(auth_head, S), R, S}
-  end.
-
+    ValidRoles = [<<"_admin">>, <<"manager">>],
+    IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
+    case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
+        true -> {true, R, S};
+        false -> {proplists:get_value(auth_head, S), R, S}
+    end.

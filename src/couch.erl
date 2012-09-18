@@ -216,7 +216,16 @@ delete(R, S) ->
     Headers = [{"Content-Type",
                 "application/json"}|proplists:get_value(headers, S)],
     case ibrowse:send_req(Url, Headers, delete) of
-        {ok, "200", _, _} -> {ok, deleted};
+        {ok, "200", _, _} -> 
+            case exists("_design/" ++ Id, R, S) of
+                true ->
+                    {_, DRev} = get_design_rev(Id, R, S),
+                    DUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ 
+                        "/_design/" ++ Id ++ "?rev=" ++ DRev,
+                    {ok, "200", _, _} = ibrowse:send_req(DUrl, Headers, delete);
+                false -> ok
+            end,
+            {ok, deleted};
         {ok, "409", _, _} -> {409, <<"Conflict">>}
     end.
 

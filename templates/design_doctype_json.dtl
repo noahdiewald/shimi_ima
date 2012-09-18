@@ -1,5 +1,5 @@
 {
-  "_id": "_design/{{ id }}",
+  "_id": "_design/{{ _id }}",
   "version": 12,
   "views": {
     "index": {
@@ -36,7 +36,7 @@
           return acc;
         }
         
-        if (doc.doctype == '{{ id }}' && doc.fieldsets && !doc.deleted_)  {
+        if (doc.doctype == '{{ _id }}' && doc.fieldsets && !doc.deleted_)  {
           var heads = gather([], isHead);
           var reversals = gather([], isReversal, true);
           

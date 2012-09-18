@@ -43,7 +43,9 @@ upgrade_doctype_designs(R, S) ->
     {ok, Json} = q:doctypes(R, S),
     F = fun(X) ->
                 Id = jsn:get_value(<<"id">>, X),
-                {ok, Design} = design_doctype_json_dtl:render(X),
+                {ok, Design} = 
+                    design_doctype_json_dtl:render(
+                      jsn:set_value(<<"_id">>, Id, X)),
                 do_upgrade(Id, Design, R, S)
         end,
     lists:map(F, jsn:get_value(<<"rows">>, Json)).

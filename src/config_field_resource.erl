@@ -135,11 +135,6 @@ from_json(R, S) ->
 json_create(R, S) ->  
   Json = proplists:get_value(posted_json, S),
   {ok, created} = couch:create(doc, jsn:encode(Json), R, S),
-  
-  % Create the fieldset's design document
-  {ok, DesignJson} = design_field_json_dtl:render(Json),
-  {ok, created} = couch:create(design, DesignJson, R, S),
-  
   {true, R, S}.
   
 json_update(R, S) ->
