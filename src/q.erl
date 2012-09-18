@@ -70,7 +70,7 @@ fieldset(DT, Include, R, S) when is_binary(DT) ->
     QS = view:to_string(VQ),
     couch:get_view_json("fieldsets", "all", QS, R, S).
 
-field(Doctype, Fieldset, R, S) when is_list(Doctype) ->
+field(Doctype, Fieldset, R, S) ->
     field(Doctype, Fieldset, true, R, S).
 
 field(Doctype, Fieldset, Include, R, S) 
@@ -80,8 +80,8 @@ field(DT, Fieldset, Include, R, S) when is_list(Fieldset) ->
     field(DT, list_to_binary(Fieldset), Include, R, S);
 field(DT, FS, Include, R, S) 
   when is_binary(DT), is_binary(FS) ->
-    VQ = #vq{startkey = [DT, FS, <<"fieldset-field">>, <<"">>],
-             endkey = [DT, FS, <<"fieldset-field">>, 0],
+    VQ = #vq{startkey = [DT, FS, <<"fieldset-field">>, 0],
+             endkey = [DT, FS, <<"fieldset-field">>, true],
              descending = true,
              include_docs = Include},
     QS = view:to_string(VQ),

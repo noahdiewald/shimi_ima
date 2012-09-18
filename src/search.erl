@@ -127,7 +127,7 @@ get_fields(Doctype, ExFields, R, S) ->
                     _ -> Acc
                 end
         end,
-    {ok, Json} = q:all_fielset_for_doctype(Doctype, false, R, S),
+    {ok, Json} = q:fieldset(Doctype, false, R, S),
     lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
 
                 
