@@ -115,21 +115,10 @@ handle_cast(process_docs, S) ->
 handle_cast(_Msg, S) ->
     {noreply, S}.
 
-handle_info({fill_tab, []}, S) ->
-    erlang:send(S#state.me, get_docs),
-    {noreply, S};
-handle_info({fill_tab, FS}, S) ->
-    case fill_field_tables(FS, S) of
-        {ok, FS2} -> 
-            erlang:send(S#state.me, {fill_tab, FS2});
-        {error, req_timedout, FS} -> 
-            erlang:send_after(150000, S#state.me, {fill_tab, FS})
-    end,
-    {noreply, S};
 handle_info(fill_tab, S) ->
-    case fill_fieldset_table(S) of
-        {ok, FSIds} ->
-            erlang:send(S#state.me, {fill_tab, FSIds});
+    case fill_tables(S) of
+        ok ->
+            erlang:send(S#state.me, get_docs);
         {error, req_timedout} ->
             erlang:send_after(150000, S#state.me, fill_tab)
     end,
@@ -308,7 +297,7 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
     case untouched:exists(Doctype) of
         true -> ok;
         false -> 
-            case couch:get_view_json(Doctype, "quickdocs", R, WMS) of
+            case couch:get_view_json(Doctype, "index", R, WMS) of
                 {ok, AllDocs} ->
                     Rows = jsn:get_value(<<"rows">>, AllDocs),
                     {ok, _} = untouched:start(Doctype, Rows),
@@ -333,47 +322,42 @@ process_docs(S) ->
             not untouched:exists(S#state.doctype)
     end.
 
-%% @doc Fill an ets table that hold the fieldsets so that they can be
-%% referred to later without adding to server load. The means of
-%% retrieving the fieldsets is to use a view and querying the view
-%% while updating many documents can cause processing to be slowed
-%% while view indexing takes place.
--spec fill_fieldset_table(state()) -> {ok, [string()]} | {error, req_timedout}.
-fill_fieldset_table(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
-    case couch:get_view_json(Doctype, "fieldsets", R, WMS) of
-        {ok, FSJson} ->
-            F = fun(X, {Ids, Recs}) ->
-                        Id = jsn:get_value(<<"id">>, X),
-                        Id2 = binary_to_list(Id),
-                        Rec = fieldset:from_json(jsn:get_value(<<"value">>, X)),
-                        {[Id2|Ids], [{Id, Rec}|Recs]}
-                end,
-            {FSIds, FSRecs} = lists:foldl(F, {[], []}, 
-                                          jsn:get_value(<<"rows">>, FSJson)),
-            true = ets:insert(Tid, FSRecs),
-            {ok, FSIds};
+%% @doc Fill ets tables that hold the fieldsets and fields so that
+%% they can be referred to later without adding to server load. The
+%% means of retrieving the fieldsets and fields is to use a view and
+%% querying the view while updating many documents can cause
+%% processing to be slowed while view indexing takes place.
+-spec fill_tables(state()) -> {ok, [string()]} | {error, req_timedout}.
+fill_tables(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
+    DT = list_to_binary(Doctype),
+    VQ = #vq{startkey = [DT, <<"">>],
+             endkey = [DT, []],
+             include_docs = true},
+    QS = view:to_string(VQ),
+    case couch:get_view_json("fieldsets", "all", QS, R, WMS) of
+        {ok, Json} ->
+            ok = fill_tables(jsn:get_value(<<"rows">>, Json), Tid);
         {error, req_timedout} ->
             {error, req_timedout}
     end.
 
-%% @doc Create and fill ets tables that hold the fields so that they
-%% can be referred to later without adding to server load. The means
-%% of retrieving the fields is to use a view and querying the view
-%% while updating many documents can cause processing to be slowed
-%% while view indexing takes place.
--spec fill_field_tables([string()], state()) -> {ok, [string()]} | {error, req_timedout, [string()]}.
-fill_field_tables([H|T], #state{wrq=R, wm_state=WMS}) -> 
-    case couch:get_view_json(H, "fields", R, WMS) of
-        {ok, FJson} ->
-            FRecs = [{jsn:get_value(<<"id">>, X), 
-                      field:from_json(jsn:get_value(<<"value">>, X))} || 
-                        X <- jsn:get_value(<<"rows">>, FJson)],
-            Tid = ets:new(list_to_atom(H), [named_table]),
-            true = ets:insert(Tid, FRecs),
-            {ok, T};
-        {error, req_timedout} ->
-            {error, req_timedout, [H|T]}
-    end.
+-spec fill_tables(jsn:json_term(), ets:tid()) -> ok.
+fill_tables([], _Tid) ->
+    ok;
+fill_tables([H|T], Tid) ->
+    [_, FSID, Type, _] = jsn:get_value(<<"key">>, H),
+    FieldTable = list_to_atom(binary_to_list(FSID)),
+    case Type of
+        <<"fieldset">> ->
+            Rec = fieldset:from_json(jsn:get_value(<<"doc">>, H)),
+            true = ets:insert(Tid, [{FSID, Rec}]),
+            ets:new(FieldTable, [named_table]);
+        <<"fieldset-field">> ->
+            FID = jsn:get_value(<<"id">>, H),
+            Rec = field:from_json(jsn:get_value(<<"doc">>, H)),
+            true = ets:insert(FieldTable, [{FID, Rec}])
+    end,
+    fill_tables(T, Tid).
 
 %% @doc These are the fairly complex rules that deal with a fields
 %% value when default values, categories or other options have
