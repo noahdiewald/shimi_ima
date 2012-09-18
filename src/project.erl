@@ -40,7 +40,7 @@ upgrade(R, S) ->
     ok.
 
 upgrade_doctype_designs(R, S) ->
-    {ok, Json} = couch:get_view_json("doctypes", "all", R, S),
+    {ok, Json} = q:doctypes(R, S),
     F = fun(X) ->
                 Id = jsn:get_value(<<"id">>, X),
                 {ok, Design} = design_doctype_json_dtl:render(X),

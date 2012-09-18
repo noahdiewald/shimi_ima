@@ -67,7 +67,7 @@ html_index(R, S) ->
     User = proplists:get_value(user, S),
     ProjJson = couch:get_json(project, R, S),
 
-    {ok, Json} = couch:get_view_json("doctypes", "all", R, S),
+    {ok, Json} = q:doctypes(R, S),
   
     Vals = [{<<"title">>, <<"All Document Types">>},
             {<<"project_info">>, ProjJson},

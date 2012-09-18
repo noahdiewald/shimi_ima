@@ -114,8 +114,7 @@ provide_null(R, S) ->
   {[<<>>], R, S}.
     
 index_html(R, S) ->
-    QS = view:to_string(#vq{include_docs = true}),
-    {ok, Json} = couch:get_view_json("doctypes", "all", QS, R, S),
+    {ok, Json} = q:doctypes(true, R, S),
     {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->

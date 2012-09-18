@@ -297,7 +297,7 @@ get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
     case untouched:exists(Doctype) of
         true -> ok;
         false -> 
-            case couch:get_view_json(Doctype, "index", R, WMS) of
+            case q:index(Doctype, R, WMS) of
                 {ok, AllDocs} ->
                     Rows = jsn:get_value(<<"rows">>, AllDocs),
                     {ok, _} = untouched:start(Doctype, Rows),
@@ -329,12 +329,7 @@ process_docs(S) ->
 %% processing to be slowed while view indexing takes place.
 -spec fill_tables(state()) -> {ok, [string()]} | {error, req_timedout}.
 fill_tables(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
-    DT = list_to_binary(Doctype),
-    VQ = #vq{startkey = [DT, <<"">>],
-             endkey = [DT, []],
-             include_docs = true},
-    QS = view:to_string(VQ),
-    case couch:get_view_json("fieldsets", "all", QS, R, WMS) of
+    case q:all_fieldset_for_doctype(Doctype, R, WMS) of
         {ok, Json} ->
             ok = fill_tables(jsn:get_value(<<"rows">>, Json), Tid);
         {error, req_timedout} ->

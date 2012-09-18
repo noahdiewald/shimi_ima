@@ -47,11 +47,20 @@ arrange(Fields) ->
     lists:map(F, Fields).
 
 option_list(R, S) ->
+    Doctype = wrq:path_info(doctype, R),
+    F = fun(X) ->
+                [Label, Name] = jsn:get_value(<<"value">>, X),
+                Id = jsn:get_value(<<"id">>, X),
+                [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
+        end,
     case wrq:path_info(fieldset, R) of
         "metadata" -> meta_options();
         Fieldset -> 
-            {ok, Json} = couch:get_view_json(Fieldset, "fields_simple", R, S),
-            Json
+            {ok, Json} = 
+                q:all_fields_for_fieldset(Doctype, Fieldset, false, R, S),
+            jsn:set_value(<<"rows">>, 
+                          lists:map(F, jsn:get_value(<<"rows">>, Json)), 
+                          Json)
     end.
 
 is_meta(Id) when is_list(Id) ->

@@ -162,7 +162,7 @@ update_design(Json, R, S) ->
     end.
   
 html_index(R, S) ->
-    {ok, Json} = couch:get_view_json("indexes", "options", R, S),
+    {ok, Json} = q:indexes_options(R, S),
 
     case wrq:get_qs_value("as", R) of
         "options" -> 

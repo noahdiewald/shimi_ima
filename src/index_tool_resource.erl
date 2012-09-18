@@ -40,7 +40,7 @@ init(Opts) -> {ok, Opts}.
 to_html(R, S) ->
     User = proplists:get_value(user, S),
     Project = couch:get_json(project, R, S),
-    {ok, Doctypes} = couch:get_view_json("doctypes", "all", R, S),
+    {ok, Doctypes} = q:doctypes(R, S),
   
     Vals = [{<<"user">>, User},
             {<<"project_info">>, Project},

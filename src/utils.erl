@@ -172,7 +172,7 @@ y(F) ->
 %% query.
 -spec get_index(IndexId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
 get_index(IndexId, R, S) ->
-    case couch:get_view_json(sortkeys, IndexId, "index", R, S) of
+    case q:altered_startkey(IndexId, R, S) of
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.

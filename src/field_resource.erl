@@ -106,15 +106,16 @@ json_field(R, S) ->
     jsn:encode(Field).
 
 json_fields(R, S) -> 
+    Doctype = wrq:path_info(doctype, R),
     Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = couch:get_view_json(Fieldset, "fields", R, S),
+    {ok, Json} = q:all_fields_for_fieldset(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
-                Value = jsn:get_value(<<"value">>, Row),
+                Doc = jsn:get_value(<<"doc">>, Row),
                 Subcategory = binary_to_list(
-                                jsn:get_value(<<"subcategory">>, Value)),
-                get_allowed(Subcategory, Value, R, S)
+                                jsn:get_value(<<"subcategory">>, Doc)),
+                get_allowed(Subcategory, Doc, R, S)
         end,
   
     jsn:encode(lists:map(F, Rows)).
@@ -133,14 +134,7 @@ html_fields(R, S) ->
 html_as_fieldset(R, S) -> 
     Doctype = wrq:path_info(doctype, R),
     Fieldset = wrq:path_info(fieldset, R),
-    VQ = #vq{startkey = [list_to_binary(Doctype), list_to_binary(Fieldset),
-                         <<"fieldset-field">>, 0],
-             endkey = [list_to_binary(Doctype), list_to_binary(Fieldset), 
-                       <<"fieldset-field">>, -1000],
-             include_docs = true,
-             descending = true},
-    QS = view:to_string(VQ),
-    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    {ok, Json} = q:all_fields_for_fieldset(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
@@ -170,7 +164,7 @@ get_allowed(_, Json, _, _) -> Json.
 
 get_allowed_docs(Json, R, S) ->
     ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-    {ok, Keys} = couch:get_view_json(ForeignDoctype, "index", R, S),
+    {ok, Keys} = q:index(ForeignDoctype, R, S),
     F = fun(X) ->
                 [[_|[H|_]]|_] = jsn:get_value(<<"key">>, X),
                 [{<<"key">>, H}, {<<"value">>, H}]

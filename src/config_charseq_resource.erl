@@ -112,11 +112,11 @@ index_html(R, S) ->
     end.
   
 html_as_options(R, S) ->
-    {ok, Json} = couch:get_view_json("charseqs", "all", R, S),
+    {ok, Json} = q:charseqs(R, S),
     {render:render(Json, options_dtl), R, S}.
   
 html_as_tabs(R, S) ->
-    {ok, Json} = couch:get_view_json("charseqs", "all", R, S),
+    {ok, Json} = q:charseqs(R, S),
     {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
   
 id_html(R, S) ->

@@ -108,12 +108,8 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
-    DT = list_to_binary(wrq:path_info(doctype, R)),
-    QS = view:to_string(view:from_list([{"startkey", [DT, <<"0">>]},
-                                        {"endkey", [DT, <<"z">>]},
-                                        {"include_docs", true}])),
-
-    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    Doctype = wrq:path_info(doctype, R),
+    {ok, Json} = q:all_fieldsets_for_doctype(Doctype, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fieldsets = fieldset:arrange(Rows),
     {render:renderings([{<<"rows">>, Fieldsets}], 

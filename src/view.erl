@@ -128,14 +128,7 @@ set_keys_sortkeys(Id, Vq, R, S) ->
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_sortkey_by_doctype(Id, Vq, R, S) ->
-    QS = view:to_string(view:from_list([{"startkey", 
-                                         [<<"_head-charseq">>, 
-                                          list_to_binary(Id), 0]},
-                                        {"endkey", 
-                                         [<<"_head-charseq">>,
-                                          list_to_binary(Id), []]},
-                                        {"include_docs", true}])),
-    {ok, Charseqs} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    {ok, Charseqs} = q:head_charseqs(Id, R, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             set_sortkey_helper(<<>>, Vq, R, S);

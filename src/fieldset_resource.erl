@@ -83,13 +83,26 @@ html_fieldset(R, S) ->
   
 html_fieldsets(R, S) -> 
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = couch:get_view_json(Doctype, "fieldsets_simple", R, S),
-    Json2 = jsn:set_value(<<"rows">>, 
-                          [[{<<"key">>, <<"Metadata">>},
-                            {<<"value">>, <<"metadata">>},
-                            {<<"id">>, <<"metadata">>}]
-                           |jsn:get_value(<<"rows">>, Json)], Json),
-    {ok, Html} = options_dtl:render(Json2),
+    {ok, Json} = q:all_fieldset_for_doctype(Doctype, false, R, S),
+    F = fun(X, Acc) ->
+                [_, Id, Type, _] = jsn:get_value(<<"key">>, X),
+                case Type of
+                    <<"fieldset">> ->
+                        [Label, Name] = jsn:get_value(<<"value">>, X),
+                        [[{<<"id">>, Id},
+                          {<<"key">>, Label},
+                          {<<"value">>, Name}]|Acc];
+                    _ ->
+                        Acc
+                end
+        end,
+    Rows = lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)),
+    Options = jsn:set_value(<<"rows">>, 
+                            [[{<<"key">>, <<"Metadata">>},
+                              {<<"value">>, <<"metadata">>},
+                              {<<"id">>, <<"metadata">>}]
+                             |lists:reverse(Rows)], Json),
+    {ok, Html} = options_dtl:render(Options),
     Html.
     
 validate_authentication(Props, R, S) ->

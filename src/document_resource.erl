@@ -179,12 +179,7 @@ html_documents(R, S) ->
 
 html_edit(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    QS = view:to_string(view:from_list([{"startkey", 
-                                         [list_to_binary(Doctype), <<"0">>]},
-                                        {"endkey", 
-                                         [list_to_binary(Doctype), <<"z">>]},
-                                        {"include_docs", true}])),
-    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    {ok, Json} = q:all_fieldset_for_doctype(Doctype, R, S),
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
   
     Vals = [
@@ -203,7 +198,7 @@ html_index(R, S) ->
 
     {ok, Json} = case wrq:get_qs_value("index", R) of
                      undefined -> 
-                         couch:get_view_json(sortkeys, Doctype, "index", R, S);
+                         q:altered_startkey(Doctype, R, S);
                      IndexId -> 
                          utils:get_index(IndexId, R, S) 
                  end,

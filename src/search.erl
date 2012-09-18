@@ -35,7 +35,7 @@ values(_Index, [], _R, _S) ->
     [{<<"rows">>, false}];
 values(Index, Query, R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = couch:get_view_json(Index, "index", R, S),
+    {ok, Json} = q:index(Index, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Filtered = i_filter(Rows, RE, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, 
@@ -72,10 +72,6 @@ prep_ret(TID) ->
     Rows = ets:foldl(F, [], TID),
     [{<<"total_rows">>, Total}, {<<"rows">>, Rows}].
 
-get_matches(RE, QS, R, S) ->
-    {ok, Json} = couch:get_view_json("fields", "search", QS, R, S),
-    filter(jsn:get_value(<<"rows">>, Json), RE, []).
-
 %% @doc filter for searches on indexes
 i_filter([], _RE, Acc) ->
     lists:reverse(Acc);
@@ -104,10 +100,8 @@ filter([H|T], RE, Acc) ->
     end.
 
 do_search(Doctype, RE, Field, TID, R, S) ->
-    VQ = #vq{startkey = [Doctype, Field, []],
-             endkey = [Doctype, Field, <<"">>],
-             descending = true},
-    Matches = get_matches(RE, view:to_string(VQ), R, S),
+    {ok, Json} = q:search(Doctype, Field, R, S),
+    Matches = filter(jsn:get_value(<<"rows">>, Json), RE, []),
     case length(Matches) of
         0 ->
             ok;
@@ -123,26 +117,7 @@ do_search(Doctype, RE, Field, TID, R, S) ->
             ok
     end.
 
-%% do_search(_Doctype, _RE, [], Acc, _R, _S) ->
-%%     Acc;
-%% do_search(Doctype, RE, [H|T], Acc, R, S) ->
-%%     VQ = #vq{startkey = [Doctype, H, []],
-%%              endkey = [Doctype, H, <<"">>],
-%%              descending = true},
-%%     Matches = get_matches(RE, view:to_string(VQ), R, S),
-%%     case length(Matches) of
-%%         0 ->
-%%             do_search(Doctype, RE, T, Acc, R, S);
-%%         _ ->
-%%             do_search(Doctype, RE, T, [[{<<"id">>, H}, 
-%%                                         {<<"total_rows">>, length(Matches)}, 
-%%                                         {<<"rows">>, Matches}]|Acc], R, S)
-%%     end.
-
 get_fields(Doctype, ExFields, R, S) ->
-    VQ = #vq{startkey = [Doctype, <<"">>],
-             endkey = [Doctype, []]},
-    QS = view:to_string(VQ),
     F = fun(X, Acc) ->
                 [_, _, Type, _] = jsn:get_value(<<"key">>, X),
                 Id = jsn:get_value(<<"id">>, X),
@@ -152,7 +127,7 @@ get_fields(Doctype, ExFields, R, S) ->
                     _ -> Acc
                 end
         end,
-    {ok, Json} = couch:get_view_json("fieldsets", "all", QS, R, S),
+    {ok, Json} = q:all_fielset_for_doctype(Doctype, false, R, S),
     lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
 
                 
