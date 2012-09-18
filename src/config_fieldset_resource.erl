@@ -109,7 +109,7 @@ content_types_accepted(R, S) ->
   
 index_html(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:all_fieldsets_for_doctype(Doctype, R, S),
+    {ok, Json} = q:fieldset(Doctype, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fieldsets = fieldset:arrange(Rows),
     {render:renderings([{<<"rows">>, Fieldsets}], 

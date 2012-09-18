@@ -115,7 +115,7 @@ content_types_accepted(R, S) ->
 index_html(R, S) ->
     DT = list_to_binary(wrq:path_info(doctype, R)),
     FS = list_to_binary(wrq:path_info(fieldset, R)),
-    {ok, Json} = q:all_fields_for_fieldset(DT, FS, R, S),
+    {ok, Json} = q:field(DT, FS, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fields = field:arrange(Rows),
     {render:renderings([{<<"rows">>, Fields}], 

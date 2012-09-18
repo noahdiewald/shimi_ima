@@ -58,27 +58,27 @@ index(Id, R, S) ->
 indexes_options(R, S) ->
     couch:get_view_json("indexes", "options", R, S).
 
-all_fieldset_for_doctype(Doctype, R, S) ->
-    all_fieldset_for_doctype(Doctype, true, R, S).
+fieldset(Doctype, R, S) ->
+    fieldset(Doctype, true, R, S).
 
-all_fieldset_for_doctype(Doctype, Include, R, S) when is_list(Doctype) ->
-    all_fieldset_for_doctype(list_to_binary(Doctype), Include, R, S);
-all_fieldset_for_doctype(DT, Include, R, S) when is_binary(DT) ->
+fieldset(Doctype, Include, R, S) when is_list(Doctype) ->
+    fieldset(list_to_binary(Doctype), Include, R, S);
+fieldset(DT, Include, R, S) when is_binary(DT) ->
     VQ = #vq{startkey = [DT, <<"">>],
              endkey = [DT, []],
              include_docs = Include},
     QS = view:to_string(VQ),
     couch:get_view_json("fieldsets", "all", QS, R, S).
 
-all_fields_for_fieldset(Doctype, Fieldset, R, S) when is_list(Doctype) ->
-    all_fields_for_fieldset(Doctype, Fieldset, true, R, S).
+field(Doctype, Fieldset, R, S) when is_list(Doctype) ->
+    field(Doctype, Fieldset, true, R, S).
 
-all_fields_for_fieldset(Doctype, Fieldset, Include, R, S) 
+field(Doctype, Fieldset, Include, R, S) 
   when is_list(Doctype) ->
-    all_fields_for_fieldset(list_to_binary(Doctype), Fieldset, Include, R, S);
-all_fields_for_fieldset(DT, Fieldset, Include, R, S) when is_list(Fieldset) ->
-    all_fields_for_fieldset(DT, list_to_binary(Fieldset), Include, R, S);
-all_fields_for_fieldset(DT, FS, Include, R, S) 
+    field(list_to_binary(Doctype), Fieldset, Include, R, S);
+field(DT, Fieldset, Include, R, S) when is_list(Fieldset) ->
+    field(DT, list_to_binary(Fieldset), Include, R, S);
+field(DT, FS, Include, R, S) 
   when is_binary(DT), is_binary(FS) ->
     VQ = #vq{startkey = [DT, FS, <<"fieldset-field">>, <<"">>],
              endkey = [DT, FS, <<"fieldset-field">>, 0],

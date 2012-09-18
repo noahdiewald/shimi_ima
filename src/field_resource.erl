@@ -108,7 +108,7 @@ json_field(R, S) ->
 json_fields(R, S) -> 
     Doctype = wrq:path_info(doctype, R),
     Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = q:all_fields_for_fieldset(Doctype, Fieldset, R, S),
+    {ok, Json} = q:field(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
@@ -134,7 +134,7 @@ html_fields(R, S) ->
 html_as_fieldset(R, S) -> 
     Doctype = wrq:path_info(doctype, R),
     Fieldset = wrq:path_info(fieldset, R),
-    {ok, Json} = q:all_fields_for_fieldset(Doctype, Fieldset, R, S),
+    {ok, Json} = q:field(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->

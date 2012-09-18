@@ -57,7 +57,7 @@ option_list(R, S) ->
         "metadata" -> meta_options();
         Fieldset -> 
             {ok, Json} = 
-                q:all_fields_for_fieldset(Doctype, Fieldset, false, R, S),
+                q:field(Doctype, Fieldset, false, R, S),
             jsn:set_value(<<"rows">>, 
                           lists:map(F, jsn:get_value(<<"rows">>, Json)), 
                           Json)

@@ -329,7 +329,7 @@ process_docs(S) ->
 %% processing to be slowed while view indexing takes place.
 -spec fill_tables(state()) -> {ok, [string()]} | {error, req_timedout}.
 fill_tables(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
-    case q:all_fieldset_for_doctype(Doctype, R, WMS) of
+    case q:fieldset(Doctype, R, WMS) of
         {ok, Json} ->
             ok = fill_tables(jsn:get_value(<<"rows">>, Json), Tid);
         {error, req_timedout} ->

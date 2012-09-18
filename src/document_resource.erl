@@ -179,7 +179,7 @@ html_documents(R, S) ->
 
 html_edit(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:all_fieldset_for_doctype(Doctype, R, S),
+    {ok, Json} = q:fieldset(Doctype, R, S),
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
   
     Vals = [

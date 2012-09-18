@@ -83,7 +83,7 @@ html_fieldset(R, S) ->
   
 html_fieldsets(R, S) -> 
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:all_fieldset_for_doctype(Doctype, false, R, S),
+    {ok, Json} = q:fieldset(Doctype, false, R, S),
     F = fun(X, Acc) ->
                 [_, Id, Type, _] = jsn:get_value(<<"key">>, X),
                 case Type of
