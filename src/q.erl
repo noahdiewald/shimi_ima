@@ -30,9 +30,6 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
-fieldsets(Doctype, R, S) ->
-    couch:get_view_json(Doctype, "fieldsets_simple", R, S).
-
 doctypes(R, S) ->
     couch:get_view_json("doctypes", "all", R, S).
 
