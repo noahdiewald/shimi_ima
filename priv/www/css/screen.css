@@ -520,12 +520,14 @@ th {
 }
 
 #search-field-label {
-    font-weight: bold;
+    font-weight: normal;
 }
 
 .search-field-item {
     margin-left: 2px;
     background: #CCC;
+    text-decoration: none;
+    font-size: 8pt;
 }
 
 .ui-widget-header {

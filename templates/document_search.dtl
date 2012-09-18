@@ -15,8 +15,9 @@
 {% for field in rows %}
 <h5 class="search-result-field-id toggler"
     data-field-field="{{ field.id }}"
-    data-target="results-for-field-{{ field.id }}">
-  <a href="#">
+    data-target="results-for-field-{{ field.id }}"
+    title="Click to display">
+  <a href="#" title="Double click to add as search option">
     {{ field.id }}
   </a> 
   ({{ field.total_rows }})

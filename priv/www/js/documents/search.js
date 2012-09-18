@@ -25,13 +25,17 @@ var searches = {
             $('.search-result-field-id')
               .each(function(index, item) {
                       var label = lookup[$(item).attr('data-field-field')];
-                      $(item).children('a').first().html(label);
+                      var target = $(item).children('a').first();
+                      target.html(label);
+                      target.attr('data-search-label', label);
                     });
             $('.search-results th')
               .each(function(index, item) {
                       var itemText = $.trim($(item).children('a').html());
                       var re = new RegExp("(" + query + ")", "g");
-                      var newText = itemText.replace(re, "<span class='highlight'>$1</span>");
+                      var newText = 
+                        itemText.replace(re, 
+                                         "<span class='highlight'>$1</span>");
                       $(item).children('a').html(newText);
                     });
             $('#search-listing').show();
@@ -41,19 +45,22 @@ var searches = {
   fieldLookup: function() {
     var lookup = {};
     
-    $('.field-container')
-      .each(function(index, item) {
-              var id = $(item).attr('data-field-field');
-              var label = $(item).find('.label-text')
-                .first().text();
-              lookup[id] = label;
-            });
+    $('fieldset').each(
+      function(index, fset) {
+        var fsLabel = $(fset).attr('data-fieldset-label');
+        $(fset).find('.field-container').each(
+          function(index, item) {
+            var id = $(item).attr('data-field-field');
+            var label = $(item).find('.label-text').first().text();
+            lookup[id] = fsLabel + ": " + label;
+          });
+      });
     return lookup;
   },
 
   lookup: function(item) {
     var stored = localStorage.getItem(item);
-    if (stored === "") {
+    if (stored === "" || stored === "null") {
       return null;
     } else {
       return stored;
@@ -64,7 +71,7 @@ var searches = {
     var exclude = $('#document-search-exclude').is(':checked');
 
     if (!exclude) {
-      return "null";
+      return null;
     } else {
       return exclude;
     }
@@ -103,12 +110,12 @@ var searches = {
     var index = searches.lookup("searchIndex");
     var fieldids = searches.lookup("searchFields");
 
-    if (index !== null && index !== "null") {
+    if (index !== null) {
       $('#document-search-index').val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
       $('#document-search-exclude').parent('div').hide();
-    } else if (fieldids !== null && fieldids !== "null") {
+    } else if (fieldids !== null) {
       $('#document-search-field').val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
@@ -183,7 +190,7 @@ var searches = {
       .attr('data-field-field');
 
     if (validID(fieldid)) {
-      var fieldLabel = $(e.target).text();
+      var fieldLabel = searches.fieldLookup()[fieldid];
       var searchField = $('#document-search-field');
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
