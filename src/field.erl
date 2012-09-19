@@ -49,7 +49,7 @@ arrange(Fields) ->
 option_list(R, S) ->
     Doctype = wrq:path_info(doctype, R),
     F = fun(X) ->
-                [Label, Name] = jsn:get_value(<<"value">>, X),
+                [Name, Label] = jsn:get_value(<<"value">>, X),
                 Id = jsn:get_value(<<"id">>, X),
                 [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
         end,

@@ -88,7 +88,7 @@ html_fieldsets(R, S) ->
                 [_, Id, Type, _] = jsn:get_value(<<"key">>, X),
                 case Type of
                     <<"fieldset">> ->
-                        [Label, Name] = jsn:get_value(<<"value">>, X),
+                        [Name, Label] = jsn:get_value(<<"value">>, X),
                         [[{<<"id">>, Id},
                           {<<"key">>, Label},
                           {<<"value">>, Name}]|Acc];
