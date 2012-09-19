@@ -65,7 +65,7 @@ function fieldElems() {
         "doctype": fObj.doctype.val(),
         "fieldset": fObj.fieldset.val(),
         "subcategory": fObj.subcategory.val()
-      }
+      };
       return valObj;
     };
     
@@ -110,6 +110,7 @@ function fieldElems() {
         case "select":
         case "multiselect":
           fObj.disable();
+          fObj.allowed.removeAttr("disabled");
           break;
         case "docselect":
         case "docmultiselect":
