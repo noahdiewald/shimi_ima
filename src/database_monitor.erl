@@ -88,6 +88,7 @@ get_ready_dbs(DBSeqs) ->
     Pred = fun(DB, OldSeq) ->
                    case couch:get_db_seq(DB) of
                        {error, not_found} -> false;
+                       {error, req_timedout} -> false;
                        {ok, NewSeq} -> (NewSeq - OldSeq) > 10
                    end
            end,
