@@ -251,6 +251,12 @@ function clearValues(inputFields) {
 }
 
 function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
+  var dataObj;
+
+  if (obj) {
+    dataObj = JSON.stringify(obj);
+  }
+
   $.ajax({
     type: method,
     url: ajaxUrl,
@@ -258,11 +264,14 @@ function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
     context: callContext,
     contentType: "application/json",
     processData: false,
-    data: JSON.stringify(obj),
+    data: dataObj,
     complete: function(req, status) {
       if (req.status >= 200 && req.status < 300) {
         completeFun(this, req);
-      } else if (req.status >= 400 && req.status < 500) {
+      } else if (req.status != 500) {
+        flashError("Unknown Server Error", "Please report that you received " +
+                   "this message");
+      } else if (req.status >= 400) {
         var body = JSON.parse(req.responseText);
         var title = req.statusText;
         

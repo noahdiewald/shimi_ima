@@ -244,38 +244,6 @@ var deleteIndex =
     return false;  
   };
 
-var initIndexEditButtons = function(buttonData) {
-  initIndexSaveButton($('#save-index-button'), buttonData);
-  initIndexDeleteButton($('#delete-index-button'), buttonData);
-  initIndexAddConditionButton($('#add-index-condition-button'), buttonData);
-  initReplaceButton($('#replace-button'), buttonData);
-  
-  return false;
-};
- 
-var initIndexSaveButton = function(button, buttonData) {
-  var completeFunction;
-  var bData;
-  
-  button.button(
-    {
-      icons: {primary: "ui-icon-document"}
-    }).click(function (e) {
-               bData = buttonData();
-    
-               if (!bData.length < 1) {
-                 completeFunction = function() {
-                   getIndexEdit(bData.attr('data-index-id'));
-                   flashHighlight("Success", "Your index has been saved.");
-                 };
-      
-                 saveIndex(bData, completeFunction);
-               } else {
-                 flashHighlight("Info", "No index has been chosen to save.");
-               }
-             });
-};
-
 var getIndexEdit = function(indexId) {
   var url = "indexes/" + indexId;
   var target = $('#index-conditions');
@@ -305,25 +273,31 @@ var initIndexIndex = function() {
 };
 
 var getIndexView = function(startkey, startid, prevkeys, previds) {
+  var state = {
+    startkey: startkey,
+    startid: startid,
+    prevkeys: prevkeys,
+    previds: previds
+  };
   var indexInfo = $('#index-editing-data');
   var indexId = indexInfo.attr('data-index-id');
   var url = "indexes/" + indexId + "/view?";
   var limit = $('#index-limit').val() * 1;
   
   // Initialize some values if we're at the beginning of the listing
-  if (!prevkeys) {
+  if (!state.prevkeys) {
     var supplied_val = $('#index-filter').val();
     var json_encoded = JSON.stringify(supplied_val);
-    startkey = btoa(unescape(encodeURIComponent(json_encoded)));
-    prevkeys = [];
-    previds = [];
+    state.startkey = btoa(unescape(encodeURIComponent(json_encoded)));
+    state.prevkeys = [];
+    state.previds = [];
   }
   
-  if (startkey) {
-    url = url + '&startkey=' + escape(atob(startkey));
+  if (state.startkey) {
+    url = url + '&startkey=' + escape(atob(state.startkey));
     
-    if (startid) {
-      url = url + '&startkey_docid=' + startid;
+    if (state.startid) {
+      url = url + '&startkey_docid=' + state.startid;
     }
   }
   
@@ -337,53 +311,56 @@ var getIndexView = function(startkey, startid, prevkeys, previds) {
     $('#index-limit').val(10);
     url = url + '&limit=11';
   }
-  
-  $.get(url, function(data) {
-          $('#index-list-view').html(data);
-    
-          $('#previous-page').button(
-            {
-              icons: {primary:'ui-icon-circle-arrow-w'} 
-            }).click(function() 
-                     {
-                       getIndexView(prevkeys.pop(), 
-                                    previds.pop(), 
-                                    prevkeys, 
-                                    previds);
-                     });
-    
-          // Collect the values needed for paging from the HTML
-          $('#next-page').button(
-            {
-              icons: {secondary:'ui-icon-circle-arrow-e'}
-            }).click(function() 
-                     {
-                       var nextkey = $(this).attr('data-startkey');
-                       var nextid = $(this).attr('data-startid');
-                       var prevkey = 
-                         $('#first-index-element').attr('data-first-key');
-                       var previd = 
-                         $('#first-index-element').attr('data-first-id');
-                       prevkeys.push(prevkey);
-                       previds.push(previd);
-                       
-                       getIndexView(nextkey, nextid, prevkeys, previds);
-                     });
-    
-          // Disable the previous button if we're at the beginning
-          if (prevkeys.length == 0) {
-            $('#previous-page').button("disable");
-          }
-    
-          // Disable the next button if we're at the end
-          if ($('#next-page').attr('data-last-page')) {
-            $('#next-page').button("disable");
-          }
-  
-          $('nav.pager').buttonset();
-    
-        });
 
+  sendConfigDoc(url, false, 'GET', 
+                function(context, req) 
+                {fillIndexPreview(req, state);}, this);  
+};
+  
+var fillIndexPreview = function(req, state) {
+  $('#index-list-view').html(req.responseText);
+  
+  $('#previous-page').button(
+    {
+      icons: {primary:'ui-icon-circle-arrow-w'} 
+    }).click(function() 
+             {
+               getIndexView(state.prevkeys.pop(), 
+                            state.previds.pop(), 
+                            state.prevkeys, 
+                            state.previds);
+             });
+    
+  // Collect the values needed for paging from the HTML
+  $('#next-page').button(
+    {
+      icons: {secondary:'ui-icon-circle-arrow-e'}
+    }).click(function() 
+             {
+               var nextkey = $(this).attr('data-startkey');
+               var nextid = $(this).attr('data-startid');
+               var prevkey = 
+                 $('#first-index-element').attr('data-first-key');
+               var previd = 
+                 $('#first-index-element').attr('data-first-id');
+               state.prevkeys.push(prevkey);
+               state.previds.push(previd);
+                       
+               getIndexView(nextkey, nextid, state.prevkeys, state.previds);
+             });
+    
+  // Disable the previous button if we're at the beginning
+  if (state.prevkeys.length == 0) {
+    $('#previous-page').button("disable");
+  }
+    
+  // Disable the next button if we're at the end
+  if ($('#next-page').attr('data-last-page')) {
+    $('#next-page').button("disable");
+  }
+  
+  $('nav.pager').buttonset();
+  
 };
 
 $(function () {

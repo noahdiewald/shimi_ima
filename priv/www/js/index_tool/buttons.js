@@ -82,3 +82,35 @@ var initReplaceButton = function(button, buttonData) {
 
   return false;
 };
+
+var initIndexEditButtons = function(buttonData) {
+  initIndexSaveButton($('#save-index-button'), buttonData);
+  initIndexDeleteButton($('#delete-index-button'), buttonData);
+  initIndexAddConditionButton($('#add-index-condition-button'), buttonData);
+  initReplaceButton($('#replace-button'), buttonData);
+  
+  return false;
+};
+ 
+var initIndexSaveButton = function(button, buttonData) {
+  var completeFunction;
+  var bData;
+  
+  button.button(
+    {
+      icons: {primary: "ui-icon-document"}
+    }).click(function (e) {
+               bData = buttonData();
+    
+               if (!bData.length < 1) {
+                 completeFunction = function() {
+                   getIndexEdit(bData.attr('data-index-id'));
+                   flashHighlight("Success", "Your index has been saved.");
+                 };
+      
+                 saveIndex(bData, completeFunction);
+               } else {
+                 flashHighlight("Info", "No index has been chosen to save.");
+               }
+             });
+};
