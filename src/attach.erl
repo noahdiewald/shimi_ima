@@ -43,11 +43,10 @@
 -include_lib("config.hrl").
 -include_lib("types.hrl").
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 % API Functions   
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
-%% @doc Determine if the entry exists by extracting the id from the URL path
+%% @doc Determine if the entry exists by extracting the id from the
+%% URL path
 file_exists(R, S) ->
     Id = wrq:path_info(id, R),
     file_exists(Id, R, S).
@@ -58,8 +57,9 @@ file_path_exists(R, S) ->
     Path = [list_to_binary(X) || X <- wrq:path_tokens(R)],
     file_path_exists(Path, R, S). 
   
-%% @doc Checks for database existence. If it doesn't exist try to create it.
-%% Will raise an exception on failure. Also updates design document.
+%% @doc Checks for database existence. If it doesn't exist try to
+%% create it.  Will raise an exception on failure. Also updates design
+%% document.
 file_database_exists(R, S) ->
     DB = proplists:get_value(db, S),
     DBName = DB -- ?ADMINDB,
@@ -118,7 +118,7 @@ dirs_by_path(R, S) ->
 %% @doc Returns a state with the admin URL for the file database for a
 %% project
 get_database(R, S) ->
-    DB = ?ADMINDB ++ "files-" ++ lists:nthtail(8, wrq:path_info(project, R)),
+    DB = ?ADMINDB ++ wrq:path_info(project, R),
     {R, [{db, DB}|S]}.
 
 %% @doc Retrieve a file attachment. This can be done by supplying only
@@ -194,9 +194,7 @@ get(Id, R, S) ->
     Url = get_url([Id], [], R, S),
     get_json(Url).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 % Helper Functions   
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 
 %% @doc Send a get request and decode JSON body
 get_json(Url) -> 

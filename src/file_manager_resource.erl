@@ -120,7 +120,7 @@ to_null(R, S) ->
   {<<"null">>, R, S}.
   
 to_json(R, S) ->
-  {jsn:encode(.attach:get(R, S)), R, S}.
+  {jsn:encode(attach:get(R, S)), R, S}.
   
 get_file(R, S) ->
   {attach:get_file(R, S), R, S}.
