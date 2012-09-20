@@ -40,7 +40,6 @@ upgrade(R, S) ->
     ok.
 
 upgrade_doctype_designs(R, S) ->
-    {ok, Json} = q:doctypes(R, S),
     F = fun(X) ->
                 Id = jsn:get_value(<<"id">>, X),
                 {ok, Design} = 
@@ -48,7 +47,13 @@ upgrade_doctype_designs(R, S) ->
                       jsn:set_value(<<"_id">>, Id, X)),
                 do_upgrade(Id, Design, R, S)
         end,
-    lists:map(F, jsn:get_value(<<"rows">>, Json)).
+
+    case q:doctypes(R, S) of
+        {ok, Json} ->
+            lists:map(F, jsn:get_value(<<"rows">>, Json));
+        {error, req_timedout} ->
+            upgrade_doctype_designs(R, S)
+    end.
     
 upgrade_design(Id, R, S) ->
     Template = list_to_atom("design_" ++ Id ++ "_json_dtl"),

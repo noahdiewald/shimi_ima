@@ -124,8 +124,9 @@ get_json_helper(Url, Headers) ->
     end.
 
 get_json_helper(safer, Url, Headers) ->  
-    case ibrowse:send_req(Url, Headers, get, [], [{connect_timeout, 100},
-                                                  {inactivity_timeout, 300}]) of
+    case ibrowse:send_req(Url, Headers, get, [], 
+                          [{connect_timeout, 500}, 
+                           {inactivity_timeout, 10000}]) of
         {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
         {ok, "404", _, _} -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout}
