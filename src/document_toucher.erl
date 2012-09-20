@@ -367,6 +367,9 @@ update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
 % if the value is null, set it to the default.
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
     DF#docfield{value=Def};
+% ensure that booleans aren't null.
+update_normalize(_, _, DF=#docfield{value=null, subcategory=boolean}) ->
+    DF#docfield{value=false};
 % this is partially to avoid having undefined be the value. This will
 % ensure the default or null.
 update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,

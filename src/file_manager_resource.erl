@@ -146,7 +146,7 @@ html_main(R, S) ->
     Html.
 
 html_index(R, S) ->  
-    Files = attach:get_all_by_path(R, S),
+    {ok, Files} = attach:get_all_by_path(R, S),
     
     Vals = [{<<"files">>, Files}],
   
