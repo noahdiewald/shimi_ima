@@ -163,7 +163,6 @@ me(Doctype) ->
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
-    error_logger:info_msg("~p touching: ~n~p", [S#state.me, Id]),
     Doc = document:from_json(Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
@@ -368,7 +367,8 @@ update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
 update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
     DF#docfield{value=Def};
 % ensure that booleans aren't null.
-update_normalize(_, _, DF=#docfield{value=null, subcategory=boolean}) ->
+update_normalize(_, _, DF=#docfield{value=V, subcategory=boolean}) when
+      V /= true; V /= false ->
     DF#docfield{value=false};
 % this is partially to avoid having undefined be the value. This will
 % ensure the default or null.

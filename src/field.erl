@@ -217,6 +217,7 @@ convert_value(S, Json) ->
   
 -spec convert_value(subcategory(), Json :: jsn:json_term(), Key :: binary()) -> anyval().
 convert_value(boolean, Json, Key) ->
+    io:format("~n --- ~p --- ~n", Json),
     get_value(Key, Json, false);
 convert_value(openboolean, Json, Key) ->
     case get_value(Key, Json) of
@@ -257,13 +258,13 @@ parse_date([Y1,Y2,Y3,Y4,_,M1,M2,_,D1,D2]) ->
     {list_to_integer([Y1,Y2,Y3,Y4]), list_to_integer([M1,M2]), 
      list_to_integer([D1,D2])}.
 
-% TODO: this is mostly to guard against bad values already entered
-% It should be altered or removed in the future.
+%% @doc Set values to a default when they are undefined or null.
 -spec get_value(Key :: binary(), Json :: jsn:json_term(), Default :: jsn:json_term()) -> jsn:json_term().
 get_value(Key, Json, Default) ->
     case proplists:get_value(Key, Json, Default) of
-        <<"null">> -> null;
-        <<"undefined">> -> null;
+        null -> Default;
+        <<"null">> -> Default;
+        <<"undefined">> -> Default;
         Value -> Value
     end.
   
