@@ -44,9 +44,9 @@ var refreshEditButton = function (path) {
     $('.edit-file-button').button({
       icons: {primary: 'ui-icon-pencil'}
     }).click(function (e) {
-      target = $(e.target).parent('a');
-      fileId = target.attr('data-file-id');
-      url = "file_manager/" + fileId;
+      var target = $(e.target).parent('a');
+      var fileId = target.attr('data-file-id');
+      var url = "file_manager/" + fileId;
       
       $.getJSON(url, function (obj) {
         pathEditDialog(obj, path).dialog('open');
@@ -58,11 +58,11 @@ var refreshDeleteButton = function (path) {
     $('.delete-file-button').button({
       icons: {primary: 'ui-icon-trash'}
     }).click(function(e) {
-      target = $(e.target).parent('a');
-      fileId = target.attr('data-file-id');
-      fileRev = target.attr('data-file-rev');
-      url = "file_manager/" + fileId + "?rev=" + fileRev;
-      complete = function () {
+      var target = $(e.target).parent('a');
+      var fileId = target.attr('data-file-id');
+      var fileRev = target.attr('data-file-rev');
+      var url = "file_manager/" + fileId + "?rev=" + fileRev;
+      var complete = function () {
         refreshListings(path);
         flashHighlight("Success", "File Deleted");
       };
@@ -86,7 +86,7 @@ var pathEditDialog = function (obj, path) {
     buttons: {
       "Move": function () {
         var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
-        complete = function () {
+        var complete = function () {
           refreshListings(path);
           flashHighlight("Success", "File Moved");
         };

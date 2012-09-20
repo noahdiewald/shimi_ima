@@ -30,30 +30,18 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
+altered_startkey(Id, R, S) ->
+    couch:get_view_json(sortkeys, Id, "index", R, S).
+
+charseqs(R, S) ->
+    couch:get_view_json("charseqs", "all", R, S).
+
 doctypes(R, S) ->
     couch:get_view_json("doctypes", "all", R, S).
 
 doctypes(true, R, S) ->
     QS = view:to_string(#vq{include_docs = true}),
     couch:get_view_json("doctypes", "all", QS, R, S).
-
-head_charseqs(Doctype, R, S) ->
-    DT = list_to_binary(Doctype),
-    VQ = #vq{startkey =  [<<"_head-charseq">>, DT, 0],
-             endkey = [<<"_head-charseq">>, DT, []],
-             include_docs = true},
-    QS = view:to_string(VQ),
-    couch:get_view_json("fieldsets", "all", QS, R, S).
-    
-
-charseqs(R, S) ->
-    couch:get_view_json("charseqs", "all", R, S).
-
-index(Id, R, S) ->
-    couch:get_view_json(Id, "index", R, S).
-
-indexes_options(R, S) ->
-    couch:get_view_json("indexes", "options", R, S).
 
 fieldset(Doctype, R, S) ->
     fieldset(Doctype, true, R, S).
@@ -83,10 +71,25 @@ field(DT, FS, Include, R, S)
              include_docs = Include},
     QS = view:to_string(VQ),
     couch:get_view_json("fieldsets", "all", QS, R, S).
-    
 
-altered_startkey(Id, R, S) ->
-    couch:get_view_json(sortkeys, Id, "index", R, S).
+files(R, S) ->
+    VQ = view:from_reqdata(R),
+    QS = view:to_string(VQ),
+    couch:get_view_json("file_manager", "by_path", QS, R, S).
+
+head_charseqs(Doctype, R, S) ->
+    DT = list_to_binary(Doctype),
+    VQ = #vq{startkey =  [<<"_head-charseq">>, DT, 0],
+             endkey = [<<"_head-charseq">>, DT, []],
+             include_docs = true},
+    QS = view:to_string(VQ),
+    couch:get_view_json("fieldsets", "all", QS, R, S).
+
+index(Id, R, S) ->
+    couch:get_view_json(Id, "index", R, S).
+
+indexes_options(R, S) ->
+    couch:get_view_json("indexes", "options", R, S).
 
 search(Doctype, Field, R, S) ->
     VQ = #vq{startkey = [Doctype, Field, []],

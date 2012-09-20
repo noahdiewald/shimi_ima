@@ -14,10 +14,11 @@
       
       <label for="file-path-input">File Path</label><br />
       <input 
-        type="text" 
-        name="file-path-input" 
-        id="file-path-input" 
-        value="" 
-        class="ui-widget-content ui-corner-all input" />
+         type="text" 
+         name="file-path-input" 
+         id="file-path-input" 
+         value="" 
+         class="ui-widget-content ui-corner-all input" />
+    </fieldset>
   </form>
 </div>
