@@ -217,7 +217,6 @@ convert_value(S, Json) ->
   
 -spec convert_value(subcategory(), Json :: jsn:json_term(), Key :: binary()) -> anyval().
 convert_value(boolean, Json, Key) ->
-    io:format("~n --- ~p --- ~n", Json),
     get_value(Key, Json, false);
 convert_value(openboolean, Json, Key) ->
     case get_value(Key, Json) of
