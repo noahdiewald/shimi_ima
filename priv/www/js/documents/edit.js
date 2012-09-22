@@ -121,7 +121,7 @@ function initSaveButton() {
 function setInvalidError(req) {
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
-  
+
   var invalid = $('[data-field-instance=' + body.instance + ']');
   var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
   
@@ -171,8 +171,29 @@ function afterFreshRefresh() {
 // This should be run after either afterFreshRefresh() or afterEditRefresh()
 function afterRefresh() {
   initDateFields();
+  initInstances();
   return true;
 }
+
+var initInstances = function() {
+  var text = ['0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f',
+              '0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f'];  
+  var makeInstance = function() {
+    return text.map(function() {
+                      return text[Math.floor(Math.random() * text.length)];
+                    }).join('');
+  };
+
+  $("[data-field-instance]").each(
+    function(index, item) {
+      var newInstance = makeInstance();
+      $(item).first().attr('data-field-instance', newInstance);
+      $(item).first().attr('data-group-id', newInstance);
+      $(item).first().attr('id', newInstance);
+    });
+
+  return true;
+};
 
 function resetFields() {
   $('.field').each(function(index) {
