@@ -43,6 +43,7 @@
          update/4,
          update/5,
          update/6,
+         update_doctype_version/2,
          user_list/0
         ]).
 
@@ -56,6 +57,11 @@ user_list() -> [].
 new_db(DB, _R, _S) ->
     {ok, "201", _, _} = ibrowse:send_req(DB, [], put),
     {ok, newdb}.
+
+get(Id, R, S) ->  
+    Headers = proplists:get_value(headers, S),
+    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    get_helper(DataBaseUrl ++ Id, Headers).
   
 get_json(project, R, _S) ->
     Id = wrq:path_info(project, R) -- "project-",
@@ -90,7 +96,7 @@ get_json(Id, R, S) ->
     Headers = proplists:get_value(headers, S),
     DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
     get_json_helper(DataBaseUrl ++ Id, Headers).
-  
+    
 get_json(safer, Id, R, S) ->
     Headers = proplists:get_value(headers, S),
     DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
@@ -117,21 +123,27 @@ should_wait(Project, ViewPath) ->
         _ -> false
     end.
 
-get_json_helper(Url, Headers) ->  
-    case ibrowse:send_req(Url, Headers, get) of
-        {ok, "200", _, Json} -> jsn:decode(Json);
-        {error, req_timedout} -> {error, req_timedout}
+get_json_helper(Url, Headers) ->
+    case get_helper(Url, Headers) of
+        {ok, Json} -> jsn:decode(Json);
+        Else -> Else
     end.
 
 get_json_helper(safer, Url, Headers) ->  
+    case get_helper(Url, Headers) of
+        {ok, Json} -> {ok, jsn:decode(Json)};
+        Else -> Else
+    end.
+
+get_helper(Url, Headers) ->
     case ibrowse:send_req(Url, Headers, get, [], 
                           [{connect_timeout, 500}, 
                            {inactivity_timeout, 10000}]) of
-        {ok, "200", _, Json} -> {ok, jsn:decode(Json)};
+        {ok, "200", _, Json} -> {ok, Json};
         {ok, "404", _, _} -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout}
     end.
-
+    
 get_view_json_helper(Id, Name, Qs, R, S) ->
     Headers = proplists:get_value(headers, S),
     Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
@@ -319,6 +331,11 @@ update(Url, Headers, Json) ->
         {ok, "409", _, _} -> 
             {409, <<"Conflict">>}
     end.
+
+update_doctype_version(R, S) ->
+    Doctype = wrq:path_info(doctype, R),
+    {ok, Json} = get(Doctype, R, S),
+    {ok, updated} = update(doc, Doctype, Json, R, S).
 
 exists(Target, R, S) ->
     exists(Target, ?COUCHDB ++ wrq:path_info(project, R), R, S).
