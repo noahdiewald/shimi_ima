@@ -1,19 +1,20 @@
 ERL ?= erl
+REBAR ?= ./rebar
 APP := dictionary_maker
 
-.PHONY: deps
-
-all: deps
-	@./rebar compile
-
-deps:
-	@./rebar get-deps
+all: build
 
 clean:
-	@./rebar clean
+	$(REBAR) clean
+	rm -rf priv/log/*
+	rm -Rf .eunit
 
-distclean: clean
-	@./rebar delete-deps
+depends:
+	@if test ! -d ./deps; then \
+		$(REBAR) get-deps; \
+	else \
+		$(REBAR) update-deps; \
+	fi
 
-docs:
-	@erl -noshell -run edoc_run application '$(APP)' '"."' '[]'
+build: depends
+	$(REBAR) compile
