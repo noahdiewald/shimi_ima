@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block javascript %}
-    <script type="text/javascript" src="/javascript/documents"></script>
+<script type="text/javascript" src="/javascript/documents"></script>
 {% endblock %}
 
 {% block dialogs %}
@@ -28,13 +28,16 @@
   </ul>
 </div>
 
-<div class="ui-widget ui-corner-all" data-project-id="{{ project_info._id }}" id="container">
+<div class="ui-widget ui-corner-all" 
+     data-project-id="{{ project_info._id }}" 
+     id="container">
   
   <div 
-    data-document-doctype="{{ doctype_info._id|escape }}" 
-    data-document-description="{{ doctype_info.description|escape }}"
-    data-group-id="document-view-info"
-    id="all-document-container">
+     data-document-doctype="{{ doctype_info._id|escape }}" 
+     data-document-description="{{ doctype_info.description|escape }}"
+     data-document-version="{{ doctype_info._rev }}"
+     data-group-id="document-view-info"
+     id="all-document-container">
 
     <div class="ui-widget panel hidden" id="document-search">
       <h2 class="ui-widget ui-widget-header">Search</h2>
@@ -43,7 +46,7 @@
         <div id="search-all-fields-switch" class="search-optional hidden">
           <a href="#">Search All Fields</a><br />
         </div>
-
+        
         <input type="hidden" name="document-search-field" id="document-search-field" />
 
         <input type="hidden" name="document-search-index" id="document-search-index" />
