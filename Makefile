@@ -9,6 +9,9 @@ clean:
 	rm -rf priv/log/*
 	rm -Rf .eunit
 
+distclean: clean
+	rm -Rf deps/
+
 depends:
 	@if test ! -d ./deps; then \
 		$(REBAR) get-deps; \
