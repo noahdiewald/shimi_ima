@@ -70,7 +70,7 @@
 -record(field, {
           id :: fieldid(),
           rev :: rev(),
-          allowed :: [basicval()],
+          allowed :: [basicval()] | null,
           category :: field,
           charseq :: charseqid(),
           default :: basicval(),

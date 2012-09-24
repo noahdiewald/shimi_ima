@@ -234,7 +234,7 @@ convert_value(docmultiselect, Json, Key) ->
         Val -> Val
     end;
 convert_value(date, Json, Key) ->
-    convert_value2(date, get_value(Key, Json, <<>>));
+    convert_value2(date, get_value(Key, Json));
 convert_value(Sub, Json, Key) when Sub /= text, Sub /= textarea ->
     get_value(Key, Json);
 convert_value(_, Json, Key) ->
