@@ -190,6 +190,8 @@ var initInstances = function() {
       $(item).first().attr('data-field-instance', newInstance);
       $(item).first().attr('data-group-id', newInstance);
       $(item).first().attr('id', newInstance);
+      $(item).first().next().next('.expander')
+        .attr('data-group-id', newInstance);
     });
 
   return true;
