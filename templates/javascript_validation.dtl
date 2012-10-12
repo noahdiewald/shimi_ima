@@ -5,7 +5,8 @@ function(newDoc, saveDoc, userCtx) {
             (value === null) || 
             (value === undefined) ||
             (typeof value === 'number' && isNaN(value)) ||
-            (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
+            (Object.prototype.toString.call(value) === '[object Array]' && 
+             value.length === 0));
   };
 
   // For testing existence of properties of saveDoc variable
@@ -213,7 +214,8 @@ function(newDoc, saveDoc, userCtx) {
   
   // See if a date should be in the future. If it isn't fail.
   var isFuture = function(field) {
-    if (field.value <= new Date().toLocaleFormat('%Y-%m-%d') && field.max !== 'today') {
+    if (field.value <= new Date().toLocaleFormat('%Y-%m-%d') && 
+        field.max !== 'today') {
       forbidField(field, 'date must be in the future.');
     }
   };
@@ -302,7 +304,10 @@ function(newDoc, saveDoc, userCtx) {
   
   // This is a list of the validation tests to run on each
   // field.
-  var validationTests = [requiredField, dateField, booleanField, docmultiselectField, docselectField, integerField, multiselectField, openbooleanField, rationalField, selectField, textField, textareaField];
+  var validationTests = [requiredField, dateField, booleanField, 
+                         docmultiselectField, docselectField, integerField, 
+                         multiselectField, openbooleanField, rationalField, 
+                         selectField, textField, textareaField];
   
   // This iterates through the fields and runs the above
   // validation test for each field.

@@ -1,6 +1,6 @@
 {
   "_id": "_design/doctypes",
-  "version": 7,
+  "version": 8,
   "views": {
     "all" : {
       "map": "function(doc) {
@@ -44,5 +44,8 @@
       return [newDoc, message];
     }"
   },
-  "validate_doc_update": "{% include 'javascript_validation.dtl' %}"
+  "validate_doc_update": "{% include 'javascript_validation.dtl' %}",
+  "lists": {
+    "index_csv": "{% include 'javascript_index_csv.dtl' %}"
+  }
 }
