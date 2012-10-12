@@ -6,9 +6,9 @@
  https://github.com/spencertipping/js-in-ten-minutes
 */
 
-var identity = function(x) {return x}
+var identity = function(x) {return x};
 
-Function.prototype.r = function() {return [this, arguments]};
+Function.prototype.r = function() {return [this, arguments];};
 
 Function.prototype.t = function() {
   var c = [this, arguments];
@@ -17,4 +17,4 @@ Function.prototype.t = function() {
     c = c[0].apply(this, c[1]);
   }
   return escape.apply(this, c[1]);
-}
+};
