@@ -7,7 +7,7 @@ function(head, req) {
 
   var row;
   var CSVVal = function(item) {
-    return item.replace(/\\\"/, '\\\"\\\"').replace(/^(.*)$/, '\\\"$1\\\"');
+    return item.replace(/\"/, '\"\"').replace(/^(.*)$/, '\"$1\"');
   };
   var isArray = function(item) {
     return Object.prototype.toString.call(item) === '[object Array]';
@@ -29,6 +29,6 @@ function(head, req) {
     var cols = row.key.map(function(item) {
                              return CSVVal(item[1].toString());
                            }).concat(val);
-    send(cols.join(',') + '\n');
+    send(cols.join(',') + '\\n');
   }
 }
