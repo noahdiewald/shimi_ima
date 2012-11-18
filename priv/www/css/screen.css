@@ -5,6 +5,12 @@ body {
   text-align: center;
   padding: 0;
   margin: 0;
+  color: #222;
+}
+
+a {
+    color: #222;
+    text-decoration: none;
 }
 
 .timestamps {
@@ -53,7 +59,14 @@ table {
 }
 
 .ui-dialog-content {
-  text-align: left;
+    text-align: left;
+}
+
+.ui-widget-content {
+    background: #EEE;
+    border-color: #CCC;
+    border-style: solid;
+    border-width: thin;
 }
 
 .head-elements, .reversal-elements {
@@ -79,14 +92,10 @@ table {
 }
 
 #edit-document-form label {
-  height: 1.4em;
   margin: 1px;
-  margin-right: -4px;
+  padding-top: 2px;
   vertical-align: top;
-  border-style: solid;
-  border-width: thin;
-  border-color: #CCC;
-  background: #EEE;
+  white-space: nowrap;
   overflow: hidden;
   width: 35%;
   position: relative;
@@ -150,7 +159,7 @@ label span.ui-icon-help {
     padding: 0.1em 2.1em 0.1em 1em;
 }
 
-.ui-corner-all, .ui-corner-right, .ui-corner-left {
+.ui-corner-all, .ui-corner-right, .ui-corner-left, ui-corner-top {
     border-radius: 0;
 }
 
@@ -247,6 +256,8 @@ span.retain-white {
 
 #all-document-container h2, #all-index-container h2 {
     margin-top: 0;
+    font-size: 1em;
+    padding-left: 0.5em;
 }
 
 nav#main-navigation {
@@ -274,7 +285,7 @@ nav.pager a, nav.pager.ui-buttonset a {
 
 #panel-toggle {
     margin: 0;
-    padding-top: 2px;
+    padding-left: 0.5em;
     background: #f0a265;
 }
 
@@ -530,8 +541,36 @@ li.ui-corner-all.ui-state-default {
     padding: 0;
 }
 
-#edit-tabs.ui-widget.ui-widget-content {
+.ui-tabs {
     border: none;
+}
+.ui-tabs .ui-tabs-nav {
+    padding: 1px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, 
+.ui-widget-header .ui-state-default {
+    border: none;
+    background-color: white;
+}
+
+.ui-tabs .ui-tabs-nav li, .ui-tabs .ui-tabs-nav li:hover, 
+.ui-tabs .ui-tabs-nav li.ui-state-active {
+    position: static;
+    margin: 1px;
+    padding: 0;
+    overflow: hide;
+    border-radius: 0;
+    background: white;
+    line-height: 0.5;
+}
+
+.ui-tabs .ui-tabs-nav li.ui-state-active {
+    background: #F07818;
+}
+
+.ui-tabs li a {
+    font-weight: normal;
 }
 
 .fields.ui-widget.ui-widget-content {
@@ -540,17 +579,6 @@ li.ui-corner-all.ui-state-default {
 
 .ui-tabs-nav {
     background: #555;
-}
-
-#edit-tabs li {
-    position: static;
-    margin: 1px;
-    width: 19%;
-    overflow: hide;
-}
-
-#edit-tabs li.ui-state-active {
-    background: #F07818;
 }
 
 tr.ui-widget-header th {

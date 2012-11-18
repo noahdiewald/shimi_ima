@@ -8,7 +8,6 @@ function initEdit() {
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();
     setKeyboardEvents();
-    arrangeTabBar();
     initFieldsets();
     initEditButtons();
   });
@@ -56,31 +55,6 @@ function setKeyboardEvents() {
     
     return false;
   });
-}
-
-// This reshapes the tab bar in the edit pane to better
-// fit in the available space
-function arrangeTabBar() {
-  var tabs = $('#tab-list li');
-  var containerWidth = $('#tabs-container').width();
-  var tabsWidth;
-  
-  tabsWidth = tabs.toArray().reduce(function(acc, elem) {
-    var width = elem.offsetWidth;
-    
-    if (isNaN(width)) {
-      return acc;
-    } else {
-      return acc + elem.offsetWidth;
-    }
-  }, 50);
-  
-  if (containerWidth < tabsWidth) {
-    tabs.switchClass('ui-corner-top', 'ui-corner-all');
-    tabs.children().css('padding', '2px');
-    tabs.children().css('font-weight', 'normal');
-    tabs.parent().css('padding-bottom', '4px');
-  }
 }
 
 // Functions for initializing buttons
