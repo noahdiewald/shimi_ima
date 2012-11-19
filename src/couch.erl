@@ -29,6 +29,7 @@
          delete/2,
          exists/3,
          exists/4,
+         fold_view/6,
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
@@ -154,6 +155,11 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
         {error, req_timedout} -> {error, req_timedout};
         {ok, Json} -> {ok, Json}
     end.
+
+fold_view(Id, Name, Qs, Fun, R, S) ->
+    {ok, ViewJson} = get_view_json(Id, Name, Qs, R, S),
+    Rows = jsn:get_value(<<"rows">>, ViewJson),
+    lists:foldr(Fun, [], Rows).
 
 get_view_json(Id, Name, R, S) ->
     Qs = view:normalize_vq(R),

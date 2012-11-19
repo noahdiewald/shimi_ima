@@ -127,7 +127,9 @@ json_create(R, S) ->
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(Json1)),
     case couch:create(doc, jsn:encode(NormJson), R, S) of
-        {ok, created} -> {true, R, S};
+        {ok, created} -> 
+            bump_deps(R, S),
+            {true, R, S};
         {403, Message} ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 403}, R1, S}
@@ -151,6 +153,7 @@ json_update(Json, R, S) ->
             Message = jsn:encode([{<<"rev">>, 
                                    jsn:get_value(<<"_rev">>, NewJson)}]),
             R1 = wrq:set_resp_body(Message, R),
+            bump_deps(R, S),
             {true, R1, S};
         {403, Message} ->
             R1 = wrq:set_resp_body(Message, R),
@@ -268,3 +271,8 @@ validate_authentication(Props, R, S) ->
         true -> {true, R, S};
         false -> {proplists:get_value(auth_head, S), R, S}
     end.
+
+bump_deps(R, S) ->
+    Doctype = wrq:path_info(doctype, R),
+    spawn(dependent, bump, [Doctype, R, S]),
+    ok.
