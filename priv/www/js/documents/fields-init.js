@@ -1,4 +1,3 @@
-
 var ifStoredElse = function(key, success, otherwise) {
   var item = null;
 
