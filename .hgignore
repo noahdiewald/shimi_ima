@@ -17,3 +17,4 @@ misc/importers/.*\.(hi|o|ho|csv|temp|json)
 misc/importers/working/.*
 (.*/)?\.?\#[^/]*\#?$
 scratch\.txt
+^dm\.config$

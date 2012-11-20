@@ -1,3 +1,0 @@
--define(COUCHDB, "http://127.0.0.1:5984/").
--define(ADMINDB, "http://database:D1ctionary_Mak3r@127.0.0.1:5984/").
--define(LOCAL, "http://127.0.0.1:8000/").
