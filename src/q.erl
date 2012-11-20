@@ -26,7 +26,6 @@
 
 -compile(export_all).
 
--include_lib("config.hrl").
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 

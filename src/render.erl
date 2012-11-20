@@ -30,7 +30,6 @@
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
 
 renderings(Json, Template) ->
   Rows = jsn:get_value(<<"rows">>, Json),

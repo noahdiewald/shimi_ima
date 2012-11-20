@@ -38,7 +38,6 @@
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("config.hrl").
 
 % Standard webmachine functions
 

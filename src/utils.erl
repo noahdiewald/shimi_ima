@@ -44,7 +44,6 @@
 
 -export_type([reqdata/0]).
 
--include_lib("include/config.hrl").
 -include_lib("include/types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 

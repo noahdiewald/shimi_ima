@@ -37,7 +37,6 @@
 
 -include_lib("kernel/include/file.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
 
 init(S) -> {ok, S}.
 

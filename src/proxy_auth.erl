@@ -29,7 +29,6 @@
 ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
 
 is_authorized(R, S) ->
   S1 = [{auth_head, "Basic realm=dictionary"}|S],

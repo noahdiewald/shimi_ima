@@ -41,7 +41,6 @@
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/config.hrl").
 
 init(Opts) -> {ok, Opts}.
 
