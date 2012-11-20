@@ -18,6 +18,7 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
+
 %%% @doc Utilities and helpers for working with file attachments
 
 -module(attach).
@@ -101,7 +102,8 @@ files_by_path(R, S) ->
 dirs_by_path(R, S) ->
     % For an explanation see:
     % http://blog.mudynamics.com/2010/10/02/using-couchdb-group_level-for-hierarchical-data/
-    Tokens = [list_to_binary(mochiweb_util:unquote(X)) || X <- lists:reverse(wrq:path_tokens(R))],
+    Tokens = [list_to_binary(mochiweb_util:unquote(X)) || 
+                 X <- lists:reverse(wrq:path_tokens(R))],
     GroupLevel = length(Tokens) + 1,
   
     % numbers come before strings, objects after
