@@ -18,6 +18,7 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
+
 %%% @doc CouchDB View API
 
 -module(view).
@@ -181,7 +182,7 @@ getv(Key, R, Default) ->
 % numbers that happen to coincide with characters.
 -spec decode_qs_value(jsn:json_term()|list()) -> jsn:json_term().
 decode_qs_value([]) ->
-    <<"">>;
+    [];
 decode_qs_value(Bin) when is_binary(Bin) ->
     Bin;
 decode_qs_value(Atom) when is_atom(Atom) ->
