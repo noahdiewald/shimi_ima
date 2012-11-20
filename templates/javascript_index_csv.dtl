@@ -7,28 +7,20 @@ function(head, req) {
 
   var row;
   var CSVVal = function(item) {
-    return item.replace(/\"/, '\"\"').replace(/^(.*)$/, '\"$1\"');
+    return item.replace(/\"/g, '\"\"').replace(/^(.*)$/, '\"$1\"');
   };
-  var isArray = function(item) {
-    return Object.prototype.toString.call(item) === '[object Array]';
+  var CSVCell = function(item) {
+    if (item === null) {
+      return 'null';
+    } else {
+      return CSVVal(item.toString());
+    }
   };
-  var flatten = function (array) {
-    return array.reduce(function (a,x) {
-                          var x1 = x;
-                          if (isArray(x)) {
-                            x1 = flatten(x);     
-                          }
-                          return a.concat(x1);
-                        }, []);
+  var CSVKey = function(item) {
+    return CSVCell(item.map(function(x) {return x[1];}));
   };
 
   while(row = getRow()) {
-    var val = CSVVal(flatten(row.value).map(function(item) {
-                                              return item;
-                                            }).toString());
-    var cols = row.key.map(function(item) {
-                             return CSVVal(item[1].toString());
-                           }).concat(val);
-    send(cols.join(',') + '\\n');
+    send([CSVCell(row.id),CSVKey(row.key),CSVCell(row.value)].join(',')+'\\n');
   }
 }
