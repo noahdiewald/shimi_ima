@@ -51,11 +51,13 @@
 
 %% @doc Return the Admin DB URL.
 adb() ->
-    application:get_env(admin_db).
+    {ok, Val} = application:get_env(admin_db),
+    Val.
 
 %% @doc Return the Normal DB URL.
 ndb() ->
-    application:get_env(normal_db).
+    {ok, Val} = application:get_env(normal_db),
+    Val.
 
 %% @doc Return a unique id
 uuid() ->
