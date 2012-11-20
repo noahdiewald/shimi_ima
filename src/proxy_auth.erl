@@ -50,7 +50,7 @@ do_basic_authentication(Base64, R, S) ->
 couchdb_authenticate(Username, Password, R, S) ->
   Body = "name=" ++ Username ++ "&password=" ++ Password,
   Headers = [{"Content-Type", "application/x-www-form-urlencoded"}],
-  Resp = ibrowse:send_req(?COUCHDB ++ "_session", Headers, post, Body),
+  Resp = ibrowse:send_req(utils:ndb() ++ "_session", Headers, post, Body),
   case Resp of
     {ok, "200", _, Json} -> 
       do_validations(jsn:decode(Json), R, S);

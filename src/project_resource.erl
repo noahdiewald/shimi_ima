@@ -51,7 +51,7 @@ init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
     Headers = proplists:get_value(headers, S),
-    DatabaseUrl = ?COUCHDB ++ "projects/",
+    DatabaseUrl = utils:ndb() ++ "projects/",
   
     Id = wrq:path_info(id, R),
   
@@ -84,14 +84,14 @@ allowed_methods(R, S) ->
   
 delete_resource(R, S) ->
     Headers = proplists:get_value(headers, S),
-    ProjUrl = ?COUCHDB ++ "projects/" ++ wrq:path_info(id, R),
+    ProjUrl = utils:ndb() ++ "projects/" ++ wrq:path_info(id, R),
   
     {ok, "200", _, Body} = ibrowse:send_req(ProjUrl, Headers, get),
     JsonIn = jsn:decode(Body),
   
     RevQs = "?rev=" ++ binary_to_list(jsn:get_value(<<"_rev">>, JsonIn)),
     ProjUrl1 = ProjUrl ++ RevQs,
-    DatabaseUrl = ?ADMINDB ++ "project-" ++ wrq:path_info(id, R),
+    DatabaseUrl = utils:adb() ++ "project-" ++ wrq:path_info(id, R),
     
     case ibrowse:send_req(ProjUrl1, Headers, delete) of
         {ok, "200", _, _} -> 
@@ -131,8 +131,8 @@ main_html(R, S) ->
   
 from_json(R, S) ->
     DBName = "project-" ++ proplists:get_value(newid, S),
-    NewDb = ?ADMINDB ++ DBName,
-    ProjectsDb = ?COUCHDB ++ "projects",
+    NewDb = utils:adb() ++ DBName,
+    ProjectsDb = utils:ndb() ++ "projects",
   
     JsonIn = jsn:decode(wrq:req_body(R)),
     JsonIn1 = jsn:set_value(<<"_id">>, 
@@ -170,7 +170,7 @@ render_row(Project) ->
 
 create_database() ->
     ContentType = {"Content-Type","application/json"},
-    {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [], put),
+    {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [], put),
     {ok, ProjectDesign} = design_project_json_dtl:render(),
-    {ok, "201", _, _} = ibrowse:send_req(?ADMINDB ++ "projects", [ContentType], 
+    {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [ContentType], 
                                          post, iolist_to_binary(ProjectDesign)).

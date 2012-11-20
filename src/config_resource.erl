@@ -41,7 +41,7 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, R),
+    DatabaseUrl = utils:adb() ++ wrq:path_info(project, R),
     case ibrowse:send_req(DatabaseUrl, [], head) of
         {ok, "200", _, _} -> {true, R, S};
         {ok, "404", _, _} -> {false, R, S}

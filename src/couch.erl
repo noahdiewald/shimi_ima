@@ -61,23 +61,23 @@ new_db(DB, _R, _S) ->
 
 get(Id, R, S) ->  
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     get_helper(DataBaseUrl ++ Id, Headers).
   
 get_json(project, R, _S) ->
     Id = wrq:path_info(project, R) -- "project-",
-    Url = ?ADMINDB ++ "projects/" ++ Id,
+    Url = utils:adb() ++ "projects/" ++ Id,
     get_json_helper(Url, []);
   
 get_json(doctype, R, S) ->
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     Doctype = wrq:path_info(doctype, R),
     get_json_helper(DataBaseUrl ++ Doctype, Headers);
   
 get_json(id, R, S) ->
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     Id = wrq:path_info(id, R),
     Url = DataBaseUrl ++ Id ++ "?revs_info=true",
     get_json_helper(Url, Headers);
@@ -89,18 +89,18 @@ get_json(rev, R, S) ->
               Rev -> Rev
           end,
     Headers = proplists:get_value(headers, S),
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ 
+    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/" ++ 
         wrq:path_info(id, R) ++ "?rev=" ++ Revision,
     get_json_helper(Url, Headers);
   
 get_json(Id, R, S) ->
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     get_json_helper(DataBaseUrl ++ Id, Headers).
     
 get_json(safer, Id, R, S) ->
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
 get_db_seq(Project) ->
@@ -110,15 +110,15 @@ get_db_seq(Project) ->
     end.
 
 get_dbs() ->
-    Url = ?ADMINDB ++ "/projects/_all_docs?include_docs=true",
+    Url = utils:adb() ++ "/projects/_all_docs?include_docs=true",
     get_json_helper(Url, []).
 
 get_db_info(Project) ->
-    Url = ?ADMINDB ++ Project,
+    Url = utils:adb() ++ Project,
     get_json_helper(safer, Url, []).
     
 should_wait(Project, ViewPath) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ ViewPath ++ "?limit=1",
+    Url = utils:adb() ++ Project ++ "/" ++ ViewPath ++ "?limit=1",
     case ibrowse:send_req(Url, [], get) of
         {error, req_timedout} -> true;
         _ -> false
@@ -147,7 +147,7 @@ get_helper(Url, Headers) ->
     
 get_view_json_helper(Id, Name, Qs, R, S) ->
     Headers = proplists:get_value(headers, S),
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/",
+    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ Qs,
     case get_json_helper(safer, FullUrl, Headers) of
@@ -195,7 +195,7 @@ get_views(Project) when is_list(Project) ->
     Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
                                         {"endkey", <<"_design0">>},
                                         {"include_docs", true}])),
-    Url = ?ADMINDB ++ Project ++ "/" ++ "_all_docs" ++ "?" ++ Qs,
+    Url = utils:adb() ++ Project ++ "/" ++ "_all_docs" ++ "?" ++ Qs,
     Designs = proplists:get_value(<<"rows">>, get_json_helper(Url, [])),
     Filter = fun(X) -> 
                      case X of
@@ -214,7 +214,7 @@ get_design_rev(Name, R, S) ->
              _Else -> "_design/" ++ Name
          end,
     Url = case proplists:get_value(db, S) of
-              undefined -> ?ADMINDB ++ wrq:path_info(project, R) ++ "/" ++ Id;
+              undefined -> utils:adb() ++ wrq:path_info(project, R) ++ "/" ++ Id;
               Db -> Db ++ "/" ++ Id
           end,
     case get_json_helper(safer, Url, []) of
@@ -232,7 +232,7 @@ get_uuid(_R, _S) ->
 delete(R, S) ->
     Id = wrq:path_info(id, R),
     Rev = wrq:get_qs_value("rev", R),
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/" ++ Id ++ "?rev=" ++ Rev,
+    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/" ++ Id ++ "?rev=" ++ Rev,
     Headers = [{"Content-Type",
                 "application/json"}|proplists:get_value(headers, S)],
     case ibrowse:send_req(Url, Headers, delete) of
@@ -240,7 +240,7 @@ delete(R, S) ->
             case exists("_design/" ++ Id, R, S) of
                 true ->
                     {_, DRev} = get_design_rev(Id, R, S),
-                    DUrl = ?COUCHDB ++ wrq:path_info(project, R) ++ 
+                    DUrl = utils:ndb() ++ wrq:path_info(project, R) ++ 
                         "/_design/" ++ Id ++ "?rev=" ++ DRev,
                     {ok, "200", _, _} = ibrowse:send_req(DUrl, Headers, delete);
                 false -> ok
@@ -250,13 +250,13 @@ delete(R, S) ->
     end.
 
 create(direct, Json, R, S) ->
-    create(doc, Json, ?COUCHDB ++ wrq:path_info(project, R), R, S);
+    create(doc, Json, utils:ndb() ++ wrq:path_info(project, R), R, S);
 
 create(doc, Json, R, S) ->
-    create(doc, Json, ?COUCHDB ++ wrq:path_info(project, R), R, S);
+    create(doc, Json, utils:ndb() ++ wrq:path_info(project, R), R, S);
 
 create(design, Json, R, S) ->
-    create(design, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
+    create(design, Json, utils:adb() ++ wrq:path_info(project, R), R, S).
 
 create(direct, Json, DB, _R, S) ->
     Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
@@ -284,18 +284,18 @@ create(Url, Headers, Json) ->
 bulk_update(Docs, R, S) ->
     Headers = [{"Content-Type","application/json"}|
                proplists:get_value(headers, S)],
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/_bulk_docs",
     {ok, _, _, Body} = ibrowse:send_req(Url, Headers, post, jsn:encode(Docs)),
     jsn:decode(Body).
   
 update(doc, Id, Json, R, S) ->
     Project =  wrq:path_info(project, R),
-    Url = ?COUCHDB ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
+    Url = utils:ndb() ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
                proplists:get_value(headers, S)],
     update(Url, Headers, Json);
 update(design, Id, Json, R, S) ->
-    update(design, Id, Json, ?ADMINDB ++ wrq:path_info(project, R), R, S).
+    update(design, Id, Json, utils:adb() ++ wrq:path_info(project, R), R, S).
 update(design, Id, Json, DB, R, S) ->
     Json1 = jsn:decode(Json),
     Version = jsn:get_value(<<"version">>, Json1),
@@ -313,7 +313,7 @@ update(design, Json, R, S) ->
     update(design, wrq:path_info(id, R), Json, R, S);
 
 update(bulk, Json, R, S) ->
-    Url = ?COUCHDB ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/_bulk_docs",
     Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
     case ibrowse:send_req(Url, Headers, post, Json) of
         {ok, "201", _, Body} -> {ok, Body};
@@ -344,7 +344,7 @@ update_doctype_version(R, S) ->
     {ok, updated} = update(doc, Doctype, Json, R, S).
 
 exists(Target, R, S) ->
-    exists(Target, ?COUCHDB ++ wrq:path_info(project, R), R, S).
+    exists(Target, utils:ndb() ++ wrq:path_info(project, R), R, S).
 
 exists(Target, DB, _R, S) ->
     Headers = proplists:get_value(headers, S),

@@ -50,7 +50,7 @@ to_html(R, S) ->
     {Html, R, S}.
 
 resource_exists(R, S) ->
-    DatabaseUrl = ?ADMINDB ++ wrq:path_info(project, R),
+    DatabaseUrl = utils:adb() ++ wrq:path_info(project, R),
   
     case ibrowse:send_req(DatabaseUrl, [], head) of
         {ok, "200", _, _} -> {true, R, S};

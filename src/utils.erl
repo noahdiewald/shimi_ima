@@ -23,6 +23,7 @@
 -module(utils).
 
 -export([
+         adb/0,
          add_charseqs_design/1,
          add_encoded_keys/1,
          binary_to_hexlist/1,
@@ -30,6 +31,7 @@
          delete_all_design_docs/1,
          get_index/3,
          list_dir/1,
+         ndb/0,
          peach/3,
          read_file_info/1,
          record_to_proplist/2,
@@ -48,6 +50,14 @@
 
 -type reqdata() :: #wm_reqdata{}.
 
+%% @doc Return the Admin DB URL.
+adb() ->
+    application:get_env(admin_db).
+
+%% @doc Return the Normal DB URL.
+ndb() ->
+    application:get_env(normal_db).
+
 %% @doc Return a unique id
 uuid() ->
   binary_to_hexlist(crypto:rand_bytes(16)).
@@ -62,7 +72,7 @@ uuid() ->
                     fun((jsn:json_term()) -> {ok, jsn:json_term()} | null)) -> 
                            ok.
 update_all_by({Project, Id, View}, Fun) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
+    Url = adb() ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
     ViewData = case ibrowse:send_req(Url, [], get) of
                    {ok, "200", _, Json} -> jsn:decode(Json)
                end,
@@ -80,7 +90,7 @@ update_all_by({Project, Id, View}, Fun) ->
     ok.
 
 update_all_by(revs, {Project, Id, View}, Fun) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
+    Url = adb() ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
     ViewData = case ibrowse:send_req(Url, [], get) of
                    {ok, "200", _, Json} -> jsn:decode(Json)
                end,
@@ -98,12 +108,12 @@ update_all_by(revs, {Project, Id, View}, Fun) ->
     ok.
     
 get_doc(Project, Doc) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ binary_to_list(Doc),
+    Url = adb() ++ Project ++ "/" ++ binary_to_list(Doc),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     jsn:decode(Json).
 
 get_doc(revs, Project, Id) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ binary_to_list(Id) ++ 
+    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++ 
         "?revs_info=true",
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Doc = jsn:decode(Json),
@@ -119,7 +129,7 @@ get_revs(_, _, [], Acc) ->
 get_revs(_, _, [[_,{<<"status">>,<<"missing">>}]|_], Acc) ->
     lists:reverse(Acc);
 get_revs(Project, Id, [[{_,Rev},_]|Rest], Acc) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ binary_to_list(Id) ++ 
+    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++ 
         "?rev=" ++ binary_to_list(Rev),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Doc = jsn:decode(Json),
@@ -128,7 +138,7 @@ get_revs(Project, Id, [[{_,Rev},_]|Rest], Acc) ->
 %% @doc A couchdb update function that doesn't require webmachine
 %% info.
 update_doc(Project, Doc) ->
-    Url = ?ADMINDB ++ Project ++ "/" ++ "/_design/doctypes/_update/stamp/" ++
+    Url = adb() ++ Project ++ "/" ++ "/_design/doctypes/_update/stamp/" ++
         binary_to_list(jsn:get_value(<<"_id">>, Doc)),
     ibrowse:send_req(Url, [{"Content-Type", "application/json"}], put, 
                      jsn:encode(Doc)).
@@ -183,9 +193,9 @@ get_index(IndexId, R, S) ->
 %% attention to return statuses.
 -spec clear_all(Doctype :: string(), Project :: string()) -> ok.
 clear_all(Doctype, Project) ->
-    Url = ?ADMINDB ++ Project ++ "/_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
+    Url = adb() ++ Project ++ "/_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
     Header = [{"Content-Type", "application/json"}],
-    DelUrl = fun (Id, Rev) -> ?ADMINDB ++ Project ++ "/" ++ Id ++ "?rev=" ++ Rev end,
+    DelUrl = fun (Id, Rev) -> adb() ++ Project ++ "/" ++ Id ++ "?rev=" ++ Rev end,
     GetV = fun (K, J) -> binary_to_list(proplists:get_value(K, proplists:get_value(<<"value">>, J))) end,
     {ok, "200", _, Json} = ibrowse:send_req(Url, Header, get),
     [{_, Total},_,{<<"rows">>, Rows}] = jsn:decode(Json),
@@ -203,7 +213,7 @@ clear_all(Doctype, Project) ->
                                  {ok, created} | {403, jsn:json_term()}.
 add_charseqs_design(Project) ->
     {ok, Json} = design_charseqs_json_dtl:render(),
-    Url = ?ADMINDB ++ Project,
+    Url = adb() ++ Project,
     Header = [{"Content-Type", "application/json"}],
     case ibrowse:send_req(Url,  Header, post, jsn:encode(jsn:decode(Json))) of
         {ok, "201", _, _} -> {ok, created};
@@ -307,13 +317,13 @@ takedrop([H|Rest], Acc, N) ->
     takedrop(Rest, [H|Acc], N - 1).
 
 delete_all_design_docs(DB) ->
-    Url = ?ADMINDB ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{"startkey", <<"_design/">>},{"endkey", <<"_design0">>}])),
+    Url = adb() ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{"startkey", <<"_design/">>},{"endkey", <<"_design0">>}])),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Designs = proplists:get_value(<<"rows">>, jsn:decode(Json)),
     F = fun(X) ->
                 Id = proplists:get_value(<<"id">>, X),
                 Rev = proplists:get_value(<<"rev">>, proplists:get_value(<<"value">>, X)),
-                Urrl = ?ADMINDB ++ DB ++ "/" ++ binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev),
+                Urrl = adb() ++ DB ++ "/" ++ binary_to_list(Id) ++ "?rev=" ++ binary_to_list(Rev),
                 ibrowse:send_req(Urrl, [], delete)
         end,
     lists:map(F, Designs).

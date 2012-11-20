@@ -63,7 +63,7 @@ file_path_exists(R, S) ->
 %% document.
 file_database_exists(R, S) ->
     DB = proplists:get_value(db, S),
-    DBName = DB -- ?ADMINDB,
+    DBName = DB -- utils:adb(),
     {ok, Json} = design_file_manager_json_dtl:render(),
   
     {ok, created} = case ibrowse:send_req(DB, [], head) of
@@ -119,7 +119,7 @@ dirs_by_path(R, S) ->
 %% @doc Returns a state with the admin URL for the file database for a
 %% project
 get_database(R, S) ->
-    DB = ?ADMINDB ++ wrq:path_info(project, R),
+    DB = utils:adb() ++ wrq:path_info(project, R),
     {R, [{db, DB}|S]}.
 
 %% @doc Retrieve a file attachment. This can be done by supplying only
