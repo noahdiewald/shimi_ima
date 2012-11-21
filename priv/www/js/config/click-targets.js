@@ -21,7 +21,7 @@ var editFieldButton = function(target) {
   $.get(charseqUrl, function(charseqs) {
     $("#field-charseq-input").html(charseqs);
     attrs.forEach(function(item) {
-      oldobj[item] = getValue('field-' + item, target);
+      oldobj[item] = store(target).get('field-' + item);
     });
     fieldDialog(url, oldobj).dialog("open");
   });
@@ -64,7 +64,7 @@ var editFieldsetButton = function(target) {
   var attrs = fieldsetElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getValue('fieldset-' + item, target);
+    oldobj[item] = store(target).get('fieldset-' + item);
   });
   
   fieldsetDialog(url, oldobj).dialog("open");
@@ -98,14 +98,15 @@ var editCharseqButton = function(target) {
   var attrs = charseqElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getValue('charseq-' + item, target);
+    oldobj[item] = store(target).get('charseq-' + item);
   });
   charseqDialog(oldobj).dialog("open");
 };
 
 var deleteCharseqButton = function(target) {
-  var id = getValue('charseq-charseq', target);
-  var rev = getValue('charseq-rev', target);
+  var s = store(target);
+  var id = s.get('charseq-charseq');
+  var rev = s.get('charseq-rev');
   var url = 'config/charseqs/' + id + '?rev=' + rev;
   var complete = function() {
     populateCharseqTabs();
@@ -122,13 +123,13 @@ var editDoctypeButton = function(target) {
   var attrs = doctypeElems().attrs;
    
   attrs.forEach(function(item) {
-    oldobj[item] = getValue('doctype-' + item, target);
+    oldobj[item] = store(target).get('doctype-' + item);
   });
   doctypeDialog(url, oldobj).dialog("open");
 };
 
 var touchDoctypeButton = function(target) {
-  var docid = getValue("doctype-doctype", target);
+  var docid = store(target).get("doctype-doctype");
   $.post("config/doctypes/" + docid + "/touch");
   alert("Touch In Progress");
 };

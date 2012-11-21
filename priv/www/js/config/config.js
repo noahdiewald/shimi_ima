@@ -114,7 +114,6 @@ function initHelpText() {
 // Code to be run on page load
 
 $(function () {
-  $('body').click(function(e) {clickDispatch(e)});
   initTabs(); 
   initHelpText();
   $('.link-button').button();

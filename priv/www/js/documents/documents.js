@@ -15,52 +15,12 @@ function dpath(source, category) {
   return url;
 }
 
-function fsInfo(key, elem) {
-  return getValue("fieldset-" + key, elem);
-}
-
-function fInfo(key, elem) {
-  return getValue("field-" + key, elem);
-}
-
-function dInfo(key, elem) {
-  return getValue("document-" + key, elem);
-}
-
 function loadHash(urlHash) {
-  if (urlHash) getDocument(urlHash);
+  if (urlHash) {
+    vui({id: urlHash}).get();
+  }
+  return false;
 }
-
-var jumpForm = function() {
-  $('#view-jump-id')
-    .live("keydown", 
-          function(e) {
-            if (e.which === 13) {
-              var docid = $('#view-jump-id').val();
-              loadDocument(docid);
-            }
-            return true;
-          });  
-};
-
-var searchForm = function() {
-  searches.clearSearchVals(true);
-  searches.loadSearchVals();
-  searchAllFieldsSwitch();
-  searchFieldItems();
-  fieldViews();
-  excludeCheck();
-  searchIndex();
-  $('#document-search-term')
-    .live("keydown",
-          function(e) {
-            if (e.which === 13) {
-              searches.getSearch();
-              return false;
-            }
-            return true;
-          });
-};
 
 var searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
@@ -99,8 +59,20 @@ var excludeCheck = function() {
 
 var loadDocument = function(docid) {
   $("#document-view").html("<em>Loading...</em>");
-  clearDoc();
-  getDocument(docid);
+  eui().clear();
+  vui({id: docid}).get();
+};
+
+var jumpForm = function() {
+  $('#view-jump-id')
+    .live("keydown", 
+          function(e) {
+            if (e.which === 13) {
+              var docid = $('#view-jump-id').val();
+              loadDocument(docid);
+            }
+            return true;
+          });  
 };
 
 var documentLinks = function() {
@@ -113,18 +85,35 @@ var documentLinks = function() {
           });
 };
 
+var searchForm = function() {
+  searches.clearSearchVals(true);
+  searches.loadSearchVals();
+  searchAllFieldsSwitch();
+  searchFieldItems();
+  fieldViews();
+  excludeCheck();
+  searchIndex();
+  $('#document-search-term')
+    .live("keydown",
+          function(e) {
+            if (e.which === 13) {
+              searches.getSearch();
+              return false;
+            }
+            return true;
+          });
+};
+
 $(
   function () {
     var getIndexTimer;
-
-    $('body').click(function(e) {clickDispatch(e);});
     
     documentLinks();
     fillQueryOptions();
     getIndex();
     jumpForm();
     searchForm();
-    initEdit();
+    eui().init();
 
     $('#index-filter-form input').keyup(
       function() {
