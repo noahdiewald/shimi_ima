@@ -2,12 +2,12 @@
 <a
   href="#"
   title="Previous Page"
-  id="previous-page"
+  id="previous-index-page"
 >Previous</a> 
 <a
   href="#"
   title="Next Page"
-  id="next-page"
+  id="next-index-page"
   {% if rows|length < limit %}
   data-last-page="true"
   {% endif %}

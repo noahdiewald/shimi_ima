@@ -53,7 +53,9 @@ module.exports = function(grunt) {
         store: true,
         searches: true,
         eui: true,
-        vui: true
+        vui: true,
+        iui: true,
+        index: true
       }
     },
     uglify: {}

@@ -5,6 +5,7 @@
 //= 03-jquery-ui-input-state.js
 //= 10-compat.js
 //= click-dispatch.js
+//= index.js
 //= config
 //= documents
 //= file_manager

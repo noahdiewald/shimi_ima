@@ -109,8 +109,7 @@ $(
     var getIndexTimer;
     
     documentLinks();
-    fillQueryOptions();
-    getIndex();
+    iui().iOpts().get();
     jumpForm();
     searchForm();
     eui().init();
@@ -123,7 +122,7 @@ $(
   
     $('#index-filter-form select').change(
       function() {
-        getIndex();
+        iui().get();
       });
   
     loadHash($(location)[0].hash.split("#")[1]);

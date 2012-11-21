@@ -211,7 +211,7 @@ var eui = function(args) {
                  title = "Success";
                  body = "Your document was saved.";
                  vui({id: document}).get();
-                 getIndex();
+                 iui().get();
                  flashHighlight(title, body);
                  mod.saveButton.removeClass('oldrev');
                  mod.saveButton.button('enable');
@@ -258,7 +258,7 @@ var eui = function(args) {
           $('.fields').remove();
           initFieldsets();
           vui({id: documentId}).get();
-          getIndex();
+          iui().get();
           flashHighlight(title, body);
           mod.createButton.button('enable');
         } else if (req.status === 403) {

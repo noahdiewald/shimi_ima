@@ -132,7 +132,7 @@ var vui = function(args) {
           $('#document-view h2').text("Deleted Document");
           $('#document-view').fadeTo('slow', 0.5);
           
-          getIndex();
+          iui().get();
           flashHighlight(title, body);
         } else if (req.status == 409) {
           var body = JSON.parse(req.responseText);
