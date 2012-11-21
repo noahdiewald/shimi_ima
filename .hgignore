@@ -18,3 +18,4 @@ misc/importers/working/.*
 (.*/)?\.?\#[^/]*\#?$
 scratch\.txt
 ^dm\.config$
+node_modules
