@@ -1,0 +1,12 @@
+//= 00-application.js
+//= store.js
+//= path.js
+//= 03-jquery.hotkeys.js
+//= 03-jquery-ui-input-state.js
+//= 10-compat.js
+//= click-dispatch.js
+//= config
+//= documents
+//= file_manager
+//= index_tool
+//= projects
