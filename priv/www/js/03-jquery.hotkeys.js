@@ -1,3 +1,4 @@
+
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -45,7 +46,7 @@
        // Don't fire in text-accepting inputs that we didn't directly bind to
        // MODIFIED FROM ORIGINAL
        //if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
-       //	 event.target.type === "text") ) {
+       //      event.target.type === "text") ) {
        //	return;
        //}
        
@@ -56,45 +57,45 @@
 
        // check combinations (alt|ctrl|shift+anything)
        if ( event.altKey && special !== "alt" ) {
-	 modif += "alt+";
+         modif += "alt+";
        }
        
        if ( event.ctrlKey && special !== "ctrl" ) {
-	 modif += "ctrl+";
+         modif += "ctrl+";
        }
 			
        // TODO: Need to make sure this works consistently across platforms
        if ( event.metaKey && !event.ctrlKey && special !== "meta" ) {
-	 modif += "meta+";
+         modif += "meta+";
        }
 
        if ( event.shiftKey && special !== "shift" ) {
-	 modif += "shift+";
+         modif += "shift+";
        }
 
        if ( special ) {
-	 possible[ modif + special ] = true;
+         possible[ modif + special ] = true;
          
        } else {
-	 possible[ modif + character ] = true;
-	 possible[ modif + jQuery.hotkeys.shiftNums[ character ] ] = true;
+         possible[ modif + character ] = true;
+         possible[ modif + jQuery.hotkeys.shiftNums[ character ] ] = true;
 
-	 // "$" can be triggered as "Shift+4" or "Shift+$" or just "$"
-	 if ( modif === "shift+" ) {
-	   possible[ jQuery.hotkeys.shiftNums[ character ] ] = true;
-	 }
+         // "$" can be triggered as "Shift+4" or "Shift+$" or just "$"
+         if ( modif === "shift+" ) {
+           possible[ jQuery.hotkeys.shiftNums[ character ] ] = true;
+         }
        }
 
        for ( var i = 0, l = keys.length; i < l; i++ ) {
-	 if ( possible[ keys[i] ] ) {
-	   return origHandler.apply( this, arguments );
-	 }
+         if ( possible[ keys[i] ] ) {
+           return origHandler.apply( this, arguments );
+         }
        }
      };
    }
 
    jQuery.each([ "keydown", "keyup", "keypress" ], function() {
-		 jQuery.event.special[ this ] = { add: keyHandler };
-	       });
+                 jQuery.event.special[ this ] = { add: keyHandler };
+               });
    
  })( jQuery );
