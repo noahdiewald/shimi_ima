@@ -14,7 +14,7 @@ WARNING: OUT OF DATE
 */
 
 
-©.dispatcher = function(patterns) {
+ʃimi.dispatcher = function(patterns) {
   var d = function(e) {
     var target = $(e.target);
     
@@ -29,7 +29,7 @@ WARNING: OUT OF DATE
   return d;
 }
 
-©.clickDispatch = function(e) {
+ʃimi.clickDispatch = function(e) {
   var action = dispatcher({
     // Config
     ".edit-field-button span": function(t) {editFieldButton(t.parent('a'));},

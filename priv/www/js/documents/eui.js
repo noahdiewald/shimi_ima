@@ -1,6 +1,6 @@
 // Edit pane UI elements
 
-©.eui = function(args) {
+ʃimi.eui = function(args) {
   var mod = {};
   mod.priv = {};
   

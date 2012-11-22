@@ -49,7 +49,7 @@ module.exports = function(grunt) {
       globals: {
         jQuery: true,
         $: true,
-        ©: true
+        ʃimi: true
       }
     },
     uglify: {}

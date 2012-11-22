@@ -1,6 +1,6 @@
 // View pane UI elements
 
-©.vui = function(args) {
+ʃimi.vui = function(args) {
   var mod = {};
   
   mod.target = args.target;

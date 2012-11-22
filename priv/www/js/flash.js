@@ -1,4 +1,4 @@
-©.flash = function(title, body) {
+ʃimi.flash = function(title, body) {
   var mod = {};
 
   var f = function(flasher, title, body) {

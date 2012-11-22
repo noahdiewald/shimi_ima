@@ -1,4 +1,4 @@
-©.searches = {
+ʃimi.searches = {
   getSearch: function() {
     var query = $('#document-search-term').val();
     var url = "documents/search?q=" + encodeURIComponent(query);
