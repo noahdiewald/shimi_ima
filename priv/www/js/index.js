@@ -12,13 +12,13 @@
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
 
-var index = function(args) {
+©.index = function(args) {
   var mod = {};
   
   mod.url = args.url + '?';
   mod.indexId = args.indexId;
   mod.limitField = $('#index-limit');
-  mod.limit = limitField.val() * 1;
+  mod.limit = mod.limitField.val() * 1;
   mod.target = args.target;
   mod.state = {};
 
@@ -32,7 +32,7 @@ var index = function(args) {
     };
 
     if (!mod.state.pks) {
-      mod.state.sk = btoa(unescape(encodeURIComponent(json_encoded)));
+      mod.state.sk = btoa(window.unescape(encodeURIComponent(json_encoded)));
       mod.state.pks = [];
       mod.state.pids = [];
     }
@@ -93,7 +93,7 @@ var index = function(args) {
                });
     
     // Disable the previous button if we're at the beginning
-    if (state.pks.length == 0) {
+    if (state.pks.length === 0) {
       $('#previous-index-page').button("disable");
     }
     

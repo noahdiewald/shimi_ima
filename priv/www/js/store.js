@@ -77,7 +77,7 @@ Function.prototype.t = function() {
   return escape.apply(this, c[1]);
 };
 
-var store = function(elem) {
+©.store = function(elem) {
   var mod = {};
   
   mod.get = function(key) {

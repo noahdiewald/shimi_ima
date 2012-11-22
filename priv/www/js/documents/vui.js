@@ -1,6 +1,6 @@
 // View pane UI elements
 
-var vui = function(args) {
+©.vui = function(args) {
   var mod = {};
   
   mod.target = args.target;
@@ -76,7 +76,7 @@ var vui = function(args) {
     return mod;
   };
   
-  mod.restore = funtion() {
+  mod.restore = function() {
     var url = "./documents/" + mod.id + "?rev=" + mod.rev;
     var restoreButton = $('#document-restore-button');
     
@@ -90,18 +90,18 @@ var vui = function(args) {
           var title = "Success";
           var body = "Your document was restored.";
   
-          mod.rev(null).get(function() {getIndex();});
-          flashHighlight(title, body);
+          mod.rev(null).get(function() {iui().get();});
+          flash(title, body).highlight();
         } else if (req.status === 409) {
           var body = JSON.parse(req.responseText);
           var title = req.statusText;
             
-          flashError(title, body.message);
+          flash(title, body.message).error();
         } else if (req.status === 404) {
           var body = "Document was erased and cannot be restored.";
           var title = req.statusText;
             
-          flashError(title, body);
+          flash(title, body).error();
         }
       }
     });
@@ -109,9 +109,11 @@ var vui = function(args) {
     return mod;
   };
   
-  mod.delete = function() {
+  mod.del = function() {
     var url = "./documents/" + mod.id + "?rev=" + mod.rev;
     var restoreButton = $('#document-restore-button');
+    var body;
+    var title;
     
     $.ajax({
       type: "DELETE",
@@ -119,9 +121,9 @@ var vui = function(args) {
       dataType: "json",
       contentType: "application/json",
       complete: function(req, status) {
-        if (req.status == 200) {
-          var title = "Success";
-          var body = "Your document was deleted.";
+        if (req.status === 200) {
+          title = "Success";
+          body = "Your document was deleted.";
           var response = JSON.parse(req.responseText);
           
           store(restoreButton).put("document-rev", response.rev);
@@ -133,17 +135,17 @@ var vui = function(args) {
           $('#document-view').fadeTo('slow', 0.5);
           
           iui().get();
-          flashHighlight(title, body);
-        } else if (req.status == 409) {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
+          flash(title, body).highlight();
+        } else if (req.status === 409) {
+          body = JSON.parse(req.responseText);
+          title = req.statusText;
             
-          flashError(title, body.message);
-        } else if (req.status == 404) {
-          var body = "Document appears to have been deleted already.";
-          var title = req.statusText;
+          flash(title, body.message).error();
+        } else if (req.status === 404) {
+          body = "Document appears to have been deleted already.";
+          title = req.statusText;
             
-          flashError(title, body);
+          flash(title, body).error();
         }
       }
     });
@@ -152,8 +154,8 @@ var vui = function(args) {
   };
   
   mod.confirmIt = function(f) {
-    if (confirm("Are you sure?")) {
-      var s = store(target);
+    if (window.confirm("Are you sure?")) {
+      var s = store(mod.target);
       var id = s.d("document");
       var rev = s.d("rev");
       
@@ -164,7 +166,7 @@ var vui = function(args) {
   };
   
   mod.edit = function() {
-    resetFields();
+    eui().resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {
@@ -176,7 +178,7 @@ var vui = function(args) {
   };
   
   mod.confirmDelete = function() {
-    return mod.confirmIt(function(d, r) {mod.id(d).rev(r).delete();});
+    return mod.confirmIt(function(d, r) {mod.id(d).rev(r).del();});
   };
   
   mod.confirmRestore = function() {
@@ -184,24 +186,24 @@ var vui = function(args) {
   };
   
   mod.collapseToggle = function() {
-    target.parent('li').toggleClass('collapsed');
+    mod.target.parent('li').toggleClass('collapsed');
     
     return mod;
   };
   
   mod.fetchRevision = function() {
-    var s = store(target);
+    var s = store(mod.target);
     var id = s.d("document");
     var rev = s.d("rev");
-    var oldrev = target.attr("data-document-oldrev");
+    var oldrev = s.d("oldrev");
   
-    if (rev != oldrev) {
+    if (rev !== oldrev) {
       $('#document-view-tree').addClass('oldrev');
     } else {
       $('#document-view-tree').removeClass('oldrev');
     }
   
-    getRevision(id, oldrev);
+    vui({rev: oldrev, id: id}).get();
     
     return mod;
   };

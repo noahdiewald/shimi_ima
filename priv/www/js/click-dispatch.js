@@ -14,7 +14,7 @@ WARNING: OUT OF DATE
 */
 
 
-function dispatcher(patterns) {
+©.dispatcher = function(patterns) {
   var d = function(e) {
     var target = $(e.target);
     
@@ -29,7 +29,7 @@ function dispatcher(patterns) {
   return d;
 }
 
-function clickDispatch(e) {
+©.clickDispatch = function(e) {
   var action = dispatcher({
     // Config
     ".edit-field-button span": function(t) {editFieldButton(t.parent('a'));},
@@ -58,8 +58,7 @@ function clickDispatch(e) {
     "#document-view-tree > ul > li > b": function(t) {vui({target: t}).collapseToggle();},
     ".revision-link": function(t) {vui({target: t}).fetchRevision();},
     ".expander": function(t) {eui({target: t}).toggleTextarea();},
-    "label span": function(t) {eui({target: t}).showHelpDialog();},
-    
+    "label span": function(t) {eui({target: t}).showHelpDialog();}    
   });
 
   action(e);

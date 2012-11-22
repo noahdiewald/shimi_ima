@@ -1,4 +1,4 @@
-var iui = function() {
+©.iui = function() {
   var mod = {};
   mod.url = 'documents/index';
   mod.indexId = $('#index-index-input').val();

@@ -87,7 +87,7 @@
  * things will be done with error responces so they are left alone.
 */
 
-var path = function(source, category, section) {
+©.path = function(source, category, section) {
   var mod = {};
   var prefix;
   

@@ -226,17 +226,17 @@ var deleteIndex =
         
             completeFunction();
         
-            flashHighlight(title, body);
+            flash(title, body).highlight();
           } else if (req.status == 409) {
             var body = JSON.parse(req.responseText);
             var title = req.statusText;
           
-            flashError(title, body.message);
+            flash(title, body.message).error();
           } else if (req.status == 404) {
             var body = "Index appears to have been deleted already.";
             var title = req.statusText;
             
-            flashError(title, body);
+            flash(title, body).error();
           }
         }
       });

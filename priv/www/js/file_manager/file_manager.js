@@ -64,7 +64,7 @@ var refreshDeleteButton = function (path) {
       var url = "file_manager/" + fileId + "?rev=" + fileRev;
       var complete = function () {
         refreshListings(path);
-        flashHighlight("Success", "File Deleted");
+        flash("Success", "File Deleted").highlight();
       };
       
       sendConfigDoc(url, null, 'DELETE', complete, target);
@@ -88,7 +88,7 @@ var pathEditDialog = function (obj, path) {
         var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
         var complete = function () {
           refreshListings(path);
-          flashHighlight("Success", "File Moved");
+          flash("Success", "File Moved").highlight();
         };
         
         obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
@@ -118,10 +118,10 @@ $(function () {
     };
     
     if (obj()) if (obj().message && obj().status === "error") {
-      flashError("Error", obj().message);
+      flash("Error", obj().message).error();
       refreshListings();
     } else if (obj().message) {
-      flashHighlight("Success", obj().message);
+      flash("Success", obj().message).highlight();
       refreshListings();
     }
   });

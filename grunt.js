@@ -49,13 +49,7 @@ module.exports = function(grunt) {
       globals: {
         jQuery: true,
         $: true,
-        path: true,
-        store: true,
-        searches: true,
-        eui: true,
-        vui: true,
-        iui: true,
-        index: true
+        ©: true
       }
     },
     uglify: {}

@@ -171,7 +171,7 @@ function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
         var body = JSON.parse(req.responseText);
         var title = req.statusText;
         
-        flashError(title, body.fieldname + " " + body.message);
+        flash(title, body.fieldname + " " + body.message).error();
       }
     }
   });
@@ -211,31 +211,6 @@ function checkRegexp(o, regexp, n, tips) {
 function initDateFields() {
   $(".date").datepicker({dateFormat: "yy-mm-dd"});
 }
-
-// Display notifications
-
-var flash = function(flasher, title, body) {
-  var fadeout = function() {
-    flasher.fadeOut();
-  };
-  flasher.find('.notification-summary').text(title + ": ");
-  flasher.find('.notification-message').text(body);
-  var timeout = setTimeout(fadeout, 7000);
-  flasher.fadeIn();
-  flasher.find('.close').click(function () {
-                                     clearTimeout(timeout);
-                                     flasher.hide();
-                                   });
-};
-
-var flashError = function(title, body) {
-  flash($('#notifications-main .ui-state-error'), title, body);
-};
-
-var flashHighlight = function(title, body) {
-  flash($('#notifications-main .ui-state-highlight'), title, body);
-};
-
 
 var fillOptionsFromUrl = function(url, selectElement, callback) {
   $.get(url, function(options) {

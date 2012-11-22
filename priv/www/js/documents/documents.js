@@ -117,7 +117,7 @@ $(
     $('#index-filter-form input').keyup(
       function() {
         clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {getIndex();}, 500);
+        getIndexTimer = setTimeout(function () {iui().get();}, 500);
       });
   
     $('#index-filter-form select').change(

@@ -41,7 +41,7 @@ var initIndexDeleteButton = function(button, buttonData) {
                                completeFunction);
                  }
                } else {
-                 flashHighlight("Info", "No index has been chosen to delete.");
+                 flash("Info", "No index has been chosen to delete.").highlight();
                }
              });
   
@@ -58,8 +58,7 @@ var initIndexAddConditionButton = function(button, buttonData) {
                              initIndexBuilderDialog(
                                bData.attr('data-index-doctype')).dialog("open");
                            } else {
-                             flashHighlight("Info", 
-                                            "You must choose an index first.");
+                             flash("Info", "You must choose an index first.").highlight();
                            }
                          });
 
@@ -75,8 +74,7 @@ var initReplaceButton = function(button, buttonData) {
                            if (!bData.length < 1) {
                              initReplaceDialog().dialog("open");
                            } else {
-                             flashHighlight("Info", 
-                                            "You must choose an index first.");
+                             flash("Info", "You must choose an index first.").highlight();
                            }
                          });
 
@@ -105,12 +103,12 @@ var initIndexSaveButton = function(button, buttonData) {
                if (!bData.length < 1) {
                  completeFunction = function() {
                    getIndexEdit(bData.attr('data-index-id'));
-                   flashHighlight("Success", "Your index has been saved.");
+                   flash("Success", "Your index has been saved.").highlight();
                  };
       
                  saveIndex(bData, completeFunction);
                } else {
-                 flashHighlight("Info", "No index has been chosen to save.");
+                 flash("Info", "No index has been chosen to save.").highlight();
                }
              });
 };

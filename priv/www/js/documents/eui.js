@@ -1,6 +1,6 @@
 // Edit pane UI elements
 
-var eui = function(args) {
+©.eui = function(args) {
   var mod = {};
   mod.priv = {};
   
@@ -98,7 +98,7 @@ var eui = function(args) {
     invalidTab.addClass('ui-state-error');
     invalid.addClass('ui-state-error');
     
-    flashError(title, body.fieldname + " " + body.message);
+    flash(title, body.fieldname + " " + body.message).error();
   
     return mod;
   };
@@ -154,7 +154,7 @@ var eui = function(args) {
       return mod;
   };
   
-  mod.priv.resetFields = function() {
+  mod.resetFields = function() {
     $('.field').each(function(index) {
       var field = $(this);
       var thedefault = field.attr('data-field-default');
@@ -212,7 +212,7 @@ var eui = function(args) {
                  body = "Your document was saved.";
                  vui({id: document}).get();
                  iui().get();
-                 flashHighlight(title, body);
+                 flash(title, body).highlight();
                  mod.saveButton.removeClass('oldrev');
                  mod.saveButton.button('enable');
                } else if (req.status === 403) {
@@ -222,7 +222,7 @@ var eui = function(args) {
                  body = JSON.parse(req.responseText);
                  title = req.statusText;
                  
-                 flashError(title, body.message);
+                 flash(title, body.message).error();
                  mod.saveButton.button('enable');
                }
              }
@@ -259,7 +259,7 @@ var eui = function(args) {
           initFieldsets();
           vui({id: documentId}).get();
           iui().get();
-          flashHighlight(title, body);
+          flash(title, body).highlight();
           mod.createButton.button('enable');
         } else if (req.status === 403) {
           mod.priv.validationError(req);
