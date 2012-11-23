@@ -1,4 +1,5 @@
 //= 00-application.js
+//= utils.js
 //= store.js
 //= path.js
 //= 03-jquery.hotkeys.js

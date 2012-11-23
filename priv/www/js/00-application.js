@@ -1,51 +1,3 @@
-/*
- h1. Application Wide Utility Functions
- 
- The sections of this application are usually divided into separate
- files that do not share code. Much of the code that is used by more
- than one section and hasn't been moved to its own file can be found
- here.
- 
- == Compatability Functions
- 
- @Object.keys@ and @array.reduce@ compatibility functions from MDC
- are included.
- 
- == Helpers
- 
-  @isBlank(value)@
-  
-  This tests an object of several types for the concept of
-  'blankness'. For a string this means only whitespace, for
-  instance. See the code below for details. It is idiosyncratic but
-  matches what I want, usually.
-  
-  @String.isBlank()@
-  
-  A more limited version of the above. It will probably be removed.
-  
-  @String.trim()@
-  
-  A string trim method.
-  
-  @stringToNumber(string)@
-  
-  Safer(ish) string to number. In this app I am using '' if the string
-  isn't a valid number. It saves effort when putting values in form
-  fields.
-  
-*/
-
-// A predicate function to detect blankness
-      
-function isBlank(value) {
-  return (((/^\s*$/).test(value)) || 
-    (value === null) || 
-    (value === undefined) ||
-    (typeof value === 'number' && isNaN(value)) ||
-    (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
-};
-
 // functions added to String
 
 // Simple 'parser' for quoted values
@@ -104,21 +56,7 @@ String.prototype.trim = function() {
   return this.replace(/^\s+/,'').replace(/\s+$/,'');
 };
 
-// safer(ish) string to number. The difference is that in this app
-// I am using '' if the string isn't a valid number.
-
-function stringToNumber(string) {
-  if (typeof string === 'string' && 
-      !isNaN(string) && 
-      string !== '') {
-    return string * 1;
-  } else {
-    return '';
-  }
-}
-
 // functions added to Array
-
 Array.prototype.trimAll = function() {
   return this.map(function (i) {
                     return i.trim();
@@ -219,10 +157,6 @@ var fillOptionsFromUrl = function(url, selectElement, callback) {
   });
   
   return false;
-};
-
-var validID = function(id) {
-  return !!id.match(/^[a-f0-9]{32}$/);
 };
 
 // General UI Stuff

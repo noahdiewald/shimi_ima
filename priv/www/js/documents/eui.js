@@ -1,7 +1,12 @@
 // Edit pane UI elements
 
-ʃimi.eui = function(args) {
+shimi.eui = function(args) {
   var mod = {};
+  var iui = shimi.iui;
+  var vui = shimi.vui;
+  var efs = shimi.efs;
+  var store = shimi.store;
+  var flash = shimi.flash;
   mod.priv = {};
   
   mod.target = args.target;
@@ -22,7 +27,7 @@
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
       mod.priv.keyboard();
-      initFieldsets();
+      efs().initFieldsets();
       mod.priv.buttons();
     });
   
@@ -116,7 +121,7 @@
     return mod;
   };
   
-  mod.priv.afterFreshRefresh = function() {
+  mod.afterFreshRefresh = function() {
     mod.priv.removeButton();
     mod.priv.afterRefresh();
   
@@ -197,7 +202,7 @@
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     mod.saveButton.button('disable');
-    $.extend(obj, fieldsetsToObject(root));
+    $.extend(obj, efs().fieldsetsToObject(root));
     
     $.ajax({
              type: "PUT",
@@ -239,7 +244,7 @@
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     mod.createButton.button('disable');
-    $.extend(obj, fieldsetsToObject(root));
+    $.extend(obj, efs().fieldsetsToObject(root));
     
     var postUrl = $.ajax({
       type: "POST",
@@ -256,7 +261,7 @@
           mod.saveButton.hide();
           mod.saveButton.attr('disabled','true');
           $('.fields').remove();
-          initFieldsets();
+          efs().initFieldsets();
           vui({id: documentId}).get();
           iui().get();
           flash(title, body).highlight();
@@ -274,7 +279,7 @@
     mod.saveButton.hide();
     mod.saveButton.attr('disabled','disabled');
     $('.fields').remove();
-    initFieldsets();
+    efs().initFieldsets();
   };
   
   mod.removeFieldset = function() {

@@ -12,9 +12,11 @@
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
 
-©.index = function(args) {
+shimi.index = function(args) {
   var mod = {};
-  
+  var filterVal;
+  var state = shimi.state;
+
   mod.url = args.url + '?';
   mod.indexId = args.indexId;
   mod.limitField = $('#index-limit');
@@ -23,7 +25,7 @@
   mod.state = {};
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    var filterVal = JSON.stringify($('#index-filter').val());
+    filterVal = JSON.stringify($('#index-filter').val());
     mod.state = {
       sk: startkey,
       sid: startid,
@@ -32,13 +34,13 @@
     };
 
     if (!mod.state.pks) {
-      mod.state.sk = btoa(window.unescape(encodeURIComponent(json_encoded)));
+      mod.state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
       mod.state.pks = [];
       mod.state.pids = [];
     }
 
     if (mod.state.sk) {
-      mod.url = mod.url + '&startkey=' + escape(atob(mod.state.sk));
+      mod.url = mod.url + '&startkey=' + window.escape(window.atob(mod.state.sk));
       if (mod.state.sid) {
         mod.url = mod.url + '&startkey_docid=' + mod.state.sid;
       }
@@ -55,7 +57,7 @@
       mod.url = mod.url + '&index=' + mod.indexId;
     }
 
-    sendConfigDoc(url, fals, 'GET',
+    sendConfigDoc(mod.url, false, 'GET',
                   function(context, req) {mod.fill(req);}, this);
 
     return mod;

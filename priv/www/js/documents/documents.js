@@ -1,23 +1,6 @@
-// Helper for building the url to access a fieldset for a document
-function buildUrl(project, doctype, fieldset) {
-  return "/projects/" + project +
-    "/doctypes/" + doctype +
-    "/fieldsets/" + fieldset;
-}
-
-function fsContainer(id) {
-  return $("#container-" + id);
-}
-
-function dpath(source, category) {
-  var url = path(source, category);
-  url.doctype = false;
-  return url;
-}
-
 function loadHash(urlHash) {
   if (urlHash) {
-    vui({id: urlHash}).get();
+    shimi.vui({id: urlHash}).get();
   }
   return false;
 }
@@ -25,42 +8,42 @@ function loadHash(urlHash) {
 var searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
     .live("click", function() {
-            searches.clearSearchVals();
+            shimi.sui.clearSearchVals();
           });
 };
 
 var searchFieldItems = function() {
   $('.search-field-item')
     .live("click", function(e) {
-            searches.removeSearchField(e);
+            shimi.sui.removeSearchField(e);
           });
 };
 
 var fieldViews = function() {
   $('.search-result-field-id a, .field-view b, .field-container label span')
     .live('dblclick', function(e) {
-            searches.addSearchField(e);
+            shimi.sui.addSearchField(e);
           });
 };
 
 var searchIndex = function() {
   $('#index-index-input-label')
     .live('dblclick', function(e) {
-            searches.addSearchIndex(e);
+            shimi.sui.addSearchIndex(e);
           });  
 };
 
 var excludeCheck = function() {
   $('#document-search-exclude')
     .live("change", function(e) {
-            searches.toggleExclusion(e);
+            shimi.sui.toggleExclusion(e);
           });
 };
 
 var loadDocument = function(docid) {
   $("#document-view").html("<em>Loading...</em>");
-  eui().clear();
-  vui({id: docid}).get();
+  shimi.eui().clear();
+  shimi.vui({id: docid}).get();
 };
 
 var jumpForm = function() {
@@ -86,8 +69,7 @@ var documentLinks = function() {
 };
 
 var searchForm = function() {
-  searches.clearSearchVals(true);
-  searches.loadSearchVals();
+  shimi.sui.clearSearchVals(true).loadSearchVals();
   searchAllFieldsSwitch();
   searchFieldItems();
   fieldViews();
@@ -97,7 +79,7 @@ var searchForm = function() {
     .live("keydown",
           function(e) {
             if (e.which === 13) {
-              searches.getSearch();
+              shimi.sui.getSearch();
               return false;
             }
             return true;
@@ -109,20 +91,20 @@ $(
     var getIndexTimer;
     
     documentLinks();
-    iui().iOpts().get();
+    shimi.iui().iOpts().get();
     jumpForm();
     searchForm();
-    eui().init();
+    shimi.eui().init();
 
     $('#index-filter-form input').keyup(
       function() {
         clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {iui().get();}, 500);
+        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
       });
   
     $('#index-filter-form select').change(
       function() {
-        iui().get();
+        shimi.iui().get();
       });
   
     loadHash($(location)[0].hash.split("#")[1]);

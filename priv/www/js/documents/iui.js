@@ -1,5 +1,11 @@
-ʃimi.iui = function() {
+shimi.iui = function() {
   var mod = {};
+  var vui = shimi.vui;
+  var eui = shimi.eui;
+  var store = shimi.store;
+  var flash = shimi.flash;
+  var index = shimi.index;
+  
   mod.url = 'documents/index';
   mod.indexId = $('#index-index-input').val();
   mod.target = $('#index-listing');

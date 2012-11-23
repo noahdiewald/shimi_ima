@@ -1,7 +1,13 @@
 // View pane UI elements
 
-ʃimi.vui = function(args) {
+shimi.vui = function(args) {
   var mod = {};
+  var vui = shimi.vui;
+  var iui = shimi.iui;
+  var eui = shimi.eui;
+  var efs = shimi.efs();
+  var store = shimi.store;
+  var flash = shimi.flash;
   
   mod.target = args.target;
   mod.rev = args.rev;
@@ -79,6 +85,8 @@
   mod.restore = function() {
     var url = "./documents/" + mod.id + "?rev=" + mod.rev;
     var restoreButton = $('#document-restore-button');
+    var body;
+    var title;
     
     $.ajax({
       type: "DELETE",
@@ -87,19 +95,19 @@
       contentType: "application/json",
       complete: function(req, status) {
         if (req.status === 200) {
-          var title = "Success";
-          var body = "Your document was restored.";
+          title = "Success";
+          body = "Your document was restored.";
   
           mod.rev(null).get(function() {iui().get();});
           flash(title, body).highlight();
         } else if (req.status === 409) {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
+          body = JSON.parse(req.responseText);
+          title = req.statusText;
             
           flash(title, body.message).error();
         } else if (req.status === 404) {
-          var body = "Document was erased and cannot be restored.";
-          var title = req.statusText;
+          body = "Document was erased and cannot be restored.";
+          title = req.statusText;
             
           flash(title, body).error();
         }
@@ -172,7 +180,7 @@
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    fillFieldsets();
+    efs.fillFieldsets();
     
     return mod;
   };

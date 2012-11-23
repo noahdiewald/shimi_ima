@@ -77,7 +77,7 @@ Function.prototype.t = function() {
   return escape.apply(this, c[1]);
 };
 
-©.store = function(elem) {
+shimi.store = function(elem) {
   var mod = {};
   
   mod.get = function(key) {

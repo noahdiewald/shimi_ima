@@ -14,7 +14,7 @@ WARNING: OUT OF DATE
 */
 
 
-ʃimi.dispatcher = function(patterns) {
+shimi.dispatcher = function(patterns) {
   var d = function(e) {
     var target = $(e.target);
     
@@ -27,10 +27,10 @@ WARNING: OUT OF DATE
   };
   
   return d;
-}
+};
 
-ʃimi.clickDispatch = function(e) {
-  var action = dispatcher({
+shimi.clickDispatch = function(e) {
+  var action = shimi.dispatcher({
     // Config
     ".edit-field-button span": function(t) {editFieldButton(t.parent('a'));},
     ".delete-field-button span": function(t) {deleteFieldButton(t.parent('a'));},
@@ -47,24 +47,24 @@ WARNING: OUT OF DATE
     "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'));},
     "#maintenance-upgrade-button span": function(t) {upgradeButton(t.parent('a'));},
     // Documents
-    ".add-button span": function(t) {eui({target: t.parent()}).initFieldset();},
-    ".remove-button span": function(t) {eui({target: t.parent()}).removeFieldset();},
-    "#save-document-button span": function(t) {eui({target: t.parent()}).save();},
-    "#create-document-button span": function(t) {eui({target: t.parent()}).create();},
-    "#clear-document-button span": function(t) {eui({target: t.parent()}).clear();},
-    "#document-edit-button span": function(t) {vui({target: t.parent()}).edit();},
-    "#document-delete-button span": function(t) {vui({target: t.parent()}).confirmDelete();},
-    "#document-restore-button span": function(t) {vui({target: t.parent()}).confirmRestore();},
-    "#document-view-tree > ul > li > b": function(t) {vui({target: t}).collapseToggle();},
-    ".revision-link": function(t) {vui({target: t}).fetchRevision();},
-    ".expander": function(t) {eui({target: t}).toggleTextarea();},
-    "label span": function(t) {eui({target: t}).showHelpDialog();}    
+    ".add-button span": function(t) {shimi.eui({target: t.parent()}).initFieldset();},
+    ".remove-button span": function(t) {shimi.eui({target: t.parent()}).removeFieldset();},
+    "#save-document-button span": function(t) {shimi.eui({target: t.parent()}).save();},
+    "#create-document-button span": function(t) {shimi.eui({target: t.parent()}).create();},
+    "#clear-document-button span": function(t) {shimi.eui({target: t.parent()}).clear();},
+    "#document-edit-button span": function(t) {shimi.vui({target: t.parent()}).edit();},
+    "#document-delete-button span": function(t) {shimi.vui({target: t.parent()}).confirmDelete();},
+    "#document-restore-button span": function(t) {shimi.vui({target: t.parent()}).confirmRestore();},
+    "#document-view-tree > ul > li > b": function(t) {shimi.vui({target: t}).collapseToggle();},
+    ".revision-link": function(t) {shimi.vui({target: t}).fetchRevision();},
+    ".expander": function(t) {shimi.eui({target: t}).toggleTextarea();},
+    "label span": function(t) {shimi.eui({target: t}).showHelpDialog();}    
   });
 
   action(e);
-}
+};
 
 $(function () {
-    $('body').click(function(e) {clickDispatch(e);});
+    $('body').click(function(e) {shimi.clickDispatch(e);});
   });
 

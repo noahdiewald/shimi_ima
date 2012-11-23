@@ -1,11 +1,73 @@
-ʃimi.searches = {
-  getSearch: function() {
-    var query = $('#document-search-term').val();
-    var url = "documents/search?q=" + encodeURIComponent(query);
-    var field = $('#document-search-field').val();
-    var exclude = $('#document-search-exclude').is(':checked');
-    var index = $('#document-search-index').val();
-    var lookup = searches.fieldLookup();
+shimi.sui = function() {
+  var mod = {};
+  var utils = shimi.utils();
+  var localStorage = window.localStorage;
+  var dSearchIndex = $('#document-search-index');
+  var dSearchTerm = $('#document-search-term');
+  var dSearchField = $('#document-search-field');
+  var dSearchExclude = $('#document-search-exclude');
+  var searchListing = $('#search-listing');
+
+  var fieldLookup = function() {
+    var lookup = {};
+    
+    $('fieldset').each(
+      function(index, fset) {
+        var fsLabel = $(fset).attr('data-fieldset-label');
+        $(fset).find('.field-container').each(
+          function(index, item) {
+            var id = $(item).attr('data-field-field');
+            var label = $(item).find('.label-text').first().text();
+            lookup[id] = fsLabel + ": " + label;
+          });
+      });
+    return lookup;
+  };
+
+  var lookup = function(item) {
+    var stored = localStorage.getItem(item);
+    if (stored === "" || stored === "null") {
+      return null;
+    } else {
+      return stored;
+    }
+  };
+
+  var excludedVal = function() {
+    var exclude = dSearchExclude.is(':checked');
+
+    if (!exclude) {
+      return null;
+    } else {
+      return exclude;
+    }
+  };
+
+  var updateSearchVals = function(fieldids, labels, exclude, index) {
+    if (index) {
+      localStorage.setItem("searchIndex", index);
+      localStorage.setItem("searchIndexLabel", labels);
+      localStorage.setItem("searchLabels", null);
+      localStorage.setItem("searchFields", null);
+      localStorage.setItem("searchExclude", null);
+    } else {
+      localStorage.setItem("searchIndex", null);
+      localStorage.setItem("searchIndexLabel", null);
+      localStorage.setItem("searchLabels", labels);
+      localStorage.setItem("searchFields", fieldids);
+      localStorage.setItem("searchExclude", exclude);
+    }
+    
+    return true;
+  };
+  
+  mod.getSearch = function() {
+    var query = dSearchTerm.val();
+    var url = "documents/search?q=" + window.encodeURIComponent(query);
+    var field = dSearchField.val();
+    var exclude = dSearchExclude.is(':checked');
+    var index = dSearchIndex.val();
+    var lookup = fieldLookup();
 
     if (index) {
       url = url + "&index=" + index; 
@@ -18,10 +80,10 @@
       }
     }
 
-    $('#search-listing').hide();
+    searchListing.hide();
 
     $.get(url, function(searchResults) {
-            $('#search-listing').html(searchResults);
+            searchListing.html(searchResults);
             $('.search-result-field-id')
               .each(function(index, item) {
                       var label = lookup[$(item).attr('data-field-field')];
@@ -38,47 +100,14 @@
                                          "<span class='highlight'>$1</span>");
                       $(item).children('a').html(newText);
                     });
-            $('#search-listing').show();
+            searchListing.show();
           });
-  },
+          
+    return mod;
+  };
 
-  fieldLookup: function() {
-    var lookup = {};
-    
-    $('fieldset').each(
-      function(index, fset) {
-        var fsLabel = $(fset).attr('data-fieldset-label');
-        $(fset).find('.field-container').each(
-          function(index, item) {
-            var id = $(item).attr('data-field-field');
-            var label = $(item).find('.label-text').first().text();
-            lookup[id] = fsLabel + ": " + label;
-          });
-      });
-    return lookup;
-  },
-
-  lookup: function(item) {
-    var stored = localStorage.getItem(item);
-    if (stored === "" || stored === "null") {
-      return null;
-    } else {
-      return stored;
-    }
-  },
-
-  excludedVal: function() {
-    var exclude = $('#document-search-exclude').is(':checked');
-
-    if (!exclude) {
-      return null;
-    } else {
-      return exclude;
-    }
-  },
-
-  toggleExclusion: function(e) {
-    var exclude = searches.excludedVal();
+  mod.toggleExclusion = function(e) {
+    var exclude = mod.excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
     if (exclude) {
@@ -88,11 +117,13 @@
     }
 
     localStorage.setItem("searchExclude", exclude);
-  },
+    
+    return mod;
+  };
 
-  clearSearchVals: function(initial) {
-    $('#document-search-field').val(null);
-    $('#document-search-index').val(null);
+  mod.clearSearchVals = function(initial) {
+    dSearchField.val(null);
+    dSearchIndex.val(null);
     $('#document-search-exclude:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
@@ -104,56 +135,44 @@
       localStorage.setItem("searchIndex", null);
       localStorage.setItem("searchIndexLabel", null);
     }
-  },
+    
+    return mod;
+  };
 
-  loadSearchVals: function() {
-    var index = searches.lookup("searchIndex");
-    var fieldids = searches.lookup("searchFields");
+  mod.loadSearchVals = function() {
+    var index = lookup("searchIndex");
+    var fieldids = lookup("searchFields");
 
     if (index !== null) {
-      $('#document-search-index').val(index);
+      dSearchIndex.val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
-      $('#document-search-exclude').parent('div').hide();
+      dSearchExclude.parent('div').hide();
     } else if (fieldids !== null) {
-      $('#document-search-field').val(fieldids);
+      dSearchField.val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
-      if (searches.lookup("searchExclude") != searches.excludedVal()) {
-        $('#document-search-exclude').click();
+      if (lookup("searchExclude") !== mod.excludedVal()) {
+        dSearchExclude.click();
       }
 
       $('.search-optional').show();
     }
-  },
+    
+    return mod;
+  };
 
-  updateSearchVals: function(fieldids, labels, exclude, index) {
-    if (index) {
-      localStorage.setItem("searchIndex", index);
-      localStorage.setItem("searchIndexLabel", labels);
-      localStorage.setItem("searchLabels", null);
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchExclude", null);
-    } else {
-      localStorage.setItem("searchIndex", null);
-      localStorage.setItem("searchIndexLabel", null);
-      localStorage.setItem("searchLabels", labels);
-      localStorage.setItem("searchFields", fieldids);
-      localStorage.setItem("searchExclude", exclude);
-    }
-  },
-
-  removeSearchField: function(e) {
+  mod.removeSearchField =  function(e) {
     var item = $(e.target);
     var value = item.attr('data-index');
-    var searchField = $('#document-search-field');
+    var searchField = dSearchField;
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    var exclude = searches.excludedVal();
+    var exclude = mod.excludedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
-      searches.clearSearchVals();
+      mod.clearSearchVals();
     } else {
       var index = valDecoded.indexOf(value);
       
@@ -166,35 +185,39 @@
       item.remove();
     }
     
-    searches.updateSearchVals(newVal, $('#search-field-label').html(), exclude);
-  },
+    updateSearchVals(newVal, $('#search-field-label').html(), exclude);
+    
+    return mod;
+  };
 
-  addSearchIndex: function(e) {
+  mod.addSearchIndex = function(e) {
     var indexVal = $('#index-index-input').val();
     var indexLabel = $('option[value=' + indexVal + ']').text();
 
-    if (validID(indexVal)) {
+    if (utils.validID(indexVal)) {
       $('#search-all-fields-switch').show();
       $('#search-field-label').hide();
       $('#search-exclude-label').empty();
-      $('#document-search-field').val(null);
-      $('#document-search-exclude').parent('div').hide();
+      dSearchField.val(null);
+      dSearchExclude.parent('div').hide();
       $('#search-index-label').html(indexLabel).show();
-      $('#document-search-index').val(indexVal);
-      searches.updateSearchVals(null, indexLabel, null, indexVal);
+      dSearchIndex.val(indexVal);
+      updateSearchVals(null, indexLabel, null, indexVal);
     }
-  },
+    
+    return mod;
+  };
 
-  addSearchField: function(e) {
+  mod.addSearchField = function(e) {
     var fieldid = $(e.target).closest('[data-field-field]')
       .attr('data-field-field');
 
-    if (validID(fieldid)) {
-      var fieldLabel = searches.fieldLookup()[fieldid];
-      var searchField = $('#document-search-field');
+    if (utils.validID(fieldid)) {
+      var fieldLabel = fieldLookup()[fieldid];
+      var searchField = dSearchField;
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var exclude = searches.excludedVal();
+      var exclude = mod.excludedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + 
@@ -210,7 +233,7 @@
         
         newVal = JSON.stringify(value);
         searchField.val(newVal);
-        searches.updateSearchVals(newVal, searchLabel.html(), exclude);
+        updateSearchVals(newVal, searchLabel.html(), exclude);
       };
 
       if (currentVal !== '') {
@@ -226,5 +249,7 @@
 
       $('.search-optional').show();
     }
-  }
+    
+    return mod;
+  };
 };
