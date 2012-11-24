@@ -49,7 +49,7 @@ String.prototype.parseQuoted = function(qChar) {
 };
 
 String.prototype.isBlank = function() {
-  return ((/^\s*$/).test(this) && (!(/\S/).test(this)) && (!(this === null)));
+  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
 };
 
 String.prototype.trim = function() {

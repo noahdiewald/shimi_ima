@@ -1,11 +1,18 @@
 // Object.keys compatibility from MDC
 
-if(!Object.keys) Object.keys = function(o){
-  if (o !== Object(o))
-    throw new TypeError('Object.keys called on non-object');
-  var ret=[],p;
-  for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
-  return ret;
+if(!Object.keys) {
+  Object.keys = function(o){
+    if (o !== Object(o)) {
+      throw new TypeError('Object.keys called on non-object');
+    }
+    var ret=[],p;
+    for(p in o) {
+      if (Object.prototype.hasOwnProperty.call(o,p)) {
+        ret.push(p);
+      }
+    }
+    return ret;
+  };
 }
 
 // Reduce compatibility from MDC
@@ -16,17 +23,20 @@ if (!Array.prototype.reduce)
   {
     "use strict";
 
-    if (this === void 0 || this === null)
+    if (this === void 0 || this === null) {
       throw new TypeError();
+    }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function")
+    if (typeof fun !== "function") {
       throw new TypeError();
+    }
 
     // no value to return if no initial value and an empty array
-    if (len == 0 && arguments.length == 1)
+    if (len === 0 && arguments.length === 1) {
       throw new TypeError();
+    }
 
     var k = 0;
     var accumulator;
@@ -45,16 +55,18 @@ if (!Array.prototype.reduce)
         }
 
         // if array contains no values, no initial value to return
-        if (++k >= len)
+        if (++k >= len) {
           throw new TypeError();
+        }
       }
       while (true);
     }
 
     while (k < len)
     {
-      if (k in t)
+      if (k in t) {
         accumulator = fun.call(undefined, accumulator, t[k], k, t);
+      }
       k++;
     }
 
