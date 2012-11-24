@@ -1,7 +1,7 @@
 // Dialog for manipulating doctypes
 
-function doctypeDialog(url, values) {
-  var f = doctypeElems().get(values);
+shimi.doctypeDialog = function(url, values) {
+  var f = shimi.doctypeElems().get(values);
   
   if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
@@ -14,7 +14,7 @@ function doctypeDialog(url, values) {
       "Save": function() {
         var obj = f.getDoctypeInputVals();
         var complete = function(context) {
-          populateDoctypeTabs();
+          shimi.doctypeTab().init();
           $(context).dialog("close");
         };
         
@@ -35,4 +35,4 @@ function doctypeDialog(url, values) {
   });
   
   return dialog;
-}
+};

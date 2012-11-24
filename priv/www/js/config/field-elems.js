@@ -30,7 +30,9 @@ function fieldElems() {
     
     fObj.clearDisabled = function() {
       fObj.notDefault().forEach(function(field) {
-        if (field.attr("disabled")) field.val("");
+        if (field.attr("disabled")) {
+          field.val("");
+        }
       });
       return fObj;
     };
@@ -39,7 +41,9 @@ function fieldElems() {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] == "true") fObj[field].attr('checked', true);
+          if (source[field] === "true") {
+            fObj[field].attr('checked', true);
+          }
         }
       });
       return fObj;
@@ -50,7 +54,7 @@ function fieldElems() {
         "category": "field", 
         "name": fObj.name.val(),
         "label": fObj.label.val(),
-        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj.default.val()),
+        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj["default"].val()),
         "head": fObj.head.is(':checked'),
         "reversal": fObj.reversal.is(':checked'),
         "required": fObj.required.is(':checked'),
@@ -70,26 +74,24 @@ function fieldElems() {
     };
     
     fObj.clear = function() {
-      clearValues($('#field-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
     
     fObj.decodeBound = function(subcategory, bound) {
-      switch (subcategory) {
-        case "date":
-          return bound;
-        default:
-          return stringToNumber(fObj.min.val());
+      if (subcategory === "date") {
+        return bound;
+      } else {
+        return shimi.utils().stringToNumber(fObj.min.val());
       }
     };
     
     fObj.decodeSource = function(subcategory, source) {
-      switch (subcategory) {
-        case "file":
-          return source.split("/").trimAll();
-        default:
-          return source;
+      if (subcategory === "file") {
+        return source.split("/").trimAll();
+      } else {
+        return source;
       }
     };
     
@@ -143,7 +145,7 @@ function fieldElems() {
     fObj.copyValues(values);
     fObj.displayFields(fObj.subcategory.val());
       
-    fObj.subcategory.change(function () { fObj.displayFields(fObj.subcategory.val()) });
+    fObj.subcategory.change(function () { fObj.displayFields(fObj.subcategory.val());});
       
     return fObj;
   };

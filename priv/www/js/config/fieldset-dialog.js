@@ -1,5 +1,5 @@
-function fieldsetDialog(url, values) {
-  var f = fieldsetElems().get(values);
+shimi.fieldsetDialog = function(url, values) {
+  var f = shimi.fieldsetElems().get(values);
   
   var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
@@ -11,9 +11,9 @@ function fieldsetDialog(url, values) {
           url.fieldset = false;
           url.rev = false;
           
-          populateFieldsets(url);
+          shimi.doctypeTab().initFieldsets(url);
           $(context).dialog("close");
-        }
+        };
         if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
         } else {
@@ -31,4 +31,4 @@ function fieldsetDialog(url, values) {
   });
   
   return dialog;
-}
+};

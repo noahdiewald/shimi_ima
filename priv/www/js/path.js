@@ -70,7 +70,7 @@
  *   mypath = path($('#thisid'), "fieldset");
  *   mypath.put(object, callback, context);
  *   mypath.post(object, callback, context);
- *   mypath.delete(callback, context);
+ *   mypath.del(callback, context);
  * </pre>
  *   
  * Object is an Javascript object that can be encoded as JSON, callback
@@ -107,7 +107,7 @@ shimi.path = function(source, category, section) {
   mod.origin = source;
   mod.type = prefix + "path";
   mod.valid_components = ["doctype", "fieldset", "field"];
-  var s = store(mod.origin);
+  var s = shimi.store(mod.origin);
   
   mod.valid_components.forEach(
     function(item) {
@@ -122,7 +122,7 @@ shimi.path = function(source, category, section) {
   mod.doctype = s.get(prefix + 'doctype');
   
   mod.send = function(object, method, callback, context) {
-    sendConfigDoc(mod.toString(), object, method, callback, context);
+    shimi.form().send(mod.toString(), object, method, callback, context);
     return mod;
   };
   
@@ -136,7 +136,7 @@ shimi.path = function(source, category, section) {
     return mod;
   };
   
-  mod.delete = function(callback, context) {
+  mod.del = function(callback, context) {
     mod.send({}, 'DELETE', callback, context);
     return mod;
   };
@@ -154,14 +154,14 @@ shimi.path = function(source, category, section) {
             
             if (value) {
               retval = plural + "/" + value;
-            } else if (item == mod.category) {
+            } else if (item === mod.category) {
               retval = plural;
             }
             
             return retval;
           }).filter(
             function(item) {
-              return (typeof item == "string" && !item.isBlank());
+              return (typeof item === "string" && !item.isBlank());
             }).join("/"));
       
     if (mod.rev) {
@@ -172,4 +172,4 @@ shimi.path = function(source, category, section) {
   };
   
   return mod; 
-}
+};

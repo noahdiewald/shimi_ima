@@ -25,15 +25,15 @@
  * used for collation of items written in the script.
 */
 
-var charseqElems = function() {
-  var cElems = {};
+shimi.charseqElems = function() {
+  var mod = {};
   
-  cElems.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
+  mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
   
-  cElems.get = function(values) {
+  mod.get = function(values) {
     var cObj = {};
     
-    cObj.attrs = cElems.attrs;
+    cObj.attrs = mod.attrs;
     
     cObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
@@ -57,7 +57,7 @@ var charseqElems = function() {
         "iso639_tag": cObj.iso639_tag.val(),
         "_id": (cObj.charseq.val() || undefined),
         "rev": (cObj.rev.val() || undefined)
-      }
+      };
       return valObj;
     };
     
@@ -70,7 +70,7 @@ var charseqElems = function() {
     };
     
     cObj.clear = function() {
-      clearValues($('#charseq-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
                    
@@ -83,5 +83,5 @@ var charseqElems = function() {
     return cObj;
   };
   
-  return cElems;
+  return mod;
 };

@@ -57,7 +57,7 @@ shimi.index = function(args) {
       mod.url = mod.url + '&index=' + mod.indexId;
     }
 
-    sendConfigDoc(mod.url, false, 'GET',
+    shimi.form().send(mod.url, false, 'GET',
                   function(context, req) {mod.fill(req);}, this);
 
     return mod;

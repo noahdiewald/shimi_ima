@@ -1,7 +1,7 @@
 // Dialog for manipulating doctypes
 
-function charseqDialog(values) {
-  var f = charseqElems().get(values);
+shimi.charseqDialog = function(values) {
+  var f = shimi.charseqElems().get(values);
   
   var dialog = $("#charseq-dialog").dialog({
     width: 650,
@@ -13,7 +13,7 @@ function charseqDialog(values) {
         var url = 'config/charseqs';
         var method = 'POST';
         var complete = function(context) {
-          populateCharseqTabs();
+          shimi.charseqTab().init();
           $(context).dialog("close");
         };
         
@@ -22,7 +22,7 @@ function charseqDialog(values) {
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
         
-        sendConfigDoc(url, obj, method, complete, this);
+        shimi.form().send(url, obj, method, complete, this);
       },
       "Cancel": function() {
         $(this).dialog("close");
@@ -34,4 +34,4 @@ function charseqDialog(values) {
   });
   
   return dialog;
-}
+};

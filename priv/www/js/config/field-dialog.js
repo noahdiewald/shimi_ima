@@ -1,7 +1,7 @@
 // Dialog for manipulating fields
 
 function fieldDialog(url, values) {
-  var f = fieldElems().get(values);
+  var f = shimi.fieldElems().get(values);
   
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
@@ -10,7 +10,7 @@ function fieldDialog(url, values) {
       "Save": function() {
         var obj = f.clearDisabled().getFieldInputVals();
         var complete = function(context) {
-          populateFields(url);
+          shimi.doctypeTab().initFields(url);
           $(context).dialog("close");
         };
         if (!values.rev || values.rev.isBlank()) {

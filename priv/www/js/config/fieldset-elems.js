@@ -17,7 +17,9 @@ function fieldsetElems() {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] == "true") fObj[field].attr('checked', true);
+          if (source[field] === "true") {
+            fObj[field].attr('checked', true);
+          }
         }
       });
       return fObj;
@@ -33,12 +35,12 @@ function fieldsetElems() {
         "doctype": fObj.doctype.val(),
         "multiple": fObj.multiple.is(':checked'),
         "collapse": fObj.collapse.is(':checked')
-      }
+      };
       return valObj;
     };
     
     fObj.clear = function() {
-      clearValues($('#fieldset-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
                    

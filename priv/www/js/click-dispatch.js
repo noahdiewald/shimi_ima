@@ -30,35 +30,40 @@ shimi.dispatcher = function(patterns) {
 };
 
 shimi.clickDispatch = function(e) {
+  var dt = shimi.doctypeTab;
+  var ct = shimi.charseqTab;
+  var ed = shimi.eui;
+  var vi = shimi.vui;
+  
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button span": function(t) {editFieldButton(t.parent('a'));},
-    ".delete-field-button span": function(t) {deleteFieldButton(t.parent('a'));},
-    ".add-field-button span": function(t) {addFieldButton(t.parent('a'));},
-    ".edit-fieldset-button span": function(t) {editFieldsetButton(t.parent('a'));},
-    ".delete-fieldset-button span": function(t) {deleteFieldsetButton(t.parent('a'));},
-    ".add-fieldset-button span": function(t) {addFieldsetButton(t.parent('a'));},
-    ".delete-doctype-button span": function(t) {deleteDoctypeButton(t.parent('a'));},
-    ".edit-doctype-button span": function(t) {editDoctypeButton(t.parent('a'));},
-    ".touch-doctype-button span": function(t) {touchDoctypeButton(t.parent('a'));},
-    "#doctype-add-button span": function(t) {addDoctypeButton(t.parent('a'));},
-    ".delete-charseq-button span": function(t) {deleteCharseqButton(t.parent('a'));},
-    ".edit-charseq-button span": function(t) {editCharseqButton(t.parent('a'));},
-    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'));},
-    "#maintenance-upgrade-button span": function(t) {upgradeButton(t.parent('a'));},
+    ".edit-field-button span": function(t) {dt(t.parent('a')).editField();},
+    ".delete-field-button span": function(t) {dt(t.parent('a')).deleteField();},
+    ".add-field-button span": function(t) {dt(t.parent('a')).addField();},
+    ".edit-fieldset-button span": function(t) {dt(t.parent('a')).editFieldset();},
+    ".delete-fieldset-button span": function(t) {dt(t.parent('a')).deleteFieldset();},
+    ".add-fieldset-button span": function(t) {dt(t.parent('a')).addFieldset();},
+    ".delete-doctype-button span": function(t) {dt(t.parent('a')).deleteDoctype();},
+    ".edit-doctype-button span": function(t) {dt(t.parent('a')).editDoctype();},
+    ".touch-doctype-button span": function(t) {dt(t.parent('a')).touchDoctype();},
+    "#doctype-add-button span": function(t) {dt(t.parent('a')).addDoctype();},
+    ".delete-charseq-button span": function(t) {ct(t.parent('a')).del();},
+    ".edit-charseq-button span": function(t) {ct(t.parent('a')).edit();},
+    "#charseq-add-button span": function(t) {ct().add();},
+    "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
     // Documents
-    ".add-button span": function(t) {shimi.eui({target: t.parent()}).initFieldset();},
-    ".remove-button span": function(t) {shimi.eui({target: t.parent()}).removeFieldset();},
-    "#save-document-button span": function(t) {shimi.eui({target: t.parent()}).save();},
-    "#create-document-button span": function(t) {shimi.eui({target: t.parent()}).create();},
-    "#clear-document-button span": function(t) {shimi.eui({target: t.parent()}).clear();},
-    "#document-edit-button span": function(t) {shimi.vui({target: t.parent()}).edit();},
-    "#document-delete-button span": function(t) {shimi.vui({target: t.parent()}).confirmDelete();},
-    "#document-restore-button span": function(t) {shimi.vui({target: t.parent()}).confirmRestore();},
-    "#document-view-tree > ul > li > b": function(t) {shimi.vui({target: t}).collapseToggle();},
-    ".revision-link": function(t) {shimi.vui({target: t}).fetchRevision();},
-    ".expander": function(t) {shimi.eui({target: t}).toggleTextarea();},
-    "label span": function(t) {shimi.eui({target: t}).showHelpDialog();}    
+    ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
+    ".remove-button span": function(t) {ed({target: t.parent()}).removeFieldset();},
+    "#save-document-button span": function(t) {ed({target: t.parent()}).save();},
+    "#create-document-button span": function(t) {ed({target: t.parent()}).create();},
+    "#clear-document-button span": function(t) {ed({target: t.parent()}).clear();},
+    "#document-edit-button span": function(t) {vi({target: t.parent()}).edit();},
+    "#document-delete-button span": function(t) {vi({target: t.parent()}).confirmDelete();},
+    "#document-restore-button span": function(t) {vi({target: t.parent()}).confirmRestore();},
+    "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
+    ".revision-link": function(t) {vi({target: t}).fetchRevision();},
+    ".expander": function(t) {ed({target: t}).toggleTextarea();},
+    "label span": function(t) {ed({target: t}).showHelpDialog();}
   });
 
   action(e);
