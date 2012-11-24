@@ -1,10 +1,10 @@
-//= 00-application.js
+//= onload.js
 //= utils.js
 //= store.js
 //= path.js
-//= 03-jquery.hotkeys.js
-//= 03-jquery-ui-input-state.js
-//= 10-compat.js
+//= jquery.hotkeys.js
+//= jquery-ui-input-state.js
+//= compat.js
 //= click-dispatch.js
 //= index.js
 //= config
