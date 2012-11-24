@@ -34,6 +34,9 @@ shimi.clickDispatch = function(e) {
   var ct = shimi.charseqTab;
   var ed = shimi.eui;
   var vi = shimi.vui;
+  var ii = shimi.iiui;
+  var ie = shimi.ieui;
+  var ip = shimi.ipui;
   
   var action = shimi.dispatcher({
     // Config
@@ -63,7 +66,14 @@ shimi.clickDispatch = function(e) {
     "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
     ".revision-link": function(t) {vi({target: t}).fetchRevision();},
     ".expander": function(t) {ed({target: t}).toggleTextarea();},
-    "label span": function(t) {ed({target: t}).showHelpDialog();}
+    "label span": function(t) {ed({target: t}).showHelpDialog();},
+    // Index Tool
+    "#new-index-button": function(t) {ie().newCond();},
+    ".remove-condition-button": function(t) {ie().remCond(t);},
+    "#delete-index-button": function(t) {ie().del();},
+    "#save-index-button": function(t) {ie().save();},
+    "#replace-button": function(t) {ie().replace();},
+    "#add-index-condition-button": function(t) {ie().addCond();}
   });
 
   action(e);

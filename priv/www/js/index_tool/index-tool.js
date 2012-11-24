@@ -124,154 +124,6 @@ var alterArgumentField =
     }
   };
 
-var fixArgumentType = function(argument, subcategory, operator) {
-  switch (subcategory) {
-  case "integer":
-  case "rational":
-    argument = argument * 1;
-    break;
-  }
-
-  switch (operator) {
-  case "hasExactly":
-  case "hasGreater":
-  case "hasLess":
-    argument = Math.floor(argument * 1);
-    break;
-  }
-  
-  return argument;
-};
-
-var getIndexConditions = function(doctypeId, rows) {
-  var conditions = rows.map(
-    function(index, row) {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') == "true";
-      var paren = row.find('td.paren-condition').attr('data-value');
-      var condition;
-    
-      if (is_or) {
-        condition = {"is_or": true, "parens": false};
-      } else if (paren) {
-        condition = {"is_or": false, "parens": paren};
-      } else {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate = 
-          row.find('td.negate-condition').attr('data-value') == "true";
-        var operator = row.find('td.operator-condition').attr('data-value');
-
-        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
-      
-        condition = {
-          "is_or": false,
-          "parens": false,
-          "negate": negate,
-          "fieldset": fieldsetId,
-          "field": fieldId,
-          "operator": operator,
-          "argument": argument
-        };
-      }
-    
-      return condition;
-    }).toArray();
-  
-  return conditions;
-};
-
-var saveIndex = function(buttonData, completeFunction) {
-  var indexId = buttonData.attr('data-index-id');
-  var indexRev = buttonData.attr('data-index-rev');
-  var url = "indexes/" + indexId + "?rev=" + indexRev;
-  var doctype = buttonData.attr('data-index-doctype');
-  
-  var obj = {
-    "_id": indexId,
-    "category": "index",
-    "doctype": doctype,
-    "show_deleted": buttonData.attr('data-index-show_deleted') === "true",
-    "fields": JSON.parse(buttonData.attr('data-index-fields')),
-    "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
-    "name": buttonData.attr('data-index-name'),
-    "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
-  };
-  
-  if (buttonData.attr('data-index-replace_function')) {
-    obj.replace_function = buttonData.attr('data-index-replace_function');
-  }
-
-  sendConfigDoc(url, obj, 'PUT', completeFunction, this);
-
-  return false;  
-};
-
-var deleteIndex = 
-  function(indexId, indexRev, completeMessage, completeFunction) {
-    var url = "indexes/" + indexId + "?rev=" + indexRev;
-  
-    $.ajax(
-      {
-        type: "DELETE",
-        url: url,
-        dataType: "json",
-        contentType: "application/json",
-        complete: function(req, status) {
-          if (req.status == 204) {
-            var title = "Success";
-            var body = completeMessage;
-        
-            completeFunction();
-        
-            flash(title, body).highlight();
-          } else if (req.status == 409) {
-            var body = JSON.parse(req.responseText);
-            var title = req.statusText;
-          
-            flash(title, body.message).error();
-          } else if (req.status == 404) {
-            var body = "Index appears to have been deleted already.";
-            var title = req.statusText;
-            
-            flash(title, body).error();
-          }
-        }
-      });
-
-    return false;  
-  };
-
-var getIndexEdit = function(indexId) {
-  var url = "indexes/" + indexId;
-  var target = $('#index-conditions');
-  
-  $.get(url, function(indexData) {
-          target.html(indexData);
-          // TODO don't repeat this code. It is also in initIndexBuilderDialog
-          var tableBody = $('#index-conditions-listing tbody');
-          tableBody.sortable();
-          initConditionRemoveButtons(tableBody);
-          getIndexView();
-        });
-  
-  return false;
-};
-
-var initIndexIndex = function() {
-  var url = "indexes";
-  var target = $('#index-index-listing');
-  
-  $.get(url, function(index) {
-          target.html(index);
-          target.click(function(e) {
-                         getIndexEdit($(e.target).attr('data-index-id'));
-                       });
-        });
-};
-
 var getIndexView = function(startkey, startid, prevkeys, previds) {
   var state = {
     startkey: startkey,
@@ -362,6 +214,18 @@ var fillIndexPreview = function(req, state) {
   $('nav.pager').buttonset();
   
 };
+  
+  var initIndexIndex = function() {
+    var url = "indexes";
+    var target = $('#index-index-listing');
+    
+    $.get(url, function(index) {
+            target.html(index);
+            target.click(function(e) {
+                           getIndexEdit($(e.target).attr('data-index-id'));
+                         });
+          });
+  };
 
 $(function () {
     $('#index-builder-dialog').hide();
