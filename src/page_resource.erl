@@ -45,5 +45,5 @@ content_types_provided(R, S) ->
   {[{"text/html", main_html}], R, S}.
   
 main_html(R, S) ->
-  {ok, Html} = render:render(main_dtl, ),
+  {ok, Html} = render:render(main_dtl, []),
   {Html, R, S}.

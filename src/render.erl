@@ -32,9 +32,12 @@
 -include_lib("webmachine/include/webmachine.hrl").
 
 renderings(Json, Template) ->
-  Rows = jsn:get_value(<<"rows">>, Json),
-  [render(Row, Template) || Row <- Rows].
+    Rows = jsn:get_value(<<"rows">>, Json),
+    F = fun(X) ->
+                {ok, Y} = render(Template, X),
+                Y
+        end,
+    lists:map(F, Rows).
   
-render(Params, Template) ->
-  {ok, Rendering} = Template:render([{devel, utils:is_devel()}|Params]),
-  Rendering.
+render(Template, Params) ->
+    Template:render([{devel, utils:is_devel()}|Params]).

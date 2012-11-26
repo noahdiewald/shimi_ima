@@ -1,5 +1,6 @@
-//= onload.js
+//= init.js
 //= utils.js
+//= flash.js
 //= store.js
 //= path.js
 //= jquery.hotkeys.js
@@ -7,8 +8,10 @@
 //= compat.js
 //= click-dispatch.js
 //= index.js
+//= form.js
 //= config
 //= documents
 //= file_manager
 //= index_tool
 //= projects
+//= onload.js

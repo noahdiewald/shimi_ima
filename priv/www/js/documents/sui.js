@@ -252,4 +252,6 @@ shimi.sui = function() {
     
     return mod;
   };
+  
+  return mod;
 };

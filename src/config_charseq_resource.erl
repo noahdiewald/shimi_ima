@@ -83,7 +83,7 @@ create_path(R, S) ->
   
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
-                          {ok, GenId} = couch:get_uuid(R, S),
+                          GenId = couch:get_uuid(R, S),
                           {GenId, jsn:set_value(<<"_id">>, 
                                                 list_to_binary(GenId), Json)};
                       IdBin -> {binary_to_list(IdBin), Json}
@@ -112,7 +112,8 @@ index_html(R, S) ->
   
 html_as_options(R, S) ->
     {ok, Json} = q:charseqs(R, S),
-    {render:render(Json, options_dtl), R, S}.
+    {ok, Opts} = render:render(options_dtl, Json),
+    {Opts, R, S}.
   
 html_as_tabs(R, S) ->
     {ok, Json} = q:charseqs(R, S),

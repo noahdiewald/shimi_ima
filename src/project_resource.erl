@@ -141,9 +141,9 @@ from_json(R, S) ->
   
     {ok, newdb} = couch:new_db(NewDb, R, S),
     {ok, created} = couch:create(direct, JsonOut, ProjectsDb, R, S),
-    {ok, DoctypesDesign} = render:render(design_doctypes_json_dtl, ),
+    {ok, DoctypesDesign} = render:render(design_doctypes_json_dtl, []),
     {ok, created} = couch:create(design, DoctypesDesign, NewDb, R, S),
-    {ok, CharseqsDesign} = render:render(design_charseqs_json_dtl, ),
+    {ok, CharseqsDesign} = render:render(design_charseqs_json_dtl, []),
     {ok, created} = couch:create(design, CharseqsDesign, NewDb, R, S),
     database_seqs:set_seq(DBName, 0),
     {true, R, S}.
@@ -170,6 +170,6 @@ render_row(Project) ->
 create_database() ->
     ContentType = {"Content-Type","application/json"},
     {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [], put),
-    {ok, ProjectDesign} = render:render(design_project_json_dtl, ),
+    {ok, ProjectDesign} = render:render(design_project_json_dtl, []),
     {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [ContentType], 
                                          post, iolist_to_binary(ProjectDesign)).

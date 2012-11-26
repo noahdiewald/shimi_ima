@@ -15,6 +15,7 @@
 {% endblock %}
     
 {% block main_content %}
+<div id="configuration" class="hidden"></div>
 <div id="main-tabs">
   <ul>
     <li><a href="#doctypes">Document Types</a></li>

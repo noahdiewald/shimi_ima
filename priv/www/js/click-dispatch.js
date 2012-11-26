@@ -31,7 +31,7 @@ shimi.dispatcher = function(patterns) {
 
 shimi.clickDispatch = function(e) {
   var dt = shimi.doctypeTab;
-  var ct = shimi.charseqTab;
+  var ct = shimi.charseqTab();
   var ed = shimi.eui;
   var vi = shimi.vui;
   var ii = shimi.iiui;
@@ -50,9 +50,9 @@ shimi.clickDispatch = function(e) {
     ".edit-doctype-button span": function(t) {dt(t.parent('a')).editDoctype();},
     ".touch-doctype-button span": function(t) {dt(t.parent('a')).touchDoctype();},
     "#doctype-add-button span": function(t) {dt(t.parent('a')).addDoctype();},
-    ".delete-charseq-button span": function(t) {ct(t.parent('a')).del();},
-    ".edit-charseq-button span": function(t) {ct(t.parent('a')).edit();},
-    "#charseq-add-button span": function(t) {ct().add();},
+    ".delete-charseq-button span": function(t) {ct.del(t.parent('a'));},
+    ".edit-charseq-button span": function(t) {ct.edit(t.parent('a'));},
+    "#charseq-add-button span": function(t) {ct.add();},
     "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
     // Documents
     ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},

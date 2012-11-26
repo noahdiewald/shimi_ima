@@ -1,103 +1,3 @@
-// functions added to String
-
-// Simple 'parser' for quoted values
-
-String.prototype.parseQuoted = function(qChar) {
-  var quoteChar = (qChar || "'");
-  var outArray = [];
-  var inArray = this.split('');
-  var inQuote = false;
-  var quoteCount = 0;
-  var currCell = [];
-  
-  var onQuote = function() {
-    if (inQuote && (quoteCount % 2 === 0)) {
-      ++quoteCount;
-    } else if (inQuote && (quoteCount % 2 === 1)) {
-      ++quoteCount;
-      currCell.push("'");
-    } else if (!inQuote) {
-      inQuote = true;
-    }
-  };
-  
-  var outQuote = function() {
-    outArray.push(currCell.join(''));
-    currCell = [];
-    quoteCount = 0;
-    inQuote = false;
-  };
-  
-  inArray.forEach(function(item) {
-    if (/'/.test(item)) {
-      onQuote();
-    } else if (quoteCount % 2 === 1) {
-      outQuote();
-    } else if (quoteCount % 2 === 0) {
-      quoteCount = 0;
-      if (inQuote) {
-        currCell.push(item);
-      } else if (/\S/.test(item)) {
-        return false;
-      }
-    }
-  });
-  
-  outArray.push(currCell.join(''));
-  
-  return outArray;
-};
-
-String.prototype.isBlank = function() {
-  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
-};
-
-String.prototype.trim = function() {
-  return this.replace(/^\s+/,'').replace(/\s+$/,'');
-};
-
-// functions added to Array
-Array.prototype.trimAll = function() {
-  return this.map(function (i) {
-                    return i.trim();
-                  }).filter(function (i) {
-                              return !i.match(/^$/);
-                            });
-};
-
-// General UI Stuff
-
-var uiToggle = function() {
-  var toggler = function(e) {
-    var toggleElem;
-
-    if ($(e.target).attr('data-target')) {
-      toggleElem = $('#' + $(e.target).attr('data-target'));
-      toggleElem.toggle();
-    }
-  };
-
-  $('.toggler').live("click", function(e) {toggler(e);});
-};
-
-var panelToggle = function() {
-  var toggler = function(e) {
-    var panel;
-    
-    if ($(e.target).attr('data-panel')) {
-      panel = $('#' + $(e.target).attr('data-panel'));
-    } else {
-      panel = $(e.target).closest('.panel');
-    }
-    panel.toggle();
-  };
-
-  $('#panel-toggle li')
-    .live("click", function(e) {toggler(e);});
-  $('.panel > h2')
-    .live("dblclick", function(e) {toggler(e);});
-};
- 
 $(function () {
     $('.notification').hide();
   
@@ -109,8 +9,8 @@ $(function () {
                   $(this).hide();
                 });
 
-    panelToggle();
-    uiToggle();    
+    shimi.panelToggle();
+    shimi.uiToggle();    
   // Buttons
   
   $(".remove-button").button({
@@ -141,4 +41,83 @@ $(function () {
   });
   
   shimi.form().initDateFields();
+
+  // Config
+  if ($('#configuration').length > 0) {
+    shimi.initTabs(); 
+    shimi.initHelpText();
+    $('.link-button').button();
+    $('.simple-tabs').tabs();
+  }
+
+  // Documents
+  if ($('#all-document-container').length > 0) {
+    var getIndexTimer;
+    
+    shimi.documentLinks();
+    shimi.iui().iOpts().get();
+    shimi.jumpForm();
+    shimi.searchForm();
+    shimi.eui().init();
+
+    $('#index-filter-form input').keyup(
+      function() {
+        clearTimeout(getIndexTimer);
+        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
+      });
+  
+    $('#index-filter-form select').change(
+      function() {
+        shimi.iui().get();
+      });
+  
+    shimi.loadHash($(location)[0].hash.split("#")[1]);
+  }
+
+  // File Manager
+  
+  if ($('#file-upload').length > 0) {
+    shimi.fm().refreshListings();
+    
+    $('#file-upload-target').load(function() {
+      var encoded = $('#file-upload-target').contents().find('body pre').html();
+      var obj = function () {
+        if (encoded && encoded.length > 0) {
+          return JSON.parse(encoded);
+        } else {
+          return {message: false};
+        }
+      };
+      
+      if (obj() && obj().message && obj().status === "error") {
+        shimi.flash("Error", obj().message).error();
+        shimi.fm().refreshListings();
+      } else if (obj().message) {
+        shimi.flash("Success", obj().message).highlight();
+        shimi.fm().refreshListings();
+      }
+    });
+  }
+  
+  // Index Tool
+  
+  if ($('#all-index-container').length > 0) {
+    $('#index-builder-dialog').hide();
+    $('#index-new-dialog').hide();
+    $('#index-replace-dialog').hide();
+    shimi.eiui.initButtons();
+    shimi.iiui().init();
+  }
+    
+  // Project
+  
+  if ($('#projects-container').length > 0) {
+    shimi.pui().init();
+  
+    $("#create-project").button({
+      icons: {primary: "ui-icon-plus"}
+    }).click(function() {
+      shimi.pui().addProjectDialog().dialog("open");
+    });
+  }
 });

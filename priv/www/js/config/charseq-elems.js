@@ -78,7 +78,9 @@ shimi.charseqElems = function() {
       cObj[item] = $('#charseq-' + item + '-input');
     });
     
-    cObj.copyValues(values);
+    if (values) {
+      cObj.copyValues(values);
+    }
       
     return cObj;
   };

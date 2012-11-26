@@ -1,12 +1,12 @@
-shimi.chaseqTab = function(target) {
+shimi.charseqTab = function() {
   var mod = {};
   
   mod.add = function() {
-    $("#charseq-add-dialog").dialog("open");
+    shimi.charseqDialog().dialog("open");
     return mod;
   };
   
-  mod.edit = function() {
+  mod.edit = function(target) {
     var oldobj = {};
     var attrs = shimi.charseqElems().attrs;
      
@@ -18,7 +18,7 @@ shimi.chaseqTab = function(target) {
     return mod;
   };
 
-  mod.del = function() {
+  mod.del = function(target) {
     var s = shimi.store(target);
     var id = s.get('charseq-charseq');
     var rev = s.get('charseq-rev');

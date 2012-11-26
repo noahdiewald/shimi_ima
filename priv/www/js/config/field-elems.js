@@ -1,18 +1,18 @@
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions. 
 
-function fieldElems() {
-  var fElems = {};
+shimi.fieldElems = function() {
+  var mod = {};
   
-  fElems.attrs = ["name", "label", "order", "description", "subcategory", 
+  mod.attrs = ["name", "label", "order", "description", "subcategory", 
                   "head", "reversal", "default", "required", "allowed", 
                   "source", "max", "min", "regex", "doctype", "fieldset",
                   "charseq", "rev", "field"];
                
-  fElems.get = function(values) {
+  mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = fElems.attrs;
+    fObj.attrs = mod.attrs;
     
     // These are fields that only some field subcategories use.
     // Below you'll see them being disabled and reenabled depending on the
@@ -150,6 +150,6 @@ function fieldElems() {
     return fObj;
   };
   
-  return fElems;
-}
+  return mod;
+};
 

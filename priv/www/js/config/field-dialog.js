@@ -1,6 +1,6 @@
 // Dialog for manipulating fields
 
-function fieldDialog(url, values) {
+shimi.fieldDialog = function(url, values) {
   var f = shimi.fieldElems().get(values);
   
   var dialog = $("#field-dialog").dialog({
@@ -30,4 +30,4 @@ function fieldDialog(url, values) {
   });
   
   return dialog;
-}
+};

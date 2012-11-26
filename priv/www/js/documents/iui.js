@@ -27,4 +27,6 @@ shimi.iui = function() {
 
     return mod;
   };
+  
+  return mod;
 };

@@ -2,7 +2,7 @@ shimi.doctypeTab = function(target) {
   var mod = {};
   
   // Populate the listing of fields
-  var initFields = function(path) {
+  mod.initFields = function(path) {
     path.field = false;
     
     $.get(path.toString(), function(fields) {
@@ -11,6 +11,8 @@ shimi.doctypeTab = function(target) {
       fieldContainer.html(fields);
       $('.link-button').button();
     });
+    
+    return mod;
   };
   
   // Populate the listing of fieldsets
@@ -86,7 +88,7 @@ shimi.doctypeTab = function(target) {
         url.field = false;
         url.rev = false;
         
-        initFields(url);
+        mod.initFields(url);
       };
       url.del(complete, this);
     }

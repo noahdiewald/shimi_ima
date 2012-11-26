@@ -3,18 +3,18 @@ shimi.upgradeButton = function(target) {
   window.alert("Upgrade In Progress");
 };
 
-function initTabs() {
+shimi.initTabs = function() {
   shimi.doctypeTab().init();
   $("#main-tabs").tabs();
   shimi.charseqTab().init();
   
   return true;
-}
+};
 
 // Hide the help text and set toggle on click events
 // TODO use the click dispatcher
 
-function initHelpText() {
+shimi.initHelpText = function() {
   $("#doctype-info").hide();
   $("#charseq-info").hide();
 
@@ -29,13 +29,4 @@ function initHelpText() {
   });
   
   return true;
-}
-
-// Code to be run on page load
-
-$(function () {
-  initTabs(); 
-  initHelpText();
-  $('.link-button').button();
-  $('.simple-tabs').tabs();
-});
+};

@@ -1,52 +1,6 @@
+var shimi = {};
+
 // functions added to String
-
-// Simple 'parser' for quoted values
-
-String.prototype.parseQuoted = function(qChar) {
-  var quoteChar = (qChar || "'");
-  var outArray = [];
-  var inArray = this.split('');
-  var inQuote = false;
-  var quoteCount = 0;
-  var currCell = [];
-  
-  var onQuote = function() {
-    if (inQuote && (quoteCount % 2 === 0)) {
-      ++quoteCount;
-    } else if (inQuote && (quoteCount % 2 === 1)) {
-      ++quoteCount;
-      currCell.push("'");
-    } else if (!inQuote) {
-      inQuote = true;
-    }
-  };
-  
-  var outQuote = function() {
-    outArray.push(currCell.join(''));
-    currCell = [];
-    quoteCount = 0;
-    inQuote = false;
-  };
-  
-  inArray.forEach(function(item) {
-    if (/'/.test(item)) {
-      onQuote();
-    } else if (quoteCount % 2 === 1) {
-      outQuote();
-    } else if (quoteCount % 2 === 0) {
-      quoteCount = 0;
-      if (inQuote) {
-        currCell.push(item);
-      } else if (/\S/.test(item)) {
-        return false;
-      }
-    }
-  });
-  
-  outArray.push(currCell.join(''));
-  
-  return outArray;
-};
 
 String.prototype.isBlank = function() {
   return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
@@ -67,7 +21,7 @@ Array.prototype.trimAll = function() {
 
 // General UI Stuff
 
-var uiToggle = function() {
+shimi.uiToggle = function() {
   var toggler = function(e) {
     var toggleElem;
 
@@ -80,7 +34,7 @@ var uiToggle = function() {
   $('.toggler').live("click", function(e) {toggler(e);});
 };
 
-var panelToggle = function() {
+shimi.panelToggle = function() {
   var toggler = function(e) {
     var panel;
     
@@ -97,51 +51,7 @@ var panelToggle = function() {
   $('.panel > h2')
     .live("dblclick", function(e) {toggler(e);});
 };
- 
-$(function () {
-    $('.notification').hide();
-  
-    $('#loading').hide()
-      .ajaxStart(function() {
-                   $(this).show();
-                 })
-      .ajaxStop(function() {
-                  $(this).hide();
-                });
 
-    panelToggle();
-    uiToggle();    
-  // Buttons
-  
-  $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"},
-    text: false
-  }).click(function() {
-    $(this).parent().remove();
-  });
-  
-  $(".help-button").button({
-    icons: {primary: "ui-icon-help"},
-    text: false
-  });
-  
-  $(".link-button").button({
-    icons: {primary: "ui-icon-link"}
-  });
-  
-  $(".edit-button").button({
-    icons: {primary: "ui-icon-pencil"}
-  });
-  
-  $(".create-continue-button").button({
-    icons: {
-      primary: "ui-icon-disk",
-      secondary: "ui-icon-arrowthick-1-e"
-    }
-  });
-  
-  shimi.form().initDateFields();
-});
 shimi.utils = function() {
   var mod = {};
   
@@ -173,6 +83,35 @@ shimi.utils = function() {
   return mod;
 };
 
+shimi.flash = function(title, body) {
+  var mod = {};
+
+  var f = function(flasher, title, body) {
+    var fadeout = function() {
+      flasher.fadeOut();
+    };
+    flasher.find('.notification-summary').text(title + ": ");
+    flasher.find('.notification-message').text(body);
+    var timeout = window.setTimeout(fadeout, 7000);
+    flasher.fadeIn();
+    flasher.find('.close').click(function () {
+                                       window.clearTimeout(timeout);
+                                       flasher.hide();
+                                     });
+  };
+  
+  mod.error = function() {
+    f($('#notifications-main .ui-state-error'), title, body);
+    
+    return mod;
+  };
+  
+  mod.highlight = function() {
+    f($('#notifications-main .ui-state-highlight'), title, body);
+    
+    return mod;
+  };
+};
 /*
  WARNING: OUT OF DATE
  
@@ -698,7 +637,7 @@ shimi.dispatcher = function(patterns) {
 
 shimi.clickDispatch = function(e) {
   var dt = shimi.doctypeTab;
-  var ct = shimi.charseqTab;
+  var ct = shimi.charseqTab();
   var ed = shimi.eui;
   var vi = shimi.vui;
   var ii = shimi.iiui;
@@ -717,9 +656,9 @@ shimi.clickDispatch = function(e) {
     ".edit-doctype-button span": function(t) {dt(t.parent('a')).editDoctype();},
     ".touch-doctype-button span": function(t) {dt(t.parent('a')).touchDoctype();},
     "#doctype-add-button span": function(t) {dt(t.parent('a')).addDoctype();},
-    ".delete-charseq-button span": function(t) {ct(t.parent('a')).del();},
-    ".edit-charseq-button span": function(t) {ct(t.parent('a')).edit();},
-    "#charseq-add-button span": function(t) {ct().add();},
+    ".delete-charseq-button span": function(t) {ct.del(t.parent('a'));},
+    ".edit-charseq-button span": function(t) {ct.edit(t.parent('a'));},
+    "#charseq-add-button span": function(t) {ct.add();},
     "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
     // Documents
     ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
@@ -767,57 +706,54 @@ $(function () {
 
 shimi.index = function(args) {
   var mod = {};
-  var filterVal;
-  var state = shimi.state;
 
-  mod.url = args.url + '?';
-  mod.indexId = args.indexId;
-  mod.limitField = $('#index-limit');
-  mod.limit = mod.limitField.val() * 1;
-  mod.target = args.target;
-  mod.state = {};
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    filterVal = JSON.stringify($('#index-filter').val());
-    mod.state = {
+    var url = args.url + '?';
+    var indexId = args.indexId;
+    var limitField = $('#index-limit');
+    var limit = limitField.val() * 1;
+    var target = args.target;
+    var filterVal = JSON.stringify($('#index-filter').val());
+    var state = {
       sk: startkey,
       sid: startid,
       pks: prevkeys,
       pids: previds
     };
 
-    if (!mod.state.pks) {
-      mod.state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
-      mod.state.pks = [];
-      mod.state.pids = [];
+    if (!state.pks) {
+      state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
+      state.pks = [];
+      state.pids = [];
     }
 
-    if (mod.state.sk) {
-      mod.url = mod.url + '&startkey=' + window.escape(window.atob(mod.state.sk));
-      if (mod.state.sid) {
-        mod.url = mod.url + '&startkey_docid=' + mod.state.sid;
+    if (state.sk) {
+      url = url + '&startkey=' + window.escape(window.atob(state.sk));
+      if (state.sid) {
+        url = url + '&startkey_docid=' + state.sid;
       }
     }
 
-    if (mod.limit) {
-      mod.url = mod.url + '&limit=' + (mod.limit + 1);
+    if (limit) {
+      url = url + '&limit=' + (limit + 1);
     } else {
-      mod.limitField.val(25);
-      mod.url = mod.url + '&limit=26';
+      limitField.val(25);
+      url = url + '&limit=26';
     }
 
-    if (mod.indexId) {
-      mod.url = mod.url + '&index=' + mod.indexId;
+    if (indexId) {
+      url = url + '&index=' + indexId;
     }
 
-    shimi.form().send(mod.url, false, 'GET',
-                  function(context, req) {mod.fill(req);}, this);
+    shimi.form().send(url, false, 'GET',
+                  function(context, req) {mod.fill(req, state, target);}, this);
 
     return mod;
   };
 
-  mod.fill = function(req) {
-    mod.target.html(req.responseText);
+  mod.fill = function(req, state, target) {
+    target.html(req.responseText);
   
     $('#previous-index-page').button(
       {
@@ -861,7 +797,113 @@ shimi.index = function(args) {
 
     return mod;
   };
+  
+  return mod;
 };
+shimi.form = function () {
+  var mod = {};
+  
+  mod.clear = function(inputFields) {
+    inputFields.each(function(index) {
+      var inputField = $(this);
+      
+      if (! inputField.attr('data-retain')) {
+        if (inputField.is(':checked')) {
+          inputField.attr('checked', false);
+        }
+        inputField.val('');
+      }
+    });
+    
+    return inputFields;
+  };
+  
+  mod.send = function(ajaxUrl, obj, method, completeFun, callContext) {
+    var dataObj;
+  
+    if (obj) {
+      dataObj = JSON.stringify(obj);
+    }
+  
+    $.ajax({
+      type: method,
+      url: ajaxUrl,
+      dataType: "json",
+      context: callContext,
+      contentType: "application/json",
+      processData: false,
+      data: dataObj,
+      complete: function(req, status) {
+        if (req.status >= 200 && req.status < 300) {
+          completeFun(this, req);
+        } else if (req.status === 500) {
+          shimi.flash("Unknown Server Error", "Please report that you received " +
+                     "this message").error();
+        } else if (req.status >= 400) {
+          var body = JSON.parse(req.responseText);
+          var title = req.statusText;
+          
+          shimi.flash(title, body.fieldname + " " + body.message).error();
+        }
+      }
+    });
+    
+    return true;
+  };
+  
+  // Validation
+    
+  mod.updateTips = function(t, tips) {
+    tips.text(t).addClass('ui-state-highlight');
+    setTimeout(function() {
+      tips.removeClass('ui-state-highlight', 1500);
+    }, 500);
+    
+    return true;
+  };
+  
+  mod.checkLength = function(o, n, min, max, tips) {
+    if ( o.val().length > max || o.val().length < min ) {
+      o.addClass('ui-state-error');
+      mod.updateTips("Length of " + n + " must be between " + min + " and " + max + ".", tips);
+      return false;
+    } else {
+      return true;
+    }
+  };
+  
+  mod.checkRegexp = function(o, regexp, n, tips) {
+    if ( !( regexp.test( o.val() ) ) ) {
+      o.addClass('ui-state-error');
+      mod.updateTips(n, tips);
+      return false;
+    } else {
+      return true;
+    }
+  };
+  
+  // Date Picker
+  
+  mod.initDateFields = function() {
+    $(".date").datepicker({dateFormat: "yy-mm-dd"});
+    
+    return true;
+  };
+  
+  mod.fillOptionsFromUrl = function(url, selectElement, callback) {
+    $.get(url, function(options) {
+      selectElement.html(options);
+      if (callback) {
+        callback();
+      }
+    });
+    
+    return false;
+  };
+  
+  return mod;
+};
+
 // Dialog for manipulating doctypes
 
 shimi.charseqDialog = function(values) {
@@ -881,7 +923,7 @@ shimi.charseqDialog = function(values) {
           $(context).dialog("close");
         };
         
-        if (values.rev && (!values.rev.isBlank())) {
+        if (values && values.rev) {
           method = 'PUT';
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
@@ -980,22 +1022,24 @@ shimi.charseqElems = function() {
       cObj[item] = $('#charseq-' + item + '-input');
     });
     
-    cObj.copyValues(values);
+    if (values) {
+      cObj.copyValues(values);
+    }
       
     return cObj;
   };
   
   return mod;
 };
-shimi.chaseqTab = function(target) {
+shimi.charseqTab = function() {
   var mod = {};
   
   mod.add = function() {
-    $("#charseq-add-dialog").dialog("open");
+    shimi.charseqDialog().dialog("open");
     return mod;
   };
   
-  mod.edit = function() {
+  mod.edit = function(target) {
     var oldobj = {};
     var attrs = shimi.charseqElems().attrs;
      
@@ -1007,7 +1051,7 @@ shimi.chaseqTab = function(target) {
     return mod;
   };
 
-  mod.del = function() {
+  mod.del = function(target) {
     var s = shimi.store(target);
     var id = s.get('charseq-charseq');
     var rev = s.get('charseq-rev');
@@ -1054,18 +1098,18 @@ shimi.upgradeButton = function(target) {
   window.alert("Upgrade In Progress");
 };
 
-function initTabs() {
+shimi.initTabs = function() {
   shimi.doctypeTab().init();
   $("#main-tabs").tabs();
   shimi.charseqTab().init();
   
   return true;
-}
+};
 
 // Hide the help text and set toggle on click events
 // TODO use the click dispatcher
 
-function initHelpText() {
+shimi.initHelpText = function() {
   $("#doctype-info").hide();
   $("#charseq-info").hide();
 
@@ -1080,16 +1124,8 @@ function initHelpText() {
   });
   
   return true;
-}
+};
 
-// Code to be run on page load
-
-$(function () {
-  initTabs(); 
-  initHelpText();
-  $('.link-button').button();
-  $('.simple-tabs').tabs();
-});
 // Dialog for manipulating doctypes
 
 shimi.doctypeDialog = function(url, values) {
@@ -1180,7 +1216,7 @@ shimi.doctypeTab = function(target) {
   var mod = {};
   
   // Populate the listing of fields
-  var initFields = function(path) {
+  mod.initFields = function(path) {
     path.field = false;
     
     $.get(path.toString(), function(fields) {
@@ -1189,6 +1225,8 @@ shimi.doctypeTab = function(target) {
       fieldContainer.html(fields);
       $('.link-button').button();
     });
+    
+    return mod;
   };
   
   // Populate the listing of fieldsets
@@ -1264,7 +1302,7 @@ shimi.doctypeTab = function(target) {
         url.field = false;
         url.rev = false;
         
-        initFields(url);
+        mod.initFields(url);
       };
       url.del(complete, this);
     }
@@ -1355,7 +1393,7 @@ shimi.doctypeTab = function(target) {
 
 // Dialog for manipulating fields
 
-function fieldDialog(url, values) {
+shimi.fieldDialog = function(url, values) {
   var f = shimi.fieldElems().get(values);
   
   var dialog = $("#field-dialog").dialog({
@@ -1385,23 +1423,23 @@ function fieldDialog(url, values) {
   });
   
   return dialog;
-}
+};
 
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions. 
 
-function fieldElems() {
-  var fElems = {};
+shimi.fieldElems = function() {
+  var mod = {};
   
-  fElems.attrs = ["name", "label", "order", "description", "subcategory", 
+  mod.attrs = ["name", "label", "order", "description", "subcategory", 
                   "head", "reversal", "default", "required", "allowed", 
                   "source", "max", "min", "regex", "doctype", "fieldset",
                   "charseq", "rev", "field"];
                
-  fElems.get = function(values) {
+  mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = fElems.attrs;
+    fObj.attrs = mod.attrs;
     
     // These are fields that only some field subcategories use.
     // Below you'll see them being disabled and reenabled depending on the
@@ -1539,8 +1577,8 @@ function fieldElems() {
     return fObj;
   };
   
-  return fElems;
-}
+  return mod;
+};
 
 
 shimi.fieldsetDialog = function(url, values) {
@@ -1637,83 +1675,83 @@ function fieldsetElems() {
 }
 
 
-function loadHash(urlHash) {
+shimi.loadHash = function(urlHash) {
   if (urlHash) {
     shimi.vui({id: urlHash}).get();
   }
   return false;
-}
+};
 
-var searchAllFieldsSwitch = function() {
+shimi.searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
     .live("click", function() {
             shimi.sui.clearSearchVals();
           });
 };
 
-var searchFieldItems = function() {
+shimi.searchFieldItems = function() {
   $('.search-field-item')
     .live("click", function(e) {
             shimi.sui.removeSearchField(e);
           });
 };
 
-var fieldViews = function() {
+shimi.fieldViews = function() {
   $('.search-result-field-id a, .field-view b, .field-container label span')
     .live('dblclick', function(e) {
             shimi.sui.addSearchField(e);
           });
 };
 
-var searchIndex = function() {
+shimi.searchIndex = function() {
   $('#index-index-input-label')
     .live('dblclick', function(e) {
             shimi.sui.addSearchIndex(e);
           });  
 };
 
-var excludeCheck = function() {
+shimi.excludeCheck = function() {
   $('#document-search-exclude')
     .live("change", function(e) {
             shimi.sui.toggleExclusion(e);
           });
 };
 
-var loadDocument = function(docid) {
+shimi.loadDocument = function(docid) {
   $("#document-view").html("<em>Loading...</em>");
   shimi.eui().clear();
   shimi.vui({id: docid}).get();
 };
 
-var jumpForm = function() {
+shimi.jumpForm = function() {
   $('#view-jump-id')
     .live("keydown", 
           function(e) {
             if (e.which === 13) {
               var docid = $('#view-jump-id').val();
-              loadDocument(docid);
+              shimi.loadDocument(docid);
             }
             return true;
           });  
 };
 
-var documentLinks = function() {
+shimi.documentLinks = function() {
   // Allows the document for the listed item to be displayed
   // in the correct pane on click.
   $('.view-document-link')
     .live("click", 
           function () {
-            loadDocument(this.hash.slice(1));
+            shimi.loadDocument(this.hash.slice(1));
           });
 };
 
-var searchForm = function() {
-  shimi.sui.clearSearchVals(true).loadSearchVals();
-  searchAllFieldsSwitch();
-  searchFieldItems();
-  fieldViews();
-  excludeCheck();
-  searchIndex();
+shimi.searchForm = function() {
+  shimi.sui().clearSearchVals(true).loadSearchVals();
+  shimi.searchAllFieldsSwitch();
+  shimi.searchFieldItems();
+  shimi.fieldViews();
+  shimi.excludeCheck();
+  shimi.searchIndex();
   $('#document-search-term')
     .live("keydown",
           function(e) {
@@ -1724,30 +1762,6 @@ var searchForm = function() {
             return true;
           });
 };
-
-$(
-  function () {
-    var getIndexTimer;
-    
-    documentLinks();
-    shimi.iui().iOpts().get();
-    jumpForm();
-    searchForm();
-    shimi.eui().init();
-
-    $('#index-filter-form input').keyup(
-      function() {
-        clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
-      });
-  
-    $('#index-filter-form select').change(
-      function() {
-        shimi.iui().get();
-      });
-  
-    loadHash($(location)[0].hash.split("#")[1]);
-  });
 
 shimi.efs = function() {
   var mod = {};
@@ -2398,6 +2412,8 @@ shimi.iui = function() {
 
     return mod;
   };
+  
+  return mod;
 };
 
 shimi.sui = function() {
@@ -2654,6 +2670,8 @@ shimi.sui = function() {
     
     return mod;
   };
+  
+  return mod;
 };
 
 // View pane UI elements
@@ -2877,28 +2895,6 @@ shimi.vui = function(args) {
   return mod;
 };
 
-$(function () {
-  shimi.fm().refreshListings();
-  
-  $('#file-upload-target').load(function() {
-    var encoded = $('#file-upload-target').contents().find('body pre').html();
-    var obj = function () {
-      if (encoded && encoded.length > 0) {
-        return JSON.parse(encoded);
-      } else {
-        return {message: false};
-      }
-    };
-    
-    if (obj() && obj().message && obj().status === "error") {
-      shimi.flash("Error", obj().message).error();
-      shimi.fm().refreshListings();
-    } else if (obj().message) {
-      shimi.flash("Success", obj().message).highlight();
-      shimi.fm().refreshListings();
-    }
-  });
-});
 shimi.fm = function() {
   var mod = {};
   
@@ -3643,14 +3639,6 @@ shimi.iiui = function() {
   return mod;
 };
 
-$(function () {
-    $('#index-builder-dialog').hide();
-    $('#index-new-dialog').hide();
-    $('#index-replace-dialog').hide();
-    shimi.eiui.initButtons();
-    shimi.iiui().init();
-  });
-
 shimi.piui = function() {
   var mod = {};
   var index = shimi.index;
@@ -3812,17 +3800,6 @@ shimi.initReplaceDialog = function() {
   return dialog;
 };
 
-
-$(function () {
-  shimi.pui().init();
-  
-  $("#create-project").button({
-    icons: {primary: "ui-icon-plus"}
-  }).click(function() {
-    shimi.pui().addProjectDialog().dialog("open");
-  });
-  
-});
 shimi.pui = function() {
   var mod = {};
   
@@ -3911,3 +3888,126 @@ shimi.pui = function() {
   
   return mod;
 };
+$(function () {
+    $('.notification').hide();
+  
+    $('#loading').hide()
+      .ajaxStart(function() {
+                   $(this).show();
+                 })
+      .ajaxStop(function() {
+                  $(this).hide();
+                });
+
+    shimi.panelToggle();
+    shimi.uiToggle();    
+  // Buttons
+  
+  $(".remove-button").button({
+    icons: {primary: "ui-icon-minus"},
+    text: false
+  }).click(function() {
+    $(this).parent().remove();
+  });
+  
+  $(".help-button").button({
+    icons: {primary: "ui-icon-help"},
+    text: false
+  });
+  
+  $(".link-button").button({
+    icons: {primary: "ui-icon-link"}
+  });
+  
+  $(".edit-button").button({
+    icons: {primary: "ui-icon-pencil"}
+  });
+  
+  $(".create-continue-button").button({
+    icons: {
+      primary: "ui-icon-disk",
+      secondary: "ui-icon-arrowthick-1-e"
+    }
+  });
+  
+  shimi.form().initDateFields();
+
+  // Config
+  if ($('#configuration').length > 0) {
+    shimi.initTabs(); 
+    shimi.initHelpText();
+    $('.link-button').button();
+    $('.simple-tabs').tabs();
+  }
+
+  // Documents
+  if ($('#all-document-container').length > 0) {
+    var getIndexTimer;
+    
+    shimi.documentLinks();
+    shimi.iui().iOpts().get();
+    shimi.jumpForm();
+    shimi.searchForm();
+    shimi.eui().init();
+
+    $('#index-filter-form input').keyup(
+      function() {
+        clearTimeout(getIndexTimer);
+        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
+      });
+  
+    $('#index-filter-form select').change(
+      function() {
+        shimi.iui().get();
+      });
+  
+    shimi.loadHash($(location)[0].hash.split("#")[1]);
+  }
+
+  // File Manager
+  
+  if ($('#file-upload').length > 0) {
+    shimi.fm().refreshListings();
+    
+    $('#file-upload-target').load(function() {
+      var encoded = $('#file-upload-target').contents().find('body pre').html();
+      var obj = function () {
+        if (encoded && encoded.length > 0) {
+          return JSON.parse(encoded);
+        } else {
+          return {message: false};
+        }
+      };
+      
+      if (obj() && obj().message && obj().status === "error") {
+        shimi.flash("Error", obj().message).error();
+        shimi.fm().refreshListings();
+      } else if (obj().message) {
+        shimi.flash("Success", obj().message).highlight();
+        shimi.fm().refreshListings();
+      }
+    });
+  }
+  
+  // Index Tool
+  
+  if ($('#all-index-container').length > 0) {
+    $('#index-builder-dialog').hide();
+    $('#index-new-dialog').hide();
+    $('#index-replace-dialog').hide();
+    shimi.eiui.initButtons();
+    shimi.iiui().init();
+  }
+    
+  // Project
+  
+  if ($('#projects-container').length > 0) {
+    shimi.pui().init();
+  
+    $("#create-project").button({
+      icons: {primary: "ui-icon-plus"}
+    }).click(function() {
+      shimi.pui().addProjectDialog().dialog("open");
+    });
+  }
+});

@@ -17,7 +17,7 @@ shimi.charseqDialog = function(values) {
           $(context).dialog("close");
         };
         
-        if (values.rev && (!values.rev.isBlank())) {
+        if (values && values.rev) {
           method = 'PUT';
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }

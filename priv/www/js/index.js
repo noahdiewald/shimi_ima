@@ -14,57 +14,54 @@
 
 shimi.index = function(args) {
   var mod = {};
-  var filterVal;
-  var state = shimi.state;
 
-  mod.url = args.url + '?';
-  mod.indexId = args.indexId;
-  mod.limitField = $('#index-limit');
-  mod.limit = mod.limitField.val() * 1;
-  mod.target = args.target;
-  mod.state = {};
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    filterVal = JSON.stringify($('#index-filter').val());
-    mod.state = {
+    var url = args.url + '?';
+    var indexId = args.indexId;
+    var limitField = $('#index-limit');
+    var limit = limitField.val() * 1;
+    var target = args.target;
+    var filterVal = JSON.stringify($('#index-filter').val());
+    var state = {
       sk: startkey,
       sid: startid,
       pks: prevkeys,
       pids: previds
     };
 
-    if (!mod.state.pks) {
-      mod.state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
-      mod.state.pks = [];
-      mod.state.pids = [];
+    if (!state.pks) {
+      state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
+      state.pks = [];
+      state.pids = [];
     }
 
-    if (mod.state.sk) {
-      mod.url = mod.url + '&startkey=' + window.escape(window.atob(mod.state.sk));
-      if (mod.state.sid) {
-        mod.url = mod.url + '&startkey_docid=' + mod.state.sid;
+    if (state.sk) {
+      url = url + '&startkey=' + window.escape(window.atob(state.sk));
+      if (state.sid) {
+        url = url + '&startkey_docid=' + state.sid;
       }
     }
 
-    if (mod.limit) {
-      mod.url = mod.url + '&limit=' + (mod.limit + 1);
+    if (limit) {
+      url = url + '&limit=' + (limit + 1);
     } else {
-      mod.limitField.val(25);
-      mod.url = mod.url + '&limit=26';
+      limitField.val(25);
+      url = url + '&limit=26';
     }
 
-    if (mod.indexId) {
-      mod.url = mod.url + '&index=' + mod.indexId;
+    if (indexId) {
+      url = url + '&index=' + indexId;
     }
 
-    shimi.form().send(mod.url, false, 'GET',
-                  function(context, req) {mod.fill(req);}, this);
+    shimi.form().send(url, false, 'GET',
+                  function(context, req) {mod.fill(req, state, target);}, this);
 
     return mod;
   };
 
-  mod.fill = function(req) {
-    mod.target.html(req.responseText);
+  mod.fill = function(req, state, target) {
+    target.html(req.responseText);
   
     $('#previous-index-page').button(
       {
@@ -108,4 +105,6 @@ shimi.index = function(args) {
 
     return mod;
   };
+  
+  return mod;
 };

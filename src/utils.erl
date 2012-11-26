@@ -51,13 +51,13 @@
 -type reqdata() :: #wm_reqdata{}.
 
 %% @doc Return whether we're in development mode
-is_deve() ->
+is_devel() ->
     case application:get_env(devel) of
         {ok, _} ->
             true;
         undefined ->
             false
-    end,
+    end.
 
 %% @doc Return the Admin DB URL.
 adb() ->
