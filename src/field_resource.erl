@@ -144,7 +144,7 @@ html_as_fieldset(R, S) ->
   
 html_as_options(R, S) ->
     Json = field:option_list(R, S),
-    {ok, Html} = options_dtl:render(Json),
+    {ok, Html} = render:render(options_dtl, Json),
     Html.
 
 get_field_html(Json, R, S) ->

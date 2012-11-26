@@ -116,7 +116,7 @@ index_html(R, S) ->
 
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),
-  {ok, Html} = config_fieldset_dtl:render(Json),
+  {ok, Html} = render:render(config_fieldset_dtl, Json),
   {Html, R, S}.
   
 from_json(R, S) ->

@@ -77,7 +77,7 @@ html_fieldset(R, S) ->
             {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
            ],
   
-    {ok, Html} = fieldset_dtl:render(Vals),
+    {ok, Html} = render:render(fieldset_dtl, Vals),
     Html.
   
 html_fieldsets(R, S) -> 
@@ -101,7 +101,7 @@ html_fieldsets(R, S) ->
                               {<<"value">>, <<"metadata">>},
                               {<<"id">>, <<"metadata">>}]
                              |lists:reverse(Rows)], Json),
-    {ok, Html} = options_dtl:render(Options),
+    {ok, Html} = render:render(options_dtl, Options),
     Html.
     
 validate_authentication(Props, R, S) ->

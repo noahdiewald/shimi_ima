@@ -45,7 +45,7 @@ to_html(R, S) ->
             {<<"project_info">>, Project},
             {<<"doctypes">>, Doctypes}],
   
-    {ok, Html} = index_tool_dtl:render(Vals),
+    {ok, Html} = render:render(index_tool_dtl, Vals),
     {Html, R, S}.
 
 resource_exists(R, S) ->

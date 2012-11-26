@@ -1,144 +1,9 @@
-/*
- h1. Application Wide Utility Functions
- 
- The sections of this application are usually divided into separate
- files that do not share code. Much of the code that is used by more
- than one section and hasn't been moved to its own file can be found
- here.
- 
- h2. Data Attribute Key Value Stores
- 
- There are two functions provided for getting values from keys
- embedded in HTML elements.
-  
-  @getValue(key, elem)@
-  
-  This funtion takes a key that corresponds to the name of the data
-  attribute without the data- prefix. It also takes a jQuery
-  object. The assumption is that the jQuery object will hold only one
-  element but it may work either way. The element is expected to have
-  an attribute data-group-id with a value that is the id of the
-  element actually holding the data.
- 
- Example:
-
- <pre> 
-   <div
-     id="someid"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
-     
-   <div
-    id="thisid"
-    data-group-id="someid">
-    
-   getValue("fieldset-doctype", $(thisid)) == "did";
- </pre> 
-   
- The following also works:
-
- <pre> 
-   <div
-     id="someid2"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
-   
-   <div
-     id="someid"
-     data-group-id="someid2"
-     data-fieldset-fieldset="fsid"></div>
-     
-   <div
-    id="thisid"
-    data-group-id="someid"></div>
-    
-   getValue("fieldset-doctype", $(thisid)) == "did";
- </pre> 
-   
-  @putValue(key, value, elem)@
-  
-  This function will set an attribute at the target with a name
-  corresponding to key and a value of value.
-
- == Click Dispatcher
- 
- Each section of the application calls this function with an object
- composed of keys of CSS patterns of elements which should have click
- event actions bound to them and values of functions that will be
- called if a click event occurs and the key pattern matches.
-
-  @dispatcher(patterns)@
-  
-  *More to come*
-  
- == Compatability Functions
- 
- @Object.keys@ and @array.reduce@ compatibility functions from MDC
- are included.
- 
- == Helpers
- 
-  @isBlank(value)@
-  
-  This tests an object of several types for the concept of
-  'blankness'. For a string this means only whitespace, for
-  instance. See the code below for details. It is idiosyncratic but
-  matches what I want, usually.
-  
-  @String.isBlank()@
-  
-  A more limited version of the above. It will probably be removed.
-  
-  @String.trim()@
-  
-  A string trim method.
-  
-  @stringToNumber(string)@
-  
-  Safer(ish) string to number. In this app I am using '' if the string
-  isn't a valid number. It saves effort when putting values in form
-  fields.
-  
-*/
-
-function getValue(key, elem) {
-  var getValue1 = function(key, elem, id) {
-    var gid = elem.attr('data-group-id');
-    var store = $('#' + gid);
-    var val = store.attr('data-' + key);
-    var next = store.attr('data-group-id');
-    
-    if (val === undefined &&  next !== undefined &&  gid !== next) {
-      return getValue1.r(key, store, id);
-    }
-    
-    return id.r(val);
-  };
-  
-  return getValue1.t(key, elem, identity);
-}
-
-function putValue(key, value, elem) {
-  var dataElem = elem.attr('data-group-id');
-  $('#' + dataElem).attr('data-' + key, value);
-}
-
-// A predicate function to detect blankness
-      
-function isBlank(value) {
-  return (((/^\s*$/).test(value)) || 
-    (value === null) || 
-    (value === undefined) ||
-    (typeof value === 'number' && isNaN(value)) ||
-    (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
-};
-
 // functions added to String
 
 // Simple 'parser' for quoted values
 
-String.prototype.parseQuoted = function(quoteChar) {
-  var quoteChar = (quoteChar || "'");
+String.prototype.parseQuoted = function(qChar) {
+  var quoteChar = (qChar || "'");
   var outArray = [];
   var inArray = this.split('');
   var inQuote = false;
@@ -184,174 +49,20 @@ String.prototype.parseQuoted = function(quoteChar) {
 };
 
 String.prototype.isBlank = function() {
-  return ((/^\s*$/).test(this) && ! (/\S/).test(this) && ! (this === null));
+  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
 };
 
 String.prototype.trim = function() {
   return this.replace(/^\s+/,'').replace(/\s+$/,'');
 };
 
-// safer(ish) string to number. The difference is that in this app
-// I am using '' if the string isn't a valid number.
-
-function stringToNumber(string) {
-  if (typeof string === 'string' && 
-      !isNaN(string) && 
-      string !== '') {
-    return string * 1;
-  } else {
-    return '';
-  }
-}
-
 // functions added to Array
-
 Array.prototype.trimAll = function() {
   return this.map(function (i) {
                     return i.trim();
                   }).filter(function (i) {
                               return !i.match(/^$/);
                             });
-};
-
-// Event dispatch
-
-function dispatcher(patterns) {
-  var d = function(e) {
-    var target = $(e.target);
-    
-    Object.keys(patterns).forEach(function(pattern) {
-      if (target.is(pattern)) {
-        var action = patterns[pattern];
-        action(target);
-      }
-    });  
-  };
-  
-  return d;
-}
-
-// Dialog form helpers
-
-// TODO: maybe saying $('input, select, textarea...) could serve
-//       as alternative to variable passing.
-function clearValues(inputFields) {
-  inputFields.each(function(index) {
-    var inputField = $(this);
-    
-    if (! inputField.attr('data-retain')) {
-      if (inputField.is(':checked')) {
-        inputField.attr('checked', false);
-      }
-      inputField.val('');
-    }
-  });
-  
-  return inputFields;
-}
-
-function sendConfigDoc(ajaxUrl, obj, method, completeFun, callContext) {
-  var dataObj;
-
-  if (obj) {
-    dataObj = JSON.stringify(obj);
-  }
-
-  $.ajax({
-    type: method,
-    url: ajaxUrl,
-    dataType: "json",
-    context: callContext,
-    contentType: "application/json",
-    processData: false,
-    data: dataObj,
-    complete: function(req, status) {
-      if (req.status >= 200 && req.status < 300) {
-        completeFun(this, req);
-      } else if (req.status == 500) {
-        flashError("Unknown Server Error", "Please report that you received " +
-                   "this message");
-      } else if (req.status >= 400) {
-        var body = JSON.parse(req.responseText);
-        var title = req.statusText;
-        
-        flashError(title, body.fieldname + " " + body.message);
-      }
-    }
-  });
-}
-
-// Validation
-  
-function updateTips(t, tips) {
-  tips.text(t).addClass('ui-state-highlight');
-  setTimeout(function() {
-    tips.removeClass('ui-state-highlight', 1500);
-  }, 500);
-}
-
-function checkLength(o, n, min, max, tips) {
-  if ( o.val().length > max || o.val().length < min ) {
-    o.addClass('ui-state-error');
-    updateTips("Length of " + n + " must be between " + min + " and " + max + ".", tips);
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function checkRegexp(o, regexp, n, tips) {
-  if ( !( regexp.test( o.val() ) ) ) {
-    o.addClass('ui-state-error');
-    updateTips(n, tips);
-    return false;
-  } else {
-    return true;
-  }
-}
-
-// Date Picker
-
-function initDateFields() {
-  $(".date").datepicker({dateFormat: "yy-mm-dd"});
-}
-
-// Display notifications
-
-var flash = function(flasher, title, body) {
-  var fadeout = function() {
-    flasher.fadeOut();
-  };
-  flasher.find('.notification-summary').text(title + ": ");
-  flasher.find('.notification-message').text(body);
-  var timeout = setTimeout(fadeout, 7000);
-  flasher.fadeIn();
-  flasher.find('.close').click(function () {
-                                     clearTimeout(timeout);
-                                     flasher.hide();
-                                   });
-};
-
-var flashError = function(title, body) {
-  flash($('#notifications-main .ui-state-error'), title, body);
-};
-
-var flashHighlight = function(title, body) {
-  flash($('#notifications-main .ui-state-highlight'), title, body);
-};
-
-
-var fillOptionsFromUrl = function(url, selectElement, callback) {
-  $.get(url, function(options) {
-    selectElement.html(options);
-    if (callback) callback();
-  });
-  
-  return false;
-};
-
-var validID = function(id) {
-  return !!id.match(/^[a-f0-9]{32}$/);
 };
 
 // General UI Stuff
@@ -429,17 +140,157 @@ $(function () {
     }
   });
   
-  initDateFields();
-  
-  // Sortable
-  
-  $("#sortable").sortable({
-    update: function(event, ui) {
-      var lis = $(event.target).children('li');
-      lis.forEach(function(li) {$(li).text($(li).text() + " " + x);});
-    }
-  });
+  shimi.form().initDateFields();
 });
+shimi.utils = function() {
+  var mod = {};
+  
+  // safer(ish) string to number. The difference is that in this app
+  // I am using '' if the string isn't a valid number.
+  mod.stringToNumber = function(string) {
+    if (typeof string === 'string' && 
+        !isNaN(string) && 
+        string !== '') {
+      return string * 1;
+    } else {
+      return '';
+    }
+  };
+  
+  // A predicate function to detect blankness
+  mod.isBlank = function(value) {
+    return (((/^\s*$/).test(value)) || 
+      (value === null) || 
+      (value === undefined) ||
+      (typeof value === 'number' && isNaN(value)) ||
+      (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
+  };
+
+  mod.validID = function(id) {
+    return !!id.match(/^[a-f0-9]{32}$/);
+  };
+  
+  return mod;
+};
+
+/*
+ WARNING: OUT OF DATE
+ 
+ h1. Data Attribute Key Value Stores
+ 
+ There are two functions provided for getting values from keys
+ embedded in HTML elements.
+  
+  @getValue(key, elem)@
+  
+  This funtion takes a key that corresponds to the name of the data
+  attribute without the data- prefix. It also takes a jQuery
+  object. The assumption is that the jQuery object will hold only one
+  element but it may work either way. The element is expected to have
+  an attribute data-group-id with a value that is the id of the
+  element actually holding the data.
+ 
+ Example:
+
+ <pre> 
+   <div
+     id="someid"
+     data-fieldset-fieldset="fsid"
+     data-fieldset-doctype="did"></div>
+     
+   <div
+    id="thisid"
+    data-group-id="someid">
+    
+   getValue("fieldset-doctype", $(thisid)) == "did";
+ </pre> 
+   
+ The following also works:
+
+ <pre> 
+   <div
+     id="someid2"
+     data-fieldset-fieldset="fsid"
+     data-fieldset-doctype="did"></div>
+   
+   <div
+     id="someid"
+     data-group-id="someid2"
+     data-fieldset-fieldset="fsid"></div>
+     
+   <div
+    id="thisid"
+    data-group-id="someid"></div>
+    
+   getValue("fieldset-doctype", $(thisid)) == "did";
+ </pre> 
+   
+  @putValue(key, value, elem)@
+  
+  This function will set an attribute at the target with a name
+  corresponding to key and a value of value.
+*/
+
+/*
+ Tail call optimization taken from Spencer Tipping's Javascript in Ten
+ Minutes.
+
+ For more information see:
+ https://github.com/spencertipping/js-in-ten-minutes
+*/
+
+var identity = function(x) {return x;};
+
+Function.prototype.r = function() {return [this, arguments];};
+
+Function.prototype.t = function() {
+  var c = [this, arguments];
+  var escape = arguments[arguments.length - 1];
+  while (c[0] !== escape) {
+    c = c[0].apply(this, c[1]);
+  }
+  return escape.apply(this, c[1]);
+};
+
+shimi.store = function(elem) {
+  var mod = {};
+  
+  mod.get = function(key) {
+    var getValue1 = function(key, elem, id) {
+      var gid = elem.attr('data-group-id');
+      var store = $('#' + gid);
+      var val = store.attr('data-' + key);
+      var next = store.attr('data-group-id');
+      
+      if (val === undefined &&  next !== undefined &&  gid !== next) {
+        return getValue1.r(key, store, id);
+      }
+      
+      return id.r(val);
+    };
+    
+    return getValue1.t(key, elem, identity);
+  };
+  
+  mod.put = function(key, value) {
+    var dataElem = elem.attr('data-group-id');
+    $('#' + dataElem).attr('data-' + key, value);
+  };
+  
+  mod.fs = function(key) {
+    return mod.get("fieldset-" + key);
+  };
+  
+  mod.f = function(key) {
+    return mod.get("field-" + key);
+  };
+  
+  mod.d = function(key) {
+    return mod.get("document-" + key);
+  };
+  
+  return mod;
+};
 /*
  * h1. Path helper
  * 
@@ -512,7 +363,7 @@ $(function () {
  *   mypath = path($('#thisid'), "fieldset");
  *   mypath.put(object, callback, context);
  *   mypath.post(object, callback, context);
- *   mypath.delete(callback, context);
+ *   mypath.del(callback, context);
  * </pre>
  *   
  * Object is an Javascript object that can be encoded as JSON, callback
@@ -529,90 +380,92 @@ $(function () {
  * things will be done with error responces so they are left alone.
 */
 
-function path(source, category, section) {
-  var path = {};
+shimi.path = function(source, category, section) {
+  var mod = {};
+  var prefix;
   
   if (category) {
-    var prefix = category + "-";
+    prefix = category + "-";
   } else {
-    var prefix = "";
+    prefix = "";
   }
   
   if (section) {
-    path.string = section + "/";
+    mod.string = section + "/";
   } else {
-    path.string = "";
+    mod.string = "";
   }
   
-  path.category = category;
-  path.origin = source;
-  path.type = prefix + "path";
-  path.valid_components = ["doctype", "fieldset", "field"];
+  mod.category = category;
+  mod.origin = source;
+  mod.type = prefix + "path";
+  mod.valid_components = ["doctype", "fieldset", "field"];
+  var s = shimi.store(mod.origin);
   
-  path.valid_components.forEach(
+  mod.valid_components.forEach(
     function(item) {
-      path[item] = (function() {
-                      var value = getValue(prefix + item, path.origin);
+      mod[item] = (function() {
+                      var value = s.get(prefix + item);
                       return value;
                     })();
     });
   
-  path.rev = getValue(prefix + 'rev', path.origin);
+  mod.rev = s.get(prefix + 'rev');
 
-  path.doctype = getValue(prefix + 'doctype', path.origin);
+  mod.doctype = s.get(prefix + 'doctype');
   
-  path.send = function(object, method, callback, context) {
-    sendConfigDoc(path.toString(), object, method, callback, context);
-    return path;
+  mod.send = function(object, method, callback, context) {
+    shimi.form().send(mod.toString(), object, method, callback, context);
+    return mod;
   };
   
-  path.put = function(object, callback, context) {
-    path.send(object, 'PUT', callback, context);
-    return path;
+  mod.put = function(object, callback, context) {
+    mod.send(object, 'PUT', callback, context);
+    return mod;
   };
     
-  path.post = function(object, callback, context) {
-    path.send(object, 'POST', callback, context);
-    return path;
+  mod.post = function(object, callback, context) {
+    mod.send(object, 'POST', callback, context);
+    return mod;
   };
   
-  path.delete = function(callback, context) {
-    path.send({}, 'DELETE', callback, context);
-    return path;
+  mod.del = function(callback, context) {
+    mod.send({}, 'DELETE', callback, context);
+    return mod;
   };
     
-  path.toString = function() {
+  mod.toString = function() {
     var rev;
       
     var pathString = 
-      path.string.concat(
-        path.valid_components.map(
+      mod.string.concat(
+        mod.valid_components.map(
           function(item) {
             var plural = item + "s";
-            var value = path[item];
+            var value = mod[item];
             var retval = null;
             
             if (value) {
               retval = plural + "/" + value;
-            } else if (item == path.category) {
+            } else if (item === mod.category) {
               retval = plural;
             }
             
             return retval;
           }).filter(
             function(item) {
-              return (typeof item == "string" && !item.isBlank());
+              return (typeof item === "string" && !item.isBlank());
             }).join("/"));
       
-    if (path.rev) {
-      pathString = pathString.concat("?rev=" + path.rev);
+    if (mod.rev) {
+      pathString = pathString.concat("?rev=" + mod.rev);
     }
     
     return pathString;
   };
   
-  return path; 
-}
+  return mod; 
+};
 
 
 /*
@@ -736,35 +589,21 @@ function path(source, category, section) {
   
 })( jQuery );
 
-/*
- Tail call optimization taken from Spencer Tipping's Javascript in Ten
- Minutes.
-
- For more information see:
- https://github.com/spencertipping/js-in-ten-minutes
-*/
-
-var identity = function(x) {return x};
-
-Function.prototype.r = function() {return [this, arguments];};
-
-Function.prototype.t = function() {
-  var c = [this, arguments];
-  var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape) {
-    c = c[0].apply(this, c[1]);
-  }
-  return escape.apply(this, c[1]);
-};
-
 // Object.keys compatibility from MDC
 
-if(!Object.keys) Object.keys = function(o){
-  if (o !== Object(o))
-    throw new TypeError('Object.keys called on non-object');
-  var ret=[],p;
-  for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
-  return ret;
+if(!Object.keys) {
+  Object.keys = function(o){
+    if (o !== Object(o)) {
+      throw new TypeError('Object.keys called on non-object');
+    }
+    var ret=[],p;
+    for(p in o) {
+      if (Object.prototype.hasOwnProperty.call(o,p)) {
+        ret.push(p);
+      }
+    }
+    return ret;
+  };
 }
 
 // Reduce compatibility from MDC
@@ -775,17 +614,20 @@ if (!Array.prototype.reduce)
   {
     "use strict";
 
-    if (this === void 0 || this === null)
+    if (this === void 0 || this === null) {
       throw new TypeError();
+    }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function")
+    if (typeof fun !== "function") {
       throw new TypeError();
+    }
 
     // no value to return if no initial value and an empty array
-    if (len == 0 && arguments.length == 1)
+    if (len === 0 && arguments.length === 1) {
       throw new TypeError();
+    }
 
     var k = 0;
     var accumulator;
@@ -804,16 +646,18 @@ if (!Array.prototype.reduce)
         }
 
         // if array contains no values, no initial value to return
-        if (++k >= len)
+        if (++k >= len) {
           throw new TypeError();
+        }
       }
       while (true);
     }
 
     while (k < len)
     {
-      if (k in t)
+      if (k in t) {
         accumulator = fun.call(undefined, accumulator, t[k], k, t);
+      }
       k++;
     }
 
@@ -821,10 +665,207 @@ if (!Array.prototype.reduce)
   };
 }
 
+/**
+WARNING: OUT OF DATE
+
+ == Click Dispatcher
+ 
+ Each section of the application calls this function with an object
+ composed of keys of CSS patterns of elements which should have click
+ event actions bound to them and values of functions that will be
+ called if a click event occurs and the key pattern matches.
+
+  @dispatcher(patterns)@
+  
+  *More to come*
+*/
+
+
+shimi.dispatcher = function(patterns) {
+  var d = function(e) {
+    var target = $(e.target);
+    
+    Object.keys(patterns).forEach(function(pattern) {
+      if (target.is(pattern)) {
+        var action = patterns[pattern];
+        action(target);
+      }
+    });  
+  };
+  
+  return d;
+};
+
+shimi.clickDispatch = function(e) {
+  var dt = shimi.doctypeTab;
+  var ct = shimi.charseqTab;
+  var ed = shimi.eui;
+  var vi = shimi.vui;
+  var ii = shimi.iiui;
+  var ie = shimi.ieui;
+  var ip = shimi.ipui;
+  
+  var action = shimi.dispatcher({
+    // Config
+    ".edit-field-button span": function(t) {dt(t.parent('a')).editField();},
+    ".delete-field-button span": function(t) {dt(t.parent('a')).deleteField();},
+    ".add-field-button span": function(t) {dt(t.parent('a')).addField();},
+    ".edit-fieldset-button span": function(t) {dt(t.parent('a')).editFieldset();},
+    ".delete-fieldset-button span": function(t) {dt(t.parent('a')).deleteFieldset();},
+    ".add-fieldset-button span": function(t) {dt(t.parent('a')).addFieldset();},
+    ".delete-doctype-button span": function(t) {dt(t.parent('a')).deleteDoctype();},
+    ".edit-doctype-button span": function(t) {dt(t.parent('a')).editDoctype();},
+    ".touch-doctype-button span": function(t) {dt(t.parent('a')).touchDoctype();},
+    "#doctype-add-button span": function(t) {dt(t.parent('a')).addDoctype();},
+    ".delete-charseq-button span": function(t) {ct(t.parent('a')).del();},
+    ".edit-charseq-button span": function(t) {ct(t.parent('a')).edit();},
+    "#charseq-add-button span": function(t) {ct().add();},
+    "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
+    // Documents
+    ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
+    ".remove-button span": function(t) {ed({target: t.parent()}).removeFieldset();},
+    "#save-document-button span": function(t) {ed({target: t.parent()}).save();},
+    "#create-document-button span": function(t) {ed({target: t.parent()}).create();},
+    "#clear-document-button span": function(t) {ed({target: t.parent()}).clear();},
+    "#document-edit-button span": function(t) {vi({target: t.parent()}).edit();},
+    "#document-delete-button span": function(t) {vi({target: t.parent()}).confirmDelete();},
+    "#document-restore-button span": function(t) {vi({target: t.parent()}).confirmRestore();},
+    "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
+    ".revision-link": function(t) {vi({target: t}).fetchRevision();},
+    ".expander": function(t) {ed({target: t}).toggleTextarea();},
+    "label span": function(t) {ed({target: t}).showHelpDialog();},
+    // Index Tool
+    "#new-index-button": function(t) {ie().newCond();},
+    ".remove-condition-button": function(t) {ie().remCond(t);},
+    "#delete-index-button": function(t) {ie().del();},
+    "#save-index-button": function(t) {ie().save();},
+    "#replace-button": function(t) {ie().replace();},
+    "#add-index-condition-button": function(t) {ie().addCond();}
+  });
+
+  action(e);
+};
+
+$(function () {
+    $('body').click(function(e) {shimi.clickDispatch(e);});
+  });
+
+
+// Get the index that is displayed in the index pane. 
+// startkey and startid map directly to the same concepts in
+// couchdb view queries. The prevkeys and previds are used to
+// hold information that will allow the user to page backward
+// through the listing. They are arrays of keys and ids corresponding
+// to previous page's startkeys and ids.
+//
+// There are a number of values that this function depends on
+// that are taken from the HTML. These include the value for
+// the limit and the nextkey and nextid for paging forward. Also
+// the current key and id are taken from the html when needed to
+// add to the prevkeys and previds. The startkey may be a user
+// input value so a more reliable startkey and startid are needed.
+
+shimi.index = function(args) {
+  var mod = {};
+  var filterVal;
+  var state = shimi.state;
+
+  mod.url = args.url + '?';
+  mod.indexId = args.indexId;
+  mod.limitField = $('#index-limit');
+  mod.limit = mod.limitField.val() * 1;
+  mod.target = args.target;
+  mod.state = {};
+
+  mod.get = function(startkey, startid, prevkeys, previds) {
+    filterVal = JSON.stringify($('#index-filter').val());
+    mod.state = {
+      sk: startkey,
+      sid: startid,
+      pks: prevkeys,
+      pids: previds
+    };
+
+    if (!mod.state.pks) {
+      mod.state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
+      mod.state.pks = [];
+      mod.state.pids = [];
+    }
+
+    if (mod.state.sk) {
+      mod.url = mod.url + '&startkey=' + window.escape(window.atob(mod.state.sk));
+      if (mod.state.sid) {
+        mod.url = mod.url + '&startkey_docid=' + mod.state.sid;
+      }
+    }
+
+    if (mod.limit) {
+      mod.url = mod.url + '&limit=' + (mod.limit + 1);
+    } else {
+      mod.limitField.val(25);
+      mod.url = mod.url + '&limit=26';
+    }
+
+    if (mod.indexId) {
+      mod.url = mod.url + '&index=' + mod.indexId;
+    }
+
+    shimi.form().send(mod.url, false, 'GET',
+                  function(context, req) {mod.fill(req);}, this);
+
+    return mod;
+  };
+
+  mod.fill = function(req) {
+    mod.target.html(req.responseText);
+  
+    $('#previous-index-page').button(
+      {
+        icons: {primary:'ui-icon-circle-arrow-w'} 
+      }).click(function() 
+               {
+                 mod.get(state.pks.pop(), 
+                         state.pids.pop(), 
+                         state.pks, 
+                         state.pids);
+               });
+
+    $('#next-index-page').button(
+      {
+        icons: {secondary:'ui-icon-circle-arrow-e'}
+      }).click(function(e) 
+               {
+                 var nextkey = $(e).attr('data-startkey');
+                 var nextid = $(e).attr('data-startid');
+                 var prevkey = 
+                   $('#first-index-element').attr('data-first-key');
+                 var previd = 
+                   $('#first-index-element').attr('data-first-id');
+                 state.pks.push(prevkey);
+                 state.pids.push(previd);
+                 
+                 mod.get(nextkey, nextid, state.prevkeys, state.previds);
+               });
+    
+    // Disable the previous button if we're at the beginning
+    if (state.pks.length === 0) {
+      $('#previous-index-page').button("disable");
+    }
+    
+    // Disable the next button if we're at the end
+    if ($('#next-index-page').attr('data-last-page')) {
+      $('#next-index-page').button("disable");
+    }
+    
+    $('nav.pager').buttonset();
+
+    return mod;
+  };
+};
 // Dialog for manipulating doctypes
 
-function charseqDialog(values) {
-  var f = charseqElems().get(values);
+shimi.charseqDialog = function(values) {
+  var f = shimi.charseqElems().get(values);
   
   var dialog = $("#charseq-dialog").dialog({
     width: 650,
@@ -836,7 +877,7 @@ function charseqDialog(values) {
         var url = 'config/charseqs';
         var method = 'POST';
         var complete = function(context) {
-          populateCharseqTabs();
+          shimi.charseqTab().init();
           $(context).dialog("close");
         };
         
@@ -845,7 +886,7 @@ function charseqDialog(values) {
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
         
-        sendConfigDoc(url, obj, method, complete, this);
+        shimi.form().send(url, obj, method, complete, this);
       },
       "Cancel": function() {
         $(this).dialog("close");
@@ -857,7 +898,7 @@ function charseqDialog(values) {
   });
   
   return dialog;
-}
+};
 
 /*
  * Copyright 2011 University of Wisconsin Madison Board of Regents.
@@ -886,15 +927,15 @@ function charseqDialog(values) {
  * used for collation of items written in the script.
 */
 
-var charseqElems = function() {
-  var cElems = {};
+shimi.charseqElems = function() {
+  var mod = {};
   
-  cElems.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
+  mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
   
-  cElems.get = function(values) {
+  mod.get = function(values) {
     var cObj = {};
     
-    cObj.attrs = cElems.attrs;
+    cObj.attrs = mod.attrs;
     
     cObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
@@ -918,7 +959,7 @@ var charseqElems = function() {
         "iso639_tag": cObj.iso639_tag.val(),
         "_id": (cObj.charseq.val() || undefined),
         "rev": (cObj.rev.val() || undefined)
-      }
+      };
       return valObj;
     };
     
@@ -931,7 +972,7 @@ var charseqElems = function() {
     };
     
     cObj.clear = function() {
-      clearValues($('#charseq-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
                    
@@ -944,285 +985,79 @@ var charseqElems = function() {
     return cObj;
   };
   
-  return cElems;
+  return mod;
 };
-// Depending on the css matcher, trigger the specified function on the
-// event target. Takes an event object and performs an action.
-
-function clickDispatch(e) {
-  var action = dispatcher({
-    ".edit-field-button span": function(t) {editFieldButton(t.parent('a'))},
-    ".delete-field-button span": function(t) {deleteFieldButton(t.parent('a'))},
-    ".add-field-button span": function(t) {addFieldButton(t.parent('a'))},
-    ".edit-fieldset-button span": function(t) {editFieldsetButton(t.parent('a'))},
-    ".delete-fieldset-button span": function(t) {deleteFieldsetButton(t.parent('a'))},
-    ".add-fieldset-button span": function(t) {addFieldsetButton(t.parent('a'))},
-    ".delete-doctype-button span": function(t) {deleteDoctypeButton(t.parent('a'))},
-    ".edit-doctype-button span": function(t) {editDoctypeButton(t.parent('a'))},
-    ".touch-doctype-button span": function(t) {touchDoctypeButton(t.parent('a'))},
-    "#doctype-add-button span": function(t) {addDoctypeButton(t.parent('a'))},
-    ".delete-charseq-button span": function(t) {deleteCharseqButton(t.parent('a'))},
-    ".edit-charseq-button span": function(t) {editCharseqButton(t.parent('a'))},
-    "#charseq-add-button span": function(t) {addCharseqButton(t.parent('a'))},
-    "#maintenance-upgrade-button span": function(t) {upgradeButton(t.parent('a'))}
-  });
-
-  action(e);
-}
-
-
-// Button that opens a dialog for adding a charsec
-
-var addCharsec = function(button) {
-  $("#charseq-add-dialog").dialog("open");
-};
-
-// Button that opens a dialog for adding a doctype
-
-var addDoctype = function(target) {
-  initDoctypeAddDialog().dialog("open");
-};
-
-// Button that opens a dialog for editing a field
-
-var editFieldButton = function(target) {
-  var url = cpath(target, "field");
-  var oldobj = {};
-  var attrs = fieldElems().attrs;
-  var charseqUrl = "config/charseqs?as=options";
+shimi.chaseqTab = function(target) {
+  var mod = {};
   
-  $.get(charseqUrl, function(charseqs) {
-    $("#field-charseq-input").html(charseqs);
+  mod.add = function() {
+    $("#charseq-add-dialog").dialog("open");
+    return mod;
+  };
+  
+  mod.edit = function() {
+    var oldobj = {};
+    var attrs = shimi.charseqElems().attrs;
+     
     attrs.forEach(function(item) {
-      oldobj[item] = getValue('field-' + item, target);
+      oldobj[item] = shimi.store(target).get('charseq-' + item);
     });
-    fieldDialog(url, oldobj).dialog("open");
-  });
-};
+    shimi.charseqDialog(oldobj).dialog("open");
+    
+    return mod;
+  };
 
-// Button that opens a dialog for deleting a field
-
-var deleteFieldButton = function(target) {
-  var answer = confirm("Are you sure? This is permanent.");
-  
-  if (answer) {
-    var url = cpath(target, "field");
+  mod.del = function() {
+    var s = shimi.store(target);
+    var id = s.get('charseq-charseq');
+    var rev = s.get('charseq-rev');
+    var url = 'config/charseqs/' + id + '?rev=' + rev;
     var complete = function() {
-      url.field = false;
-      url.rev = false;
+      mod.init();
+    };
+    
+    if (window.confirm("Are you sure? This is permanent.")) {
+      shimi.form().send(url, {}, 'DELETE', complete, this);
+    }
+    
+    return mod;
+  };
+  
+  mod.init = function() {
+    var tabs = $("#charseq-tabs");
+    var heads = $("#charseq-tabs-headings");
+    var url = "config/charseqs";
+    
+    tabs.tabs();
+    
+    $.get(url, function(charseqs) {
+      heads.empty();
+      //$("#charseq-tabs-headings + .ui-tabs-panel").remove();
+      heads.find('.ui-tabs-panel').remove();
+      tabs.tabs("destroy");
+      heads.html(charseqs);
       
-      populateFields(url);
-    };
-    url.delete(complete, this);
-  }
-};
-
-// Button that opens a dialog for adding a field
-
-var addFieldButton = function(target) {
-  var url = cpath(target, "field");
-  var charseqUrl = "config/charseqs?as=options";
-  
-  $.get(charseqUrl, function(charseqs) {
-    $("#field-charseq-input").html(charseqs);
-    fieldDialog(url, {fieldset: url.fieldset, doctype: url.doctype}).dialog("open");
-  });
-};
-
-// Button that opens a dialog for editing a fieldset
-
-var editFieldsetButton = function(target) {
-  var url = cpath(target, "fieldset");
-  var oldobj = {};
-  var attrs = fieldsetElems().attrs;
-   
-  attrs.forEach(function(item) {
-    oldobj[item] = getValue('fieldset-' + item, target);
-  });
-  
-  fieldsetDialog(url, oldobj).dialog("open");
-};
-
-// Button that opens a dialog for deleting a fieldset
-
-var deleteFieldsetButton = function(target) {
-  var url = cpath(target, "fieldset");
-  
-  var complete = function() {
-    url.fieldset = false;
-    url.rev = false;
-    populateFieldsets(url);
-  };
-    
-  if (confirm("Are you sure? This is permanent.")) {
-    url.delete(complete, this);
-  }
-};
-
-// Button that opens a dialog for adding a fieldset
-
-var addFieldsetButton = function(target) {
-  var url = cpath(target, "fieldset");
-  fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
-};
-
-var editCharseqButton = function(target) {
-  var oldobj = {};
-  var attrs = charseqElems().attrs;
-   
-  attrs.forEach(function(item) {
-    oldobj[item] = getValue('charseq-' + item, target);
-  });
-  charseqDialog(oldobj).dialog("open");
-};
-
-var deleteCharseqButton = function(target) {
-  var id = getValue('charseq-charseq', target);
-  var rev = getValue('charseq-rev', target);
-  var url = 'config/charseqs/' + id + '?rev=' + rev;
-  var complete = function() {
-    populateCharseqTabs();
-  };
-  
-  if (confirm("Are you sure? This is permanent.")) {
-    sendConfigDoc(url, {}, 'DELETE', complete, this);
-  }
-};
-
-var editDoctypeButton = function(target) {
-  var url = cpath(target, "doctype");
-  var oldobj = {};
-  var attrs = doctypeElems().attrs;
-   
-  attrs.forEach(function(item) {
-    oldobj[item] = getValue('doctype-' + item, target);
-  });
-  doctypeDialog(url, oldobj).dialog("open");
-};
-
-var touchDoctypeButton = function(target) {
-  var docid = getValue("doctype-doctype", target);
-  $.post("config/doctypes/" + docid + "/touch");
-  alert("Touch In Progress");
-};
-
-var upgradeButton = function(target) {
-  $.post("config/upgrade");
-  alert("Upgrade In Progress");
-};
-
-var deleteDoctypeButton = function(target) {
-  var url = cpath(target, "doctype");
-  var complete = function() {
-    url.doctype = false;
-    url.rev = false;
-    populateDoctypeTabs();
-  };
-  
-  if (confirm("Are you sure? This is permanent.")) {
-    url.delete(complete, this);
-  }
-};
-
-var addDoctypeButton = function(target) {
-  var url = cpath(target, "doctype");
-  doctypeDialog(url, {}).dialog("open");
-};
-
-var addCharseqButton = function(target) {
-  charseqDialog({}).dialog("open");
-};
-
-
-// hide common options for path
-
-function cpath(source, category) {
-  return path(source, category, "config");
-}
-
-// Populate the listing of fields
-
-function populateFields(path) {
-  path.field = false;
-  
-  $.get(path.toString(), function(fields) {
-    var fieldContainer = $("#fields-" + path.fieldset);
-    fieldContainer.empty();
-    fieldContainer.html(fields);
-    $('.link-button').button();
-  });
-}
-
-// Populate the listing of fieldsets
-
-function populateFieldsets(url) {
-  $.get(url.toString(), function(fieldsets) {
-    var fieldsetContainer = $("#fieldsets-" + url.doctype);
-    
-    fieldsetContainer.empty();
-    fieldsetContainer.accordion("destroy");
-    fieldsetContainer.html(fieldsets);
-    $('.link-button').button();
-    
-    fieldsetContainer.accordion({
-      autoHeight: false,
-      collapsible: true,
-      active: false
+      var loadFun = function(event, ui) {
+        $('.link-button').button();
+      };
+      
+      tabs.tabs({load: function(e, ui) {loadFun(e, ui);}});
     });
-  });
-}
-
-// populate the tabs listing the doctypes
-
-function populateDoctypeTabs() {
-  var url = "config/doctypes";
+    
+    return mod;
+  };
   
-  $.get(url, function(doctypes) {
-    var fieldsetDoctype = $("#fieldset-doctype-input");
-    
-    $("#doctype-tabs-headings").empty();
-    $("#doctype-tabs-headings + .ui-tabs-panel").remove();
-    $("#doctype-tabs").tabs("destroy");
-    $("#doctype-tabs-headings").html(doctypes);
-    $('.link-button').button();
-    
-    var loadFun = function(event, ui) {
-      var source = $(ui.panel).children('div[data-fieldset-doctype]');
-      var fieldsetsPath = path(source, "fieldset", "config");
-      populateFieldsets(fieldsetsPath);
-    };
-    
-    $("#doctype-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
-  });
-}
-
-// populate the tabs listing the charseqs
-
-function populateCharseqTabs() {
-  var url = "config/charseqs";
-  
-  $.get(url, function(charseqs) {
-    $("#charseq-tabs-headings").empty();
-    $("#charseq-tabs-headings + .ui-tabs-panel").remove();
-    $("#charseq-tabs").tabs("destroy");
-    $("#charseq-tabs-headings").html(charseqs);
-    
-    var loadFun = function(event, ui) {
-      $('.link-button').button();
-    };
-    
-    $("#charseq-tabs").tabs({load: function(e, ui) {loadFun(e, ui)}});
-  });
-}
-
-// Initialize the tabs on the config page
+  return mod;
+};
+shimi.upgradeButton = function(target) {
+  $.post("config/upgrade");
+  window.alert("Upgrade In Progress");
+};
 
 function initTabs() {
-  $("#doctype-tabs").tabs();
-  populateDoctypeTabs();
+  shimi.doctypeTab().init();
   $("#main-tabs").tabs();
-  $("#charseq-tabs").tabs();
-  populateCharseqTabs();
+  shimi.charseqTab().init();
   
   return true;
 }
@@ -1250,7 +1085,6 @@ function initHelpText() {
 // Code to be run on page load
 
 $(function () {
-  $('body').click(function(e) {clickDispatch(e)});
   initTabs(); 
   initHelpText();
   $('.link-button').button();
@@ -1258,8 +1092,8 @@ $(function () {
 });
 // Dialog for manipulating doctypes
 
-function doctypeDialog(url, values) {
-  var f = doctypeElems().get(values);
+shimi.doctypeDialog = function(url, values) {
+  var f = shimi.doctypeElems().get(values);
   
   if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
@@ -1272,7 +1106,7 @@ function doctypeDialog(url, values) {
       "Save": function() {
         var obj = f.getDoctypeInputVals();
         var complete = function(context) {
-          populateDoctypeTabs();
+          shimi.doctypeTab().init();
           $(context).dialog("close");
         };
         
@@ -1293,20 +1127,20 @@ function doctypeDialog(url, values) {
   });
   
   return dialog;
-}
+};
 
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions. 
 
-function doctypeElems() {
-  var fElems = {};
+shimi.doctypeElems = function() {
+  var mod = {};
   
-  fElems.attrs = ["description", "doctype", "rev"];
+  mod.attrs = ["description", "doctype", "rev"];
                
-  fElems.get = function(values) {
+  mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = fElems.attrs;
+    fObj.attrs = mod.attrs;
     
     fObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
@@ -1325,7 +1159,7 @@ function doctypeElems() {
     };
     
     fObj.clear = function() {
-      clearValues($('#doctype-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#doctype-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
                    
@@ -1338,14 +1172,191 @@ function doctypeElems() {
     return fObj;
   };
   
-  return fElems;
-}
+  return mod;
+};
 
+
+shimi.doctypeTab = function(target) {
+  var mod = {};
+  
+  // Populate the listing of fields
+  var initFields = function(path) {
+    path.field = false;
+    
+    $.get(path.toString(), function(fields) {
+      var fieldContainer = $("#fields-" + path.fieldset);
+      fieldContainer.empty();
+      fieldContainer.html(fields);
+      $('.link-button').button();
+    });
+  };
+  
+  // Populate the listing of fieldsets
+  mod.initFieldsets = function(url) {
+    $.get(url.toString(), function(fieldsets) {
+      var fieldsetContainer = $("#fieldsets-" + url.doctype);
+      
+      fieldsetContainer.empty();
+      fieldsetContainer.accordion("destroy");
+      fieldsetContainer.html(fieldsets);
+      $('.link-button').button();
+      
+      fieldsetContainer.accordion({
+        autoHeight: false,
+        collapsible: true,
+        active: false
+      });
+    });
+  };
+  
+  // populate the tabs listing the doctypes
+  mod.init = function() {
+    var url = "config/doctypes";
+    
+    $("#doctype-tabs").tabs();
+    
+    $.get(url, function(doctypes) {
+      var fieldsetDoctype = $("#fieldset-doctype-input");
+      
+      $("#doctype-tabs-headings").empty();
+      $("#doctype-tabs-headings + .ui-tabs-panel").remove();
+      $("#doctype-tabs").tabs("destroy");
+      $("#doctype-tabs-headings").html(doctypes);
+      $('.link-button').button();
+      
+      var loadFun = function(event, ui) {
+        var source = $(ui.panel).children('div[data-fieldset-doctype]');
+        var fieldsetsPath = shimi.path(source, "fieldset", "config");
+        mod.initFieldsets(fieldsetsPath);
+      };
+      
+      $("#doctype-tabs").tabs({load: function(e, ui) {loadFun(e, ui);}});
+    });
+  };
+  
+    
+  var cpath = function(source, category) {
+    return shimi.path(source, category, "config");
+  };
+  // Button that opens a dialog for editing a field
+  mod.editField = function() {
+    var url = cpath(target, "field");
+    var oldobj = {};
+    var attrs = shimi.fieldElems().attrs;
+    var charseqUrl = "config/charseqs?as=options";
+    
+    $.get(charseqUrl, function(charseqs) {
+      $("#field-charseq-input").html(charseqs);
+      attrs.forEach(function(item) {
+        oldobj[item] = shimi.store(target).get('field-' + item);
+      });
+      shimi.fieldDialog(url, oldobj).dialog("open");
+    });
+  };
+  
+  // Button that opens a dialog for deleting a field
+  mod.deleteField = function() {
+    var answer = window.confirm("Are you sure? This is permanent.");
+    
+    if (answer) {
+      var url = cpath(target, "field");
+      var complete = function() {
+        url.field = false;
+        url.rev = false;
+        
+        initFields(url);
+      };
+      url.del(complete, this);
+    }
+  };
+  
+  // Button that opens a dialog for adding a field
+  mod.addField = function() {
+    var url = cpath(target, "field");
+    var charseqUrl = "config/charseqs?as=options";
+    
+    $.get(charseqUrl, function(charseqs) {
+      $("#field-charseq-input").html(charseqs);
+      shimi.fieldDialog(url, {fieldset: url.fieldset, doctype: url.doctype}).dialog("open");
+    });
+  };
+  
+  // Button that opens a dialog for editing a fieldset
+  mod.editFieldset = function() {
+    var url = cpath(target, "fieldset");
+    var oldobj = {};
+    var attrs = shimi.fieldsetElems().attrs;
+     
+    attrs.forEach(function(item) {
+      oldobj[item] = shimi.store(target).get('fieldset-' + item);
+    });
+    
+    shimi.fieldsetDialog(url, oldobj).dialog("open");
+  };
+  
+  // Button that opens a dialog for deleting a fieldset
+  mod.deleteFieldset = function() {
+    var url = cpath(target, "fieldset");
+    
+    var complete = function() {
+      url.fieldset = false;
+      url.rev = false;
+      mod.initFieldsets(url);
+    };
+      
+    if (window.confirm("Are you sure? This is permanent.")) {
+      url.del(complete, this);
+    }
+  };
+  
+  // Button that opens a dialog for adding a fieldset
+  mod.addFieldset = function() {
+    var url = cpath(target, "fieldset");
+    shimi.fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
+  };
+  
+  var editDoctype = function() {
+    var url = cpath(target, "doctype");
+    var oldobj = {};
+    var attrs = shimi.doctypeElems().attrs;
+     
+    attrs.forEach(function(item) {
+      oldobj[item] = shimi.store(target).get('doctype-' + item);
+    });
+    shimi.doctypeDialog(url, oldobj).dialog("open");
+  };
+  
+  mod.touchDoctype = function() {
+    var docid = shimi.store(target).get("doctype-doctype");
+    $.post("config/doctypes/" + docid + "/touch");
+    window.alert("Touch In Progress");
+  };
+  
+  mod.deleteDoctype = function() {
+    var url = cpath(target, "doctype");
+    var complete = function() {
+      url.doctype = false;
+      url.rev = false;
+      mod.initDoctypeTabs();
+    };
+    
+    if (window.confirm("Are you sure? This is permanent.")) {
+      url.del(complete, this);
+    }
+  };
+  
+  mod.addDoctype = function() {
+    var url = cpath(target, "doctype");
+    shimi.doctypeDialog(url, {}).dialog("open");
+  };
+  
+  return mod;
+};
 
 // Dialog for manipulating fields
 
 function fieldDialog(url, values) {
-  var f = fieldElems().get(values);
+  var f = shimi.fieldElems().get(values);
   
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
@@ -1354,7 +1365,7 @@ function fieldDialog(url, values) {
       "Save": function() {
         var obj = f.clearDisabled().getFieldInputVals();
         var complete = function(context) {
-          populateFields(url);
+          shimi.doctypeTab().initFields(url);
           $(context).dialog("close");
         };
         if (!values.rev || values.rev.isBlank()) {
@@ -1408,7 +1419,9 @@ function fieldElems() {
     
     fObj.clearDisabled = function() {
       fObj.notDefault().forEach(function(field) {
-        if (field.attr("disabled")) field.val("");
+        if (field.attr("disabled")) {
+          field.val("");
+        }
       });
       return fObj;
     };
@@ -1417,7 +1430,9 @@ function fieldElems() {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] == "true") fObj[field].attr('checked', true);
+          if (source[field] === "true") {
+            fObj[field].attr('checked', true);
+          }
         }
       });
       return fObj;
@@ -1428,7 +1443,7 @@ function fieldElems() {
         "category": "field", 
         "name": fObj.name.val(),
         "label": fObj.label.val(),
-        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj.default.val()),
+        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj["default"].val()),
         "head": fObj.head.is(':checked'),
         "reversal": fObj.reversal.is(':checked'),
         "required": fObj.required.is(':checked'),
@@ -1448,26 +1463,24 @@ function fieldElems() {
     };
     
     fObj.clear = function() {
-      clearValues($('#field-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
     
     fObj.decodeBound = function(subcategory, bound) {
-      switch (subcategory) {
-        case "date":
-          return bound;
-        default:
-          return stringToNumber(fObj.min.val());
+      if (subcategory === "date") {
+        return bound;
+      } else {
+        return shimi.utils().stringToNumber(fObj.min.val());
       }
     };
     
     fObj.decodeSource = function(subcategory, source) {
-      switch (subcategory) {
-        case "file":
-          return source.split("/").trimAll();
-        default:
-          return source;
+      if (subcategory === "file") {
+        return source.split("/").trimAll();
+      } else {
+        return source;
       }
     };
     
@@ -1521,7 +1534,7 @@ function fieldElems() {
     fObj.copyValues(values);
     fObj.displayFields(fObj.subcategory.val());
       
-    fObj.subcategory.change(function () { fObj.displayFields(fObj.subcategory.val()) });
+    fObj.subcategory.change(function () { fObj.displayFields(fObj.subcategory.val());});
       
     return fObj;
   };
@@ -1530,8 +1543,8 @@ function fieldElems() {
 }
 
 
-function fieldsetDialog(url, values) {
-  var f = fieldsetElems().get(values);
+shimi.fieldsetDialog = function(url, values) {
+  var f = shimi.fieldsetElems().get(values);
   
   var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
@@ -1543,9 +1556,9 @@ function fieldsetDialog(url, values) {
           url.fieldset = false;
           url.rev = false;
           
-          populateFieldsets(url);
+          shimi.doctypeTab().initFieldsets(url);
           $(context).dialog("close");
-        }
+        };
         if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
         } else {
@@ -1563,7 +1576,7 @@ function fieldsetDialog(url, values) {
   });
   
   return dialog;
-}
+};
 
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions. 
@@ -1584,7 +1597,9 @@ function fieldsetElems() {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] == "true") fObj[field].attr('checked', true);
+          if (source[field] === "true") {
+            fObj[field].attr('checked', true);
+          }
         }
       });
       return fObj;
@@ -1600,12 +1615,12 @@ function fieldsetElems() {
         "doctype": fObj.doctype.val(),
         "multiple": fObj.multiple.is(':checked'),
         "collapse": fObj.collapse.is(':checked')
-      }
+      };
       return valObj;
     };
     
     fObj.clear = function() {
-      clearValues($('#fieldset-dialog .input')).removeClass('ui-state-error');
+      shimi.form().clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
                    
@@ -1622,228 +1637,9 @@ function fieldsetElems() {
 }
 
 
-// Depending on the css matcher, trigger the specified function on the
-// event target. Takes an event object and performs an action.
-
-function clickDispatch(e) {
-  var action = dispatcher(
-    {
-      ".add-button span": function(t) {initFieldset(t.parent());},
-      ".remove-button span": function(t) {removeFieldset(t.parent());},
-      "#save-document-button span": function(t) {saveDoc(t.parent());},
-      "#create-document-button span": function(t) {createDoc(t.parent());},
-      "#clear-document-button span": function(t) {clearDoc(t.parent());},
-      "#document-edit-button span": function(t) {editDoc(t.parent());},
-      "#document-delete-button span": function(t) {deleteDoc(t.parent());},
-      "#document-restore-button span": function(t) {restoreDoc(t.parent());},
-      "#document-view-tree > ul > li > b": function(t) {collapseToggle(t);},
-      ".revision-link": function(t) {fetchRevision(t);},
-      ".expander": function(t) {toggleTextarea(t);},
-      "label span": function(t) {showHelpDialog(t);}
-    });
-
-  action(e);
-}
-
-// These are the target functions called in the click dispatch area.
-// Some are defined elsewhere for organizational reasons.
-
-function removeFieldset(target) {
-  target.parent().remove();
-}
-
-function saveDoc(target) {
-  var saveButton = target;
-
-  if (saveButton.hasClass('oldrev')) {
-    if (!confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
-      return false;
-    }
-  }
-  
-  var root = $('#edit-document-form');
-  var document = dInfo("document", saveButton);
-  var rev = dInfo("rev", saveButton);
-  var url = "./documents/" + document + "?rev=" + rev;
-  var obj = {
-    doctype: dInfo("doctype", saveButton),
-    description: dInfo("description", saveButton)
-  };
-  
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  saveButton.button('disable');
-  $.extend(obj, fieldsetsToObject(root));
-  
-  $.ajax({
-           type: "PUT",
-           url: url,
-           dataType: "json",
-           contentType: "application/json",
-           processData: false,
-           data: JSON.stringify(obj),
-           complete: function(req, status) {
-             if (req.status == 204 || req.status == 200) {
-               var title = "Success";
-               var body = "Your document was saved.";
-               getDocument(document, true);
-               getIndex();
-               flashHighlight(title, body);
-               saveButton.removeClass('oldrev');
-               saveButton.button('enable');
-             } else if (req.status == 403) {
-               setInvalidError(req);
-               saveButton.button('enable');
-             } else if (req.status == 409) {
-               var body = JSON.parse(req.responseText);
-               var title = req.statusText;
-               
-               flashError(title, body.message);
-               saveButton.button('enable');
-             }
-           }
-         });
-}
-
-function createDoc(target) {
-  var createButton = target;
-  var root = $('#edit-document-form');
-  var obj = {
-    doctype: dInfo("doctype", createButton),
-    description: dInfo("description", createButton)
-  };
-  
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  createButton.button('disable');
-  $.extend(obj, fieldsetsToObject(root));
-  
-  var postUrl = $.ajax({
-    type: "POST",
-    dataType: "json",
-    contentType: "application/json",
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function(req, status) {
-      if (req.status == 201) {
-        var title = "Success";
-        var body = "Your document was created.";
-        var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-        
-        $('#save-document-button').hide();
-        $('#save-document-button').attr('disabled','true');
-        $('.fields').remove();
-        initFieldsets();
-        getDocument(documentId);
-        getIndex();
-        flashHighlight(title, body);
-        createButton.button('enable');
-      } else if (req.status == 403) {
-        setInvalidError(req);
-        createButton.button('enable');
-      }
-    }
-  });
-}
-
-function clearDoc(target) {
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  $('#save-document-button').hide();
-  $('#save-document-button').attr('disabled','disabled');
-  $('.fields').remove();
-  initFieldsets();
-}
-
-function editDoc(target) {
-  resetFields();
-  if ($('#document-view-tree').hasClass('oldrev')) {
-    $('#save-document-button').addClass('oldrev');
-  } else {
-    $('#save-document-button').removeClass('oldrev');
-  }
-  fillFieldsets();
-}
-
-function deleteDoc(target) {
-  if (confirm("Are you sure?")) {
-    var document = dInfo("document", target);
-    var rev = dInfo("rev", target);
-    
-    deleteDocument(document, rev);
-  }
-}
-
-function restoreDoc(target) {
-  if (confirm("Are you sure?")) {
-    var document = dInfo("document", target);
-    var rev = dInfo("rev", target);
-    
-    restoreDocument(document, rev);
-  }
-}
-
-function collapseToggle(target) {
-  target.parent('li').toggleClass('collapsed');
-}
-
-function showHelpDialog(target) {
-  if (target.is('.label-text')) {
-    target = target.parent('label').find('.ui-icon-help');
-  }
-  
-  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
-}
-
-function toggleTextarea(target) {
-  var textarea = $('#' + target.attr('data-group-id'));
-  
-  textarea.toggleClass('expanded');
-  target.toggleClass('expanded');
-}
-
-var fetchRevision = function(target) {
-  var id = dInfo("document", target);
-  var rev = dInfo("rev", target);
-  var oldrev = target.attr("data-document-oldrev");
-
-  if (rev != oldrev) {
-    $('#document-view-tree').addClass('oldrev');
-  } else {
-    $('#document-view-tree').removeClass('oldrev');
-  }
-
-  getRevision(id, oldrev);
-};
-// Helper for building the url to access a fieldset for a document
-function buildUrl(project, doctype, fieldset) {
-  return "/projects/" + project +
-    "/doctypes/" + doctype +
-    "/fieldsets/" + fieldset;
-}
-
-function fsContainer(id) {
-  return $("#container-" + id);
-}
-
-function dpath(source, category) {
-  var url = path(source, category);
-  url.doctype = false;
-  return url;
-}
-
-function fsInfo(key, elem) {
-  return getValue("fieldset-" + key, elem);
-}
-
-function fInfo(key, elem) {
-  return getValue("field-" + key, elem);
-}
-
-function dInfo(key, elem) {
-  return getValue("document-" + key, elem);
-}
-
 function loadHash(urlHash) {
   if (urlHash) {
-    getDocument(urlHash);
+    shimi.vui({id: urlHash}).get();
   }
   return false;
 }
@@ -1851,42 +1647,42 @@ function loadHash(urlHash) {
 var searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
     .live("click", function() {
-            searches.clearSearchVals();
+            shimi.sui.clearSearchVals();
           });
 };
 
 var searchFieldItems = function() {
   $('.search-field-item')
     .live("click", function(e) {
-            searches.removeSearchField(e);
+            shimi.sui.removeSearchField(e);
           });
 };
 
 var fieldViews = function() {
   $('.search-result-field-id a, .field-view b, .field-container label span')
     .live('dblclick', function(e) {
-            searches.addSearchField(e);
+            shimi.sui.addSearchField(e);
           });
 };
 
 var searchIndex = function() {
   $('#index-index-input-label')
     .live('dblclick', function(e) {
-            searches.addSearchIndex(e);
+            shimi.sui.addSearchIndex(e);
           });  
 };
 
 var excludeCheck = function() {
   $('#document-search-exclude')
     .live("change", function(e) {
-            searches.toggleExclusion(e);
+            shimi.sui.toggleExclusion(e);
           });
 };
 
 var loadDocument = function(docid) {
   $("#document-view").html("<em>Loading...</em>");
-  clearDoc();
-  getDocument(docid);
+  shimi.eui().clear();
+  shimi.vui({id: docid}).get();
 };
 
 var jumpForm = function() {
@@ -1912,8 +1708,7 @@ var documentLinks = function() {
 };
 
 var searchForm = function() {
-  searches.clearSearchVals(true);
-  searches.loadSearchVals();
+  shimi.sui.clearSearchVals(true).loadSearchVals();
   searchAllFieldsSwitch();
   searchFieldItems();
   fieldViews();
@@ -1923,7 +1718,7 @@ var searchForm = function() {
     .live("keydown",
           function(e) {
             if (e.which === 13) {
-              searches.getSearch();
+              shimi.sui.getSearch();
               return false;
             }
             return true;
@@ -1933,638 +1728,748 @@ var searchForm = function() {
 $(
   function () {
     var getIndexTimer;
-
-    $('body').click(function(e) {clickDispatch(e);});
     
     documentLinks();
-    fillQueryOptions();
-    getIndex();
+    shimi.iui().iOpts().get();
     jumpForm();
     searchForm();
-    initEdit();
+    shimi.eui().init();
 
     $('#index-filter-form input').keyup(
       function() {
         clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {getIndex();}, 500);
+        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
       });
   
     $('#index-filter-form select').change(
       function() {
-        getIndex();
+        shimi.iui().get();
       });
   
     loadHash($(location)[0].hash.split("#")[1]);
   });
 
-// Initialize the form in the edit pane
+shimi.efs = function() {
+  var mod = {};
+  var store = shimi.store;
+  var eui = shimi.eui();
+  var utils = shimi.utils();
 
-function initEdit() {
-  var url = "documents/edit";
-  
-  $.get(url, function(documentEditHtml) {
-
-    $('#document-edit').html(documentEditHtml);
-    $('#edit-tabs').tabs();
-    setKeyboardEvents();
-    initFieldsets();
-    initEditButtons();
-  });
-  
-  return true;
-}
-
-// This function initializes all the keyboard events for the
-// edit pane
-function setKeyboardEvents() {
-  var inputable = 'input, select';
-  var t = $('#edit-tabs');
-  
-  var selectInput = function() {
-    var cur = t.find('.ui-tabs-selected a').attr('href');
-    $(cur).find(inputable + ", textarea").first().focus();
+  var fsContainer =  function(id) {
+    return $("#container-" + id);
   };
   
-  $(document).bind('keydown', 'Alt+p', function(e) {
-    var totaltabs = t.tabs('length');
-    var selected = t.tabs('option', 'selected');
-    
-    if (selected != 0) {
-      t.tabs('select', selected - 1);
-      selectInput();
-    } else {
-      t.tabs('select', totaltabs - 1);
-      selectInput();
-    }
-    
-    return false;
-  });
-  
-  $(document).bind('keydown', 'Alt+n', function(e) {
-    var totaltabs = t.tabs('length');
-    var selected = t.tabs('option', 'selected');
-    
-    if (selected < totaltabs - 1) {
-      t.tabs('select', selected + 1);
-      selectInput();
-    } else {
-      t.tabs('select', 0);
-      selectInput();
-    }
-    
-    return false;
-  });
-}
-
-// Functions for initializing buttons
-
-// Initialize buttons for form in right column
-function initEditButtons() {
-  initAddButton();
-  initSaveButton();
-  initCreateButton();
-  initClearButton();
-  return true;
-}
-
-// Initialize the button that will add additional fieldsets to
-// a multiple fieldset 
-function initAddButton() {
-  $(".add-button").button({icons: {primary: "ui-icon-plus"}});
-  
-  return true;
-}
-
-// Initialize the button that removes a fieldset from a multiple fieldset
-function initRemoveButton() {  
-  return $(".remove-button").button({icons: {primary: "ui-icon-minus"}});
-}
-
-// Initialize the save button that is used for already existing documents.
-// Hide the button until the form has been filled by an already existing
-// document's values. See the after functions above.
-function initSaveButton() {
-  $('#save-document-button').button({ icons: {primary: "ui-icon-disk"}});
-  $('#save-document-button').hide();
-  return $('#save-document-button').attr('disabled', 'disabled');
-}
-
-// When a form validation error has occurred, this will cause it to
-// be displayed
-function setInvalidError(req) {
-  var body = JSON.parse(req.responseText);
-  var title = req.statusText;
-
-  var invalid = $('[data-field-instance=' + body.instance + ']');
-  var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
-  
-  invalidTab.addClass('ui-state-error');
-  invalid.addClass('ui-state-error');
-  
-  flashError(title, body.fieldname + " " + body.message);
-}
-
-// Initialize the create as new button used to create a new document based
-// on filled in values.
-function initCreateButton() {
-  return $("#create-document-button").button({icons: {primary: "ui-icon-document"}});
-}
-
-// Initialize the clear button that will rebuild the form fresh.
-function initClearButton() {
-  return $('#clear-document-button').button({icons: {primary: "ui-icon-refresh"}});
-}
-
-// Functions to run after the form is refreshed or filled.
-
-// This is run after the form is refreshed with new values inserted.
-function afterEditRefresh() {
-  var saveBttn = $('#save-document-button');
-  var editBttn = $('#document-edit-button');
-  var sharedAttrs = ['data-document-id', 'data-document-rev'];
-  
-  sharedAttrs.forEach(function(elem) {
-    saveBttn.attr(elem, editBttn.attr(elem));
-  });
-  
-  saveBttn.show();
-  
-  afterRefresh();
-  
-  return true;
-}
-
-// This is run after the form is cleared or created empty
-function afterFreshRefresh() {
-  initRemoveButton();
-  afterRefresh();
-  return true;
-}
-
-// This should be run after either afterFreshRefresh() or afterEditRefresh()
-function afterRefresh() {
-  initDateFields();
-  initInstances();
-  return true;
-}
-
-var initInstances = function() {
-  var text = ['0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f',
-              '0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f'];  
-  var makeInstance = function() {
-    return text.map(function() {
-                      return text[Math.floor(Math.random() * text.length)];
-                    }).join('');
+  var dpath = function(source, category) {
+    var url = shimi.path(source, category);
+    url.doctype = false;
+    return url;
   };
 
-  $("[data-field-instance]").each(
-    function(index, item) {
-      var newInstance = makeInstance();
-      $(item).first().attr('data-field-instance', newInstance);
-      $(item).first().attr('data-group-id', newInstance);
-      $(item).first().attr('id', newInstance);
-      $(item).first().next('.expander')
-        .attr('data-group-id', newInstance);
-      $(item).first().next().next('.expander')
-        .attr('data-group-id', newInstance);
-    });
+  var ifStoredElse = function(key, success, otherwise) {
+    var item = null;
+  
+    item = localStorage.getItem(key);
+  
+    if (item) {
+      success(item);
+    } else {
+      $.get(key, otherwise);
+    }
+  };
 
-  return true;
-};
-
-function resetFields() {
-  $('.field').each(function(index) {
-    var field = $(this);
-    var thedefault = field.attr('data-field-default');
+  // Convert field values to an object that can be converted to JSON
+  var fieldsToObject = function(fields, index) {
+    fields = fields.children('.field-container').children('.field');
+    var obj = {fields:[]};
     
-    if (thedefault && thedefault != '') {
-      if (field.is('select.multiselect')) {
-        field.val(thedefault.split(","));
-      } else if (field.is('input.boolean')) {
-        field.attr('checked', thedefault == true);
-      } else {
-        field.val(thedefault);
+    fields.each(function(i, field) {
+      field = $(field);
+      var s = store(field);
+      
+      obj.fields[i] = {
+        id: s.f("field"),
+        name: s.f("name"),
+        label: s.f("label"),
+        head: s.f("head") === "true",
+        reversal: s.f("reversal") === "true",
+        required: s.f("required") === "true",
+        min: dateOrNumber(s.f("subcategory"), s.f("min")),
+        max: dateOrNumber(s.f("subcategory"), s.f("max")),
+        instance: s.f("instance"),
+        charseq: s.f("charseq"),
+        regex: s.f("regex"),
+        order: s.f("order") * 1,
+        subcategory: s.f("subcategory"),
+        value: getFieldValue(field)
+      };
+      
+      if (index >= 0) {
+        obj.fields[i].index = index;
       }
-    } else {
-      field.val('');
-      field.removeAttr('checked');
-    }
-  });
-}
-
-function fillFieldsets() {
-  $('.fieldset-view').each(function(i, fieldset) {
-    if (fsInfo("multiple", $(fieldset)) == "true") {
-      fillMultiFieldsets(fieldset);
-    } else {
-      fillNormalFieldsets(fieldset);
-    }
-  });
-  
-  afterEditRefresh();
-}
-
-function fillMultiFieldsets(vfieldset) {
-  vfieldset = $(vfieldset);
-  var id = fsInfo("fieldset", vfieldset);
-  var container = $('#container-' + id);
-  var url = dpath(vfieldset, "fieldset");
-  
-  container.html('');
-  
-  vfieldset.find('.multifield').each(function(i, multifield) {
-    initFieldset(container, function(fieldset) {
-      fillFields($(multifield), fieldset);
     });
-  });
-}
-
-function fillNormalFieldsets(vfieldset) {
-  fillFields($(vfieldset));
-}
-
-function fillFields(container, context) {
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  $('#save-document-button').removeAttr('disabled');
+    
+    return obj;
+  };
   
-  container.find('.field-view').each(function(i, field) {
-    var value = $(field).attr('data-field-value');
-    var id = $(field).attr('data-field-field');
+  var dateOrNumber = function(subcategory, fieldvalue) {
+    if (subcategory === "date") {
+      return fieldvalue;
+    } else {
+      return utils.stringToNumber(fieldvalue);
+    }
+  };
+  
+  // Get the correct value for a boolean that can be null
+  var getOpenboolean = function(value) {
+    switch (value) {
+      case "true":
+        value = true;
+        break;
+      case "false":
+        value = false;
+        break;
+      default:
+        value = null;
+    }
     
-    if (!context) context = $('body');
+    return value;
+  };
+  
+  // Get a number from a string. Blanks are returned as an empty string.
+  var getNumber = function(value) {
+    if (utils.isBlank(value)) {
+      value = '';
+    } else if (!isNaN(value)) {
+      value = value * 1;
+    }
     
-    setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
-  });
-}
+    return value;
+  };
+  
+  // Items in multiple select lists are URL encoded
+  var getMultiple = function(value) {
+    if (value) {
+      value = value.map(function(v) {return getEncoded(v);});
+    } else {
+      value = null;
+    }
+    
+    return value;
+  };
+  
+  // Items in select lists are URL encoded
+  var getEncoded = function(value) {
+    return window.decodeURIComponent(value.replace(/\+/g," "));
+  };
+  
+  // Get the value from a field using the subcategory to ensure
+  // that the value has the correct type and is properly formatted.
+  var getFieldValue = function(field) {
+    var value;
+    
+    switch (store(field).f("subcategory")) {
+      case "boolean":
+        value = field.is('input:checkbox:checked');
+        break;
+      case "openboolean":
+        value = getOpenboolean(field.val());
+        break;
+      case "integer":
+      case "rational":
+        value = getNumber(field.val());
+        break;
+      case "multiselect":
+      case "docmultiselect":
+        value = getMultiple(field.val());
+        break;
+      case "select":
+      case "docselect":
+        value = getEncoded(field.val());
+        break;
+      default:
+        value = field.val();
+    }
+    
+    return value;
+  };
+  
+  var initFieldset = function(fieldset, callback, reload) {
+    var url = dpath($(fieldset), "fieldset").toString();
+    var id = store($(fieldset)).fs("fieldset");
+    var container = $('#container-' + id);
+    var appendIt = function(data) {
+      container.append(data);
+      initFields(container, callback, reload);
+    };
+    var storeIt = function(data) {
+      localStorage.setItem(url, data);
+      appendIt(data);
+    };
+  
+    if (reload) {
+      localStorage.removeItem(url);
+    }
+  
+    ifStoredElse(url.toString(), appendIt, storeIt);
+  
+    return false;
+  };
+  
+  var initFields = function(container, callback, reload) {
+    var url = dpath(container, "field");
+    var section = container.children('.fields').last();
+    var prependIt = function(data) {
+      section.prepend(data);
+      if (callback) {
+        callback(section);
+      }
+      
+      eui.afterFreshRefresh();
+    };
+    var storeIt = function(data) {
+      localStorage.setItem(url, data);
+      prependIt(data);
+    };
+  
+    if (reload) {
+      localStorage.removeItem(url);
+    }
+  
+    ifStoredElse(url.toString(), prependIt, storeIt);
+      
+    return true;
+  };
+  
+  var fillMultiFieldsets = function(vfieldset) {
+    vfieldset = $(vfieldset);
+    var id = store(vfieldset).fs("fieldset");
+    var container = $('#container-' + id);
+    var url = dpath(vfieldset, "fieldset");
+    
+    container.html('');
+    
+    vfieldset.find('.multifield').each(function(i, multifield) {
+      initFieldset(container, function(fieldset) {
+        fillFields($(multifield), fieldset);
+      });
+    });
+  };
+  
+  var fillNormalFieldsets = function(vfieldset) {
+    fillFields($(vfieldset));
+  };
+  
+  var fillFields = function(container, context) {
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    $('#save-document-button').removeAttr('disabled');
+    
+    container.find('.field-view').each(function(i, field) {
+      var value = $(field).attr('data-field-value');
+      var id = $(field).attr('data-field-field');
+      
+      if (!context) {
+        context = $('body');
+      }
+      
+      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
+    });
+  };
+  
+  var setFieldValue = function(field, value) {
+    if (field.is('input.boolean')) {
+      field.attr("checked", value === "true");
+    } else if (value && field.is('select.multiselect')) {
+      field.val(value.split(","));
+    } else if (value && (field.is('input.text') || field.is('select.file')))  {
+      field.val(decodeURIComponent(value.replace(/\+/g," ")));
+    } else if (field.is('textarea.textarea')) {
+      field.val(decodeURIComponent(value.replace(/\+/g," ")));
+    } else {
+      field.val(value);
+    }
+  };
+  
+  // Before submitting the form, the form data is converted into an object
+  // that can be serialized to JSON. This begins with the fieldsets.
+  mod.fieldsetsToObject = function(root) {
+    var obj = {fieldsets:[]};
+    
+    root.find('fieldset').each(function(i, fieldset) {
+      fieldset = $(fieldset);
+      var s = store(fieldset);
+      
+      var fields;
+      
+      var fsObj = {
+        id: s.fs("fieldset"),
+        multiple: s.fs("multiple") === "true",
+        collapse: s.fs("collapse") === "true",
+        name: s.fs("name"),
+        label: s.fs("label"),
+        order: s.fs("order") * 1
+      };
+  
+      fields = fsContainer(fsObj.id).children('.fields');
+      
+      if (!fsObj.multiple) {
+        $.extend(fsObj, fieldsToObject(fields.first()));
+      } else {
+        fsObj.multifields = [];
+        
+        fields.each(function(j, field) {
+          field = $(field);
+          
+          fsObj.multifields[j] = fieldsToObject(field, j);
+        });
+      }
+      
+      obj.fieldsets[i] = fsObj;
+    });
+    
+    return obj;
+  };
+  
+  mod.initFieldsets = function() {
+    var reload;
+    var container = $("#create-document-button");
+    var s = store(container);
+    var doctype = s.d("doctype");
+    var versionKey = doctype + "_version";
+    var oldVersion = localStorage.getItem(versionKey);
+    var curVersion = s.d("version");
+  
+    reload = oldVersion !== curVersion;
+    localStorage.setItem(versionKey, curVersion);
+  
+    $('fieldset').each(function(i, fieldset) {
+      initFieldset(fieldset, false, reload);
+    });
+    
+    return mod;
+  };
+  
+  mod.fillFieldsets = function() {
+    $('.fieldset-view').each(function(i, fieldset) {
+      if (store($(fieldset)).fs("multiple") === "true") {
+        fillMultiFieldsets(fieldset);
+      } else {
+        fillNormalFieldsets(fieldset);
+      }
+    });
+    
+    eui.afterEditRefresh();
+    
+    return mod;
+  };
+  
+  return mod;
+};
+// Edit pane UI elements
 
-function setFieldValue(field, value) {
-  if (field.is('input.boolean')) {
-    field.attr("checked", value == "true");
-  } else if (value && field.is('select.multiselect')) {
-    field.val(value.split(","));
-  } else if (value && (field.is('input.text') || field.is('select.file')))  {
-    field.val(decodeURIComponent(value.replace(/\+/g," ")));
-  } else if (field.is('textarea.textarea')) {
-    field.val(decodeURIComponent(value.replace(/\+/g," ")));
-  } else {
-    field.val(value);
-  }
-}
+shimi.eui = function(args) {
+  var mod = {};
+  var iui = shimi.iui;
+  var vui = shimi.vui;
+  var efs = shimi.efs;
+  var store = shimi.store;
+  var flash = shimi.flash;
+  mod.priv = {};
+  
+  mod.target = args.target;
+  mod.rev = args.rev;
+  mod.id = args.id;
+  mod.saveButton = $('#save-document-button');
+  mod.addButton = $(".add-button");
+  mod.clearButton = $('#clear-document-button');
+  mod.createButton = $('#create-document-button');
+  mod.editButton = $('#document-edit-button');
+  mod.removeButton = $(".remove-button");
+  
+  mod.init = function() {
+    var url = "documents/edit";
+    
+    $.get(url, function(documentEditHtml) {
+  
+      $('#document-edit').html(documentEditHtml);
+      $('#edit-tabs').tabs();
+      mod.priv.keyboard();
+      efs().initFieldsets();
+      mod.priv.buttons();
+    });
+  
+    return mod;
+  };
+  
+  mod.priv.keyboard = function() {
+    var inputable = 'input, select';
+    var t = $('#edit-tabs');
+    
+    var selectInput = function() {
+      var cur = t.find('.ui-tabs-selected a').attr('href');
+      $(cur).find(inputable + ", textarea").first().focus();
+    };
+    
+    $(document).bind('keydown', 'Alt+p', function(e) {
+      var totaltabs = t.tabs('length');
+      var selected = t.tabs('option', 'selected');
+      
+      if (selected !== 0) {
+        t.tabs('select', selected - 1);
+        selectInput();
+      } else {
+        t.tabs('select', totaltabs - 1);
+        selectInput();
+      }
+      
+      return false;
+    });
+    
+    $(document).bind('keydown', 'Alt+n', function(e) {
+      var totaltabs = t.tabs('length');
+      var selected = t.tabs('option', 'selected');
+      
+      if (selected < totaltabs - 1) {
+        t.tabs('select', selected + 1);
+        selectInput();
+      } else {
+        t.tabs('select', 0);
+        selectInput();
+      }
+      
+      return false;
+    });
+  
+    return mod;
+  };
+  
+  mod.priv.buttons = function() {
+    mod.addButton.button({icons: {primary: "ui-icon-plus"}});
+    mod.saveButton.button({ icons: {primary: "ui-icon-disk"}});
+    mod.saveButton.hide();
+    mod.saveButton.attr('disabled', 'disabled');
+    mod.createButton.button({icons: {primary: "ui-icon-document"}});
+    mod.clearButton.button({icons: {primary: "ui-icon-refresh"}});
+  
+    return mod;
+  };
+  
+  mod.priv.removeButton = function() {
+    mod.removeButton.button({icons: {primary: "ui-icon-minus"}});
+    
+    return mod;
+  };
+  
+  mod.priv.validationError = function(req) {
+    var body = JSON.parse(req.responseText);
+    var title = req.statusText;
+  
+    var invalid = $('[data-field-instance=' + body.instance + ']');
+    var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+    
+    invalidTab.addClass('ui-state-error');
+    invalid.addClass('ui-state-error');
+    
+    flash(title, body.fieldname + " " + body.message).error();
+  
+    return mod;
+  };
+  
+  mod.priv.afterEditRefresh = function() {
+    var sharedAttrs = ['data-document-id', 'data-document-rev'];
+    
+    sharedAttrs.forEach(function(elem) {
+      mod.saveButton.attr(elem, mod.editButton.attr(elem));
+    });
+    
+    mod.saveButton.show();
+    mod.priv.afterRefresh();
+    
+    return mod;
+  };
+  
+  mod.afterFreshRefresh = function() {
+    mod.priv.removeButton();
+    mod.priv.afterRefresh();
+  
+    return mod;
+  };
+  
+  mod.priv.afterRefresh = function() {
+    mod.priv.dateFields();
+    mod.priv.instances();
+    
+    return mod;
+  };
+  
+  mod.priv.instances = function() {
+    var text = ['0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f',
+                '0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f'];  
+    var makeInstance = function() {
+      return text.map(function() {
+                        return text[Math.floor(Math.random() * text.length)];
+                      }).join('');
+    };
+  
+    $("[data-field-instance]").each(
+      function(index, item) {
+        var newInstance = makeInstance();
+        $(item).first().attr('data-field-instance', newInstance);
+        $(item).first().attr('data-group-id', newInstance);
+        $(item).first().attr('id', newInstance);
+        $(item).first().next('.expander')
+          .attr('data-group-id', newInstance);
+        $(item).first().next().next('.expander')
+          .attr('data-group-id', newInstance);
+      });
+  
+      return mod;
+  };
+  
+  mod.resetFields = function() {
+    $('.field').each(function(index) {
+      var field = $(this);
+      var thedefault = field.attr('data-field-default');
+      
+      if (thedefault && thedefault !== '') {
+        if (field.is('select.multiselect')) {
+          field.val(thedefault.split(","));
+        } else if (field.is('input.boolean')) {
+          field.attr('checked', thedefault === true);
+        } else {
+          field.val(thedefault);
+        }
+      } else {
+        field.val('');
+        field.removeAttr('checked');
+      }
+    });
+    
+    return mod;
+  };
+  
+  mod.save = function() {
+    if (mod.saveButton.hasClass('oldrev')) {
+      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
+        return false;
+      }
+    }
+    
+    var body;
+    var title;
+    var s = store(mod.saveButton);
+    var root = $('#edit-document-form');
+    var document = s.d("document");
+    var rev = s.d("rev");
+    var url = "./documents/" + document + "?rev=" + rev;
+    var obj = {
+      doctype: s.d("doctype"),
+      description: s.d("description")
+    };
+    
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    mod.saveButton.button('disable');
+    $.extend(obj, efs().fieldsetsToObject(root));
+    
+    $.ajax({
+             type: "PUT",
+             url: url,
+             dataType: "json",
+             contentType: "application/json",
+             processData: false,
+             data: JSON.stringify(obj),
+             complete: function(req, status) {
+               if (req.status === 204 || req.status === 200) {
+                 title = "Success";
+                 body = "Your document was saved.";
+                 vui({id: document}).get();
+                 iui().get();
+                 flash(title, body).highlight();
+                 mod.saveButton.removeClass('oldrev');
+                 mod.saveButton.button('enable');
+               } else if (req.status === 403) {
+                 mod.priv.validationError(req);
+                 mod.saveButton.button('enable');
+               } else if (req.status === 409) {
+                 body = JSON.parse(req.responseText);
+                 title = req.statusText;
+                 
+                 flash(title, body.message).error();
+                 mod.saveButton.button('enable');
+               }
+             }
+           });
+  };
 
-var ifStoredElse = function(key, success, otherwise) {
-  var item = null;
+  mod.create = function() {  
+    var s = store(mod.createButton);
+    var root = $('#edit-document-form');
+    var obj = {
+      doctype: s.d("doctype"),
+      description: s.d("description")
+    };
+    
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    mod.createButton.button('disable');
+    $.extend(obj, efs().fieldsetsToObject(root));
+    
+    var postUrl = $.ajax({
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json",
+      processData: false,
+      data: JSON.stringify(obj),
+      complete: function(req, status) {
+        if (req.status === 201) {
+          var title = "Success";
+          var body = "Your document was created.";
+          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
+          
+          mod.saveButton.hide();
+          mod.saveButton.attr('disabled','true');
+          $('.fields').remove();
+          efs().initFieldsets();
+          vui({id: documentId}).get();
+          iui().get();
+          flash(title, body).highlight();
+          mod.createButton.button('enable');
+        } else if (req.status === 403) {
+          mod.priv.validationError(req);
+          mod.createButton.button('enable');
+        }
+      }
+    });
+  };
+  
+  mod.clear = function() {
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    mod.saveButton.hide();
+    mod.saveButton.attr('disabled','disabled');
+    $('.fields').remove();
+    efs().initFieldsets();
+  };
+  
+  mod.removeFieldset = function() {
+    mod.target.parent().remove();
+  };
+  
+  mod.showHelpDialog = function() {
+    if (mod.target.is('.label-text')) {
+      mod.target = mod.target.parent('label').find('.ui-icon-help');
+    }
+    
+    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(mod.target.attr('title'));
+  };
+  
+  mod.toggleTextarea = function() {
+    var textarea = $('#' + mod.target.attr('data-group-id'));
+    
+    textarea.toggleClass('expanded');
+    mod.target.toggleClass('expanded');
+  };
+  
+  return mod;
+};
+shimi.iui = function() {
+  var mod = {};
+  var vui = shimi.vui;
+  var eui = shimi.eui;
+  var store = shimi.store;
+  var flash = shimi.flash;
+  var index = shimi.index;
 
-  item = localStorage.getItem(key);
+  mod.get = function(startkey, startid, prevkeys, previds) {
+    var url = 'documents/index';
+    var indexId = $('#index-index-input').val();
+    var target = $('#index-listing');
 
-  if (item) {
-    success(item);
-  } else {
-    $.get(key, otherwise);
-  }
+    index({url: url, indexId: indexId, target: target})
+      .get(startkey, startid, prevkeys, previds);
+
+    return mod;
+  };
+
+  mod.iOpts = function() {
+    var url = "/projects/project-" + $('#container').attr('data-project-id') +
+        "/indexes?as=options";
+
+    $.get(url, function(data) {
+            $('#index-index-input').html(data);
+          });
+
+    return mod;
+  };
 };
 
-var initFieldsets = function() {
-  var reload;
-  var container = $("#create-document-button");
-  var doctype = dInfo("doctype", container);
-  var versionKey = doctype + "_version";
-  var oldVersion = localStorage.getItem(versionKey);
-  var curVersion = dInfo("version", container);
+shimi.sui = function() {
+  var mod = {};
+  var utils = shimi.utils();
+  var localStorage = window.localStorage;
+  var dSearchIndex = $('#document-search-index');
+  var dSearchTerm = $('#document-search-term');
+  var dSearchField = $('#document-search-field');
+  var dSearchExclude = $('#document-search-exclude');
+  var searchListing = $('#search-listing');
 
-  reload = oldVersion != curVersion;
-  localStorage.setItem(versionKey, curVersion);
-
-  $('fieldset').each(function(i, fieldset) {
-    initFieldset(fieldset, false, reload);
-  });
-  
-  return true;
-}
-
-var initFieldset = function(fieldset, callback, reload) {
-  var url = dpath($(fieldset), "fieldset").toString();
-  var id = fsInfo("fieldset", $(fieldset));
-  var container = $('#container-' + id);
-  var appendIt = function(data) {
-    container.append(data);
-    initFields(container, callback, reload);
-  };
-  var storeIt = function(data) {
-    localStorage.setItem(url, data);
-    appendIt(data);
-  };
-
-  if (reload) {
-    localStorage.removeItem(url);
-  }
-
-  ifStoredElse(url.toString(), appendIt, storeIt);
-
-  return false;
-}
-
-var initFields = function(container, callback, reload) {
-  var url = dpath(container, "field");
-  var section = container.children('.fields').last();
-  var prependIt = function(data) {
-    section.prepend(data);
-    if (callback) {
-      callback(section);
-    }
+  var fieldLookup = function() {
+    var lookup = {};
     
-    afterFreshRefresh();
-  };
-  var storeIt = function(data) {
-    localStorage.setItem(url, data);
-    prependIt(data);
-  };
-
-  if (reload) {
-    localStorage.removeItem(url);
-  }
-
-  ifStoredElse(url.toString(), prependIt, storeIt);
-    
-  return true;
-}
-
-// Before submitting the form, the form data is converted into an object
-// that can be serialized to JSON. This begins with the fieldsets.
- 
-function fieldsetsToObject(root) {
-  var obj = {fieldsets:[]};
-  
-  root.find('fieldset').each(function(i, fieldset) {
-    fieldset = $(fieldset);
-    
-    var fields;
-    
-    var fsObj = {
-      id: fsInfo("fieldset", fieldset),
-      multiple: fsInfo("multiple", fieldset) == "true",
-      collapse: fsInfo("collapse", fieldset) == "true",
-      name: fsInfo("name", fieldset),
-      label: fsInfo("label", fieldset),
-      order: fsInfo("order", fieldset) * 1
-    };
-
-    fields = fsContainer(fsObj.id).children('.fields');
-    
-    if (!fsObj.multiple) {
-      $.extend(fsObj, fieldsToObject(fields.first()));
-    } else {
-      fsObj.multifields = [];
-      
-      fields.each(function(j, field) {
-        field = $(field);
-        
-        fsObj.multifields[j] = fieldsToObject(field, j);
+    $('fieldset').each(
+      function(index, fset) {
+        var fsLabel = $(fset).attr('data-fieldset-label');
+        $(fset).find('.field-container').each(
+          function(index, item) {
+            var id = $(item).attr('data-field-field');
+            var label = $(item).find('.label-text').first().text();
+            lookup[id] = fsLabel + ": " + label;
+          });
       });
+    return lookup;
+  };
+
+  var lookup = function(item) {
+    var stored = localStorage.getItem(item);
+    if (stored === "" || stored === "null") {
+      return null;
+    } else {
+      return stored;
+    }
+  };
+
+  var excludedVal = function() {
+    var exclude = dSearchExclude.is(':checked');
+
+    if (!exclude) {
+      return null;
+    } else {
+      return exclude;
+    }
+  };
+
+  var updateSearchVals = function(fieldids, labels, exclude, index) {
+    if (index) {
+      localStorage.setItem("searchIndex", index);
+      localStorage.setItem("searchIndexLabel", labels);
+      localStorage.setItem("searchLabels", null);
+      localStorage.setItem("searchFields", null);
+      localStorage.setItem("searchExclude", null);
+    } else {
+      localStorage.setItem("searchIndex", null);
+      localStorage.setItem("searchIndexLabel", null);
+      localStorage.setItem("searchLabels", labels);
+      localStorage.setItem("searchFields", fieldids);
+      localStorage.setItem("searchExclude", exclude);
     }
     
-    obj.fieldsets[i] = fsObj;
-  });
+    return true;
+  };
   
-  return obj;
-}
-
-// Convert field values to an object that can be converted to JSON
-
-function fieldsToObject(fields, index) {
-  fields = fields.children('.field-container').children('.field');
-  var obj = {fields:[]};
-  
-  fields.each(function(i, field) {
-    field = $(field);
-    
-    obj.fields[i] = {
-      id: fInfo("field", field),
-      name: fInfo("name", field),
-      label: fInfo("label", field),
-      head: fInfo("head", field) == "true",
-      reversal: fInfo("reversal", field) == "true",
-      required: fInfo("required", field) == "true",
-      min: dateOrNumber(fInfo("subcategory", field), fInfo("min", field)),
-      max: dateOrNumber(fInfo("subcategory", field), fInfo("max", field)),
-      instance: fInfo("instance", field),
-      charseq: fInfo("charseq", field),
-      regex: fInfo("regex", field),
-      order: fInfo("order", field) * 1,
-      subcategory: fInfo("subcategory", field),
-      value: getFieldValue(field)
-    };
-    
-    if (index >= 0) {
-      obj.fields[i].index = index;
-    }
-  });
-  
-  return obj;
-}
-
-function dateOrNumber(subcategory, fieldvalue) {
-  switch (subcategory) {
-    case "date":
-      return fieldvalue;
-    default:
-      return stringToNumber(fieldvalue);
-  }
-}
-
-// Get the correct value for a boolean that can be null
-function getOpenboolean(value) {
-  switch (value) {
-    case "true":
-      value = true;
-      break;
-    case "false":
-      value = false;
-      break;
-    default:
-      value = null;
-  }
-  
-  return value
-}
-
-// Get a number from a string. Blanks are returned as an empty string.
-
-function getNumber(value) {
-  if (isBlank(value)) {
-    value = '';
-  } else if (!isNaN(value)) {
-    value = value * 1;
-  }
-  
-  return value;
-}
-
-// Items in multiple select lists are URL encoded
-
-function getMultiple(value) {
-  if (value) {
-    value = value.map(function(v) {return getEncoded(v)});
-  } else {
-    value = null;
-  }
-  
-  return value;
-}
-
-// Items in select lists are URL encoded
-
-function getEncoded(value) {
-  return decodeURIComponent(value.replace(/\+/g," "));
-}
-
-// Get the value from a field using the subcategory to ensure
-// that the value has the correct type and is properly formatted.
-
-function getFieldValue(field) {
-  var value;
-  
-  switch (fInfo("subcategory", field)) {
-    case "boolean":
-      value = field.is('input:checkbox:checked');
-      break;
-    case "openboolean":
-      value = getOpenboolean(field.val())
-      break;
-    case "integer":
-    case "rational":
-      value = getNumber(field.val());
-      break;
-    case "multiselect":
-    case "docmultiselect":
-      value = getMultiple(field.val());
-      break;
-    case "select":
-    case "docselect":
-      value = getEncoded(field.val());
-      break;
-    default:
-      value = field.val();
-  }
-  
-  return value;
-}
-
-// Get the index that is displayed in the index pane. 
-// startkey and startid map directly to the same concepts in
-// couchdb view queries. The prevkeys and previds are used to
-// hold information that will allow the user to page backward
-// through the listing. They are arrays of keys and ids corresponding
-// to previous page's startkeys and ids.
-//
-// There are a number of values that this function depends on
-// that are taken from the HTML. These include the value for
-// the limit and the nextkey and nextid for paging forward. Also
-// the current key and id are taken from the html when needed to
-// add to the prevkeys and previds. The startkey may be a user
-// input value so a more reliable startkey and startid are needed.
-
-function getIndex(startkey, startid, prevkeys, previds) {
-  var url = "documents/index?";
-  var index = $('#index-index-input').val();
-  var limit = $('#index-limit').val() * 1;
-  
-  // Initialize some values if we're at the beginning of the listing
-  if (!prevkeys) {
-    var supplied_val = $('#index-filter').val();
-    var json_encoded = JSON.stringify(supplied_val);
-    startkey = btoa(unescape(encodeURIComponent(json_encoded)));
-    prevkeys = [];
-    previds = [];
-  }
-  
-  if (startkey) {
-    url = url + '&startkey=' + escape(atob(startkey));
-    
-    if (startid) {
-      url = url + '&startkey_docid=' + startid;
-    }
-  }
-  
-  // The user supplied limit will need a plus one so that we can
-  // get the start key for the next page from the server.
-  if (limit) {
-    url = url + '&limit=' + (limit + 1);
-  } else {
-    // Ten is the default and I don't let people leave it blank
-    // because the list could be huge.
-    $('#index-limit').val(25);
-    url = url + '&limit=26';
-  }
-  
-  if (index) {
-    url = url + '&index=' + index;
-  }
-  
-  $.get(url, function(documentIndexHtml) 
-        {
-          $('#document-index #index-listing').html(documentIndexHtml);
-          
-          $('#previous-index-page').button(
-            {
-              icons: {primary:'ui-icon-circle-arrow-w'} 
-            }).click(function() 
-                     {
-                       getIndex(prevkeys.pop(), 
-                                previds.pop(), 
-                                prevkeys, 
-                                previds);
-                     });
-    
-          // Collect the values needed for paging from the HTML
-          $('#next-index-page').button(
-            {
-              icons: {secondary:'ui-icon-circle-arrow-e'}
-            }).click(function() 
-                     {
-                       var nextkey = $(this).attr('data-startkey');
-                       var nextid = $(this).attr('data-startid');
-                       var prevkey = 
-                         $('#first-index-element').attr('data-first-key');
-                       var previd = 
-                         $('#first-index-element').attr('data-first-id');
-                       prevkeys.push(prevkey);
-                       previds.push(previd);
-      
-                       getIndex(nextkey, nextid, prevkeys, previds);
-                     });
-    
-          // Disable the previous button if we're at the beginning
-          if (prevkeys.length == 0) {
-            $('#previous-index-page').button("disable");
-          }
-    
-          // Disable the next button if we're at the end
-          if ($('#next-index-page').attr('data-last-page')) {
-            $('#next-index-page').button("disable");
-          }
-  
-          $('nav.pager').buttonset();
-    
-        });
-}
-
-function fillQueryOptions() {
-  var url = "/projects/project-" + $('#container').attr('data-project-id') +
-        "/indexes?as=options";
-        
-  $.get(url, function(data) {
-    $('#index-index-input').html(data);
-  });
-}
-
-var searches = {
-  getSearch: function() {
-    var query = $('#document-search-term').val();
-    var url = "documents/search?q=" + encodeURIComponent(query);
-    var field = $('#document-search-field').val();
-    var exclude = $('#document-search-exclude').is(':checked');
-    var index = $('#document-search-index').val();
-    var lookup = searches.fieldLookup();
+  mod.getSearch = function() {
+    var query = dSearchTerm.val();
+    var url = "documents/search?q=" + window.encodeURIComponent(query);
+    var field = dSearchField.val();
+    var exclude = dSearchExclude.is(':checked');
+    var index = dSearchIndex.val();
+    var lookup = fieldLookup();
 
     if (index) {
       url = url + "&index=" + index; 
@@ -2577,10 +2482,10 @@ var searches = {
       }
     }
 
-    $('#search-listing').hide();
+    searchListing.hide();
 
     $.get(url, function(searchResults) {
-            $('#search-listing').html(searchResults);
+            searchListing.html(searchResults);
             $('.search-result-field-id')
               .each(function(index, item) {
                       var label = lookup[$(item).attr('data-field-field')];
@@ -2597,47 +2502,14 @@ var searches = {
                                          "<span class='highlight'>$1</span>");
                       $(item).children('a').html(newText);
                     });
-            $('#search-listing').show();
+            searchListing.show();
           });
-  },
+          
+    return mod;
+  };
 
-  fieldLookup: function() {
-    var lookup = {};
-    
-    $('fieldset').each(
-      function(index, fset) {
-        var fsLabel = $(fset).attr('data-fieldset-label');
-        $(fset).find('.field-container').each(
-          function(index, item) {
-            var id = $(item).attr('data-field-field');
-            var label = $(item).find('.label-text').first().text();
-            lookup[id] = fsLabel + ": " + label;
-          });
-      });
-    return lookup;
-  },
-
-  lookup: function(item) {
-    var stored = localStorage.getItem(item);
-    if (stored === "" || stored === "null") {
-      return null;
-    } else {
-      return stored;
-    }
-  },
-
-  excludedVal: function() {
-    var exclude = $('#document-search-exclude').is(':checked');
-
-    if (!exclude) {
-      return null;
-    } else {
-      return exclude;
-    }
-  },
-
-  toggleExclusion: function(e) {
-    var exclude = searches.excludedVal();
+  mod.toggleExclusion = function(e) {
+    var exclude = mod.excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
     if (exclude) {
@@ -2647,11 +2519,13 @@ var searches = {
     }
 
     localStorage.setItem("searchExclude", exclude);
-  },
+    
+    return mod;
+  };
 
-  clearSearchVals: function(initial) {
-    $('#document-search-field').val(null);
-    $('#document-search-index').val(null);
+  mod.clearSearchVals = function(initial) {
+    dSearchField.val(null);
+    dSearchIndex.val(null);
     $('#document-search-exclude:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
@@ -2663,56 +2537,44 @@ var searches = {
       localStorage.setItem("searchIndex", null);
       localStorage.setItem("searchIndexLabel", null);
     }
-  },
+    
+    return mod;
+  };
 
-  loadSearchVals: function() {
-    var index = searches.lookup("searchIndex");
-    var fieldids = searches.lookup("searchFields");
+  mod.loadSearchVals = function() {
+    var index = lookup("searchIndex");
+    var fieldids = lookup("searchFields");
 
     if (index !== null) {
-      $('#document-search-index').val(index);
+      dSearchIndex.val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
-      $('#document-search-exclude').parent('div').hide();
+      dSearchExclude.parent('div').hide();
     } else if (fieldids !== null) {
-      $('#document-search-field').val(fieldids);
+      dSearchField.val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
-      if (searches.lookup("searchExclude") != searches.excludedVal()) {
-        $('#document-search-exclude').click();
+      if (lookup("searchExclude") !== mod.excludedVal()) {
+        dSearchExclude.click();
       }
 
       $('.search-optional').show();
     }
-  },
+    
+    return mod;
+  };
 
-  updateSearchVals: function(fieldids, labels, exclude, index) {
-    if (index) {
-      localStorage.setItem("searchIndex", index);
-      localStorage.setItem("searchIndexLabel", labels);
-      localStorage.setItem("searchLabels", null);
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchExclude", null);
-    } else {
-      localStorage.setItem("searchIndex", null);
-      localStorage.setItem("searchIndexLabel", null);
-      localStorage.setItem("searchLabels", labels);
-      localStorage.setItem("searchFields", fieldids);
-      localStorage.setItem("searchExclude", exclude);
-    }
-  },
-
-  removeSearchField: function(e) {
+  mod.removeSearchField =  function(e) {
     var item = $(e.target);
     var value = item.attr('data-index');
-    var searchField = $('#document-search-field');
+    var searchField = dSearchField;
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    var exclude = searches.excludedVal();
+    var exclude = mod.excludedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
-      searches.clearSearchVals();
+      mod.clearSearchVals();
     } else {
       var index = valDecoded.indexOf(value);
       
@@ -2725,35 +2587,39 @@ var searches = {
       item.remove();
     }
     
-    searches.updateSearchVals(newVal, $('#search-field-label').html(), exclude);
-  },
+    updateSearchVals(newVal, $('#search-field-label').html(), exclude);
+    
+    return mod;
+  };
 
-  addSearchIndex: function(e) {
+  mod.addSearchIndex = function(e) {
     var indexVal = $('#index-index-input').val();
     var indexLabel = $('option[value=' + indexVal + ']').text();
 
-    if (validID(indexVal)) {
+    if (utils.validID(indexVal)) {
       $('#search-all-fields-switch').show();
       $('#search-field-label').hide();
       $('#search-exclude-label').empty();
-      $('#document-search-field').val(null);
-      $('#document-search-exclude').parent('div').hide();
+      dSearchField.val(null);
+      dSearchExclude.parent('div').hide();
       $('#search-index-label').html(indexLabel).show();
-      $('#document-search-index').val(indexVal);
-      searches.updateSearchVals(null, indexLabel, null, indexVal);
+      dSearchIndex.val(indexVal);
+      updateSearchVals(null, indexLabel, null, indexVal);
     }
-  },
+    
+    return mod;
+  };
 
-  addSearchField: function(e) {
+  mod.addSearchField = function(e) {
     var fieldid = $(e.target).closest('[data-field-field]')
       .attr('data-field-field');
 
-    if (validID(fieldid)) {
-      var fieldLabel = searches.fieldLookup()[fieldid];
-      var searchField = $('#document-search-field');
+    if (utils.validID(fieldid)) {
+      var fieldLabel = fieldLookup()[fieldid];
+      var searchField = dSearchField;
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var exclude = searches.excludedVal();
+      var exclude = mod.excludedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + 
@@ -2769,7 +2635,7 @@ var searches = {
         
         newVal = JSON.stringify(value);
         searchField.val(newVal);
-        searches.updateSearchVals(newVal, searchLabel.html(), exclude);
+        updateSearchVals(newVal, searchLabel.html(), exclude);
       };
 
       if (currentVal !== '') {
@@ -2785,267 +2651,371 @@ var searches = {
 
       $('.search-optional').show();
     }
-  }
-};
-
-// Functions for building view via ajax calls. Functions preceded by "get"
-// are generally pulling in data. Functions preceded by "init" are generally
-// generating parts of a form.
-
-var formatTimestamps = function() {
-  $('.timestamp').each(
-    function(i, item) {
-      var newDate = (new Date($(item).text())).toLocaleString();
-      if (newDate !== "Invalid Date") {
-        $(item).text(newDate);
-      }
-    });
-};
-
-// Get a document revision and display it in the middle column
-var getRevision = function(id, rev) {
-  var url = "documents/" + id + "/" + rev;
-  var dvt = $('#document-view-tree');
-
-  dvt.hide();
-
-  $.get(url, function(documentHtml) {
-          dvt.html(documentHtml);
-          formatTimestamps();
-          dvt.show();
-        });
-};
-
-// Get a document and display it in the middle column
-function getDocument(id, runAfterEditRefresh) {
-  var url = "documents/" + id;
-  
-  $('#document-view').fadeTo('slow', 1);
-  
-  $.get(url, function(documentHtml) {
-    $('#document-view').html(documentHtml);
-
-    formatTimestamps();
-
-    if (runAfterEditRefresh) afterEditRefresh();
     
-    var restoreButton = $('#document-restore-button');
-    var editButton = $('#document-edit-button');
-    var deleteButton = $('#document-delete-button');
-   
-    editButton.button({icons: {primary: 'ui-icon-pencil'}});
-    deleteButton.button({icons: {primary: 'ui-icon-trash'}});
-    restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
-    
-    if (dInfo("deleted", restoreButton) === "true") {
-      editButton.hide();
-      deleteButton.hide();
-    } else {
-      restoreButton.hide();
-    }
-  });
-}
-
-function restoreDocument(docid, docrev) {
-  var url = "./documents/" + docid + "?rev=" + docrev;
-  var restoreButton = $('#document-restore-button');
-  
-  $.ajax({
-    type: "DELETE",
-    url: url,
-    dataType: "json",
-    contentType: "application/json",
-    complete: function(req, status) {
-      if (req.status == 200) {
-        var title = "Success";
-        var body = "Your document was restored.";
-
-        getDocument(docid, function() {getIndex();});
-        flashHighlight(title, body);
-      } else if (req.status == 409) {
-        var body = JSON.parse(req.responseText);
-        var title = req.statusText;
-          
-        flashError(title, body.message);
-      } else if (req.status == 404) {
-        var body = "Document was erased and cannot be restored.";
-        var title = req.statusText;
-          
-        flashError(title, body);
-      }
-    }
-  });
-}
-
-function deleteDocument(docid, docrev) {
-  var url = "./documents/" + docid + "?rev=" + docrev;
-  var restoreButton = $('#document-restore-button');
-  
-  $.ajax({
-    type: "DELETE",
-    url: url,
-    dataType: "json",
-    contentType: "application/json",
-    complete: function(req, status) {
-      if (req.status == 200) {
-        var title = "Success";
-        var body = "Your document was deleted.";
-        var response = JSON.parse(req.responseText);
-        
-        putValue("document-rev", response.rev, restoreButton);
-        
-        $('#document-delete-button').hide();
-        $('#document-edit-button').hide();
-        restoreButton.show();
-        $('#document-view h2').text("Deleted Document");
-        $('#document-view').fadeTo('slow', 0.5);
-        
-        getIndex();
-        flashHighlight(title, body);
-      } else if (req.status == 409) {
-        var body = JSON.parse(req.responseText);
-        var title = req.statusText;
-          
-        flashError(title, body.message);
-      } else if (req.status == 404) {
-        var body = "Document appears to have been deleted already.";
-        var title = req.statusText;
-          
-        flashError(title, body);
-      }
-    }
-  });
-}
-
-var getDirListing = function (path) {
-  if (path === undefined) path = "";
-  
-  $.get("file_manager/list_dirs/" + path, function (data) {
-    $('#file-paths').html(data);
-    $('.dir').click(function (e) {
-      var newpath = $(e.target).attr('data-path');
-      
-      refreshListings(newpath);
-    });
-    $('#up-dir').button().click(function () {
-      var newpath = path.split("/");
-      newpath.pop();
-      newpath = newpath.join("/");
-      
-      refreshListings(newpath);
-    });
-    $('#root-dir').button().click(function () {
-      refreshListings();
-    });
-  });
+    return mod;
+  };
 };
 
-var getFileListing = function (path) {
-  if (path === undefined) path = "";
+// View pane UI elements
+
+shimi.vui = function(args) {
+  var mod = {};
+  var vui = shimi.vui;
+  var iui = shimi.iui;
+  var eui = shimi.eui;
+  var efs = shimi.efs();
+  var store = shimi.store;
+  var flash = shimi.flash;
   
-  $.get("file_manager/list_files/" + path, function (data) {
-    $('#file-listing').html(data);
-    refreshButtons(path);
-  });
-};
-
-var refreshListings = function (path) {
-  getDirListing(path);
-  getFileListing(path);
-};
-
-var refreshButtons = function (path) {
-  refreshEditButton();
-  refreshDeleteButton();
-};
-
-var refreshEditButton = function (path) {
-    $('.edit-file-button').button({
-      icons: {primary: 'ui-icon-pencil'}
-    }).click(function (e) {
-      var target = $(e.target).parent('a');
-      var fileId = target.attr('data-file-id');
-      var url = "file_manager/" + fileId;
-      
-      $.getJSON(url, function (obj) {
-        pathEditDialog(obj, path).dialog('open');
+  mod.target = args.target;
+  mod.rev = args.rev;
+  mod.id = args.id;
+  
+  mod.formatTimestamps = function() {
+    $('.timestamp').each(
+      function(i, item) {
+        var newDate = (new Date($(item).text())).toLocaleString();
+        if (newDate !== "Invalid Date") {
+          $(item).text(newDate);
+        }
       });
-    });
-};
-
-var refreshDeleteButton = function (path) {
-    $('.delete-file-button').button({
-      icons: {primary: 'ui-icon-trash'}
-    }).click(function(e) {
-      var target = $(e.target).parent('a');
-      var fileId = target.attr('data-file-id');
-      var fileRev = target.attr('data-file-rev');
-      var url = "file_manager/" + fileId + "?rev=" + fileRev;
-      var complete = function () {
-        refreshListings(path);
-        flashHighlight("Success", "File Deleted");
-      };
       
-      sendConfigDoc(url, null, 'DELETE', complete, target);
-    });
-};
-
-var pathEditDialog = function (obj, path) {
-  var pathInput = $('#file-path-input');
+     return mod;
+  };
   
-  if (obj.path) {
-    pathInput.val(obj.path.join("/"));
-  } else {
-    pathInput.val('');
-  }
+  mod.rev = function(rev) {
+    mod.rev = rev;
+    
+    return mod;
+  };
   
-  var dialog = $('#edit-path-dialog').dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Move": function () {
-        var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
-        var complete = function () {
-          refreshListings(path);
-          flashHighlight("Success", "File Moved");
-        };
-        
-        obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
-        sendConfigDoc(url, obj, 'PUT', complete, dialog);
-        $(this).dialog("close");
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
+  mod.id = function(id) {
+    mod.id = id;
+    
+    return mod;
+  };
+  
+  mod.target = function(target) {
+    mod.target = target;
+    
+    return mod;
+  };
+  
+  mod.get = function(callback) {
+    var url = "documents/" + mod.id;
+    var dvt = $('#document-view');
+    
+    if (mod.rev) {
+      url = "documents/" + mod.id + "/" + mod.rev;
     }
-  });
+    
+    dvt.hide();
+    
+    $.get(url, function(documentHtml) {
+      dvt.html(documentHtml);
+      mod.formatTimestamps();
+      if (callback) {
+        callback();
+      }
+      dvt.show();
+      
+      if (!mod.rev) {
+        var restoreButton = $('#document-restore-button');
+        var editButton = $('#document-edit-button');
+        var deleteButton = $('#document-delete-button');
+       
+        editButton.button({icons: {primary: 'ui-icon-pencil'}});
+        deleteButton.button({icons: {primary: 'ui-icon-trash'}});
+        restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
+        
+        if (store(restoreButton).d("deleted") === "true") {
+          editButton.hide();
+          deleteButton.hide();
+        } else {
+          restoreButton.hide();
+        }
+      }
+    });
+    
+    return mod;
+  };
   
-  return dialog;
+  mod.restore = function() {
+    var url = "./documents/" + mod.id + "?rev=" + mod.rev;
+    var restoreButton = $('#document-restore-button');
+    var body;
+    var title;
+    
+    $.ajax({
+      type: "DELETE",
+      url: url,
+      dataType: "json",
+      contentType: "application/json",
+      complete: function(req, status) {
+        if (req.status === 200) {
+          title = "Success";
+          body = "Your document was restored.";
+  
+          mod.rev(null).get(function() {iui().get();});
+          flash(title, body).highlight();
+        } else if (req.status === 409) {
+          body = JSON.parse(req.responseText);
+          title = req.statusText;
+            
+          flash(title, body.message).error();
+        } else if (req.status === 404) {
+          body = "Document was erased and cannot be restored.";
+          title = req.statusText;
+            
+          flash(title, body).error();
+        }
+      }
+    });
+  
+    return mod;
+  };
+  
+  mod.del = function() {
+    var url = "./documents/" + mod.id + "?rev=" + mod.rev;
+    var restoreButton = $('#document-restore-button');
+    var body;
+    var title;
+    
+    $.ajax({
+      type: "DELETE",
+      url: url,
+      dataType: "json",
+      contentType: "application/json",
+      complete: function(req, status) {
+        if (req.status === 200) {
+          title = "Success";
+          body = "Your document was deleted.";
+          var response = JSON.parse(req.responseText);
+          
+          store(restoreButton).put("document-rev", response.rev);
+          
+          $('#document-delete-button').hide();
+          $('#document-edit-button').hide();
+          restoreButton.show();
+          $('#document-view h2').text("Deleted Document");
+          $('#document-view').fadeTo('slow', 0.5);
+          
+          iui().get();
+          flash(title, body).highlight();
+        } else if (req.status === 409) {
+          body = JSON.parse(req.responseText);
+          title = req.statusText;
+            
+          flash(title, body.message).error();
+        } else if (req.status === 404) {
+          body = "Document appears to have been deleted already.";
+          title = req.statusText;
+            
+          flash(title, body).error();
+        }
+      }
+    });
+    
+    return mod;
+  };
+  
+  mod.confirmIt = function(f) {
+    if (window.confirm("Are you sure?")) {
+      var s = store(mod.target);
+      var id = s.d("document");
+      var rev = s.d("rev");
+      
+      f(id, rev);
+    }
+      
+     return mod;
+  };
+  
+  mod.edit = function() {
+    eui().resetFields();
+    if ($('#document-view-tree').hasClass('oldrev')) {
+      $('#save-document-button').addClass('oldrev');
+    } else {
+      $('#save-document-button').removeClass('oldrev');
+    }
+    efs.fillFieldsets();
+    
+    return mod;
+  };
+  
+  mod.confirmDelete = function() {
+    return mod.confirmIt(function(d, r) {mod.id(d).rev(r).del();});
+  };
+  
+  mod.confirmRestore = function() {
+    return mod.confirmIt(function(d, r) {mod.id(d).rev(r).restore();});
+  };
+  
+  mod.collapseToggle = function() {
+    mod.target.parent('li').toggleClass('collapsed');
+    
+    return mod;
+  };
+  
+  mod.fetchRevision = function() {
+    var s = store(mod.target);
+    var id = s.d("document");
+    var rev = s.d("rev");
+    var oldrev = s.d("oldrev");
+  
+    if (rev !== oldrev) {
+      $('#document-view-tree').addClass('oldrev');
+    } else {
+      $('#document-view-tree').removeClass('oldrev');
+    }
+  
+    vui({rev: oldrev, id: id}).get();
+    
+    return mod;
+  };
+  
+  return mod;
 };
 
 $(function () {
-  refreshListings();
+  shimi.fm().refreshListings();
   
   $('#file-upload-target').load(function() {
     var encoded = $('#file-upload-target').contents().find('body pre').html();
     var obj = function () {
-      if (encoded) if (encoded.length > 0) {
+      if (encoded && encoded.length > 0) {
         return JSON.parse(encoded);
       } else {
         return {message: false};
       }
     };
     
-    if (obj()) if (obj().message && obj().status === "error") {
-      flashError("Error", obj().message);
-      refreshListings();
+    if (obj() && obj().message && obj().status === "error") {
+      shimi.flash("Error", obj().message).error();
+      shimi.fm().refreshListings();
     } else if (obj().message) {
-      flashHighlight("Success", obj().message);
-      refreshListings();
+      shimi.flash("Success", obj().message).highlight();
+      shimi.fm().refreshListings();
     }
   });
 });
-var initIndexBuilderDialog = function(indexDoctype) {
+shimi.fm = function() {
+  var mod = {};
+  
+  var getDirListing = function (path) {
+    if (path === undefined) {
+      path = "";
+    }
+    
+    $.get("file_manager/list_dirs/" + path, function (data) {
+      $('#file-paths').html(data);
+      $('.dir').click(function (e) {
+        var newpath = $(e.target).attr('data-path');
+        
+        mod.refreshListings(newpath);
+      });
+      $('#up-dir').button().click(function () {
+        var newpath = path.split("/");
+        newpath.pop();
+        newpath = newpath.join("/");
+        
+        mod.refreshListings(newpath);
+      });
+      $('#root-dir').button().click(function () {
+        mod.refreshListings();
+      });
+    });
+  };
+  
+  var getFileListing = function (path) {
+    if (path === undefined) {
+      path = "";
+    }
+    
+    $.get("file_manager/list_files/" + path, function (data) {
+      $('#file-listing').html(data);
+      refreshButtons(path);
+    });
+  };
+  
+  var refreshEditButton = function (path) {
+      $('.edit-file-button').button({
+        icons: {primary: 'ui-icon-pencil'}
+      }).click(function (e) {
+        var target = $(e.target).parent('a');
+        var fileId = target.attr('data-file-id');
+        var url = "file_manager/" + fileId;
+        
+        $.getJSON(url, function (obj) {
+          pathEditDialog(obj, path).dialog('open');
+        });
+      });
+  };
+  
+  var refreshDeleteButton = function (path) {
+      $('.delete-file-button').button({
+        icons: {primary: 'ui-icon-trash'}
+      }).click(function(e) {
+        var target = $(e.target).parent('a');
+        var fileId = target.attr('data-file-id');
+        var fileRev = target.attr('data-file-rev');
+        var url = "file_manager/" + fileId + "?rev=" + fileRev;
+        var complete = function () {
+          mod.refreshListings(path);
+          shimi.flash("Success", "File Deleted").highlight();
+        };
+        
+        shimi.form().send(url, null, 'DELETE', complete, target);
+      });
+  };
+  
+  var refreshButtons = function (path) {
+    refreshEditButton();
+    refreshDeleteButton();
+  };
+  
+  var pathEditDialog = function (obj, path) {
+    var pathInput = $('#file-path-input');
+    
+    if (obj.path) {
+      pathInput.val(obj.path.join("/"));
+    } else {
+      pathInput.val('');
+    }
+    
+    var dialog = $('#edit-path-dialog').dialog({
+      autoOpen: false,
+      modal: true,
+      buttons: {
+        "Move": function () {
+          var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
+          var complete = function () {
+            mod.refreshListings(path);
+            shimi.flash("Success", "File Moved").highlight();
+          };
+          
+          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
+          shimi.form().send(url, obj, 'PUT', complete, dialog);
+          $(this).dialog("close");
+        },
+        "Cancel": function() {
+          $(this).dialog("close");
+        }
+      }
+    });
+    
+    return dialog;
+  };
+  
+  mod.refreshListings = function (path) {
+    getDirListing(path);
+    getFileListing(path);
+  };
+  
+  return mod;
+};
+
+shimi.initIndexBuilderDialog = function(indexDoctype) {
   var builderOr = $("#builder-or-input");
   var builderParen = $("#builder-paren-input");
   var builderNegate = $("#builder-negate-input");
@@ -3056,6 +3026,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
+  var evs = shimi.ihelpers().evs;
   
   $('.ui-helper-reset div').show();
 
@@ -3063,12 +3034,12 @@ var initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    initConditionRemoveButtons(tableBody);
+    shimi.eiui().initCondButtons(tableBody);
     
     return false;
   };
     
-  fillOptionsFromUrl(fieldset_url, builderFieldset, 
+  shimi.ihelper().fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
@@ -3092,7 +3063,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
                       });
   
   var fieldsetEvents = function () {
-    setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
                            function () {
                              builderOperator.inputDisable();
                              builderField.inputDisable();
@@ -3105,7 +3076,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   };
   
   var fieldEvents = function () {
-    setIndexFieldEvents(indexDoctype, builderFieldset, builderField, 
+    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, 
                         function () {
                           builderOperator.inputDisable();
                           builderArgument.inputDisable();
@@ -3117,7 +3088,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   };
   
   var operatorEvents = function () {
-    setIndexOperatorEvents(builderArgument, builderOperator, builderField, 
+    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, 
                            function () {
                              builderArgument.inputDisable();
                              
@@ -3183,7 +3154,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
                 builderFieldset.unbind('change');
                 builderField.unbind('change');
                 builderOperator.unbind('change');
-                clearValues($('.input')).removeClass('ui-state-error');
+                shimi.form().clear($('.input')).removeClass('ui-state-error');
               }
             });
   
@@ -3194,589 +3165,523 @@ var initIndexBuilderDialog = function(indexDoctype) {
   return dialog;
 };
 
-var initIndexNewButton = function() {
-  $('#new-index-button').button(
-    {
-      icons: {primary: "ui-icon-plus"}
-    }).click(function() {
-               initIndexNewDialog().dialog("open");
-             });
-  
-  return false;
-};
+shimi.ieui = function() {
+  var mod = {};
+  var newButton = $('#new-index-button');
+  var deleteButton = $('#delete-index-button');
+  var saveButton = $('#save-index-button');
+  var addCondButton = $('#add-index-condition-button');
+  var replaceButton = $('#replace-button');
+  var tableBody = $('#index-conditions-listing tbody');
+  var buttonBar = $('#button-bar');
 
-var initConditionRemoveButtons = function(tableBody) {
-  tableBody.find('.remove-condition-button').button(
-    {
-      icons: {primary: "ui-icon-minus"}
-    }).click(function(e) {
-               $(e.target).closest('tr').remove();
-             });
-  
-  return false;
-};
-
-var initIndexDeleteButton = function(button, buttonData) {
-  button.button(
-    {icons: {primary: "ui-icon-trash"}
-    }).click(function (e) {
-               var bData = buttonData();
-               
-               if (!bData.length < 1) {
-                 var deleteButton = $(e.target);
-                 var indexId = bData.attr('data-index-id');
-                 var indexRev = bData.attr('data-index-rev');
-                 var completeMessage = "Your index has been deleted.";
-                 var completeFunction = function() {
-                   $('#index-conditions').empty();
-                   initIndexIndex();
-                 };
-                 
-                 if (confirm("Are you sure?")) {
-                   deleteIndex(indexId, indexRev, completeMessage, 
-                               completeFunction);
-                 }
-               } else {
-                 flashHighlight("Info", "No index has been chosen to delete.");
-               }
-             });
-  
-  return false;
-};
-
-var initIndexAddConditionButton = function(button, buttonData) {
-  button.button({
-                  icons: {primary: "ui-icon-plus"}
-                }).click(function (e) {
-                           var bData = buttonData();
-                           
-                           if (!bData.length < 1) {
-                             initIndexBuilderDialog(
-                               bData.attr('data-index-doctype')).dialog("open");
-                           } else {
-                             flashHighlight("Info", 
-                                            "You must choose an index first.");
-                           }
-                         });
-
-  return false;
-};
-
-var initReplaceButton = function(button, buttonData) {
-  button.button({
-                  icons: {primary: "ui-icon-shuffle"}
-                }).click(function (e) {
-                           var bData = buttonData();
-                           
-                           if (!bData.length < 1) {
-                             initReplaceDialog().dialog("open");
-                           } else {
-                             flashHighlight("Info", 
-                                            "You must choose an index first.");
-                           }
-                         });
-
-  return false;
-};
-
-var initIndexEditButtons = function(buttonData) {
-  initIndexSaveButton($('#save-index-button'), buttonData);
-  initIndexDeleteButton($('#delete-index-button'), buttonData);
-  initIndexAddConditionButton($('#add-index-condition-button'), buttonData);
-  initReplaceButton($('#replace-button'), buttonData);
-  
-  return false;
-};
- 
-var initIndexSaveButton = function(button, buttonData) {
-  var completeFunction;
-  var bData;
-  
-  button.button(
-    {
-      icons: {primary: "ui-icon-document"}
-    }).click(function (e) {
-               bData = buttonData();
-    
-               if (!bData.length < 1) {
-                 completeFunction = function() {
-                   getIndexEdit(bData.attr('data-index-id'));
-                   flashHighlight("Success", "Your index has been saved.");
-                 };
-      
-                 saveIndex(bData, completeFunction);
-               } else {
-                 flashHighlight("Info", "No index has been chosen to save.");
-               }
-             });
-};
-
-// Add events to a fieldset. In this case a change event that will populate
-// the select options of a following field input element.  indexDoctype may
-// be either a string corresponding to the doctype or an input field with
-// the doctype as a value. The indexFieldset and indexField should both
-// be select elements.
-
-function setIndexDoctypeEvents(indexDoctype, indexFieldset, callback) {
-  indexDoctype
-    .change(function() {
-              var url = 'doctypes/' + 
-                indexDoctype.val() + '/fieldsets';
-              var callback2;
-              
-              if (callback) callback2 = callback();
-              
-              fillOptionsFromUrl(url, indexFieldset, callback2);
-            });
-  
-  return false;
-}
-
-function setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, 
-                                callback) {
-  indexFieldset
-    .change(function() {
-              var callback2;
-
-              if (!(typeof indexDoctype == "string")) {
-                indexDoctype = indexDoctype.val();
-              }
-              
-              if (indexFieldset.val()) {
-                var url = 'doctypes/' + indexDoctype + 
-                  '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
-    
-                if (callback) callback2 = callback();
-    
-                fillOptionsFromUrl(url, indexField, callback2);
-              }
-            });
-  
-  return false;
-}
-
-function setIndexFieldEvents(indexDoctype, indexFieldset, indexField, 
-                             callback) {
-  indexField
-    .change(function() {
-              var fieldId = indexField.val();
-              var fieldsetId = indexFieldset.val();
-              var callback2;
-    
-              if (callback) callback2 = callback();
-    
-              if (!(fieldId.isBlank())) {
-                getFieldDoc(fieldId, fieldsetId, indexDoctype, function(data) {
-                              alterOperatorField(data, fieldId, callback2);
-                            });
-              }
-            });
-  
-  return false;
-}
-
-function setIndexOperatorEvents(argumentField, operatorField, fieldField, 
-                                callback) {
-  operatorField
-    .change(function() {
-              var callback2;
-              
-              if (callback) callback2 = callback();
-              
-              alterArgumentField(argumentField, operatorField, fieldField, 
-                                 callback2);
-            });
-  
-  return false;
-}
-
-var getFieldDoc = function(fieldId, fieldsetId, doctypeId, callback) {
-  var fieldDoc = getDoc(fieldId);
-  var url = 'doctypes/' + doctypeId + 
-    '/fieldsets/' + fieldsetId + 
-    '/fields/' + fieldId + '?format=json';
-            
-  if (fieldDoc) {
-    if (callback) {
-      callback(fieldDoc);
-    }
-    return fieldDoc;
-  } else {
-    $.ajax({
-             url: url,
-             async: false,
-             dataType: 'json',
-             success: function(data) {
-               putDoc(data);
-               if (callback) {
-                 callback(getDoc(fieldId));
-               }
-             }
-           });
-          
-    return getDoc(fieldId);
-  }
-};
-
-var fillOptionsFromUrl = function(url, selectElement, callback) {
-  $.get(url, function(options) {
-          selectElement.html(options);
-          if (callback) callback();
-        });
-  
-  return false;
-};
-
-var alterOperatorField = function(fieldDoc, fieldId, callback) {
-  disableOperatorOptions(fieldDoc);
-  callback();
-  
-  return false;
-};
-
-var disableOperatorOptions = function(fieldDoc) {
-  var options = $('#builder-operator-input');
-  
-  switch (fieldDoc.subcategory) {
-  case "select":
-  case "docselect":
-  case "text":
-  case "textarea":
-    disableOptions(options, ["member", "true"]);
-    break;
-  case "integer":
-  case "rational":
-  case "date":
-    disableOptions(options, ["member", "true", "match"]);
-    break;
-  case "boolean":
-  case "openboolean":
-    disableOptions(options, ["equal", "greater", "less", "member", "match"]);
-    break;
-  case "multiselect":
-  case "docmultiselect":
-    disableOptions(options, ["equal", "greater", "less", "true", "match"]);
-    break;
-  }
-  
-  return false;
-};
-
-var disableOptions = function(options, disables) {
-  options.children().show();
-  
-  disables.forEach(function(item) {
-                     options.children('option:contains(' + item + ')').hide();
-                   });
-  
-  return false;
-};
-
-var alterArgumentField = 
-  function(argumentField, operatorField, fieldField, callback) {
-    var fieldDoc = function () {return getDoc(fieldField.val());};
-
-    callback();
-  
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
-  
-    var dateOrText = function(argumentField, fdoc) {
-      if (fdoc.subcategory == 'date') {
-        argumentField.removeAttr('disabled');
-        argumentField.datepicker({dateFormat: "yy-mm-dd"});
-      } else {
-        argumentField.removeAttr('disabled');
-        argumentField.autocomplete({source: fdoc.allowed});
-      }
-    
-      return false;
-    };
-
-    var fdoc = fieldDoc();
-  
-    if (fdoc) {
-      switch (operatorField.val()) {
-      case "true":
-      case "isDefined":
-      case "blank":
-        argumentField.attr('disabled', 'disabled').val("");
-        break;
-      case "equal":
-      case "member":
-      case "greater":
-      case "less":
-      case "hasExactly":
-      case "hasGreater":
-      case "hasLess":
-        dateOrText(argumentField, fdoc);
-        break;
-      }
-    
-    }
-  };
-
-var fixArgumentType = function(argument, subcategory, operator) {
-  switch (subcategory) {
-  case "integer":
-  case "rational":
-    argument = argument * 1;
-    break;
-  }
-
-  switch (operator) {
-  case "hasExactly":
-  case "hasGreater":
-  case "hasLess":
-    argument = Math.floor(argument * 1);
-    break;
-  }
-  
-  return argument;
-};
-
-var getIndexConditions = function(doctypeId, rows) {
-  var conditions = rows.map(
-    function(index, row) {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') == "true";
-      var paren = row.find('td.paren-condition').attr('data-value');
-      var condition;
-    
-      if (is_or) {
-        condition = {"is_or": true, "parens": false};
-      } else if (paren) {
-        condition = {"is_or": false, "parens": paren};
-      } else {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate = 
-          row.find('td.negate-condition').attr('data-value') == "true";
-        var operator = row.find('td.operator-condition').attr('data-value');
-
-        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
-      
-        condition = {
-          "is_or": false,
-          "parens": false,
-          "negate": negate,
-          "fieldset": fieldsetId,
-          "field": fieldId,
-          "operator": operator,
-          "argument": argument
-        };
-      }
-    
-      return condition;
-    }).toArray();
-  
-  return conditions;
-};
-
-var saveIndex = function(buttonData, completeFunction) {
-  var indexId = buttonData.attr('data-index-id');
-  var indexRev = buttonData.attr('data-index-rev');
-  var url = "indexes/" + indexId + "?rev=" + indexRev;
-  var doctype = buttonData.attr('data-index-doctype');
-  
-  var obj = {
-    "_id": indexId,
-    "category": "index",
-    "doctype": doctype,
-    "show_deleted": buttonData.attr('data-index-show_deleted') === "true",
-    "fields": JSON.parse(buttonData.attr('data-index-fields')),
-    "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
-    "name": buttonData.attr('data-index-name'),
-    "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+  var editingData = function() {
+    return $('#index-editing-data');
   };
   
-  if (buttonData.attr('data-index-replace_function')) {
-    obj.replace_function = buttonData.attr('data-index-replace_function');
-  }
-
-  sendConfigDoc(url, obj, 'PUT', completeFunction, this);
-
-  return false;  
-};
-
-var deleteIndex = 
-  function(indexId, indexRev, completeMessage, completeFunction) {
-    var url = "indexes/" + indexId + "?rev=" + indexRev;
+  var fixArgumentType = function(argument, subcategory, operator) {
+    switch (subcategory) {
+    case "integer":
+    case "rational":
+      argument = argument * 1;
+      break;
+    }
   
-    $.ajax(
-      {
-        type: "DELETE",
-        url: url,
-        dataType: "json",
-        contentType: "application/json",
-        complete: function(req, status) {
-          if (req.status == 204) {
-            var title = "Success";
-            var body = completeMessage;
+    switch (operator) {
+    case "hasExactly":
+    case "hasGreater":
+    case "hasLess":
+      argument = Math.floor(argument * 1);
+      break;
+    }
+    
+    return argument;
+  };
+  
+  var getIndexConditions = function(doctypeId, rows) {
+    var conditions = rows.map(
+      function(index, row) {
+        row = $(row);
+        var is_or = row.find('td.or-condition').attr('data-value') === "true";
+        var paren = row.find('td.paren-condition').attr('data-value');
+        var condition;
+      
+        if (is_or) {
+          condition = {"is_or": true, "parens": false};
+        } else if (paren) {
+          condition = {"is_or": false, "parens": paren};
+        } else {
+          var fieldId = row.find('td.field-condition').attr('data-value');
+          var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+          var argument = row.find('td.argument-condition').attr('data-value');
+          var fieldDoc = shimi.ihelpers().getFieldDoc(fieldId, fieldsetId, doctypeId);
+          var negate = 
+            row.find('td.negate-condition').attr('data-value') === "true";
+          var operator = row.find('td.operator-condition').attr('data-value');
+  
+          argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
         
-            completeFunction();
-        
-            flashHighlight(title, body);
-          } else if (req.status == 409) {
-            var body = JSON.parse(req.responseText);
-            var title = req.statusText;
-          
-            flashError(title, body.message);
-          } else if (req.status == 404) {
-            var body = "Index appears to have been deleted already.";
-            var title = req.statusText;
-            
-            flashError(title, body);
-          }
+          condition = {
+            "is_or": false,
+            "parens": false,
+            "negate": negate,
+            "fieldset": fieldsetId,
+            "field": fieldId,
+            "operator": operator,
+            "argument": argument
+          };
         }
-      });
-
+      
+        return condition;
+      }).toArray();
+    
+    return conditions;
+  };
+  
+  var saveIndex = function(buttonData, completeFunction) {
+    var indexId = buttonData.attr('data-index-id');
+    var indexRev = buttonData.attr('data-index-rev');
+    var url = "indexes/" + indexId + "?rev=" + indexRev;
+    var doctype = buttonData.attr('data-index-doctype');
+    
+    var obj = {
+      "_id": indexId,
+      "category": "index",
+      "doctype": doctype,
+      "show_deleted": buttonData.attr('data-index-show_deleted') === "true",
+      "fields": JSON.parse(buttonData.attr('data-index-fields')),
+      "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
+      "name": buttonData.attr('data-index-name'),
+      "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+    };
+    
+    if (buttonData.attr('data-index-replace_function')) {
+      obj.replace_function = buttonData.attr('data-index-replace_function');
+    }
+  
+    shimi.form().send(url, obj, 'PUT', completeFunction, this);
+  
     return false;  
   };
-
-var getIndexEdit = function(indexId) {
-  var url = "indexes/" + indexId;
-  var target = $('#index-conditions');
   
-  $.get(url, function(indexData) {
-          target.html(indexData);
-          // TODO don't repeat this code. It is also in initIndexBuilderDialog
-          var tableBody = $('#index-conditions-listing tbody');
-          tableBody.sortable();
-          initConditionRemoveButtons(tableBody);
-          getIndexView();
+  var deleteIndex = 
+    function(indexId, indexRev, completeMessage, completeFunction) {
+      var url = "indexes/" + indexId + "?rev=" + indexRev;
+      var title;
+      var body;
+      
+      $.ajax(
+        {
+          type: "DELETE",
+          url: url,
+          dataType: "json",
+          contentType: "application/json",
+          complete: function(req, status) {
+            if (req.status === 204) {
+              title = "Success";
+              body = completeMessage;
+          
+              completeFunction();
+          
+              shimi.flash(title, body).highlight();
+            } else if (req.status === 409) {
+              body = JSON.parse(req.responseText);
+              title = req.statusText;
+            
+              shimi.flash(title, body.message).error();
+            } else if (req.status === 404) {
+              body = "Index appears to have been deleted already.";
+              title = req.statusText;
+              
+              shimi.flash(title, body).error();
+            }
+          }
         });
   
-  return false;
-};
-
-var initIndexIndex = function() {
-  var url = "indexes";
-  var target = $('#index-index-listing');
+      return false;  
+    };
   
-  $.get(url, function(index) {
-          target.html(index);
-          target.click(function(e) {
-                         getIndexEdit($(e.target).attr('data-index-id'));
-                       });
-        });
-};
-
-var getIndexView = function(startkey, startid, prevkeys, previds) {
-  var state = {
-    startkey: startkey,
-    startid: startid,
-    prevkeys: prevkeys,
-    previds: previds
+  mod.initButtons = function() {
+    newButton.button({icons: {primary: "ui-icon-plus"}});
+    deleteButton.button({icons: {primary: "ui-icon-trash"}});
+    saveButton.button({icons: {primary: "ui-icon-document"}});
+    addCondButton.button({icons: {primary: "ui-icon-plus"}});
+    replaceButton.button({icons: {primary: "ui-icon-shuffle"}});
+    buttonBar.buttonset();
+    return mod;
   };
-  var indexInfo = $('#index-editing-data');
-  var indexId = indexInfo.attr('data-index-id');
-  var url = "indexes/" + indexId + "/view?";
-  var limit = $('#index-limit').val() * 1;
   
-  // Initialize some values if we're at the beginning of the listing
-  if (!state.prevkeys) {
-    var supplied_val = $('#index-filter').val();
-    var json_encoded = JSON.stringify(supplied_val);
-    state.startkey = btoa(unescape(encodeURIComponent(json_encoded)));
-    state.prevkeys = [];
-    state.previds = [];
-  }
+  mod.initCondButtons = function() {
+    tableBody.find('.remove-condition-button').button({icons: {primary: "ui-icon-minus"}});
+    return mod;
+  };
   
-  if (state.startkey) {
-    url = url + '&startkey=' + escape(atob(state.startkey));
+  mod.init = function(indexId) {
+    var url = "indexes/" + indexId;
+    var target = $('#index-conditions');
     
-    if (state.startid) {
-      url = url + '&startkey_docid=' + state.startid;
+    $.get(url, function(indexData) {
+            target.html(indexData);
+            // TODO don't repeat this code. It is also in initIndexBuilderDialog
+            tableBody.sortable();
+            mod.initCondButtons();
+            shimi.piui().get();
+          });
+    
+    return false;
+  };
+  
+  mod.save = function() {
+    var bData = editingData();
+    
+    if (bData.length !== 0) {
+      var completeFunction = function() {
+        mod.init(bData.attr('data-index-id'));
+        shimi.flash("Success", "Your index has been saved.").highlight();
+      };
+      
+      saveIndex(bData, completeFunction);
+    } else {
+      shimi.flash("Info", "No index has been chosen to save.").highlight();
     }
-  }
+  };
   
-  // The user supplied limit will need a plus one so that we can
-  // get the start key for the next page from the server.
-  if (limit) {
-    url = url + '&limit=' + (limit + 1);
-  } else {
-    // Ten is the default and I don't let people leave it blank
-    // because the list could be huge.
-    $('#index-limit').val(10);
-    url = url + '&limit=11';
-  }
+  mod.replace = function() {
+     var bData = editingData();
+     
+     if (bData.length !== 0) {
+       shimi.initReplaceDialog().dialog("open");
+     } else {
+       shimi.flash("Info", "You must choose an index first.").highlight();
+     }
+     
+     return mod;
+   };
+  
+  mod.addCond = function() {
+    var bData = editingData();
+                           
+    if (bData.length !== 0) {
+      shimi.initIndexBuilderDialog(
+        bData.attr('data-index-doctype')).dialog("open");
+    } else {
+      shimi.flash("Info", "You must choose an index first.").highlight();
+    }
+    
+    return mod;                    
+  };
+  
+  mod.remCond = function(target) {
+    $(target).closest('tr').remove();
+    return mod;
+  };
+  
+  mod.newCond = function() {
+    shimi.initIndexNewDialog().dialog("open");
+    return mod;
+  };
+  
+  mod.del = function() {
+    var bData = editingData();
 
-  sendConfigDoc(url, false, 'GET', 
-                function(context, req) 
-                {fillIndexPreview(req, state);}, this);  
+    if (bData.length !== 0) {
+      var indexId = bData.attr('data-index-id');
+      var indexRev = bData.attr('data-index-rev');
+      var completeMessage = "Your index has been deleted.";
+      var completeFunction = function() {
+        $('#index-conditions').empty();
+        shimi.iiui().init();
+      };
+      
+      if (window.confirm("Are you sure?")) {
+        deleteIndex(indexId, indexRev, completeMessage, completeFunction);
+      }
+    } else {
+      shimi.flash("Info", "No index has been chosen to delete.").highlight();
+    }
+    
+    return mod;
+  };
+  
+  return mod;
 };
+shimi.ihelpers = function() {
+  var mod = {};
+  var s = shimi.sess();
+  mod.evs = {};
+
+  var disableOptions = function(options, disables) {
+    options.children().show();
+    
+    disables.forEach(function(item) {
+                       options.children('option:contains(' + item + ')').hide();
+                     });
+    
+    return false;
+  };
   
-var fillIndexPreview = function(req, state) {
-  $('#index-list-view').html(req.responseText);
+  var disableOperatorOptions = function(fieldDoc) {
+    var options = $('#builder-operator-input');
+    
+    switch (fieldDoc.subcategory) {
+    case "select":
+    case "docselect":
+    case "text":
+    case "textarea":
+      disableOptions(options, ["member", "true"]);
+      break;
+    case "integer":
+    case "rational":
+    case "date":
+      disableOptions(options, ["member", "true", "match"]);
+      break;
+    case "boolean":
+    case "openboolean":
+      disableOptions(options, ["equal", "greater", "less", "member", "match"]);
+      break;
+    case "multiselect":
+    case "docmultiselect":
+      disableOptions(options, ["equal", "greater", "less", "true", "match"]);
+      break;
+    }
+    
+    return false;
+  };
   
-  $('#previous-page').button(
-    {
-      icons: {primary:'ui-icon-circle-arrow-w'} 
-    }).click(function() 
-             {
-               getIndexView(state.prevkeys.pop(), 
-                            state.previds.pop(), 
-                            state.prevkeys, 
-                            state.previds);
+  mod.alterArg = 
+    function(argumentField, operatorField, fieldField, callback) {
+      var fieldDoc = function () {return s.get(fieldField.val());};
+  
+      callback();
+    
+      argumentField.removeAttr('disabled').datepicker('destroy');
+      argumentField.removeAttr('disabled').autocomplete('destroy');
+    
+      var dateOrText = function(argumentField, fdoc) {
+        if (fdoc.subcategory === 'date') {
+          argumentField.removeAttr('disabled');
+          argumentField.datepicker({dateFormat: "yy-mm-dd"});
+        } else {
+          argumentField.removeAttr('disabled');
+          argumentField.autocomplete({source: fdoc.allowed});
+        }
+      
+        return mod;
+      };
+  
+      var fdoc = fieldDoc();
+    
+      if (fdoc) {
+        switch (operatorField.val()) {
+        case "true":
+        case "isDefined":
+        case "blank":
+          argumentField.attr('disabled', 'disabled').val("");
+          break;
+        case "equal":
+        case "member":
+        case "greater":
+        case "less":
+        case "hasExactly":
+        case "hasGreater":
+        case "hasLess":
+          dateOrText(argumentField, fdoc);
+          break;
+        }
+      
+      }
+      
+      return mod;
+    };
+
+  mod.alterOpts = function(fieldDoc, fieldId, callback) {
+    disableOperatorOptions(fieldDoc);
+    callback();
+    
+    return mod;
+  };
+
+  mod.fOpts = function(url, selectElement, callback) {
+    $.get(url, function(options) {
+            selectElement.html(options);
+            if (callback) {
+              callback();
+            }
+          });
+    
+    return mod;
+  };
+  
+  mod.getFieldDoc = function(fieldId, fieldsetId, doctypeId, callback) {
+    var fieldDoc = s.get(fieldId);
+    var url = 'doctypes/' + doctypeId + 
+      '/fieldsets/' + fieldsetId + 
+      '/fields/' + fieldId + '?format=json';
+              
+    if (fieldDoc) {
+      if (callback) {
+        callback(fieldDoc);
+      }
+      return fieldDoc;
+    } else {
+      $.ajax({
+               url: url,
+               async: false,
+               dataType: 'json',
+               success: function(data) {
+                 s.put(data);
+                 if (callback) {
+                   callback(s.get(fieldId));
+                 }
+               }
              });
-    
-  // Collect the values needed for paging from the HTML
-  $('#next-page').button(
-    {
-      icons: {secondary:'ui-icon-circle-arrow-e'}
-    }).click(function() 
-             {
-               var nextkey = $(this).attr('data-startkey');
-               var nextid = $(this).attr('data-startid');
-               var prevkey = 
-                 $('#first-index-element').attr('data-first-key');
-               var previd = 
-                 $('#first-index-element').attr('data-first-id');
-               state.prevkeys.push(prevkey);
-               state.previds.push(previd);
-                       
-               getIndexView(nextkey, nextid, state.prevkeys, state.previds);
-             });
-    
-  // Disable the previous button if we're at the beginning
-  if (state.prevkeys.length == 0) {
-    $('#previous-page').button("disable");
-  }
-    
-  // Disable the next button if we're at the end
-  if ($('#next-page').attr('data-last-page')) {
-    $('#next-page').button("disable");
-  }
+            
+      return s.get(fieldId);
+    }
+  };
   
-  $('nav.pager').buttonset();
+  mod.evs.setIndexDoctypeEvents = function(indexDoctype, indexFieldset, callback) {
+    indexDoctype
+      .change(function() {
+                var url = 'doctypes/' + 
+                  indexDoctype.val() + '/fieldsets';
+                var callback2;
+                
+                if (callback) {
+                  callback2 = callback();
+                }
+                
+                mod.fOpts(url, indexFieldset, callback2);
+              });
+    
+    return false;
+  };
   
+  mod.evs.setIndexFieldsetEvents = function(indexDoctype, indexFieldset, indexField, 
+                                  callback) {
+    indexFieldset
+      .change(function() {
+                var callback2;
+  
+                if (typeof indexDoctype !== "string") {
+                  indexDoctype = indexDoctype.val();
+                }
+                
+                if (indexFieldset.val()) {
+                  var url = 'doctypes/' + indexDoctype + 
+                    '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+      
+                  if (callback) {
+                    callback2 = callback();
+                  }
+      
+                  mod.fOpts(url, indexField, callback2);
+                }
+              });
+    
+    return mod;
+  };
+  
+  mod.evs.setIndexFieldEvents = function(indexDoctype, indexFieldset, indexField, 
+                               callback) {
+    indexField
+      .change(function() {
+                var fieldId = indexField.val();
+                var fieldsetId = indexFieldset.val();
+                var callback2;
+      
+                if (callback) {
+                  callback2 = callback();
+                }
+      
+                if (!(fieldId.isBlank())) {
+                  mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function(data) {
+                                shimi.ihelpers().alterOpts(data, fieldId, callback2);
+                              });
+                }
+              });
+    
+    return mod;
+  };
+  
+  mod.evs.setIndexOperatorEvents = function(argumentField, operatorField, fieldField, 
+                                  callback) {
+    operatorField
+      .change(function() {
+                var callback2;
+                
+                if (callback) {
+                  callback2 = callback();
+                }
+                
+                mod.alterArg(argumentField, operatorField, fieldField, 
+                                   callback2);
+              });
+    
+    return mod;
+  };
+  
+  return mod;
+};
+shimi.iiui = function() {
+  var mod = {};
+
+  mod.init = function() {
+    var url = "indexes";
+    var target = $('#index-index-listing');
+    
+    $.get(url, function(index) {
+            target.html(index);
+            target.click(function(e) {
+                           shimi.eiui().init($(e.target).attr('data-index-id'));
+                         });
+          });
+          
+    return mod;
+  };
+
+  return mod;
 };
 
 $(function () {
     $('#index-builder-dialog').hide();
     $('#index-new-dialog').hide();
     $('#index-replace-dialog').hide();
-    initIndexEditButtons(function () {return $('#index-editing-data');});
-    initIndexNewButton();
-    $('#button-bar').buttonset();
-    initIndexIndex();
-    $('#index-filter-form input').keyup(function() {
-                                          getIndexView();
-                                        });
+    shimi.eiui.initButtons();
+    shimi.iiui().init();
   });
 
-function initIndexNewDialog() {
+shimi.piui = function() {
+  var mod = {};
+  var index = shimi.index;
+
+  mod.get = function(startkey, startid, prevkeys, previds) {
+    var url = 'documents/index';
+    var indexId = $('#index-editing-data').attr('data-index-id');
+    var target = $('#index-list-view');
+    var filterForm = $('#index-filter-form input');
+    
+    index({url: mod.url, indexId: indexId, target: target})
+      .get(startkey, startid, prevkeys, previds);
+
+    filterForm.keyup(function() {mod.get();});
+
+    return mod;
+  };
+  
+  return mod;
+};
+
+shimi.initIndexNewDialog = function() {
   var indexDoctype = $("#index-doctype-input");
   var indexFieldset = $("#index-fieldset-input").inputDisable();
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
   var indexShowDeleted = $("#index-show_deleted-input");
+  var evs = shimi.ihelpers().evs;
 
   var doctypeEvents = function() {
-    setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
                             indexFieldset.inputDisable();
                             indexField.inputDisable();
                             
@@ -3787,7 +3692,7 @@ function initIndexNewDialog() {
   };
   
   var fieldsetEvents = function() {
-    setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
                              indexField.inputDisable();
       
                              return function() {
@@ -3827,10 +3732,10 @@ function initIndexNewDialog() {
                       "fields": [indexField.val()]
                     },
                     complete = function(context) {
-                      initIndexIndex();
+                      shimi.iiui().init();
                       $(context).dialog("close");
                     };
-                    sendConfigDoc("indexes", obj, 'POST', complete, this);
+                    shimi.form().send("indexes", obj, 'POST', complete, this);
                   }
                 },
                 "Cancel": function() {
@@ -3840,7 +3745,7 @@ function initIndexNewDialog() {
               close: function() {
                 indexFieldset.unbind('change');
                 indexDoctype.unbind('change');
-                clearValues($('.input')).removeClass('ui-state-error');
+                shimi.form().clear($('.input')).removeClass('ui-state-error');
               }
             });
   
@@ -3848,10 +3753,10 @@ function initIndexNewDialog() {
   fieldsetEvents();
   
   return dialog;
-}
+};
   
 
-var initReplaceDialog = function() {
+shimi.initReplaceDialog = function() {
   var replaceFunction = $('#index-replace_function-input');
   var indexData = $('#index-editing-data');
   var remove = $('#index-remove_function-input');
@@ -3860,7 +3765,7 @@ var initReplaceDialog = function() {
     replaceFunction
       .val(indexData.attr('data-index-replace_function'));
   } else {
-    clearValues(replaceFunction).removeClass('ui-state-error');
+    shimi.form().clear(replaceFunction).removeClass('ui-state-error');
   }
 
   var dialog = $("#index-replace-dialog")
@@ -3900,121 +3805,109 @@ var initReplaceDialog = function() {
               }
             },
             close: function() {
-              clearValues(replaceFunction).removeClass('ui-state-error');
+              shimi.form().clear(replaceFunction).removeClass('ui-state-error');
             }
             });
 
   return dialog;
 };
 
-function putDoc(doc) {
-  if (!sessionStorage[doc._id]) {
-    sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-  
-  return doc._id;
-}
-
-function getDoc(docId) {
-  var doc = sessionStorage[docId];
-  
-  if (doc) {
-    return JSON.parse(doc);
-  } else {
-    return null;
-  }
-}
-
-function addProjectDialog() {
-  var projectName = $("#project-name");
-  var projectDescription = $("#project-description");
-  var tips = $(".validate-tips");
-  var allFields = $([]).add(projectName).add(projectDescription);
-  
-  var dialog = $("#add-dialog").dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      "Add project": function() {
-        allFields.removeClass('ui-state-error');
-        
-        checkResult = checkLength(projectName, "project name", 1, 50, tips);
-        
-        if (checkResult) {
-          $.ajax({
-            type: "POST", 
-            url: "projects/index",
-            dataType: "json",
-            contentType: "application/json",
-            processData: false,
-            data: JSON.stringify({name: projectName.val(), description: projectDescription.val()}),
-            complete: function(req, status) {
-              if (req.status == 201) {
-                populateProjectsTable();
-              } else {
-                alert("An error occurred" + req.status);
-              }
-            }
-          });
-          $(this).dialog("close");
-        }
-      },
-      "Cancel": function() {
-        $(this).dialog("close");
-      }
-    },
-    close: function() {
-      allFields.val('').removeClass('ui-state-error');
-    }
-  });
-  
-  return dialog;
-}
-
-function deleteProject(id) {
-  if (confirm("Are you sure? This is permanent.")) {
-    $.ajax({
-      type: "DELETE", 
-      url: "/projects/" + id,
-      dataType: "json",
-      contentType: "application/json",
-      complete: function(req, status) {
-        if (req.status == 204) {
-          populateProjectsTable();
-        } else {
-          alert("An error occurred" + req.status);
-        }
-      }
-    });
-  }
-}
-
-function populateProjectsTable() {
-  var url = "/projects/index";
-  
-  $.get(url, function(projects) {
-    $('tbody').empty();
-    $('tbody').html(projects);
-    $('.configure-button').button({
-      icons: {primary: "ui-icon-wrench"}
-    });
-    $('.delete-button').button({
-      icons: {primary: "ui-icon-trash"}
-    }).click(function(e) {
-      id = $(e.target).attr("id");
-      deleteProject(id);
-      $('#delete-dialog').dialog("open");
-    });
-  });
-}
 
 $(function () {
-  populateProjectsTable();
+  shimi.pui().init();
   
   $("#create-project").button({
     icons: {primary: "ui-icon-plus"}
   }).click(function() {
-    addProjectDialog().dialog("open");
+    shimi.pui().addProjectDialog().dialog("open");
   });
   
 });
+shimi.pui = function() {
+  var mod = {};
+  
+  var deleteProject = function(id) {
+    if (window.confirm("Are you sure? This is permanent.")) {
+      $.ajax({
+        type: "DELETE", 
+        url: "/projects/" + id,
+        dataType: "json",
+        contentType: "application/json",
+        complete: function(req, status) {
+          if (req.status === 204) {
+            mod.init();
+          } else {
+            window.alert("An error occurred" + req.status);
+          }
+        }
+      });
+    }
+  };
+  
+  mod.addProjectDialog = function() {
+    var projectName = $("#project-name");
+    var projectDescription = $("#project-description");
+    var tips = $(".validate-tips");
+    var allFields = $([]).add(projectName).add(projectDescription);
+    
+    var dialog = $("#add-dialog").dialog({
+      autoOpen: false,
+      modal: true,
+      buttons: {
+        "Add project": function() {
+          allFields.removeClass('ui-state-error');
+          
+          var checkResult = shimi.form().checkLength(projectName, "project name", 1, 50, tips);
+          
+          if (checkResult) {
+            $.ajax({
+              type: "POST", 
+              url: "projects/index",
+              dataType: "json",
+              contentType: "application/json",
+              processData: false,
+              data: JSON.stringify({name: projectName.val(), description: projectDescription.val()}),
+              complete: function(req, status) {
+                if (req.status === 201) {
+                  mod.init();
+                } else {
+                  window.alert("An error occurred" + req.status);
+                }
+              }
+            });
+            $(this).dialog("close");
+          }
+        },
+        "Cancel": function() {
+          $(this).dialog("close");
+        }
+      },
+      close: function() {
+        allFields.val('').removeClass('ui-state-error');
+      }
+    });
+    
+    return dialog;
+  };
+  
+  mod.init = function() {
+    var url = "/projects/index";
+    
+    $.get(url, function(projects) {
+      $('tbody').empty();
+      $('tbody').html(projects);
+      $('.configure-button').button({
+        icons: {primary: "ui-icon-wrench"}
+      });
+      $('.delete-button').button({
+        icons: {primary: "ui-icon-trash"}
+      }).click(function(e) {
+        var id = $(e.target).attr("id");
+        deleteProject(id);
+        $('#delete-dialog').dialog("open");
+      });
+    });
+  };
+  
+  return mod;
+};

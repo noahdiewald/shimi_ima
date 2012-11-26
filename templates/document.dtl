@@ -7,10 +7,6 @@
 <em>{{ doctype_info.description|escape }}</em>
 {% endblock %}
 
-{% block javascript %}
-<script type="text/javascript" src="/javascript/documents"></script>
-{% endblock %}
-
 {% block dialogs %}
 <div class="hidden" id="help-dialog" title="Help">
   <p id="help-dialog-text"></p>

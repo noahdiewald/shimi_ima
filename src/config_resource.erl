@@ -78,7 +78,7 @@ to_html(R, S) ->
     User = proplists:get_value(user, S),
     Project = couch:get_json(project, R, S),
     Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
-    {ok, Html} = config_dtl:render(Vals),
+    {ok, Html} = render:render(config_dtl, Vals),
     {Html, R, S}.
 
 validate_authentication(Props, R, S) ->

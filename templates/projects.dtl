@@ -1,9 +1,5 @@
 {% extends "base.dtl" %}
 
-{% block javascript %}
-    <script type="text/javascript" src="/javascript/projects"></script>
-{% endblock %}
-
 {% block dialogs %}
 <div id="add-dialog" class="hidden" title="Create new project">
   <p class="validate-tips">All fields are required.</p>

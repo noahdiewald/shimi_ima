@@ -176,7 +176,7 @@ html_documents(R, S) ->
             {<<"user">>, proplists:get_value(user, S)}
            ],
   
-    {ok, Html} = document_dtl:render(Vals),
+    {ok, Html} = render:render(document_dtl, Vals),
     Html.
 
 html_edit(R, S) ->
@@ -191,7 +191,7 @@ html_edit(R, S) ->
             {<<"fieldsets">>, Fieldsets}
            ],
   
-    {ok, Html} = document_edit_dtl:render(Vals),
+    {ok, Html} = render:render(document_edit_dtl, Vals),
     Html.
 
 html_index(R, S) ->
@@ -214,7 +214,7 @@ html_index(R, S) ->
             {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Index
            ],
   
-    {ok, Html} = document_index_dtl:render(Vals),
+    {ok, Html} = render:render(document_index_dtl, Vals),
     Html.
 
 html_search(R, S) ->
@@ -237,7 +237,7 @@ html_search(R, S) ->
                  Index ->
                      search:values(Index, Query, R, S)
              end,
-    {ok, Html} = document_search_dtl:render(Params),
+    {ok, Html} = render:render(document_search_dtl, Params),
     Html.
 
 html_document(R, S) ->
@@ -253,12 +253,12 @@ html_document(R, S) ->
             {<<"revs_info">>, RevsInfo}|NormJson
            ],
   
-    {ok, Html} = document_view_dtl:render(Vals),
+    {ok, Html} = render:render(document_view_dtl, Vals),
     Html.
 
 html_revision(R, S) ->      
     Json = document:normalize(couch:get_json(rev, R, S)),
-    {ok, Html} = document_view_tree_dtl:render(Json),
+    {ok, Html} = render:render(document_view_tree_dtl, Json),
     Html.
 
 validate_authentication(Props, R, S) ->

@@ -120,7 +120,7 @@ html_as_tabs(R, S) ->
   
 id_html(R, S) ->
   Json = couch:get_json(id, R, S), 
-  {ok, Html} = config_charseq_dtl:render(charseq:to_renderable(Json)),
+  {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json)),
   {Html, R, S}.
   
 from_json(R, S) ->

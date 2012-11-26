@@ -2,10 +2,6 @@
 
 {% block page_title %}{{ title }}: {{ project_info.name }}{% endblock %}
 
-{% block javascript %}
-<script type="text/javascript" src="/javascript/base"></script>
-{% endblock %}
-
 {% block header %}
 <h1>{{ title }}: {{ project_info.name }}</h1>
 <em>{{ project_info.description }}</em>

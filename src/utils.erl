@@ -30,6 +30,7 @@
          clear_all/2,
          delete_all_design_docs/1,
          get_index/3,
+         is_devel/0,
          list_dir/1,
          ndb/0,
          peach/3,
@@ -48,6 +49,15 @@
 -include_lib("webmachine/include/webmachine.hrl").
 
 -type reqdata() :: #wm_reqdata{}.
+
+%% @doc Return whether we're in development mode
+is_deve() ->
+    case application:get_env(devel) of
+        {ok, _} ->
+            true;
+        undefined ->
+            false
+    end,
 
 %% @doc Return the Admin DB URL.
 adb() ->

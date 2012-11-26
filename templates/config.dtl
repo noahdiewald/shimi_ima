@@ -7,10 +7,6 @@
 <em>{{ project_info.description }}</em>
 {% endblock %}
 
-{% block javascript %}
-    <script type="text/javascript" src="/javascript/config"></script>
-{% endblock %}
-
 {% block dialogs %}
 {% include 'config_doctype_dialog.dtl' %}
 {% include 'config_fieldset_dialog.dtl' %}

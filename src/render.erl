@@ -36,5 +36,5 @@ renderings(Json, Template) ->
   [render(Row, Template) || Row <- Rows].
   
 render(Params, Template) ->
-  {ok, Rendering} = Template:render(Params),
+  {ok, Rendering} = Template:render([{devel, utils:is_devel()}|Params]),
   Rendering.

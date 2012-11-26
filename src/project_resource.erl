@@ -125,7 +125,7 @@ index_html(R, S) ->
   
 main_html(R, S) ->
     User = proplists:get_value(user, S),
-    {ok, Html} = projects_dtl:render([{title, "Projects"}, {user, User}]),
+    {ok, Html} = render:render(projects_dtl, [{title, "Projects"}, {user, User}]),
     {Html, R, S}.
   
 from_json(R, S) ->
@@ -141,9 +141,9 @@ from_json(R, S) ->
   
     {ok, newdb} = couch:new_db(NewDb, R, S),
     {ok, created} = couch:create(direct, JsonOut, ProjectsDb, R, S),
-    {ok, DoctypesDesign} = design_doctypes_json_dtl:render(),
+    {ok, DoctypesDesign} = render:render(design_doctypes_json_dtl, ),
     {ok, created} = couch:create(design, DoctypesDesign, NewDb, R, S),
-    {ok, CharseqsDesign} = design_charseqs_json_dtl:render(),
+    {ok, CharseqsDesign} = render:render(design_charseqs_json_dtl, ),
     {ok, created} = couch:create(design, CharseqsDesign, NewDb, R, S),
     database_seqs:set_seq(DBName, 0),
     {true, R, S}.
@@ -164,12 +164,12 @@ renderings(Json) ->
     [render_row(Project) || Project <- Rows].
   
 render_row(Project) ->
-    {ok, Rendering} = project_list_elements_dtl:render(Project),
+    {ok, Rendering} = render:render(project_list_elements_dtl, Project),
     iolist_to_binary(Rendering).
 
 create_database() ->
     ContentType = {"Content-Type","application/json"},
     {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [], put),
-    {ok, ProjectDesign} = design_project_json_dtl:render(),
+    {ok, ProjectDesign} = render:render(design_project_json_dtl, ),
     {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [ContentType], 
                                          post, iolist_to_binary(ProjectDesign)).

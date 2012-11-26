@@ -5,10 +5,6 @@
 {% block header %}
 <h1>Indexes: {{ project_info.name|escape }}</h1>
 {% endblock %}
-
-{% block javascript %}
-    <script type="text/javascript" src="/javascript/index_tool"></script>
-{% endblock %}
     
 {% block main_content %}
 <div id="panel-toggle">

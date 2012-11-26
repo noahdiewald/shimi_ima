@@ -118,7 +118,7 @@ index_html(R, S) ->
   
 id_html(R, S) ->
     Json = couch:get_json(id, R, S),
-    {ok, Html} = config_doctype_dtl:render(Json),
+    {ok, Html} = render:render(config_doctype_dtl, Json),
     {Html, R, S}.
   
 from_json(R, S) ->
@@ -130,7 +130,7 @@ from_json(R, S) ->
 json_create(R, S) ->  
     Json = jsn:decode(wrq:req_body(R)),
     {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
-    {ok, DesignJson} = design_doctype_json_dtl:render(Json),
+    {ok, DesignJson} = render:render(design_doctype_json_dtl, Json),
     {ok, created} = couch:create(design, DesignJson, R, S),
     {true, R, S}.
 

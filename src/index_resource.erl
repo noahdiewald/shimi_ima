@@ -165,9 +165,9 @@ html_index(R, S) ->
 
     case wrq:get_qs_value("as", R) of
         "options" -> 
-            {ok, Html} = options_dtl:render(Json);
+            {ok, Html} = render:render(options_dtl, Json);
         _Else ->
-            {ok, Html} = index_index_dtl:render(Json)
+            {ok, Html} = render:render(index_index_dtl, Json)
     end,
     Html.
 
@@ -195,7 +195,7 @@ html_identifier(R, S) ->
             {<<"label">>, jsn:get_value(<<"fields_label">>, Json)}
             |Json2],
   
-    {ok, Html} = index_edit_dtl:render(Vals),
+    {ok, Html} = render:render(index_edit_dtl, Vals),
     Html.
 
 html_condition(R, S) ->
@@ -211,7 +211,7 @@ html_view(R, S) ->
         {ok, Json} ->
             Index = utils:add_encoded_keys(Json),
             Vals = [{<<"limit">>, Limit}|Index],
-            {ok, Html} = index_view_dtl:render(Vals),
+            {ok, Html} = render:render(index_view_dtl, Vals),
             {Html, R, S};
         {error, req_timedout} ->
             R1 = wrq:set_resp_body(Message, R),

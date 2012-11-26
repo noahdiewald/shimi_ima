@@ -73,7 +73,7 @@ html_index(R, S) ->
             {<<"user">>, User},
             {<<"doctypes">>, jsn:get_value(<<"rows">>, Json)}],
   
-    {ok, Html} = doctype_index_dtl:render(Vals),
+    {ok, Html} = render:render(doctype_index_dtl, Vals),
     Html.
 
 validate_authentication(Props, R, S) ->

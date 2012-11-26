@@ -140,7 +140,7 @@ html_main(R, S) ->
   
     Vals = [{<<"user">>, User}, {<<"project_info">>, Project}],
   
-    {ok, Html} = file_manager_dtl:render(Vals),
+    {ok, Html} = render:render(file_manager_dtl, Vals),
     Html.
 
 html_index(R, S) ->  
@@ -148,7 +148,7 @@ html_index(R, S) ->
     
     Vals = [{<<"files">>, Files}],
   
-    {ok, Html} = file_manager_listing_dtl:render(Vals),
+    {ok, Html} = render:render(file_manager_listing_dtl, Vals),
     Html.
 
 html_files(R, S) ->  
@@ -156,7 +156,7 @@ html_files(R, S) ->
   
     Vals = [{<<"files">>, Files}],
   
-    {ok, Html} = file_manager_listing_dtl:render(Vals),
+    {ok, Html} = render:render(file_manager_listing_dtl, Vals),
     Html.
 
 html_dirs(R, S) ->  
@@ -164,7 +164,7 @@ html_dirs(R, S) ->
   
     Vals = [{<<"dirs">>, Dirs}],
   
-    {ok, Html} = file_manager_paths_dtl:render(Vals),
+    {ok, Html} = render:render(file_manager_paths_dtl, Vals),
     Html.
 
 validate_authentication(Props, R, S) ->
