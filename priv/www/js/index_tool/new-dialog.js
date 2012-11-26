@@ -1,12 +1,13 @@
-function initIndexNewDialog() {
+shimi.initIndexNewDialog = function() {
   var indexDoctype = $("#index-doctype-input");
   var indexFieldset = $("#index-fieldset-input").inputDisable();
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
   var indexShowDeleted = $("#index-show_deleted-input");
+  var evs = shimi.ihelpers().evs;
 
   var doctypeEvents = function() {
-    setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
                             indexFieldset.inputDisable();
                             indexField.inputDisable();
                             
@@ -17,7 +18,7 @@ function initIndexNewDialog() {
   };
   
   var fieldsetEvents = function() {
-    setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
                              indexField.inputDisable();
       
                              return function() {
@@ -57,10 +58,10 @@ function initIndexNewDialog() {
                       "fields": [indexField.val()]
                     },
                     complete = function(context) {
-                      initIndexIndex();
+                      shimi.iiui().init();
                       $(context).dialog("close");
                     };
-                    sendConfigDoc("indexes", obj, 'POST', complete, this);
+                    shimi.form().send("indexes", obj, 'POST', complete, this);
                   }
                 },
                 "Cancel": function() {
@@ -70,7 +71,7 @@ function initIndexNewDialog() {
               close: function() {
                 indexFieldset.unbind('change');
                 indexDoctype.unbind('change');
-                clearValues($('.input')).removeClass('ui-state-error');
+                shimi.form().clear($('.input')).removeClass('ui-state-error');
               }
             });
   
@@ -78,5 +79,5 @@ function initIndexNewDialog() {
   fieldsetEvents();
   
   return dialog;
-}
+};
   

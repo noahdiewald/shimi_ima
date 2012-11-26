@@ -1,4 +1,4 @@
-var initIndexBuilderDialog = function(indexDoctype) {
+shimi.initIndexBuilderDialog = function(indexDoctype) {
   var builderOr = $("#builder-or-input");
   var builderParen = $("#builder-paren-input");
   var builderNegate = $("#builder-negate-input");
@@ -9,6 +9,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
+  var evs = shimi.ihelpers().evs;
   
   $('.ui-helper-reset div').show();
 
@@ -16,12 +17,12 @@ var initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    initConditionRemoveButtons(tableBody);
+    shimi.eiui().initCondButtons(tableBody);
     
     return false;
   };
     
-  fillOptionsFromUrl(fieldset_url, builderFieldset, 
+  shimi.ihelper().fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
@@ -45,7 +46,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
                       });
   
   var fieldsetEvents = function () {
-    setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, 
                            function () {
                              builderOperator.inputDisable();
                              builderField.inputDisable();
@@ -58,7 +59,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   };
   
   var fieldEvents = function () {
-    setIndexFieldEvents(indexDoctype, builderFieldset, builderField, 
+    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, 
                         function () {
                           builderOperator.inputDisable();
                           builderArgument.inputDisable();
@@ -70,7 +71,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
   };
   
   var operatorEvents = function () {
-    setIndexOperatorEvents(builderArgument, builderOperator, builderField, 
+    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, 
                            function () {
                              builderArgument.inputDisable();
                              
@@ -136,7 +137,7 @@ var initIndexBuilderDialog = function(indexDoctype) {
                 builderFieldset.unbind('change');
                 builderField.unbind('change');
                 builderOperator.unbind('change');
-                clearValues($('.input')).removeClass('ui-state-error');
+                shimi.form().clear($('.input')).removeClass('ui-state-error');
               }
             });
   

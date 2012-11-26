@@ -1,4 +1,4 @@
-var initReplaceDialog = function() {
+shimi.initReplaceDialog = function() {
   var replaceFunction = $('#index-replace_function-input');
   var indexData = $('#index-editing-data');
   var remove = $('#index-remove_function-input');
@@ -7,7 +7,7 @@ var initReplaceDialog = function() {
     replaceFunction
       .val(indexData.attr('data-index-replace_function'));
   } else {
-    clearValues(replaceFunction).removeClass('ui-state-error');
+    shimi.form().clear(replaceFunction).removeClass('ui-state-error');
   }
 
   var dialog = $("#index-replace-dialog")
@@ -47,7 +47,7 @@ var initReplaceDialog = function() {
               }
             },
             close: function() {
-              clearValues(replaceFunction).removeClass('ui-state-error');
+              shimi.form().clear(replaceFunction).removeClass('ui-state-error');
             }
             });
 

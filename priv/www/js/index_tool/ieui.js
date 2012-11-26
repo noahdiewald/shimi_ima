@@ -6,6 +6,7 @@ shimi.ieui = function() {
   var addCondButton = $('#add-index-condition-button');
   var replaceButton = $('#replace-button');
   var tableBody = $('#index-conditions-listing tbody');
+  var buttonBar = $('#button-bar');
 
   var editingData = function() {
     return $('#index-editing-data');
@@ -139,6 +140,7 @@ shimi.ieui = function() {
     saveButton.button({icons: {primary: "ui-icon-document"}});
     addCondButton.button({icons: {primary: "ui-icon-plus"}});
     replaceButton.button({icons: {primary: "ui-icon-shuffle"}});
+    buttonBar.buttonset();
     return mod;
   };
   
@@ -147,7 +149,6 @@ shimi.ieui = function() {
     return mod;
   };
   
-  //var getIndexEdit = function(indexId) {
   mod.init = function(indexId) {
     var url = "indexes/" + indexId;
     var target = $('#index-conditions');
@@ -157,7 +158,7 @@ shimi.ieui = function() {
             // TODO don't repeat this code. It is also in initIndexBuilderDialog
             tableBody.sortable();
             mod.initCondButtons();
-            getIndexView();
+            shimi.piui().get();
           });
     
     return false;
@@ -182,7 +183,7 @@ shimi.ieui = function() {
      var bData = editingData();
      
      if (bData.length !== 0) {
-       initReplaceDialog().dialog("open");
+       shimi.initReplaceDialog().dialog("open");
      } else {
        shimi.flash("Info", "You must choose an index first.").highlight();
      }
@@ -194,7 +195,7 @@ shimi.ieui = function() {
     var bData = editingData();
                            
     if (bData.length !== 0) {
-      initIndexBuilderDialog(
+      shimi.initIndexBuilderDialog(
         bData.attr('data-index-doctype')).dialog("open");
     } else {
       shimi.flash("Info", "You must choose an index first.").highlight();
@@ -209,7 +210,7 @@ shimi.ieui = function() {
   };
   
   mod.newCond = function() {
-    initIndexNewDialog().dialog("open");
+    shimi.initIndexNewDialog().dialog("open");
     return mod;
   };
   
@@ -222,7 +223,7 @@ shimi.ieui = function() {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function() {
         $('#index-conditions').empty();
-        initIndexIndex();
+        shimi.iiui().init();
       };
       
       if (window.confirm("Are you sure?")) {

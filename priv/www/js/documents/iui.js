@@ -5,13 +5,13 @@ shimi.iui = function() {
   var store = shimi.store;
   var flash = shimi.flash;
   var index = shimi.index;
-  
-  mod.url = 'documents/index';
-  mod.indexId = $('#index-index-input').val();
-  mod.target = $('#index-listing');
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    index({url: mod.url, indexId: mod.indexId, target: mod.target})
+    var url = 'documents/index';
+    var indexId = $('#index-index-input').val();
+    var target = $('#index-listing');
+
+    index({url: url, indexId: indexId, target: target})
       .get(startkey, startid, prevkeys, previds);
 
     return mod;
