@@ -905,6 +905,29 @@ shimi.form = function () {
   return mod;
 };
 
+shimi.sess = function() {
+  var mod = {};
+  
+  mod.put = function(doc) {
+    if (!window.sessionStorage[doc._id]) {
+      window.sessionStorage[doc._id] = JSON.stringify(doc);
+    }
+    
+    return doc._id;
+  };
+  
+  mod.get = function(docId) {
+    var doc = window.sessionStorage[docId];
+    
+    if (doc) {
+      return JSON.parse(doc);
+    } else {
+      return null;
+    }
+  };
+  
+  return mod;
+};
 // Dialog for manipulating doctypes
 
 shimi.charseqDialog = function(values) {
@@ -3031,12 +3054,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.eiui().initCondButtons(tableBody);
+    shimi.ieui().initCondButtons(tableBody);
     
     return false;
   };
     
-  shimi.ihelper().fOpts(fieldset_url, builderFieldset, 
+  shimi.ihelpers().fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
@@ -3630,7 +3653,7 @@ shimi.iiui = function() {
     $.get(url, function(index) {
             target.html(index);
             target.click(function(e) {
-                           shimi.eiui().init($(e.target).attr('data-index-id'));
+                           shimi.ieui().init($(e.target).attr('data-index-id'));
                          });
           });
           
@@ -3645,15 +3668,16 @@ shimi.piui = function() {
   var index = shimi.index;
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    var url = 'documents/index';
     var indexId = $('#index-editing-data').attr('data-index-id');
+    var url = 'indexes/' + indexId + "/view";
     var target = $('#index-list-view');
     var filterForm = $('#index-filter-form input');
     
-    index({url: mod.url, indexId: indexId, target: target})
-      .get(startkey, startid, prevkeys, previds);
+    if (indexId) {
+      index({url: url, target: target}).get(startkey, startid, prevkeys, previds);
 
-    filterForm.keyup(function() {mod.get();});
+      filterForm.keyup(function() {mod.get();});
+    }
 
     return mod;
   };
@@ -3996,7 +4020,7 @@ $(function () {
     $('#index-builder-dialog').hide();
     $('#index-new-dialog').hide();
     $('#index-replace-dialog').hide();
-    shimi.eiui.initButtons();
+    shimi.ieui().initButtons();
     shimi.iiui().init();
   }
     

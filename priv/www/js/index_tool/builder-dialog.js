@@ -17,12 +17,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.eiui().initCondButtons(tableBody);
+    shimi.ieui().initCondButtons(tableBody);
     
     return false;
   };
     
-  shimi.ihelper().fOpts(fieldset_url, builderFieldset, 
+  shimi.ihelpers().fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {

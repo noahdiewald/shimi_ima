@@ -3,15 +3,16 @@ shimi.piui = function() {
   var index = shimi.index;
 
   mod.get = function(startkey, startid, prevkeys, previds) {
-    var url = 'documents/index';
     var indexId = $('#index-editing-data').attr('data-index-id');
+    var url = 'indexes/' + indexId + "/view";
     var target = $('#index-list-view');
     var filterForm = $('#index-filter-form input');
     
-    index({url: mod.url, indexId: indexId, target: target})
-      .get(startkey, startid, prevkeys, previds);
+    if (indexId) {
+      index({url: url, target: target}).get(startkey, startid, prevkeys, previds);
 
-    filterForm.keyup(function() {mod.get();});
+      filterForm.keyup(function() {mod.get();});
+    }
 
     return mod;
   };

@@ -9,6 +9,7 @@
 //= click-dispatch.js
 //= index.js
 //= form.js
+//= sess.js
 //= config
 //= documents
 //= file_manager

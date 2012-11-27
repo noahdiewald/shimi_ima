@@ -8,7 +8,7 @@ shimi.iiui = function() {
     $.get(url, function(index) {
             target.html(index);
             target.click(function(e) {
-                           shimi.eiui().init($(e.target).attr('data-index-id'));
+                           shimi.ieui().init($(e.target).attr('data-index-id'));
                          });
           });
           

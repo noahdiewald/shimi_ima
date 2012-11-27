@@ -213,6 +213,8 @@ html_view(R, S) ->
             Vals = [{<<"limit">>, Limit}|Index],
             {ok, Html} = render:render(index_view_dtl, Vals),
             {Html, R, S};
+        {error, not_found} ->
+            {<<"">>, R, S};
         {error, req_timedout} ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 504}, R1, S}

@@ -152,6 +152,7 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
     case get_json_helper(safer, FullUrl, Headers) of
         undefined -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout};
+        {error, not_found} -> {error, not_found};
         {ok, Json} -> {ok, Json}
     end.
 
