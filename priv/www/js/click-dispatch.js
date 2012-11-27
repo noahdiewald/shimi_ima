@@ -32,7 +32,7 @@ shimi.dispatcher = function(patterns) {
 shimi.clickDispatch = function(e) {
   var dt = shimi.doctypeTab;
   var ct = shimi.charseqTab();
-  var ed = shimi.eui;
+  var ed = shimi.eui();
   var vi = shimi.vui;
   var ii = shimi.iiui;
   var ie = shimi.ieui;
@@ -57,16 +57,16 @@ shimi.clickDispatch = function(e) {
     // Documents
     ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
     ".remove-button span": function(t) {ed({target: t.parent()}).removeFieldset();},
-    "#save-document-button span": function(t) {ed({target: t.parent()}).save();},
-    "#create-document-button span": function(t) {ed({target: t.parent()}).create();},
-    "#clear-document-button span": function(t) {ed({target: t.parent()}).clear();},
+    "#save-document-button span": function(t) {ed.save();},
+    "#create-document-button span": function(t) {ed.create();},
+    "#clear-document-button span": function(t) {ed.clear();},
     "#document-edit-button span": function(t) {vi({target: t.parent()}).edit();},
     "#document-delete-button span": function(t) {vi({target: t.parent()}).confirmDelete();},
     "#document-restore-button span": function(t) {vi({target: t.parent()}).confirmRestore();},
     "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
     ".revision-link": function(t) {vi({target: t}).fetchRevision();},
-    ".expander": function(t) {ed({target: t}).toggleTextarea();},
-    "label span": function(t) {ed({target: t}).showHelpDialog();},
+    ".expander": function(t) {ed.toggleTextarea(t);},
+    "label span": function(t) {ed.showHelpDialog(t);},
     // Index Tool
     "#new-index-button": function(t) {ie().newCond();},
     ".remove-condition-button": function(t) {ie().remCond(t);},

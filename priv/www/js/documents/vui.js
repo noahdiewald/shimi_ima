@@ -9,9 +9,9 @@ shimi.vui = function(args) {
   var store = shimi.store;
   var flash = shimi.flash;
   
-  mod.target = args.target;
-  mod.rev = args.rev;
-  mod.id = args.id;
+  mod.evTarget = args.target;
+  mod.docRev = args.rev;
+  mod.docId = args.id;
   
   mod.formatTimestamps = function() {
     $('.timestamp').each(
@@ -26,29 +26,29 @@ shimi.vui = function(args) {
   };
   
   mod.rev = function(rev) {
-    mod.rev = rev;
+    mod.docRev = rev;
     
     return mod;
   };
   
   mod.id = function(id) {
-    mod.id = id;
+    mod.docId = id;
     
     return mod;
   };
   
   mod.target = function(target) {
-    mod.target = target;
+    mod.evTarget = target;
     
     return mod;
   };
   
   mod.get = function(callback) {
-    var url = "documents/" + mod.id;
+    var url = "documents/" + mod.docId;
     var dvt = $('#document-view');
     
-    if (mod.rev) {
-      url = "documents/" + mod.id + "/" + mod.rev;
+    if (mod.docRev) {
+      url = "documents/" + mod.docId + "/" + mod.docRev;
     }
     
     dvt.hide();
@@ -61,7 +61,7 @@ shimi.vui = function(args) {
       }
       dvt.show();
       
-      if (!mod.rev) {
+      if (!mod.docRev) {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
@@ -83,7 +83,7 @@ shimi.vui = function(args) {
   };
   
   mod.restore = function() {
-    var url = "./documents/" + mod.id + "?rev=" + mod.rev;
+    var url = "./documents/" + mod.docId + "?rev=" + mod.docRev;
     var restoreButton = $('#document-restore-button');
     var body;
     var title;
@@ -118,7 +118,7 @@ shimi.vui = function(args) {
   };
   
   mod.del = function() {
-    var url = "./documents/" + mod.id + "?rev=" + mod.rev;
+    var url = "./documents/" + mod.docId + "?rev=" + mod.docRev;
     var restoreButton = $('#document-restore-button');
     var body;
     var title;
@@ -163,7 +163,7 @@ shimi.vui = function(args) {
   
   mod.confirmIt = function(f) {
     if (window.confirm("Are you sure?")) {
-      var s = store(mod.target);
+      var s = store(mod.evTarget);
       var id = s.d("document");
       var rev = s.d("rev");
       
@@ -194,13 +194,13 @@ shimi.vui = function(args) {
   };
   
   mod.collapseToggle = function() {
-    mod.target.parent('li').toggleClass('collapsed');
+    mod.evTarget.parent('li').toggleClass('collapsed');
     
     return mod;
   };
   
   mod.fetchRevision = function() {
-    var s = store(mod.target);
+    var s = store(mod.evTarget);
     var id = s.d("document");
     var rev = s.d("rev");
     var oldrev = s.d("oldrev");

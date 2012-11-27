@@ -1,40 +1,24 @@
 // Edit pane UI elements
 
-shimi.eui = function(args) {
+shimi.eui = function() {
   var mod = {};
+  
+  // Imports
   var iui = shimi.iui;
   var vui = shimi.vui;
   var efs = shimi.efs;
   var store = shimi.store;
   var flash = shimi.flash;
-  mod.priv = {};
   
-  mod.target = args.target;
-  mod.rev = args.rev;
-  mod.id = args.id;
-  mod.saveButton = $('#save-document-button');
-  mod.addButton = $(".add-button");
-  mod.clearButton = $('#clear-document-button');
-  mod.createButton = $('#create-document-button');
-  mod.editButton = $('#document-edit-button');
-  mod.removeButton = $(".remove-button");
+  // UI Elements
+  var saveButton = $('#save-document-button');
+  var addButton = $(".add-button");
+  var clearButton = $('#clear-document-button');
+  var createButton = $('#create-document-button');
+  var editButton = $('#document-edit-button');
+  var removeButton = $(".remove-button");
   
-  mod.init = function() {
-    var url = "documents/edit";
-    
-    $.get(url, function(documentEditHtml) {
-  
-      $('#document-edit').html(documentEditHtml);
-      $('#edit-tabs').tabs();
-      mod.priv.keyboard();
-      efs().initFieldsets();
-      mod.priv.buttons();
-    });
-  
-    return mod;
-  };
-  
-  mod.priv.keyboard = function() {
+  var keyboard = function() {
     var inputable = 'input, select';
     var t = $('#edit-tabs');
     
@@ -76,24 +60,24 @@ shimi.eui = function(args) {
     return mod;
   };
   
-  mod.priv.buttons = function() {
-    mod.addButton.button({icons: {primary: "ui-icon-plus"}});
-    mod.saveButton.button({ icons: {primary: "ui-icon-disk"}});
-    mod.saveButton.hide();
-    mod.saveButton.attr('disabled', 'disabled');
-    mod.createButton.button({icons: {primary: "ui-icon-document"}});
-    mod.clearButton.button({icons: {primary: "ui-icon-refresh"}});
+  var buttons = function() {
+    addButton.button({icons: {primary: "ui-icon-plus"}});
+    saveButton.button({ icons: {primary: "ui-icon-disk"}});
+    saveButton.hide();
+    saveButton.attr('disabled', 'disabled');
+    createButton.button({icons: {primary: "ui-icon-document"}});
+    clearButton.button({icons: {primary: "ui-icon-refresh"}});
   
     return mod;
   };
   
-  mod.priv.removeButton = function() {
-    mod.removeButton.button({icons: {primary: "ui-icon-minus"}});
+  var rbutton = function() {
+    removeButton.button({icons: {primary: "ui-icon-minus"}});
     
     return mod;
   };
   
-  mod.priv.validationError = function(req) {
+  var validationError = function(req) {
     var body = JSON.parse(req.responseText);
     var title = req.statusText;
   
@@ -108,34 +92,27 @@ shimi.eui = function(args) {
     return mod;
   };
   
-  mod.priv.afterEditRefresh = function() {
+  var afterEditRefresh = function() {
     var sharedAttrs = ['data-document-id', 'data-document-rev'];
     
     sharedAttrs.forEach(function(elem) {
-      mod.saveButton.attr(elem, mod.editButton.attr(elem));
+      saveButton.attr(elem, editButton.attr(elem));
     });
     
-    mod.saveButton.show();
-    mod.priv.afterRefresh();
+    saveButton.show();
+    afterRefresh();
     
     return mod;
   };
   
-  mod.afterFreshRefresh = function() {
-    mod.priv.removeButton();
-    mod.priv.afterRefresh();
-  
-    return mod;
-  };
-  
-  mod.priv.afterRefresh = function() {
-    mod.priv.dateFields();
-    mod.priv.instances();
+  var afterRefresh = function() {
+    shimi.form().initDateFields();
+    instances();
     
     return mod;
   };
   
-  mod.priv.instances = function() {
+  var instances = function() {
     var text = ['0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f',
                 '0','1','2','3','4','5','6','7','8','9', 'a','b','c','d','e','f'];  
     var makeInstance = function() {
@@ -157,6 +134,28 @@ shimi.eui = function(args) {
       });
   
       return mod;
+  };
+  
+  mod.init = function() {
+    var url = "documents/edit";
+    
+    $.get(url, function(documentEditHtml) {
+  
+      $('#document-edit').html(documentEditHtml);
+      $('#edit-tabs').tabs();
+      keyboard();
+      efs().initFieldsets();
+      buttons();
+    });
+  
+    return mod;
+  };
+  
+  mod.afterFreshRefresh = function() {
+    rbutton();
+    afterRefresh();
+  
+    return mod;
   };
   
   mod.resetFields = function() {
@@ -182,7 +181,7 @@ shimi.eui = function(args) {
   };
   
   mod.save = function() {
-    if (mod.saveButton.hasClass('oldrev')) {
+    if (saveButton.hasClass('oldrev')) {
       if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
         return false;
       }
@@ -190,7 +189,7 @@ shimi.eui = function(args) {
     
     var body;
     var title;
-    var s = store(mod.saveButton);
+    var s = store(saveButton);
     var root = $('#edit-document-form');
     var document = s.d("document");
     var rev = s.d("rev");
@@ -201,7 +200,7 @@ shimi.eui = function(args) {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    mod.saveButton.button('disable');
+    saveButton.button('disable');
     $.extend(obj, efs().fieldsetsToObject(root));
     
     $.ajax({
@@ -218,24 +217,24 @@ shimi.eui = function(args) {
                  vui({id: document}).get();
                  iui().get();
                  flash(title, body).highlight();
-                 mod.saveButton.removeClass('oldrev');
-                 mod.saveButton.button('enable');
+                 saveButton.removeClass('oldrev');
+                 saveButton.button('enable');
                } else if (req.status === 403) {
-                 mod.priv.validationError(req);
-                 mod.saveButton.button('enable');
+                 validationError(req);
+                 saveButton.button('enable');
                } else if (req.status === 409) {
                  body = JSON.parse(req.responseText);
                  title = req.statusText;
                  
                  flash(title, body.message).error();
-                 mod.saveButton.button('enable');
+                 saveButton.button('enable');
                }
              }
            });
   };
 
   mod.create = function() {  
-    var s = store(mod.createButton);
+    var s = store(createButton);
     var root = $('#edit-document-form');
     var obj = {
       doctype: s.d("doctype"),
@@ -243,7 +242,7 @@ shimi.eui = function(args) {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    mod.createButton.button('disable');
+    createButton.button('disable');
     $.extend(obj, efs().fieldsetsToObject(root));
     
     var postUrl = $.ajax({
@@ -258,17 +257,17 @@ shimi.eui = function(args) {
           var body = "Your document was created.";
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
           
-          mod.saveButton.hide();
-          mod.saveButton.attr('disabled','true');
+          saveButton.hide();
+          saveButton.attr('disabled','true');
           $('.fields').remove();
           efs().initFieldsets();
           vui({id: documentId}).get();
           iui().get();
           flash(title, body).highlight();
-          mod.createButton.button('enable');
+          createButton.button('enable');
         } else if (req.status === 403) {
-          mod.priv.validationError(req);
-          mod.createButton.button('enable');
+          validationError(req);
+          createButton.button('enable');
         }
       }
     });
@@ -276,29 +275,33 @@ shimi.eui = function(args) {
   
   mod.clear = function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    mod.saveButton.hide();
-    mod.saveButton.attr('disabled','disabled');
+    saveButton.hide();
+    saveButton.attr('disabled','disabled');
     $('.fields').remove();
     efs().initFieldsets();
   };
   
-  mod.removeFieldset = function() {
-    mod.target.parent().remove();
+  mod.removeFieldset = function(target) {
+    target.parent().remove();
   };
   
-  mod.showHelpDialog = function() {
-    if (mod.target.is('.label-text')) {
-      mod.target = mod.target.parent('label').find('.ui-icon-help');
+  mod.showHelpDialog = function(target) {
+    if (target.is('.label-text')) {
+      target = target.parent('label').find('.ui-icon-help');
     }
     
-    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(mod.target.attr('title'));
+    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+    
+    return mod;
   };
   
-  mod.toggleTextarea = function() {
-    var textarea = $('#' + mod.target.attr('data-group-id'));
+  mod.toggleTextarea = function(target) {
+    var textarea = $('#' + target.attr('data-group-id'));
     
     textarea.toggleClass('expanded');
-    mod.target.toggleClass('expanded');
+    target.toggleClass('expanded');
+    
+    return mod;
   };
   
   return mod;
