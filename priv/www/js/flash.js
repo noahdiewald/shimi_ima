@@ -26,4 +26,6 @@ shimi.flash = function(title, body) {
     
     return mod;
   };
+  
+  return mod;
 };

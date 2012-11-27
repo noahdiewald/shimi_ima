@@ -71,9 +71,11 @@ shimi.vui = function(args) {
         restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
         
         if (store(restoreButton).d("deleted") === "true") {
+          $('#document-view').fadeTo('slow', 0.5);
           editButton.hide();
           deleteButton.hide();
         } else {
+          $('#document-view').fadeTo('slow', 1);
           restoreButton.hide();
         }
       }
@@ -97,8 +99,11 @@ shimi.vui = function(args) {
         if (req.status === 200) {
           title = "Success";
           body = "Your document was restored.";
-  
-          mod.rev(null).get(function() {iui().get();});
+          
+          mod.rev(null).get(function() {
+            $('#document-view').fadeTo('slow', 1);
+            iui().get();
+          });
           flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);

@@ -11,12 +11,12 @@ shimi.eui = function() {
   var flash = shimi.flash;
   
   // UI Elements
-  var saveButton = $('#save-document-button');
-  var addButton = $(".add-button");
-  var clearButton = $('#clear-document-button');
-  var createButton = $('#create-document-button');
-  var editButton = $('#document-edit-button');
-  var removeButton = $(".remove-button");
+  var saveButton = function() {return $('#save-document-button');};
+  var addButton = function() {return $(".add-button");};
+  var clearButton = function() {return $('#clear-document-button');};
+  var createButton = function() {return $('#create-document-button');};
+  var editButton = function() {return $('#document-edit-button');};
+  var removeButton = function() {return $(".remove-button");};
   
   var keyboard = function() {
     var inputable = 'input, select';
@@ -61,18 +61,16 @@ shimi.eui = function() {
   };
   
   var buttons = function() {
-    addButton.button({icons: {primary: "ui-icon-plus"}});
-    saveButton.button({ icons: {primary: "ui-icon-disk"}});
-    saveButton.hide();
-    saveButton.attr('disabled', 'disabled');
-    createButton.button({icons: {primary: "ui-icon-document"}});
-    clearButton.button({icons: {primary: "ui-icon-refresh"}});
+    addButton().button({icons: {primary: "ui-icon-plus"}});
+    saveButton().button({ icons: {primary: "ui-icon-disk"}}).hide().attr('disabled', 'disabled');
+    createButton().button({icons: {primary: "ui-icon-document"}});
+    clearButton().button({icons: {primary: "ui-icon-refresh"}});
   
     return mod;
   };
   
   var rbutton = function() {
-    removeButton.button({icons: {primary: "ui-icon-minus"}});
+    removeButton().button({icons: {primary: "ui-icon-minus"}});
     
     return mod;
   };
@@ -89,26 +87,6 @@ shimi.eui = function() {
     
     flash(title, body.fieldname + " " + body.message).error();
   
-    return mod;
-  };
-  
-  var afterEditRefresh = function() {
-    var sharedAttrs = ['data-document-id', 'data-document-rev'];
-    
-    sharedAttrs.forEach(function(elem) {
-      saveButton.attr(elem, editButton.attr(elem));
-    });
-    
-    saveButton.show();
-    afterRefresh();
-    
-    return mod;
-  };
-  
-  var afterRefresh = function() {
-    shimi.form().initDateFields();
-    instances();
-    
     return mod;
   };
   
@@ -158,6 +136,26 @@ shimi.eui = function() {
     return mod;
   };
   
+  mod.afterEditRefresh = function() {
+    var sharedAttrs = ['data-document-id', 'data-document-rev'];
+    
+    sharedAttrs.forEach(function(elem) {
+      saveButton().attr(elem, editButton().attr(elem));
+    });
+    
+    saveButton().show();
+    afterRefresh();
+    
+    return mod;
+  };
+  
+  var afterRefresh = function() {
+    shimi.form().initDateFields();
+    instances();
+    
+    return mod;
+  };
+  
   mod.resetFields = function() {
     $('.field').each(function(index) {
       var field = $(this);
@@ -181,7 +179,7 @@ shimi.eui = function() {
   };
   
   mod.save = function() {
-    if (saveButton.hasClass('oldrev')) {
+    if (saveButton().hasClass('oldrev')) {
       if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
         return false;
       }
@@ -189,7 +187,7 @@ shimi.eui = function() {
     
     var body;
     var title;
-    var s = store(saveButton);
+    var s = store(saveButton());
     var root = $('#edit-document-form');
     var document = s.d("document");
     var rev = s.d("rev");
@@ -200,7 +198,7 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton.button('disable');
+    saveButton().button('disable');
     $.extend(obj, efs().fieldsetsToObject(root));
     
     $.ajax({
@@ -217,24 +215,23 @@ shimi.eui = function() {
                  vui({id: document}).get();
                  iui().get();
                  flash(title, body).highlight();
-                 saveButton.removeClass('oldrev');
-                 saveButton.button('enable');
+                 saveButton().removeClass('oldrev').button('enable');
                } else if (req.status === 403) {
                  validationError(req);
-                 saveButton.button('enable');
+                 saveButton().button('enable');
                } else if (req.status === 409) {
                  body = JSON.parse(req.responseText);
                  title = req.statusText;
                  
                  flash(title, body.message).error();
-                 saveButton.button('enable');
+                 saveButton().button('enable');
                }
              }
            });
   };
 
   mod.create = function() {  
-    var s = store(createButton);
+    var s = store(createButton());
     var root = $('#edit-document-form');
     var obj = {
       doctype: s.d("doctype"),
@@ -242,7 +239,7 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton.button('disable');
+    createButton().button('disable');
     $.extend(obj, efs().fieldsetsToObject(root));
     
     var postUrl = $.ajax({
@@ -257,17 +254,16 @@ shimi.eui = function() {
           var body = "Your document was created.";
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
           
-          saveButton.hide();
-          saveButton.attr('disabled','true');
+          saveButton().hide().attr('disabled','true');
           $('.fields').remove();
           efs().initFieldsets();
           vui({id: documentId}).get();
           iui().get();
           flash(title, body).highlight();
-          createButton.button('enable');
+          createButton().button('enable');
         } else if (req.status === 403) {
           validationError(req);
-          createButton.button('enable');
+          createButton().button('enable');
         }
       }
     });
@@ -275,8 +271,7 @@ shimi.eui = function() {
   
   mod.clear = function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton.hide();
-    saveButton.attr('disabled','disabled');
+    saveButton().hide().attr('disabled','disabled');
     $('.fields').remove();
     efs().initFieldsets();
   };
