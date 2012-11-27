@@ -2726,15 +2726,12 @@ shimi.vui = function(args) {
       url = "documents/" + mod.docId + "/" + mod.docRev;
     }
     
-    dvt.hide();
-    
     $.get(url, function(documentHtml) {
       dvt.html(documentHtml);
       mod.formatTimestamps();
       if (callback) {
         callback();
       }
-      dvt.show();
       
       if (!mod.docRev) {
         var restoreButton = $('#document-restore-button');
