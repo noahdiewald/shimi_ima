@@ -15,7 +15,6 @@
 shimi.index = function(args) {
   var mod = {};
 
-
   mod.get = function(startkey, startid, prevkeys, previds) {
     var url = args.url + '?';
     var indexId = args.indexId;
@@ -77,10 +76,10 @@ shimi.index = function(args) {
     $('#next-index-page').button(
       {
         icons: {secondary:'ui-icon-circle-arrow-e'}
-      }).click(function(e) 
+      }).click(function() 
                {
-                 var nextkey = $(e).attr('data-startkey');
-                 var nextid = $(e).attr('data-startid');
+                 var nextkey = $('#next-index-page').attr('data-startkey');
+                 var nextid = $('#next-index-page').attr('data-startid');
                  var prevkey = 
                    $('#first-index-element').attr('data-first-key');
                  var previd = 
@@ -88,7 +87,7 @@ shimi.index = function(args) {
                  state.pks.push(prevkey);
                  state.pids.push(previd);
                  
-                 mod.get(nextkey, nextid, state.prevkeys, state.previds);
+                 mod.get(nextkey, nextid, state.pks, state.pids);
                });
     
     // Disable the previous button if we're at the beginning
