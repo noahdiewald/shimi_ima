@@ -107,7 +107,7 @@ shimi.sui = function() {
   };
 
   mod.toggleExclusion = function(e) {
-    var exclude = mod.excludedVal();
+    var exclude = excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
     if (exclude) {
@@ -152,7 +152,7 @@ shimi.sui = function() {
       dSearchField.val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
-      if (lookup("searchExclude") !== mod.excludedVal()) {
+      if (lookup("searchExclude") !== excludedVal()) {
         dSearchExclude.click();
       }
 
@@ -168,7 +168,7 @@ shimi.sui = function() {
     var searchField = dSearchField;
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    var exclude = mod.excludedVal();
+    var exclude = excludedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
@@ -217,7 +217,7 @@ shimi.sui = function() {
       var searchField = dSearchField;
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var exclude = mod.excludedVal();
+      var exclude = excludedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + 

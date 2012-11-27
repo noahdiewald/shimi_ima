@@ -1686,35 +1686,35 @@ shimi.loadHash = function(urlHash) {
 shimi.searchAllFieldsSwitch = function() {
   $('#search-all-fields-switch a')
     .live("click", function() {
-            shimi.sui.clearSearchVals();
+            shimi.sui().clearSearchVals();
           });
 };
 
 shimi.searchFieldItems = function() {
   $('.search-field-item')
     .live("click", function(e) {
-            shimi.sui.removeSearchField(e);
+            shimi.sui().removeSearchField(e);
           });
 };
 
 shimi.fieldViews = function() {
   $('.search-result-field-id a, .field-view b, .field-container label span')
     .live('dblclick', function(e) {
-            shimi.sui.addSearchField(e);
+            shimi.sui().addSearchField(e);
           });
 };
 
 shimi.searchIndex = function() {
   $('#index-index-input-label')
     .live('dblclick', function(e) {
-            shimi.sui.addSearchIndex(e);
+            shimi.sui().addSearchIndex(e);
           });  
 };
 
 shimi.excludeCheck = function() {
   $('#document-search-exclude')
     .live("change", function(e) {
-            shimi.sui.toggleExclusion(e);
+            shimi.sui().toggleExclusion(e);
           });
 };
 
@@ -1757,7 +1757,7 @@ shimi.searchForm = function() {
     .live("keydown",
           function(e) {
             if (e.which === 13) {
-              shimi.sui.getSearch();
+              shimi.sui().getSearch();
               return false;
             }
             return true;
@@ -2524,7 +2524,7 @@ shimi.sui = function() {
   };
 
   mod.toggleExclusion = function(e) {
-    var exclude = mod.excludedVal();
+    var exclude = excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
     if (exclude) {
@@ -2569,7 +2569,7 @@ shimi.sui = function() {
       dSearchField.val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
-      if (lookup("searchExclude") !== mod.excludedVal()) {
+      if (lookup("searchExclude") !== excludedVal()) {
         dSearchExclude.click();
       }
 
@@ -2585,7 +2585,7 @@ shimi.sui = function() {
     var searchField = dSearchField;
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    var exclude = mod.excludedVal();
+    var exclude = excludedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
@@ -2634,7 +2634,7 @@ shimi.sui = function() {
       var searchField = dSearchField;
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var exclude = mod.excludedVal();
+      var exclude = excludedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + 
