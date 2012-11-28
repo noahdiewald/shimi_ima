@@ -1139,7 +1139,9 @@ shimi.doctypeDialog = function(url, values) {
   
   if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
-  }  
+  } else {
+    f.doctype.removeAttr('disabled');
+  }
   
   var dialog = $("#doctype-dialog").dialog({
     autoOpen: false,
@@ -1182,8 +1184,6 @@ shimi.doctypeElems = (function() {
   mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = mod.attrs;
-    
     fObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
@@ -1205,7 +1205,7 @@ shimi.doctypeElems = (function() {
       return fObj;
     };
                    
-    fObj.attrs.forEach(function(item) {
+    mod.attrs.forEach(function(item) {
       fObj[item] = $('#doctype-' + item + '-input');
     });
     
@@ -1378,7 +1378,7 @@ shimi.doctypeTab = (function() {
     var complete = function() {
       url.doctype = false;
       url.rev = false;
-      mod.initDoctypeTabs();
+      mod.init();
     };
     
     if (window.confirm("Are you sure? This is permanent.")) {

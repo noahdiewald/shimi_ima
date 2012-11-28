@@ -158,7 +158,7 @@ shimi.doctypeTab = (function() {
     var complete = function() {
       url.doctype = false;
       url.rev = false;
-      mod.initDoctypeTabs();
+      mod.init();
     };
     
     if (window.confirm("Are you sure? This is permanent.")) {

@@ -9,8 +9,6 @@ shimi.doctypeElems = (function() {
   mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = mod.attrs;
-    
     fObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
@@ -32,7 +30,7 @@ shimi.doctypeElems = (function() {
       return fObj;
     };
                    
-    fObj.attrs.forEach(function(item) {
+    mod.attrs.forEach(function(item) {
       fObj[item] = $('#doctype-' + item + '-input');
     });
     
