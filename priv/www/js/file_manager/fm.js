@@ -13,21 +13,25 @@ shimi.fm = (function() {
   
   mod.goDir = function(target) {
     var newpath = $(target).attr('data-path');
+    window.sessionStorage.fmPath = newpath;
     mod.refreshListings(newpath);
     
     return mod;
   };
   
   mod.rootDir = function() {
+    var path = window.sessionStorage.fmPath = "";
     mod.refreshListings();
     
     return mod;
   };
   
   mod.upDir = function() {
+    var path = window.sessionStorage.fmPath;
     var newpath = path.split("/");
     newpath.pop();
     newpath = newpath.join("/");
+    window.sessionStorage.fmPath = newpath;
         
     mod.refreshListings(newpath);
     
@@ -44,7 +48,8 @@ shimi.fm = (function() {
     });
   };
   
-  var editFile = function(target) {
+  mod.editFile = function(target) {
+    var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var url = "file_manager/" + fileId;
         
@@ -55,8 +60,8 @@ shimi.fm = (function() {
     return mod;
   };
   
-  // Used to take path
   mod.deleteFile = function(target) {
+    var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var fileRev = target.attr('data-file-rev');
     var url = "file_manager/" + fileId + "?rev=" + fileRev;

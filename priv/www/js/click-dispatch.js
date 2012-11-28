@@ -101,6 +101,7 @@ shimi.clickDispatch = function(e) {
     // Project
     "#create-project": function() {pui.add().dialog("open");},
     ".project-delete-button": function(t) {pui.del(t);},
+    
     // File Manager
     "#up-dir": function() {fm.upDir();},
     "#root-dir": function() {fm.rootDir();},

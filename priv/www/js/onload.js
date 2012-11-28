@@ -43,7 +43,7 @@ $(function () {
   // File Manager
   
   if ($('#file-upload').length > 0) {
-    shimi.fm().refreshListings();
+    shimi.fm.refreshListings();
     
     $('#file-upload-target').load(function() {
       var encoded = $('#file-upload-target').contents().find('body pre').html();

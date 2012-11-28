@@ -695,6 +695,7 @@ shimi.clickDispatch = function(e) {
     // Project
     "#create-project": function() {pui.add().dialog("open");},
     ".project-delete-button": function(t) {pui.del(t);},
+    
     // File Manager
     "#up-dir": function() {fm.upDir();},
     "#root-dir": function() {fm.rootDir();},
@@ -2310,7 +2311,7 @@ shimi.eui = (function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled','disabled');
     $('.fields').remove();
-    efs.initFieldsets();
+    shimi.efs.initFieldsets();
   };
   
   mod.showHelpDialog = function(target) {
@@ -2861,21 +2862,25 @@ shimi.fm = (function() {
   
   mod.goDir = function(target) {
     var newpath = $(target).attr('data-path');
+    window.sessionStorage.fmPath = newpath;
     mod.refreshListings(newpath);
     
     return mod;
   };
   
   mod.rootDir = function() {
+    var path = window.sessionStorage.fmPath = "";
     mod.refreshListings();
     
     return mod;
   };
   
   mod.upDir = function() {
+    var path = window.sessionStorage.fmPath;
     var newpath = path.split("/");
     newpath.pop();
     newpath = newpath.join("/");
+    window.sessionStorage.fmPath = newpath;
         
     mod.refreshListings(newpath);
     
@@ -2892,7 +2897,8 @@ shimi.fm = (function() {
     });
   };
   
-  var editFile = function(target) {
+  mod.editFile = function(target) {
+    var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var url = "file_manager/" + fileId;
         
@@ -2903,8 +2909,8 @@ shimi.fm = (function() {
     return mod;
   };
   
-  // Used to take path
   mod.deleteFile = function(target) {
+    var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var fileRev = target.attr('data-file-rev');
     var url = "file_manager/" + fileId + "?rev=" + fileRev;
@@ -3879,7 +3885,7 @@ $(function () {
   // File Manager
   
   if ($('#file-upload').length > 0) {
-    shimi.fm().refreshListings();
+    shimi.fm.refreshListings();
     
     $('#file-upload-target').load(function() {
       var encoded = $('#file-upload-target').contents().find('body pre').html();

@@ -250,7 +250,7 @@ shimi.eui = (function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled','disabled');
     $('.fields').remove();
-    efs.initFieldsets();
+    shimi.efs.initFieldsets();
   };
   
   mod.showHelpDialog = function(target) {

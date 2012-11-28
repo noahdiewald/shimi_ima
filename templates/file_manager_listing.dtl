@@ -10,12 +10,14 @@
   <tbody class="ui-widget-content">
     {% for row in files.rows %}
     <tr>
-      <td><a href="file_manager/files/{% if row.key|length > 0 %}{{row.key|join:"/"|escape}}/{% endif %}{{row.value.filename|escape}}">{% if row.key|length > 0 %}{{row.key|join:"/"|escape}}/{% endif %}{{row.value.filename|escape}}</a></td>
+      <td>
+        <a href="file_manager/files/{% if row.key|length > 0 %}{{row.key|join:"/"|escape}}/{% endif %}{{row.value.filename|escape}}">{% if row.key|length > 0 %}{{row.key|join:"/"|escape}}/{% endif %}{{row.value.filename|escape}}</a>
+      </td>
       <td>{{row.value.content_type}}</td>
       <td>{{row.value.size}}</td>
       <td>
-        <a href="#" class="edit-file-button" data-file-id="{{row.id}}">Edit</a>
-        <a href="#" class="delete-file-button" data-file-id="{{row.id}}" data-file-rev="{{row.value.rev}}">Delete</a>
+        <a href="#" class="edit-file-button link-button" data-file-id="{{row.id}}">Edit</a>
+        <a href="#" class="delete-file-button link-button" data-file-id="{{row.id}}" data-file-rev="{{row.value.rev}}">Delete</a>
       </td>
     </tr>
     {% endfor %}
