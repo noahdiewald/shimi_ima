@@ -1356,7 +1356,7 @@ shimi.doctypeTab = (function() {
     shimi.fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
   };
   
-  var editDoctype = function(target) {
+  mod.editDoctype = function(target) {
     var url = cpath(target, "doctype");
     var oldobj = {};
     var attrs = shimi.doctypeElems.attrs;
