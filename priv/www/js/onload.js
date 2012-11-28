@@ -9,8 +9,6 @@ $(function () {
                 $(this).hide();
               });
 
-  shimi.panelToggle();
-  
   shimi.form.initDateFields();
 
   // Config
@@ -23,21 +21,20 @@ $(function () {
   if ($('#all-document-container').length > 0) {
     var getIndexTimer;
     
-    shimi.documentLinks();
-    shimi.iui().iOpts().get();
+    shimi.iui.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
-    shimi.eui().init();
+    shimi.eui.init();
 
     $('#index-filter-form input').keyup(
       function() {
         clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
+        getIndexTimer = setTimeout(function () {shimi.iui.get();}, 500);
       });
   
     $('#index-filter-form select').change(
       function() {
-        shimi.iui().get();
+        shimi.iui.get();
       });
   
     shimi.loadHash($(location)[0].hash.split("#")[1]);

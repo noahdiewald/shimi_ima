@@ -62,10 +62,7 @@ shimi.index = function(args) {
   mod.fill = function(req, state, target) {
     target.html(req.responseText);
   
-    $('#previous-index-page').button(
-      {
-        icons: {primary:'ui-icon-circle-arrow-w'} 
-      }).click(function() 
+    $('#previous-index-page').click(function() 
                {
                  mod.get(state.pks.pop(), 
                          state.pids.pop(), 
@@ -73,10 +70,7 @@ shimi.index = function(args) {
                          state.pids);
                });
 
-    $('#next-index-page').button(
-      {
-        icons: {secondary:'ui-icon-circle-arrow-e'}
-      }).click(function() 
+    $('#next-index-page').click(function() 
                {
                  var nextkey = $('#next-index-page').attr('data-startkey');
                  var nextid = $('#next-index-page').attr('data-startid');
@@ -92,15 +86,13 @@ shimi.index = function(args) {
     
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0) {
-      $('#previous-index-page').button("disable");
+      $('#previous-index-page').hide();
     }
     
     // Disable the next button if we're at the end
     if ($('#next-index-page').attr('data-last-page')) {
-      $('#next-index-page').button("disable");
+      $('#next-index-page').hide();
     }
-    
-    $('nav.pager').buttonset();
 
     return mod;
   };

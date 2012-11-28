@@ -29,46 +29,67 @@ shimi.dispatcher = function(patterns) {
   return d;
 };
 
+shimi.dblclickDispatch = function(e) {
+  var sui = shimi.sui;
+  
+  var action = shimi.dispatcher({
+    ".search-result-field-id a, .field-view b, .field-container label span": function(t) {sui.addSearchField(t);},
+    "#index-index-input-label": function() {sui.addSearchIndex();},
+    ".panel > h2": function(t) {shimi.panelToggle.toggler(t);}
+  });
+
+  action(e);
+};
+
 shimi.clickDispatch = function(e) {
-  var dt = shimi.doctypeTab;
-  var ct = shimi.charseqTab;
-  var ed = shimi.eui();
-  var vi = shimi.vui;
+  var doctypeTab = shimi.doctypeTab;
+  var charseqTab = shimi.charseqTab;
+  var eui = shimi.eui;
+  var vui = shimi.vui;
+  var iui = shimi.iui;
+  var sui = shimi.sui;
+  var efs = shimi.efs;
   var ii = shimi.iiui;
   var ie = shimi.ieui;
   var ip = shimi.ipui;
   var form = shimi.form;
   var pui = shimi.pui;
+  var fm = shimi.fm;
   
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button": function(t) {dt.editField(t);},
-    ".delete-field-button": function(t) {dt.deleteField(t);},
-    ".add-field-button": function(t) {dt.addField(t);},
-    ".edit-fieldset-button": function(t) {dt.editFieldset(t);},
-    ".delete-fieldset-button": function(t) {dt.deleteFieldset(t);},
-    ".add-fieldset-button": function(t) {dt.addFieldset(t);},
-    ".delete-doctype-button": function(t) {dt.deleteDoctype(t);},
-    ".edit-doctype-button": function(t) {dt.editDoctype(t);},
-    ".touch-doctype-button": function(t) {dt.touchDoctype(t);},
-    "#doctype-add-button": function(t) {dt.addDoctype(t);},
-    ".delete-charseq-button": function(t) {ct.del(t);},
-    ".edit-charseq-button": function(t) {ct.edit(t);},
-    "#charseq-add-button": function(t) {ct.add();},
+    ".edit-field-button": function(t) {doctypeTab.editField(t);},
+    ".delete-field-button": function(t) {doctypeTab.deleteField(t);},
+    ".add-field-button": function(t) {doctypeTab.addField(t);},
+    ".edit-fieldset-button": function(t) {doctypeTab.editFieldset(t);},
+    ".delete-fieldset-button": function(t) {doctypeTab.deleteFieldset(t);},
+    ".add-fieldset-button": function(t) {doctypeTab.addFieldset(t);},
+    ".delete-doctype-button": function(t) {doctypeTab.deleteDoctype(t);},
+    ".edit-doctype-button": function(t) {doctypeTab.editDoctype(t);},
+    ".touch-doctype-button": function(t) {doctypeTab.touchDoctype(t);},
+    "#doctype-add-button": function(t) {doctypeTab.addDoctype(t);},
+    ".delete-charseq-button": function(t) {charseqTab.del(t);},
+    ".edit-charseq-button": function(t) {charseqTab.edit(t);},
+    "#charseq-add-button": function(t) {charseqTab.add();},
     "#maintenance-upgrade-button": function(t) {shimi.upgradeButton(t);},
+    
     // Documents
-    ".add-button": function(t) {ed({target: t.parent()}).initFieldset();},
-    ".remove-button": function(t) {ed({target: t.parent()}).removeFieldset();},
-    "#save-document-button": function(t) {ed.save();},
-    "#create-document-button": function(t) {ed.create();},
-    "#clear-document-button": function(t) {ed.clear();},
-    "#document-edit-button": function(t) {vi({target: t.parent()}).edit();},
-    "#document-delete-button": function(t) {vi({target: t.parent()}).confirmDelete();},
-    "#document-restore-button": function(t) {vi({target: t.parent()}).confirmRestore();},
-    "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
-    ".revision-link": function(t) {vi({target: t}).fetchRevision();},
-    ".expander": function(t) {ed.toggleTextarea(t);},
-    "label": function(t) {ed.showHelpDialog(t);},
+    ".add-button": function(t) {efs.initFieldset(t);},
+    ".remove-button": function(t) {efs.removeFieldset(t);},
+    "#save-document-button": function(t) {eui.save();},
+    "#create-document-button": function(t) {eui.create();},
+    "#clear-document-button": function(t) {eui.clear();},
+    ".expander": function(t) {eui.toggleTextarea(t);},
+    "label span.ui-icon-help": function(t) {eui.showHelpDialog(t);},
+    "#document-edit-button": function(t) {vui({target: t}).edit();},
+    "#document-delete-button": function(t) {vui({target: t}).confirmDelete();},
+    "#document-restore-button": function(t) {vui({target: t}).confirmRestore();},
+    "#document-view-tree > ul > li > b": function(t) {vui({target: t}).collapseToggle();},
+    ".revision-link": function(t) {vui({target: t}).fetchRevision();},
+    "#search-all-fields-switch a": function() {sui.clearSearchVals();},
+    ".search-field-item": function(t) {sui.removeSearchField(t);},
+    ".view-document-link": function(t) {iui.load(t);},
+    
     // Index Tool
     "#new-index-button": function(t) {ie().newCond();},
     ".remove-condition-button": function(t) {ie().remCond(t);},
@@ -76,11 +97,20 @@ shimi.clickDispatch = function(e) {
     "#save-index-button": function(t) {ie().save();},
     "#replace-button": function(t) {ie().replace();},
     "#add-index-condition-button": function(t) {ie().addCond();},
+    
     // Project
     "#create-project": function() {pui.add().dialog("open");},
     ".project-delete-button": function(t) {pui.del(t);},
+    // File Manager
+    "#up-dir": function() {fm.upDir();},
+    "#root-dir": function() {fm.rootDir();},
+    ".dir": function(t) {fm.goDir(t);},
+    ".delete-file-button": function(t) {fm.deleteFile(t);},
+    ".edit-file-button": function(t) {fm.editFile(t);},
+    
     // General
-    ".toggler": function(t) {form.toggle(t);}//,
+    ".toggler": function(t) {form.toggle(t);},
+    "#panel-toggle li": function(t) {shimi.panelToggle.toggler(t);}
     //".remove-button": function(t) {$(t).parent().remove();}
   });
 
@@ -89,5 +119,6 @@ shimi.clickDispatch = function(e) {
 
 $(function () {
     $('body').click(function(e) {shimi.clickDispatch(e);});
+    $('body').dblclick(function(e) {shimi.dblclickDispatch(e);});
   });
 

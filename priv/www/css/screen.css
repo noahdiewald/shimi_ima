@@ -370,10 +370,6 @@ h5 {
   display: none;
 }
 
-.hidden {
-  display: none;
-}
-
 select[multiple=true] {
   height: 5em;
 }
@@ -615,4 +611,21 @@ h5 + .search-results {
     margin: 2px;
     background: white;
     cursor: pointer;
+}
+
+.remove-button {
+    background: #F0A265;
+    float: right;
+}
+
+.fields {
+    clear: right;
+}
+
+#panel-toggle li, .panel > h2, .ui-icon-help {
+    cursor: pointer;
+}
+
+.hidden {
+  display: none;
 }

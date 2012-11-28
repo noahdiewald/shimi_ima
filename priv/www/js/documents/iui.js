@@ -1,7 +1,5 @@
-shimi.iui = function() {
+shimi.iui = (function() {
   var mod = {};
-  var vui = shimi.vui;
-  var eui = shimi.eui;
   var store = shimi.store;
   var flash = shimi.flash;
   var index = shimi.index;
@@ -28,5 +26,14 @@ shimi.iui = function() {
     return mod;
   };
   
+  mod.load = function(target) {
+    var id = $(target).attr('href').slice(1);
+    $("#document-view").html("<em>Loading...</em>");
+    shimi.eui.clear();
+    shimi.vui({id: id}).get();
+  
+    return mod;
+  };
+  
   return mod;
-};
+})();

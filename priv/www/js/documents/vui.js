@@ -2,12 +2,9 @@
 
 shimi.vui = function(args) {
   var mod = {};
-  var vui = shimi.vui;
-  var iui = shimi.iui;
-  var eui = shimi.eui;
-  var efs = shimi.efs();
   var store = shimi.store;
   var flash = shimi.flash;
+  var dvt = $("#document-view");
   
   mod.evTarget = args.target;
   mod.docRev = args.rev;
@@ -45,7 +42,6 @@ shimi.vui = function(args) {
   
   mod.get = function(callback) {
     var url = "documents/" + mod.docId;
-    var dvt = $('#document-view');
     
     if (mod.docRev) {
       url = "documents/" + mod.docId + "/" + mod.docRev;
@@ -62,17 +58,13 @@ shimi.vui = function(args) {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
-       
-        editButton.button({icons: {primary: 'ui-icon-pencil'}});
-        deleteButton.button({icons: {primary: 'ui-icon-trash'}});
-        restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
         
         if (store(restoreButton).d("deleted") === "true") {
-          $('#document-view').fadeTo('slow', 0.5);
+          dvt.fadeTo('slow', 0.5);
           editButton.hide();
           deleteButton.hide();
         } else {
-          $('#document-view').fadeTo('slow', 1);
+          dvt.fadeTo('slow', 1);
           restoreButton.hide();
         }
       }
@@ -98,8 +90,8 @@ shimi.vui = function(args) {
           body = "Your document was restored.";
           
           mod.rev(null).get(function() {
-            $('#document-view').fadeTo('slow', 1);
-            iui().get();
+            dvt.fadeTo('slow', 1);
+            shimi.iui.get();
           });
           flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -141,10 +133,10 @@ shimi.vui = function(args) {
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
           restoreButton.show();
-          $('#document-view h2').text("Deleted Document");
-          $('#document-view').fadeTo('slow', 0.5);
+          dvt.find('h2').text("Deleted Document");
+          dvt.fadeTo('slow', 0.5);
           
-          iui().get();
+          shimi.iui.get();
           flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
@@ -176,13 +168,13 @@ shimi.vui = function(args) {
   };
   
   mod.edit = function() {
-    eui().resetFields();
+    shimi.eui.resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    efs.fillFieldsets();
+    shimi.efs.fillFieldsets();
     
     return mod;
   };
@@ -213,7 +205,7 @@ shimi.vui = function(args) {
       $('#document-view-tree').removeClass('oldrev');
     }
   
-    vui({rev: oldrev, id: id}).get();
+    shimi.vui({rev: oldrev, id: id}).get();
     
     return mod;
   };

@@ -3,7 +3,7 @@
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="or-condition" data-value="true">OR</td>
   <td class="remove-condition-button-cell">
-    <button class="remove-condition-button">Remove</button>
+    <a class="remove-condition-button link-button">Remove</a>
   </td>
   {% else %}
   {% if parens %}
@@ -13,21 +13,21 @@
     <div title="normal closing parenthesis"></div>
   </td>
   <td class="remove-condition-button-cell">
-    <button class="remove-condition-button">Remove</button></td>
+    <a class="remove-condition-button link-button">Remove</a></td>
   {% elif parens == 'exclose' %}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition existential" data-value="exclose">
     <div title="existential closing paranthesis">∃</div>
   </td>
   <td class="remove-condition-button-cell">
-    <button class="remove-condition-button">Remove</button>
+    <a class="remove-condition-button link-button">Remove</a>
   </td>
   {% elif parens == 'exopen' %}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition existential" data-value="exopen">
     <div title="existential openning parenthesis">∃</td>
   <td class="remove-condition-button-cell">
-    <button class="remove-condition-button">Remove</button>
+    <a class="remove-condition-button link-button">Remove</a>
   </td>
   {% else %}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
@@ -35,7 +35,7 @@
     <div title="normal openning parenthesis"></div>
   </td>
   <td class="remove-condition-button-cell">
-    <button class="remove-condition-button">Remove</button>
+    <a class="remove-condition-button link-button">Remove</a>
   </td>
   {% endif %}
   {% else %}
@@ -56,7 +56,7 @@
     {{ argument|force_escape }}
   </td>
   <td class="remove-condition-button-cell">
-    <a href="#" class="remove-condition-button">Remove</a>
+    <a href="#" class="remove-condition-button link-button">Remove</a>
   </td>
   {% endif %}
   {% endif %}
