@@ -108,15 +108,11 @@ content_types_accepted(R, S) ->
   
 index_html(R, S) ->
     Doctype = wrq:path_info(doctype, R),
-    case q:fieldset(Doctype, R, S) of
-        {ok, Json} ->
-            Rows = jsn:get_value(<<"rows">>, Json),
-            Fieldsets = fieldset:arrange(Rows),
-            {render:renderings([{<<"rows">>, Fieldsets}], 
-                               config_fieldset_list_elements_dtl), R, S};
-        {error, not_found} ->
-            {<<"">>, R, S}
-    end.
+    {ok, Json} = q:fieldset(Doctype, R, S),
+    Rows = jsn:get_value(<<"rows">>, Json),
+    Fieldsets = fieldset:arrange(Rows),
+    {render:renderings([{<<"rows">>, Fieldsets}], 
+                       config_fieldset_list_elements_dtl), R, S}.
 
 id_html(R, S) ->
   Json = couch:get_json(id, R, S),
