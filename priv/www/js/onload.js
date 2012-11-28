@@ -1,44 +1,15 @@
 $(function () {
-    $('.notification').hide();
+  $('.notification').hide();
   
-    $('#loading').hide()
-      .ajaxStart(function() {
-                   $(this).show();
-                 })
-      .ajaxStop(function() {
-                  $(this).hide();
-                });
+  $('#loading').hide()
+    .ajaxStart(function() {
+                 $(this).show();
+               })
+    .ajaxStop(function() {
+                $(this).hide();
+              });
 
-    shimi.panelToggle();
-
-  // Buttons
-  
-  $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"},
-    text: false
-  }).click(function() {
-    $(this).parent().remove();
-  });
-  
-  $(".help-button").button({
-    icons: {primary: "ui-icon-help"},
-    text: false
-  });
-  
-  $(".link-button").button({
-    icons: {primary: "ui-icon-link"}
-  });
-  
-  $(".edit-button").button({
-    icons: {primary: "ui-icon-pencil"}
-  });
-  
-  $(".create-continue-button").button({
-    icons: {
-      primary: "ui-icon-disk",
-      secondary: "ui-icon-arrowthick-1-e"
-    }
-  });
+  shimi.panelToggle();
   
   shimi.form.initDateFields();
 
@@ -110,12 +81,6 @@ $(function () {
   // Project
   
   if ($('#projects-container').length > 0) {
-    shimi.pui().init();
-  
-    $("#create-project").button({
-      icons: {primary: "ui-icon-plus"}
-    }).click(function() {
-      shimi.pui().addProjectDialog().dialog("open");
-    });
+    shimi.pui.init();
   }
 });

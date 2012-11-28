@@ -608,3 +608,11 @@ h5 + .search-results {
 .highlight {
     background: yellow;
 }
+
+.link-button {
+    display: inline-block;
+    padding: 2px;
+    margin: 2px;
+    background: white;
+    cursor: pointer;
+}

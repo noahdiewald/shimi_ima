@@ -13,7 +13,6 @@ shimi.doctypeTab = (function() {
       var fieldContainer = $("#fields-" + path.fieldset);
       fieldContainer.empty();
       fieldContainer.html(fields);
-      $('.link-button').button();
     });
     
     return mod;
@@ -27,7 +26,6 @@ shimi.doctypeTab = (function() {
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
-      $('.link-button').button();
       
       fieldsetContainer.accordion({
         autoHeight: false,
@@ -50,7 +48,6 @@ shimi.doctypeTab = (function() {
       $("#doctype-tabs-headings + .ui-tabs-panel").remove();
       $("#doctype-tabs").tabs("destroy");
       $("#doctype-tabs-headings").html(doctypes);
-      $('.link-button').button();
       
       var loadFun = function(event, ui) {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');

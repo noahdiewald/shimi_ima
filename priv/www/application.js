@@ -633,36 +633,37 @@ shimi.clickDispatch = function(e) {
   var ie = shimi.ieui;
   var ip = shimi.ipui;
   var form = shimi.form;
+  var pui = shimi.pui;
   
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button span": function(t) {dt.editField(t.parent('a'));},
-    ".delete-field-button span": function(t) {dt.deleteField(t.parent('a'));},
-    ".add-field-button span": function(t) {dt.addField(t.parent('a'));},
-    ".edit-fieldset-button span": function(t) {dt.editFieldset(t.parent('a'));},
-    ".delete-fieldset-button span": function(t) {dt.deleteFieldset(t.parent('a'));},
-    ".add-fieldset-button span": function(t) {dt.addFieldset(t.parent('a'));},
-    ".delete-doctype-button span": function(t) {dt.deleteDoctype(t.parent('a'));},
-    ".edit-doctype-button span": function(t) {dt.editDoctype(t.parent('a'));},
-    ".touch-doctype-button span": function(t) {dt.touchDoctype(t.parent('a'));},
-    "#doctype-add-button span": function(t) {dt.addDoctype(t.parent('a'));},
-    ".delete-charseq-button span": function(t) {ct.del(t.parent('a'));},
-    ".edit-charseq-button span": function(t) {ct.edit(t.parent('a'));},
-    "#charseq-add-button span": function(t) {ct.add();},
-    "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
+    ".edit-field-button": function(t) {dt.editField(t);},
+    ".delete-field-button": function(t) {dt.deleteField(t);},
+    ".add-field-button": function(t) {dt.addField(t);},
+    ".edit-fieldset-button": function(t) {dt.editFieldset(t);},
+    ".delete-fieldset-button": function(t) {dt.deleteFieldset(t);},
+    ".add-fieldset-button": function(t) {dt.addFieldset(t);},
+    ".delete-doctype-button": function(t) {dt.deleteDoctype(t);},
+    ".edit-doctype-button": function(t) {dt.editDoctype(t);},
+    ".touch-doctype-button": function(t) {dt.touchDoctype(t);},
+    "#doctype-add-button": function(t) {dt.addDoctype(t);},
+    ".delete-charseq-button": function(t) {ct.del(t);},
+    ".edit-charseq-button": function(t) {ct.edit(t);},
+    "#charseq-add-button": function(t) {ct.add();},
+    "#maintenance-upgrade-button": function(t) {shimi.upgradeButton(t);},
     // Documents
-    ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
-    ".remove-button span": function(t) {ed({target: t.parent()}).removeFieldset();},
-    "#save-document-button span": function(t) {ed.save();},
-    "#create-document-button span": function(t) {ed.create();},
-    "#clear-document-button span": function(t) {ed.clear();},
-    "#document-edit-button span": function(t) {vi({target: t.parent()}).edit();},
-    "#document-delete-button span": function(t) {vi({target: t.parent()}).confirmDelete();},
-    "#document-restore-button span": function(t) {vi({target: t.parent()}).confirmRestore();},
+    ".add-button": function(t) {ed({target: t.parent()}).initFieldset();},
+    ".remove-button": function(t) {ed({target: t.parent()}).removeFieldset();},
+    "#save-document-button": function(t) {ed.save();},
+    "#create-document-button": function(t) {ed.create();},
+    "#clear-document-button": function(t) {ed.clear();},
+    "#document-edit-button": function(t) {vi({target: t.parent()}).edit();},
+    "#document-delete-button": function(t) {vi({target: t.parent()}).confirmDelete();},
+    "#document-restore-button": function(t) {vi({target: t.parent()}).confirmRestore();},
     "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
     ".revision-link": function(t) {vi({target: t}).fetchRevision();},
     ".expander": function(t) {ed.toggleTextarea(t);},
-    "label span": function(t) {ed.showHelpDialog(t);},
+    "label": function(t) {ed.showHelpDialog(t);},
     // Index Tool
     "#new-index-button": function(t) {ie().newCond();},
     ".remove-condition-button": function(t) {ie().remCond(t);},
@@ -670,8 +671,12 @@ shimi.clickDispatch = function(e) {
     "#save-index-button": function(t) {ie().save();},
     "#replace-button": function(t) {ie().replace();},
     "#add-index-condition-button": function(t) {ie().addCond();},
+    // Project
+    "#create-project": function() {pui.add().dialog("open");},
+    ".project-delete-button": function(t) {pui.del(t);},
     // General
-    ".toggler span": function(t) {form.toggle(t.parent('a'));}
+    ".toggler": function(t) {form.toggle(t);}//,
+    //".remove-button": function(t) {$(t).parent().remove();}
   });
 
   action(e);
@@ -1106,11 +1111,7 @@ shimi.charseqTab = (function() {
       tabs.tabs("destroy");
       heads.html(charseqs);
       
-      var loadFun = function(event, ui) {
-        $('.link-button').button();
-      };
-      
-      tabs.tabs({load: function(e, ui) {loadFun(e, ui);}});
+      tabs.tabs();
     });
     
     return mod;
@@ -1232,7 +1233,6 @@ shimi.doctypeTab = (function() {
       var fieldContainer = $("#fields-" + path.fieldset);
       fieldContainer.empty();
       fieldContainer.html(fields);
-      $('.link-button').button();
     });
     
     return mod;
@@ -1246,7 +1246,6 @@ shimi.doctypeTab = (function() {
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
-      $('.link-button').button();
       
       fieldsetContainer.accordion({
         autoHeight: false,
@@ -1269,7 +1268,6 @@ shimi.doctypeTab = (function() {
       $("#doctype-tabs-headings + .ui-tabs-panel").remove();
       $("#doctype-tabs").tabs("destroy");
       $("#doctype-tabs-headings").html(doctypes);
-      $('.link-button').button();
       
       var loadFun = function(event, ui) {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
@@ -3806,7 +3804,7 @@ shimi.initReplaceDialog = function() {
   return dialog;
 };
 
-shimi.pui = function() {
+shimi.pui = (function() {
   var mod = {};
   
   var deleteProject = function(id) {
@@ -3827,7 +3825,7 @@ shimi.pui = function() {
     }
   };
   
-  mod.addProjectDialog = function() {
+  mod.add = function() {
     var projectName = $("#project-name");
     var projectDescription = $("#project-description");
     var tips = $(".validate-tips");
@@ -3873,75 +3871,42 @@ shimi.pui = function() {
     return dialog;
   };
   
+  mod.del = function(target) {
+    var id = $(target).attr("id");
+    deleteProject(id);
+    
+    return mod;
+  };
+  
   mod.init = function() {
     var url = "/projects/index";
     
     $.get(url, function(projects) {
       $('tbody').empty();
       $('tbody').html(projects);
-      $('.configure-button').button({
-        icons: {primary: "ui-icon-wrench"}
-      });
-      $('.delete-button').button({
-        icons: {primary: "ui-icon-trash"}
-      }).click(function(e) {
-        var id = $(e.target).attr("id");
-        deleteProject(id);
-        $('#delete-dialog').dialog("open");
-      });
     });
   };
   
   return mod;
-};
+})();
 $(function () {
-    $('.notification').hide();
+  $('.notification').hide();
   
-    $('#loading').hide()
-      .ajaxStart(function() {
-                   $(this).show();
-                 })
-      .ajaxStop(function() {
-                  $(this).hide();
-                });
+  $('#loading').hide()
+    .ajaxStart(function() {
+                 $(this).show();
+               })
+    .ajaxStop(function() {
+                $(this).hide();
+              });
 
-    shimi.panelToggle();
-
-  // Buttons
-  
-  $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"},
-    text: false
-  }).click(function() {
-    $(this).parent().remove();
-  });
-  
-  $(".help-button").button({
-    icons: {primary: "ui-icon-help"},
-    text: false
-  });
-  
-  $(".link-button").button({
-    icons: {primary: "ui-icon-link"}
-  });
-  
-  $(".edit-button").button({
-    icons: {primary: "ui-icon-pencil"}
-  });
-  
-  $(".create-continue-button").button({
-    icons: {
-      primary: "ui-icon-disk",
-      secondary: "ui-icon-arrowthick-1-e"
-    }
-  });
+  shimi.panelToggle();
   
   shimi.form.initDateFields();
 
   // Config
   if ($('#configuration').length > 0) {
     shimi.initTabs(); 
-    $('.link-button').button();
     $('.simple-tabs').tabs();
   }
 
@@ -4007,12 +3972,6 @@ $(function () {
   // Project
   
   if ($('#projects-container').length > 0) {
-    shimi.pui().init();
-  
-    $("#create-project").button({
-      icons: {primary: "ui-icon-plus"}
-    }).click(function() {
-      shimi.pui().addProjectDialog().dialog("open");
-    });
+    shimi.pui.init();
   }
 });

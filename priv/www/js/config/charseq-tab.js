@@ -48,11 +48,7 @@ shimi.charseqTab = (function() {
       tabs.tabs("destroy");
       heads.html(charseqs);
       
-      var loadFun = function(event, ui) {
-        $('.link-button').button();
-      };
-      
-      tabs.tabs({load: function(e, ui) {loadFun(e, ui);}});
+      tabs.tabs();
     });
     
     return mod;

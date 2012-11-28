@@ -2,7 +2,10 @@
   <td><a href="/projects/project-{{ id }}/doctypes">{{ doc.name|force_escape }}</a></td>
   <td>{{ doc.description|force_escape }}</td>
   <td>
-    <a href="/projects/project-{{ id }}/config" class="configure-button">Configure</a>
-    <button class="delete-button" id="{{ id }}">Delete</button>
+    <a href="/projects/project-{{ id }}/config" 
+       class="project-configure-button link-button">Configure</a>
+    <a href="#" 
+       class="project-delete-button link-button" 
+       id="{{ id }}">Delete</button>
   </td>
 </tr>
