@@ -92,7 +92,7 @@ shimi.ieui = function() {
       obj.replace_function = buttonData.attr('data-index-replace_function');
     }
   
-    shimi.form().send(url, obj, 'PUT', completeFunction, this);
+    shimi.form.send(url, obj, 'PUT', completeFunction, this);
   
     return false;  
   };

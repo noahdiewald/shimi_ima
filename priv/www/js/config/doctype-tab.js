@@ -1,5 +1,9 @@
-shimi.doctypeTab = function(target) {
+shimi.doctypeTab = (function() {
   var mod = {};
+    
+  var cpath = function(source, category) {
+    return shimi.path(source, category, "config");
+  };
   
   // Populate the listing of fields
   mod.initFields = function(path) {
@@ -58,15 +62,11 @@ shimi.doctypeTab = function(target) {
     });
   };
   
-    
-  var cpath = function(source, category) {
-    return shimi.path(source, category, "config");
-  };
   // Button that opens a dialog for editing a field
-  mod.editField = function() {
+  mod.editField = function(target) {
     var url = cpath(target, "field");
     var oldobj = {};
-    var attrs = shimi.fieldElems().attrs;
+    var attrs = shimi.fieldElems.attrs;
     var charseqUrl = "config/charseqs?as=options";
     
     $.get(charseqUrl, function(charseqs) {
@@ -79,7 +79,7 @@ shimi.doctypeTab = function(target) {
   };
   
   // Button that opens a dialog for deleting a field
-  mod.deleteField = function() {
+  mod.deleteField = function(target) {
     var answer = window.confirm("Are you sure? This is permanent.");
     
     if (answer) {
@@ -95,7 +95,7 @@ shimi.doctypeTab = function(target) {
   };
   
   // Button that opens a dialog for adding a field
-  mod.addField = function() {
+  mod.addField = function(target) {
     var url = cpath(target, "field");
     var charseqUrl = "config/charseqs?as=options";
     
@@ -106,10 +106,10 @@ shimi.doctypeTab = function(target) {
   };
   
   // Button that opens a dialog for editing a fieldset
-  mod.editFieldset = function() {
+  mod.editFieldset = function(target) {
     var url = cpath(target, "fieldset");
     var oldobj = {};
-    var attrs = shimi.fieldsetElems().attrs;
+    var attrs = shimi.fieldsetElems.attrs;
      
     attrs.forEach(function(item) {
       oldobj[item] = shimi.store(target).get('fieldset-' + item);
@@ -119,7 +119,7 @@ shimi.doctypeTab = function(target) {
   };
   
   // Button that opens a dialog for deleting a fieldset
-  mod.deleteFieldset = function() {
+  mod.deleteFieldset = function(target) {
     var url = cpath(target, "fieldset");
     
     var complete = function() {
@@ -134,15 +134,15 @@ shimi.doctypeTab = function(target) {
   };
   
   // Button that opens a dialog for adding a fieldset
-  mod.addFieldset = function() {
+  mod.addFieldset = function(target) {
     var url = cpath(target, "fieldset");
     shimi.fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
   };
   
-  var editDoctype = function() {
+  var editDoctype = function(target) {
     var url = cpath(target, "doctype");
     var oldobj = {};
-    var attrs = shimi.doctypeElems().attrs;
+    var attrs = shimi.doctypeElems.attrs;
      
     attrs.forEach(function(item) {
       oldobj[item] = shimi.store(target).get('doctype-' + item);
@@ -150,13 +150,13 @@ shimi.doctypeTab = function(target) {
     shimi.doctypeDialog(url, oldobj).dialog("open");
   };
   
-  mod.touchDoctype = function() {
+  mod.touchDoctype = function(target) {
     var docid = shimi.store(target).get("doctype-doctype");
     $.post("config/doctypes/" + docid + "/touch");
     window.alert("Touch In Progress");
   };
   
-  mod.deleteDoctype = function() {
+  mod.deleteDoctype = function(target) {
     var url = cpath(target, "doctype");
     var complete = function() {
       url.doctype = false;
@@ -169,10 +169,10 @@ shimi.doctypeTab = function(target) {
     }
   };
   
-  mod.addDoctype = function() {
+  mod.addDoctype = function(target) {
     var url = cpath(target, "doctype");
     shimi.doctypeDialog(url, {}).dialog("open");
   };
   
   return mod;
-};
+})();

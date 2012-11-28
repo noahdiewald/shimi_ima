@@ -31,25 +31,26 @@ shimi.dispatcher = function(patterns) {
 
 shimi.clickDispatch = function(e) {
   var dt = shimi.doctypeTab;
-  var ct = shimi.charseqTab();
+  var ct = shimi.charseqTab;
   var ed = shimi.eui();
   var vi = shimi.vui;
   var ii = shimi.iiui;
   var ie = shimi.ieui;
   var ip = shimi.ipui;
+  var form = shimi.form;
   
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button span": function(t) {dt(t.parent('a')).editField();},
-    ".delete-field-button span": function(t) {dt(t.parent('a')).deleteField();},
-    ".add-field-button span": function(t) {dt(t.parent('a')).addField();},
-    ".edit-fieldset-button span": function(t) {dt(t.parent('a')).editFieldset();},
-    ".delete-fieldset-button span": function(t) {dt(t.parent('a')).deleteFieldset();},
-    ".add-fieldset-button span": function(t) {dt(t.parent('a')).addFieldset();},
-    ".delete-doctype-button span": function(t) {dt(t.parent('a')).deleteDoctype();},
-    ".edit-doctype-button span": function(t) {dt(t.parent('a')).editDoctype();},
-    ".touch-doctype-button span": function(t) {dt(t.parent('a')).touchDoctype();},
-    "#doctype-add-button span": function(t) {dt(t.parent('a')).addDoctype();},
+    ".edit-field-button span": function(t) {dt.editField(t.parent('a'));},
+    ".delete-field-button span": function(t) {dt.deleteField(t.parent('a'));},
+    ".add-field-button span": function(t) {dt.addField(t.parent('a'));},
+    ".edit-fieldset-button span": function(t) {dt.editFieldset(t.parent('a'));},
+    ".delete-fieldset-button span": function(t) {dt.deleteFieldset(t.parent('a'));},
+    ".add-fieldset-button span": function(t) {dt.addFieldset(t.parent('a'));},
+    ".delete-doctype-button span": function(t) {dt.deleteDoctype(t.parent('a'));},
+    ".edit-doctype-button span": function(t) {dt.editDoctype(t.parent('a'));},
+    ".touch-doctype-button span": function(t) {dt.touchDoctype(t.parent('a'));},
+    "#doctype-add-button span": function(t) {dt.addDoctype(t.parent('a'));},
     ".delete-charseq-button span": function(t) {ct.del(t.parent('a'));},
     ".edit-charseq-button span": function(t) {ct.edit(t.parent('a'));},
     "#charseq-add-button span": function(t) {ct.add();},
@@ -73,7 +74,9 @@ shimi.clickDispatch = function(e) {
     "#delete-index-button": function(t) {ie().del();},
     "#save-index-button": function(t) {ie().save();},
     "#replace-button": function(t) {ie().replace();},
-    "#add-index-condition-button": function(t) {ie().addCond();}
+    "#add-index-condition-button": function(t) {ie().addCond();},
+    // General
+    ".toggler span": function(t) {form.toggle(t.parent('a'));}
   });
 
   action(e);

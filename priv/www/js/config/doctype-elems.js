@@ -1,7 +1,7 @@
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions. 
 
-shimi.doctypeElems = function() {
+shimi.doctypeElems = (function() {
   var mod = {};
   
   mod.attrs = ["description", "doctype", "rev"];
@@ -28,7 +28,7 @@ shimi.doctypeElems = function() {
     };
     
     fObj.clear = function() {
-      shimi.form().clear($('#doctype-dialog .input')).removeClass('ui-state-error');
+      shimi.form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
                    
@@ -42,5 +42,5 @@ shimi.doctypeElems = function() {
   };
   
   return mod;
-};
+})();
 

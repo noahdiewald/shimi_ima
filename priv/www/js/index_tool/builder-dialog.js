@@ -137,7 +137,7 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
                 builderFieldset.unbind('change');
                 builderField.unbind('change');
                 builderOperator.unbind('change');
-                shimi.form().clear($('.input')).removeClass('ui-state-error');
+                shimi.form.clear($('.input')).removeClass('ui-state-error');
               }
             });
   

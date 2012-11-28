@@ -1,17 +1,17 @@
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions. 
 
-function fieldsetElems() {
-  var fElems = {};
+shimi.fieldsetElems = (function() {
+  var mod = {};
   
-  fElems.attrs = ["name", "label", "order", "description", 
+  mod.attrs = ["name", "label", "order", "description", 
                   "doctype", "rev", "multiple", "collapse",
                   "fieldset"];
                
-  fElems.get = function(values) {
+  mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = fElems.attrs;
+    fObj.attrs = mod.attrs;
     
     fObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
@@ -40,7 +40,7 @@ function fieldsetElems() {
     };
     
     fObj.clear = function() {
-      shimi.form().clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
+      shimi.form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
                    
@@ -53,6 +53,6 @@ function fieldsetElems() {
     return fObj;
   };
   
-  return fElems;
-}
+  return mod;
+})();
 

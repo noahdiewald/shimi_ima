@@ -1,5 +1,16 @@
-shimi.form = function () {
+shimi.form = (function () {
   var mod = {};
+  
+  mod.toggle = function(target) {
+    var toggleElem;
+    var t = $(target);
+
+    if (t.attr('data-target')) {
+      toggleElem = $('#' + t.attr('data-target'));
+      toggleElem.toggle();
+    }
+    return mod;
+  };
   
   mod.clear = function(inputFields) {
     inputFields.each(function(index) {
@@ -100,4 +111,4 @@ shimi.form = function () {
   };
   
   return mod;
-};
+})();

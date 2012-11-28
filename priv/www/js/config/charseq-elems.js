@@ -25,7 +25,7 @@
  * used for collation of items written in the script.
 */
 
-shimi.charseqElems = function() {
+shimi.charseqElems = (function() {
   var mod = {};
   
   mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
@@ -70,7 +70,7 @@ shimi.charseqElems = function() {
     };
     
     cObj.clear = function() {
-      shimi.form().clear($('#charseq-dialog .input')).removeClass('ui-state-error');
+      shimi.form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
                    
@@ -86,4 +86,4 @@ shimi.charseqElems = function() {
   };
   
   return mod;
-};
+})();

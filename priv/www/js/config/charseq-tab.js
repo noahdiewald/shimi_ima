@@ -1,4 +1,4 @@
-shimi.charseqTab = function() {
+shimi.charseqTab = (function() {
   var mod = {};
   
   mod.add = function() {
@@ -8,7 +8,7 @@ shimi.charseqTab = function() {
   
   mod.edit = function(target) {
     var oldobj = {};
-    var attrs = shimi.charseqElems().attrs;
+    var attrs = shimi.charseqElems.attrs;
      
     attrs.forEach(function(item) {
       oldobj[item] = shimi.store(target).get('charseq-' + item);
@@ -28,7 +28,7 @@ shimi.charseqTab = function() {
     };
     
     if (window.confirm("Are you sure? This is permanent.")) {
-      shimi.form().send(url, {}, 'DELETE', complete, this);
+      shimi.form.send(url, {}, 'DELETE', complete, this);
     }
     
     return mod;
@@ -59,4 +59,4 @@ shimi.charseqTab = function() {
   };
   
   return mod;
-};
+})();

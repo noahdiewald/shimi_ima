@@ -64,7 +64,7 @@ shimi.fm = function() {
           shimi.flash("Success", "File Deleted").highlight();
         };
         
-        shimi.form().send(url, null, 'DELETE', complete, target);
+        shimi.form.send(url, null, 'DELETE', complete, target);
       });
   };
   
@@ -94,7 +94,7 @@ shimi.fm = function() {
           };
           
           obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
-          shimi.form().send(url, obj, 'PUT', complete, dialog);
+          shimi.form.send(url, obj, 'PUT', complete, dialog);
           $(this).dialog("close");
         },
         "Cancel": function() {

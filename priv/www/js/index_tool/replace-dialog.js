@@ -7,7 +7,7 @@ shimi.initReplaceDialog = function() {
     replaceFunction
       .val(indexData.attr('data-index-replace_function'));
   } else {
-    shimi.form().clear(replaceFunction).removeClass('ui-state-error');
+    shimi.form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
   var dialog = $("#index-replace-dialog")
@@ -47,7 +47,7 @@ shimi.initReplaceDialog = function() {
               }
             },
             close: function() {
-              shimi.form().clear(replaceFunction).removeClass('ui-state-error');
+              shimi.form.clear(replaceFunction).removeClass('ui-state-error');
             }
             });
 

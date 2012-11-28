@@ -53,7 +53,7 @@ shimi.index = function(args) {
       url = url + '&index=' + indexId;
     }
 
-    shimi.form().send(url, false, 'GET',
+    shimi.form.send(url, false, 'GET',
                   function(context, req) {mod.fill(req, state, target);}, this);
 
     return mod;

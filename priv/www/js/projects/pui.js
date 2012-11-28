@@ -32,7 +32,7 @@ shimi.pui = function() {
         "Add project": function() {
           allFields.removeClass('ui-state-error');
           
-          var checkResult = shimi.form().checkLength(projectName, "project name", 1, 50, tips);
+          var checkResult = shimi.form.checkLength(projectName, "project name", 1, 50, tips);
           
           if (checkResult) {
             $.ajax({

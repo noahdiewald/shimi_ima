@@ -1,5 +1,5 @@
 shimi.fieldsetDialog = function(url, values) {
-  var f = shimi.fieldsetElems().get(values);
+  var f = shimi.fieldsetElems.get(values);
   
   var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
@@ -11,7 +11,7 @@ shimi.fieldsetDialog = function(url, values) {
           url.fieldset = false;
           url.rev = false;
           
-          shimi.doctypeTab().initFieldsets(url);
+          shimi.doctypeTab.initFieldsets(url);
           $(context).dialog("close");
         };
         if (!values.rev || values.rev.isBlank()) {

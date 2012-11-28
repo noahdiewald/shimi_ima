@@ -150,7 +150,7 @@ shimi.eui = function() {
   };
   
   var afterRefresh = function() {
-    shimi.form().initDateFields();
+    shimi.form.initDateFields();
     instances();
     
     return mod;

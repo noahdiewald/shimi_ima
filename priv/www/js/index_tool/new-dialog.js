@@ -61,7 +61,7 @@ shimi.initIndexNewDialog = function() {
                       shimi.iiui().init();
                       $(context).dialog("close");
                     };
-                    shimi.form().send("indexes", obj, 'POST', complete, this);
+                    shimi.form.send("indexes", obj, 'POST', complete, this);
                   }
                 },
                 "Cancel": function() {
@@ -71,7 +71,7 @@ shimi.initIndexNewDialog = function() {
               close: function() {
                 indexFieldset.unbind('change');
                 indexDoctype.unbind('change');
-                shimi.form().clear($('.input')).removeClass('ui-state-error');
+                shimi.form.clear($('.input')).removeClass('ui-state-error');
               }
             });
   

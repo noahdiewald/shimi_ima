@@ -10,7 +10,7 @@ $(function () {
                 });
 
     shimi.panelToggle();
-    shimi.uiToggle();    
+
   // Buttons
   
   $(".remove-button").button({
@@ -40,13 +40,11 @@ $(function () {
     }
   });
   
-  shimi.form().initDateFields();
+  shimi.form.initDateFields();
 
   // Config
   if ($('#configuration').length > 0) {
     shimi.initTabs(); 
-    shimi.initHelpText();
-    $('.link-button').button();
     $('.simple-tabs').tabs();
   }
 

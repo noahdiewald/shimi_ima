@@ -1,7 +1,7 @@
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions. 
 
-shimi.fieldElems = function() {
+shimi.fieldElems = (function() {
   var mod = {};
   
   mod.attrs = ["name", "label", "order", "description", "subcategory", 
@@ -74,7 +74,7 @@ shimi.fieldElems = function() {
     };
     
     fObj.clear = function() {
-      shimi.form().clear($('#field-dialog .input')).removeClass('ui-state-error');
+      shimi.form.clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
@@ -151,5 +151,5 @@ shimi.fieldElems = function() {
   };
   
   return mod;
-};
+})();
 

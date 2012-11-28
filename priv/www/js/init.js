@@ -21,19 +21,6 @@ Array.prototype.trimAll = function() {
 
 // General UI Stuff
 
-shimi.uiToggle = function() {
-  var toggler = function(e) {
-    var toggleElem;
-
-    if ($(e.target).attr('data-target')) {
-      toggleElem = $('#' + $(e.target).attr('data-target'));
-      toggleElem.toggle();
-    }
-  };
-
-  $('.toggler').live("click", function(e) {toggler(e);});
-};
-
 shimi.panelToggle = function() {
   var toggler = function(e) {
     var panel;

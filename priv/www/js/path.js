@@ -122,7 +122,7 @@ shimi.path = function(source, category, section) {
   mod.doctype = s.get(prefix + 'doctype');
   
   mod.send = function(object, method, callback, context) {
-    shimi.form().send(mod.toString(), object, method, callback, context);
+    shimi.form.send(mod.toString(), object, method, callback, context);
     return mod;
   };
   
