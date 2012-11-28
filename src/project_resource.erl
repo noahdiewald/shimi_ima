@@ -145,6 +145,14 @@ from_json(R, S) ->
     {ok, created} = couch:create(design, DoctypesDesign, NewDb, R, S),
     {ok, CharseqsDesign} = render:render(design_charseqs_json_dtl, []),
     {ok, created} = couch:create(design, CharseqsDesign, NewDb, R, S),
+    {ok, FieldsDesign} = render:render(design_fields_json_dtl, []),
+    {ok, created} = couch:create(design, FieldsDesign, NewDb, R, S),
+    {ok, FieldsetsDesign} = render:render(design_fieldsets_json_dtl, []),
+    {ok, created} = couch:create(design, FieldsetsDesign, NewDb, R, S),
+    {ok, FileManagerDesign} = render:render(design_file_manager_json_dtl, []),
+    {ok, created} = couch:create(design, FileManagerDesign, NewDb, R, S),
+    {ok, IndexesDesign} = render:render(design_indexes_json_dtl, []),
+    {ok, created} = couch:create(design, IndexesDesign, NewDb, R, S),
     database_seqs:set_seq(DBName, 0),
     {true, R, S}.
 
