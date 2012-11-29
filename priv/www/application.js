@@ -643,9 +643,7 @@ shimi.clickDispatch = function(e) {
   var iui = shimi.iui;
   var sui = shimi.sui;
   var efs = shimi.efs;
-  var ii = shimi.iiui;
-  var ie = shimi.ieui;
-  var ip = shimi.ipui;
+  var ieui = shimi.ieui;
   var form = shimi.form;
   var pui = shimi.pui;
   var fm = shimi.fm;
@@ -685,12 +683,13 @@ shimi.clickDispatch = function(e) {
     ".view-document-link": function(t) {iui.load(t);},
     
     // Index Tool
-    "#new-index-button": function(t) {ie().newCond();},
-    ".remove-condition-button": function(t) {ie().remCond(t);},
-    "#delete-index-button": function(t) {ie().del();},
-    "#save-index-button": function(t) {ie().save();},
-    "#replace-button": function(t) {ie().replace();},
-    "#add-index-condition-button": function(t) {ie().addCond();},
+    "#new-index-button": function(t) {ieui.newCond();},
+    ".remove-condition-button": function(t) {ieui.remCond(t);},
+    "#delete-index-button": function(t) {ieui.del();},
+    "#save-index-button": function(t) {ieui.save();},
+    "#replace-button": function(t) {ieui.replace();},
+    "#add-index-condition-button": function(t) {ieui.addCond();},
+    "#index-index-listing ul li a": function(t) {ieui.init(t);},
     
     // Project
     "#create-project": function() {pui.add().dialog("open");},
@@ -2976,7 +2975,7 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
   
   $('.ui-helper-reset div').show();
 
@@ -2984,12 +2983,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.ieui().initCondButtons(tableBody);
+    shimi.ieui.initCondButtons(tableBody);
     
     return false;
   };
     
-  shimi.ihelpers().fOpts(fieldset_url, builderFieldset, 
+  shimi.ihelpers.fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
@@ -3115,15 +3114,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
   return dialog;
 };
 
-shimi.ieui = function() {
+shimi.ieui = (function() {
   var mod = {};
-  var newButton = $('#new-index-button');
-  var deleteButton = $('#delete-index-button');
-  var saveButton = $('#save-index-button');
-  var addCondButton = $('#add-index-condition-button');
-  var replaceButton = $('#replace-button');
-  var tableBody = $('#index-conditions-listing tbody');
-  var buttonBar = $('#button-bar');
+  
+  var tableBody = function () {
+    return $('#index-conditions-listing tbody');
+  };
 
   var editingData = function() {
     return $('#index-editing-data');
@@ -3164,7 +3160,7 @@ shimi.ieui = function() {
           var fieldId = row.find('td.field-condition').attr('data-value');
           var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
           var argument = row.find('td.argument-condition').attr('data-value');
-          var fieldDoc = shimi.ihelpers().getFieldDoc(fieldId, fieldsetId, doctypeId);
+          var fieldDoc = shimi.ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
           var negate = 
             row.find('td.negate-condition').attr('data-value') === "true";
           var operator = row.find('td.operator-condition').attr('data-value');
@@ -3251,31 +3247,15 @@ shimi.ieui = function() {
       return false;  
     };
   
-  mod.initButtons = function() {
-    newButton.button({icons: {primary: "ui-icon-plus"}});
-    deleteButton.button({icons: {primary: "ui-icon-trash"}});
-    saveButton.button({icons: {primary: "ui-icon-document"}});
-    addCondButton.button({icons: {primary: "ui-icon-plus"}});
-    replaceButton.button({icons: {primary: "ui-icon-shuffle"}});
-    buttonBar.buttonset();
-    return mod;
-  };
-  
-  mod.initCondButtons = function() {
-    tableBody.find('.remove-condition-button').button({icons: {primary: "ui-icon-minus"}});
-    return mod;
-  };
-  
-  mod.init = function(indexId) {
+  mod.init = function(target) {
+    var indexId = $(target).attr('data-index-id');
     var url = "indexes/" + indexId;
-    var target = $('#index-conditions');
+    var htmlTarget = $('#index-conditions');
     
     $.get(url, function(indexData) {
-            target.html(indexData);
-            // TODO don't repeat this code. It is also in initIndexBuilderDialog
-            tableBody.sortable();
-            mod.initCondButtons();
-            shimi.piui().get();
+            htmlTarget.html(indexData);
+            tableBody().sortable();
+            shimi.piui.get();
           });
     
     return false;
@@ -3286,7 +3266,7 @@ shimi.ieui = function() {
     
     if (bData.length !== 0) {
       var completeFunction = function() {
-        mod.init(bData.attr('data-index-id'));
+        mod.init(bData);
         shimi.flash("Success", "Your index has been saved.").highlight();
       };
       
@@ -3340,7 +3320,7 @@ shimi.ieui = function() {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function() {
         $('#index-conditions').empty();
-        shimi.iiui().init();
+        shimi.iiui.init();
       };
       
       if (window.confirm("Are you sure?")) {
@@ -3354,8 +3334,8 @@ shimi.ieui = function() {
   };
   
   return mod;
-};
-shimi.ihelpers = function() {
+})();
+shimi.ihelpers = (function() {
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
@@ -3546,7 +3526,7 @@ shimi.ihelpers = function() {
       
                 if (!(fieldId.isBlank())) {
                   mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function(data) {
-                                shimi.ihelpers().alterOpts(data, fieldId, callback2);
+                                shimi.ihelpers.alterOpts(data, fieldId, callback2);
                               });
                 }
               });
@@ -3572,28 +3552,23 @@ shimi.ihelpers = function() {
   };
   
   return mod;
-};
-shimi.iiui = function() {
+})();
+shimi.iiui = (function() {
   var mod = {};
 
   mod.init = function() {
     var url = "indexes";
     var target = $('#index-index-listing');
     
-    $.get(url, function(index) {
-            target.html(index);
-            target.click(function(e) {
-                           shimi.ieui().init($(e.target).attr('data-index-id'));
-                         });
-          });
-          
+    $.get(url, function(index) {target.html(index);});
+    
     return mod;
   };
-
+  
   return mod;
-};
+})();
 
-shimi.piui = function() {
+shimi.piui = (function() {
   var mod = {};
   var index = shimi.index;
 
@@ -3613,7 +3588,7 @@ shimi.piui = function() {
   };
   
   return mod;
-};
+})();
 
 shimi.initIndexNewDialog = function() {
   var indexDoctype = $("#index-doctype-input");
@@ -3621,7 +3596,7 @@ shimi.initIndexNewDialog = function() {
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
   var indexShowDeleted = $("#index-show_deleted-input");
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
 
   var doctypeEvents = function() {
     evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
@@ -3675,7 +3650,7 @@ shimi.initIndexNewDialog = function() {
                       "fields": [indexField.val()]
                     },
                     complete = function(context) {
-                      shimi.iiui().init();
+                      shimi.iiui.init();
                       $(context).dialog("close");
                     };
                     shimi.form.send("indexes", obj, 'POST', complete, this);
@@ -3910,11 +3885,7 @@ $(function () {
   // Index Tool
   
   if ($('#all-index-container').length > 0) {
-    $('#index-builder-dialog').hide();
-    $('#index-new-dialog').hide();
-    $('#index-replace-dialog').hide();
-    shimi.ieui().initButtons();
-    shimi.iiui().init();
+    shimi.iiui.init();
   }
     
   // Project

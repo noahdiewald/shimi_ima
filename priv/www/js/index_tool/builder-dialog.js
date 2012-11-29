@@ -9,7 +9,7 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
   
   $('.ui-helper-reset div').show();
 
@@ -17,12 +17,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.ieui().initCondButtons(tableBody);
+    shimi.ieui.initCondButtons(tableBody);
     
     return false;
   };
     
-  shimi.ihelpers().fOpts(fieldset_url, builderFieldset, 
+  shimi.ihelpers.fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {

@@ -457,15 +457,6 @@ input[disabled] {
   background: #555;
 }
 
-#button-bar {
-  padding: 10px;
-}
-
-#button-bar a {
-  padding: -4px;
-  margin: -4px;
-}
-
 #query-view {
   margin-top: 10px;
 }

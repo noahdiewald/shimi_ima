@@ -4,7 +4,7 @@ shimi.initIndexNewDialog = function() {
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
   var indexShowDeleted = $("#index-show_deleted-input");
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
 
   var doctypeEvents = function() {
     evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
@@ -58,7 +58,7 @@ shimi.initIndexNewDialog = function() {
                       "fields": [indexField.val()]
                     },
                     complete = function(context) {
-                      shimi.iiui().init();
+                      shimi.iiui.init();
                       $(context).dialog("close");
                     };
                     shimi.form.send("indexes", obj, 'POST', complete, this);

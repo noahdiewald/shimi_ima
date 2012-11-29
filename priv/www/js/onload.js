@@ -68,11 +68,7 @@ $(function () {
   // Index Tool
   
   if ($('#all-index-container').length > 0) {
-    $('#index-builder-dialog').hide();
-    $('#index-new-dialog').hide();
-    $('#index-replace-dialog').hide();
-    shimi.ieui().initButtons();
-    shimi.iiui().init();
+    shimi.iiui.init();
   }
     
   // Project

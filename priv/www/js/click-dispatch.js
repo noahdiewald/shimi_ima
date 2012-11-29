@@ -49,9 +49,7 @@ shimi.clickDispatch = function(e) {
   var iui = shimi.iui;
   var sui = shimi.sui;
   var efs = shimi.efs;
-  var ii = shimi.iiui;
-  var ie = shimi.ieui;
-  var ip = shimi.ipui;
+  var ieui = shimi.ieui;
   var form = shimi.form;
   var pui = shimi.pui;
   var fm = shimi.fm;
@@ -91,12 +89,13 @@ shimi.clickDispatch = function(e) {
     ".view-document-link": function(t) {iui.load(t);},
     
     // Index Tool
-    "#new-index-button": function(t) {ie().newCond();},
-    ".remove-condition-button": function(t) {ie().remCond(t);},
-    "#delete-index-button": function(t) {ie().del();},
-    "#save-index-button": function(t) {ie().save();},
-    "#replace-button": function(t) {ie().replace();},
-    "#add-index-condition-button": function(t) {ie().addCond();},
+    "#new-index-button": function(t) {ieui.newCond();},
+    ".remove-condition-button": function(t) {ieui.remCond(t);},
+    "#delete-index-button": function(t) {ieui.del();},
+    "#save-index-button": function(t) {ieui.save();},
+    "#replace-button": function(t) {ieui.replace();},
+    "#add-index-condition-button": function(t) {ieui.addCond();},
+    "#index-index-listing ul li a": function(t) {ieui.init(t);},
     
     // Project
     "#create-project": function() {pui.add().dialog("open");},

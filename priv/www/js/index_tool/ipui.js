@@ -1,4 +1,4 @@
-shimi.piui = function() {
+shimi.piui = (function() {
   var mod = {};
   var index = shimi.index;
 
@@ -18,4 +18,4 @@ shimi.piui = function() {
   };
   
   return mod;
-};
+})();
