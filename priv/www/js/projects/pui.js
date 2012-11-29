@@ -1,4 +1,4 @@
-shimi.pui = function() {
+shimi.pui = (function() {
   var mod = {};
   
   var deleteProject = function(id) {
@@ -19,7 +19,7 @@ shimi.pui = function() {
     }
   };
   
-  mod.addProjectDialog = function() {
+  mod.add = function() {
     var projectName = $("#project-name");
     var projectDescription = $("#project-description");
     var tips = $(".validate-tips");
@@ -65,24 +65,21 @@ shimi.pui = function() {
     return dialog;
   };
   
+  mod.del = function(target) {
+    var id = $(target).attr("id");
+    deleteProject(id);
+    
+    return mod;
+  };
+  
   mod.init = function() {
     var url = "/projects/index";
     
     $.get(url, function(projects) {
       $('tbody').empty();
       $('tbody').html(projects);
-      $('.configure-button').button({
-        icons: {primary: "ui-icon-wrench"}
-      });
-      $('.delete-button').button({
-        icons: {primary: "ui-icon-trash"}
-      }).click(function(e) {
-        var id = $(e.target).attr("id");
-        deleteProject(id);
-        $('#delete-dialog').dialog("open");
-      });
     });
   };
   
   return mod;
-};
+})();

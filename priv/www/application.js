@@ -21,23 +21,22 @@ Array.prototype.trimAll = function() {
 
 // General UI Stuff
 
-shimi.panelToggle = function() {
-  var toggler = function(e) {
+shimi.panelToggle = (function() {
+  var mod = {};
+  
+  mod.toggler = function(target) {
     var panel;
     
-    if ($(e.target).attr('data-panel')) {
-      panel = $('#' + $(e.target).attr('data-panel'));
+    if ($(target).attr('data-panel')) {
+      panel = $('#' + $(target).attr('data-panel'));
     } else {
-      panel = $(e.target).closest('.panel');
+      panel = $(target).closest('.panel');
     }
     panel.toggle();
   };
-
-  $('#panel-toggle li')
-    .live("click", function(e) {toggler(e);});
-  $('.panel > h2')
-    .live("dblclick", function(e) {toggler(e);});
-};
+    
+  return mod;
+})();
 
 shimi.utils = function() {
   var mod = {};
@@ -624,54 +623,89 @@ shimi.dispatcher = function(patterns) {
   return d;
 };
 
+shimi.dblclickDispatch = function(e) {
+  var sui = shimi.sui;
+  
+  var action = shimi.dispatcher({
+    ".search-result-field-id a, .field-view b, .field-container label span": function(t) {sui.addSearchField(t);},
+    "#index-index-input-label": function() {sui.addSearchIndex();},
+    ".panel > h2": function(t) {shimi.panelToggle.toggler(t);}
+  });
+
+  action(e);
+};
+
 shimi.clickDispatch = function(e) {
-  var dt = shimi.doctypeTab;
-  var ct = shimi.charseqTab;
-  var ed = shimi.eui();
-  var vi = shimi.vui;
-  var ii = shimi.iiui;
-  var ie = shimi.ieui;
-  var ip = shimi.ipui;
+  var doctypeTab = shimi.doctypeTab;
+  var charseqTab = shimi.charseqTab;
+  var eui = shimi.eui;
+  var vui = shimi.vui;
+  var iui = shimi.iui;
+  var sui = shimi.sui;
+  var efs = shimi.efs;
+  var ieui = shimi.ieui;
   var form = shimi.form;
+  var pui = shimi.pui;
+  var fm = shimi.fm;
   
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button span": function(t) {dt.editField(t.parent('a'));},
-    ".delete-field-button span": function(t) {dt.deleteField(t.parent('a'));},
-    ".add-field-button span": function(t) {dt.addField(t.parent('a'));},
-    ".edit-fieldset-button span": function(t) {dt.editFieldset(t.parent('a'));},
-    ".delete-fieldset-button span": function(t) {dt.deleteFieldset(t.parent('a'));},
-    ".add-fieldset-button span": function(t) {dt.addFieldset(t.parent('a'));},
-    ".delete-doctype-button span": function(t) {dt.deleteDoctype(t.parent('a'));},
-    ".edit-doctype-button span": function(t) {dt.editDoctype(t.parent('a'));},
-    ".touch-doctype-button span": function(t) {dt.touchDoctype(t.parent('a'));},
-    "#doctype-add-button span": function(t) {dt.addDoctype(t.parent('a'));},
-    ".delete-charseq-button span": function(t) {ct.del(t.parent('a'));},
-    ".edit-charseq-button span": function(t) {ct.edit(t.parent('a'));},
-    "#charseq-add-button span": function(t) {ct.add();},
-    "#maintenance-upgrade-button span": function(t) {shimi.upgradeButton(t.parent('a'));},
+    ".edit-field-button": function(t) {doctypeTab.editField(t);},
+    ".delete-field-button": function(t) {doctypeTab.deleteField(t);},
+    ".add-field-button": function(t) {doctypeTab.addField(t);},
+    ".edit-fieldset-button": function(t) {doctypeTab.editFieldset(t);},
+    ".delete-fieldset-button": function(t) {doctypeTab.deleteFieldset(t);},
+    ".add-fieldset-button": function(t) {doctypeTab.addFieldset(t);},
+    ".delete-doctype-button": function(t) {doctypeTab.deleteDoctype(t);},
+    ".edit-doctype-button": function(t) {doctypeTab.editDoctype(t);},
+    ".touch-doctype-button": function(t) {doctypeTab.touchDoctype(t);},
+    "#doctype-add-button": function(t) {doctypeTab.addDoctype(t);},
+    ".delete-charseq-button": function(t) {charseqTab.del(t);},
+    ".edit-charseq-button": function(t) {charseqTab.edit(t);},
+    "#charseq-add-button": function(t) {charseqTab.add();},
+    "#maintenance-upgrade-button": function(t) {shimi.upgradeButton(t);},
+    
     // Documents
-    ".add-button span": function(t) {ed({target: t.parent()}).initFieldset();},
-    ".remove-button span": function(t) {ed({target: t.parent()}).removeFieldset();},
-    "#save-document-button span": function(t) {ed.save();},
-    "#create-document-button span": function(t) {ed.create();},
-    "#clear-document-button span": function(t) {ed.clear();},
-    "#document-edit-button span": function(t) {vi({target: t.parent()}).edit();},
-    "#document-delete-button span": function(t) {vi({target: t.parent()}).confirmDelete();},
-    "#document-restore-button span": function(t) {vi({target: t.parent()}).confirmRestore();},
-    "#document-view-tree > ul > li > b": function(t) {vi({target: t}).collapseToggle();},
-    ".revision-link": function(t) {vi({target: t}).fetchRevision();},
-    ".expander": function(t) {ed.toggleTextarea(t);},
-    "label span": function(t) {ed.showHelpDialog(t);},
+    ".add-button": function(t) {efs.initFieldset(t);},
+    ".remove-button": function(t) {efs.removeFieldset(t);},
+    "#save-document-button": function(t) {eui.save();},
+    "#create-document-button": function(t) {eui.create();},
+    "#clear-document-button": function(t) {eui.clear();},
+    ".expander": function(t) {eui.toggleTextarea(t);},
+    "label span.ui-icon-help": function(t) {eui.showHelpDialog(t);},
+    "#document-edit-button": function(t) {vui({target: t}).edit();},
+    "#document-delete-button": function(t) {vui({target: t}).confirmDelete();},
+    "#document-restore-button": function(t) {vui({target: t}).confirmRestore();},
+    "#document-view-tree > ul > li > b": function(t) {vui({target: t}).collapseToggle();},
+    ".revision-link": function(t) {vui({target: t}).fetchRevision();},
+    "#search-all-fields-switch a": function() {sui.clearSearchVals();},
+    ".search-field-item": function(t) {sui.removeSearchField(t);},
+    ".view-document-link": function(t) {iui.load(t);},
+    
     // Index Tool
-    "#new-index-button": function(t) {ie().newCond();},
-    ".remove-condition-button": function(t) {ie().remCond(t);},
-    "#delete-index-button": function(t) {ie().del();},
-    "#save-index-button": function(t) {ie().save();},
-    "#replace-button": function(t) {ie().replace();},
-    "#add-index-condition-button": function(t) {ie().addCond();},
+    "#new-index-button": function(t) {ieui.newCond();},
+    ".remove-condition-button": function(t) {ieui.remCond(t);},
+    "#delete-index-button": function(t) {ieui.del();},
+    "#save-index-button": function(t) {ieui.save();},
+    "#replace-button": function(t) {ieui.replace();},
+    "#add-index-condition-button": function(t) {ieui.addCond();},
+    "#index-index-listing ul li a": function(t) {ieui.init(t);},
+    
+    // Project
+    "#create-project": function() {pui.add().dialog("open");},
+    ".project-delete-button": function(t) {pui.del(t);},
+    
+    // File Manager
+    "#up-dir": function() {fm.upDir();},
+    "#root-dir": function() {fm.rootDir();},
+    ".dir": function(t) {fm.goDir(t);},
+    ".delete-file-button": function(t) {fm.deleteFile(t);},
+    ".edit-file-button": function(t) {fm.editFile(t);},
+    
     // General
-    ".toggler span": function(t) {form.toggle(t.parent('a'));}
+    ".toggler": function(t) {form.toggle(t);},
+    "#panel-toggle li": function(t) {shimi.panelToggle.toggler(t);}
+    //".remove-button": function(t) {$(t).parent().remove();}
   });
 
   action(e);
@@ -679,6 +713,7 @@ shimi.clickDispatch = function(e) {
 
 $(function () {
     $('body').click(function(e) {shimi.clickDispatch(e);});
+    $('body').dblclick(function(e) {shimi.dblclickDispatch(e);});
   });
 
 
@@ -746,10 +781,7 @@ shimi.index = function(args) {
   mod.fill = function(req, state, target) {
     target.html(req.responseText);
   
-    $('#previous-index-page').button(
-      {
-        icons: {primary:'ui-icon-circle-arrow-w'} 
-      }).click(function() 
+    $('#previous-index-page').click(function() 
                {
                  mod.get(state.pks.pop(), 
                          state.pids.pop(), 
@@ -757,10 +789,7 @@ shimi.index = function(args) {
                          state.pids);
                });
 
-    $('#next-index-page').button(
-      {
-        icons: {secondary:'ui-icon-circle-arrow-e'}
-      }).click(function() 
+    $('#next-index-page').click(function() 
                {
                  var nextkey = $('#next-index-page').attr('data-startkey');
                  var nextid = $('#next-index-page').attr('data-startid');
@@ -776,15 +805,13 @@ shimi.index = function(args) {
     
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0) {
-      $('#previous-index-page').button("disable");
+      $('#previous-index-page').hide();
     }
     
     // Disable the next button if we're at the end
     if ($('#next-index-page').attr('data-last-page')) {
-      $('#next-index-page').button("disable");
+      $('#next-index-page').hide();
     }
-    
-    $('nav.pager').buttonset();
 
     return mod;
   };
@@ -1106,11 +1133,7 @@ shimi.charseqTab = (function() {
       tabs.tabs("destroy");
       heads.html(charseqs);
       
-      var loadFun = function(event, ui) {
-        $('.link-button').button();
-      };
-      
-      tabs.tabs({load: function(e, ui) {loadFun(e, ui);}});
+      tabs.tabs();
     });
     
     return mod;
@@ -1138,7 +1161,9 @@ shimi.doctypeDialog = function(url, values) {
   
   if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
-  }  
+  } else {
+    f.doctype.removeAttr('disabled');
+  }
   
   var dialog = $("#doctype-dialog").dialog({
     autoOpen: false,
@@ -1181,8 +1206,6 @@ shimi.doctypeElems = (function() {
   mod.get = function(values) {
     var fObj = {};
     
-    fObj.attrs = mod.attrs;
-    
     fObj.copyValues = function(source) {
       Object.keys(source).forEach(function(field) {
         fObj[field].val(source[field]);
@@ -1204,7 +1227,7 @@ shimi.doctypeElems = (function() {
       return fObj;
     };
                    
-    fObj.attrs.forEach(function(item) {
+    mod.attrs.forEach(function(item) {
       fObj[item] = $('#doctype-' + item + '-input');
     });
     
@@ -1232,7 +1255,6 @@ shimi.doctypeTab = (function() {
       var fieldContainer = $("#fields-" + path.fieldset);
       fieldContainer.empty();
       fieldContainer.html(fields);
-      $('.link-button').button();
     });
     
     return mod;
@@ -1246,7 +1268,6 @@ shimi.doctypeTab = (function() {
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
-      $('.link-button').button();
       
       fieldsetContainer.accordion({
         autoHeight: false,
@@ -1269,7 +1290,6 @@ shimi.doctypeTab = (function() {
       $("#doctype-tabs-headings + .ui-tabs-panel").remove();
       $("#doctype-tabs").tabs("destroy");
       $("#doctype-tabs-headings").html(doctypes);
-      $('.link-button').button();
       
       var loadFun = function(event, ui) {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
@@ -1358,7 +1378,7 @@ shimi.doctypeTab = (function() {
     shimi.fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
   };
   
-  var editDoctype = function(target) {
+  mod.editDoctype = function(target) {
     var url = cpath(target, "doctype");
     var oldobj = {};
     var attrs = shimi.doctypeElems.attrs;
@@ -1380,7 +1400,7 @@ shimi.doctypeTab = (function() {
     var complete = function() {
       url.doctype = false;
       url.rev = false;
-      mod.initDoctypeTabs();
+      mod.init();
     };
     
     if (window.confirm("Are you sure? This is permanent.")) {
@@ -1687,45 +1707,11 @@ shimi.loadHash = function(urlHash) {
   return false;
 };
 
-shimi.searchAllFieldsSwitch = function() {
-  $('#search-all-fields-switch a')
-    .live("click", function() {
-            shimi.sui().clearSearchVals();
-          });
-};
-
-shimi.searchFieldItems = function() {
-  $('.search-field-item')
-    .live("click", function(e) {
-            shimi.sui().removeSearchField(e);
-          });
-};
-
-shimi.fieldViews = function() {
-  $('.search-result-field-id a, .field-view b, .field-container label span')
-    .live('dblclick', function(e) {
-            shimi.sui().addSearchField(e);
-          });
-};
-
-shimi.searchIndex = function() {
-  $('#index-index-input-label')
-    .live('dblclick', function(e) {
-            shimi.sui().addSearchIndex(e);
-          });  
-};
-
 shimi.excludeCheck = function() {
   $('#document-search-exclude')
-    .live("change", function(e) {
-            shimi.sui().toggleExclusion(e);
+    .live("change", function() {
+            shimi.sui.toggleExclusion();
           });
-};
-
-shimi.loadDocument = function(docid) {
-  $("#document-view").html("<em>Loading...</em>");
-  shimi.eui().clear();
-  shimi.vui({id: docid}).get();
 };
 
 shimi.jumpForm = function() {
@@ -1740,38 +1726,23 @@ shimi.jumpForm = function() {
           });  
 };
 
-shimi.documentLinks = function() {
-  // Allows the document for the listed item to be displayed
-  // in the correct pane on click.
-  $('.view-document-link')
-    .live("click", 
-          function () {
-            shimi.loadDocument(this.hash.slice(1));
-          });
-};
-
 shimi.searchForm = function() {
-  shimi.sui().clearSearchVals(true).loadSearchVals();
-  shimi.searchAllFieldsSwitch();
-  shimi.searchFieldItems();
-  shimi.fieldViews();
+  shimi.sui.clearSearchVals(true).loadSearchVals();
   shimi.excludeCheck();
-  shimi.searchIndex();
   $('#document-search-term')
     .live("keydown",
           function(e) {
             if (e.which === 13) {
-              shimi.sui().getSearch();
+              shimi.sui.getSearch();
               return false;
             }
             return true;
           });
 };
 
-shimi.efs = function() {
+shimi.efs = (function() {
   var mod = {};
   var store = shimi.store;
-  var eui = shimi.eui();
   var utils = shimi.utils();
 
   var fsContainer =  function(id) {
@@ -1912,28 +1883,6 @@ shimi.efs = function() {
     return value;
   };
   
-  var initFieldset = function(fieldset, callback, reload) {
-    var url = dpath($(fieldset), "fieldset").toString();
-    var id = store($(fieldset)).fs("fieldset");
-    var container = $('#container-' + id);
-    var appendIt = function(data) {
-      container.append(data);
-      initFields(container, callback, reload);
-    };
-    var storeIt = function(data) {
-      localStorage.setItem(url, data);
-      appendIt(data);
-    };
-  
-    if (reload) {
-      localStorage.removeItem(url);
-    }
-  
-    ifStoredElse(url.toString(), appendIt, storeIt);
-  
-    return false;
-  };
-  
   var initFields = function(container, callback, reload) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
@@ -1943,7 +1892,7 @@ shimi.efs = function() {
         callback(section);
       }
       
-      eui.afterFreshRefresh();
+      shimi.eui.afterFreshRefresh();
     };
     var storeIt = function(data) {
       localStorage.setItem(url, data);
@@ -1968,7 +1917,7 @@ shimi.efs = function() {
     container.html('');
     
     vfieldset.find('.multifield').each(function(i, multifield) {
-      initFieldset(container, function(fieldset) {
+      mod.initFieldset(container, function(fieldset) {
         fillFields($(multifield), fieldset);
       });
     });
@@ -1980,7 +1929,7 @@ shimi.efs = function() {
   
   var fillFields = function(container, context) {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    $('#save-document-button').removeAttr('disabled');
+    $('#save-document-button').show();
     
     container.find('.field-view').each(function(i, field) {
       var value = $(field).attr('data-field-value');
@@ -2006,6 +1955,28 @@ shimi.efs = function() {
     } else {
       field.val(value);
     }
+  };
+  
+  mod.initFieldset = function(fieldset, callback, reload) {
+    var url = dpath($(fieldset), "fieldset").toString();
+    var id = store($(fieldset)).fs("fieldset");
+    var container = $('#container-' + id);
+    var appendIt = function(data) {
+      container.append(data);
+      initFields(container, callback, reload);
+    };
+    var storeIt = function(data) {
+      localStorage.setItem(url, data);
+      appendIt(data);
+    };
+  
+    if (reload) {
+      localStorage.removeItem(url);
+    }
+  
+    ifStoredElse(url.toString(), appendIt, storeIt);
+  
+    return false;
   };
   
   // Before submitting the form, the form data is converted into an object
@@ -2061,10 +2032,14 @@ shimi.efs = function() {
     localStorage.setItem(versionKey, curVersion);
   
     $('fieldset').each(function(i, fieldset) {
-      initFieldset(fieldset, false, reload);
+      mod.initFieldset(fieldset, false, reload);
     });
     
     return mod;
+  };
+  
+  mod.removeFieldset = function(target) {
+    target.parent().remove();
   };
   
   mod.fillFieldsets = function() {
@@ -2076,32 +2051,26 @@ shimi.efs = function() {
       }
     });
     
-    eui.afterEditRefresh();
+    shimi.eui.afterEditRefresh();
     
     return mod;
   };
   
   return mod;
-};
+})();
 // Edit pane UI elements
 
-shimi.eui = function() {
+shimi.eui = (function() {
   var mod = {};
-  
+ 
   // Imports
-  var iui = shimi.iui;
-  var vui = shimi.vui;
-  var efs = shimi.efs;
   var store = shimi.store;
   var flash = shimi.flash;
-  
+   
   // UI Elements
   var saveButton = function() {return $('#save-document-button');};
-  var addButton = function() {return $(".add-button");};
-  var clearButton = function() {return $('#clear-document-button');};
   var createButton = function() {return $('#create-document-button');};
   var editButton = function() {return $('#document-edit-button');};
-  var removeButton = function() {return $(".remove-button");};
   
   var keyboard = function() {
     var inputable = 'input, select';
@@ -2142,21 +2111,6 @@ shimi.eui = function() {
       return false;
     });
   
-    return mod;
-  };
-  
-  var buttons = function() {
-    addButton().button({icons: {primary: "ui-icon-plus"}});
-    saveButton().button({ icons: {primary: "ui-icon-disk"}}).hide().attr('disabled', 'disabled');
-    createButton().button({icons: {primary: "ui-icon-document"}});
-    clearButton().button({icons: {primary: "ui-icon-refresh"}});
-  
-    return mod;
-  };
-  
-  var rbutton = function() {
-    removeButton().button({icons: {primary: "ui-icon-minus"}});
-    
     return mod;
   };
   
@@ -2207,15 +2161,13 @@ shimi.eui = function() {
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
       keyboard();
-      efs().initFieldsets();
-      buttons();
+      shimi.efs.initFieldsets();
     });
   
     return mod;
   };
   
   mod.afterFreshRefresh = function() {
-    rbutton();
     afterRefresh();
   
     return mod;
@@ -2283,8 +2235,8 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().button('disable');
-    $.extend(obj, efs().fieldsetsToObject(root));
+    saveButton().hide();
+    $.extend(obj, shimi.efs.fieldsetsToObject(root));
     
     $.ajax({
              type: "PUT",
@@ -2297,19 +2249,19 @@ shimi.eui = function() {
                if (req.status === 204 || req.status === 200) {
                  title = "Success";
                  body = "Your document was saved.";
-                 vui({id: document}).get();
-                 iui().get();
+                 shimi.vui({id: document}).get();
+                 shimi.iui.get();
                  flash(title, body).highlight();
-                 saveButton().removeClass('oldrev').button('enable');
+                 saveButton().removeClass('oldrev').show();
                } else if (req.status === 403) {
                  validationError(req);
-                 saveButton().button('enable');
+                 saveButton().show();
                } else if (req.status === 409) {
                  body = JSON.parse(req.responseText);
                  title = req.statusText;
                  
                  flash(title, body.message).error();
-                 saveButton().button('enable');
+                 saveButton().hide();
                }
              }
            });
@@ -2324,8 +2276,8 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton().button('disable');
-    $.extend(obj, efs().fieldsetsToObject(root));
+    createButton().hide();
+    $.extend(obj, shimi.efs.fieldsetsToObject(root));
     
     var postUrl = $.ajax({
       type: "POST",
@@ -2341,14 +2293,14 @@ shimi.eui = function() {
           
           saveButton().hide().attr('disabled','true');
           $('.fields').remove();
-          efs().initFieldsets();
-          vui({id: documentId}).get();
-          iui().get();
+          shimi.efs.initFieldsets();
+          shimi.vui({id: documentId}).get();
+          shimi.iui.get();
           flash(title, body).highlight();
-          createButton().button('enable');
+          createButton().show();
         } else if (req.status === 403) {
           validationError(req);
-          createButton().button('enable');
+          createButton().show();
         }
       }
     });
@@ -2358,11 +2310,7 @@ shimi.eui = function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled','disabled');
     $('.fields').remove();
-    efs().initFieldsets();
-  };
-  
-  mod.removeFieldset = function(target) {
-    target.parent().remove();
+    shimi.efs.initFieldsets();
   };
   
   mod.showHelpDialog = function(target) {
@@ -2385,11 +2333,9 @@ shimi.eui = function() {
   };
   
   return mod;
-};
-shimi.iui = function() {
+})();
+shimi.iui = (function() {
   var mod = {};
-  var vui = shimi.vui;
-  var eui = shimi.eui;
   var store = shimi.store;
   var flash = shimi.flash;
   var index = shimi.index;
@@ -2416,18 +2362,27 @@ shimi.iui = function() {
     return mod;
   };
   
+  mod.load = function(target) {
+    var id = $(target).attr('href').slice(1);
+    $("#document-view").html("<em>Loading...</em>");
+    shimi.eui.clear();
+    shimi.vui({id: id}).get();
+  
+    return mod;
+  };
+  
   return mod;
-};
+})();
 
-shimi.sui = function() {
+shimi.sui = (function() {
   var mod = {};
   var utils = shimi.utils();
   var localStorage = window.localStorage;
-  var dSearchIndex = $('#document-search-index');
-  var dSearchTerm = $('#document-search-term');
-  var dSearchField = $('#document-search-field');
-  var dSearchExclude = $('#document-search-exclude');
-  var searchListing = $('#search-listing');
+  var dSearchIndex = function() {return $('#document-search-index');};
+  var dSearchTerm = function() {return $('#document-search-term');};
+  var dSearchField = function() {return $('#document-search-field');};
+  var dSearchExclude = function() {return $('#document-search-exclude');};
+  var searchListing = function() {return $('#search-listing');};
 
   var fieldLookup = function() {
     var lookup = {};
@@ -2455,7 +2410,7 @@ shimi.sui = function() {
   };
 
   var excludedVal = function() {
-    var exclude = dSearchExclude.is(':checked');
+    var exclude = dSearchExclude().is(':checked');
 
     if (!exclude) {
       return null;
@@ -2483,11 +2438,11 @@ shimi.sui = function() {
   };
   
   mod.getSearch = function() {
-    var query = dSearchTerm.val();
+    var query = dSearchTerm().val();
     var url = "documents/search?q=" + window.encodeURIComponent(query);
-    var field = dSearchField.val();
-    var exclude = dSearchExclude.is(':checked');
-    var index = dSearchIndex.val();
+    var field = dSearchField().val();
+    var exclude = dSearchExclude().is(':checked');
+    var index = dSearchIndex().val();
     var lookup = fieldLookup();
 
     if (index) {
@@ -2501,10 +2456,10 @@ shimi.sui = function() {
       }
     }
 
-    searchListing.hide();
+    searchListing().hide();
 
     $.get(url, function(searchResults) {
-            searchListing.html(searchResults);
+            searchListing().html(searchResults);
             $('.search-result-field-id')
               .each(function(index, item) {
                       var label = lookup[$(item).attr('data-field-field')];
@@ -2521,13 +2476,13 @@ shimi.sui = function() {
                                          "<span class='highlight'>$1</span>");
                       $(item).children('a').html(newText);
                     });
-            searchListing.show();
+            searchListing().show();
           });
           
     return mod;
   };
 
-  mod.toggleExclusion = function(e) {
+  mod.toggleExclusion = function() {
     var exclude = excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
@@ -2543,8 +2498,8 @@ shimi.sui = function() {
   };
 
   mod.clearSearchVals = function(initial) {
-    dSearchField.val(null);
-    dSearchIndex.val(null);
+    dSearchField().val(null);
+    dSearchIndex().val(null);
     $('#document-search-exclude:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
@@ -2565,16 +2520,16 @@ shimi.sui = function() {
     var fieldids = lookup("searchFields");
 
     if (index !== null) {
-      dSearchIndex.val(index);
+      dSearchIndex().val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
       $('.search-optional').show();
-      dSearchExclude.parent('div').hide();
+      dSearchExclude().parent('div').hide();
     } else if (fieldids !== null) {
-      dSearchField.val(fieldids);
+      dSearchField().val(fieldids);
       $('#search-field-label').html(localStorage.getItem("searchLabels"));
 
       if (lookup("searchExclude") !== excludedVal()) {
-        dSearchExclude.click();
+        dSearchExclude().click();
       }
 
       $('.search-optional').show();
@@ -2583,10 +2538,9 @@ shimi.sui = function() {
     return mod;
   };
 
-  mod.removeSearchField =  function(e) {
-    var item = $(e.target);
-    var value = item.attr('data-index');
-    var searchField = dSearchField;
+  mod.removeSearchField =  function(target) {
+    var value = target.attr('data-index');
+    var searchField = dSearchField();
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
     var exclude = excludedVal();
@@ -2603,7 +2557,7 @@ shimi.sui = function() {
         searchField.val(JSON.stringify(valDecoded));
       }
 
-      item.remove();
+      target.remove();
     }
     
     updateSearchVals(newVal, $('#search-field-label').html(), exclude);
@@ -2611,7 +2565,7 @@ shimi.sui = function() {
     return mod;
   };
 
-  mod.addSearchIndex = function(e) {
+  mod.addSearchIndex = function() {
     var indexVal = $('#index-index-input').val();
     var indexLabel = $('option[value=' + indexVal + ']').text();
 
@@ -2619,23 +2573,23 @@ shimi.sui = function() {
       $('#search-all-fields-switch').show();
       $('#search-field-label').hide();
       $('#search-exclude-label').empty();
-      dSearchField.val(null);
-      dSearchExclude.parent('div').hide();
+      dSearchField().val(null);
+      dSearchExclude().parent('div').hide();
       $('#search-index-label').html(indexLabel).show();
-      dSearchIndex.val(indexVal);
+      dSearchIndex().val(indexVal);
       updateSearchVals(null, indexLabel, null, indexVal);
     }
     
     return mod;
   };
 
-  mod.addSearchField = function(e) {
-    var fieldid = $(e.target).closest('[data-field-field]')
+  mod.addSearchField = function(target) {
+    var fieldid = $(target).closest('[data-field-field]')
       .attr('data-field-field');
 
     if (utils.validID(fieldid)) {
       var fieldLabel = fieldLookup()[fieldid];
-      var searchField = dSearchField;
+      var searchField = dSearchField();
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
       var exclude = excludedVal();
@@ -2675,18 +2629,15 @@ shimi.sui = function() {
   };
   
   return mod;
-};
+})();
 
 // View pane UI elements
 
 shimi.vui = function(args) {
   var mod = {};
-  var vui = shimi.vui;
-  var iui = shimi.iui;
-  var eui = shimi.eui;
-  var efs = shimi.efs();
   var store = shimi.store;
   var flash = shimi.flash;
+  var dvt = $("#document-view");
   
   mod.evTarget = args.target;
   mod.docRev = args.rev;
@@ -2724,7 +2675,6 @@ shimi.vui = function(args) {
   
   mod.get = function(callback) {
     var url = "documents/" + mod.docId;
-    var dvt = $('#document-view');
     
     if (mod.docRev) {
       url = "documents/" + mod.docId + "/" + mod.docRev;
@@ -2741,17 +2691,13 @@ shimi.vui = function(args) {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
-       
-        editButton.button({icons: {primary: 'ui-icon-pencil'}});
-        deleteButton.button({icons: {primary: 'ui-icon-trash'}});
-        restoreButton.button({icons: {primary: 'ui-icon-refresh'}});
         
         if (store(restoreButton).d("deleted") === "true") {
-          $('#document-view').fadeTo('slow', 0.5);
+          dvt.fadeTo('slow', 0.5);
           editButton.hide();
           deleteButton.hide();
         } else {
-          $('#document-view').fadeTo('slow', 1);
+          dvt.fadeTo('slow', 1);
           restoreButton.hide();
         }
       }
@@ -2777,8 +2723,8 @@ shimi.vui = function(args) {
           body = "Your document was restored.";
           
           mod.rev(null).get(function() {
-            $('#document-view').fadeTo('slow', 1);
-            iui().get();
+            dvt.fadeTo('slow', 1);
+            shimi.iui.get();
           });
           flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -2820,10 +2766,10 @@ shimi.vui = function(args) {
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
           restoreButton.show();
-          $('#document-view h2').text("Deleted Document");
-          $('#document-view').fadeTo('slow', 0.5);
+          dvt.find('h2').text("Deleted Document");
+          dvt.fadeTo('slow', 0.5);
           
-          iui().get();
+          shimi.iui.get();
           flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
@@ -2855,13 +2801,13 @@ shimi.vui = function(args) {
   };
   
   mod.edit = function() {
-    eui().resetFields();
+    shimi.eui.resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    efs.fillFieldsets();
+    shimi.efs.fillFieldsets();
     
     return mod;
   };
@@ -2892,7 +2838,7 @@ shimi.vui = function(args) {
       $('#document-view-tree').removeClass('oldrev');
     }
   
-    vui({rev: oldrev, id: id}).get();
+    shimi.vui({rev: oldrev, id: id}).get();
     
     return mod;
   };
@@ -2900,32 +2846,44 @@ shimi.vui = function(args) {
   return mod;
 };
 
-shimi.fm = function() {
+shimi.fm = (function() {
   var mod = {};
   
-  var getDirListing = function (path) {
+  var getDirListing = function(path) {
     if (path === undefined) {
       path = "";
     }
     
     $.get("file_manager/list_dirs/" + path, function (data) {
       $('#file-paths').html(data);
-      $('.dir').click(function (e) {
-        var newpath = $(e.target).attr('data-path');
-        
-        mod.refreshListings(newpath);
-      });
-      $('#up-dir').button().click(function () {
-        var newpath = path.split("/");
-        newpath.pop();
-        newpath = newpath.join("/");
-        
-        mod.refreshListings(newpath);
-      });
-      $('#root-dir').button().click(function () {
-        mod.refreshListings();
-      });
     });
+  };
+  
+  mod.goDir = function(target) {
+    var newpath = $(target).attr('data-path');
+    window.sessionStorage.fmPath = newpath;
+    mod.refreshListings(newpath);
+    
+    return mod;
+  };
+  
+  mod.rootDir = function() {
+    var path = window.sessionStorage.fmPath = "";
+    mod.refreshListings();
+    
+    return mod;
+  };
+  
+  mod.upDir = function() {
+    var path = window.sessionStorage.fmPath;
+    var newpath = path.split("/");
+    newpath.pop();
+    newpath = newpath.join("/");
+    window.sessionStorage.fmPath = newpath;
+        
+    mod.refreshListings(newpath);
+    
+    return mod;
   };
   
   var getFileListing = function (path) {
@@ -2935,44 +2893,34 @@ shimi.fm = function() {
     
     $.get("file_manager/list_files/" + path, function (data) {
       $('#file-listing').html(data);
-      refreshButtons(path);
     });
   };
   
-  var refreshEditButton = function (path) {
-      $('.edit-file-button').button({
-        icons: {primary: 'ui-icon-pencil'}
-      }).click(function (e) {
-        var target = $(e.target).parent('a');
-        var fileId = target.attr('data-file-id');
-        var url = "file_manager/" + fileId;
+  mod.editFile = function(target) {
+    var path = window.sessionStorage.fmPath;
+    var fileId = target.attr('data-file-id');
+    var url = "file_manager/" + fileId;
         
-        $.getJSON(url, function (obj) {
-          pathEditDialog(obj, path).dialog('open');
-        });
-      });
+    $.getJSON(url, function (obj) {
+      pathEditDialog(obj, path).dialog('open');
+    });
+    
+    return mod;
   };
   
-  var refreshDeleteButton = function (path) {
-      $('.delete-file-button').button({
-        icons: {primary: 'ui-icon-trash'}
-      }).click(function(e) {
-        var target = $(e.target).parent('a');
-        var fileId = target.attr('data-file-id');
-        var fileRev = target.attr('data-file-rev');
-        var url = "file_manager/" + fileId + "?rev=" + fileRev;
-        var complete = function () {
-          mod.refreshListings(path);
-          shimi.flash("Success", "File Deleted").highlight();
-        };
+  mod.deleteFile = function(target) {
+    var path = window.sessionStorage.fmPath;
+    var fileId = target.attr('data-file-id');
+    var fileRev = target.attr('data-file-rev');
+    var url = "file_manager/" + fileId + "?rev=" + fileRev;
+    var complete = function () {
+      mod.refreshListings(path);
+      shimi.flash("Success", "File Deleted").highlight();
+    };
         
-        shimi.form.send(url, null, 'DELETE', complete, target);
-      });
-  };
-  
-  var refreshButtons = function (path) {
-    refreshEditButton();
-    refreshDeleteButton();
+    shimi.form.send(url, null, 'DELETE', complete, target);
+    
+    return mod;
   };
   
   var pathEditDialog = function (obj, path) {
@@ -3008,13 +2956,13 @@ shimi.fm = function() {
     return dialog;
   };
   
-  mod.refreshListings = function (path) {
+  mod.refreshListings = function(path) {
     getDirListing(path);
     getFileListing(path);
   };
   
   return mod;
-};
+})();
 
 shimi.initIndexBuilderDialog = function(indexDoctype) {
   var builderOr = $("#builder-or-input");
@@ -3027,7 +2975,7 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
   
   $('.ui-helper-reset div').show();
 
@@ -3035,12 +2983,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.ieui().initCondButtons(tableBody);
+    shimi.ieui.initCondButtons(tableBody);
     
     return false;
   };
     
-  shimi.ihelpers().fOpts(fieldset_url, builderFieldset, 
+  shimi.ihelpers.fOpts(fieldset_url, builderFieldset, 
                      function () {builderFieldset.inputEnable();});
   
   builderOr.change(function() {
@@ -3166,15 +3114,12 @@ shimi.initIndexBuilderDialog = function(indexDoctype) {
   return dialog;
 };
 
-shimi.ieui = function() {
+shimi.ieui = (function() {
   var mod = {};
-  var newButton = $('#new-index-button');
-  var deleteButton = $('#delete-index-button');
-  var saveButton = $('#save-index-button');
-  var addCondButton = $('#add-index-condition-button');
-  var replaceButton = $('#replace-button');
-  var tableBody = $('#index-conditions-listing tbody');
-  var buttonBar = $('#button-bar');
+  
+  var tableBody = function () {
+    return $('#index-conditions-listing tbody');
+  };
 
   var editingData = function() {
     return $('#index-editing-data');
@@ -3215,7 +3160,7 @@ shimi.ieui = function() {
           var fieldId = row.find('td.field-condition').attr('data-value');
           var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
           var argument = row.find('td.argument-condition').attr('data-value');
-          var fieldDoc = shimi.ihelpers().getFieldDoc(fieldId, fieldsetId, doctypeId);
+          var fieldDoc = shimi.ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
           var negate = 
             row.find('td.negate-condition').attr('data-value') === "true";
           var operator = row.find('td.operator-condition').attr('data-value');
@@ -3302,31 +3247,15 @@ shimi.ieui = function() {
       return false;  
     };
   
-  mod.initButtons = function() {
-    newButton.button({icons: {primary: "ui-icon-plus"}});
-    deleteButton.button({icons: {primary: "ui-icon-trash"}});
-    saveButton.button({icons: {primary: "ui-icon-document"}});
-    addCondButton.button({icons: {primary: "ui-icon-plus"}});
-    replaceButton.button({icons: {primary: "ui-icon-shuffle"}});
-    buttonBar.buttonset();
-    return mod;
-  };
-  
-  mod.initCondButtons = function() {
-    tableBody.find('.remove-condition-button').button({icons: {primary: "ui-icon-minus"}});
-    return mod;
-  };
-  
-  mod.init = function(indexId) {
+  mod.init = function(target) {
+    var indexId = $(target).attr('data-index-id');
     var url = "indexes/" + indexId;
-    var target = $('#index-conditions');
+    var htmlTarget = $('#index-conditions');
     
     $.get(url, function(indexData) {
-            target.html(indexData);
-            // TODO don't repeat this code. It is also in initIndexBuilderDialog
-            tableBody.sortable();
-            mod.initCondButtons();
-            shimi.piui().get();
+            htmlTarget.html(indexData);
+            tableBody().sortable();
+            shimi.piui.get();
           });
     
     return false;
@@ -3337,7 +3266,7 @@ shimi.ieui = function() {
     
     if (bData.length !== 0) {
       var completeFunction = function() {
-        mod.init(bData.attr('data-index-id'));
+        mod.init(bData);
         shimi.flash("Success", "Your index has been saved.").highlight();
       };
       
@@ -3391,7 +3320,7 @@ shimi.ieui = function() {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function() {
         $('#index-conditions').empty();
-        shimi.iiui().init();
+        shimi.iiui.init();
       };
       
       if (window.confirm("Are you sure?")) {
@@ -3405,8 +3334,8 @@ shimi.ieui = function() {
   };
   
   return mod;
-};
-shimi.ihelpers = function() {
+})();
+shimi.ihelpers = (function() {
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
@@ -3597,7 +3526,7 @@ shimi.ihelpers = function() {
       
                 if (!(fieldId.isBlank())) {
                   mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function(data) {
-                                shimi.ihelpers().alterOpts(data, fieldId, callback2);
+                                shimi.ihelpers.alterOpts(data, fieldId, callback2);
                               });
                 }
               });
@@ -3623,28 +3552,23 @@ shimi.ihelpers = function() {
   };
   
   return mod;
-};
-shimi.iiui = function() {
+})();
+shimi.iiui = (function() {
   var mod = {};
 
   mod.init = function() {
     var url = "indexes";
     var target = $('#index-index-listing');
     
-    $.get(url, function(index) {
-            target.html(index);
-            target.click(function(e) {
-                           shimi.ieui().init($(e.target).attr('data-index-id'));
-                         });
-          });
-          
+    $.get(url, function(index) {target.html(index);});
+    
     return mod;
   };
-
+  
   return mod;
-};
+})();
 
-shimi.piui = function() {
+shimi.piui = (function() {
   var mod = {};
   var index = shimi.index;
 
@@ -3664,7 +3588,7 @@ shimi.piui = function() {
   };
   
   return mod;
-};
+})();
 
 shimi.initIndexNewDialog = function() {
   var indexDoctype = $("#index-doctype-input");
@@ -3672,7 +3596,7 @@ shimi.initIndexNewDialog = function() {
   var indexField = $("#index-field-input").inputDisable();
   var indexName = $("#index-name-input");
   var indexShowDeleted = $("#index-show_deleted-input");
-  var evs = shimi.ihelpers().evs;
+  var evs = shimi.ihelpers.evs;
 
   var doctypeEvents = function() {
     evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
@@ -3726,7 +3650,7 @@ shimi.initIndexNewDialog = function() {
                       "fields": [indexField.val()]
                     },
                     complete = function(context) {
-                      shimi.iiui().init();
+                      shimi.iiui.init();
                       $(context).dialog("close");
                     };
                     shimi.form.send("indexes", obj, 'POST', complete, this);
@@ -3806,7 +3730,7 @@ shimi.initReplaceDialog = function() {
   return dialog;
 };
 
-shimi.pui = function() {
+shimi.pui = (function() {
   var mod = {};
   
   var deleteProject = function(id) {
@@ -3827,7 +3751,7 @@ shimi.pui = function() {
     }
   };
   
-  mod.addProjectDialog = function() {
+  mod.add = function() {
     var projectName = $("#project-name");
     var projectDescription = $("#project-description");
     var tips = $(".validate-tips");
@@ -3873,75 +3797,40 @@ shimi.pui = function() {
     return dialog;
   };
   
+  mod.del = function(target) {
+    var id = $(target).attr("id");
+    deleteProject(id);
+    
+    return mod;
+  };
+  
   mod.init = function() {
     var url = "/projects/index";
     
     $.get(url, function(projects) {
       $('tbody').empty();
       $('tbody').html(projects);
-      $('.configure-button').button({
-        icons: {primary: "ui-icon-wrench"}
-      });
-      $('.delete-button').button({
-        icons: {primary: "ui-icon-trash"}
-      }).click(function(e) {
-        var id = $(e.target).attr("id");
-        deleteProject(id);
-        $('#delete-dialog').dialog("open");
-      });
     });
   };
   
   return mod;
-};
+})();
 $(function () {
-    $('.notification').hide();
+  $('.notification').hide();
   
-    $('#loading').hide()
-      .ajaxStart(function() {
-                   $(this).show();
-                 })
-      .ajaxStop(function() {
-                  $(this).hide();
-                });
+  $('#loading').hide()
+    .ajaxStart(function() {
+                 $(this).show();
+               })
+    .ajaxStop(function() {
+                $(this).hide();
+              });
 
-    shimi.panelToggle();
-
-  // Buttons
-  
-  $(".remove-button").button({
-    icons: {primary: "ui-icon-minus"},
-    text: false
-  }).click(function() {
-    $(this).parent().remove();
-  });
-  
-  $(".help-button").button({
-    icons: {primary: "ui-icon-help"},
-    text: false
-  });
-  
-  $(".link-button").button({
-    icons: {primary: "ui-icon-link"}
-  });
-  
-  $(".edit-button").button({
-    icons: {primary: "ui-icon-pencil"}
-  });
-  
-  $(".create-continue-button").button({
-    icons: {
-      primary: "ui-icon-disk",
-      secondary: "ui-icon-arrowthick-1-e"
-    }
-  });
-  
   shimi.form.initDateFields();
 
   // Config
   if ($('#configuration').length > 0) {
     shimi.initTabs(); 
-    $('.link-button').button();
     $('.simple-tabs').tabs();
   }
 
@@ -3949,21 +3838,20 @@ $(function () {
   if ($('#all-document-container').length > 0) {
     var getIndexTimer;
     
-    shimi.documentLinks();
-    shimi.iui().iOpts().get();
+    shimi.iui.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
-    shimi.eui().init();
+    shimi.eui.init();
 
     $('#index-filter-form input').keyup(
       function() {
         clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {shimi.iui().get();}, 500);
+        getIndexTimer = setTimeout(function () {shimi.iui.get();}, 500);
       });
   
     $('#index-filter-form select').change(
       function() {
-        shimi.iui().get();
+        shimi.iui.get();
       });
   
     shimi.loadHash($(location)[0].hash.split("#")[1]);
@@ -3972,7 +3860,7 @@ $(function () {
   // File Manager
   
   if ($('#file-upload').length > 0) {
-    shimi.fm().refreshListings();
+    shimi.fm.refreshListings();
     
     $('#file-upload-target').load(function() {
       var encoded = $('#file-upload-target').contents().find('body pre').html();
@@ -3997,22 +3885,12 @@ $(function () {
   // Index Tool
   
   if ($('#all-index-container').length > 0) {
-    $('#index-builder-dialog').hide();
-    $('#index-new-dialog').hide();
-    $('#index-replace-dialog').hide();
-    shimi.ieui().initButtons();
-    shimi.iiui().init();
+    shimi.iiui.init();
   }
     
   // Project
   
   if ($('#projects-container').length > 0) {
-    shimi.pui().init();
-  
-    $("#create-project").button({
-      icons: {primary: "ui-icon-plus"}
-    }).click(function() {
-      shimi.pui().addProjectDialog().dialog("open");
-    });
+    shimi.pui.init();
   }
 });

@@ -13,7 +13,6 @@ shimi.doctypeTab = (function() {
       var fieldContainer = $("#fields-" + path.fieldset);
       fieldContainer.empty();
       fieldContainer.html(fields);
-      $('.link-button').button();
     });
     
     return mod;
@@ -27,7 +26,6 @@ shimi.doctypeTab = (function() {
       fieldsetContainer.empty();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
-      $('.link-button').button();
       
       fieldsetContainer.accordion({
         autoHeight: false,
@@ -50,7 +48,6 @@ shimi.doctypeTab = (function() {
       $("#doctype-tabs-headings + .ui-tabs-panel").remove();
       $("#doctype-tabs").tabs("destroy");
       $("#doctype-tabs-headings").html(doctypes);
-      $('.link-button').button();
       
       var loadFun = function(event, ui) {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
@@ -139,7 +136,7 @@ shimi.doctypeTab = (function() {
     shimi.fieldsetDialog(url, {doctype: url.doctype}).dialog("open");
   };
   
-  var editDoctype = function(target) {
+  mod.editDoctype = function(target) {
     var url = cpath(target, "doctype");
     var oldobj = {};
     var attrs = shimi.doctypeElems.attrs;
@@ -161,7 +158,7 @@ shimi.doctypeTab = (function() {
     var complete = function() {
       url.doctype = false;
       url.rev = false;
-      mod.initDoctypeTabs();
+      mod.init();
     };
     
     if (window.confirm("Are you sure? This is permanent.")) {

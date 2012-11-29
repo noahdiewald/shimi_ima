@@ -26,36 +26,34 @@
   {% for row in rows %}
     {% if rows|length < limit or not forloop.last  %} 
   <tr>
-    <th>
-      <a 
-        href="#{{ row.id }}" 
-        class="view-document-link" 
-        {% if forloop.first %}
-          id="first-index-element" 
-          data-first-id="{{ row.id }}" 
-          data-first-key="{{row.encoded_key}}" 
-        {% endif %}>
-        <ul class="head-elements">
-          {% for elem in row.key %}
-            <li>
-            {% if elem|last == '~blank' %}
-              <span class="help-text">blank</span>
-            {% else %}
-              {{ elem|last|force_escape }}
-            {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </a>
+    <th        
+       {% if forloop.first %}
+       id="first-index-element" 
+       data-first-id="{{ row.id }}" 
+       data-first-key="{{row.encoded_key}}" 
+       {% endif %}>
+      <ul class="head-elements">
+        {% for elem in row.key %}
+        <li>
+          {% if elem|last == '~blank' %}
+          <span class="help-text"><a href="#{{ row.id }}" 
+                                     class="view-document-link">blank</a></span>
+          {% else %}
+          <a href="#{{ row.id }}"
+             class="view-document-link">{{ elem|last|force_escape }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
     </th>
     <td>
       <ul class="reversal-elements">
-      {% for elem in row.value %}
+        {% for elem in row.value %}
         {% if elem %}<li>{{ elem|force_escape }}</li>{% endif %}
-      {% endfor %}
+        {% endfor %}
       </ul>
     </td>
   </tr>
-    {% endif %}
+  {% endif %}
   {% endfor %}
 </table>

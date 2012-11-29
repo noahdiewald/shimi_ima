@@ -1,4 +1,4 @@
-<div id="index-new-dialog" title="New Index">
+<div id="index-new-dialog" title="New Index" class="hidden">
 
   <p class="validate-tips help-text">All fields are required.</p>
   

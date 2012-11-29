@@ -1,4 +1,4 @@
-<div id="index-builder-dialog" title="Index Builder">
+<div id="index-builder-dialog" title="Index Builder" class="hidden">
 
   <p class="validate-tips help-text">All non-checkbox fields are required.</p>
   

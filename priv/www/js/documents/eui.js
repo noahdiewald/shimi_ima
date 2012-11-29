@@ -1,22 +1,16 @@
 // Edit pane UI elements
 
-shimi.eui = function() {
+shimi.eui = (function() {
   var mod = {};
-  
+ 
   // Imports
-  var iui = shimi.iui;
-  var vui = shimi.vui;
-  var efs = shimi.efs;
   var store = shimi.store;
   var flash = shimi.flash;
-  
+   
   // UI Elements
   var saveButton = function() {return $('#save-document-button');};
-  var addButton = function() {return $(".add-button");};
-  var clearButton = function() {return $('#clear-document-button');};
   var createButton = function() {return $('#create-document-button');};
   var editButton = function() {return $('#document-edit-button');};
-  var removeButton = function() {return $(".remove-button");};
   
   var keyboard = function() {
     var inputable = 'input, select';
@@ -57,21 +51,6 @@ shimi.eui = function() {
       return false;
     });
   
-    return mod;
-  };
-  
-  var buttons = function() {
-    addButton().button({icons: {primary: "ui-icon-plus"}});
-    saveButton().button({ icons: {primary: "ui-icon-disk"}}).hide().attr('disabled', 'disabled');
-    createButton().button({icons: {primary: "ui-icon-document"}});
-    clearButton().button({icons: {primary: "ui-icon-refresh"}});
-  
-    return mod;
-  };
-  
-  var rbutton = function() {
-    removeButton().button({icons: {primary: "ui-icon-minus"}});
-    
     return mod;
   };
   
@@ -122,15 +101,13 @@ shimi.eui = function() {
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
       keyboard();
-      efs().initFieldsets();
-      buttons();
+      shimi.efs.initFieldsets();
     });
   
     return mod;
   };
   
   mod.afterFreshRefresh = function() {
-    rbutton();
     afterRefresh();
   
     return mod;
@@ -198,8 +175,8 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().button('disable');
-    $.extend(obj, efs().fieldsetsToObject(root));
+    saveButton().hide();
+    $.extend(obj, shimi.efs.fieldsetsToObject(root));
     
     $.ajax({
              type: "PUT",
@@ -212,19 +189,19 @@ shimi.eui = function() {
                if (req.status === 204 || req.status === 200) {
                  title = "Success";
                  body = "Your document was saved.";
-                 vui({id: document}).get();
-                 iui().get();
+                 shimi.vui({id: document}).get();
+                 shimi.iui.get();
                  flash(title, body).highlight();
-                 saveButton().removeClass('oldrev').button('enable');
+                 saveButton().removeClass('oldrev').show();
                } else if (req.status === 403) {
                  validationError(req);
-                 saveButton().button('enable');
+                 saveButton().show();
                } else if (req.status === 409) {
                  body = JSON.parse(req.responseText);
                  title = req.statusText;
                  
                  flash(title, body.message).error();
-                 saveButton().button('enable');
+                 saveButton().hide();
                }
              }
            });
@@ -239,8 +216,8 @@ shimi.eui = function() {
     };
     
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton().button('disable');
-    $.extend(obj, efs().fieldsetsToObject(root));
+    createButton().hide();
+    $.extend(obj, shimi.efs.fieldsetsToObject(root));
     
     var postUrl = $.ajax({
       type: "POST",
@@ -256,14 +233,14 @@ shimi.eui = function() {
           
           saveButton().hide().attr('disabled','true');
           $('.fields').remove();
-          efs().initFieldsets();
-          vui({id: documentId}).get();
-          iui().get();
+          shimi.efs.initFieldsets();
+          shimi.vui({id: documentId}).get();
+          shimi.iui.get();
           flash(title, body).highlight();
-          createButton().button('enable');
+          createButton().show();
         } else if (req.status === 403) {
           validationError(req);
-          createButton().button('enable');
+          createButton().show();
         }
       }
     });
@@ -273,11 +250,7 @@ shimi.eui = function() {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled','disabled');
     $('.fields').remove();
-    efs().initFieldsets();
-  };
-  
-  mod.removeFieldset = function(target) {
-    target.parent().remove();
+    shimi.efs.initFieldsets();
   };
   
   mod.showHelpDialog = function(target) {
@@ -300,4 +273,4 @@ shimi.eui = function() {
   };
   
   return mod;
-};
+})();

@@ -1,4 +1,4 @@
-shimi.ihelpers = function() {
+shimi.ihelpers = (function() {
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
@@ -189,7 +189,7 @@ shimi.ihelpers = function() {
       
                 if (!(fieldId.isBlank())) {
                   mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function(data) {
-                                shimi.ihelpers().alterOpts(data, fieldId, callback2);
+                                shimi.ihelpers.alterOpts(data, fieldId, callback2);
                               });
                 }
               });
@@ -215,4 +215,4 @@ shimi.ihelpers = function() {
   };
   
   return mod;
-};
+})();

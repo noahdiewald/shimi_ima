@@ -5,7 +5,9 @@ shimi.doctypeDialog = function(url, values) {
   
   if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
-  }  
+  } else {
+    f.doctype.removeAttr('disabled');
+  }
   
   var dialog = $("#doctype-dialog").dialog({
     autoOpen: false,

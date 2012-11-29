@@ -21,20 +21,19 @@ Array.prototype.trimAll = function() {
 
 // General UI Stuff
 
-shimi.panelToggle = function() {
-  var toggler = function(e) {
+shimi.panelToggle = (function() {
+  var mod = {};
+  
+  mod.toggler = function(target) {
     var panel;
     
-    if ($(e.target).attr('data-panel')) {
-      panel = $('#' + $(e.target).attr('data-panel'));
+    if ($(target).attr('data-panel')) {
+      panel = $('#' + $(target).attr('data-panel'));
     } else {
-      panel = $(e.target).closest('.panel');
+      panel = $(target).closest('.panel');
     }
     panel.toggle();
   };
-
-  $('#panel-toggle li')
-    .live("click", function(e) {toggler(e);});
-  $('.panel > h2')
-    .live("dblclick", function(e) {toggler(e);});
-};
+    
+  return mod;
+})();

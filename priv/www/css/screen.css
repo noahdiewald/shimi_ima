@@ -370,10 +370,6 @@ h5 {
   display: none;
 }
 
-.hidden {
-  display: none;
-}
-
 select[multiple=true] {
   height: 5em;
 }
@@ -459,15 +455,6 @@ select[multiple=true] {
 
 input[disabled] {
   background: #555;
-}
-
-#button-bar {
-  padding: 10px;
-}
-
-#button-bar a {
-  padding: -4px;
-  margin: -4px;
 }
 
 #query-view {
@@ -607,4 +594,29 @@ h5 + .search-results {
 
 .highlight {
     background: yellow;
+}
+
+.link-button {
+    display: inline-block;
+    padding: 2px;
+    margin: 2px;
+    background: white;
+    cursor: pointer;
+}
+
+.remove-button {
+    background: #F0A265;
+    float: right;
+}
+
+.fields {
+    clear: right;
+}
+
+#panel-toggle li, .panel > h2, .ui-icon-help {
+    cursor: pointer;
+}
+
+.hidden {
+  display: none;
 }

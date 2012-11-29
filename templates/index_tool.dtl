@@ -27,11 +27,11 @@
       <h2 class="ui-widget ui-widget-header">Edit Index</h2>
 
       <div id="button-bar">
-        <button id="new-index-button">New</button>
-        <button id="save-index-button">Save</button>
-        <button id="delete-index-button">Delete</button>
-        <button id="add-index-condition-button">Add Condition</button>
-        <button id="replace-button">Replace Text</button>
+        <a id="new-index-button" class="link-button">New</a>
+        <a id="save-index-button" class="link-button">Save</a>
+        <a id="delete-index-button" class="link-button">Delete</a>
+        <a id="add-index-condition-button" class="link-button">Add Condition</a>
+        <a id="replace-button" class="link-button">Replace Text</a>
       </div>
 
       <div id="index-conditions"></div>

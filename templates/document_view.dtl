@@ -1,39 +1,34 @@
 {% include "document_view_header.dtl" %}
 
-<div
-  id="document-view-info"
-  data-document-deleted="{{ deleted_ }}"
-  data-document-document="{{ _id }}" 
-  data-document-rev="{{ _rev }}"></div>
+<div id="document-view-info"
+     data-document-deleted="{{ deleted_ }}"
+     data-document-document="{{ _id }}" 
+     data-document-rev="{{ _rev }}"></div>
 
-<a 
-  id="document-restore-button"
-  data-group-id="document-view-info">
-  Restore</a>
+<a id="document-restore-button"
+   data-group-id="document-view-info"
+   class="link-button hidden">Restore</a>
 
-<a 
-  id="document-edit-button"
-  data-group-id="document-view-info">
-  Edit</a>
+<a id="document-edit-button"
+   data-group-id="document-view-info"
+   class="link-button">Edit</a>
 
-<a 
-  id="document-delete-button"
-  data-group-id="document-view-info">
-  Delete</a>
+<a id="document-delete-button"
+   data-group-id="document-view-info"
+   class="link-button">Delete</a>
 
 <nav id="history">
-{% for r in revs_info %}
+  {% for r in revs_info %}
   {% if r.status == "available" %}
-    <a
-      href="#{{ _id }}"
-      class="revision-link"
-      data-group-id="document-view-info"
-      {% if forloop.first %}
-        id="current-revision-link"
-      {% endif %}
-      data-document-oldrev="{{ r.rev }}">{{ forloop.revcounter }}</a>
-  {% endif %}
-{% endfor %}
+    <a href="#{{ _id }}"
+       class="revision-link"
+       data-group-id="document-view-info"
+       {% if forloop.first %}
+       id="current-revision-link"
+       {% endif %}
+       data-document-oldrev="{{ r.rev }}">{{ forloop.revcounter }}</a>
+    {% endif %}
+    {% endfor %}
 </nav>
 
 <div id="document-view-tree">

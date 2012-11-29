@@ -31,5 +31,5 @@
 
 <br />
 
-<button id="create-project">New Project</button>
+<a id="create-project" class="link-button">New Project</a>
 {% endblock %}

@@ -1,7 +1,6 @@
-shimi.efs = function() {
+shimi.efs = (function() {
   var mod = {};
   var store = shimi.store;
-  var eui = shimi.eui();
   var utils = shimi.utils();
 
   var fsContainer =  function(id) {
@@ -142,28 +141,6 @@ shimi.efs = function() {
     return value;
   };
   
-  var initFieldset = function(fieldset, callback, reload) {
-    var url = dpath($(fieldset), "fieldset").toString();
-    var id = store($(fieldset)).fs("fieldset");
-    var container = $('#container-' + id);
-    var appendIt = function(data) {
-      container.append(data);
-      initFields(container, callback, reload);
-    };
-    var storeIt = function(data) {
-      localStorage.setItem(url, data);
-      appendIt(data);
-    };
-  
-    if (reload) {
-      localStorage.removeItem(url);
-    }
-  
-    ifStoredElse(url.toString(), appendIt, storeIt);
-  
-    return false;
-  };
-  
   var initFields = function(container, callback, reload) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
@@ -173,7 +150,7 @@ shimi.efs = function() {
         callback(section);
       }
       
-      eui.afterFreshRefresh();
+      shimi.eui.afterFreshRefresh();
     };
     var storeIt = function(data) {
       localStorage.setItem(url, data);
@@ -198,7 +175,7 @@ shimi.efs = function() {
     container.html('');
     
     vfieldset.find('.multifield').each(function(i, multifield) {
-      initFieldset(container, function(fieldset) {
+      mod.initFieldset(container, function(fieldset) {
         fillFields($(multifield), fieldset);
       });
     });
@@ -210,7 +187,7 @@ shimi.efs = function() {
   
   var fillFields = function(container, context) {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    $('#save-document-button').removeAttr('disabled');
+    $('#save-document-button').show();
     
     container.find('.field-view').each(function(i, field) {
       var value = $(field).attr('data-field-value');
@@ -236,6 +213,28 @@ shimi.efs = function() {
     } else {
       field.val(value);
     }
+  };
+  
+  mod.initFieldset = function(fieldset, callback, reload) {
+    var url = dpath($(fieldset), "fieldset").toString();
+    var id = store($(fieldset)).fs("fieldset");
+    var container = $('#container-' + id);
+    var appendIt = function(data) {
+      container.append(data);
+      initFields(container, callback, reload);
+    };
+    var storeIt = function(data) {
+      localStorage.setItem(url, data);
+      appendIt(data);
+    };
+  
+    if (reload) {
+      localStorage.removeItem(url);
+    }
+  
+    ifStoredElse(url.toString(), appendIt, storeIt);
+  
+    return false;
   };
   
   // Before submitting the form, the form data is converted into an object
@@ -291,10 +290,14 @@ shimi.efs = function() {
     localStorage.setItem(versionKey, curVersion);
   
     $('fieldset').each(function(i, fieldset) {
-      initFieldset(fieldset, false, reload);
+      mod.initFieldset(fieldset, false, reload);
     });
     
     return mod;
+  };
+  
+  mod.removeFieldset = function(target) {
+    target.parent().remove();
   };
   
   mod.fillFieldsets = function() {
@@ -306,10 +309,10 @@ shimi.efs = function() {
       }
     });
     
-    eui.afterEditRefresh();
+    shimi.eui.afterEditRefresh();
     
     return mod;
   };
   
   return mod;
-};
+})();

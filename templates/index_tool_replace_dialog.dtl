@@ -1,4 +1,4 @@
-<div id="index-replace-dialog" title="Replace Text">
+<div id="index-replace-dialog" title="Replace Text" class="hidden">
 
   <form>
     <fieldset class="ui-helper-reset">
