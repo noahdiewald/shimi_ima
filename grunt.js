@@ -20,7 +20,7 @@ module.exports = function(grunt) {
       }
     },
     lint: {
-      files: ['grunt.js', 'priv/www/js/**/*.js']
+      files: ['grunt.js', 'priv/www/js/**/*.js', 'shimi_ima/**/*.js']
     },
     min: {
       dist: {
@@ -49,7 +49,8 @@ module.exports = function(grunt) {
       globals: {
         jQuery: true,
         $: true,
-        shimi: true
+        shimi: true,
+        emit: true
       }
     },
     uglify: {}
