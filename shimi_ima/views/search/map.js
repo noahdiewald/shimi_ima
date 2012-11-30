@@ -8,7 +8,7 @@ function(doc) {
                  return (val !== undefined && val !== null && val.toString() !== '');
                };
                var head = function() {
-                 hd = doc.head;
+                 var hd = doc.head;
                  return hd.map(function(h) {
                    var v = doc.index[h];
                    if (isArray(v[0])) {

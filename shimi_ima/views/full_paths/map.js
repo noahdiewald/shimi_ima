@@ -1,14 +1,18 @@
 function(doc) { 
         if (doc._attachments) {
-          if (typeof Object.keys != 'function') {
-            Object.keys = function(obj) {
-              if (typeof obj != 'object' && typeof obj != 'function' || obj == null) {
-                throw TypeError('Object.keys called on non-object');
+          if (typeof Object.keys !== 'function') {
+            Object.keys = function(o){
+              if (o !== Object(o)) {
+                throw new TypeError('Object.keys called on non-object');
               }
-              var keys = [];
-              for (var p in obj) obj.hasOwnProperty(p) &&keys.push(p);
-              return keys;
-            }
+              var ret=[],p;
+              for(p in o) {
+                if (Object.prototype.hasOwnProperty.call(o,p)) {
+                  ret.push(p);
+                }
+              }
+              return ret;
+            };
           }
           
           var path = [];

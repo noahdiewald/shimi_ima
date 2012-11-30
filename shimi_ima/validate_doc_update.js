@@ -21,13 +21,13 @@ function(newDoc, saveDoc, userCtx) {
     };
     
     if (newDoc.category === 'charseq') {
-      if (isBlank(newDoc.name)) forbid('Name', 'must be filled in.');
+      if (isBlank(newDoc.name)) {forbid('Name', 'must be filled in.');}
       
       [[newDoc.characters, 'Characters'], 
        [newDoc.sort_ignore, 'Ignore'], 
        [newDoc.vowels, 'Vowels'], 
        [newDoc.consonants, 'Consonants']].forEach(function(item) {
-        if (item[0] === false) forbid(item[1], 'contains quoting errors.');
+        if (item[0] === false) {forbid(item[1], 'contains quoting errors.');}
       });
     }
   };
@@ -75,7 +75,7 @@ function(newDoc, saveDoc, userCtx) {
       });
   
       // A means of getting useful information out during unit testing
-      if (testsd('testing')) throw(name + '$' + msg + '$' + docid);
+      if (testsd('testing')) {throw(name + '$' + msg + '$' + docid);}
       
       throw({forbidden: errorMsg});
     };
@@ -90,7 +90,7 @@ function(newDoc, saveDoc, userCtx) {
       });
   
       // A means of getting useful information out during unit testing
-      if (testsd('testing')) throw(field.name + '$' + field.instance + '$' + msg);
+      if (testsd('testing')) {throw(field.name + '$' + field.instance + '$' + msg);}
       
       throw({forbidden: errorMsg});
     };
@@ -224,10 +224,10 @@ function(newDoc, saveDoc, userCtx) {
     var dateRange = function(field) {
       var pattern = (/^\d{4}-\d{2}-\d{2}$/);
   
-      if (pattern.test(field.max)) isEarlier(field);
-      if (pattern.test(field.min)) isLater(field);
-      if (field.min === 'today') isFuture(field);
-      if (field.max === 'today') isPast(field);
+      if (pattern.test(field.max)) {isEarlier(field);}
+      if (pattern.test(field.min)) {isLater(field);}
+      if (field.min === 'today') {isFuture(field);}
+      if (field.max === 'today') {isPast(field);}
     };
   
     // See if a date is earlier than a maximum date. If it isn't fail.
@@ -403,7 +403,7 @@ function(newDoc, saveDoc, userCtx) {
       var exParenCount = 0;
       var exParenFS = false;
       
-      if (firstCondition.is_or == true || lastCondition.is_or == true) {
+      if (firstCondition.is_or === true || lastCondition.is_or === true) {
         forbid('Conditions', 'may not begin or end with OR.');
       }
 
@@ -440,7 +440,7 @@ function(newDoc, saveDoc, userCtx) {
                parens !== 'exopen' && parens !== 'exclose')
              ) {
         
-               if (negate != true && negate != false) {
+               if (negate !== true && negate !== false) {
                  forbid('Condition ' + index, 
                                'negate must be true or false');
                }
@@ -462,6 +462,7 @@ function(newDoc, saveDoc, userCtx) {
                    forbid('Condition ' + index, 
                           'integer argument required.');
                  }
+                 break;
                case 'equal':
                case 'match':
                case 'greater': 

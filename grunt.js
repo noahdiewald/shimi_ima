@@ -50,7 +50,10 @@ module.exports = function(grunt) {
         jQuery: true,
         $: true,
         shimi: true,
-        emit: true
+        emit: true,
+        send: true,
+        getRow: true,
+        start: true
       }
     },
     uglify: {}

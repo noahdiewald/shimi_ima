@@ -6,21 +6,21 @@ function(head, req) {
         });
 
   var row;
-  var CSVVal = function(item) {
+  var csvVal = function(item) {
     return item.replace(/"/g, '""').replace(/^(.*)$/, '"$1"');
   };
-  var CSVCell = function(item) {
+  var csvCell = function(item) {
     if (item === null) {
       return 'null';
     } else {
-      return CSVVal(item.toString());
+      return csvVal(item.toString());
     }
   };
-  var CSVKey = function(item) {
-    return CSVCell(item.map(function(x) {return x[1];}));
+  var csvKey = function(item) {
+    return csvCell(item.map(function(x) {return x[1];}));
   };
 
   while(row = getRow()) {
-    send([CSVCell(row.id),CSVKey(row.key),CSVCell(row.value)].join(',')+'\n');
+    send([csvCell(row.id),csvKey(row.key),csvCell(row.value)].join(',')+'\n');
   }
 }
