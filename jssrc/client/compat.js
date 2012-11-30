@@ -1,13 +1,13 @@
 // Object.keys compatibility from MDC
-
-if(!Object.keys) {
-  Object.keys = function(o){
+if (!Object.keys) {
+  Object.keys = function (o) {
     if (o !== Object(o)) {
       throw new TypeError('Object.keys called on non-object');
     }
-    var ret=[],p;
-    for(p in o) {
-      if (Object.prototype.hasOwnProperty.call(o,p)) {
+    var ret = [],
+        p;
+    for (p in o) {
+      if (Object.prototype.hasOwnProperty.call(o, p)) {
         ret.push(p);
       }
     }
@@ -16,11 +16,8 @@ if(!Object.keys) {
 }
 
 // Reduce compatibility from MDC
-
-if (!Array.prototype.reduce)
-{
-  Array.prototype.reduce = function(fun /*, initialValue */)
-  {
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function (fun /*, initialValue */ ) {
     "use strict";
 
     if (this === void 0 || this === null) {
@@ -40,16 +37,12 @@ if (!Array.prototype.reduce)
 
     var k = 0;
     var accumulator;
-    if (arguments.length >= 2)
-    {
+    if (arguments.length >= 2) {
       accumulator = arguments[1];
     }
-    else
-    {
-      do
-      {
-        if (k in t)
-        {
+    else {
+      do {
+        if (k in t) {
           accumulator = t[k++];
           break;
         }
@@ -62,8 +55,7 @@ if (!Array.prototype.reduce)
       while (true);
     }
 
-    while (k < len)
-    {
+    while (k < len) {
       if (k in t) {
         accumulator = fun.call(undefined, accumulator, t[k], k, t);
       }

@@ -64,11 +64,15 @@
  https://github.com/spencertipping/js-in-ten-minutes
 */
 
-var identity = function(x) {return x;};
+var identity = function (x) {
+  return x;
+};
 
-Function.prototype.r = function() {return [this, arguments];};
+Function.prototype.r = function () {
+  return [this, arguments];
+};
 
-Function.prototype.t = function() {
+Function.prototype.t = function () {
   var c = [this, arguments];
   var escape = arguments[arguments.length - 1];
   while (c[0] !== escape) {
@@ -77,42 +81,42 @@ Function.prototype.t = function() {
   return escape.apply(this, c[1]);
 };
 
-shimi.store = function(elem) {
+shimi.store = function (elem) {
   var mod = {};
-  
-  mod.get = function(key) {
-    var getValue1 = function(key, elem, id) {
+
+  mod.get = function (key) {
+    var getValue1 = function (key, elem, id) {
       var gid = elem.attr('data-group-id');
       var store = $('#' + gid);
       var val = store.attr('data-' + key);
       var next = store.attr('data-group-id');
-      
-      if (val === undefined &&  next !== undefined &&  gid !== next) {
+
+      if (val === undefined && next !== undefined && gid !== next) {
         return getValue1.r(key, store, id);
       }
-      
+
       return id.r(val);
     };
-    
+
     return getValue1.t(key, elem, identity);
   };
-  
-  mod.put = function(key, value) {
+
+  mod.put = function (key, value) {
     var dataElem = elem.attr('data-group-id');
     $('#' + dataElem).attr('data-' + key, value);
   };
-  
-  mod.fs = function(key) {
+
+  mod.fs = function (key) {
     return mod.get("fieldset-" + key);
   };
-  
-  mod.f = function(key) {
+
+  mod.f = function (key) {
     return mod.get("field-" + key);
   };
-  
-  mod.d = function(key) {
+
+  mod.d = function (key) {
     return mod.get("document-" + key);
   };
-  
+
   return mod;
 };

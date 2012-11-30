@@ -25,24 +25,24 @@
  * used for collation of items written in the script.
 */
 
-shimi.charseqElems = (function() {
+shimi.charseqElems = (function () {
   var mod = {};
-  
+
   mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
-  
-  mod.get = function(values) {
+
+  mod.get = function (values) {
     var cObj = {};
-    
+
     cObj.attrs = mod.attrs;
-    
-    cObj.copyValues = function(source) {
-      Object.keys(source).forEach(function(field) {
+
+    cObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         cObj[field].val(source[field]);
       });
       return cObj;
     };
-    
-    cObj.getCharseqInputVals = function() {
+
+    cObj.getCharseqInputVals = function () {
       var valObj = {
         "category": "charseq",
         "description": cObj.description.val(),
@@ -60,30 +60,30 @@ shimi.charseqElems = (function() {
       };
       return valObj;
     };
-    
-    cObj.parse = function(val) {
+
+    cObj.parse = function (val) {
       if (val && !val.isBlank()) {
         return JSON.parse(val);
       } else {
         return [];
       }
     };
-    
-    cObj.clear = function() {
+
+    cObj.clear = function () {
       shimi.form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
-                   
-    cObj.attrs.forEach(function(item) {
+
+    cObj.attrs.forEach(function (item) {
       cObj[item] = $('#charseq-' + item + '-input');
     });
-    
+
     if (values) {
       cObj.copyValues(values);
     }
-      
+
     return cObj;
   };
-  
+
   return mod;
 })();

@@ -11,11 +11,10 @@
 // the current key and id are taken from the html when needed to
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
-
-shimi.index = function(args) {
+shimi.index = function (args) {
   var mod = {};
 
-  mod.get = function(startkey, startid, prevkeys, previds) {
+  mod.get = function (startkey, startid, prevkeys, previds) {
     var url = args.url + '?';
     var indexId = args.indexId;
     var limitField = $('#index-limit');
@@ -53,42 +52,38 @@ shimi.index = function(args) {
       url = url + '&index=' + indexId;
     }
 
-    shimi.form.send(url, false, 'GET',
-                  function(context, req) {mod.fill(req, state, target);}, this);
+    shimi.form.send(url, false, 'GET', function (context, req) {
+      mod.fill(req, state, target);
+    }, this);
 
     return mod;
   };
 
-  mod.fill = function(req, state, target) {
+  mod.fill = function (req, state, target) {
     target.html(req.responseText);
-  
-    $('#previous-index-page').click(function() 
-               {
-                 mod.get(state.pks.pop(), 
-                         state.pids.pop(), 
-                         state.pks, 
-                         state.pids);
-               });
 
-    $('#next-index-page').click(function() 
-               {
-                 var nextkey = $('#next-index-page').attr('data-startkey');
-                 var nextid = $('#next-index-page').attr('data-startid');
-                 var prevkey = 
-                   $('#first-index-element').attr('data-first-key');
-                 var previd = 
-                   $('#first-index-element').attr('data-first-id');
-                 state.pks.push(prevkey);
-                 state.pids.push(previd);
-                 
-                 mod.get(nextkey, nextid, state.pks, state.pids);
-               });
-    
+    $('#previous-index-page').click(function () {
+      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    });
+
+    $('#next-index-page').click(function () {
+      var nextkey = $('#next-index-page').attr('data-startkey');
+      var nextid = $('#next-index-page').attr('data-startid');
+      var prevkey =
+      $('#first-index-element').attr('data-first-key');
+      var previd =
+      $('#first-index-element').attr('data-first-id');
+      state.pks.push(prevkey);
+      state.pids.push(previd);
+
+      mod.get(nextkey, nextid, state.pks, state.pids);
+    });
+
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0) {
       $('#previous-index-page').hide();
     }
-    
+
     // Disable the next button if we're at the end
     if ($('#next-index-page').attr('data-last-page')) {
       $('#next-index-page').hide();
@@ -96,6 +91,6 @@ shimi.index = function(args) {
 
     return mod;
   };
-  
+
   return mod;
 };

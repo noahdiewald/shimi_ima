@@ -1,15 +1,14 @@
 // Dialog for manipulating fields
-
-shimi.fieldDialog = function(url, values) {
+shimi.fieldDialog = function (url, values) {
   var f = shimi.fieldElems.get(values);
-  
+
   var dialog = $("#field-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function() {
+      "Save": function () {
         var obj = f.clearDisabled().getFieldInputVals();
-        var complete = function(context) {
+        var complete = function (context) {
           shimi.doctypeTab.initFields(url);
           $(context).dialog("close");
         };
@@ -20,14 +19,14 @@ shimi.fieldDialog = function(url, values) {
           url.put(obj, complete, this);
         }
       },
-      "Cancel": function() {
+      "Cancel": function () {
         $(this).dialog("close");
       }
     },
-    close: function() {
+    close: function () {
       f.clear();
     }
   });
-  
+
   return dialog;
 };

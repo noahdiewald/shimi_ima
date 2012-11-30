@@ -1,30 +1,42 @@
-shimi.sui = (function() {
+shimi.sui = (function () {
   var mod = {};
   var utils = shimi.utils();
   var localStorage = window.localStorage;
-  var dSearchIndex = function() {return $('#document-search-index');};
-  var dSearchTerm = function() {return $('#document-search-term');};
-  var dSearchField = function() {return $('#document-search-field');};
-  var dSearchExclude = function() {return $('#document-search-exclude');};
-  var searchListing = function() {return $('#search-listing');};
+  var dSearchIndex = function () {
+    return $('#document-search-index');
+  };
+  var dSearchTerm = function () {
+    return $('#document-search-term');
+  };
+  var dSearchField = function () {
+    return $('#document-search-field');
+  };
+  var dSearchExclude = function () {
+    return $('#document-search-exclude');
+  };
+  var searchListing = function () {
+    return $('#search-listing');
+  };
 
-  var fieldLookup = function() {
+  var fieldLookup = function () {
     var lookup = {};
-    
+
     $('fieldset').each(
-      function(index, fset) {
-        var fsLabel = $(fset).attr('data-fieldset-label');
-        $(fset).find('.field-container').each(
-          function(index, item) {
-            var id = $(item).attr('data-field-field');
-            var label = $(item).find('.label-text').first().text();
-            lookup[id] = fsLabel + ": " + label;
-          });
+
+    function (index, fset) {
+      var fsLabel = $(fset).attr('data-fieldset-label');
+      $(fset).find('.field-container').each(
+
+      function (index, item) {
+        var id = $(item).attr('data-field-field');
+        var label = $(item).find('.label-text').first().text();
+        lookup[id] = fsLabel + ": " + label;
       });
+    });
     return lookup;
   };
 
-  var lookup = function(item) {
+  var lookup = function (item) {
     var stored = localStorage.getItem(item);
     if (stored === "" || stored === "null") {
       return null;
@@ -33,7 +45,7 @@ shimi.sui = (function() {
     }
   };
 
-  var excludedVal = function() {
+  var excludedVal = function () {
     var exclude = dSearchExclude().is(':checked');
 
     if (!exclude) {
@@ -43,7 +55,7 @@ shimi.sui = (function() {
     }
   };
 
-  var updateSearchVals = function(fieldids, labels, exclude, index) {
+  var updateSearchVals = function (fieldids, labels, exclude, index) {
     if (index) {
       localStorage.setItem("searchIndex", index);
       localStorage.setItem("searchIndexLabel", labels);
@@ -57,11 +69,11 @@ shimi.sui = (function() {
       localStorage.setItem("searchFields", fieldids);
       localStorage.setItem("searchExclude", exclude);
     }
-    
+
     return true;
   };
-  
-  mod.getSearch = function() {
+
+  mod.getSearch = function () {
     var query = dSearchTerm().val();
     var url = "documents/search?q=" + window.encodeURIComponent(query);
     var field = dSearchField().val();
@@ -70,7 +82,7 @@ shimi.sui = (function() {
     var lookup = fieldLookup();
 
     if (index) {
-      url = url + "&index=" + index; 
+      url = url + "&index=" + index;
     } else {
       if (field) {
         url = url + "&field=" + field;
@@ -82,31 +94,28 @@ shimi.sui = (function() {
 
     searchListing().hide();
 
-    $.get(url, function(searchResults) {
-            searchListing().html(searchResults);
-            $('.search-result-field-id')
-              .each(function(index, item) {
-                      var label = lookup[$(item).attr('data-field-field')];
-                      var target = $(item).children('a').first();
-                      target.html(label);
-                      target.attr('data-search-label', label);
-                    });
-            $('.search-results th')
-              .each(function(index, item) {
-                      var itemText = $.trim($(item).children('a').html());
-                      var re = new RegExp("(" + query + ")", "g");
-                      var newText = 
-                        itemText.replace(re, 
-                                         "<span class='highlight'>$1</span>");
-                      $(item).children('a').html(newText);
-                    });
-            searchListing().show();
-          });
-          
+    $.get(url, function (searchResults) {
+      searchListing().html(searchResults);
+      $('.search-result-field-id').each(function (index, item) {
+        var label = lookup[$(item).attr('data-field-field')];
+        var target = $(item).children('a').first();
+        target.html(label);
+        target.attr('data-search-label', label);
+      });
+      $('.search-results th').each(function (index, item) {
+        var itemText = $.trim($(item).children('a').html());
+        var re = new RegExp("(" + query + ")", "g");
+        var newText =
+        itemText.replace(re, "<span class='highlight'>$1</span>");
+        $(item).children('a').html(newText);
+      });
+      searchListing().show();
+    });
+
     return mod;
   };
 
-  mod.toggleExclusion = function() {
+  mod.toggleExclusion = function () {
     var exclude = excludedVal();
     var excludeLabel = $('#search-exclude-label');
 
@@ -117,11 +126,11 @@ shimi.sui = (function() {
     }
 
     localStorage.setItem("searchExclude", exclude);
-    
+
     return mod;
   };
 
-  mod.clearSearchVals = function(initial) {
+  mod.clearSearchVals = function (initial) {
     dSearchField().val(null);
     dSearchIndex().val(null);
     $('#document-search-exclude:checked').click();
@@ -135,11 +144,11 @@ shimi.sui = (function() {
       localStorage.setItem("searchIndex", null);
       localStorage.setItem("searchIndexLabel", null);
     }
-    
+
     return mod;
   };
 
-  mod.loadSearchVals = function() {
+  mod.loadSearchVals = function () {
     var index = lookup("searchIndex");
     var fieldids = lookup("searchFields");
 
@@ -158,11 +167,11 @@ shimi.sui = (function() {
 
       $('.search-optional').show();
     }
-    
+
     return mod;
   };
 
-  mod.removeSearchField =  function(target) {
+  mod.removeSearchField = function (target) {
     var value = target.attr('data-index');
     var searchField = dSearchField();
     var currentVal = searchField.val();
@@ -174,7 +183,7 @@ shimi.sui = (function() {
       mod.clearSearchVals();
     } else {
       var index = valDecoded.indexOf(value);
-      
+
       if (index >= 0) {
         valDecoded.splice(index, 1);
         newVal = JSON.stringify(valDecoded);
@@ -183,13 +192,13 @@ shimi.sui = (function() {
 
       target.remove();
     }
-    
+
     updateSearchVals(newVal, $('#search-field-label').html(), exclude);
-    
+
     return mod;
   };
 
-  mod.addSearchIndex = function() {
+  mod.addSearchIndex = function () {
     var indexVal = $('#index-index-input').val();
     var indexLabel = $('option[value=' + indexVal + ']').text();
 
@@ -203,13 +212,12 @@ shimi.sui = (function() {
       dSearchIndex().val(indexVal);
       updateSearchVals(null, indexLabel, null, indexVal);
     }
-    
+
     return mod;
   };
 
-  mod.addSearchField = function(target) {
-    var fieldid = $(target).closest('[data-field-field]')
-      .attr('data-field-field');
+  mod.addSearchField = function (target) {
+    var fieldid = $(target).closest('[data-field-field]').attr('data-field-field');
 
     if (utils.validID(fieldid)) {
       var fieldLabel = fieldLookup()[fieldid];
@@ -219,17 +227,15 @@ shimi.sui = (function() {
       var exclude = excludedVal();
       var newDecoded;
       var newVal = null;
-      var newAnchor = '<a href="#" data-index="' + fieldid + 
-        '" class="search-field-item" title="click to remove">' + 
-        fieldLabel + '</a>';
+      var newAnchor = '<a href="#" data-index="' + fieldid + '" class="search-field-item" title="click to remove">' + fieldLabel + '</a>';
 
-      var setSearchVals = function(value) {
+      var setSearchVals = function (value) {
         if (searchLabel.html()) {
           searchLabel.children().last().after(newAnchor);
         } else {
           searchLabel.html(newAnchor);
         }
-        
+
         newVal = JSON.stringify(value);
         searchField.val(newVal);
         updateSearchVals(newVal, searchLabel.html(), exclude);
@@ -242,15 +248,15 @@ shimi.sui = (function() {
           setSearchVals(newDecoded);
         }
       } else {
-        newDecoded = [fieldid];      
+        newDecoded = [fieldid];
         setSearchVals(newDecoded);
       }
 
       $('.search-optional').show();
     }
-    
+
     return mod;
   };
-  
+
   return mod;
 })();

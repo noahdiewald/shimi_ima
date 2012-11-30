@@ -1,4 +1,4 @@
-function(doc, req) {
+function (doc, req) {
   var newDoc = JSON.parse(req.body);
   var now = (new Date()).toUTCString();
   var message;
@@ -13,21 +13,21 @@ function(doc, req) {
       message = 'This application expects the document _id in the JSON body';
     }
   } else {
-      
+
     newDoc.updated_at_ = now;
     newDoc.updated_by_ = req.userCtx.name;
     newDoc.created_at_ = doc.created_at_;
-        
+
     if (doc.create_user_) {
       newDoc.created_by_ = doc.create_user_;
     } else {
       newDoc.created_by_ = doc.created_by_;
     }
-        
+
     message = 'Updated at ' + now.toString + ' by ' + req.userCtx.name;
-        
+
     newDoc.prev_ = doc._rev;
   }
-       
+
   return [newDoc, message];
 }

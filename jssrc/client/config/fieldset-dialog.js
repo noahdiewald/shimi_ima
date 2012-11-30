@@ -1,16 +1,16 @@
-shimi.fieldsetDialog = function(url, values) {
+shimi.fieldsetDialog = function (url, values) {
   var f = shimi.fieldsetElems.get(values);
-  
+
   var dialog = $("#fieldset-dialog").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function() {
+      "Save": function () {
         var obj = f.getFieldsetInputVals();
-        var complete = function(context) {
+        var complete = function (context) {
           url.fieldset = false;
           url.rev = false;
-          
+
           shimi.doctypeTab.initFieldsets(url);
           $(context).dialog("close");
         };
@@ -21,14 +21,14 @@ shimi.fieldsetDialog = function(url, values) {
           url.put(obj, complete, this);
         }
       },
-      "Cancel": function() {
+      "Cancel": function () {
         $(this).dialog("close");
       }
     },
-    close: function() {
+    close: function () {
       f.clear();
     }
   });
-  
+
   return dialog;
 };

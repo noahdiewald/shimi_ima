@@ -1,60 +1,63 @@
 $(function () {
   $('.notification').hide();
-  
-  $('#loading').hide()
-    .ajaxStart(function() {
-                 $(this).show();
-               })
-    .ajaxStop(function() {
-                $(this).hide();
-              });
+
+  $('#loading').hide().ajaxStart(function () {
+    $(this).show();
+  }).ajaxStop(function () {
+    $(this).hide();
+  });
 
   shimi.form.initDateFields();
 
   // Config
   if ($('#configuration').length > 0) {
-    shimi.initTabs(); 
+    shimi.initTabs();
     $('.simple-tabs').tabs();
   }
 
   // Documents
   if ($('#all-document-container').length > 0) {
     var getIndexTimer;
-    
+
     shimi.iui.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
     shimi.eui.init();
 
     $('#index-filter-form input').keyup(
-      function() {
-        clearTimeout(getIndexTimer);
-        getIndexTimer = setTimeout(function () {shimi.iui.get();}, 500);
-      });
-  
-    $('#index-filter-form select').change(
-      function() {
+
+    function () {
+      clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function () {
         shimi.iui.get();
-      });
-  
+      }, 500);
+    });
+
+    $('#index-filter-form select').change(
+
+    function () {
+      shimi.iui.get();
+    });
+
     shimi.loadHash($(location)[0].hash.split("#")[1]);
   }
 
   // File Manager
-  
   if ($('#file-upload').length > 0) {
     shimi.fm.refreshListings();
-    
-    $('#file-upload-target').load(function() {
+
+    $('#file-upload-target').load(function () {
       var encoded = $('#file-upload-target').contents().find('body pre').html();
       var obj = function () {
         if (encoded && encoded.length > 0) {
           return JSON.parse(encoded);
         } else {
-          return {message: false};
+          return {
+            message: false
+          };
         }
       };
-      
+
       if (obj() && obj().message && obj().status === "error") {
         shimi.flash("Error", obj().message).error();
         shimi.fm().refreshListings();
@@ -64,15 +67,13 @@ $(function () {
       }
     });
   }
-  
+
   // Index Tool
-  
   if ($('#all-index-container').length > 0) {
     shimi.iiui.init();
   }
-    
+
   // Project
-  
   if ($('#projects-container').length > 0) {
     shimi.pui.init();
   }

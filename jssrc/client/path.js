@@ -87,89 +87,92 @@
  * things will be done with error responces so they are left alone.
 */
 
-shimi.path = function(source, category, section) {
+shimi.path = function (source, category, section) {
   var mod = {};
   var prefix;
-  
+
   if (category) {
     prefix = category + "-";
   } else {
     prefix = "";
   }
-  
+
   if (section) {
     mod.string = section + "/";
   } else {
     mod.string = "";
   }
-  
+
   mod.category = category;
   mod.origin = source;
   mod.type = prefix + "path";
   mod.valid_components = ["doctype", "fieldset", "field"];
   var s = shimi.store(mod.origin);
-  
+
   mod.valid_components.forEach(
-    function(item) {
-      mod[item] = (function() {
-                      var value = s.get(prefix + item);
-                      return value;
-                    })();
-    });
-  
+
+  function (item) {
+    mod[item] = (function () {
+      var value = s.get(prefix + item);
+      return value;
+    })();
+  });
+
   mod.rev = s.get(prefix + 'rev');
 
   mod.doctype = s.get(prefix + 'doctype');
-  
-  mod.send = function(object, method, callback, context) {
+
+  mod.send = function (object, method, callback, context) {
     shimi.form.send(mod.toString(), object, method, callback, context);
     return mod;
   };
-  
-  mod.put = function(object, callback, context) {
+
+  mod.put = function (object, callback, context) {
     mod.send(object, 'PUT', callback, context);
     return mod;
   };
-    
-  mod.post = function(object, callback, context) {
+
+  mod.post = function (object, callback, context) {
     mod.send(object, 'POST', callback, context);
     return mod;
   };
-  
-  mod.del = function(callback, context) {
+
+  mod.del = function (callback, context) {
     mod.send({}, 'DELETE', callback, context);
     return mod;
   };
-    
-  mod.toString = function() {
+
+  mod.toString = function () {
     var rev;
-      
-    var pathString = 
-      mod.string.concat(
-        mod.valid_components.map(
-          function(item) {
-            var plural = item + "s";
-            var value = mod[item];
-            var retval = null;
-            
-            if (value) {
-              retval = plural + "/" + value;
-            } else if (item === mod.category) {
-              retval = plural;
-            }
-            
-            return retval;
-          }).filter(
-            function(item) {
-              return (typeof item === "string" && !item.isBlank());
-            }).join("/"));
-      
+
+    var pathString =
+    mod.string.concat(
+    mod.valid_components.map(
+
+    function (item) {
+      var plural = item + "s";
+      var value = mod[item];
+      var retval = null;
+
+      if (value) {
+        retval = plural + "/" + value;
+      } else if (item === mod.category) {
+        retval = plural;
+      }
+
+      return retval;
+    }).filter(
+
+    function (item) {
+      return (typeof item === "string" && !item.isBlank());
+    }).join("/"));
+
     if (mod.rev) {
       pathString = pathString.concat("?rev=" + mod.rev);
     }
-    
+
     return pathString;
   };
-  
-  return mod; 
+
+  return mod;
 };
