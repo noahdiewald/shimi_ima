@@ -1,0 +1,13 @@
+This is the root directory to a couchapp[1].
+
+This couch app handles all the code that runs on the database itself. It
+can be used as a model for creating other applications that use the
+language data you have collected in Ʃimi Ima.
+
+The management of this code is performed with a couchapp tool, like
+erica[2].
+
+Note that this code is not run in the web browser but on the back end.
+
+1. http://couchapp.org
+2. https://github.com/benoitc/erica
