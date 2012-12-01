@@ -1,26 +1,31 @@
 /*global module:false*/
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-rigger');
+  grunt.loadNpmTasks('grunt-beautify');
 
   // Project configuration.
   grunt.initConfig({
     meta: {
       version: '0.1.0',
-      banner: '/*! Dictionary Maker - v<%= meta.version %> - ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-        '* http://ling.wisc.edu/\n' +
-        '* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
-        'UW Madison Board of Regents; Licensed GNU GPLv3 */'
+      banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     rig: {
       dist: {
-        src: 'priv/www/js/application.js',
+        src: 'jssrc/client/application.js',
         dest: 'priv/www/application.js'
       }
     },
     lint: {
-      files: ['grunt.js', 'priv/www/js/**/*.js']
+      files: ['grunt.js', 'jssrc/**/*.js']
+    },
+    beautify: {
+      files: '<config:lint.files>'
+    },
+    beautifier: {
+      options: {
+        indentSize: 2
+      }
     },
     min: {
       dist: {
@@ -49,13 +54,17 @@ module.exports = function(grunt) {
       globals: {
         jQuery: true,
         $: true,
-        shimi: true
+        shimi: true,
+        emit: true,
+        send: true,
+        getRow: true,
+        start: true
       }
     },
     uglify: {}
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint rig min');
+  grunt.registerTask('default', 'beautify lint rig min');
 
 };

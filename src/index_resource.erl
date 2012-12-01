@@ -207,7 +207,7 @@ html_view(R, S) ->
     Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
     IndexId = wrq:path_info(id, R),
     Limit = wrq:get_qs_value("limit", R),
-    case q:altered_startkey(IndexId, R, S) of
+    case q:user_index(IndexId, R, S) of
         {ok, Json} ->
             Index = utils:add_encoded_keys(Json),
             Vals = [{<<"limit">>, Limit}|Index],

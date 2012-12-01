@@ -223,7 +223,7 @@ get_view_url(View, Query, R, S) ->
             {R, S1} = get_database(R, S),
             get_view_url(View, Query, R, S1);
         Db ->
-            V = "_design/file_manager/_view",
+            V = "_design/shimi_ima/_view",
             string:join([Db, V, View], "/") ++ "?" ++ view:to_string(Query)
     end.
   

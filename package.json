@@ -1,6 +1,7 @@
 {
     "name": "dictionary_maker",
     "devDependencies": {
-        "grunt-rigger": "0.3.x"
+        "grunt-rigger": "0.3.x",
+        "grunt-beautify": "0.1.1"
     }
 }
