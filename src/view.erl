@@ -79,12 +79,7 @@ get_vq(R) ->
 -spec get_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
 get_sortkey_vq(Id, R, S) ->
     Vq = from_reqdata(R),
-    case decide_sortkey(Vq) of
-        true ->
-            set_keys_sortkeys(Id, Vq, R, S);
-        false ->
-            Vq
-    end.
+    set_keys_sortkeys(Id, Vq, R, S).
 
 %% @doc This is like normal normalize_vq/1 except that it uses
 %% get_sortkey_vq/3
@@ -112,8 +107,9 @@ decide_sortkey(_) ->
 -spec set_keys_sortkeys(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_keys_sortkeys(Id, Vq, R, S) ->
     Json = couch:get_json(Id, R, S),
-    case jsn:get_value(<<"category">>, Json) of
-        <<"index">> ->
+    Required = decide_sortkey(Vq),
+    case {jsn:get_value(<<"category">>, Json), Required} of
+        {<<"index">>, true} ->
             case {jsn:get_value(<<"fields">>, Json),
                   jsn:get_value(<<"replace_pattern">>, Json)} of
                 % TODO: This is here until feature is fully implemented.
@@ -123,8 +119,13 @@ set_keys_sortkeys(Id, Vq, R, S) ->
                     set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
                 _ -> Vq
             end;
-        <<"doctype">> ->
-            set_sortkey_by_doctype(Id, Vq, R, S)
+        {<<"index">>, false} ->
+            Vq;
+        {<<"doctype">>, true} ->
+            set_sortkey_by_doctype(Id, Vq, R, S);
+        {<<"doctype">>, false} ->
+            Val = Vq#vq.startkey,
+            Vq#vq{startkey = [list_to_binary(Id), Val]}
     end.
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
@@ -132,10 +133,11 @@ set_sortkey_by_doctype(Id, Vq, R, S) ->
     {ok, Charseqs} = q:head_charseqs(Id, R, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
-            set_sortkey_helper(<<>>, Vq, R, S);
+            Val = Vq#vq.startkey,
+            Vq#vq{startkey = [list_to_binary(Id), [[<<>>, Val]]]};
         [First|_] ->
             Charseq = jsn:get_value(<<"doc">>, First),
-            set_sortkey_helper(Charseq, Vq)
+            set_sortkey_helper(list_to_binary(Id), Charseq, Vq)
     end.
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
@@ -155,11 +157,11 @@ set_sortkey_helper(Charseq, Vq, R, S) ->
     Sortkey = charseq:get_sortkey(Input, R, S),
     Vq#vq{startkey = [[Sortkey, Val]]}.
 
--spec set_sortkey_helper(binary(), view_query()) -> view_query().
-set_sortkey_helper(Charseq, Vq) ->
+-spec set_sortkey_helper(binary(), binary(), view_query()) -> view_query().
+set_sortkey_helper(Doctype, Charseq, Vq) ->
     Val = Vq#vq.startkey,
     Sortkey = charseq:get_sortkey(charseq:from_json(Charseq), Val),
-    Vq#vq{startkey = [[Sortkey, Val]]}.
+    Vq#vq{startkey = [Doctype, [[Sortkey, Val]]]}.
 
 -spec stale_val(string() | undefined) -> 'ok' | 'update_after' | 'undefined'.
 stale_val("ok") -> ok;

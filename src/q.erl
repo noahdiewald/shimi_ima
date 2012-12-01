@@ -29,18 +29,23 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
-altered_startkey(Id, R, S) ->
-    couch:get_view_json(sortkeys, Id, "index", R, S).
+altered_startkey(Doctype, R, S) ->
+    F = fun (X) ->
+        [_, Y] = jsn:get_value(<<"key">>, X),
+        jsn:set_value(<<"key">>, Y, X)
+    end,
+    {ok, Json} = couch:get_view_json(sortkeys, "shimi_ima", "all_documents", Doctype, R, S),
+    {ok, jsn:set_value(<<"rows">>, lists:map(F, jsn:get_value(<<"rows">>, Json)), Json)}.
 
 charseqs(R, S) ->
-    couch:get_view_json("charseqs", "all", R, S).
+    couch:get_view_json("shimi_ima", "all_charseqs", R, S).
 
 doctypes(R, S) ->
-    couch:get_view_json("doctypes", "all", R, S).
+    couch:get_view_json("shimi_ima", "all_doctypes", R, S).
 
 doctypes(true, R, S) ->
     QS = view:to_string(#vq{include_docs = true}),
-    couch:get_view_json("doctypes", "all", QS, R, S).
+    couch:get_view_json("shimi_ima", "all_doctypes", QS, R, S).
 
 fieldset(Doctype, R, S) ->
     fieldset(Doctype, true, R, S).
@@ -52,7 +57,7 @@ fieldset(DT, Include, R, S) when is_binary(DT) ->
              endkey = [DT, []],
              include_docs = Include},
     QS = view:to_string(VQ),
-    couch:get_view_json("fieldsets", "all", QS, R, S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
 
 field(Doctype, Fieldset, R, S) ->
     field(Doctype, Fieldset, true, R, S).
@@ -69,12 +74,12 @@ field(DT, FS, Include, R, S)
              descending = true,
              include_docs = Include},
     QS = view:to_string(VQ),
-    couch:get_view_json("fieldsets", "all", QS, R, S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
 
 files(R, S) ->
     VQ = view:from_reqdata(R),
     QS = view:to_string(VQ),
-    couch:get_view_json("file_manager", "by_path", QS, R, S).
+    couch:get_view_json("shimi_ima", "by_path", QS, R, S).
 
 head_charseqs(Doctype, R, S) ->
     DT = list_to_binary(Doctype),
@@ -82,17 +87,28 @@ head_charseqs(Doctype, R, S) ->
              endkey = [<<"_head-charseq">>, DT, []],
              include_docs = true},
     QS = view:to_string(VQ),
-    couch:get_view_json("fieldsets", "all", QS, R, S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
 
 index(Id, R, S) ->
     couch:get_view_json(Id, "index", R, S).
 
 indexes_options(R, S) ->
-    couch:get_view_json("indexes", "options", R, S).
+    couch:get_view_json("shimi_ima", "options", R, S).
 
 search(Doctype, Field, R, S) ->
     VQ = #vq{startkey = [Doctype, Field, []],
              endkey = [Doctype, Field, <<"">>],
              descending = true},
     QS = view:to_string(VQ),
-    couch:get_view_json("fields", "search", QS, R, S).
+    couch:get_view_json("shimi_ima", "search", QS, R, S).
+
+%% @doc Take an id for a saved index and return a JSON term. This term
+%% will contain either the results of querying a view or will contain
+%% only [{<<"rows">>, []}] if no conditions have been defined for the
+%% query.
+-spec user_index(string(), utils:reqdata(), any()) -> jsn:json_term().
+user_index(IndexId, R, S) ->
+    case couch:get_view_json(sortkeys, IndexId, "index", R, S) of
+        {ok, Json} -> {ok, Json};
+        _ -> {ok, [{<<"rows">>, []}]}
+    end.

@@ -29,7 +29,6 @@
          binary_to_hexlist/1,
          clear_all/2,
          delete_all_design_docs/1,
-         get_index/3,
          is_devel/0,
          list_dir/1,
          ndb/0,
@@ -186,18 +185,6 @@ read_file_info(File) ->
 y(F) ->
     G = fun (G2) -> F(fun (X) -> (G2(G2))(X) end) end,
     G(G).
-
-%% @doc Take an id for a saved index and return a JSON term. This term
-%% will contain either the results of querying a view or will contain
-%% only [{<<"rows">>, []}] if no conditions have been defined for the
-%% query.
--spec get_index(IndexId :: string(), R :: reqdata(), S :: any()) -> jsn:json_term().
-get_index(IndexId, R, S) ->
-    case q:altered_startkey(IndexId, R, S) of
-        {ok, Json} -> {ok, Json};
-        _ -> {ok, [{<<"rows">>, []}]}
-    end.
-
 
 %% @doc This is a helper for developers that can be used to clear
 %% previously added records from the database. It doesn't pay

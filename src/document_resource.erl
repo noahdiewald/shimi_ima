@@ -202,7 +202,7 @@ html_index(R, S) ->
                      undefined -> 
                          q:altered_startkey(Doctype, R, S);
                      IndexId -> 
-                         utils:get_index(IndexId, R, S) 
+                         q:user_index(IndexId, R, S) 
                  end,
   
     Index = utils:add_encoded_keys(Json),

@@ -37,9 +37,11 @@
          get_json/4,
          get_view_json/4,
          get_view_json/5,
+         get_view_json/6,
          get_views/1,
          get_uuid/2,
          new_db/3,
+         replicate/2,
          should_wait/2,
          update/4,
          update/5,
@@ -53,6 +55,18 @@
 
 user_list() -> [].
 
+replicate(Source, Target) ->
+    Headers = [{"Content-Type", "application/json"}],
+    Url = utils:adb() ++ "_replicate",
+    Json = [{<<"source">>, list_to_binary(Source)},
+            {<<"target">>, list_to_binary(Target)}],
+    case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
+        {ok, [$2|_], _, _} ->
+            {ok, replicated};
+        Otherwise ->
+            Otherwise
+    end.
+    
 %% @doc Make a new database
 new_db(DB, _R, _S) ->
     {ok, "201", _, _} = ibrowse:send_req(DB, [], put),
@@ -171,6 +185,10 @@ get_view_json(sortkeys, Id, Name, R, S) ->
     Qs = view:normalize_sortkey_vq(Id, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S);
 get_view_json(Id, Name, Qs, R, S) ->
+    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+
+get_view_json(sortkeys, Id, Name, Doctype, R, S) ->
+    Qs = view:normalize_sortkey_vq(Doctype, R, S),
     get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
 
 %% @doc Given a row from a query of all db design documents, find all

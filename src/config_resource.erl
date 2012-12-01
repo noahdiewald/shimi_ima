@@ -71,7 +71,8 @@ content_types_accepted(R, S) ->
     {[{"application/json", from_json}], R, S}.
 
 process_post(R, S) ->
-    spawn_link(project, upgrade, [R, S]),
+    DatabaseUrl = utils:adb() ++ wrq:path_info(project, R),
+    spawn_link(project, upgrade, [DatabaseUrl]),
     {{halt, 204}, R, S}.
 
 to_html(R, S) ->
