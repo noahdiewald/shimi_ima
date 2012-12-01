@@ -1,4 +1,4 @@
-function (doc) {
+function map(doc) {
   if (doc._attachments) {
     if (typeof Object.keys !== 'function') {
       Object.keys = function (o) {

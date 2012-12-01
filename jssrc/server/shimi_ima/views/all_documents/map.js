@@ -1,4 +1,4 @@
-function (doc) {
+function map(doc) {
   var isReversal = function (elem) {
     return elem.reversal === true;
   };

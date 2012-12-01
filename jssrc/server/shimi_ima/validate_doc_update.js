@@ -1,4 +1,4 @@
-function (newDoc, saveDoc, userCtx) {
+function validate(newDoc, saveDoc, userCtx) {
   // A predicate function to detect blank strings.
   // Warning: this is a bad implementation.
   var isBlank = function (value) {

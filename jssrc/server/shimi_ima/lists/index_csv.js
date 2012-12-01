@@ -1,4 +1,4 @@
-function (head, req) {
+function list(head, req) {
   start({
     'headers': {
       'Content-Type': 'text/csv; charset=utf-8'

@@ -1,4 +1,4 @@
-function (doc, req) {
+function update(doc, req) {
   var newDoc = JSON.parse(req.body);
   var now = (new Date()).toUTCString();
   var message;
