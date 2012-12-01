@@ -1,10 +1,10 @@
 function (doc) {
   var isReversal = function (elem) {
-    return elem.reversal === true
+    return elem.reversal === true;
   };
 
   var isHead = function (elem) {
-    return elem.head === true
+    return elem.head === true;
   };
 
   var gatherElems = function (acc, obj, filterFun, reversal) {
@@ -33,7 +33,7 @@ function (doc) {
     });
 
     return acc;
-  }
+  };
 
   if (doc.doctype && !doc.category && doc.fieldsets && !doc.deleted_) {
     var heads = gather([], isHead);
@@ -42,8 +42,8 @@ function (doc) {
     if (heads.length === 0) {
       heads = [
         ['', doc._id]
-      ]
-    };
+      ];
+    }
 
     emit([doc.doctype, heads], reversals);
   }
