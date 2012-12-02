@@ -13,8 +13,8 @@ module.exports = function (grunt) {
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     rig: {
-      'priv/www/application.js': 'jssrc/client/application.js',
-      'jstest/server/validation.js': 'jstest/couch_validation.js'
+      'priv/www/application.js': 'priv/src/client/application.js',
+      'priv/test/server/validation.js': 'priv/test/couch_validation.js'
     },
     lint: {
       files: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
