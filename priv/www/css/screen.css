@@ -1,7 +1,7 @@
 body {
   font-family: sans-serif;
   font-size: 9pt;
-  background: white;
+  background: #eeeeee;
   text-align: center;
   padding: 0;
   margin: 0;
@@ -19,9 +19,6 @@ h1 {
   font-size: 12pt;
   margin: 0;
 }
-button {
-  font-family: sans-serif;
-}
 section {
   display: block !important;
 }
@@ -30,7 +27,7 @@ header {
   padding-left: 0.5em;
   text-align: left;
   margin: 0;
-  background: white;
+  background: #eeeeee;
 }
 nav {
   display: block !important;
@@ -42,14 +39,14 @@ nav ul {
 #main-content {
   text-align: left;
   margin: auto;
-  background: #eeeeee;
+  background: #ffffff;
 }
 #main-content #main-tabs {
   font-size: 8pt;
 }
 table {
   width: 100%;
-  background: white;
+  background: #eeeeee;
 }
 .ui-dialog-content {
   text-align: left;
@@ -59,7 +56,7 @@ table {
   width: 100%;
 }
 .ui-widget-content {
-  background: #eeeeee;
+  background: #ffffff;
   border-color: #cccccc;
   border-style: solid;
   border-width: thin;
@@ -123,6 +120,17 @@ label span.ui-icon-help {
   top: 0;
   left: 0;
 }
+.ui-tab {
+  position: static;
+  margin: 1px;
+  padding: 0;
+  overflow: hide;
+  border-radius: 0;
+  line-height: 0.5;
+}
+.ui-tab a {
+  cursor: pointer;
+}
 .ui-tabs {
   border: none;
 }
@@ -139,8 +147,12 @@ label span.ui-icon-help {
   padding: 0;
   overflow: hide;
   border-radius: 0;
-  background: white;
   line-height: 0.5;
+  background: #eeeeee;
+}
+.ui-tabs .ui-tabs-nav li a,
+.ui-tabs .ui-tabs-nav li:hover a {
+  cursor: pointer;
 }
 .ui-tabs .ui-tabs-nav li.ui-state-active {
   position: static;
@@ -148,33 +160,19 @@ label span.ui-icon-help {
   padding: 0;
   overflow: hide;
   border-radius: 0;
-  background: white;
-  background: #f07818;
   line-height: 0.5;
+  background: #f07818;
+}
+.ui-tabs .ui-tabs-nav li.ui-state-active a {
+  cursor: pointer;
 }
 .ui-tabs li a {
   font-weight: normal;
 }
-.ui-buttonset {
-  margin: 0px;
-}
-.ui-button-text-icon-primary .ui-button-text,
-.ui-button-text-icons .ui-button-text {
-  padding: 0.1em 1em 0.1em 2.1em;
-}
-.ui-button-text-icon-secondary .ui-button-text {
-  padding: 0.1em 2.1em 0.1em 1em;
-}
-.ui-corner-all,
-.ui-corner-right,
-.ui-corner-left,
-ui-corner-top {
-  border-radius: 0;
-}
 select,
 input,
 textarea {
-  background: white;
+  background: #eeeeee;
   border-style: solid;
   border-width: thin;
   border-color: #cccccc;
@@ -199,9 +197,6 @@ textarea {
   float: left;
   margin-right: 0.3em;
 }
-.padded {
-  padding: 0.5em;
-}
 ul.head-elements {
   padding: 0;
 }
@@ -222,7 +217,7 @@ ul.head-elements li:first-child:before {
 }
 #all-document-container,
 #all-index-container {
-  background: #eeeeee;
+  background: #ffffff;
   display: table-row;
 }
 #document-index {
@@ -251,7 +246,8 @@ ul.head-elements li:first-child:before {
   padding-left: 0;
 }
 #document-view li b {
-  color: black;
+  color: #000000;
+  font-weight: normal;
 }
 #document-view li.collapsed ul,
 #document-view li.collapsed ol {
@@ -282,16 +278,7 @@ nav#main-navigation {
 nav#main-navigation a {
   text-decoration: none;
   padding-right: 2em;
-  color: white;
-}
-nav.pager {
-  width: 100%;
-}
-nav.pager a,
-nav.pager.ui-buttonset a {
-  width: 50%;
-  border-left: none;
-  border-right: none;
+  color: #eeeeee;
 }
 #panel-toggle {
   margin: 0;
@@ -316,7 +303,7 @@ nav ul li,
   border-width: thin;
   border-style: solid;
   border-color: #cccccc;
-  background: white;
+  background: #eeeeee;
   opacity: 0.9;
   position: fixed;
   width: 100px;
@@ -333,6 +320,7 @@ nav ul li,
 h5 a {
   color: #ba5d12;
   text-decoration: none;
+  font-weight: normal;
 }
 h5 {
   font-size: 10pt;
@@ -356,7 +344,7 @@ select[multiple=true] {
   width: 25%;
 }
 #index-index-listing li {
-  background: white;
+  background: #eeeeee;
 }
 #index-index-listing a {
   text-decoration: none;
@@ -381,7 +369,7 @@ select[multiple=true] {
   height: 3ex;
   margin: auto;
   border-width: 0 thick thick thick;
-  border-color: #eeeeee;
+  border-color: #ffffff;
   border-style: solid;
   border-bottom-right-radius: 3em;
   border-bottom-left-radius: 3em;
@@ -392,7 +380,7 @@ select[multiple=true] {
   height: 3ex;
   margin: auto;
   border-width: thick thick 0 thick;
-  border-color: #eeeeee;
+  border-color: #ffffff;
   border-style: solid;
   border-top-right-radius: 3em;
   border-top-left-radius: 3em;
@@ -409,7 +397,7 @@ select[multiple=true] {
 .help-text,
 .close {
   font-size: 85%;
-  background: white;
+  background: #eeeeee;
   padding-left: 0.5em;
   padding-right: 0.5em;
   border-style: dotted;
@@ -426,33 +414,42 @@ th {
   border-style: solid;
   border-color: #cccccc;
   border-width: thin;
-  background: #eeeeee;
-  color: black;
+  background: #ffffff;
+  color: #000000;
   vertical-align: top;
 }
 th a {
   text-decoration: none;
   font-weight: normal;
-  color: black;
+  color: #000000;
 }
 #file-upload-target {
   display: none;
 }
+.mini-header {
+  background: #cccccc;
+  clear: both;
+  padding: 0.5ex 1em 0.25ex 1em;
+}
 .total-rows-info {
   background: #cccccc;
+  clear: both;
+  padding: 0.5ex 1em 0.25ex 1em;
 }
 .oldrev {
   opacity: 0.6;
 }
 #deleted-message {
-  background: red;
+  background: #ff0000;
 }
 nav#history {
   background: #cccccc;
+  clear: both;
+  padding: 0.5ex 1em 0.25ex 1em;
 }
 nav#history a {
   text-decoration: none;
-  color: black;
+  color: #000000;
   font-weight: bold;
 }
 td {
@@ -471,7 +468,7 @@ td {
 }
 .ui-widget-header {
   border: none;
-  color: white;
+  color: #eeeeee;
   background: #f07818;
 }
 li.ui-corner-all.ui-state-default.ui-tabs-selected.ui-state-active,
@@ -484,7 +481,7 @@ li.ui-corner-all.ui-state-default {
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default {
   border: none;
-  background-color: white;
+  background-color: #eeeeee;
 }
 .fields.ui-widget.ui-widget-content {
   border-color: #cccccc;
@@ -493,11 +490,11 @@ li.ui-corner-all.ui-state-default {
   background: #555555;
 }
 tr.ui-widget-header th {
-  color: black;
+  color: #000000;
 }
 .search-result-context a {
   text-decoration: none;
-  color: black;
+  color: #000000;
 }
 #index-index-input-label {
   text-decoration: underline;
@@ -507,17 +504,17 @@ tr.ui-widget-header th {
   overflow-y: scroll;
 }
 .highlight {
-  background: yellow;
+  background: #ffff00;
 }
 .link-button {
+  background: #f0a265;
   display: inline-block;
-  padding: 2px;
-  margin: 2px;
-  background: white;
+  padding: 0.25ex 2em 0.25ex 2em;
+  margin: 0;
   cursor: pointer;
 }
 .remove-button {
-  background: #f0a265;
+  margin-top: 2px;
   float: right;
 }
 .fields {
@@ -530,4 +527,14 @@ tr.ui-widget-header th {
 }
 .hidden {
   display: none;
+}
+nav.pager a#next-index-page {
+  text-align: right;
+  float: right;
+}
+fieldset {
+  margin: 0;
+}
+#edit-tabs {
+  padding: 0 0 3px 0;
 }
