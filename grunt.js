@@ -4,6 +4,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-beautify');
   grunt.loadNpmTasks('grunt-simple-mocha');
+  grunt.loadNpmTasks('grunt-contrib-less');
 
   // Project configuration.
   grunt.initConfig({
@@ -16,18 +17,18 @@ module.exports = function (grunt) {
       'jstest/server/validation.js': 'jstest/couch_validation.js'
     },
     lint: {
-      files: ['grunt.js', 'jssrc/**/*.js', 'jstest/fixtures/*.js']
+      files: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
     },
     simplemocha: {
       all: {
-        src: 'jstest/server/*.js',
+        src: 'priv/test/server/*.js',
         options: {
           globals: ['should']
         }
       }
     },
     beautify: {
-      files: ['jssrc/**/*.js', 'jstest/fixtures/*.js']
+      files: ['priv/src/**/*.js', 'priv/test/fixtures/*.js']
     },
     beautifier: {
       options: {
@@ -38,6 +39,13 @@ module.exports = function (grunt) {
       dist: {
         src: ['<banner:meta.banner>', 'priv/www/application.js'],
         dest: 'priv/www/application.min.js'
+      }
+    },
+    less: {
+      all: {
+        files: {
+          "priv/www/css/screen.css": "priv/less/screen.less"
+        }
       }
     },
     watch: {
@@ -77,6 +85,6 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'beautify lint rig simplemocha min');
+  grunt.registerTask('default', 'beautify lint rig simplemocha min less');
 
 };

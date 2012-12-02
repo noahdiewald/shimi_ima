@@ -3,10 +3,12 @@
   href="#"
   title="Previous Page"
   id="previous-index-page"
+  class="pager-button link-button"
 >Previous</a> 
 <a
   href="#"
   title="Next Page"
+  class="pager-button link-button"
   id="next-index-page"
   {% if rows|length < limit %}
   data-last-page="true"

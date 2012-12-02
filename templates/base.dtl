@@ -3,7 +3,7 @@
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="content-type">
     <title>
-      {% block page_title %}{{ title }}{% endblock %}
+      {% block page_title %}Ʃimi Ima: {{ title }}{% endblock %}
     </title>
     
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
@@ -34,7 +34,7 @@
       {% block navigation %}{% endblock %}
       </ul>
     </nav>
-    {% block header %}<h1>{{ title }}</h1>{% endblock %}
+    {% block header %}<h1>Ʃimi Ima: {{ title }}</h1>{% endblock %}
     {% include 'notifications.dtl' %}
     </header>
     
