@@ -35,7 +35,7 @@ values(_Index, [], _R, _S) ->
     [{<<"rows">>, false}];
 values(Index, Query, R, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = q:index(Index, R, S),
+    {ok, Json} = q:user_index(Index, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Filtered = i_filter(Rows, RE, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, 

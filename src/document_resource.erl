@@ -200,7 +200,7 @@ html_index(R, S) ->
 
     {ok, Json} = case wrq:get_qs_value("index", R) of
                      undefined -> 
-                         q:altered_startkey(Doctype, R, S);
+                         q:document_index(Doctype, R, S);
                      IndexId -> 
                          q:user_index(IndexId, R, S) 
                  end,

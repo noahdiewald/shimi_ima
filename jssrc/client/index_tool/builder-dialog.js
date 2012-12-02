@@ -17,7 +17,6 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
-    shimi.ieui.initCondButtons(tableBody);
 
     return false;
   };

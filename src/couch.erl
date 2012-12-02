@@ -281,7 +281,7 @@ create(direct, Json, DB, _R, S) ->
     create(DB, Headers, Json);
 
 create(doc, Json, DB, _R, S) ->
-    Url = DB ++ "/_design/doctypes/_update/stamp",
+    Url = DB ++ "/_design/shimi_ima/_update/stamp",
     Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
     create(Url, Headers, Json);
 
@@ -308,7 +308,7 @@ bulk_update(Docs, R, S) ->
   
 update(doc, Id, Json, R, S) ->
     Project =  wrq:path_info(project, R),
-    Url = utils:ndb() ++ Project ++ "/_design/doctypes/_update/stamp/" ++ Id,
+    Url = utils:ndb() ++ Project ++ "/_design/shimi_ima/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
                proplists:get_value(headers, S)],
     update(Url, Headers, Json);

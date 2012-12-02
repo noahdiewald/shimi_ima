@@ -29,7 +29,7 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
-altered_startkey(Doctype, R, S) ->
+document_index(Doctype, R, S) ->
     F = fun (X) ->
         [_, Y] = jsn:get_value(<<"key">>, X),
         jsn:set_value(<<"key">>, Y, X)
@@ -89,9 +89,6 @@ head_charseqs(Doctype, R, S) ->
     QS = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
 
-index(Id, R, S) ->
-    couch:get_view_json(Id, "index", R, S).
-
 indexes_options(R, S) ->
     couch:get_view_json("shimi_ima", "options", R, S).
 
@@ -112,3 +109,6 @@ user_index(IndexId, R, S) ->
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.
+
+index(Id, R, S) ->
+    couch:get_view_json(Id, "index", R, S).
