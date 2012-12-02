@@ -3,6 +3,7 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-beautify');
+  grunt.loadNpmTasks('grunt-simple-mocha');
 
   // Project configuration.
   grunt.initConfig({
@@ -11,16 +12,22 @@ module.exports = function (grunt) {
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     rig: {
-      dist: {
-        src: 'jssrc/client/application.js',
-        dest: 'priv/www/application.js'
-      }
+      'priv/www/application.js': 'jssrc/client/application.js',
+      'jstest/server/validation.js': 'jstest/couch_validation.js'
     },
     lint: {
-      files: ['grunt.js', 'jssrc/**/*.js']
+      files: ['grunt.js', 'jssrc/**/*.js', 'jstest/fixtures/*.js']
+    },
+    simplemocha: {
+      all: {
+        src: 'jstest/server/*.js',
+        options: {
+          globals: ['should']
+        }
+      }
     },
     beautify: {
-      files: '<config:lint.files>'
+      files: ['jssrc/**/*.js', 'jstest/fixtures/*.js']
     },
     beautifier: {
       options: {
@@ -29,7 +36,7 @@ module.exports = function (grunt) {
     },
     min: {
       dist: {
-        src: ['<banner:meta.banner>', '<config:rig.dist.dest>'],
+        src: ['<banner:meta.banner>', 'priv/www/application.js'],
         dest: 'priv/www/application.min.js'
       }
     },
@@ -58,13 +65,18 @@ module.exports = function (grunt) {
         emit: true,
         send: true,
         getRow: true,
-        start: true
+        start: true,
+        describe: true,
+        it: true,
+        require: true,
+        exports: true,
+        testEnv: true
       }
     },
     uglify: {}
   });
 
   // Default task.
-  grunt.registerTask('default', 'beautify lint rig min');
+  grunt.registerTask('default', 'beautify lint rig simplemocha min');
 
 };

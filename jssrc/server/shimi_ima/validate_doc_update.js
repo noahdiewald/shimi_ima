@@ -5,18 +5,32 @@ function validate(newDoc, saveDoc, userCtx) {
     return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
-  var charseq = function (newDoc, saveDoc, userCtx) {
-    var forbid = function (name, msg) {
-      var errorMsg = JSON.stringify({
-        fieldname: name,
-        message: msg
-      });
+  var forbid = function (name, msg) {
+    var docid;
 
-      throw ({
+    if (newDoc._id) {
+      docid = newDoc._id;
+    } else {
+      docid = 'No ID';
+    }
+
+    var errorMsg = JSON.stringify({
+      fieldname: name,
+      message: msg,
+      docid: docid
+    });
+
+    // This is used when running unit tests
+    if (testEnv) {
+      throw new Error(errorMsg);
+    } else {
+      throw new Error({
         forbidden: errorMsg
       });
-    };
+    }
+  };
 
+  var charseq = function (newDoc, saveDoc, userCtx) {
     if (newDoc.category === 'charseq') {
       if (isBlank(newDoc.name)) {
         forbid('Name', 'must be filled in.');
@@ -36,52 +50,6 @@ function validate(newDoc, saveDoc, userCtx) {
   };
 
   var documents = function (newDoc, saveDoc, userCtx) {
-    // A predicate function to detect blank strings
-    var isBlank = function (value) {
-      return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
-    };
-
-    // For testing existence of properties of saveDoc variable
-    var testsd = function (prop) {
-      if (saveDoc) {
-        if (saveDoc[prop]) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    };
-
-    // Wrapper to send back error message to user as JSON.
-    var forbid = function (name, msg) {
-      var docid;
-
-      if (newDoc._id) {
-        docid = newDoc._id;
-      } else if (testsd('_id')) {
-        docid = saveDoc._id;
-      } else {
-        docid = 'No ID';
-      }
-
-      var errorMsg = JSON.stringify({
-        fieldname: name,
-        message: msg,
-        docid: docid
-      });
-
-      // A means of getting useful information out during unit testing
-      if (testsd('testing')) {
-        throw (name + '$' + msg + '$' + docid);
-      }
-
-      throw ({
-        forbidden: errorMsg
-      });
-    };
-
     // A more detailed error message function for cases where we
     // want to indication what field caused the problem.
     var forbidField = function (field, msg) {
@@ -91,20 +59,14 @@ function validate(newDoc, saveDoc, userCtx) {
         message: msg
       });
 
-      // A means of getting useful information out during unit testing
-      if (testsd('testing')) {
-        throw (field.name + '$' + field.instance + '$' + msg);
+      if (testEnv) {
+        throw new Error(errorMsg);
+      } else {
+        throw ({
+          forbidden: errorMsg
+        });
       }
-
-      throw ({
-        forbidden: errorMsg
-      });
     };
-
-    // readonly users cannot write a document
-    if (userCtx.roles.indexOf('readonly') !== -1) {
-      forbid(userCtx.name, 'is a read only user.');
-    }
 
     // The following are validation tests that are run for
     // each field by an expression below.
@@ -236,11 +198,15 @@ function validate(newDoc, saveDoc, userCtx) {
       if (pattern.test(field.min)) {
         isLater(field);
       }
-      if (field.min === 'today') {
-        isFuture(field);
-      }
-      if (field.max === 'today') {
-        isPast(field);
+      if (field.min === 'today' && field.max === 'today') {
+        isToday(field);
+      } else {
+        if (field.min === 'today') {
+          isFuture(field);
+        }
+        if (field.max === 'today') {
+          isPast(field);
+        }
       }
     };
 
@@ -260,9 +226,16 @@ function validate(newDoc, saveDoc, userCtx) {
       }
     };
 
+    // See if a date should be today. If it isn't fail.
+    var isToday = function (field) {
+      if (field.value !== new Date().toLocaleFormat('%Y-%m-%d')) {
+        forbidField(field, 'date must be today.');
+      }
+    };
+
     // See if a date should be in the future. If it isn't fail.
     var isFuture = function (field) {
-      if (field.value <= new Date().toLocaleFormat('%Y-%m-%d') && field.max !== 'today') {
+      if (field.value <= new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be in the future.');
       }
     };
@@ -375,18 +348,6 @@ function validate(newDoc, saveDoc, userCtx) {
   };
 
   var userIndex = function (newDoc, saveDoc, userCtx) {
-    var forbid = function (name, msg) {
-      var errorMsg =
-      JSON.stringify({
-        fieldname: name,
-        message: msg
-      });
-
-      throw ({
-        forbidden: errorMsg
-      });
-    };
-
     [newDoc.doctype, newDoc.name].forEach(
 
     function (field) {
@@ -513,11 +474,21 @@ function validate(newDoc, saveDoc, userCtx) {
     }
   };
 
+  // readonly users cannot write a document
+  if (userCtx.roles.indexOf('readonly') !== -1) {
+    forbid(userCtx.name, 'is a read only user.');
+  }
+
   if (newDoc.category === "charseq") {
     charseq(newDoc, saveDoc, userCtx);
+    return "ok";
   } else if (newDoc.category === 'index') {
     userIndex(newDoc, saveDoc, userCtx);
+    return "ok";
   } else if (!newDoc.category && !! newDoc.doctype && !newDoc.deleted_) {
     documents(newDoc, saveDoc, userCtx);
+    return "ok";
   }
+
+  return "skipped";
 }

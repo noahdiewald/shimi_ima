@@ -2,6 +2,9 @@
     "name": "dictionary_maker",
     "devDependencies": {
         "grunt-rigger": "0.3.x",
-        "grunt-beautify": "0.1.1"
+        "grunt-beautify": "0.1.1",
+        "mocha": "1.7.3",
+        "should": "1.2.1",
+        "grunt-simple-mocha": "0.2.0"
     }
 }
