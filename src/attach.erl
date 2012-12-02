@@ -27,7 +27,6 @@
          create/3,
          delete/2,
          dirs_by_path/2,
-         file_database_exists/2,
          file_exists/2,
          file_path_exists/2,
          files_by_path/2,
@@ -56,24 +55,6 @@ file_exists(R, S) ->
 file_path_exists(R, S) ->
     Path = [list_to_binary(X) || X <- wrq:path_tokens(R)],
     file_path_exists(Path, R, S). 
-  
-%% @doc Checks for database existence. If it doesn't exist try to
-%% create it.  Will raise an exception on failure. Also updates design
-%% document.
-file_database_exists(R, S) ->
-    DB = proplists:get_value(db, S),
-    DBName = DB -- utils:adb(),
-    {ok, Json} = design_file_manager_json_dtl:render(),
-  
-    {ok, created} = case ibrowse:send_req(DB, [], head) of
-                        {ok, "404", _, _} -> 
-                            {ok, newdb} = couch:new_db(DB, R, S),
-                            database_seqs:set_seq(DBName, 0),
-                            couch:create(design, Json, DB, R, S);
-                        _ -> {ok, created}
-                    end,
-  
-    {true, R, S}.
 
 %% @doc Uses the by_path view in a generic way to get entry
 %% information. It will pass on any query string given when querying

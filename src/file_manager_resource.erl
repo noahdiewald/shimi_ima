@@ -57,7 +57,7 @@ resource_exists(R, S) ->
     case proplists:get_value(target, S1) of
         identifier -> attach:file_exists(R, S1);
         path -> attach:file_path_exists(R, S1);
-        _ -> attach:file_database_exists(R, S1)
+        _ -> {true, R, S}
     end.
 
 is_authorized(R, S) ->
