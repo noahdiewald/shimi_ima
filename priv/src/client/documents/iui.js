@@ -32,9 +32,7 @@ shimi.iui = (function () {
     var id = $(target).attr('href').slice(1);
     $("#document-view").html("<em>Loading...</em>");
     shimi.eui.clear();
-    shimi.vui({
-      id: id
-    }).get();
+    shimi.vui.get(id);
 
     return mod;
   };

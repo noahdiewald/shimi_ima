@@ -192,9 +192,7 @@ shimi.eui = (function () {
         if (req.status === 204 || req.status === 200) {
           title = "Success";
           body = "Your document was saved.";
-          shimi.vui({
-            id: document
-          }).get();
+          shimi.vui.get(document);
           shimi.iui.get();
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
@@ -239,9 +237,7 @@ shimi.eui = (function () {
           saveButton().hide().attr('disabled', 'true');
           $('.fields').remove();
           shimi.efs.initFieldsets();
-          shimi.vui({
-            id: documentId
-          }).get();
+          shimi.vui.get(documentId);
           shimi.iui.get();
           flash(title, body).highlight();
           createButton().show();

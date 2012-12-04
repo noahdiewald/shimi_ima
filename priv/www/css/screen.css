@@ -436,21 +436,24 @@ th a {
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
 }
-.oldrev {
-  opacity: 0.6;
-}
 #deleted-message {
-  background: #ff0000;
+  background: #cccccc;
+  clear: both;
+  padding: 0.5ex 1em 0.25ex 1em;
+  background: #eeeeee;
+  color: #ff0000;
+}
+#revision-message {
+  background: #cccccc;
+  clear: both;
+  padding: 0.5ex 1em 0.25ex 1em;
+  background: #eeeeee;
+  color: #ba5d12;
 }
 nav#history {
   background: #cccccc;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
-}
-nav#history a {
-  text-decoration: none;
-  color: #000000;
-  font-weight: bold;
 }
 td {
   border-style: solid;
@@ -537,4 +540,10 @@ fieldset {
 }
 #edit-tabs {
   padding: 0 0 3px 0;
+}
+a.revision-link {
+  font-weight: normal;
+}
+a.selected-revision {
+  color: #ba5d12;
 }

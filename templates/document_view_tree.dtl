@@ -1,5 +1,8 @@
+{% if previous_revision %}
+  <div id="revision-message">Previous Revision</div>
+{% endif %}
 {% if deleted_ %}
-  <div id="deleted-message"><b>DELETED</b></div>
+  <div id="deleted-message"><b>Deleted</b></div>
 {% endif %}
 <ul>
 {% for fieldset in fieldsets %}

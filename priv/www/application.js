@@ -177,6 +177,12 @@ shimi.store = function (elem) {
   var mod = {};
 
   mod.get = function (key) {
+    var prelim = elem.attr("data-" + key);
+    
+    if (prelim) {
+      return prelim;
+    }
+    
     var getValue1 = function (key, elem, id) {
       var gid = elem.attr('data-group-id');
       var store = $('#' + gid);
@@ -769,29 +775,19 @@ shimi.clickDispatch = function (e) {
       eui.showHelpDialog(t);
     },
     "#document-edit-button": function (t) {
-      vui({
-        target: t
-      }).edit();
+      vui.edit(t);
     },
     "#document-delete-button": function (t) {
-      vui({
-        target: t
-      }).confirmDelete();
+      vui.confirmDelete();
     },
     "#document-restore-button": function (t) {
-      vui({
-        target: t
-      }).confirmRestore();
+      vui.confirmRestore();
     },
     "#document-view-tree > ul > li > b": function (t) {
-      vui({
-        target: t
-      }).collapseToggle();
+      vui.collapseToggle(t);
     },
     ".revision-link": function (t) {
-      vui({
-        target: t
-      }).fetchRevision();
+      vui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
       sui.clearSearchVals();
@@ -1838,9 +1834,7 @@ shimi.fieldsetElems = (function () {
 })();
 shimi.loadHash = function (urlHash) {
   if (urlHash) {
-    shimi.vui({
-      id: urlHash
-    }).get();
+    shimi.vui.get(urlHash);
   }
   return false;
 };
@@ -2390,9 +2384,7 @@ shimi.eui = (function () {
         if (req.status === 204 || req.status === 200) {
           title = "Success";
           body = "Your document was saved.";
-          shimi.vui({
-            id: document
-          }).get();
+          shimi.vui.get(document);
           shimi.iui.get();
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
@@ -2437,9 +2429,7 @@ shimi.eui = (function () {
           saveButton().hide().attr('disabled', 'true');
           $('.fields').remove();
           shimi.efs.initFieldsets();
-          shimi.vui({
-            id: documentId
-          }).get();
+          shimi.vui.get(documentId);
           shimi.iui.get();
           flash(title, body).highlight();
           createButton().show();
@@ -2513,9 +2503,7 @@ shimi.iui = (function () {
     var id = $(target).attr('href').slice(1);
     $("#document-view").html("<em>Loading...</em>");
     shimi.eui.clear();
-    shimi.vui({
-      id: id
-    }).get();
+    shimi.vui.get(id);
 
     return mod;
   };
@@ -2785,15 +2773,11 @@ shimi.sui = (function () {
   return mod;
 })();
 // View pane UI elements
-shimi.vui = function (args) {
+shimi.vui = (function (args) {
   var mod = {};
-  var store = shimi.store;
-  var flash = shimi.flash;
-  var dvt = $("#document-view");
-
-  mod.evTarget = args.target;
-  mod.docRev = args.rev;
-  mod.docId = args.id;
+  var dv = function() {return $("#document-view");};
+  var dvt = function() {return $("#document-view-tree");};
+  var viewInfo = function() {return $("#document-view-info");};
 
   mod.formatTimestamps = function () {
     $('.timestamp').each(
@@ -2808,49 +2792,33 @@ shimi.vui = function (args) {
     return mod;
   };
 
-  mod.rev = function (rev) {
-    mod.docRev = rev;
+  mod.get = function (id, rev, callback) {
+    var url = "documents/" + id;
+    var htmlTarget = dv();
 
-    return mod;
-  };
-
-  mod.id = function (id) {
-    mod.docId = id;
-
-    return mod;
-  };
-
-  mod.target = function (target) {
-    mod.evTarget = target;
-
-    return mod;
-  };
-
-  mod.get = function (callback) {
-    var url = "documents/" + mod.docId;
-
-    if (mod.docRev) {
-      url = "documents/" + mod.docId + "/" + mod.docRev;
+    if (rev) {
+      url = url + "/" + rev;
+      htmlTarget = dvt();
     }
 
     $.get(url, function (documentHtml) {
-      dvt.html(documentHtml);
+      htmlTarget.html(documentHtml);
       mod.formatTimestamps();
       if (callback) {
         callback();
       }
 
-      if (!mod.docRev) {
+      if (!rev) {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
 
-        if (store(restoreButton).d("deleted") === "true") {
-          dvt.fadeTo('slow', 0.5);
+        if (shimi.store(restoreButton).d("deleted") === "true") {
+          dvt().fadeTo('slow', 0.5);
           editButton.hide();
           deleteButton.hide();
         } else {
-          dvt.fadeTo('slow', 1);
+          dvt().fadeTo('slow', 1);
           restoreButton.hide();
         }
       }
@@ -2859,8 +2827,8 @@ shimi.vui = function (args) {
     return mod;
   };
 
-  mod.restore = function () {
-    var url = "./documents/" + mod.docId + "?rev=" + mod.docRev;
+  mod.restore = function (id, rev) {
+    var url = "./documents/" + id + "?rev=" + rev;
     var restoreButton = $('#document-restore-button');
     var body;
     var title;
@@ -2876,20 +2844,20 @@ shimi.vui = function (args) {
           body = "Your document was restored.";
 
           mod.rev(null).get(function () {
-            dvt.fadeTo('slow', 1);
+            dv().fadeTo('slow', 1);
             shimi.iui.get();
           });
-          flash(title, body).highlight();
+          shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
           title = req.statusText;
 
-          flash(title, body.message).error();
+          shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
           body = "Document was erased and cannot be restored.";
           title = req.statusText;
 
-          flash(title, body).error();
+          shimi.flash(title, body).error();
         }
       }
     });
@@ -2897,8 +2865,8 @@ shimi.vui = function (args) {
     return mod;
   };
 
-  mod.del = function () {
-    var url = "./documents/" + mod.docId + "?rev=" + mod.docRev;
+  mod.del = function (id, rev) {
+    var url = "./documents/" + id + "?rev=" + rev;
     var restoreButton = $('#document-restore-button');
     var body;
     var title;
@@ -2914,26 +2882,26 @@ shimi.vui = function (args) {
           body = "Your document was deleted.";
           var response = JSON.parse(req.responseText);
 
-          store(restoreButton).put("document-rev", response.rev);
+          shimi.store(restoreButton).put("document-rev", response.rev);
 
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
           restoreButton.show();
-          dvt.find('h2').text("Deleted Document");
-          dvt.fadeTo('slow', 0.5);
+          dv().find('h2').text("Deleted Document");
+          dv().fadeTo('slow', 0.5);
 
           shimi.iui.get();
-          flash(title, body).highlight();
+          shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
           title = req.statusText;
 
-          flash(title, body.message).error();
+          shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
           body = "Document appears to have been deleted already.";
           title = req.statusText;
 
-          flash(title, body).error();
+          shimi.flash(title, body).error();
         }
       }
     });
@@ -2941,13 +2909,13 @@ shimi.vui = function (args) {
     return mod;
   };
 
-  mod.confirmIt = function (f) {
+  mod.confirmIt = function (target, callback) {
     if (window.confirm("Are you sure?")) {
-      var s = store(mod.evTarget);
+      var s = shimi.store($(target));
       var id = s.d("document");
       var rev = s.d("rev");
 
-      f(id, rev);
+      callback(id, rev);
     }
 
     return mod;
@@ -2964,47 +2932,46 @@ shimi.vui = function (args) {
 
     return mod;
   };
-
+  
   mod.confirmDelete = function () {
-    return mod.confirmIt(function (d, r) {
-      mod.id(d).rev(r).del();
+    var s = shimi.store(viewInfo());
+    var id = s.d("document");
+    var rev = s.d("rev");
+    return mod.confirmIt(function () {
+      mod.del(id, rev);
     });
   };
 
   mod.confirmRestore = function () {
-    return mod.confirmIt(function (d, r) {
-      mod.id(d).rev(r).restore();
+    var s = shimi.store(viewInfo());
+    var id = s.d("document");
+    var rev = s.d("rev");
+    return mod.confirmIt(function () {
+      mod.restore(id, rev);
     });
   };
 
-  mod.collapseToggle = function () {
-    mod.evTarget.parent('li').toggleClass('collapsed');
+  mod.collapseToggle = function (target) {
+    $(target).parent('li').toggleClass('collapsed');
 
     return mod;
   };
 
-  mod.fetchRevision = function () {
-    var s = store(mod.evTarget);
+  mod.fetchRevision = function (target) {
+    var s = shimi.store($(target));
     var id = s.d("document");
-    var rev = s.d("rev");
     var oldrev = s.d("oldrev");
 
-    if (rev !== oldrev) {
-      $('#document-view-tree').addClass('oldrev');
-    } else {
-      $('#document-view-tree').removeClass('oldrev');
-    }
-
-    shimi.vui({
-      rev: oldrev,
-      id: id
-    }).get();
+    $('.revision-link').removeClass('selected-revision');
+    $(target).addClass('selected-revision');
+ 
+    mod.get(id, oldrev);
 
     return mod;
   };
 
   return mod;
-};
+})();
 shimi.fm = (function () {
   var mod = {};
 

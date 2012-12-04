@@ -128,29 +128,19 @@ shimi.clickDispatch = function (e) {
       eui.showHelpDialog(t);
     },
     "#document-edit-button": function (t) {
-      vui({
-        target: t
-      }).edit();
+      vui.edit(t);
     },
     "#document-delete-button": function (t) {
-      vui({
-        target: t
-      }).confirmDelete();
+      vui.confirmDelete();
     },
     "#document-restore-button": function (t) {
-      vui({
-        target: t
-      }).confirmRestore();
+      vui.confirmRestore();
     },
     "#document-view-tree > ul > li > b": function (t) {
-      vui({
-        target: t
-      }).collapseToggle();
+      vui.collapseToggle(t);
     },
     ".revision-link": function (t) {
-      vui({
-        target: t
-      }).fetchRevision();
+      vui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
       sui.clearSearchVals();

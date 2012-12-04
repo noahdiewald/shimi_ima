@@ -1,8 +1,6 @@
 shimi.loadHash = function (urlHash) {
   if (urlHash) {
-    shimi.vui({
-      id: urlHash
-    }).get();
+    shimi.vui.get(urlHash);
   }
   return false;
 };

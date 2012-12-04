@@ -421,19 +421,18 @@ th {
 .total-rows-info {
   .mini-header;
 }
-.oldrev {
-  opacity:0.6;
-}
 #deleted-message {
-  background:@level4;
+  .mini-header;
+  background: @bgcontrast;
+  color:@level4;
+}
+#revision-message {
+  .mini-header;
+  background: @bgcontrast;
+  color: @level3;
 }
 nav#history {
   .mini-header;
-  a {
-    text-decoration:none;
-    color:@fgstark;
-    font-weight:bold;
-  }
 }
 td {
   border-style:solid;
@@ -518,4 +517,10 @@ fieldset {
 }
 #edit-tabs {
   padding: 0 0 3px 0;
+}
+a.revision-link {
+  font-weight: normal;
+}
+a.selected-revision {
+  color: @level3;
 }

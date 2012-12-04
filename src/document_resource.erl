@@ -256,8 +256,18 @@ html_document(R, S) ->
     {ok, Html} = render:render(document_view_dtl, Vals),
     Html.
 
-html_revision(R, S) ->      
-    Json = document:normalize(couch:get_json(rev, R, S)),
+html_revision(R, S) ->
+    Requested = document:normalize(couch:get_json(rev, R, S)),
+    ReqId = jsn:get_value(<<"_id">>, Requested),
+    Prev = case couch:get_json(safer, ReqId, R, S) of
+               {ok, Curr} ->
+                   CurrRev = jsn:get_value(<<"_rev">>, Curr),
+                   ReqRev = jsn:get_value(<<"_rev">>, Requested),
+                   CurrRev /= ReqRev;
+               _ ->
+                   false
+           end,
+    Json = [{<<"previous_revision">>, Prev}|Requested],
     {ok, Html} = render:render(document_view_tree_dtl, Json),
     Html.
 
