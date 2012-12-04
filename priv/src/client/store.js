@@ -86,11 +86,11 @@ shimi.store = function (elem) {
 
   mod.get = function (key) {
     var prelim = elem.attr("data-" + key);
-    
+
     if (prelim) {
       return prelim;
     }
-    
+
     var getValue1 = function (key, elem, id) {
       var gid = elem.attr('data-group-id');
       var store = $('#' + gid);

@@ -9,7 +9,7 @@
 //= fixtures/today_doc.js
 //= toLocaleFormat.js
 
-var testEnv = true;
+Object.prototype.testEnv = true;
 
 //= ../src/server/shimi_ima/validate_doc_update.js
 

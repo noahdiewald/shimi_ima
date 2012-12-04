@@ -184,7 +184,6 @@ textarea {
 #notifications-main {
   top: 0;
   right: 0;
-  opacity: 0.9;
   text-align: center;
   width: 50%;
   position: fixed;
@@ -192,10 +191,6 @@ textarea {
 }
 #notifications-main div {
   padding: 0.5em;
-}
-.notification span.ui-icon {
-  float: left;
-  margin-right: 0.3em;
 }
 ul.head-elements {
   padding: 0;
@@ -546,4 +541,13 @@ a.revision-link {
 }
 a.selected-revision {
   color: #ba5d12;
+}
+.ui-state-error {
+  color: #ff0000;
+  background: rgba(255, 255, 255, 0.5);
+  border-color: #ff0000;
+}
+.ui-state-highlight {
+  background: #f07818;
+  background: rgba(255, 255, 255, 0.5);
 }

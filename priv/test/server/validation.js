@@ -799,7 +799,7 @@ if (!Date.toLocaleFormat) {
 }
 
 
-var testEnv = true;
+Object.prototype.testEnv = true;
 
 function validate(newDoc, saveDoc, userCtx) {
   // A predicate function to detect blank strings.
@@ -824,7 +824,7 @@ function validate(newDoc, saveDoc, userCtx) {
     });
 
     // This is used when running unit tests
-    if (testEnv) {
+    if (Object.testEnv) {
       throw new Error(errorMsg);
     } else {
       throw new Error({
@@ -862,7 +862,7 @@ function validate(newDoc, saveDoc, userCtx) {
         message: msg
       });
 
-      if (testEnv) {
+      if (Object.testEnv) {
         throw new Error(errorMsg);
       } else {
         throw ({

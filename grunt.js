@@ -77,8 +77,7 @@ module.exports = function (grunt) {
         describe: true,
         it: true,
         require: true,
-        exports: true,
-        testEnv: true
+        exports: true
       }
     },
     uglify: {}

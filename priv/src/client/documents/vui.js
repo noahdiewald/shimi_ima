@@ -1,9 +1,15 @@
 // View pane UI elements
 shimi.vui = (function (args) {
   var mod = {};
-  var dv = function() {return $("#document-view");};
-  var dvt = function() {return $("#document-view-tree");};
-  var viewInfo = function() {return $("#document-view-info");};
+  var dv = function () {
+    return $("#document-view");
+  };
+  var dvt = function () {
+    return $("#document-view-tree");
+  };
+  var viewInfo = function () {
+    return $("#document-view-info");
+  };
 
   mod.formatTimestamps = function () {
     $('.timestamp').each(
@@ -154,7 +160,7 @@ shimi.vui = (function (args) {
 
     return mod;
   };
-  
+
   mod.confirmDelete = function () {
     var s = shimi.store(viewInfo());
     var id = s.d("document");
@@ -186,7 +192,7 @@ shimi.vui = (function (args) {
 
     $('.revision-link').removeClass('selected-revision');
     $(target).addClass('selected-revision');
- 
+
     mod.get(id, oldrev);
 
     return mod;
