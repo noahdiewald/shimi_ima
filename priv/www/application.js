@@ -2814,12 +2814,9 @@ shimi.vui = (function (args) {
         var deleteButton = $('#document-delete-button');
 
         if (shimi.store(restoreButton).d("deleted") === "true") {
-          dvt().fadeTo('slow', 0.5);
           editButton.hide();
           deleteButton.hide();
-        } else {
-          dvt().fadeTo('slow', 1);
-          restoreButton.hide();
+          restoreButton.show();
         }
       }
     });
@@ -2843,7 +2840,7 @@ shimi.vui = (function (args) {
           title = "Success";
           body = "Your document was restored.";
 
-          mod.rev(null).get(function () {
+          mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
             shimi.iui.get();
           });
@@ -2887,7 +2884,6 @@ shimi.vui = (function (args) {
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
           restoreButton.show();
-          dv().find('h2').text("Deleted Document");
           dv().fadeTo('slow', 0.5);
 
           shimi.iui.get();
@@ -2909,9 +2905,9 @@ shimi.vui = (function (args) {
     return mod;
   };
 
-  mod.confirmIt = function (target, callback) {
+  mod.confirmIt = function (callback) {
     if (window.confirm("Are you sure?")) {
-      var s = shimi.store($(target));
+      var s = shimi.store(viewInfo());
       var id = s.d("document");
       var rev = s.d("rev");
 
