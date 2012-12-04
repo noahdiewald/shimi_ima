@@ -83,7 +83,7 @@ create_path(R, S) ->
   
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
-                          GenId = couch:get_uuid(R, S),
+                          GenId = utils:uuid(),
                           {GenId, jsn:set_value(<<"_id">>, 
                                                 list_to_binary(GenId), Json)};
                       IdBin -> {binary_to_list(IdBin), Json}
@@ -120,9 +120,11 @@ html_as_tabs(R, S) ->
     {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-  Json = couch:get_json(id, R, S), 
-  {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json)),
-  {Html, R, S}.
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    Json = couch:get(Id, Project, S), 
+    {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json)),
+    {Html, R, S}.
   
 from_json(R, S) ->
   case proplists:get_value(target, S) of
@@ -132,7 +134,8 @@ from_json(R, S) ->
 
 json_create(R, S) ->  
     Json = proplists:get_value(posted_json, S),
-    {ok, created} = couch:create(doc, jsn:encode(Json), R, S),
+    Project = wrq:path_info(project, R),
+    {ok, created} = couch:create(Project, Json, S),
     {true, R, S}.
 
 json_update(R, S) ->

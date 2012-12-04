@@ -291,9 +291,11 @@ get_subcategory(Bin) ->
 set_sortkeys([], Acc, _R, _S) ->
     lists:reverse(Acc);
 set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
+    Project = wrq:path_info(project, R),
     set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, 
-                                      charseq:get_sortkey(Field, R, S), 
+                                      charseq:get_sortkey(Field, Project, S), 
                                       Field)|Acc], R, S);
 set_sortkeys([F=#docfield{}|Rest], Acc, R, S) ->
-    set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, R, S)}|Acc], 
+    Project = wrq:path_info(project, R),
+    set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, Project, S)}|Acc], 
                  R, S).

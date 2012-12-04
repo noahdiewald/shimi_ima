@@ -129,21 +129,10 @@ main_html(R, S) ->
     {Html, R, S}.
   
 from_json(R, S) ->
-    DBName = "project-" ++ proplists:get_value(newid, S),
-    NewDb = utils:adb() ++ DBName,
-    ShimiDb = utils:adb() ++ "shimi_ima",
-    ProjectsDb = utils:ndb() ++ "projects",
-  
-    JsonIn = jsn:decode(wrq:req_body(R)),
-    JsonIn1 = jsn:set_value(<<"_id">>, 
-                            list_to_binary(proplists:get_value(newid, S)), 
-                            JsonIn),
-    JsonOut = jsn:encode(JsonIn1),
-  
-    {ok, newdb} = couch:new_db(NewDb, R, S),
-    {ok, created} = couch:create(direct, JsonOut, ProjectsDb, R, S),
-    {ok, replicated} = couch:replicate(ShimiDb, NewDb, R, S),
-    database_seqs:set_seq(DBName, 0),
+    ProjectId = proplists:get_value(newid, S),
+    ProjectData = jsn:decode(wrq:req_body(R)),
+    ok = project:create(ProjectId, ProjectData),
+    database_seqs:set_seq("project-" ++ ProjectId, 0),
     {true, R, S}.
 
 % Helpers

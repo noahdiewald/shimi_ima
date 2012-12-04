@@ -96,10 +96,12 @@ to_html(R, S) ->
 json_field(R, S) ->
     Field = case proplists:get_value(is_meta, S) of
                 undefined ->
-                    Json = couch:get_json(id, R, S),
+                    Id = wrq:path_info(id, R),
+                    Project = wrq:path_info(project, R),
+                    {ok, Json} = couch:get(Id, Project, S),
                     Subcategory = 
                         binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-                    get_allowed(Subcategory, Json, R, S);
+                    get_allowed(Subcategory, Json, Project, S);
                 Id -> field:meta_field(Id)
             end,
     jsn:encode(Field).
@@ -114,14 +116,16 @@ json_fields(R, S) ->
                 Doc = jsn:get_value(<<"doc">>, Row),
                 Subcategory = binary_to_list(
                                 jsn:get_value(<<"subcategory">>, Doc)),
-                get_allowed(Subcategory, Doc, R, S)
+                get_allowed(Subcategory, Doc, Project, S)
         end,
   
     jsn:encode(lists:map(F, Rows)).
 
 html_field(R, S) -> 
-    Json = couch:get_json(id, R, S),
-    get_field_html(Json, R, S).
+     Project = wrq:path_info(project, R),
+     Id = wrq:path_info(id, R),
+     {ok, Json} = couch:get(Id, Project, S),
+     get_field_html(Json, R, S).
   
 html_fields(R, S) -> 
     case wrq:get_qs_value("as", R) of
@@ -154,16 +158,16 @@ get_field_html(Json, R, S) ->
   
     Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json1)),
     Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
-    {ok, Html} = Template:render(get_allowed(Subcategory, Json1, R, S)),
+    {ok, Html} = Template:render(get_allowed(Subcategory, Json1, Project, S)),
     Html.
 
-get_allowed([$d, $o, $c|_], Json, R, S) -> get_allowed_docs(Json, R, S);
-get_allowed("file", Json, R, S) -> get_allowed_files(Json, R, S);
+get_allowed([$d, $o, $c|_], Json, Project, S) -> get_allowed_docs(Json, Project, S);
+get_allowed("file", Json, Project, S) -> get_allowed_files(Json, Project, S);
 get_allowed(_, Json, _, _) -> Json.
 
-get_allowed_docs(Json, R, S) ->
+get_allowed_docs(Json, Project, S) ->
     ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-    {ok, Keys} = q:document_index(ForeignDoctype, R, S),
+    {ok, Keys} = q:document_index(ForeignDoctype, Project, S),
     F = fun(X) ->
                 [[_|[H|_]]|_] = jsn:get_value(<<"key">>, X),
                 [{<<"key">>, H}, {<<"value">>, H}]
@@ -171,14 +175,15 @@ get_allowed_docs(Json, R, S) ->
     Allowed = lists:map(F, jsn:get_value(<<"rows">>, Keys)),
     jsn:set_value(<<"allowed">>, Allowed, Json).
 
-get_allowed_files(Json, R, S) ->
+get_allowed_files(Json, Project, S) ->
     Path = jsn:get_value(<<"source">>, Json),
-    RawAllowed = attach:get_all_full_path(Path, R, S),
+    RawAllowed = attach:get_all_full_path(Path, Project, S),
     jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    Project = wrq:path_info(project, R),
+    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

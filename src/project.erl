@@ -22,15 +22,25 @@
 
 -module(project).
 
--export([upgrade/1]).
+-export([
+         create/3,
+         upgrade/1
+        ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("types.hrl").
 
+%% @doc Create a project
+-spec create(string(), string(), [{atom, any()}]) -> ok.
+create(ProjectId, ProjectData, S) ->
+    DBName = "project-" ++ ProjectId,
+    ProjectData1 = jsn:encode(jsn:set_value(<<"_id">>, list_to_binary(ProjectId), ProjectData)),
+    {ok, newdb} = couch:new_db(DBName),
+    {ok, created} = couch:create("shimi_ima", ProjectData1, S),
+    {ok, replicated} = couch:replicate("shimi_ima", DBName),
+    ok.
+    
 %% @doc Update a project's design documents.
-
 -spec upgrade(string()) -> ok.
-upgrade(DatabaseUrl) ->
-    ShimiDb = utils:adb() ++ "shimi_ima",
-    {ok, replicated} = couch:replicate(ShimiDb, DatabaseUrl),
+upgrade(Project) ->
+    {ok, replicated} = couch:replicate("shimi_ima", Project),
     ok.

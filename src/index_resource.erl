@@ -117,7 +117,8 @@ from_json(R, S) ->
   
 json_create(R, S) ->
     Json = proplists:get_value(posted_json, S),
-    case couch:create(doc, jsn:encode(Json), R, S) of
+    Project = wrq:path_info(project, R),
+    case couch:create(Project, Json, S) of
         {ok, created} -> {true, R, S};
         {403, Message} ->
             R1 = wrq:set_resp_body(Message, R),
@@ -148,14 +149,13 @@ json_update(R, S) ->
 update_design(Json, R, S) ->
     % Translate the conditions to javascript
     Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
-    {ok, Design} = 
-        design_index_json_dtl:render(
-          [{<<"expression">>, Expression}|Json]),
+    {ok, Design} = design_index_json_dtl:render([{<<"expression">>, Expression}|Json]),
     Id = "_design/" ++ wrq:path_info(id, R),
+    Project = wrq:path_info(project, R),
   
     case couch:exists(Id, R, S) of
         false ->
-            couch:create(design, Design, R, S);
+            couch:create(Design, Project, [{admin, true}|S]);
         _ ->
             couch:update(design, Design, R, S)
     end.
@@ -172,7 +172,9 @@ html_index(R, S) ->
     Html.
 
 html_identifier(R, S) ->
-    Json = couch:get_json(id, R, S),
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    {ok, Json} = couch:get(Id, Project, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
 
     Json1 = jsn:set_value(<<"fields">>,
@@ -221,8 +223,9 @@ html_view(R, S) ->
     end.
     
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    Project = wrq:path_info(project, R),
+    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
@@ -278,7 +281,9 @@ get_label("metadata", _R, _S) ->
 get_label(Id, R, S) ->
     Json = case field:is_meta(Id) of
                false ->
-                   couch:get_json(Id, R, S);
+                   Project = wrq:path_info(project, R),
+                   {ok, J} = couch:get(Id, Project, S),
+                   J;
                _ ->
                    field:meta_field(Id)
            end,

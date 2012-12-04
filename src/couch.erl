@@ -24,36 +24,65 @@
 
 -export([
          bulk_update/3,
-         create/4,
-         create/5,
+         create/3,
          delete/2,
          exists/3,
          exists/4,
          fold_view/6,
+         get/3,
+         get/4,
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
-         get_json/3,
-         get_json/4,
          get_view_json/4,
          get_view_json/5,
          get_view_json/6,
          get_views/1,
          get_uuid/2,
-         new_db/3,
+         new_db/1,
          replicate/2,
          should_wait/2,
          update/4,
          update/5,
          update/6,
-         update_doctype_version/2,
-         user_list/0
+         update_doctype_version/2
         ]).
 
 -include_lib("types.hrl").
--include_lib("webmachine/include/webmachine.hrl").
 
-user_list() -> [].
+%% @doc Create a document
+-spec create(string(), jsn:json_term(), [{atom, any()}]) -> {ok, created} | {integer(), binary()}.
+create(Url=[$h,$t,$t,$p,$:|_], Json, S) ->
+    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+    case ibrowse:send_req(Url, Headers, post, jsn:encode(jsn:decode(Json))) of
+        {ok, "201", _, _} ->
+            {ok, created};
+        {ok, "403", _, Body} ->
+            Resp = jsn:decode(Body),
+            Message = jsn:get_value(<<"reason">>, Resp),
+            {403, Message}
+    end;
+create(Project, Json, S) ->
+    DB = case proplists:get_value(admin, S) of
+        true ->
+            utils:adb();
+        _ ->
+            utils:ndb()
+    end,
+    create(DB ++ Project ++ "/_design/shimi_ima/_update/stamp", Json, S).
+
+%% @doc Get a document
+-spec get(string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {integer(), binary()} | {error(), binary()}.
+get(Id, Project, S) -> undefined.
+
+%% @doc Get a specific revision of a document
+-spec get(string(), string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {integer(), binary()} | {error(), binary()}.
+get(Id, Rev, Project, S) -> undefined.
+
+%% @doc Make a new database
+new_db(DB) ->
+    {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ DB, [], put),
+    {ok, newdb}.
 
 replicate(Source, Target) ->
     Headers = [{"Content-Type", "application/json"}],
@@ -66,54 +95,49 @@ replicate(Source, Target) ->
         Otherwise ->
             Otherwise
     end.
-    
-%% @doc Make a new database
-new_db(DB, _R, _S) ->
-    {ok, "201", _, _} = ibrowse:send_req(DB, [], put),
-    {ok, newdb}.
 
-get(Id, R, S) ->  
-    Headers = proplists:get_value(headers, S),
-    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+get(Id, Project, H) ->  
+    Headers = proplists:get_value(headers, H),
+    DataBaseUrl = utils:ndb() ++ Project ++ "/",
     get_helper(DataBaseUrl ++ Id, Headers).
   
-get_json(project, R, _S) ->
-    Id = wrq:path_info(project, R) -- "project-",
+get_json(project, Project, _H) ->
+    Id = Project -- "project-",
     Url = utils:adb() ++ "projects/" ++ Id,
     get_json_helper(Url, []);
   
-get_json(doctype, R, S) ->
+get_json(doctype, Project, S) ->
     Headers = proplists:get_value(headers, S),
-    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+    DataBaseUrl = utils:ndb() ++ Project ++ "/",
     Doctype = wrq:path_info(doctype, R),
     get_json_helper(DataBaseUrl ++ Doctype, Headers);
   
-get_json(id, R, S) ->
-    Headers = proplists:get_value(headers, S),
-    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+get_json(id, Project, H) ->
+    Headers = proplists:get_value(headers, H),
+    DataBaseUrl = utils:ndb() ++ Project ++ "/",
     Id = wrq:path_info(id, R),
     Url = DataBaseUrl ++ Id ++ "?revs_info=true",
     get_json_helper(Url, Headers);
   
-get_json(rev, R, S) ->
+get_json(rev, Project, H) ->
     Revision = case wrq:get_qs_value("rev", R) of
               undefined ->
                   wrq:path_info(rev, R);
               Rev -> Rev
           end,
-    Headers = proplists:get_value(headers, S),
-    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/" ++ 
+    Headers = proplists:get_value(headers, H),
+    Url = utils:ndb() ++ Project ++ "/" ++ 
         wrq:path_info(id, R) ++ "?rev=" ++ Revision,
     get_json_helper(Url, Headers);
   
-get_json(Id, R, S) ->
-    Headers = proplists:get_value(headers, S),
-    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+get_json(Id, Project, H) ->
+    Headers = proplists:get_value(headers, H),
+    DataBaseUrl = utils:ndb() ++ Project ++ "/",
     get_json_helper(DataBaseUrl ++ Id, Headers).
     
-get_json(safer, Id, R, S) ->
-    Headers = proplists:get_value(headers, S),
-    DataBaseUrl = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+get_json(safer, Id, Project, H) ->
+    Headers = proplists:get_value(headers, H),
+    DataBaseUrl = utils:ndb() ++ Project ++ "/",
     get_json_helper(safer, DataBaseUrl ++ Id, Headers).
 
 get_db_seq(Project) ->
@@ -158,9 +182,9 @@ get_helper(Url, Headers) ->
         {error, req_timedout} -> {error, req_timedout}
     end.
     
-get_view_json_helper(Id, Name, Qs, R, S) ->
-    Headers = proplists:get_value(headers, S),
-    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/",
+get_view_json_helper(Id, Name, Qs, Project, H) ->
+    Headers = proplists:get_value(headers, H),
+    Url = utils:ndb() ++ Project ++ "/",
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ Qs,
     case get_json_helper(safer, FullUrl, Headers) of
@@ -170,26 +194,26 @@ get_view_json_helper(Id, Name, Qs, R, S) ->
         {ok, Json} -> {ok, Json}
     end.
 
-fold_view(Id, Name, Qs, Fun, R, S) ->
-    {ok, ViewJson} = get_view_json(Id, Name, Qs, R, S),
+fold_view(Id, Name, Qs, Fun, Project, H) ->
+    {ok, ViewJson} = get_view_json(Id, Name, Qs, Project, H),
     Rows = jsn:get_value(<<"rows">>, ViewJson),
     lists:foldr(Fun, [], Rows).
 
-get_view_json(Id, Name, R, S) ->
+get_view_json(Id, Name, Project, H) ->
     Qs = view:normalize_vq(R),
-    get_view_json(Id, Name, Qs, R, S).
+    get_view_json(Id, Name, Qs, Project, H).
 
-get_view_json(noqs, Id, Name, R, S) ->
-    get_view_json_helper(Id, Name, [], R, S);
-get_view_json(sortkeys, Id, Name, R, S) ->
-    Qs = view:normalize_sortkey_vq(Id, R, S),
-    get_view_json_helper(Id, Name, "?" ++ Qs, R, S);
-get_view_json(Id, Name, Qs, R, S) ->
-    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+get_view_json(noqs, Id, Name, Project, H) ->
+    get_view_json_helper(Id, Name, [], Project, H);
+get_view_json(sortkeys, Id, Name, Project, H) ->
+    Qs = view:normalize_sortkey_vq(Id, Project, H),
+    get_view_json_helper(Id, Name, "?" ++ Qs, Project, H);
+get_view_json(Id, Name, Qs, Project, H) ->
+    get_view_json_helper(Id, Name, "?" ++ Qs, Project, H).
 
-get_view_json(sortkeys, Id, Name, Doctype, R, S) ->
-    Qs = view:normalize_sortkey_vq(Doctype, R, S),
-    get_view_json_helper(Id, Name, "?" ++ Qs, R, S).
+get_view_json(sortkeys, Id, Name, Doctype, Project, H) ->
+    Qs = view:normalize_sortkey_vq(Doctype, Project, H),
+    get_view_json_helper(Id, Name, "?" ++ Qs, Project, H).
 
 %% @doc Given a row from a query of all db design documents, find all
 %% the view paths for a given design document.
@@ -224,15 +248,15 @@ get_views(Project) when is_list(Project) ->
     lists:flatten(
       lists:filter(Filter, lists:map(fun get_view_path/1, Designs)));
 get_views(R) when is_tuple(R) ->
-    get_views(wrq:path_info(project, R)).
+    get_views(Project).
 
-get_design_rev(Name, R, S) ->
+get_design_rev(Name, Project, H) ->
     Id = case Name of
              [$_|_] -> Name;
              _Else -> "_design/" ++ Name
          end,
-    Url = case proplists:get_value(db, S) of
-              undefined -> utils:adb() ++ wrq:path_info(project, R) ++ "/" ++ Id;
+    Url = case proplists:get_value(db, H) of
+              undefined -> utils:adb() ++ Project ++ "/" ++ Id;
               Db -> Db ++ "/" ++ Id
           end,
     case get_json_helper(safer, Url, []) of
@@ -244,21 +268,21 @@ get_design_rev(Name, R, S) ->
 
 % TODO: this once queried couchdb. Now the callers could just use the
 % function directly.
-get_uuid(_R, _S) ->
+get_uuid(_R, _H) ->
     utils:uuid().
 
-delete(R, S) ->
+delete(R, H) ->
     Id = wrq:path_info(id, R),
     Rev = wrq:get_qs_value("rev", R),
-    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/" ++ Id ++ "?rev=" ++ Rev,
+    Url = utils:ndb() ++ Project ++ "/" ++ Id ++ "?rev=" ++ Rev,
     Headers = [{"Content-Type",
-                "application/json"}|proplists:get_value(headers, S)],
+                "application/json"}|proplists:get_value(headers, H)],
     case ibrowse:send_req(Url, Headers, delete) of
         {ok, "200", _, _} -> 
-            case exists("_design/" ++ Id, R, S) of
+            case exists("_design/" ++ Id, Project, H) of
                 true ->
-                    {_, DRev} = get_design_rev(Id, R, S),
-                    DUrl = utils:ndb() ++ wrq:path_info(project, R) ++ 
+                    {_, DRev} = get_design_rev(Id, Project, H),
+                    DUrl = utils:ndb() ++ Project ++ 
                         "/_design/" ++ Id ++ "?rev=" ++ DRev,
                     {ok, "200", _, _} = ibrowse:send_req(DUrl, Headers, delete);
                 false -> ok
@@ -267,57 +291,25 @@ delete(R, S) ->
         {ok, "409", _, _} -> {409, <<"Conflict">>}
     end.
 
-create(direct, Json, R, S) ->
-    create(doc, Json, utils:ndb() ++ wrq:path_info(project, R), R, S);
-
-create(doc, Json, R, S) ->
-    create(doc, Json, utils:ndb() ++ wrq:path_info(project, R), R, S);
-
-create(design, Json, R, S) ->
-    create(design, Json, utils:adb() ++ wrq:path_info(project, R), R, S).
-
-create(direct, Json, DB, _R, S) ->
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-    create(DB, Headers, Json);
-
-create(doc, Json, DB, _R, S) ->
-    Url = DB ++ "/_design/shimi_ima/_update/stamp",
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-    create(Url, Headers, Json);
-
-create(design, Json, DB, _R, _S) ->
-    Url = DB,
-    Headers = [{"Content-Type","application/json"}],
-    create(Url, Headers, Json).
-
-create(Url, Headers, Json) ->
-    case ibrowse:send_req(Url, Headers, post, jsn:encode(jsn:decode(Json))) of
-        {ok, "201", _, _} -> {ok, created};
-        {ok, "403", _, Body} ->
-            Resp = jsn:decode(Body),
-            Message = jsn:get_value(<<"reason">>, Resp),
-            {403, Message}
-    end.
-
-bulk_update(Docs, R, S) ->
+bulk_update(Docs, Project, H) ->
     Headers = [{"Content-Type","application/json"}|
-               proplists:get_value(headers, S)],
-    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/_bulk_docs",
+               proplists:get_value(headers, H)],
+    Url = utils:ndb() ++ Project ++ "/_bulk_docs",
     {ok, _, _, Body} = ibrowse:send_req(Url, Headers, post, jsn:encode(Docs)),
     jsn:decode(Body).
   
-update(doc, Id, Json, R, S) ->
-    Project =  wrq:path_info(project, R),
+update(doc, Id, Json, Project, H) ->
+    Project =  Project,
     Url = utils:ndb() ++ Project ++ "/_design/shimi_ima/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
-               proplists:get_value(headers, S)],
+               proplists:get_value(headers, H)],
     update(Url, Headers, Json);
-update(design, Id, Json, R, S) ->
-    update(design, Id, Json, utils:adb() ++ wrq:path_info(project, R), R, S).
-update(design, Id, Json, DB, R, S) ->
+update(design, Id, Json, Project, H) ->
+    update(design, Id, Json, utils:adb() ++ Project, Project, H).
+update(design, Id, Json, DB, Project, H) ->
     Json1 = jsn:decode(Json),
     Version = jsn:get_value(<<"version">>, Json1),
-    case get_design_rev(Id, R, S) of
+    case get_design_rev(Id, Project, H) of
         {Version, _} -> {ok, updated};
         {error, Error} -> {error, Error};
         {_, Rev} ->
@@ -327,12 +319,12 @@ update(design, Id, Json, DB, R, S) ->
             update(Url, Headers, jsn:encode(Json2))
     end.
   
-update(design, Json, R, S) ->
-    update(design, wrq:path_info(id, R), Json, R, S);
+update(design, Json, Project, H) ->
+    update(design, wrq:path_info(id, R), Json, Project, H);
 
-update(bulk, Json, R, S) ->
-    Url = utils:ndb() ++ wrq:path_info(project, R) ++ "/_bulk_docs",
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
+update(bulk, Json, Project, H) ->
+    Url = utils:ndb() ++ Project ++ "/_bulk_docs",
+    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, H)],
     case ibrowse:send_req(Url, Headers, post, Json) of
         {ok, "201", _, Body} -> {ok, Body};
         {ok, "403", _, Body} ->
@@ -356,18 +348,17 @@ update(Url, Headers, Json) ->
             {409, <<"Conflict">>}
     end.
 
-update_doctype_version(R, S) ->
+update_doctype_version(R, H) ->
     Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = get(Doctype, R, S),
-    {ok, updated} = update(doc, Doctype, Json, R, S).
+    {ok, Json} = get(Doctype, Project, H),
+    {ok, updated} = update(doc, Doctype, Json, Project, H).
 
-exists(Target, R, S) ->
-    exists(Target, utils:ndb() ++ wrq:path_info(project, R), R, S).
+exists(Target, Project, H) ->
+    exists(Target, utils:ndb() ++ Project, Project, H).
 
-exists(Target, DB, _R, S) ->
-    Headers = proplists:get_value(headers, S),
+exists(Target, DB, _R, H) ->
     BaseUrl = DB ++ "/",
-    case ibrowse:send_req(BaseUrl ++ Target, Headers, head) of
+    case ibrowse:send_req(BaseUrl ++ Target, H, head) of
         {ok, "200", _, _} -> true;
         {ok, "404", _, _} -> false
     end.

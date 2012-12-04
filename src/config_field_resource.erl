@@ -121,9 +121,11 @@ index_html(R, S) ->
                        config_field_list_elements_dtl), R, S}.
 
 id_html(R, S) ->
-  Json = couch:get_json(id, R, S),
-  {ok, Html} = render:render(config_fieldset_dtl, Json),
-  {Html, R, S}.
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    Json = couch:get(Id, Project, S), 
+    {ok, Html} = render:render(config_fieldset_dtl, Json),
+    {Html, R, S}.
   
 from_json(R, S) ->
   case proplists:get_value(target, S) of
@@ -133,8 +135,9 @@ from_json(R, S) ->
 
 json_create(R, S) ->  
     {ok, updated} = couch:update_doctype_version(R, S),
+    Project = wrq:path_info(project, R),
     Json = proplists:get_value(posted_json, S),
-    {ok, created} = couch:create(doc, jsn:encode(Json), R, S),
+    {ok, created} = couch:create(Project, Json, S),
     {true, R, S}.
   
 json_update(R, S) ->

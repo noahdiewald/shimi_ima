@@ -72,7 +72,10 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Json = couch:get_json(rev, R, S),
+    Project = wrq:path_info(project, R),
+    Rev = wrq:path_info(rev, R),
+    Id = wrq:path_info(id, R),
+    {ok, Json} = couch:get(Id, Rev Project, S),
     case jsn:get_value(<<"deleted_">>, Json) of
         true ->
             json_update(jsn:set_value(<<"deleted_">>, false, Json), R, S);
@@ -86,7 +89,7 @@ post_is_create(R, S) ->
 create_path(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
   
-    Id = couch:get_uuid(R, S),
+    Id = utils:uuid(),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
     Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
@@ -122,10 +125,11 @@ from_json(R, S) ->
 json_create(R, S) ->
     Json = proplists:get_value(posted_json, S),
     Json1 = document:set_sortkeys(Json, R, S),
+    Project = wrq:path_info(project, R),
     % Normalization assumes a complete record, which would normally
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(Json1)),
-    case couch:create(doc, jsn:encode(NormJson), R, S) of
+    case couch:create(Project, NormJson, S) of
         {ok, created} -> 
             bump_deps(R, S),
             {true, R, S};
@@ -148,7 +152,8 @@ json_update(Json, R, S) ->
   
     case couch:update(doc, Id, jsn:encode(NormJson), R, S) of
         {ok, updated} ->
-            NewJson = couch:get_json(Id, R, S),
+            Project = wrq:path_info(project, R),
+            {ok, NewJson} = couch:get(Id, Project, S),
             Message = jsn:encode([{<<"rev">>, 
                                    jsn:get_value(<<"_rev">>, NewJson)}]),
             R1 = wrq:set_resp_body(Message, R),
@@ -167,35 +172,17 @@ json_update(Json, R, S) ->
     end.
 
 html_documents(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-  
-    Vals = [
-            {<<"title">>, list_to_binary(Doctype ++ " Documents")}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"user">>, proplists:get_value(user, S)}
-           ],
-  
-    {ok, Html} = render:render(document_dtl, Vals),
+    {ok, Html} = render:render(document_dtl, get_basics("", " Documents", R, S)),
     Html.
 
 html_edit(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
     {ok, Json} = q:fieldset(Doctype, R, S),
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
-  
-    Vals = [
-            {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"fieldsets">>, Fieldsets}
-           ],
-  
+    Vals = [{<<"fieldsets">>, Fieldsets}|get_basics("Edit or Create ", "", R, S)],
     {ok, Html} = render:render(document_edit_dtl, Vals),
     Html.
 
 html_index(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
     Limit = wrq:get_qs_value("limit", R),
 
     {ok, Json} = case wrq:get_qs_value("index", R) of
@@ -206,14 +193,7 @@ html_index(R, S) ->
                  end,
   
     Index = utils:add_encoded_keys(Json),
-  
-    Vals = [
-            {<<"limit">>, Limit},
-            {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Index
-           ],
-  
+    Vals = [{<<"limit">>, Limit}|Index] ++ get_basics("", " Index", R, S),
     {ok, Html} = render:render(document_index_dtl, Vals),
     Html.
 
@@ -241,25 +221,23 @@ html_search(R, S) ->
     Html.
 
 html_document(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    OrigJson = couch:get_json(id, R, S),
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    {ok, OrigJson} = couch:get(Id, Project, S),
     RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
     NormJson = document:normalize(OrigJson),
-    
-    Vals = [
-            {<<"title">>, list_to_binary(Doctype)}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"revs_info">>, RevsInfo}|NormJson
-           ],
-  
+    Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ get_basics("", "", R, S),
     {ok, Html} = render:render(document_view_dtl, Vals),
     Html.
 
 html_revision(R, S) ->
-    Requested = document:normalize(couch:get_json(rev, R, S)),
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    Rev = wrq:path_info(rev, R),
+    {ok, Data} = couch:get(Id, Rev, Project, S),
+    {ok, Requested} = document:normalize(Data),
     ReqId = jsn:get_value(<<"_id">>, Requested),
-    Prev = case couch:get_json(safer, ReqId, R, S) of
+    Prev = case couch:get(ReqId, Project, S) of
                {ok, Curr} ->
                    CurrRev = jsn:get_value(<<"_rev">>, Curr),
                    ReqRev = jsn:get_value(<<"_rev">>, Requested),
@@ -272,8 +250,9 @@ html_revision(R, S) ->
     Html.
 
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    Project = wrq:path_info(project, R),
+    {ok, ProjectData} = couch:get(project, R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
@@ -282,6 +261,17 @@ validate_authentication(Props, R, S) ->
     end.
 
 bump_deps(R, S) ->
+    Project = wrq:path_info(project, R),
     Doctype = wrq:path_info(doctype, R),
-    spawn(dependent, bump, [Doctype, R, S]),
+    spawn(dependent, bump, [Doctype, Project, S]),
     ok.
+
+get_basics(Title1, Title2, R, S) ->
+    Project = wrq:path_info(project, R),
+    Doctype = wrq:path_info(doctype, R),
+    {ok, ProjectData} = couch:get(Project -- "project", "shimi_ima", S),
+    {ok, DoctypeData} = couch:get(Doctype, Project, S),
+    [{<<"project_info">>, ProjectData},
+     {<<"doctype_info">>, DoctypeData},
+     {<<"title">>, list_to_binary(Title1 ++ Doctype ++ Title2)},
+     {<<"user">>, proplists:get_value(user, S)}].

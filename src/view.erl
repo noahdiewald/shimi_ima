@@ -152,9 +152,10 @@ set_sortkey_by_field(Field, Vq, R, S) ->
 
 -spec set_sortkey_helper(binary(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
 set_sortkey_helper(Charseq, Vq, R, S) ->
+    Project = wrq:path_info(project, R),
     Val = Vq#vq.startkey,
     Input = [{<<"charseq">>, Charseq},{<<"value">>, Val}],
-    Sortkey = charseq:get_sortkey(Input, R, S),
+    Sortkey = charseq:get_sortkey(Input, Project, S),
     Vq#vq{startkey = [[Sortkey, Val]]}.
 
 -spec set_sortkey_helper(binary(), binary(), view_query()) -> view_query().

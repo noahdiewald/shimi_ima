@@ -106,7 +106,9 @@ content_types_accepted(R, S) ->
     {[{"application/json", from_json}], R, S}.
 
 process_post(R, S) ->
-    document_toucher:start(R, S),
+    Doctype = wrq:path_info(id, R),
+    Project = wrq:path_info(project, R),
+    document_toucher:start(Project, Doctype, S),
     {{halt, 204}, R, S}.
 
 provide_null(R, S) ->
@@ -117,7 +119,9 @@ index_html(R, S) ->
     {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-    Json = couch:get_json(id, R, S),
+    Project = wrq:path_info(project, R),
+    Id = wrq:path_info(id, R),
+    Json = couch:get(Id, Project, S), 
     {ok, Html} = render:render(config_doctype_dtl, Json),
     {Html, R, S}.
   
@@ -129,9 +133,8 @@ from_json(R, S) ->
 
 json_create(R, S) ->  
     Json = jsn:decode(wrq:req_body(R)),
-    {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
-    {ok, DesignJson} = render:render(design_doctype_json_dtl, Json),
-    {ok, created} = couch:create(design, DesignJson, R, S),
+    Project = wrq:path_info(project, R),
+    {ok, created} = couch:create(Project, Json, S),
     {true, R, S}.
 
 json_update(R, S) ->

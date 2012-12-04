@@ -46,8 +46,8 @@ bump(Doctype, R, S) ->
 -spec bump_all([string()], utils:req_data(), any()) -> ok.
 bump_all([], _R, _S) ->
     ok;
-bump_all([H|T], R, S) ->
-    {ok, Json} = couch:get_json(safer, H, R, S),
+bump_all([H|T], Project, S) ->
+    {ok, Json} = couch:get(H, Project, S),
     {ok, updated} = couch:update(doc, jsn:get_value(<<"_id">>, Json),
                                  jsn:encode(Json), R, S),
     bump_all(T, R, S).

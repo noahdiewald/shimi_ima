@@ -136,10 +136,9 @@ to_html(R, S) ->
 
 html_main(R, S) ->  
     User = proplists:get_value(user, S),
-    Project = couch:get_json(project, R, S),
-  
-    Vals = [{<<"user">>, User}, {<<"project_info">>, Project}],
-  
+    Project = wrq:path_info(project, R),
+    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    Vals = [{<<"user">>, User}, {<<"project_info">>, ProjectData}],
     {ok, Html} = render:render(file_manager_dtl, Vals),
     Html.
 
@@ -168,8 +167,9 @@ html_dirs(R, S) ->
     Html.
 
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    Project = wrq:path_info(project, R),
+    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

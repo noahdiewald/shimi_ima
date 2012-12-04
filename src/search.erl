@@ -26,7 +26,6 @@
          values/6
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("types.hrl").
 
 %% @doc Retrieve values for a search over a user defined index.
