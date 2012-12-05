@@ -71,8 +71,8 @@ arrange([H|T], [AccH|AccT]) ->
 -spec set_sortkeys(jsn:json_term() | [docfieldset()], R :: utils:reqdata(), S :: any()) -> jsn:json_term().
 set_sortkeys([], _R, _S) ->
     [];
-set_sortkeys(Fieldsets, R, S) when is_list(Fieldsets) ->
-    set_sortkeys(Fieldsets, [], R, S).
+set_sortkeys(Fieldsets, Project, S) when is_list(Fieldsets) ->
+    set_sortkeys(Fieldsets, [], Project, S).
 
 %% @doc Convert a jsn:json_term() fieldset within a document to a
 %% docfieldset() record.
@@ -137,41 +137,41 @@ get_fields(true, Json) when is_list(Json) ->
 
 set_sortkeys([], Acc, _R, _S) ->
     lists:reverse(Acc);
-set_sortkeys([Fieldset|Rest], Acc, R, S) when is_list(Fieldset) ->
+set_sortkeys([Fieldset|Rest], Acc, Project, S) when is_list(Fieldset) ->
     {FSType, Val} = 
         case jsn:get_value(<<"multiple">>, Fieldset) of
             true ->
                 {<<"multifields">>, 
                  multifields_sortkeys(
-                   jsn:get_value(<<"multifields">>, Fieldset), R, S)};
+                   jsn:get_value(<<"multifields">>, Fieldset), Project, S)};
             false -> 
                 {<<"fields">>, 
                  field:set_sortkeys(
-                   jsn:get_value(<<"fields">>, Fieldset), R, S)}
+                   jsn:get_value(<<"fields">>, Fieldset), Project, S)}
         end,
-    set_sortkeys(Rest, [jsn:set_value(FSType, Val, Fieldset)|Acc], R, S);
-set_sortkeys([FS=#docfieldset{}|Rest], Acc, R, S) ->
+    set_sortkeys(Rest, [jsn:set_value(FSType, Val, Fieldset)|Acc], Project, S);
+set_sortkeys([FS=#docfieldset{}|Rest], Acc, Project, S) ->
     Fields = 
         case FS#docfieldset.multiple of
             true ->
-                [field:set_sortkeys(X, R, S) || X <- FS#docfieldset.fields];
+                [field:set_sortkeys(X, Project, S) || X <- FS#docfieldset.fields];
             false -> 
-                field:set_sortkeys(FS#docfieldset.fields, R, S)
+                field:set_sortkeys(FS#docfieldset.fields, Project, S)
         end,
-    set_sortkeys(Rest, [FS#docfieldset{fields=Fields}|Acc], R, S).
+    set_sortkeys(Rest, [FS#docfieldset{fields=Fields}|Acc], Project, S).
 
-multifields_sortkeys([], _R, _S) ->
+multifields_sortkeys([], _Project, _S) ->
     [];
-multifields_sortkeys(Multifields, R, S) ->
-    multifields_sortkeys(Multifields, [], R, S).
+multifields_sortkeys(Multifields, Project, S) ->
+    multifields_sortkeys(Multifields, [], Project, S).
 
-multifields_sortkeys([], Acc, _R, _S) ->
+multifields_sortkeys([], Acc, _Project, _S) ->
     lists:reverse(Acc);
-multifields_sortkeys([Mfield|Rest], Acc, R, S) when is_list(Mfield) ->
+multifields_sortkeys([Mfield|Rest], Acc, Project, S) when is_list(Mfield) ->
     multifields_sortkeys(
       Rest, 
       [jsn:set_value(
          <<"fields">>, 
-         field:set_sortkeys(jsn:get_value(<<"fields">>, Mfield), R, S), 
-         Mfield)|Acc], R, S).
+         field:set_sortkeys(jsn:get_value(<<"fields">>, Mfield), Project, S), 
+         Mfield)|Acc], Project, S).
   

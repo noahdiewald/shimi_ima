@@ -172,9 +172,7 @@ html_index(R, S) ->
     Html.
 
 html_identifier(R, S) ->
-    Project = wrq:path_info(project, R),
-    Id = wrq:path_info(id, R),
-    {ok, Json} = couch:get(Id, Project, S),
+    {ok, Json} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
 
     Json1 = jsn:set_value(<<"fields">>,
@@ -223,8 +221,7 @@ html_view(R, S) ->
     end.
     
 validate_authentication(Props, R, S) ->
-    Project = wrq:path_info(project, R),
-    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
@@ -281,8 +278,7 @@ get_label("metadata", _R, _S) ->
 get_label(Id, R, S) ->
     Json = case field:is_meta(Id) of
                false ->
-                   Project = wrq:path_info(project, R),
-                   {ok, J} = couch:get(Id, Project, S),
+                   {ok, J} = h:get(Id, Project, S),
                    J;
                _ ->
                    field:meta_field(Id)

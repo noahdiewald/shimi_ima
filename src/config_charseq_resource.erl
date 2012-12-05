@@ -51,10 +51,9 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Id = wrq:path_info(id, R),
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        index -> {couch:exists([], R, S), R, S}
+        identifier -> {h:exists(h:id(R), R, S), R, S};
+        _ -> {true, R, S}
     end.
 
 is_authorized(R, S) ->
@@ -67,14 +66,8 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Msg = <<"This charseq has been edited or deleted by another user.">>,
-    case couch:delete(R, S) of
-        {ok, deleted} -> {true, R, S};
-        {409, _} -> Message = jsn:encode([{<<"message">>, Msg}]),
-                    R1 = wrq:set_resp_body(Message, R),
-                    {{halt, 409}, R1, S}
-    end.
-  
+    h:delete(R, S).
+
 post_is_create(R, S) ->
     {true, R, S}.
 
@@ -120,9 +113,7 @@ html_as_tabs(R, S) ->
     {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-    Project = wrq:path_info(project, R),
-    Id = wrq:path_info(id, R),
-    Json = couch:get(Id, Project, S), 
+    {ok, Json} = h:id_data(R, S), 
     {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json)),
     {Html, R, S}.
   
@@ -133,15 +124,12 @@ from_json(R, S) ->
   end.
 
 json_create(R, S) ->  
-    Json = proplists:get_value(posted_json, S),
-    Project = wrq:path_info(project, R),
-    {ok, created} = couch:create(Project, Json, S),
-    {true, R, S}.
+    h:create(proplists:get_value(posted_json, S), R, S).
 
 json_update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
+    Id = h:id(R),
+    Rev = h:rev(R),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
     Msg = <<"This charseq has been edited or deleted by another user.">>,

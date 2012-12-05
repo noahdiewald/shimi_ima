@@ -77,15 +77,15 @@ get_vq(R) ->
 %% webmachine state and will possibly alter the default return value
 %% of from_reqdata/1 to set sortkeys for the startkey, if needed.
 -spec get_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
-get_sortkey_vq(Id, R, S) ->
+get_sortkey_vq(Id, Project, S) ->
     Vq = from_reqdata(R),
-    set_keys_sortkeys(Id, Vq, R, S).
+    set_keys_sortkeys(Id, Vq, Project, S).
 
 %% @doc This is like normal normalize_vq/1 except that it uses
 %% get_sortkey_vq/3
 -spec normalize_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> string().
-normalize_sortkey_vq(Id, R, S) ->
-    to_string(get_sortkey_vq(Id, R, S)).
+normalize_sortkey_vq(Id, Project, S) ->
+    to_string(get_sortkey_vq(Id, Project, S)).
 
 %% @doc This takes the query string from the webmachine request state
 %% and first transforms it into a view_query() using get_vq/1 before
@@ -105,8 +105,8 @@ decide_sortkey(_) ->
     false.
 
 -spec set_keys_sortkeys(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_keys_sortkeys(Id, Vq, R, S) ->
-    Json = couch:get_json(Id, R, S),
+set_keys_sortkeys(Id, Vq, Project, S) ->
+    {ok, Json} = h:get(Id, Project, S),
     Required = decide_sortkey(Vq),
     case {jsn:get_value(<<"category">>, Json), Required} of
         {<<"index">>, true} ->
@@ -114,23 +114,23 @@ set_keys_sortkeys(Id, Vq, R, S) ->
                   jsn:get_value(<<"replace_pattern">>, Json)} of
                 % TODO: This is here until feature is fully implemented.
                 {[Field], undefined} ->
-                    set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+                    set_sortkey_by_field(binary_to_list(Field), Vq, Project, S);
                 {[Field], null} ->
-                    set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+                    set_sortkey_by_field(binary_to_list(Field), Vq, Project, S);
                 _ -> Vq
             end;
         {<<"index">>, false} ->
             Vq;
         {<<"doctype">>, true} ->
-            set_sortkey_by_doctype(Id, Vq, R, S);
+            set_sortkey_by_doctype(Id, Vq, Project, S);
         {<<"doctype">>, false} ->
             Val = Vq#vq.startkey,
             Vq#vq{startkey = [list_to_binary(Id), Val]}
     end.
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_by_doctype(Id, Vq, R, S) ->
-    {ok, Charseqs} = q:head_charseqs(Id, R, S),
+set_sortkey_by_doctype(Id, Vq, Project, S) ->
+    {ok, Charseqs} = q:head_charseqs(Id, Project, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             Val = Vq#vq.startkey,
@@ -141,17 +141,17 @@ set_sortkey_by_doctype(Id, Vq, R, S) ->
     end.
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_by_field(Field, Vq, R, S) ->
+set_sortkey_by_field(Field, Vq, Project, S) ->
     Charseq = case field:is_meta(Field) of
                   false ->
-                      Json = couch:get_json(Field, R, S),
+                      {ok, Json} = h:get(Field, Project, S),
                       jsn:get_value(<<"charseq">>, Json);
                   _ -> null
               end,
-    set_sortkey_helper(Charseq, Vq, R, S).
+    set_sortkey_helper(Charseq, Vq, Project, S).
 
 -spec set_sortkey_helper(binary(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_helper(Charseq, Vq, R, S) ->
+set_sortkey_helper(Charseq, Vq, Project, S) ->
     Project = wrq:path_info(project, R),
     Val = Vq#vq.startkey,
     Input = [{<<"charseq">>, Charseq},{<<"value">>, Val}],

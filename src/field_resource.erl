@@ -96,9 +96,7 @@ to_html(R, S) ->
 json_field(R, S) ->
     Field = case proplists:get_value(is_meta, S) of
                 undefined ->
-                    Id = wrq:path_info(id, R),
-                    Project = wrq:path_info(project, R),
-                    {ok, Json} = couch:get(Id, Project, S),
+                    {ok, Json} = h:id_data(Id, Project, S),
                     Subcategory = 
                         binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
                     get_allowed(Subcategory, Json, Project, S);
@@ -122,9 +120,7 @@ json_fields(R, S) ->
     jsn:encode(lists:map(F, Rows)).
 
 html_field(R, S) -> 
-     Project = wrq:path_info(project, R),
-     Id = wrq:path_info(id, R),
-     {ok, Json} = couch:get(Id, Project, S),
+     {ok, Json} = h:id_data(Id, Project, S),
      get_field_html(Json, R, S).
   
 html_fields(R, S) -> 
@@ -147,7 +143,7 @@ html_as_fieldset(R, S) ->
     lists:map(F, Rows).
   
 html_as_options(R, S) ->
-    Json = field:option_list(R, S),
+    Json = option_list(R, S),
     {ok, Html} = render:render(options_dtl, Json),
     Html.
 
@@ -181,12 +177,26 @@ get_allowed_files(Json, Project, S) ->
     jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
 validate_authentication(Props, R, S) ->
-    Project = wrq:path_info(project, R),
-    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
         true -> {true, R, S};
         false -> {proplists:get_value(auth_head, S), R, S}
+    end.
+
+option_list(R, S) ->
+    F = fun(X) ->
+                [Name, Label] = jsn:get_value(<<"value">>, X),
+                Id = jsn:get_value(<<"id">>, X),
+                [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
+        end,
+    case h:fieldset(R) of
+        "metadata" -> meta_options();
+        Fieldset -> 
+            {ok, Json} = q:field(h:doctype(R), Fieldset, false, R, S),
+            jsn:set_value(<<"rows">>, 
+                          lists:map(F, jsn:get_value(<<"rows">>, Json)), 
+                          Json)
     end.

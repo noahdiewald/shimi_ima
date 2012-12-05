@@ -141,7 +141,7 @@ get_sortkey(CharseqId, Value, Project, S) when is_binary(CharseqId) ->
     end.
   
 get_sortkey_helper(CharseqId, Value, Project, S) ->
-    Json = couch:get(binary_to_list(CharseqId), Project, S),
+    {ok, Json} = h:get(binary_to_list(CharseqId), Project, S),
     Charseq = charseq:from_json(Json),
     get_sortkey_helper(Charseq, Value).
 

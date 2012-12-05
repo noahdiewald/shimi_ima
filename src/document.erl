@@ -34,13 +34,13 @@
 
 %% @doc Set the sortkeys for the fields in the document. 
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
-set_sortkeys(Doc, R, S) when is_list(Doc) -> 
+set_sortkeys(Doc, Project, S) when is_list(Doc) -> 
     jsn:set_value(
       <<"fieldsets">>, 
       fieldset:set_sortkeys(
-        jsn:get_value(<<"fieldsets">>, Doc), R, S), Doc);
-set_sortkeys(D=#document{}, R, S) ->
-    D#document{fieldsets=fieldset:set_sortkeys(D#document.fieldsets, R, S)}.
+        jsn:get_value(<<"fieldsets">>, Doc), Project, S), Doc);
+set_sortkeys(D=#document{}, Project, S) ->
+    D#document{fieldsets=fieldset:set_sortkeys(D#document.fieldsets, Project, S)}.
 
 %% @doc Convert a jsn:json_term() document to a document() record.
 -spec from_json(Json :: jsn:json_term()) -> document().

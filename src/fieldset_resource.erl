@@ -70,17 +70,8 @@ to_html(R, S) ->
 % Helpers
 
 html_fieldset(R, S) -> 
-    Doctype = wrq:path_info(doctype, R),
-    Project = wrq:path_info(project, R),
-    Id = wrq:path_info(id, R),
-    {ok, Json} = couch:get(Id, Project, S),
-    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
-    {ok, DoctypeData} = couch:get(Doctype, Project, S),
-    Vals = [
-            {<<"project_info">>, ProjectData},
-            {<<"doctype_info">>, DoctypeData}|Json
-           ],
-  
+    {ok, Json} = h:id_data(R, S),
+    Vals = h:basic_info(R, S) ++ Json.
     {ok, Html} = render:render(fieldset_dtl, Vals),
     Html.
   
@@ -109,8 +100,7 @@ html_fieldsets(R, S) ->
     Html.
     
 validate_authentication(Props, R, S) ->
-    Project = wrq:path_info(project, R),
-    {ok, ProjectData} = couch:get(Project -- "project-", "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,

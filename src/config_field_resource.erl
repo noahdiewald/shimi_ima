@@ -121,11 +121,7 @@ index_html(R, S) ->
                        config_field_list_elements_dtl), R, S}.
 
 id_html(R, S) ->
-    Project = wrq:path_info(project, R),
-    Id = wrq:path_info(id, R),
-    Json = couch:get(Id, Project, S), 
-    {ok, Html} = render:render(config_fieldset_dtl, Json),
-    {Html, R, S}.
+    h:id_html(config_fieldset_dtl,  R, S).
   
 from_json(R, S) ->
   case proplists:get_value(target, S) of

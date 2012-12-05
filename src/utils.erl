@@ -42,12 +42,7 @@
          y/1
         ]).
 
--export_type([reqdata/0]).
-
 -include_lib("include/types.hrl").
--include_lib("webmachine/include/webmachine.hrl").
-
--type reqdata() :: #wm_reqdata{}.
 
 %% @doc Return whether we're in development mode
 is_devel() ->
@@ -70,7 +65,7 @@ ndb() ->
 
 %% @doc Return a unique id
 uuid() ->
-  binary_to_hexlist(crypto:rand_bytes(16)).
+    binary_to_hexlist(crypto:rand_bytes(16)).
 
 %% @doc Takes a tuple that describes a view path and a function. The
 %% function argument takes a document and returns {ok, document} or

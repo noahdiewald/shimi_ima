@@ -77,15 +77,13 @@ process_post(R, S) ->
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),
-    Id = wrq:path_info(project, R) -- "project",
-    ProjectData = couch:get(Id, "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Vals = [{<<"user">>, User},{<<"project_info">>, ProjectData}],
     {ok, Html} = render:render(config_dtl, Vals),
     {Html, R, S}.
 
 validate_authentication(Props, R, S) ->
-    Id = wrq:path_info(project, R) -- "project",
-    ProjectData = couch:get(Id, "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,

@@ -64,8 +64,7 @@ to_html(R, S) ->
   
 html_index(R, S) ->
     User = proplists:get_value(user, S),
-    Id = wrq:path_info(project, R) -- "project",
-    ProjectData = couch:get(Id, "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
 
     {ok, Json} = q:doctypes(R, S),
   
@@ -78,8 +77,7 @@ html_index(R, S) ->
     Html.
 
 validate_authentication(Props, R, S) ->
-    Id = wrq:path_info(project, R) -- "project",
-    ProjectData = couch:get(Id, "shimi_ima", S),
+    {ok, ProjectData} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     NormalRoles = [<<"_admin">>, <<"manager">>, Name],
     IsNormal = fun (Role) -> lists:member(Role, NormalRoles) end,

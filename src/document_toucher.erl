@@ -139,7 +139,7 @@ code_change(_OldVsn, S, _Extra) ->
 
 -spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
 touch_get_json(Id, Project, S) ->
-    {ok, Json} = couch:get(binary_to_list(Id), Project, S),
+    {ok, Json} = h:get(binary_to_list(Id), Project, S),
     Json.
 
 %% @doc After initialization is complete, begin the touch operation.
