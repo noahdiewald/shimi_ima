@@ -27,22 +27,11 @@
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("types.hrl").
 
-make_wrq(Method, RawPath, Headers) ->
-    wrq:create(Method, {1,1}, RawPath, mochiweb_headers:from_list(Headers)).
-
-fake_reqdata() ->
-     make_wrq('GET', "http://admin:dogoats@127.0.0.1:5984" ++
-                  "/project-7e8b897216ff005928f59c5af54972da/" ++ 
-                  "_all_docs?startkey=\"_design/\"&endkey=\"_design0\"", []).
-
 creation_test_() ->
     {"Create a vq record",
      [
       {"New blank",
        ?_assertEqual(#vq{}, view:new())},
-      {"From reqdata",
-       ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>}, 
-                     view:from_reqdata(fake_reqdata()))},
       {"From list with list JSON values as provided by wrq:req_qs/1",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
                      view:from_list([{"startkey", "\"_design/\""}, 
