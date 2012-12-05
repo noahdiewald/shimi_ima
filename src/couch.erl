@@ -36,7 +36,7 @@
          new_db/1,
          replicate/2,
          should_wait/2,
-         update/5
+         update/4
         ]).
 
 -include_lib("types.hrl").
@@ -46,7 +46,7 @@ adb(Project) ->
     Val ++ Project ++ "/".
 
 %% @doc Create a document
--spec create(jsn:json_term(), string(), h:req_state()) -> h:req_retval().
+-spec create(jsn:json_term(), string(), h:req_state()) -> {ok, created} | {forbidden, binary()}.
 create(Json, Url=[$h,$t,$t,$p,$:|_], S) ->
     Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
     case ibrowse:send_req(Url, Headers, post, jsn:encode(jsn:decode(Json))) of
@@ -55,7 +55,7 @@ create(Json, Url=[$h,$t,$t,$p,$:|_], S) ->
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
             Message = jsn:get_value(<<"reason">>, Resp),
-            {403, Message}
+            {forbidden, Message}
     end;
 create(Json, Project, S) ->
     DB = case proplists:get_value(admin, S) of
@@ -94,39 +94,44 @@ exists(Id, Project, S) ->
         {ok, "404", _} -> false
     end.
 
+-spec fold_view(string(), string(), string(), fun((jsn:json_term(), [jsn:json_term()], string()) -> any()), string(), h:req_state()) -> any().
 fold_view(Id, Name, Qs, Fun, Project, S) ->
     {ok, ViewJson} = get_view_json(Id, Name, Qs, Project, S),
     Rows = jsn:get_value(<<"rows">>, ViewJson),
     lists:foldr(Fun, [], Rows).
 
 %% @doc Get a document
--spec get(string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error, atom()}.
+-spec get(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Project, S) ->  
     Headers = proplists:get_value(headers, S),
     Url = ndb(Project) ++ Id,
     get_json_helper(Url, Headers).
     
 %% @doc Get a specific revision of a document
--spec get(string(), string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error, atom()}.
+-spec get(string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Rev, Project, S) ->
     Headers = proplists:get_value(headers, S),
     Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     get_json_helper(Url, Headers).
 
+-spec get_db_info(string()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_db_info(Project) ->
     get_json_helper(adb(Project), []).
 
+-spec get_db_seq(string()) -> {ok, binary()} | {error, atom()}.
 get_db_seq(Project) ->
     case get_db_info(Project) of
         {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)};
         Otherwise -> Otherwise
     end.
 
+-spec get_dbs() -> jsn:json_term().
 get_dbs() ->
     Url = pdb() ++ "_all_docs?include_docs=true",
     {ok, Json} = get_json_helper(Url, []),
     Json.
 
+-spec get_design_rev(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_design_rev(Name, Project, S) ->
     Url = utils:adb(Project) ++ "_design/" ++ Name,
     case get_json_helper(Url, S) of
@@ -152,21 +157,7 @@ get_json_helper(Url, Headers) ->
         Else -> Else
     end.
 
-% TODO: DELETE
-%get_view_json(Id, Name, Project, S) ->
-%    Qs = view:normalize_vq(R),
-%    get_view_json(Id, Name, Qs, Project, S).
-% 
-% get_view_json(noqs, Id, Name, Project, H) ->
-%     get_view_json_helper(Id, Name, [], Project, H);
-% get_view_json(sortkeys, Id, Name, Project, H) ->
-%     Qs = view:normalize_sortkey_vq(Id, Project, H),
-%     get_view_json_helper(Id, Name, "?" ++ Qs, Project, H);
-% 
-% get_view_json(sortkeys, Id, Name, Doctype, Project, H) ->
-%     Qs = view:normalize_sortkey_vq(Doctype, Project, H),
-%     get_view_json_helper(Id, Name, "?" ++ Qs, Project, H).
-
+-spec get_views(string()) -> [binary()].
 get_views(Project) ->
     Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
                                         {"endkey", <<"_design0">>},
@@ -211,29 +202,28 @@ get_view_path(Row) ->
     end.
 
 %% @doc Make a new database
+-spec new_db(string()) -> {ok, newdb}.
 new_db(DB) ->
     {ok, "201", _, _} = ibrowse:send_req(adb(DB), [], put),
     {ok, newdb}.
 
+-spec ndb(string()) -> string().
 ndb(Project) ->
     {ok, Val} = application:get_env(normal_db),
     Val ++ Project ++ "/".
 
+-spec pdb() -> string().
 pdb() ->
     {ok, Val} = application:get_env(admin_db),
     Val ++ "shimi_ima" ++ "/".
 
+-spec replicate(string(), string()) -> {ok, replicated}.
 replicate(Source, Target) ->
     Headers = [{"Content-Type", "application/json"}],
     Url = adb("_replicate"),
-    Json = [{<<"source">>, list_to_binary(Source)},
-            {<<"target">>, list_to_binary(Target)}],
-    case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
-        {ok, [$2|_], _, _} ->
-            {ok, replicated};
-        Otherwise ->
-            Otherwise
-    end.
+    Json = [{<<"source">>, list_to_binary(Source)}, {<<"target">>, list_to_binary(Target)}],
+    {ok, [$2|_], _, _} = ibrowse:send_req(Url, Headers, post, jsn:encode(Json)),
+    {ok, replicated}.
     
 -spec should_wait(string(), string()) -> boolean().
 should_wait(Project, ViewPath) ->
@@ -243,15 +233,17 @@ should_wait(Project, ViewPath) ->
         _ -> false
     end.
   
-update(Id, _Rev, Json, Project, S) ->
+-spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+update(Id, Json, Project, S) ->
     Project =  Project,
     Url = ndb(Project) ++ "_design/shimi_ima/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
                proplists:get_value(headers, S)],
     update(Url, Headers, Json).
-  
+
+-spec update(string(), [tuple()], jsn:json_term()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
 update(Url, Headers, Json) ->
-    case ibrowse:send_req(Url, Headers, put, jsn:encode(jsn:decode(Json))) of
+    case ibrowse:send_req(Url, Headers, put, jsn:encode(Json)) of
         {ok, "201", _, _} -> 
             {ok, updated};
         {error, req_timedout} -> 
@@ -259,7 +251,7 @@ update(Url, Headers, Json) ->
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
             Message = jsn:get_value(<<"reason">>, Resp),
-            {403, Message};
+            {forbidden, Message};
         {ok, "409", _, _} -> 
-            {409, <<"Conflict">>}
+            {error, conflict}
     end.
