@@ -53,16 +53,13 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-  Doctype = wrq:path_info(doctype, R),
-  Id = wrq:path_info(id, R),
-   
-  case proplists:get_value(target, S) of
-    index -> {couch:exists(Doctype, R, S), R, S};
-    identifier -> {couch:exists(Id, R, S), R, S}
-  end. 
+    case proplists:get_value(target, S) of
+        index -> {h:exists(h:doctype(R), R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S}
+    end. 
 
 is_authorized(R, S) ->
-  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+    proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
   case proplists:get_value(target, S) of
@@ -71,16 +68,10 @@ allowed_methods(R, S) ->
   end.
   
 delete_resource(R, S) ->
-  case couch:delete(R, S) of
-    {ok, deleted} -> {true, R, S};
-    {409, _} ->
-      Message = jsn:encode([{<<"message">>, <<"This document has been edited or deleted by another user.">>}]),
-      R1 = wrq:set_resp_body(Message, R),
-      {{halt, 409}, R1, S}
-  end.
+    h:delete(R, S).
   
 post_is_create(R, S) ->
-  {true, R, S}.
+    {true, R, S}.
 
 create_path(R, S) ->
   Json = jsn:decode(wrq:req_body(R)),
@@ -124,31 +115,14 @@ from_json(R, S) ->
   end.
 
 json_create(R, S) ->  
-    {ok, updated} = couch:update_doctype_version(R, S),
+    {ok, updated} = h:update_doctype_version(R, S),
     Json = proplists:get_value(posted_json, S),
-    Project = wrq:path_info(project, R),
-    {ok, created} = couch:create(Project, Json, S),
-    {true, R, S}.
+    h:create(Json, R, S).
   
 json_update(R, S) ->
-    {ok, updated} = couch:update_doctype_version(R, S),
+    {ok, updated} = h:update_doctype_version(R, S),
     Json = jsn:decode(wrq:req_body(R)),
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This document has been edited or deleted by another user.">>,
-
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-        {ok, updated} -> {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    h:update(Json, R, S).
 
 % Helpers
 

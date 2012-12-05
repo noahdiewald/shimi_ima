@@ -158,10 +158,11 @@ me(Doctype) ->
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.project, S#state.wm_state),
     Doc = document:from_json(Json),
+    Rev = Doc#document.rev,
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
-    case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), S#state.project, 
+    case couch:update(binary_to_list(Id), binary_to_list(Rev), jsn:encode(Doc2), S#state.project, 
                       S#state.wm_state) of
         {ok, updated} ->
             untouched:delete(S#state.doctype, Id),
@@ -323,7 +324,7 @@ process_docs(S) ->
 %% processing to be slowed while view indexing takes place.
 -spec fill_tables(state()) -> {ok, [string()]} | {error, req_timedout}.
 fill_tables(#state{doctype=Doctype, project=Project, wm_state=WMS, tid=Tid}) ->
-    case q:fieldset(Doctype, R, WMS) of
+    case q:fieldset(Doctype, Project, WMS) of
         {ok, Json} ->
             ok = fill_tables(jsn:get_value(<<"rows">>, Json), Tid);
         {error, req_timedout} ->

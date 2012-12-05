@@ -28,6 +28,7 @@
          from_json/2,
          is_meta/1,
          meta_field/1,
+         meta_options/0,
          set_sortkeys/3,
          to_json/2,
          unconvert_value/2
@@ -75,7 +76,7 @@ meta_field(Id) when Id =:= <<"updated_by_">> ->
 user_field(Id, Label) ->
     Field = #field{id = Id,
                    label = Label,
-                   allowed = couch:user_list(),
+                   allowed = [],
                    subcategory = select},
     to_json(Field).
 
@@ -273,7 +274,6 @@ get_subcategory(Bin) ->
 set_sortkeys([], Acc, _R, _S) ->
     lists:reverse(Acc);
 set_sortkeys([Field|Rest], Acc, Project, S) when is_list(Field) ->
-    Project = wrq:path_info(project, R),
     set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, 
                                       charseq:get_sortkey(Field, Project, S), 
                                       Field)|Acc], Project, S);

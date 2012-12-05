@@ -46,22 +46,19 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Fieldset = wrq:path_info(fieldset, R),
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        identifier -> identifier_exists(Id, R, S);
-        index -> index_exists(Fieldset, R, S)
+        identifier -> identifier_exists(h:id(R), R, S);
+        index -> index_exists(h:fieldset(R), R, S)
     end. 
 
 identifier_exists(Id, R, S) ->
     case field:is_meta(Id) of
         true -> {true, R, [{is_meta, list_to_binary(Id)}|S]};
-        _ -> {couch:exists(Id, R, S), R, S}
+        _ -> {h:exists(Id, R, S), R, S}
     end.
 
 index_exists("metadata", R, S) -> {true, R, S};
-index_exists(Fieldset, R, S) -> {couch:exists(Fieldset, R, S), R, S}.
+index_exists(Fieldset, R, S) -> {h:exists(Fieldset, R, S), R, S}.
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -96,17 +93,18 @@ to_html(R, S) ->
 json_field(R, S) ->
     Field = case proplists:get_value(is_meta, S) of
                 undefined ->
-                    {ok, Json} = h:id_data(Id, Project, S),
+                    {ok, Json} = h:id_data(R, S),
                     Subcategory = 
                         binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
-                    get_allowed(Subcategory, Json, Project, S);
+                    get_allowed(Subcategory, Json, h:project(R), S);
                 Id -> field:meta_field(Id)
             end,
     jsn:encode(Field).
 
 json_fields(R, S) -> 
-    Doctype = wrq:path_info(doctype, R),
-    Fieldset = wrq:path_info(fieldset, R),
+    Doctype = h:doctype(R),
+    Fieldset = h:fieldset(R),
+    Project = h:project(R),
     {ok, Json} = q:field(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
@@ -120,7 +118,7 @@ json_fields(R, S) ->
     jsn:encode(lists:map(F, Rows)).
 
 html_field(R, S) -> 
-     {ok, Json} = h:id_data(Id, Project, S),
+     {ok, Json} = h:id_data(R, S),
      get_field_html(Json, R, S).
   
 html_fields(R, S) -> 
@@ -131,8 +129,8 @@ html_fields(R, S) ->
     end.
 
 html_as_fieldset(R, S) -> 
-    Doctype = wrq:path_info(doctype, R),
-    Fieldset = wrq:path_info(fieldset, R),
+    Doctype = h:doctype(R),
+    Fieldset = h:fieldset(R),
     {ok, Json} = q:field(Doctype, Fieldset, R, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
@@ -154,7 +152,7 @@ get_field_html(Json, R, S) ->
   
     Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json1)),
     Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
-    {ok, Html} = Template:render(get_allowed(Subcategory, Json1, Project, S)),
+    {ok, Html} = Template:render(get_allowed(Subcategory, Json1, h:project(R), S)),
     Html.
 
 get_allowed([$d, $o, $c|_], Json, Project, S) -> get_allowed_docs(Json, Project, S);
@@ -193,7 +191,7 @@ option_list(R, S) ->
                 [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
         end,
     case h:fieldset(R) of
-        "metadata" -> meta_options();
+        "metadata" -> field:meta_options();
         Fieldset -> 
             {ok, Json} = q:field(h:doctype(R), Fieldset, false, R, S),
             jsn:set_value(<<"rows">>, 

@@ -49,11 +49,9 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        view -> {couch:exists(Id, R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S};
+        view -> {h:exists(h:id(R), R, S), R, S};
         _ -> {true, R, S}
     end. 
 
@@ -69,14 +67,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Msg = <<"This index has been edited or deleted by another user.">>,
-    case couch:delete(R, S) of
-        {ok, deleted} -> {true, R, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    h:delete(R, S).
   
 post_is_create(R, S) ->
     {true, R, S}.
@@ -117,30 +108,20 @@ from_json(R, S) ->
   
 json_create(R, S) ->
     Json = proplists:get_value(posted_json, S),
-    Project = wrq:path_info(project, R),
-    case couch:create(Project, Json, S) of
-        {ok, created} -> {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S}
-    end.
+    h:create(Json, R, S).
   
 json_update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This index has been edited or deleted by another user.">>,
-
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
+    
+    case couch:update(h:id(R), h:rev(R), jsn:encode(Json), h:project(R), S) of
         {ok, updated} -> 
-            {ok, _} = update_design(Json2, R, S),
+            {ok, _} = update_design(Json, R, S),
             {true, R, S};
-        {403, Message} ->
+        {forbidden, Message} ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 403}, R1, S};
-        {409, _} ->
+        {error, conflict} ->
+            Msg = <<"This index has been edited or deleted by another user.">>,
             Message = jsn:encode([{<<"message">>, Msg}]),
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 409}, R1, S}
@@ -150,14 +131,14 @@ update_design(Json, R, S) ->
     % Translate the conditions to javascript
     Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
     {ok, Design} = design_index_json_dtl:render([{<<"expression">>, Expression}|Json]),
-    Id = "_design/" ++ wrq:path_info(id, R),
-    Project = wrq:path_info(project, R),
+    Id = "_design/" ++ h:id(R),
+    Project = h:project(R),
   
-    case couch:exists(Id, R, S) of
-        false ->
+    case h:get(Id, R, [{admin, true}|S]) of
+        {error, not_found} ->
             couch:create(Design, Project, [{admin, true}|S]);
-        _ ->
-            couch:update(design, Design, R, S)
+        {ok, Json} ->
+            couch:update(Design, binary_to_list(jsn:get_value(<<"_rev">>, Json)), Project, R, [{admin, true}|S])
     end.
   
 html_index(R, S) ->
@@ -278,7 +259,7 @@ get_label("metadata", _R, _S) ->
 get_label(Id, R, S) ->
     Json = case field:is_meta(Id) of
                false ->
-                   {ok, J} = h:get(Id, Project, S),
+                   {ok, J} = h:get(Id, R, S),
                    J;
                _ ->
                    field:meta_field(Id)

@@ -33,7 +33,7 @@
 -include_lib("types.hrl").
 
 %% @doc Set the sortkeys for the fields in the document. 
--spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
+-spec set_sortkeys(jsn:json_term(), string(), h:req_state()) -> jsn:json_term().
 set_sortkeys(Doc, Project, S) when is_list(Doc) -> 
     jsn:set_value(
       <<"fieldsets">>, 

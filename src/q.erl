@@ -34,18 +34,22 @@ document_index(Doctype, R, S) ->
         [_, Y] = jsn:get_value(<<"key">>, X),
         jsn:set_value(<<"key">>, Y, X)
     end,
-    {ok, Json} = couch:get_view_json(sortkeys, "shimi_ima", "all_documents", Doctype, R, S),
+    Project = h:project(R),
+    Qs = view:normalize_sortkey_vq(Doctype, wrq:req_qs(R), Project, S),
+    {ok, Json} = couch:get_view_json("shimi_ima", "all_documents", Qs, Project, S),
     {ok, jsn:set_value(<<"rows">>, lists:map(F, jsn:get_value(<<"rows">>, Json)), Json)}.
 
 charseqs(R, S) ->
-    couch:get_view_json("shimi_ima", "all_charseqs", R, S).
+    Qs = view:normalize_vq(wrq:req_qs(R)),
+    couch:get_view_json("shimi_ima", "all_charseqs", Qs, h:project(R), S).
 
 doctypes(R, S) ->
-    couch:get_view_json("shimi_ima", "all_doctypes", R, S).
+    Qs = view:normalize_vq(wrq:req_qs(R)),
+    couch:get_view_json("shimi_ima", "all_doctypes", Qs, h:project(R), S).
 
 doctypes(true, R, S) ->
-    QS = view:to_string(#vq{include_docs = true}),
-    couch:get_view_json("shimi_ima", "all_doctypes", QS, R, S).
+    Qs = view:to_string(#vq{include_docs = true}),
+    couch:get_view_json("shimi_ima", "all_doctypes", Qs, h:project(R), S).
 
 fieldset(Doctype, R, S) ->
     fieldset(Doctype, true, R, S).
@@ -56,8 +60,8 @@ fieldset(DT, Include, R, S) when is_binary(DT) ->
     VQ = #vq{startkey = [DT, <<"">>],
              endkey = [DT, []],
              include_docs = Include},
-    QS = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
 
 field(Doctype, Fieldset, R, S) ->
     field(Doctype, Fieldset, true, R, S).
@@ -67,37 +71,37 @@ field(Doctype, Fieldset, Include, R, S)
     field(list_to_binary(Doctype), Fieldset, Include, R, S);
 field(DT, Fieldset, Include, R, S) when is_list(Fieldset) ->
     field(DT, list_to_binary(Fieldset), Include, R, S);
-field(DT, FS, Include, R, S) 
-  when is_binary(DT), is_binary(FS) ->
+field(DT, FS, Include, R, S) when is_binary(DT), is_binary(FS) ->
     VQ = #vq{startkey = [DT, FS, <<"fieldset-field">>, 0],
              endkey = [DT, FS, <<"fieldset-field">>, true],
              descending = true,
              include_docs = Include},
-    QS = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
 
 files(R, S) ->
     VQ = view:from_reqdata(R),
-    QS = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "by_path", QS, R, S).
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "by_path", Qs, h:project(R), S).
 
 head_charseqs(Doctype, R, S) ->
     DT = list_to_binary(Doctype),
     VQ = #vq{startkey =  [<<"_head-charseq">>, DT, 0],
              endkey = [<<"_head-charseq">>, DT, []],
              include_docs = true},
-    QS = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", QS, R, S).
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
 
 indexes_options(R, S) ->
-    couch:get_view_json("shimi_ima", "options", R, S).
+    Qs = view:normalize_vq(wrq:req_qs(R)),
+    couch:get_view_json("shimi_ima", "options", Qs, h:project(R), S).
 
 search(Doctype, Field, R, S) ->
     VQ = #vq{startkey = [Doctype, Field, []],
              endkey = [Doctype, Field, <<"">>],
              descending = true},
-    QS = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "search", QS, R, S).
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "search", Qs, h:project(R), S).
 
 %% @doc Take an id for a saved index and return a JSON term. This term
 %% will contain either the results of querying a view or will contain
@@ -105,10 +109,12 @@ search(Doctype, Field, R, S) ->
 %% query.
 -spec user_index(string(), utils:reqdata(), any()) -> jsn:json_term().
 user_index(IndexId, R, S) ->
-    case couch:get_view_json(sortkeys, IndexId, "index", R, S) of
+    Qs = view:normalize_sortkey_vq(IndexId, wrq:req_qs(R), h:project(R), S),
+    case couch:get_view_json(IndexId, "index", Qs, h:project(R), S) of
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.
 
 index(Id, R, S) ->
-    couch:get_view_json(Id, "index", R, S).
+    Qs = view:normalize_vq(wrq:req_qs(R)),
+    couch:get_view_json(Id, "index", Qs, h:project(R), S).

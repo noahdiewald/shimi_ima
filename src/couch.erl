@@ -66,7 +66,7 @@ create(Json, Project, S) ->
     end,
     create(Json, DB ++ "_design/shimi_ima/_update/stamp", S).
 
--spec delete(string(), string(), h:req_state()) -> h:req_retval().
+-spec delete(string(), string(), string(), h:req_state()) -> h:req_retval().
 delete(Id, Rev, Project, S) ->
     Url = utils:ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     Headers = [{"Content-Type",
@@ -85,10 +85,10 @@ delete(Id, Rev, Project, S) ->
         {ok, "409", _, _} -> {error, conflict}
     end.
 
--spec exists(string(), string(), req_state()) -> boolean().
+-spec exists(string(), string(), h:req_state()) -> boolean().
 exists(Id, Project, S) ->
     Url = adb(Project) ++ Id,
-    Headers = proplists:get_value(headers, H),
+    Headers = proplists:get_value(headers, S),
     case ibrowse:send_req(Url, Headers, head) of
         {ok, "200", _} -> true;
         {ok, "404", _} -> false
@@ -100,14 +100,14 @@ fold_view(Id, Name, Qs, Fun, Project, S) ->
     lists:foldr(Fun, [], Rows).
 
 %% @doc Get a document
--spec get(string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error(), atom()}.
+-spec get(string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Project, S) ->  
     Headers = proplists:get_value(headers, S),
     Url = ndb(Project) ++ Id,
     get_json_helper(Url, Headers).
     
 %% @doc Get a specific revision of a document
--spec get(string(), string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error(), atom()}.
+-spec get(string(), string(), string(), [{atom, any()}]) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Rev, Project, S) ->
     Headers = proplists:get_value(headers, S),
     Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
@@ -129,14 +129,14 @@ get_dbs() ->
 
 get_design_rev(Name, Project, S) ->
     Url = utils:adb(Project) ++ "_design/" ++ Name,
-    case get_json_helper(Url, []) of
+    case get_json_helper(Url, S) of
         {ok, Json} ->
             {jsn:get_value(<<"version">>, Json), 
              jsn:get_value(<<"_rev">>, Json)};
         Else -> Else
     end.
 
--spec get_helper(string(), proplist()) -> {ok, iolist()} | {error, atom()}.
+-spec get_helper(string(), [tuple()]) -> {ok, iolist()} | {error, atom()}.
 get_helper(Url, Headers) ->
     Opts = [{connect_timeout, 500}, {inactivity_timeout, 10000}],
     case ibrowse:send_req(Url, Headers, get, [], Opts) of
@@ -145,7 +145,7 @@ get_helper(Url, Headers) ->
         {error, req_timedout} -> {error, req_timedout}
     end.
 
--spec get_json_helper(string(), proplist()) -> {ok, jsn:json_term()} | {error, atom()}.
+-spec get_json_helper(string(), [tuple()]) -> {ok, jsn:json_term()} | {error, atom()}.
 get_json_helper(Url, Headers) ->  
     case get_helper(Url, Headers) of
         {ok, Json} -> {ok, jsn:decode(Json)};
@@ -180,10 +180,9 @@ get_views(Project) ->
                          _ -> true 
                      end
              end,
-    lists:flatten(
-      lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
+    lists:flatten(lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
     
--spec get_json_helper(string(), string(), sting(), string(), proplist()) -> {ok, jsn:json_term()} | {error, atom()}.
+-spec get_view_json(string(), string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Id, Name, Qs, Project, S) ->
     Headers = proplists:get_value(headers, S),
     Url = ndb(Project),
@@ -236,15 +235,15 @@ replicate(Source, Target) ->
             Otherwise
     end.
     
--spec get_json_helper(string(), string()) -> boolean().
+-spec should_wait(string(), string()) -> boolean().
 should_wait(Project, ViewPath) ->
     Url = adb(Project) ++ ViewPath ++ "?limit=1",
-    case get_helper(Url, Headers) of
+    case get_helper(Url, []) of
         {error, req_timedout} -> true;
         _ -> false
     end.
   
-update(Id, Rev, Json, Project, S) ->
+update(Id, _Rev, Json, Project, S) ->
     Project =  Project,
     Url = ndb(Project) ++ "_design/shimi_ima/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|

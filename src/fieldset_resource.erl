@@ -44,12 +44,9 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        index -> {couch:exists(Doctype, R, S), R, S};
-        identifier -> {couch:exists(Id, R, S), R, S}
+        index -> {h:exists(h:doctype(R), R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S}
     end. 
 
 is_authorized(R, S) ->
@@ -71,7 +68,7 @@ to_html(R, S) ->
 
 html_fieldset(R, S) -> 
     {ok, Json} = h:id_data(R, S),
-    Vals = h:basic_info(R, S) ++ Json.
+    Vals = h:basic_info(R, S) ++ Json,
     {ok, Html} = render:render(fieldset_dtl, Vals),
     Html.
   

@@ -30,7 +30,6 @@
   content_types_provided/2,
   init/1, 
   is_authorized/2,
-  resource_exists/2,
   to_html/2
 ]).
 
@@ -44,9 +43,6 @@
 % Standard webmachine functions
 
 init(Opts) -> {ok, Opts}.
-
-resource_exists(R, S) ->
-  {couch:exists([], R, S), R, S}.
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).

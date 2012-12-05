@@ -107,7 +107,7 @@ html_as_options(R, S) ->
     {ok, Json} = q:charseqs(R, S),
     {ok, Opts} = render:render(options_dtl, Json),
     {Opts, R, S}.
-  
+
 html_as_tabs(R, S) ->
     {ok, Json} = q:charseqs(R, S),
     {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
@@ -128,23 +128,7 @@ json_create(R, S) ->
 
 json_update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
-    Id = h:id(R),
-    Rev = h:rev(R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This charseq has been edited or deleted by another user.">>,
-  
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-        {ok, updated} -> 
-            {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    h:update(Json, R, S).  
 
 % Helpers
 

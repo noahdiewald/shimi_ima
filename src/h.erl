@@ -33,7 +33,7 @@
 
 -type req_data() :: #wm_reqdata{}.
 -type req_state() :: [{atom(), any()}].
--type req_retval() :: {ok, jsn:term() | updated | created} | {error, atom()}.
+-type req_retval() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
 
 -spec basic_info(string(), string(), req_data(), req_state()) -> jsn:json_term().
 basic_info(Title1, Title2, R, S) ->
@@ -54,8 +54,14 @@ charseq_data(R, S) ->
 
 -spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()}.
 create(Json, R, S) ->
-    {ok, created} = couch:create(Json, project(R), S),
-    {true, R, S}.
+    {ok, created} = 
+    case couch:create(Json, project(R), S) of
+        {ok, created} -> 
+            {true, R, S};
+        {forbidden, Message} ->
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 403}, R1, S}
+    end.
 
 -spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, 409}, req_data(), req_state()}.
 delete(R, S) ->
@@ -127,7 +133,7 @@ project(R) ->
     
 -spec project_data(req_data(), req_state()) -> req_retval().
 project_data(R, S) ->
-    get(iproject(R) -- "project-", "shimi_ima", S).
+    get(project(R) -- "project-", "shimi_ima", S).
     
 -spec rev(req_data()) -> string().
 rev(R) ->
@@ -142,8 +148,26 @@ rev(R) ->
 rev_data(R, S) ->
     get(id(R), rev(R), project(R), S).
 
--spec update(req_data(), req_state()) -> {true, req_data(), req_state()}, 
+-spec update(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, integer()}, req_data(), req_state()}.
+update(Json, R, S) ->
+    % Don't know if this will be useful later
+    %Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+    %Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+     case couch:update(id(R), rev(R), Json, project(R), S) of
+        {ok, updated} -> 
+            {true, R, S};
+        {forbidden, Message} ->
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 403}, R1, S};
+        {error, conflict} ->
+            Msg = <<"This document has been updated or deleted by another user.">>,
+            R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
+            {{halt, 409}, R1, S}
+    end.
+    
 -spec update_doctype_version(req_data(), req_state()) -> req_retval().
 update_doctype_version(R, S) ->
-    {ok, Json} = get(doctype(R), Project, S),
-    {ok, updated} = update(Doctype, Json, Project, S).
+    {ok, Json} = get(doctype(R), R, S),
+    Id = binary_to_list(jsn:get(<<"_id">>, Json)),
+    Rev = binary_to_list(jsn:get(<<"_rev">>, Json)),
+    {ok, updated} = couch:update(Id, Rev, Json, project(R), S).
