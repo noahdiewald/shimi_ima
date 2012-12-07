@@ -84,13 +84,13 @@ files(R, S) ->
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "by_path", Qs, h:project(R), S).
 
-head_charseqs(Doctype, R, S) ->
+head_charseqs(Doctype, Project, S) ->
     DT = list_to_binary(Doctype),
     VQ = #vq{startkey =  [<<"_head-charseq">>, DT, 0],
              endkey = [<<"_head-charseq">>, DT, []],
              include_docs = true},
     Qs = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 indexes_options(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),

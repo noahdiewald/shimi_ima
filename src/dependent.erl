@@ -34,7 +34,7 @@
 find(Doctype, Project, S) ->
     F = fun (X, Acc) -> find_f(X, Acc, Doctype) end,
     Qs = view:from_list([{"include_docs", true}]),
-    couch:fold_view("fieldsets", "all", view:to_string(Qs), F, Project, S).
+    couch:fold_view("shimi_ima", "all_fieldsets", view:to_string(Qs), F, Project, S).
 
 -spec bump(string(), utils:req_data(), any()) -> ok.
 bump(Doctype, Project, S) ->

@@ -54,11 +54,10 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Id = wrq:path_info(id, R),
     case proplists:get_value(target, S) of
-        identifier -> {h:exists(Id, R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S};
         index -> {true, R, S};
-        touch -> {h:exists(Id, R, S), R, S}
+        touch -> {h:exists(h:id(R), R, S), R, S}
     end.
 
 is_authorized(R, S) ->

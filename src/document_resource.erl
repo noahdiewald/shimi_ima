@@ -137,9 +137,11 @@ json_update(R, S) ->
     json_update(Json1, R, S).
   
 json_update(Json, R, S) ->
-    NormJson = document:normalize(Json),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
+    NormJson = document:normalize(Json2),
   
-    case couch:update(h:id(R), h:rev(R), NormJson, h:project(R), R, S) of
+    case couch:update(h:id(R), NormJson, h:project(R), S) of
         {ok, updated} ->
             {ok, NewJson} = h:id_data(R, S),
             Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
@@ -206,7 +208,7 @@ html_search(R, S) ->
     Html.
 
 html_document(R, S) ->
-    {ok, OrigJson} = h:id_data(R, S),
+    {ok, OrigJson} = h:id_data(R, [{revs_info, true}|S]),
     RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
     NormJson = document:normalize(OrigJson),
     Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ h:basic_info("", "", R, S),
@@ -215,7 +217,7 @@ html_document(R, S) ->
 
 html_revision(R, S) ->
     {ok, Data} = h:rev_data(R, S),
-    {ok, Requested} = document:normalize(Data),
+    Requested = document:normalize(Data),
     Prev = case h:id_data(R, S) of
                {ok, Curr} ->
                    CurrRev = jsn:get_value(<<"_rev">>, Curr),

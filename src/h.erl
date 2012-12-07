@@ -54,7 +54,6 @@ charseq_data(R, S) ->
 
 -spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()}.
 create(Json, R, S) ->
-    {ok, created} = 
     case couch:create(Json, project(R), S) of
         {ok, created} -> 
             {true, R, S};
@@ -65,7 +64,7 @@ create(Json, R, S) ->
 
 -spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, 409}, req_data(), req_state()}.
 delete(R, S) ->
-    case h:delete(R, S) of
+    case couch:delete(id(R), rev(R), project(R), S) of
         {ok, deleted} -> 
             {true, R, S};
         {error, conflict} ->
@@ -150,10 +149,9 @@ rev_data(R, S) ->
 
 -spec update(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, integer()}, req_data(), req_state()}.
 update(Json, R, S) ->
-    % Don't know if this will be useful later
-    %Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    %Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-     case couch:update(id(R), rev(R), Json, project(R), S) of
+     Json1 = jsn:set_value(<<"_id">>, list_to_binary(id(R)), Json),
+     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(rev(R)), Json1),
+     case couch:update(id(R), Json2, project(R), S) of
         {ok, updated} -> 
             {true, R, S};
         {forbidden, Message} ->
@@ -168,6 +166,5 @@ update(Json, R, S) ->
 -spec update_doctype_version(req_data(), req_state()) -> req_retval().
 update_doctype_version(R, S) ->
     {ok, Json} = get(doctype(R), R, S),
-    Id = binary_to_list(jsn:get(<<"_id">>, Json)),
-    Rev = binary_to_list(jsn:get(<<"_rev">>, Json)),
-    {ok, updated} = couch:update(Id, Rev, Json, project(R), S).
+    Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
+    {ok, updated} = couch:update(Id, Json, project(R), S).

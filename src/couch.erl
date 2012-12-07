@@ -25,6 +25,7 @@
 -export([
          create/3,
          delete/4,
+         exists/3,
          fold_view/6,
          get/3,
          get/4,
@@ -49,8 +50,8 @@ adb(Project) ->
 %% @doc Create a document
 -spec create(jsn:json_term(), string(), h:req_state()) -> {ok, created} | {forbidden, binary()}.
 create(Json, Url=[$h,$t,$t,$p,$:|_], S) ->
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S)],
-    case ibrowse:send_req(Url, Headers, post, jsn:encode(jsn:decode(Json))) of
+    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S, [])],
+    case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
         {ok, "201", _, _} ->
             {ok, created};
         {ok, "403", _, Body} ->
@@ -69,7 +70,7 @@ create(Json, Project, S) ->
 
 -spec delete(string(), string(), string(), h:req_state()) -> h:req_retval().
 delete(Id, Rev, Project, S) ->
-    Url = utils:ndb(Project) ++ Id ++ "?rev=" ++ Rev,
+    Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     Headers = [{"Content-Type",
                 "application/json"}|proplists:get_value(headers, S)],
     case ibrowse:send_req(Url, Headers, delete) of
@@ -88,11 +89,11 @@ delete(Id, Rev, Project, S) ->
 
 -spec exists(string(), string(), h:req_state()) -> boolean().
 exists(Id, Project, S) ->
-    Url = adb(Project) ++ Id,
-    Headers = proplists:get_value(headers, S),
+    Url = ndb(Project) ++ Id,
+    Headers = proplists:get_value(headers, S, []),
     case ibrowse:send_req(Url, Headers, head) of
-        {ok, "200", _} -> true;
-        {ok, "404", _} -> false
+        {ok, "200", _, _} -> true;
+        {ok, "404", _, _} -> false
     end.
 
 -spec fold_view(string(), string(), string(), fun((jsn:json_term(), [jsn:json_term()], string()) -> any()), string(), h:req_state()) -> any().
@@ -104,14 +105,19 @@ fold_view(Id, Name, Qs, Fun, Project, S) ->
 %% @doc Get a document
 -spec get(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Project, S) ->  
-    Headers = proplists:get_value(headers, S),
-    Url = ndb(Project) ++ Id,
+    Headers = proplists:get_value(headers, S, []),
+    Url = case proplists:get_value(revs_info, S) of
+        undefined ->
+            ndb(Project) ++ Id;
+        true ->
+            ndb(Project) ++ Id ++ "?revs_info=true"
+    end,
     get_json_helper(Url, Headers).
     
 %% @doc Get a specific revision of a document
 -spec get(string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get(Id, Rev, Project, S) ->
-    Headers = proplists:get_value(headers, S),
+    Headers = proplists:get_value(headers, S, []),
     Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     get_json_helper(Url, Headers).
 
@@ -134,7 +140,7 @@ get_dbs() ->
 
 -spec get_design_rev(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_design_rev(Name, Project, S) ->
-    Url = utils:adb(Project) ++ "_design/" ++ Name,
+    Url = adb(Project) ++ "_design/" ++ Name,
     case get_json_helper(Url, S) of
         {ok, Json} ->
             {jsn:get_value(<<"version">>, Json), 
@@ -163,7 +169,7 @@ get_views(Project) ->
     Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
                                         {"endkey", <<"_design0">>},
                                         {"include_docs", true}])),
-    Url = utils:adb(Project) ++ "_all_docs" ++ "?" ++ Qs,
+    Url = adb(Project) ++ "_all_docs" ++ "?" ++ Qs,
     {ok, Json} = get_json_helper(Url, []),
     Designs = proplists:get_value(<<"rows">>, Json),
     Filter = fun(X) -> 
@@ -176,7 +182,7 @@ get_views(Project) ->
     
 -spec get_view_json(string(), string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Id, Name, Qs, Project, S) ->
-    Headers = proplists:get_value(headers, S),
+    Headers = proplists:get_value(headers, S, []),
     Url = ndb(Project),
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ "?" ++ Qs,
@@ -250,7 +256,7 @@ update(Id, Json, Project, S) ->
     Project =  Project,
     Url = ndb(Project) ++ "_design/shimi_ima/_update/stamp/" ++ Id,
     Headers = [{"Content-Type","application/json"}|
-               proplists:get_value(headers, S)],
+               proplists:get_value(headers, S, [])],
     update(Url, Headers, Json).
 
 -spec update(string(), [tuple()], jsn:json_term()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.

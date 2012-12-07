@@ -68,7 +68,7 @@ to_html(R, S) ->
 
 html_fieldset(R, S) -> 
     {ok, Json} = h:id_data(R, S),
-    Vals = h:basic_info(R, S) ++ Json,
+    Vals = h:basic_info("", "", R, S) ++ Json,
     {ok, Html} = render:render(fieldset_dtl, Vals),
     Html.
   
