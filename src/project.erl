@@ -30,17 +30,17 @@
 -include_lib("types.hrl").
 
 %% @doc Create a project
--spec create(string(), string(), [{atom, any()}]) -> ok.
+-spec create(string(), string(), h:req_state()) -> ok.
 create(ProjectId, ProjectData, S) ->
     DBName = "project-" ++ ProjectId,
     ProjectData1 = jsn:encode(jsn:set_value(<<"_id">>, list_to_binary(ProjectId), ProjectData)),
     {ok, newdb} = couch:new_db(DBName),
-    {ok, created} = couch:create("shimi_ima", ProjectData1, S),
-    {ok, replicated} = couch:replicate("shimi_ima", DBName),
+    {ok, created} = couch:create(ProjectData1, "shimi_ima", S),
+    {ok, replicated} = couch:replicate("shimi_ima", DBName, "upgrade"),
     ok.
     
 %% @doc Update a project's design documents.
 -spec upgrade(string()) -> ok.
 upgrade(Project) ->
-    {ok, replicated} = couch:replicate("shimi_ima", Project),
+    {ok, replicated} = couch:replicate("shimi_ima", Project, "upgrade"),
     ok.

@@ -29,8 +29,6 @@
   render/2
 ]).
 
--include_lib("webmachine/include/webmachine.hrl").
-
 renderings(Json, Template) ->
     Rows = jsn:get_value(<<"rows">>, Json),
     F = fun(X) ->

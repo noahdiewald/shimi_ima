@@ -35,6 +35,7 @@
          get_views/1,
          new_db/1,
          replicate/2,
+         replicate/3,
          should_wait/2,
          update/4
         ]).
@@ -42,7 +43,7 @@
 -include_lib("types.hrl").
 
 adb(Project) ->
-    {ok, Val} = application:get_env(admin_db),
+    {ok, Val} = application:get_env(dictionary_maker, admin_db),
     Val ++ Project ++ "/".
 
 %% @doc Create a document
@@ -209,19 +210,30 @@ new_db(DB) ->
 
 -spec ndb(string()) -> string().
 ndb(Project) ->
-    {ok, Val} = application:get_env(normal_db),
+    {ok, Val} = application:get_env(dictionary_maker, normal_db),
     Val ++ Project ++ "/".
 
 -spec pdb() -> string().
 pdb() ->
-    {ok, Val} = application:get_env(admin_db),
+    {ok, Val} = application:get_env(dictionary_maker, admin_db),
     Val ++ "shimi_ima" ++ "/".
 
 -spec replicate(string(), string()) -> {ok, replicated}.
 replicate(Source, Target) ->
+    Json = [{<<"source">>, list_to_binary(Source)}, {<<"target">>, list_to_binary(Target)}],
+    replicate_helper(Json).
+
+%% @doc Assumes that the source database and source design document have
+%% the same name.
+-spec replicate(string(), string(), string()) -> {ok, replicated}.
+replicate(Source, Target, Filter) ->
+    Json = [{<<"source">>, list_to_binary(Source)}, {<<"target">>, list_to_binary(Target)}, {<<"filter">>, list_to_binary(Source ++ "/" ++ Filter)}],
+    replicate_helper(Json).
+    
+-spec replicate_helper(jsn:json_term()) -> {ok, replicated}.
+replicate_helper(Json) ->
     Headers = [{"Content-Type", "application/json"}],
     Url = adb("_replicate"),
-    Json = [{<<"source">>, list_to_binary(Source)}, {<<"target">>, list_to_binary(Target)}],
     {ok, [$2|_], _, _} = ibrowse:send_req(Url, Headers, post, jsn:encode(Json)),
     {ok, replicated}.
     

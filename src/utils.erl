@@ -46,7 +46,7 @@
 
 %% @doc Return whether we're in development mode
 is_devel() ->
-    case application:get_env(devel) of
+    case application:get_env(dictionary_maker, devel) of
         {ok, _} ->
             true;
         undefined ->

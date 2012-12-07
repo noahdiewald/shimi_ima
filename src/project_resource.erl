@@ -32,7 +32,6 @@
          init/1, 
          is_authorized/2,
          post_is_create/2,
-         resource_exists/2,
          index_html/2,
          main_html/2
         ]).
@@ -47,29 +46,6 @@
 % Standard webmachine functions
 
 init(Opts) -> {ok, Opts}.
-
-resource_exists(R, S) ->
-    Headers = proplists:get_value(headers, S),
-    DatabaseUrl = utils:ndb() ++ "projects/",
-  
-    Id = wrq:path_info(id, R),
-  
-    Resp = case proplists:get_value(target, S) of
-               identifier -> ibrowse:send_req(DatabaseUrl ++ Id, Headers, head);
-               _ -> 
-                   % Create the database if it doesn't exist
-                   case ibrowse:send_req(DatabaseUrl, Headers, head) of
-                       {ok, "404", _, _} ->
-                           create_database(),
-                           ibrowse:send_req(DatabaseUrl, Headers, head);
-                       Otherwise -> Otherwise
-                   end
-           end,
-   
-    case Resp of
-        {ok, "200", _, _} -> {true, R, S};
-        {ok, "404", _, _} -> {false, R, S}
-    end. 
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -131,7 +107,7 @@ main_html(R, S) ->
 from_json(R, S) ->
     ProjectId = proplists:get_value(newid, S),
     ProjectData = jsn:decode(wrq:req_body(R)),
-    ok = project:create(ProjectId, ProjectData),
+    ok = project:create(ProjectId, ProjectData, S),
     database_seqs:set_seq("project-" ++ ProjectId, 0),
     {true, R, S}.
 
@@ -148,15 +124,11 @@ validate_authentication(Props, R, S) ->
 % TODO: This is stupid. Fix it.
 renderings(Json) ->
     Rows = jsn:get_value(<<"rows">>, Json),
-    [render_row(Project) || Project <- Rows].
+    F = fun (X) ->
+        jsn:get_value(<<"id">>, X) /= <<"_design/shimi_ima">>
+    end,
+    [render_row(Project) || Project <- lists:filter(F, Rows)].
   
 render_row(Project) ->
     {ok, Rendering} = render:render(project_list_elements_dtl, Project),
     iolist_to_binary(Rendering).
-
-create_database() ->
-    ContentType = {"Content-Type","application/json"},
-    {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [], put),
-    {ok, ProjectDesign} = render:render(design_project_json_dtl, []),
-    {ok, "201", _, _} = ibrowse:send_req(utils:adb() ++ "projects", [ContentType], 
-                                         post, iolist_to_binary(ProjectDesign)).
