@@ -61,14 +61,11 @@ to_html(R, S) ->
 html_index(R, S) ->
     User = proplists:get_value(user, S),
     {ok, ProjectData} = h:project_data(R, S),
-
     {ok, Json} = q:doctypes(R, S),
-  
     Vals = [{<<"title">>, <<"All Document Types">>},
             {<<"project_info">>, ProjectData},
             {<<"user">>, User},
             {<<"doctypes">>, jsn:get_value(<<"rows">>, Json)}],
-  
     {ok, Html} = render:render(doctype_index_dtl, Vals),
     Html.
 

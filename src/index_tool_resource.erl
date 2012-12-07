@@ -37,7 +37,13 @@
 init(Opts) -> {ok, Opts}.
 
 to_html(R, S) ->
-    {ok, Html} = render:render(index_tool_dtl, h:basic_info("", "", R, S)),
+    {ok, ProjectData} = h:project_data(R, S),
+    {ok, Doctypes} = q:doctypes(R, S),
+    Vals = [{<<"project_info">>, ProjectData},
+        {<<"doctypes">>, Doctypes},
+        {<<"user">>, proplists:get_value(user, S)}],
+
+    {ok, Html} = render:render(index_tool_dtl, Vals),
     {Html, R, S}.
 
 resource_exists(R, S) ->

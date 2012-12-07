@@ -104,7 +104,7 @@ fieldset_data(R, S) ->
 
 -spec get(string(), string() | req_data(), req_state()) -> req_retval().
 get(Id, Project, S) when is_list(Project) ->
-    get(Id, Project, S);
+    couch:get(Id, Project, S);
 get(Id, R, S) ->
     get(Id, project(R), S).
 
