@@ -100,7 +100,7 @@ content_types_accepted(R, S) ->
 process_post(R, S) ->
     Doctype = wrq:path_info(id, R),
     Project = wrq:path_info(project, R),
-    document_toucher:start(Project, Doctype, S),
+    document_toucher:start(Doctype, Project, S),
     {{halt, 204}, R, S}.
 
 provide_null(R, S) ->

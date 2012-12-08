@@ -7,7 +7,7 @@ language data you have collected in Ʃimi Ima.
 The management of this code is performed with a couchapp tool, like
 erica[2].
 
-Note that this code is not run in the web browser but on the back end.
+Note that this code is not run in the web browser but on CouchDB.
 
 1. http://couchapp.org
 2. https://github.com/benoitc/erica

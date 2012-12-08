@@ -53,17 +53,17 @@ doctypes(true, R, S) ->
     Qs = view:to_string(#vq{include_docs = true}),
     couch:get_view_json("shimi_ima", "all_doctypes", Qs, h:project(R), S).
 
-fieldset(Doctype, R, S) ->
-    fieldset(Doctype, true, R, S).
+fieldset(Doctype, Project, S) ->
+    fieldset(Doctype, true, Project, S).
 
-fieldset(Doctype, Include, R, S) when is_list(Doctype) ->
-    fieldset(list_to_binary(Doctype), Include, R, S);
-fieldset(DT, Include, R, S) when is_binary(DT) ->
+fieldset(Doctype, Include, Project, S) when is_list(Doctype) ->
+    fieldset(list_to_binary(Doctype), Include, Project, S);
+fieldset(DT, Include, Project, S) when is_binary(DT) ->
     VQ = #vq{startkey = [DT, <<"">>],
              endkey = [DT, []],
              include_docs = Include},
     Qs = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 field(Doctype, Fieldset, R, S) ->
     field(Doctype, Fieldset, true, R, S).

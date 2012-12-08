@@ -163,7 +163,7 @@ html_documents(R, S) ->
     Html.
 
 html_edit(R, S) ->
-    {ok, Json} = q:fieldset(h:doctype(R), R, S),
+    {ok, Json} = q:fieldset(h:doctype(R), h:project(R), S),
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
     Vals = [{<<"fieldsets">>, Fieldsets}|h:basic_info("Edit or Create ", "", R, S)],
     {ok, Html} = render:render(document_edit_dtl, Vals),

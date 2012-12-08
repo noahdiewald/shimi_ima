@@ -158,12 +158,10 @@ me(Doctype) ->
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.project, S#state.wm_state),
     Doc = document:from_json(Json),
-    Rev = Doc#document.rev,
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
-    case couch:update(binary_to_list(Id), binary_to_list(Rev), jsn:encode(Doc2), S#state.project, 
-                      S#state.wm_state) of
+    case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
         {ok, updated} ->
             untouched:delete(S#state.doctype, Id),
             ok;

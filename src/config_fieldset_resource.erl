@@ -98,8 +98,7 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:fieldset(Doctype, R, S),
+    {ok, Json} = q:fieldset(h:doctype(R), h:project(R), S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fieldsets = fieldset:arrange(Rows),
     {render:renderings([{<<"rows">>, Fieldsets}], 
