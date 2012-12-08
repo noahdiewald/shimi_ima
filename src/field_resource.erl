@@ -161,7 +161,7 @@ get_allowed(_, Json, _, _) -> Json.
 
 get_allowed_docs(Json, Project, S) ->
     ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-    {ok, Keys} = q:document_index(ForeignDoctype, Project, S),
+    {ok, Keys} = q:document_index(ForeignDoctype, [], Project, S),
     F = fun(X) ->
                 [[_|[H|_]]|_] = jsn:get_value(<<"key">>, X),
                 [{<<"key">>, H}, {<<"value">>, H}]

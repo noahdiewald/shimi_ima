@@ -30,13 +30,15 @@
 -include_lib("webmachine/include/webmachine.hrl").
 
 document_index(Doctype, R, S) ->
+    document_index(Doctype, wrq:req_qs(R), h:project(R), S).
+    
+document_index(Doctype, Qs, Project, S) ->
     F = fun (X) ->
         [_, Y] = jsn:get_value(<<"key">>, X),
         jsn:set_value(<<"key">>, Y, X)
     end,
-    Project = h:project(R),
-    Qs = view:normalize_sortkey_vq(Doctype, wrq:req_qs(R), Project, S),
-    {ok, Json} = couch:get_view_json("shimi_ima", "all_documents", Qs, Project, S),
+    Qs1 = view:normalize_sortkey_vq(Doctype, Qs, Project, S),
+    {ok, Json} = couch:get_view_json("shimi_ima", "all_documents", Qs1, Project, S),
     {ok, jsn:set_value(<<"rows">>, lists:map(F, jsn:get_value(<<"rows">>, Json)), Json)}.
 
 charseqs(R, S) ->

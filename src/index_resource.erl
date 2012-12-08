@@ -112,10 +112,12 @@ json_create(R, S) ->
   
 json_update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
     
-    case couch:update(h:id(R), h:rev(R), jsn:encode(Json), h:project(R), S) of
+    case couch:update(h:id(R), Json2, h:project(R), S) of
         {ok, updated} -> 
-            {ok, _} = update_design(Json, R, S),
+            {ok, _} = update_design(Json2, R, S),
             {true, R, S};
         {forbidden, Message} ->
             R1 = wrq:set_resp_body(Message, R),
@@ -134,11 +136,13 @@ update_design(Json, R, S) ->
     Id = "_design/" ++ h:id(R),
     Project = h:project(R),
   
-    case h:get(Id, R, [{admin, true}|S]) of
+    case h:get(Id, R, S) of
         {error, not_found} ->
-            couch:create(Design, Project, [{admin, true}|S]);
-        {ok, Json} ->
-            couch:update(Design, binary_to_list(jsn:get_value(<<"_rev">>, Json)), Project, R, [{admin, true}|S])
+            couch:create(jsn:decode(Design), Project, [{admin, true}|S]);
+        {ok, DesignJson} ->
+            Rev = jsn:get_value(<<"_rev">>, DesignJson),
+            Design2 = jsn:set_value(<<"_rev">>, Rev, jsn:decode(Design)),
+            couch:update(Id, Design2, Project, [{admin, true}|S])
     end.
   
 html_index(R, S) ->

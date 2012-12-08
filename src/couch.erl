@@ -48,9 +48,8 @@ adb(Project) ->
     Val ++ Project ++ "/".
 
 %% @doc Create a document
--spec create(jsn:json_term(), string(), h:req_state()) -> {ok, created} | {forbidden, binary()}.
-create(Json, Url=[$h,$t,$t,$p,$:|_], S) ->
-    Headers = [{"Content-Type","application/json"}|proplists:get_value(headers, S, [])],
+-spec create(jsn:json_term(), string(), [tuple()]) -> {ok, created} | {forbidden, binary()}.
+create(Json, Url=[$h,$t,$t,$p,$:|_], Headers) ->
     case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
         {ok, "201", _, _} ->
             {ok, created};
@@ -60,13 +59,14 @@ create(Json, Url=[$h,$t,$t,$p,$:|_], S) ->
             {forbidden, Message}
     end;
 create(Json, Project, S) ->
-    DB = case proplists:get_value(admin, S) of
+    CT = [{"Content-Type","application/json"}],
+    {DB, Headers} = case proplists:get_value(admin, S) of
         true ->
-            adb(Project);
+            {adb(Project), CT};
         _ ->
-            ndb(Project)
+            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
     end,
-    create(Json, DB ++ "_design/shimi_ima/_update/stamp", S).
+    create(Json, DB ++ "_design/shimi_ima/_update/stamp", Headers).
 
 -spec delete(string(), string(), string(), h:req_state()) -> h:req_retval().
 delete(Id, Rev, Project, S) ->
@@ -78,7 +78,7 @@ delete(Id, Rev, Project, S) ->
             % User Indexes have associated design docs
             case exists("_design/" ++ Id, Project, S) of
                 true ->
-                    {_, DRev} = get_design_rev(Id, Project, S),
+                    {_, DRev} = get_design_rev(Id, Project, [{"Content-Type", "application/json"}]),
                     DUrl = ndb(Project) ++ "_design/" ++ Id ++ "?rev=" ++ DRev,
                     {ok, "200", _, _} = ibrowse:send_req(DUrl, Headers, delete);
                 false -> ok
@@ -139,9 +139,9 @@ get_dbs() ->
     Json.
 
 -spec get_design_rev(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
-get_design_rev(Name, Project, S) ->
+get_design_rev(Name, Project, Headers) ->
     Url = adb(Project) ++ "_design/" ++ Name,
-    case get_json_helper(Url, S) of
+    case get_json_helper(Url, Headers) of
         {ok, Json} ->
             {jsn:get_value(<<"version">>, Json), 
              jsn:get_value(<<"_rev">>, Json)};
@@ -253,14 +253,17 @@ should_wait(Project, ViewPath) ->
   
 -spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
 update(Id, Json, Project, S) ->
-    Project =  Project,
-    Url = ndb(Project) ++ "_design/shimi_ima/_update/stamp/" ++ Id,
-    Headers = [{"Content-Type","application/json"}|
-               proplists:get_value(headers, S, [])],
-    update(Url, Headers, Json).
+    CT = [{"Content-Type","application/json"}],
+    {DB, Headers} = case proplists:get_value(admin, S) of
+        true ->
+            {adb(Project), CT};
+        _ ->
+            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
+    end,
+    update(Json, DB ++ "_design/shimi_ima/_update/stamp/" ++ Id, Headers).
 
 -spec update(string(), [tuple()], jsn:json_term()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
-update(Url, Headers, Json) ->
+update(Json, Url, Headers) ->
     case ibrowse:send_req(Url, Headers, put, jsn:encode(Json)) of
         {ok, "201", _, _} -> 
             {ok, updated};
