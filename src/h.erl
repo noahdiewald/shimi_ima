@@ -73,6 +73,20 @@ delete(R, S) ->
             {{halt, 409}, R1, S}
     end.
 
+-spec delete_project(req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, 409}, req_data(), req_state()}.
+delete_project(R, S) ->
+    {ok, Json} = get(id(R), "shimi_ima", S),
+    Rev = jsn:get_value(<<"_rev">>, Json),
+    case couch:delete(id(R), binary_to_list(Rev), "shimi_ima", S) of
+        {ok, deleted} ->
+            {ok, deleted} = couch:rm_db("project-" ++ id(R)),
+            {true, R, S};
+        {error, conflict} ->
+            Msg = <<"This project has been updated or deleted by another user.">>,
+            R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
+            {{halt, 409}, R1, S}
+    end.
+    
 -spec doctype(req_data()) -> string().
 doctype(R) ->
     wrq:path_info(doctype, R).

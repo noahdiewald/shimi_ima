@@ -23,21 +23,22 @@
 -module(project).
 
 -export([
-         create/3,
+         create/2,
          upgrade/1
         ]).
 
 -include_lib("types.hrl").
 
 %% @doc Create a project
--spec create(string(), string(), h:req_state()) -> ok.
-create(ProjectId, ProjectData, S) ->
-    DBName = "project-" ++ ProjectId,
-    ProjectData1 = jsn:encode(jsn:set_value(<<"_id">>, list_to_binary(ProjectId), ProjectData)),
+-spec create(string(), h:req_state()) -> ok.
+create(ProjectData, S) ->
+    Id = utils:uuid(),
+    DBName = "project-" ++ Id,
+    ProjectData1 = jsn:set_value(<<"_id">>, list_to_binary(Id), ProjectData),
     {ok, newdb} = couch:new_db(DBName),
     {ok, created} = couch:create(ProjectData1, "shimi_ima", S),
     {ok, replicated} = couch:replicate("shimi_ima", DBName, "upgrade"),
-    ok.
+    {ok, DBName}.
     
 %% @doc Update a project's design documents.
 -spec upgrade(string()) -> ok.

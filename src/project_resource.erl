@@ -58,22 +58,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Headers = proplists:get_value(headers, S),
-    ProjUrl = utils:ndb() ++ "projects/" ++ wrq:path_info(id, R),
-  
-    {ok, "200", _, Body} = ibrowse:send_req(ProjUrl, Headers, get),
-    JsonIn = jsn:decode(Body),
-  
-    RevQs = "?rev=" ++ binary_to_list(jsn:get_value(<<"_rev">>, JsonIn)),
-    ProjUrl1 = ProjUrl ++ RevQs,
-    DatabaseUrl = utils:adb() ++ "project-" ++ wrq:path_info(id, R),
-    
-    case ibrowse:send_req(ProjUrl1, Headers, delete) of
-        {ok, "200", _, _} -> 
-            case ibrowse:send_req(DatabaseUrl, [], delete) of
-                {ok, "200", _, _} -> {true, R, S}
-            end
-    end.
+    h:delete_project(R, S).
   
 post_is_create(R, S) ->
     {true, R, S}.
@@ -105,10 +90,9 @@ main_html(R, S) ->
     {Html, R, S}.
   
 from_json(R, S) ->
-    ProjectId = proplists:get_value(newid, S),
     ProjectData = jsn:decode(wrq:req_body(R)),
-    ok = project:create(ProjectId, ProjectData, S),
-    database_seqs:set_seq("project-" ++ ProjectId, 0),
+    {ok, ProjectId} = project:create(ProjectData, S),
+    database_seqs:set_seq(ProjectId, 0),
     {true, R, S}.
 
 % Helpers

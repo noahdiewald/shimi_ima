@@ -37,6 +37,7 @@
          new_db/1,
          replicate/2,
          replicate/3,
+         rm_db/1,
          should_wait/2,
          update/4
         ]).
@@ -242,7 +243,18 @@ replicate_helper(Json) ->
     Url = adb("_replicate"),
     {ok, [$2|_], _, _} = ibrowse:send_req(Url, Headers, post, jsn:encode(Json)),
     {ok, replicated}.
-    
+
+-spec rm_db(string()) -> h:req_retval().
+rm_db(Db) ->
+    Url = adb(Db),
+    Headers = [{"Content-Type","application/json"}],
+    case ibrowse:send_req(Url, Headers, delete) of
+        {ok, "200", _, _} ->
+            {ok, deleted};
+        {ok, "409", _, _} ->
+            {error, conflict}
+    end.
+
 -spec should_wait(string(), string()) -> boolean().
 should_wait(Project, ViewPath) ->
     Url = adb(Project) ++ ViewPath ++ "?limit=1",
