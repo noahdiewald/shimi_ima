@@ -120,12 +120,10 @@ from_json(R, S) ->
     end.
 
 json_create(R, S) ->  
-    Json = jsn:decode(wrq:req_body(R)),
-    h:create(Json, R, S).
+    i:create(R, S).
 
 json_update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    h:update(Json, R, S).
+    i:update(R, S).
 
 % Helpers
 

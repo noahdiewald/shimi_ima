@@ -94,6 +94,14 @@ head_charseqs(Doctype, Project, S) ->
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
+index(Id, R, S) ->
+    Qs = view:normalize_vq(wrq:req_qs(R)),
+    couch:get_view_json(Id, "index", Qs, h:project(R), S).
+
+index_design(R, S) ->
+    Qs = view:to_string(#vq{key = list_to_binary(h:id(R))}),
+    couch:get_view_json("shimi_ima", "user_indexes", Qs, h:project(R), S).
+    
 indexes_options(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),
     couch:get_view_json("shimi_ima", "options", Qs, h:project(R), S).
@@ -116,7 +124,3 @@ user_index(IndexId, R, S) ->
         {ok, Json} -> {ok, Json};
         _ -> {ok, [{<<"rows">>, []}]}
     end.
-
-index(Id, R, S) ->
-    Qs = view:normalize_vq(wrq:req_qs(R)),
-    couch:get_view_json(Id, "index", Qs, h:project(R), S).

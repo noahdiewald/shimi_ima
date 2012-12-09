@@ -107,43 +107,10 @@ from_json(R, S) ->
 % Helpers
   
 json_create(R, S) ->
-    Json = proplists:get_value(posted_json, S),
-    h:create(Json, R, S).
+    i:create(R, S).
   
 json_update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
-    
-    case couch:update(h:id(R), Json2, h:project(R), S) of
-        {ok, updated} -> 
-            {ok, _} = update_design(Json2, R, S),
-            {true, R, S};
-        {forbidden, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
-        {error, conflict} ->
-            Msg = <<"This index has been edited or deleted by another user.">>,
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
-
-update_design(Json, R, S) ->
-    % Translate the conditions to javascript
-    Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
-    {ok, Design} = design_index_json_dtl:render([{<<"expression">>, Expression}|Json]),
-    Id = "_design/" ++ h:id(R),
-    Project = h:project(R),
-  
-    case h:get(Id, R, S) of
-        {error, not_found} ->
-            couch:create(jsn:decode(Design), Project, [{admin, true}|S]);
-        {ok, DesignJson} ->
-            Rev = jsn:get_value(<<"_rev">>, DesignJson),
-            Design2 = jsn:set_value(<<"_rev">>, Rev, jsn:decode(Design)),
-            couch:update(Id, Design2, Project, [{admin, true}|S])
-    end.
+    i:update(R, S).
   
 html_index(R, S) ->
     {ok, Json} = q:indexes_options(R, S),

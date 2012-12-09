@@ -172,7 +172,7 @@ update(Json, R, S) ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 403}, R1, S};
         {error, conflict} ->
-            Msg = <<"This document has been updated or deleted by another user.">>,
+            Msg = <<"This resource has been updated or deleted by another user.">>,
             R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
             {{halt, 409}, R1, S}
     end.
