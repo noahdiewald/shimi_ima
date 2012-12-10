@@ -48,8 +48,7 @@ bump_all([], _R, _S) ->
     ok;
 bump_all([H|T], Project, S) ->
     {ok, Json} = h:get(H, Project, S),
-    {ok, updated} = couch:update(doc, jsn:get_value(<<"_id">>, Json),
-                                 jsn:encode(Json), Project, S),
+    {ok, updated} = couch:update(binary_to_list(jsn:get_value(<<"_id">>, Json)), Json, Project, S),
     bump_all(T, Project, S).
 
 -spec find_f(jsn:json_term(), jsn:json_term(), string()) -> jsn:json_term().
