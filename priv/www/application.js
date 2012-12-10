@@ -4006,10 +4006,10 @@ $(function () {
 
       if (obj() && obj().message && obj().status === "error") {
         shimi.flash("Error", obj().message).error();
-        shimi.fm().refreshListings();
+        shimi.fm.refreshListings();
       } else if (obj().message) {
         shimi.flash("Success", obj().message).highlight();
-        shimi.fm().refreshListings();
+        shimi.fm.refreshListings();
       }
     });
   }

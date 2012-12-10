@@ -400,7 +400,7 @@ describe("User index view map funtion", function() {
     it("should return an object with an evaluable map function", function() {
       (function() {mapFunction();}).should.not.throwError();
     });
-    describe("when evaluating the returned map function", function() {
+    describe("when evaluating the returned map function of the simple user index", function() {
       it("should return false when the object is not the right doctype", function() {
         mapFunction()({}).should.equal(false);
       });
