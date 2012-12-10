@@ -25,9 +25,8 @@
 
 -export([
          from_list/1,
-         from_reqdata/1,
          new/0,
-         normalize_sortkey_vq/3,
+         normalize_sortkey_vq/4,
          normalize_vq/1,
          to_string/1
         ]).
@@ -43,11 +42,6 @@ new() ->
 -spec from_list(list(tuple())) -> view_query().
 from_list(L) ->
     get_vq(L).
-
-%% @doc Process webmachine reqdata into a view_query record.
--spec from_reqdata(utils:reqdata()) -> view_query().
-from_reqdata(R) ->
-    from_list(wrq:req_qs(R)).
 
 %% @doc Take a view_query record and return a URL query string
 -spec to_string(view_query()) -> string().
@@ -76,16 +70,16 @@ get_vq(R) ->
 %% @doc Takes the unique portion of a design document id and
 %% webmachine state and will possibly alter the default return value
 %% of from_reqdata/1 to set sortkeys for the startkey, if needed.
--spec get_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> view_query().
-get_sortkey_vq(Id, R, S) ->
-    Vq = from_reqdata(R),
-    set_keys_sortkeys(Id, Vq, R, S).
+-spec get_sortkey_vq(string(), [{string(), string()}], string(), h:req_state()) -> view_query().
+get_sortkey_vq(Id, Qs, Project, S) ->
+    Vq = from_list(Qs),
+    set_keys_sortkeys(Id, Vq, Project, S).
 
 %% @doc This is like normal normalize_vq/1 except that it uses
 %% get_sortkey_vq/3
--spec normalize_sortkey_vq(string(), utils:reqdata(), [{any(),any()}]) -> string().
-normalize_sortkey_vq(Id, R, S) ->
-    to_string(get_sortkey_vq(Id, R, S)).
+-spec normalize_sortkey_vq(string(), [{string(),string()}], string(), h:req_state()) -> string().
+normalize_sortkey_vq(Id, Qs, Project, S) ->
+    to_string(get_sortkey_vq(Id, Qs, Project, S)).
 
 %% @doc This takes the query string from the webmachine request state
 %% and first transforms it into a view_query() using get_vq/1 before
@@ -93,8 +87,8 @@ normalize_sortkey_vq(Id, R, S) ->
 %% query string. The purpose is to clean up the user supplied values
 %% and normalize them.
 -spec normalize_vq(utils:reqdata()) -> string().
-normalize_vq(R) ->
-    to_string(from_reqdata(R)).
+normalize_vq(Qs) ->
+    to_string(from_list(Qs)).
 
 % Helper Functions
 
@@ -105,8 +99,8 @@ decide_sortkey(_) ->
     false.
 
 -spec set_keys_sortkeys(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_keys_sortkeys(Id, Vq, R, S) ->
-    Json = couch:get_json(Id, R, S),
+set_keys_sortkeys(Id, Vq, Project, S) ->
+    {ok, Json} = h:get(Id, Project, S),
     Required = decide_sortkey(Vq),
     case {jsn:get_value(<<"category">>, Json), Required} of
         {<<"index">>, true} ->
@@ -114,54 +108,51 @@ set_keys_sortkeys(Id, Vq, R, S) ->
                   jsn:get_value(<<"replace_pattern">>, Json)} of
                 % TODO: This is here until feature is fully implemented.
                 {[Field], undefined} ->
-                    set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+                    set_sortkey_by_field(binary_to_list(Field), Vq, Project, S);
                 {[Field], null} ->
-                    set_sortkey_by_field(binary_to_list(Field), Vq, R, S);
+                    set_sortkey_by_field(binary_to_list(Field), Vq, Project, S);
                 _ -> Vq
             end;
-        {<<"index">>, false} ->
-            Vq;
         {<<"doctype">>, true} ->
-            set_sortkey_by_doctype(Id, Vq, R, S);
-        {<<"doctype">>, false} ->
-            Val = Vq#vq.startkey,
-            Vq#vq{startkey = [list_to_binary(Id), Val]}
+            set_sortkey_by_doctype(Id, Vq, Project, S);
+        {_, false} ->
+            Vq
     end.
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_by_doctype(Id, Vq, R, S) ->
-    {ok, Charseqs} = q:head_charseqs(Id, R, S),
+set_sortkey_by_doctype(Id, Vq, Project, S) ->
+    {ok, Charseqs} = q:head_charseqs(Id, Project, S),
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             Val = Vq#vq.startkey,
-            Vq#vq{startkey = [list_to_binary(Id), [[<<>>, Val]]]};
+            Vq#vq{startkey = [[<<>>, Val]]};
         [First|_] ->
             Charseq = jsn:get_value(<<"doc">>, First),
-            set_sortkey_helper(list_to_binary(Id), Charseq, Vq)
+            set_sortkey_helper(Charseq, Vq)
     end.
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_by_field(Field, Vq, R, S) ->
+set_sortkey_by_field(Field, Vq, Project, S) ->
     Charseq = case field:is_meta(Field) of
                   false ->
-                      Json = couch:get_json(Field, R, S),
+                      {ok, Json} = h:get(Field, Project, S),
                       jsn:get_value(<<"charseq">>, Json);
                   _ -> null
               end,
-    set_sortkey_helper(Charseq, Vq, R, S).
+    set_sortkey_helper(Charseq, Vq, Project, S).
 
 -spec set_sortkey_helper(binary(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
-set_sortkey_helper(Charseq, Vq, R, S) ->
+set_sortkey_helper(Charseq, Vq, Project, S) ->
     Val = Vq#vq.startkey,
     Input = [{<<"charseq">>, Charseq},{<<"value">>, Val}],
-    Sortkey = charseq:get_sortkey(Input, R, S),
+    Sortkey = charseq:get_sortkey(Input, Project, S),
     Vq#vq{startkey = [[Sortkey, Val]]}.
 
--spec set_sortkey_helper(binary(), binary(), view_query()) -> view_query().
-set_sortkey_helper(Doctype, Charseq, Vq) ->
+-spec set_sortkey_helper(binary(), view_query()) -> view_query().
+set_sortkey_helper(Charseq, Vq) ->
     Val = Vq#vq.startkey,
     Sortkey = charseq:get_sortkey(charseq:from_json(Charseq), Val),
-    Vq#vq{startkey = [Doctype, [[Sortkey, Val]]]}.
+    Vq#vq{startkey = [[Sortkey, Val]]}.
 
 -spec stale_val(string() | undefined) -> 'ok' | 'update_after' | 'undefined'.
 stale_val("ok") -> ok;

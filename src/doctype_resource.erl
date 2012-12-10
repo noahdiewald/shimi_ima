@@ -30,7 +30,6 @@
   content_types_provided/2,
   init/1, 
   is_authorized/2,
-  resource_exists/2,
   to_html/2
 ]).
 
@@ -44,9 +43,6 @@
 % Standard webmachine functions
 
 init(Opts) -> {ok, Opts}.
-
-resource_exists(R, S) ->
-  {couch:exists([], R, S), R, S}.
 
 is_authorized(R, S) ->
   proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -64,31 +60,28 @@ to_html(R, S) ->
   
 html_index(R, S) ->
     User = proplists:get_value(user, S),
-    ProjJson = couch:get_json(project, R, S),
-
+    {ok, ProjectData} = h:project_data(R, S),
     {ok, Json} = q:doctypes(R, S),
-  
     Vals = [{<<"title">>, <<"All Document Types">>},
-            {<<"project_info">>, ProjJson},
+            {<<"project_info">>, ProjectData},
             {<<"user">>, User},
             {<<"doctypes">>, jsn:get_value(<<"rows">>, Json)}],
-  
     {ok, Html} = render:render(doctype_index_dtl, Vals),
     Html.
 
 validate_authentication(Props, R, S) ->
-  Project = couch:get_json(project, R, S),
-  Name = jsn:get_value(<<"name">>, Project),
-  NormalRoles = [<<"_admin">>, <<"manager">>, Name],
-  IsNormal = fun (Role) -> lists:member(Role, NormalRoles) end,
-  IsAdmin = fun (Role) -> lists:member(Role, [<<"_admin">>]) end,
-  Normal = lists:any(IsNormal, proplists:get_value(<<"roles">>, Props)),
-  Admin = lists:any(IsAdmin, proplists:get_value(<<"roles">>, Props)),
-  Target = proplists:get_value(target, S),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
+    NormalRoles = [<<"_admin">>, <<"manager">>, Name],
+    IsNormal = fun (Role) -> lists:member(Role, NormalRoles) end,
+    IsAdmin = fun (Role) -> lists:member(Role, [<<"_admin">>]) end,
+    Normal = lists:any(IsNormal, proplists:get_value(<<"roles">>, Props)),
+    Admin = lists:any(IsAdmin, proplists:get_value(<<"roles">>, Props)),
+    Target = proplists:get_value(target, S),
   
-  case {Target, Normal, Admin} of
-    {index, true, _} -> {true, R, S};
-    {index, false, _} -> {proplists:get_value(auth_head, S), R, S};
-    {touch, _, true} -> {true, R, S};
-    {touch, _, false} -> {proplists:get_value(auth_head, S), R, S}
-  end.
+    case {Target, Normal, Admin} of
+        {index, true, _} -> {true, R, S};
+        {index, false, _} -> {proplists:get_value(auth_head, S), R, S};
+        {touch, _, true} -> {true, R, S};
+        {touch, _, false} -> {proplists:get_value(auth_head, S), R, S}
+    end.

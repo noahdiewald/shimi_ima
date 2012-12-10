@@ -44,12 +44,9 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        index -> {couch:exists(Doctype, R, S), R, S};
-        identifier -> {couch:exists(Id, R, S), R, S}
+        index -> {h:exists(h:doctype(R), R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S}
     end. 
 
 is_authorized(R, S) ->
@@ -70,19 +67,13 @@ to_html(R, S) ->
 % Helpers
 
 html_fieldset(R, S) -> 
-    Json = couch:get_json(id, R, S),
-  
-    Vals = [
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Json
-           ],
-  
+    {ok, Json} = h:id_data(R, S),
+    Vals = h:basic_info("", "", R, S) ++ Json,
     {ok, Html} = render:render(fieldset_dtl, Vals),
     Html.
   
 html_fieldsets(R, S) -> 
-    Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:fieldset(Doctype, false, R, S),
+    {ok, Json} = q:fieldset(h:doctype(R), false, h:project(R), S),
     F = fun(X, Acc) ->
                 [_, Id, Type, _] = jsn:get_value(<<"key">>, X),
                 case Type of
@@ -105,8 +96,8 @@ html_fieldsets(R, S) ->
     Html.
     
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

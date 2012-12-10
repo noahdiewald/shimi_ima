@@ -44,27 +44,27 @@ get_sortkey(Charseq, Value) ->
 %% @doc Get a sortkey for a jsn:json_term() referencing a charseq or a
 %% docfield() making use of state from webmachine. This is used when
 %% the charseq needs to be fetched from the database.
--spec get_sortkey(jsn:json_term() | docfield(), R :: utils:reqdata(), S :: any()) -> binary().
-get_sortkey(null, _R, _S) ->
+-spec get_sortkey(jsn:json_term() | docfield(), string(), [{atom(), any()}]) -> binary().
+get_sortkey(null, _Project, _S) ->
     <<>>;
-get_sortkey(Json, R, S) when is_list(Json) ->
+get_sortkey(Json, Project, S) when is_list(Json) ->
     case jsn:get_value(<<"charseq">>, Json) of
         undefined -> <<>>;
         <<>> -> <<>>;
         CharseqId -> get_sortkey(
-                       CharseqId, jsn:get_value(<<"value">>, Json), R, S)
+                       CharseqId, jsn:get_value(<<"value">>, Json), Project, S)
     end;
-get_sortkey(F=#docfield{}, R, S) ->
+get_sortkey(F=#docfield{}, Project, S) ->
     case F#docfield.charseq of
         undefined -> <<>>;
         <<>> -> <<>>;
-        CharseqId -> get_sortkey(CharseqId, F#docfield.value, R, S)
+        CharseqId -> get_sortkey(CharseqId, F#docfield.value, Project, S)
     end.
   
 
 %% @doc Takes a json_term() decoded by jsn:decode/1 and returns either
 %% a valid charseq() or an error with explanation.
- -spec from_json(Json :: jsn:json_term()) -> charseq() | {error, Reason :: string()}.
+ -spec from_json(jsn:json_term()) -> charseq() | {error, string()}.
 from_json(Json) ->
     #charseq{
            id = jsn:get_value(<<"_id">>, Json),
@@ -125,23 +125,23 @@ ensure_list(List=[_|_]) ->
 ensure_list(_) ->
     [].
 
-get_sortkey(_CharseqId, <<>>, _R, _S) ->
+get_sortkey(_CharseqId, <<>>, _Project, _S) ->
     <<>>;
-get_sortkey(null, _Value, _R, _S) ->
+get_sortkey(null, _Value, _Project, _S) ->
     <<>>;
-get_sortkey(<<"undefined">>, _Value, _R, _S) ->
+get_sortkey(<<"undefined">>, _Value, _Project, _S) ->
     <<>>;
-get_sortkey(<<>>, _Value, _R, _S) ->
+get_sortkey(<<>>, _Value, _Project, _S) ->
     <<>>;
-get_sortkey(CharseqId, Value, R, S) when is_binary(CharseqId) ->
-    try get_sortkey_helper(CharseqId, Value, R, S) of
+get_sortkey(CharseqId, Value, Project, S) when is_binary(CharseqId) ->
+    try get_sortkey_helper(CharseqId, Value, Project, S) of
         Sortkey -> Sortkey
     catch
         error:{badmatch, {ok, "404", _}} -> <<>>
     end.
   
-get_sortkey_helper(CharseqId, Value, R, S) ->
-    Json = couch:get_json(binary_to_list(CharseqId), R, S),
+get_sortkey_helper(CharseqId, Value, Project, S) ->
+    {ok, Json} = h:get(binary_to_list(CharseqId), Project, S),
     Charseq = charseq:from_json(Json),
     get_sortkey_helper(Charseq, Value).
 

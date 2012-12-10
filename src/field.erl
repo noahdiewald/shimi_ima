@@ -28,7 +28,7 @@
          from_json/2,
          is_meta/1,
          meta_field/1,
-         option_list/2,
+         meta_options/0,
          set_sortkeys/3,
          to_json/2,
          unconvert_value/2
@@ -44,23 +44,6 @@ arrange(Fields) ->
                 [{<<"field">>, Doc}]
         end,
     lists:map(F, Fields).
-
-option_list(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    F = fun(X) ->
-                [Name, Label] = jsn:get_value(<<"value">>, X),
-                Id = jsn:get_value(<<"id">>, X),
-                [{<<"key">>, Label}, {<<"value">>, Name}, {<<"id">>, Id}]
-        end,
-    case wrq:path_info(fieldset, R) of
-        "metadata" -> meta_options();
-        Fieldset -> 
-            {ok, Json} = 
-                q:field(Doctype, Fieldset, false, R, S),
-            jsn:set_value(<<"rows">>, 
-                          lists:map(F, jsn:get_value(<<"rows">>, Json)), 
-                          Json)
-    end.
 
 is_meta(Id) when is_list(Id) ->
     is_meta(list_to_binary(Id));
@@ -93,7 +76,7 @@ meta_field(Id) when Id =:= <<"updated_by_">> ->
 user_field(Id, Label) ->
     Field = #field{id = Id,
                    label = Label,
-                   allowed = couch:user_list(),
+                   allowed = [],
                    subcategory = select},
     to_json(Field).
 
@@ -101,8 +84,8 @@ user_field(Id, Label) ->
 -spec set_sortkeys(jsn:json_term(), R :: utils:reqdata(), S :: any()) -> jsn:json_term().
 set_sortkeys([], _R, _S) ->
     [];
-set_sortkeys(Fields, R, S) ->
-    set_sortkeys(Fields, [], R, S).
+set_sortkeys(Fields, Project, S) ->
+    set_sortkeys(Fields, [], Project, S).
 
 %% @doc Convert a jsn:json_term() field to a field()
 -spec from_json(Json :: jsn:json_term()) -> docfield().
@@ -290,10 +273,11 @@ get_subcategory(Bin) ->
 -spec set_sortkeys([jsn:json_term()] | [docfield()], Acc :: [jsn:json_term()] | [docfield()], R :: utils:reqdata(), S :: any()) -> [jsn:json_term()] | [docfield()].
 set_sortkeys([], Acc, _R, _S) ->
     lists:reverse(Acc);
-set_sortkeys([Field|Rest], Acc, R, S) when is_list(Field) ->
+set_sortkeys([Field|Rest], Acc, Project, S) when is_list(Field) ->
     set_sortkeys(Rest, [jsn:set_value(<<"sortkey">>, 
-                                      charseq:get_sortkey(Field, R, S), 
-                                      Field)|Acc], R, S);
-set_sortkeys([F=#docfield{}|Rest], Acc, R, S) ->
-    set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, R, S)}|Acc], 
-                 R, S).
+                                      charseq:get_sortkey(Field, Project, S), 
+                                      Field)|Acc], Project, S);
+set_sortkeys([F=#docfield{}|Rest], Acc, Project, S) ->
+    Project = wrq:path_info(project, Project),
+    set_sortkeys(Rest, [F#docfield{sortkey=charseq:get_sortkey(F, Project, S)}|Acc], 
+                 Project, S).

@@ -49,11 +49,9 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        view -> {couch:exists(Id, R, S), R, S};
+        identifier -> {h:exists(h:id(R), R, S), R, S};
+        view -> {h:exists(h:id(R), R, S), R, S};
         _ -> {true, R, S}
     end. 
 
@@ -69,14 +67,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Msg = <<"This index has been edited or deleted by another user.">>,
-    case couch:delete(R, S) of
-        {ok, deleted} -> {true, R, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    h:delete(R, S).
   
 post_is_create(R, S) ->
     {true, R, S}.
@@ -116,49 +107,10 @@ from_json(R, S) ->
 % Helpers
   
 json_create(R, S) ->
-    Json = proplists:get_value(posted_json, S),
-    case couch:create(doc, jsn:encode(Json), R, S) of
-        {ok, created} -> {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S}
-    end.
+    i:create(R, S).
   
 json_update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This index has been edited or deleted by another user.">>,
-
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-        {ok, updated} -> 
-            {ok, _} = update_design(Json2, R, S),
-            {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
-
-update_design(Json, R, S) ->
-    % Translate the conditions to javascript
-    Expression = conditions:trans(jsn:get_value(<<"conditions">>, Json)),
-    {ok, Design} = 
-        design_index_json_dtl:render(
-          [{<<"expression">>, Expression}|Json]),
-    Id = "_design/" ++ wrq:path_info(id, R),
-  
-    case couch:exists(Id, R, S) of
-        false ->
-            couch:create(design, Design, R, S);
-        _ ->
-            couch:update(design, Design, R, S)
-    end.
+    i:update(R, S).
   
 html_index(R, S) ->
     {ok, Json} = q:indexes_options(R, S),
@@ -172,7 +124,7 @@ html_index(R, S) ->
     Html.
 
 html_identifier(R, S) ->
-    Json = couch:get_json(id, R, S),
+    {ok, Json} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
 
     Json1 = jsn:set_value(<<"fields">>,
@@ -202,27 +154,11 @@ html_condition(R, S) ->
     render_conditions(wrq, get_qs_value, R, R, S).
   
 html_view(R, S) ->
-    Msg = <<"still building. Please wait and try again.">>,
-    Item = <<"Index">>,
-    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    IndexId = wrq:path_info(id, R),
-    Limit = wrq:get_qs_value("limit", R),
-    case q:user_index(IndexId, R, S) of
-        {ok, Json} ->
-            Index = utils:add_encoded_keys(Json),
-            Vals = [{<<"limit">>, Limit}|Index],
-            {ok, Html} = render:render(index_view_dtl, Vals),
-            {Html, R, S};
-        {error, not_found} ->
-            {<<"">>, R, S};
-        {error, req_timedout} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 504}, R1, S}
-    end.
+    i:view(R, S).
     
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
@@ -278,7 +214,8 @@ get_label("metadata", _R, _S) ->
 get_label(Id, R, S) ->
     Json = case field:is_meta(Id) of
                false ->
-                   couch:get_json(Id, R, S);
+                   {ok, J} = h:get(Id, R, S),
+                   J;
                _ ->
                    field:meta_field(Id)
            end,

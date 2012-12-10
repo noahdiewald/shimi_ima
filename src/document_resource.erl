@@ -49,13 +49,10 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    Id = wrq:path_info(id, R),
-  
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        revision -> {couch:exists(Id, R, S), R, S};
-        _ -> {couch:exists(Doctype, R, S), R, S}
+        identifier -> {h:exists(h:id(R), R, S), R, S};
+        revision -> {h:exists(h:id(R), R, S), R, S};
+        _ -> {h:exists(h:doctype(R), R, S), R, S}
     end. 
 
 is_authorized(R, S) ->
@@ -72,7 +69,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Json = couch:get_json(rev, R, S),
+    {ok, Json} = h:rev_data(R, S),
     case jsn:get_value(<<"deleted_">>, Json) of
         true ->
             json_update(jsn:set_value(<<"deleted_">>, false, Json), R, S);
@@ -86,7 +83,7 @@ post_is_create(R, S) ->
 create_path(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
   
-    Id = couch:get_uuid(R, S),
+    Id = utils:uuid(),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
   
     Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
@@ -105,7 +102,7 @@ to_html(R, S) ->
     case proplists:get_value(target, S) of
         edit -> {html_edit(R, S), R, S};
         main -> {html_documents(R, S), R, S};
-        index -> {html_index(R, S), R, S};
+        index -> html_index(R, S);
         identifier -> {html_document(R, S), R, S};
         revision -> {html_revision(R, S), R, S};
         search -> {html_search(R, S), R, S}
@@ -125,11 +122,11 @@ json_create(R, S) ->
     % Normalization assumes a complete record, which would normally
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(Json1)),
-    case couch:create(doc, jsn:encode(NormJson), R, S) of
+    case couch:create(NormJson, h:project(R), S) of
         {ok, created} -> 
             bump_deps(R, S),
             {true, R, S};
-        {403, Message} ->
+        {forbidden, Message} ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 403}, R1, S}
     end.
@@ -140,82 +137,40 @@ json_update(R, S) ->
     json_update(Json1, R, S).
   
 json_update(Json, R, S) ->
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
     NormJson = document:normalize(Json2),
   
-    case couch:update(doc, Id, jsn:encode(NormJson), R, S) of
+    case couch:update(h:id(R), NormJson, h:project(R), S) of
         {ok, updated} ->
-            NewJson = couch:get_json(Id, R, S),
-            Message = jsn:encode([{<<"rev">>, 
-                                   jsn:get_value(<<"_rev">>, NewJson)}]),
+            {ok, NewJson} = h:id_data(R, S),
+            Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
             R1 = wrq:set_resp_body(Message, R),
             bump_deps(R, S),
             {true, R1, S};
-        {403, Message} ->
+        {forbidden, Message} ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 403}, R1, S};
-        {409, _} ->
-            Message = 
-                jsn:encode(
-                  [{<<"message">>, 
-                    <<"This document has been edited or deleted by another user.">>}]),
+        {error, conflict} ->
+            Msg = <<"This document has been edited or deleted by another user.">>,
+            Message = jsn:encode([{<<"message">>, Msg}]),
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 409}, R1, S}
     end.
 
 html_documents(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-  
-    Vals = [
-            {<<"title">>, list_to_binary(Doctype ++ " Documents")}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"user">>, proplists:get_value(user, S)}
-           ],
-  
-    {ok, Html} = render:render(document_dtl, Vals),
+    {ok, Html} = render:render(document_dtl, h:basic_info("", " Documents", R, S)),
     Html.
 
 html_edit(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    {ok, Json} = q:fieldset(Doctype, R, S),
+    {ok, Json} = q:fieldset(h:doctype(R), h:project(R), S),
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
-  
-    Vals = [
-            {<<"title">>, list_to_binary("Edit or Create " ++ Doctype)}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"fieldsets">>, Fieldsets}
-           ],
-  
+    Vals = [{<<"fieldsets">>, Fieldsets}|h:basic_info("Edit or Create ", "", R, S)],
     {ok, Html} = render:render(document_edit_dtl, Vals),
     Html.
 
 html_index(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    Limit = wrq:get_qs_value("limit", R),
-
-    {ok, Json} = case wrq:get_qs_value("index", R) of
-                     undefined -> 
-                         q:document_index(Doctype, R, S);
-                     IndexId -> 
-                         q:user_index(IndexId, R, S) 
-                 end,
-  
-    Index = utils:add_encoded_keys(Json),
-  
-    Vals = [
-            {<<"limit">>, Limit},
-            {<<"title">>, list_to_binary(Doctype ++ " Index")}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)}|Index
-           ],
-  
-    {ok, Html} = render:render(document_index_dtl, Vals),
-    Html.
+    i:view(R, S).
 
 html_search(R, S) ->
     DT = list_to_binary(wrq:path_info(doctype, R)),
@@ -224,42 +179,34 @@ html_search(R, S) ->
                  undefined ->
                      case wrq:get_qs_value("field", R) of
                          undefined ->
-                             search:values(DT, Query, [], [], R, S);
+                             search:values(DT, Query, [], [], h:project(R), S);
                          Fields ->
                              Fs = jsn:decode(Fields),
                              case wrq:get_qs_value("exclude", R) of
                                  "true" ->
-                                     search:values(DT, Query, [], Fs, R, S);
+                                     search:values(DT, Query, [], Fs, h:project(R), S);
                                  _ ->
-                                     search:values(DT, Query, Fs, [], R, S)
+                                     search:values(DT, Query, Fs, [], h:project(R), S)
                              end
                      end;
                  Index ->
-                     search:values(Index, Query, R, S)
+                     search:values(Index, Query, h:project(R), S)
              end,
     {ok, Html} = render:render(document_search_dtl, Params),
     Html.
 
 html_document(R, S) ->
-    Doctype = wrq:path_info(doctype, R),
-    OrigJson = couch:get_json(id, R, S),
+    {ok, OrigJson} = h:id_data(R, [{revs_info, true}|S]),
     RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
     NormJson = document:normalize(OrigJson),
-    
-    Vals = [
-            {<<"title">>, list_to_binary(Doctype)}, 
-            {<<"project_info">>, couch:get_json(project, R, S)},
-            {<<"doctype_info">>, couch:get_json(doctype, R, S)},
-            {<<"revs_info">>, RevsInfo}|NormJson
-           ],
-  
+    Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ h:basic_info("", "", R, S),
     {ok, Html} = render:render(document_view_dtl, Vals),
     Html.
 
 html_revision(R, S) ->
-    Requested = document:normalize(couch:get_json(rev, R, S)),
-    ReqId = jsn:get_value(<<"_id">>, Requested),
-    Prev = case couch:get_json(safer, ReqId, R, S) of
+    {ok, Data} = h:rev_data(R, S),
+    Requested = document:normalize(Data),
+    Prev = case h:id_data(R, S) of
                {ok, Curr} ->
                    CurrRev = jsn:get_value(<<"_rev">>, Curr),
                    ReqRev = jsn:get_value(<<"_rev">>, Requested),
@@ -272,8 +219,8 @@ html_revision(R, S) ->
     Html.
 
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
@@ -282,6 +229,7 @@ validate_authentication(Props, R, S) ->
     end.
 
 bump_deps(R, S) ->
+    Project = wrq:path_info(project, R),
     Doctype = wrq:path_info(doctype, R),
-    spawn(dependent, bump, [Doctype, R, S]),
+    spawn(dependent, bump, [Doctype, Project, S]),
     ok.

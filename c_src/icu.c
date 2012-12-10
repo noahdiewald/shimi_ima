@@ -4,7 +4,7 @@
  * Copyright 2011 University of Wisconsin Madison Board of Regents.
  * Author Noah Diewald <noah@diewald.me>
  *
- * This file is part of dictionary_maker.
+ * This file is part of Ʃimi Ima.
  *
  * dictionary_maker is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -37,14 +37,12 @@
 init(Opts) -> {ok, Opts}.
 
 to_html(R, S) ->
-    User = proplists:get_value(user, S),
-    Project = couch:get_json(project, R, S),
+    {ok, ProjectData} = h:project_data(R, S),
     {ok, Doctypes} = q:doctypes(R, S),
-  
-    Vals = [{<<"user">>, User},
-            {<<"project_info">>, Project},
-            {<<"doctypes">>, Doctypes}],
-  
+    Vals = [{<<"project_info">>, ProjectData},
+        {<<"doctypes">>, Doctypes},
+        {<<"user">>, proplists:get_value(user, S)}],
+
     {ok, Html} = render:render(index_tool_dtl, Vals),
     {Html, R, S}.
 
@@ -60,8 +58,8 @@ is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

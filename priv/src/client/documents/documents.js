@@ -15,7 +15,7 @@ shimi.jumpForm = function () {
   $('#view-jump-id').live("keydown", function (e) {
     if (e.which === 13) {
       var docid = $('#view-jump-id').val();
-      shimi.loadDocument(docid);
+      shimi.vui.get(docid);
     }
     return true;
   });

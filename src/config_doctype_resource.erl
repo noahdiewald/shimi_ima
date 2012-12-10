@@ -54,11 +54,10 @@
 init(Opts) -> {ok, Opts}.
 
 resource_exists(R, S) ->
-    Id = wrq:path_info(id, R),
     case proplists:get_value(target, S) of
-        identifier -> {couch:exists(Id, R, S), R, S};
-        index -> {couch:exists([], R, S), R, S};
-        touch -> {couch:exists(Id, R, S), R, S}
+        identifier -> {h:exists(h:id(R), R, S), R, S};
+        index -> {true, R, S};
+        touch -> {h:exists(h:id(R), R, S), R, S}
     end.
 
 is_authorized(R, S) ->
@@ -72,14 +71,7 @@ allowed_methods(R, S) ->
     end.
   
 delete_resource(R, S) ->
-    Msg = <<"This document has been edited or deleted by another user.">>,
-    case couch:delete(R, S) of
-        {ok, deleted} -> {true, R, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    h:delete(R, S).
   
 post_is_create(R, S) ->
     case proplists:get_value(target, S) of
@@ -106,7 +98,9 @@ content_types_accepted(R, S) ->
     {[{"application/json", from_json}], R, S}.
 
 process_post(R, S) ->
-    document_toucher:start(R, S),
+    Doctype = wrq:path_info(id, R),
+    Project = wrq:path_info(project, R),
+    document_toucher:start(Doctype, Project, S),
     {{halt, 204}, R, S}.
 
 provide_null(R, S) ->
@@ -117,9 +111,7 @@ index_html(R, S) ->
     {render:renderings(Json, config_doctype_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-    Json = couch:get_json(id, R, S),
-    {ok, Html} = render:render(config_doctype_dtl, Json),
-    {Html, R, S}.
+    h:id_html(config_doctype_dtl,  R, S).
   
 from_json(R, S) ->
     case proplists:get_value(target, S) of
@@ -128,30 +120,10 @@ from_json(R, S) ->
     end.
 
 json_create(R, S) ->  
-    Json = jsn:decode(wrq:req_body(R)),
-    {ok, created} = couch:create(doc, wrq:req_body(R), R, S),
-    {ok, DesignJson} = render:render(design_doctype_json_dtl, Json),
-    {ok, created} = couch:create(design, DesignJson, R, S),
-    {true, R, S}.
+    i:create(R, S).
 
 json_update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    Id = wrq:path_info(id, R),
-    Rev = wrq:get_qs_value("rev", R),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
-    Msg = <<"This document has been edited or deleted by another user.">>,
-
-    case couch:update(doc, Id, jsn:encode(Json2), R, S) of
-        {ok, updated} -> {true, R, S};
-        {403, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
-        {409, _} ->
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
-    end.
+    i:update(R, S).
 
 % Helpers
 

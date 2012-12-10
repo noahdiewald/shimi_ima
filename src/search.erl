@@ -26,16 +26,15 @@
          values/6
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("types.hrl").
 
 %% @doc Retrieve values for a search over a user defined index.
 %% -spec values(string(), string(), utils:reqdata(), any()) -> [{any(),any()}].
-values(_Index, [], _R, _S) ->
+values(_Index, [], _Project, _S) ->
     [{<<"rows">>, false}];
-values(Index, Query, R, S) ->
+values(Index, Query, Project, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = q:user_index(Index, R, S),
+    {ok, Json} = q:user_index(Index, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Filtered = i_filter(Rows, RE, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, 
@@ -44,17 +43,17 @@ values(Index, Query, R, S) ->
 %% @doc Retrieve values for a search over fields found in a a document
 %% of a particular type.
 -spec values(binary(), string(), [binary()], [binary()], utils:reqdata(), any()) -> [{binary(), list()|boolean()}].
-values(_Doctype, [], _Fields, _Exclude, _R, _S) -> % No query
+values(_Doctype, [], _Fields, _Exclude, _Project, _S) -> % No query
     [{<<"rows">>, false}];
-values(Doctype, Query, [], ExFields, R, S) -> % All fields, or exclusive fields
-    Fields = get_fields(Doctype, ExFields, R, S),
-    values(Doctype, Query, Fields, [], R, S);
-values(Doctype, Query, Fields, [], R, S) -> % Inclusive fields
+values(Doctype, Query, [], ExFields, Project, S) -> % All fields, or exclusive fields
+    Fields = get_fields(Doctype, ExFields, Project, S),
+    values(Doctype, Query, Fields, [], Project, S);
+values(Doctype, Query, Fields, [], Project, S) -> % Inclusive fields
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
     TID = ets:new(list_to_atom("search-" ++ utils:uuid()), [public]),
     ets:insert(TID, {total, 0}),
     F = fun(X) ->
-                do_search(Doctype, RE, X, TID, R, S)
+                do_search(Doctype, RE, X, TID, Project, S)
         end,
     ok = utils:peach(F, Fields, 10),
     Complete = prep_ret(TID),
@@ -99,8 +98,8 @@ filter([H|T], RE, Acc) ->
         _ -> filter(T, RE, [jsn:set_value(<<"key">>, K, H)|Acc])
     end.
 
-do_search(Doctype, RE, Field, TID, R, S) ->
-    {ok, Json} = q:search(Doctype, Field, R, S),
+do_search(Doctype, RE, Field, TID, Project, S) ->
+    {ok, Json} = q:search(Doctype, Field, Project, S),
     Matches = filter(jsn:get_value(<<"rows">>, Json), RE, []),
     case length(Matches) of
         0 ->
@@ -117,7 +116,7 @@ do_search(Doctype, RE, Field, TID, R, S) ->
             ok
     end.
 
-get_fields(Doctype, ExFields, R, S) ->
+get_fields(Doctype, ExFields, Project, S) ->
     F = fun(X, Acc) ->
                 [_, _, Type, _] = jsn:get_value(<<"key">>, X),
                 Id = jsn:get_value(<<"id">>, X),
@@ -127,7 +126,7 @@ get_fields(Doctype, ExFields, R, S) ->
                     _ -> Acc
                 end
         end,
-    {ok, Json} = q:fieldset(Doctype, false, R, S),
+    {ok, Json} = q:fieldset(Doctype, false, Project, S),
     lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
 
                 

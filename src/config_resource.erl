@@ -77,14 +77,14 @@ process_post(R, S) ->
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),
-    Project = couch:get_json(project, R, S),
-    Vals = [{<<"user">>, User},{<<"project_info">>, Project}],
+    {ok, ProjectData} = h:project_data(R, S),
+    Vals = [{<<"user">>, User},{<<"project_info">>, ProjectData}],
     {ok, Html} = render:render(config_dtl, Vals),
     {Html, R, S}.
 
 validate_authentication(Props, R, S) ->
-    Project = couch:get_json(project, R, S),
-    Name = jsn:get_value(<<"name">>, Project),
+    {ok, ProjectData} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of

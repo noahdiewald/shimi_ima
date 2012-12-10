@@ -31,26 +31,25 @@
 -include_lib("include/types.hrl").
 
 -spec find(string(), utils:req_data(), any()) -> [jsn:json_term()].
-find(Doctype, R, S) ->
+find(Doctype, Project, S) ->
     F = fun (X, Acc) -> find_f(X, Acc, Doctype) end,
     Qs = view:from_list([{"include_docs", true}]),
-    couch:fold_view("fieldsets", "all", view:to_string(Qs), F, R, S).
+    couch:fold_view("shimi_ima", "all_fieldsets", view:to_string(Qs), F, Project, S).
 
 -spec bump(string(), utils:req_data(), any()) -> ok.
-bump(Doctype, R, S) ->
-    Doctypes = find(Doctype, R, S),
-    bump_all(Doctypes, R, S).
+bump(Doctype, Project, S) ->
+    Doctypes = find(Doctype, Project, S),
+    bump_all(Doctypes, Project, S).
 
 % Helper Functions
 
 -spec bump_all([string()], utils:req_data(), any()) -> ok.
 bump_all([], _R, _S) ->
     ok;
-bump_all([H|T], R, S) ->
-    {ok, Json} = couch:get_json(safer, H, R, S),
-    {ok, updated} = couch:update(doc, jsn:get_value(<<"_id">>, Json),
-                                 jsn:encode(Json), R, S),
-    bump_all(T, R, S).
+bump_all([H|T], Project, S) ->
+    {ok, Json} = h:get(H, Project, S),
+    {ok, updated} = couch:update(binary_to_list(jsn:get_value(<<"_id">>, Json)), Json, Project, S),
+    bump_all(T, Project, S).
 
 -spec find_f(jsn:json_term(), jsn:json_term(), string()) -> jsn:json_term().
 find_f(X, Acc, ODoctype) ->

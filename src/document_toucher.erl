@@ -31,7 +31,6 @@
 
 -export([
          exists/1,
-         start/2,
          start/3,
          stop/1
         ]).
@@ -49,7 +48,7 @@
 -include_lib("types.hrl").
 
 -record(state, {
-          wrq :: utils:reqdata(),
+          project :: string(),
           wm_state :: any(),
           tid :: ets:tid(),
           doctype :: string(),
@@ -61,13 +60,9 @@
 
 % API
 
--spec start(utils:reqdata(), any()) -> {ok, pid()} | ignore | {error, term()}.
-start(R, WMS) ->
-    start(wrq:path_info(id, R), R, WMS).
-
--spec start(string(), utils:reqdata(), any()) -> {ok, pid()} | ignore | {error, term()}.
-start(Doctype, R, WMS) ->
-    case gen_server:start({local, me(Doctype)}, ?MODULE, {Doctype, R, WMS}, [])
+-spec start(string(), string(), any()) -> {ok, pid()} | ignore | {error, term()}.
+start(Doctype, Project, WMS) ->
+    case gen_server:start({local, me(Doctype)}, ?MODULE, {Doctype, Project, WMS}, [])
     of
         {ok, Pid} -> 
             run(Doctype),
@@ -83,11 +78,11 @@ exists(Doctype) ->
     
 % Gen Server
 
-init({Doctype, R, WMS}) ->
+init({Doctype, Project, WMS}) ->
     error_logger:info_msg("~p started~n", [me(Doctype)]),
     Tid = ets:new(list_to_atom(Doctype ++ "-" ++ "fs_table"), []),
     {ok, #state{doctype=Doctype, 
-                wrq=R, 
+                project=Project,
                 wm_state=WMS, 
                 tid=Tid, 
                 counter=5, 
@@ -143,8 +138,8 @@ code_change(_OldVsn, S, _Extra) ->
 % Private
 
 -spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
-touch_get_json(Id, R, S) ->                
-    {ok, Json} = couch:get_json(safer, binary_to_list(Id), R, S),
+touch_get_json(Id, Project, S) ->
+    {ok, Json} = h:get(binary_to_list(Id), Project, S),
     Json.
 
 %% @doc After initialization is complete, begin the touch operation.
@@ -161,13 +156,12 @@ me(Doctype) ->
 %% to the current state of its doctype's configuration.
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
-    Json = touch_get_json(Id, S#state.wrq, S#state.wm_state),
+    Json = touch_get_json(Id, S#state.project, S#state.wm_state),
     Doc = document:from_json(Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
     Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
-    case couch:update(doc, binary_to_list(Id), jsn:encode(Doc2), S#state.wrq, 
-                      S#state.wm_state) of
+    case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
         {ok, updated} ->
             untouched:delete(S#state.doctype, Id),
             ok;
@@ -254,8 +248,9 @@ touch_field(DF, FTid, S) ->
                     subcategory = F#field.subcategory
                    },
             DF3 = update_normalize(DF, F, DF2),
+            Project = S#state.project,
             DF3#docfield{
-              sortkey=charseq:get_sortkey(DF3, S#state.wrq, S#state.wm_state)}
+              sortkey=charseq:get_sortkey(DF3, Project, S#state.wm_state)}
     end.
 
 %% @doc Used to choose which value to set in case one is undefined.
@@ -291,11 +286,11 @@ add_missing(FSs, S) ->
 %% processed. These are kept in the untouched server so that the
 %% process can be restarted if there is a network error.
 -spec get_docs(state()) -> ok | {error, req_timedout}.
-get_docs(#state{doctype=Doctype, wrq=R, wm_state=WMS}) ->
+get_docs(#state{doctype=Doctype, project=Project, wm_state=WMS}) ->
     case untouched:exists(Doctype) of
         true -> ok;
         false -> 
-            case q:document_index(Doctype, R, WMS) of
+            case q:index(Doctype, [], Project, WMS) of
                 {ok, AllDocs} ->
                     Rows = jsn:get_value(<<"rows">>, AllDocs),
                     {ok, _} = untouched:start(Doctype, Rows),
@@ -326,8 +321,8 @@ process_docs(S) ->
 %% querying the view while updating many documents can cause
 %% processing to be slowed while view indexing takes place.
 -spec fill_tables(state()) -> {ok, [string()]} | {error, req_timedout}.
-fill_tables(#state{doctype=Doctype, wrq=R, wm_state=WMS, tid=Tid}) ->
-    case q:fieldset(Doctype, R, WMS) of
+fill_tables(#state{doctype=Doctype, project=Project, wm_state=WMS, tid=Tid}) ->
+    case q:fieldset(Doctype, Project, WMS) of
         {ok, Json} ->
             ok = fill_tables(jsn:get_value(<<"rows">>, Json), Tid);
         {error, req_timedout} ->

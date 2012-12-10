@@ -1849,7 +1849,7 @@ shimi.jumpForm = function () {
   $('#view-jump-id').live("keydown", function (e) {
     if (e.which === 13) {
       var docid = $('#view-jump-id').val();
-      shimi.loadDocument(docid);
+      shimi.vui.get(docid);
     }
     return true;
   });
@@ -2810,6 +2810,7 @@ shimi.vui = (function (args) {
     $.get(url, function (documentHtml) {
       htmlTarget.html(documentHtml);
       mod.formatTimestamps();
+      dv().fadeTo('slow', 1);
       if (callback) {
         callback();
       }
@@ -4006,10 +4007,10 @@ $(function () {
 
       if (obj() && obj().message && obj().status === "error") {
         shimi.flash("Error", obj().message).error();
-        shimi.fm().refreshListings();
+        shimi.fm.refreshListings();
       } else if (obj().message) {
         shimi.flash("Success", obj().message).highlight();
-        shimi.fm().refreshListings();
+        shimi.fm.refreshListings();
       }
     });
   }
