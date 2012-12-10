@@ -313,7 +313,19 @@ function map(doc) {
       }
     };
 
-    var fun = userIndexMap.toString().replace(/doc\.\$doctype\$/, doc.doctype).replace(/doc\.\$show_deleted\$/, doc.show_deleted.toString()).replace(/doc\.\$expression\$/, doc.expression).replace(/doc\.\$fields\$/, JSON.stringify(doc.fields)).replace(/doc\.\$replace_function_exists\$/, (doc.replace_function !== undefined).toString()).replace(/doc\.\$replace_function\$/, maybe_item(doc.replace_function));
+    var doctypeRe = new RegExp("doc\\.\\$doctype\\$", "g");
+    var deletedRe = new RegExp("doc\\.\\$show_deleted\\$", "g");
+    var expRe = new RegExp("doc\\.\\$expression\\$", "g");
+    var fieldsRe = new RegExp("doc\\.\\$fields\\$", "g");
+    var existsRe = new RegExp("doc\\.\\$replace_function_exists\\$", "g");
+    var replaceRe = new RegExp("doc\\.\\$replace_function\\$", "g");
+
+    var fun = userIndexMap.toString().replace(doctypeRe, doc.doctype);
+    fun = fun.replace(deletedRe, doc.show_deleted.toString());
+    fun = fun.replace(expRe, doc.expression);
+    fun = fun.replace(fieldsRe, JSON.stringify(doc.fields));
+    fun = fun.replace(existsRe, (doc.replace_function !== undefined).toString());
+    fun = fun.replace(replaceRe, maybe_item(doc.replace_function));
 
     retval = makeObj(fun);
     emit(doc._id, JSON.stringify(retval));
