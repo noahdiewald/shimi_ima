@@ -113,13 +113,10 @@ set_keys_sortkeys(Id, Vq, Project, S) ->
                     set_sortkey_by_field(binary_to_list(Field), Vq, Project, S);
                 _ -> Vq
             end;
-        {<<"index">>, false} ->
-            Vq;
         {<<"doctype">>, true} ->
             set_sortkey_by_doctype(Id, Vq, Project, S);
-        {<<"doctype">>, false} ->
-            Val = Vq#vq.startkey,
-            Vq#vq{startkey = [list_to_binary(Id), Val]}
+        {_, false} ->
+            Vq
     end.
 
 -spec set_sortkey_by_doctype(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
@@ -128,10 +125,10 @@ set_sortkey_by_doctype(Id, Vq, Project, S) ->
     case jsn:get_value(<<"rows">>, Charseqs) of
         [] ->
             Val = Vq#vq.startkey,
-            Vq#vq{startkey = [list_to_binary(Id), [[<<>>, Val]]]};
+            Vq#vq{startkey = [[<<>>, Val]]};
         [First|_] ->
             Charseq = jsn:get_value(<<"doc">>, First),
-            set_sortkey_helper(list_to_binary(Id), Charseq, Vq)
+            set_sortkey_helper(Charseq, Vq)
     end.
 
 -spec set_sortkey_by_field(string(), view_query(), utils:reqdata(), [{any(),any()}]) -> view_query().
@@ -151,11 +148,11 @@ set_sortkey_helper(Charseq, Vq, Project, S) ->
     Sortkey = charseq:get_sortkey(Input, Project, S),
     Vq#vq{startkey = [[Sortkey, Val]]}.
 
--spec set_sortkey_helper(binary(), binary(), view_query()) -> view_query().
-set_sortkey_helper(Doctype, Charseq, Vq) ->
+-spec set_sortkey_helper(binary(), view_query()) -> view_query().
+set_sortkey_helper(Charseq, Vq) ->
     Val = Vq#vq.startkey,
     Sortkey = charseq:get_sortkey(charseq:from_json(Charseq), Val),
-    Vq#vq{startkey = [Doctype, [[Sortkey, Val]]]}.
+    Vq#vq{startkey = [[Sortkey, Val]]}.
 
 -spec stale_val(string() | undefined) -> 'ok' | 'update_after' | 'undefined'.
 stale_val("ok") -> ok;

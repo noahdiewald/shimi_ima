@@ -179,18 +179,18 @@ html_search(R, S) ->
                  undefined ->
                      case wrq:get_qs_value("field", R) of
                          undefined ->
-                             search:values(DT, Query, [], [], R, S);
+                             search:values(DT, Query, [], [], h:project(R), S);
                          Fields ->
                              Fs = jsn:decode(Fields),
                              case wrq:get_qs_value("exclude", R) of
                                  "true" ->
-                                     search:values(DT, Query, [], Fs, R, S);
+                                     search:values(DT, Query, [], Fs, h:project(R), S);
                                  _ ->
-                                     search:values(DT, Query, Fs, [], R, S)
+                                     search:values(DT, Query, Fs, [], h:project(R), S)
                              end
                      end;
                  Index ->
-                     search:values(Index, Query, R, S)
+                     search:values(Index, Query, h:project(R), S)
              end,
     {ok, Html} = render:render(document_search_dtl, Params),
     Html.
