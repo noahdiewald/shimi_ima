@@ -2810,6 +2810,7 @@ shimi.vui = (function (args) {
     $.get(url, function (documentHtml) {
       htmlTarget.html(documentHtml);
       mod.formatTimestamps();
+      dv().fadeTo('slow', 1);
       if (callback) {
         callback();
       }
