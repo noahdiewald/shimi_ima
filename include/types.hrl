@@ -164,3 +164,13 @@
 -type docfieldset() :: #docfieldset{}.
 -type document() :: #document{}.
 
+-record(sparams, {
+          doctype :: string(),
+          index :: string(),
+          fields :: [binary()],
+          exclude :: boolean(),
+          invert :: boolean(),
+          qs :: string()
+         }).
+
+-type sparams() :: #sparams{}.

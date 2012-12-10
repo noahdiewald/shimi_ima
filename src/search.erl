@@ -21,34 +21,28 @@
 
 -module(search).
 
--export([
-         values/4,
-         values/6
-        ]).
+-export([values/3]).
 
 -include_lib("types.hrl").
 
-%% @doc Retrieve values for a search over a user defined index.
-%% -spec values(string(), string(), utils:reqdata(), any()) -> [{any(),any()}].
-values(_Index, [], _Project, _S) ->
+%% @doc Retrieve values for a search.
+-spec values(sparams(), string(), h:req_state()) -> jsn:json_term().
+values(#sparams{qs=[]}, _Project, _S) ->
     [{<<"rows">>, false}];
-values(Index, Query, Project, S) ->
+values(#sparams{qs=Query, index=Index}, Project, S) when is_list(Index) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
-    {ok, Json} = q:user_index(Index, Project, S),
+    {ok, Json} = q:index(Index, [], Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Filtered = i_filter(Rows, RE, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, 
-     {<<"total_rows">>, length(Filtered)}].
-
-%% @doc Retrieve values for a search over fields found in a a document
-%% of a particular type.
--spec values(binary(), string(), [binary()], [binary()], utils:reqdata(), any()) -> [{binary(), list()|boolean()}].
-values(_Doctype, [], _Fields, _Exclude, _Project, _S) -> % No query
-    [{<<"rows">>, false}];
-values(Doctype, Query, [], ExFields, Project, S) -> % All fields, or exclusive fields
-    Fields = get_fields(Doctype, ExFields, Project, S),
-    values(Doctype, Query, Fields, [], Project, S);
-values(Doctype, Query, Fields, [], Project, S) -> % Inclusive fields
+     {<<"total_rows">>, length(Filtered)}];
+values(P=#sparams{doctype=Doctype, fields=[], exclude=false}, Project, S) ->
+    NewFields = get_fields(Doctype, [], Project, S),
+    values(P#sparams{fields=NewFields}, Project, S);
+values(P=#sparams{doctype=Doctype, fields=Fields, exclude=true}, Project, S) ->
+    NewFields = get_fields(Doctype, Fields, Project, S),
+    values(P#sparams{fields=NewFields, exclude=false}, Project, S);
+values(#sparams{qs=Query, doctype=Doctype, fields=Fields}, Project, S) ->
     {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
     TID = ets:new(list_to_atom("search-" ++ utils:uuid()), [public]),
     ets:insert(TID, {total, 0}),

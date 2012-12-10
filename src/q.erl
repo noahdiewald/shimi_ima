@@ -98,8 +98,8 @@ indexes_options(R, S) ->
     couch:get_view_json("shimi_ima", "options", Qs, h:project(R), S).
 
 search(Doctype, Field, Project, S) ->
-    VQ = #vq{startkey = [Doctype, Field, []],
-             endkey = [Doctype, Field, <<"">>],
+    VQ = #vq{startkey = [list_to_binary(Doctype), Field, []],
+             endkey = [list_to_binary(Doctype), Field, <<"">>],
              descending = true},
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "search", Qs, Project, S).
