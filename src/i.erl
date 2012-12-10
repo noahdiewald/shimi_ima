@@ -26,8 +26,22 @@
 
 -export([
     create/2,
-    update/2
+    update/2,
+    view/2
     ]).
+
+add_encoded_key(Row) ->
+    Key = jsn:get_value(<<"key">>, Row),
+    jsn:set_value(<<"encoded_key">>, json_to_base64(Key), Row).
+
+%% @doc Add escaped keys to view output
+-spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
+add_encoded_keys(Json) ->
+    Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
+    jsn:set_value(<<"rows">>, Rows, Json).
+
+json_to_base64(Json) ->
+    base64:encode(iolist_to_binary(jsn:encode(Json))).
 
 create(R, S) ->
     Json = proplists:get_value(posted_json, S),
@@ -44,6 +58,11 @@ create(R, S) ->
                     {{halt, 403}, R1, S}
             end
     end.
+
+get_design(R, S) ->
+    {ok, Json} = q:index_design(R, S),
+    [Row|[]] = jsn:get_value(<<"rows">>, Json),
+    jsn:decode(jsn:get_value(<<"value">>, Row)).
             
 update(R, S) ->
     Json = jsn:decode(wrq:req_body(R)),
@@ -55,7 +74,7 @@ update(R, S) ->
             Json2;
         Conditions ->
             Expression = conditions:trans(Conditions),
-            jsn:set_value(<<"expression">>, Expression)
+            jsn:set_value(<<"expression">>, Expression, Json2)
     end,
     
     case couch:update(h:id(R), Json3, h:project(R), S) of
@@ -86,7 +105,30 @@ update_design(R, S) ->
             couch:update(Id, Design2, Project, [{admin, true}|S])
     end.
 
-get_design(R, S) ->
-    {ok, Json} = q:index_design(R, S),
-    [Row|[]] = jsn:get_value(<<"rows">>, Json),
-    jsn:decode(jsn:get_value(<<"value">>, Row)).
+view(R, S) ->
+    Msg = <<"still building. Please wait and try again.">>,
+    Item = <<"Index">>,
+    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
+    Limit = wrq:get_qs_value("limit", R),
+    case get_index(R, S) of
+        {{ok, Json}, Info} ->
+            Index = add_encoded_keys(Json),
+            Vals = [{<<"limit">>, Limit}|Index] ++ Info,
+            {ok, Html} = render:render(document_index_dtl, Vals),
+            {Html, R, S};
+        {{error, not_found}, _} ->
+            {<<"">>, R, S};
+        {{error, req_timedout}, _} ->
+            R1 = wrq:set_resp_body(Message, R),
+            {{halt, 504}, R1, S}
+    end.
+
+get_index(R, S) ->
+    case {h:id(R), wrq:get_qs_value("index", R)} of
+        {undefined, undefined} -> 
+            {q:index(h:doctype(R), R, S), h:basic_info("", " Index", R, S)};
+        {Id, undefined} -> 
+            {q:index(Id, R, S), []};
+        {undefined, Id} ->
+            {q:index(Id, R, S), h:basic_info("", " Index", R, S)}
+    end.

@@ -290,7 +290,7 @@ get_docs(#state{doctype=Doctype, project=Project, wm_state=WMS}) ->
     case untouched:exists(Doctype) of
         true -> ok;
         false -> 
-            case q:document_index(Doctype, [], Project, WMS) of
+            case q:index(Doctype, [], Project, WMS) of
                 {ok, AllDocs} ->
                     Rows = jsn:get_value(<<"rows">>, AllDocs),
                     {ok, _} = untouched:start(Doctype, Rows),

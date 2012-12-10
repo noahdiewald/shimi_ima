@@ -29,18 +29,6 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
-document_index(Doctype, R, S) ->
-    document_index(Doctype, wrq:req_qs(R), h:project(R), S).
-    
-document_index(Doctype, Qs, Project, S) ->
-    F = fun (X) ->
-        [_, Y] = jsn:get_value(<<"key">>, X),
-        jsn:set_value(<<"key">>, Y, X)
-    end,
-    Qs1 = view:normalize_sortkey_vq(Doctype, Qs, Project, S),
-    {ok, Json} = couch:get_view_json("shimi_ima", "all_documents", Qs1, Project, S),
-    {ok, jsn:set_value(<<"rows">>, lists:map(F, jsn:get_value(<<"rows">>, Json)), Json)}.
-
 charseqs(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),
     couch:get_view_json("shimi_ima", "all_charseqs", Qs, h:project(R), S).
@@ -95,8 +83,11 @@ head_charseqs(Doctype, Project, S) ->
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 index(Id, R, S) ->
-    Qs = view:normalize_vq(wrq:req_qs(R)),
-    couch:get_view_json(Id, "index", Qs, h:project(R), S).
+    Qs = view:normalize_sortkey_vq(Id, wrq:req_qs(R), h:project(R), S),
+    index(Id, Qs, h:project(R), S).
+
+index(Id, Qs, Project, S) ->
+    couch:get_view_json(Id, "index", Qs, Project, S).
 
 index_design(R, S) ->
     Qs = view:to_string(#vq{key = list_to_binary(h:id(R))}),
@@ -112,15 +103,3 @@ search(Doctype, Field, R, S) ->
              descending = true},
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "search", Qs, h:project(R), S).
-
-%% @doc Take an id for a saved index and return a JSON term. This term
-%% will contain either the results of querying a view or will contain
-%% only [{<<"rows">>, []}] if no conditions have been defined for the
-%% query.
--spec user_index(string(), utils:reqdata(), any()) -> jsn:json_term().
-user_index(IndexId, R, S) ->
-    Qs = view:normalize_sortkey_vq(IndexId, wrq:req_qs(R), h:project(R), S),
-    case couch:get_view_json(IndexId, "index", Qs, h:project(R), S) of
-        {ok, Json} -> {ok, Json};
-        _ -> {ok, [{<<"rows">>, []}]}
-    end.

@@ -154,23 +154,7 @@ html_condition(R, S) ->
     render_conditions(wrq, get_qs_value, R, R, S).
   
 html_view(R, S) ->
-    Msg = <<"still building. Please wait and try again.">>,
-    Item = <<"Index">>,
-    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    IndexId = wrq:path_info(id, R),
-    Limit = wrq:get_qs_value("limit", R),
-    case q:user_index(IndexId, R, S) of
-        {ok, Json} ->
-            Index = utils:add_encoded_keys(Json),
-            Vals = [{<<"limit">>, Limit}|Index],
-            {ok, Html} = render:render(index_view_dtl, Vals),
-            {Html, R, S};
-        {error, not_found} ->
-            {<<"">>, R, S};
-        {error, req_timedout} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 504}, R1, S}
-    end.
+    i:view(R, S).
     
 validate_authentication(Props, R, S) ->
     {ok, ProjectData} = h:project_data(R, S),

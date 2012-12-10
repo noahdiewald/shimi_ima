@@ -25,7 +25,6 @@
 -export([
          adb/0,
          add_charseqs_design/1,
-         add_encoded_keys/1,
          binary_to_hexlist/1,
          clear_all/2,
          delete_all_design_docs/1,
@@ -147,19 +146,6 @@ update_doc(Project, Doc) ->
         binary_to_list(jsn:get_value(<<"_id">>, Doc)),
     ibrowse:send_req(Url, [{"Content-Type", "application/json"}], put, 
                      jsn:encode(Doc)).
-
-%% @doc Add escaped keys to view output
--spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
-add_encoded_keys(Json) ->
-    Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
-    jsn:set_value(<<"rows">>, Rows, Json).
-
-add_encoded_key(Row) ->
-    Key = jsn:get_value(<<"key">>, Row),
-    jsn:set_value(<<"encoded_key">>, json_to_base64(Key), Row).
-
-json_to_base64(Json) ->
-    base64:encode(iolist_to_binary(jsn:encode(Json))).
 
 %% @doc Call file:list_dir and sort the results
 -spec list_dir(Dir :: file:name()) -> {'ok', [file:filename()]} | {'error', file:posix()}.

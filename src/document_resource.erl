@@ -102,7 +102,7 @@ to_html(R, S) ->
     case proplists:get_value(target, S) of
         edit -> {html_edit(R, S), R, S};
         main -> {html_documents(R, S), R, S};
-        index -> {html_index(R, S), R, S};
+        index -> html_index(R, S);
         identifier -> {html_document(R, S), R, S};
         revision -> {html_revision(R, S), R, S};
         search -> {html_search(R, S), R, S}
@@ -170,19 +170,7 @@ html_edit(R, S) ->
     Html.
 
 html_index(R, S) ->
-    Limit = wrq:get_qs_value("limit", R),
-
-    {ok, Json} = case wrq:get_qs_value("index", R) of
-                     undefined -> 
-                         q:document_index(h:doctype(R), R, S);
-                     IndexId -> 
-                         q:user_index(IndexId, R, S) 
-                 end,
-  
-    Index = utils:add_encoded_keys(Json),
-    Vals = [{<<"limit">>, Limit}|Index] ++ h:basic_info("", " Index", R, S),
-    {ok, Html} = render:render(document_index_dtl, Vals),
-    Html.
+    i:view(R, S).
 
 html_search(R, S) ->
     DT = list_to_binary(wrq:path_info(doctype, R)),

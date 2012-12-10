@@ -14,7 +14,8 @@ module.exports = function (grunt) {
     },
     rig: {
       'priv/www/application.js': 'priv/src/client/application.js',
-      'priv/test/server/validation.js': 'priv/test/couch_validation.js'
+      'priv/test/server/validation.js': 'priv/test/couch_validation.js',
+      'priv/test/server/user_indexes.js': 'priv/test/user_indexes.js'
     },
     lint: {
       files: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
