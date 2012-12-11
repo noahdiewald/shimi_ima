@@ -798,6 +798,12 @@ shimi.clickDispatch = function (e) {
     ".view-document-link": function (t) {
       iui.load(t);
     },
+    "#document-search-exclude": function (t) {
+      sui.toggleExclusion();
+    },
+    "#document-search-invert": function (t) {
+      sui.toggleInversion();
+    },
 
     // Index Tool
     "#new-index-button": function (t) {
@@ -1839,12 +1845,6 @@ shimi.loadHash = function (urlHash) {
   return false;
 };
 
-shimi.excludeCheck = function () {
-  $('#document-search-exclude').live("change", function () {
-    shimi.sui.toggleExclusion();
-  });
-};
-
 shimi.jumpForm = function () {
   $('#view-jump-id').live("keydown", function (e) {
     if (e.which === 13) {
@@ -1857,7 +1857,6 @@ shimi.jumpForm = function () {
 
 shimi.searchForm = function () {
   shimi.sui.clearSearchVals(true).loadSearchVals();
-  shimi.excludeCheck();
   $('#document-search-term').live("keydown", function (e) {
     if (e.which === 13) {
       shimi.sui.getSearch();
@@ -2600,6 +2599,16 @@ shimi.sui = (function () {
     return true;
   };
 
+  mod.toggleInversion = function () {
+    localStorage.setItem("searchInvert", invertedVal());
+    return mod;
+  };
+
+  mod.toggleExclusion = function () {
+    localStorage.setItem("searchExclude", excludedVal());
+    return mod;
+  };
+
   mod.getSearch = function () {
     var query = dSearchTerm().val();
     var url = "documents/search?q=" + window.encodeURIComponent(query);
@@ -2653,7 +2662,6 @@ shimi.sui = (function () {
     dSearchIndex().val(null);
     $('#document-search-exclude:checked').click();
     $('#document-search-invert:checked').click();
-    $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
     $('#search-index-label').empty();
     if (!initial) {
@@ -2675,10 +2683,6 @@ shimi.sui = (function () {
     if (index !== null) {
       dSearchIndex().val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
-
-      if (lookup("searchInvert") !== invertedVal()) {
-        dSearchInvert().click();
-      }
 
       $('.search-optional').show();
       dSearchExclude().parent('div').hide();
@@ -2709,8 +2713,6 @@ shimi.sui = (function () {
     var searchField = dSearchField();
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
-    var exclude = excludedVal();
-    var invert = invertedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
@@ -2727,13 +2729,16 @@ shimi.sui = (function () {
       target.remove();
     }
 
-    if (valDecoded.length === 1) {
+    if (valDecoded.length === 1 && newVal !== null) {
       $('.search-only-one').show();
     } else {
+      if (invertedVal()) {
+        dSearchInvert().click();
+      }
       $('.search-only-one').hide();
     }
 
-    updateSearchVals(newVal, $('#search-field-label').html(), exclude);
+    updateSearchVals(newVal, $('#search-field-label').html(), excludedVal(), null, invertedVal());
 
     return mod;
   };
@@ -2743,15 +2748,11 @@ shimi.sui = (function () {
     var indexLabel = $('option[value=' + indexVal + ']').text();
 
     if (utils.validID(indexVal)) {
-      $('#search-all-fields-switch').show();
-      $('#search-field-label').hide();
-      $('#search-exclude-label').empty();
-      dSearchField().val(null);
-      dSearchExclude().parent('div').hide();
+      mod.clearSearchVals();
       $('#search-index-label').html(indexLabel).show();
       dSearchIndex().val(indexVal);
       $('.search-only-one').show();
-      updateSearchVals(null, indexLabel, null, indexVal);
+      updateSearchVals(null, indexLabel, null, indexVal, invertedVal());
     }
 
     return mod;
@@ -2760,13 +2761,15 @@ shimi.sui = (function () {
   mod.addSearchField = function (target) {
     var fieldid = $(target).closest('[data-field-field]').attr('data-field-field');
 
+    if (dSearchIndex().val()) {
+      mod.clearSearchVals();
+    }
+
     if (utils.validID(fieldid)) {
       var fieldLabel = fieldLookup()[fieldid];
       var searchField = dSearchField();
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
-      var exclude = excludedVal();
-      var invert = invertedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + '" class="search-field-item" title="click to remove">' + fieldLabel + '</a>';
@@ -2787,7 +2790,7 @@ shimi.sui = (function () {
           $('.search-only-one').hide();
         }
 
-        updateSearchVals(newVal, searchLabel.html(), exclude);
+        updateSearchVals(newVal, searchLabel.html(), excludedVal(), null, invertedVal());
       };
 
       if (currentVal !== '') {
