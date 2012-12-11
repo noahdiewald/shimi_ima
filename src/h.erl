@@ -101,7 +101,12 @@ exists(Id, R, S) ->
 
 -spec field(req_data()) -> string().
 field(R) ->
-    wrq:path_info(field, R).
+    case wrq:path_info(field, R) of
+        undefined ->
+            wrq:get_qs_value("field", R);
+         Field ->
+             Field
+     end.
 
 -spec field_data(req_data(), req_state()) -> req_retval().
 field_data(R, S) ->
@@ -139,7 +144,11 @@ id_html(Template, R, S) ->
     {ok, Json} = h:id_data(R, S), 
     {ok, Html} = render:render(Template, Json),
     {Html, R, S}.
-    
+
+-spec index(req_data()) -> string() | undefined.
+index(R) ->
+    wrq:get_qs_value("index", R).
+
 -spec project(req_data()) -> string().
 project(R) ->
     wrq:path_info(project, R).

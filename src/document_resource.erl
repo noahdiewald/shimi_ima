@@ -43,6 +43,7 @@
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
+-include_lib("types.hrl").
 
 % Standard webmachine functions
 
@@ -173,26 +174,23 @@ html_index(R, S) ->
     i:view(R, S).
 
 html_search(R, S) ->
-    DT = list_to_binary(wrq:path_info(doctype, R)),
     Query = wrq:get_qs_value("q", R),
-    Params = case wrq:get_qs_value("index", R) of
-                 undefined ->
-                     case wrq:get_qs_value("field", R) of
-                         undefined ->
-                             search:values(DT, Query, [], [], h:project(R), S);
-                         Fields ->
-                             Fs = jsn:decode(Fields),
-                             case wrq:get_qs_value("exclude", R) of
-                                 "true" ->
-                                     search:values(DT, Query, [], Fs, h:project(R), S);
-                                 _ ->
-                                     search:values(DT, Query, Fs, [], h:project(R), S)
-                             end
-                     end;
-                 Index ->
-                     search:values(Index, Query, h:project(R), S)
-             end,
-    {ok, Html} = render:render(document_search_dtl, Params),
+    Fields = case h:field(R) of
+        undefined ->
+            [];
+        Value ->
+            jsn:decode(Value)
+    end,
+    Params = #sparams{
+        doctype = h:doctype(R),
+        index = h:index(R), 
+        fields = Fields,
+        exclude = wrq:get_qs_value("exclude", R) =:= "true",
+        invert = wrq:get_qs_value("invert", R) =:= "true",
+        qs = Query
+    },
+    Results = search:values(Params, h:project(R), S),
+    {ok, Html} = render:render(document_search_dtl, Results),
     Html.
 
 html_document(R, S) ->

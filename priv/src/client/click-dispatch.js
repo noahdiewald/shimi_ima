@@ -151,6 +151,12 @@ shimi.clickDispatch = function (e) {
     ".view-document-link": function (t) {
       iui.load(t);
     },
+    "#document-search-exclude": function (t) {
+      sui.toggleExclusion();
+    },
+    "#document-search-invert": function (t) {
+      sui.toggleInversion();
+    },
 
     // Index Tool
     "#new-index-button": function (t) {

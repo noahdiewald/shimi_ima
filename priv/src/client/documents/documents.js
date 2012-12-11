@@ -5,12 +5,6 @@ shimi.loadHash = function (urlHash) {
   return false;
 };
 
-shimi.excludeCheck = function () {
-  $('#document-search-exclude').live("change", function () {
-    shimi.sui.toggleExclusion();
-  });
-};
-
 shimi.jumpForm = function () {
   $('#view-jump-id').live("keydown", function (e) {
     if (e.which === 13) {
@@ -23,7 +17,6 @@ shimi.jumpForm = function () {
 
 shimi.searchForm = function () {
   shimi.sui.clearSearchVals(true).loadSearchVals();
-  shimi.excludeCheck();
   $('#document-search-term').live("keydown", function (e) {
     if (e.which === 13) {
       shimi.sui.getSearch();

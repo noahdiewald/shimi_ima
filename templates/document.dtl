@@ -48,7 +48,6 @@
         <input type="hidden" name="document-search-index" id="document-search-index" />
 
         <label for="document-search-term">
-          <span class="hidden" id="search-exclude-label"><em>Do Not</em></span>
           Search
           <span class="search-optional hidden" id="search-field-label"></span>
           <span class="search-optional hidden" id="search-index-label"></span>
@@ -57,6 +56,10 @@
         <div class="search-optional hidden">
           <input type="checkbox" name="document-search-exclude" id="document-search-exclude" />
           <label for="document-search-exclude">Exclude Fields</label><br />
+        </div>
+        <div class="search-optional search-only-one hidden">
+          <input type="checkbox" name="document-search-invert" id="document-search-invert" />
+          <label for="document-search-invert">Invert Search</label><br />
         </div>
       </form>
       <div id="search-listing"></div>

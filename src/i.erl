@@ -124,7 +124,7 @@ view(R, S) ->
     end.
 
 get_index(R, S) ->
-    case {h:id(R), wrq:get_qs_value("index", R)} of
+    case {h:id(R), h:index(R)} of
         {undefined, undefined} -> 
             {q:index(h:doctype(R), R, S), h:basic_info("", " Index", R, S)};
         {Id, undefined} -> 
