@@ -89,9 +89,9 @@ index(Id, R, S) ->
 index(Id, Qs, Project, S) ->
     couch:get_view_json(Id, "index", Qs, Project, S).
 
-index_design(R, S) ->
-    Qs = view:to_string(#vq{key = list_to_binary(h:id(R))}),
-    couch:get_view_json("shimi_ima", "user_indexes", Qs, h:project(R), S).
+index_design(Id, Project, S) ->
+    Qs = view:to_string(#vq{key = list_to_binary(Id)}),
+    couch:get_view_json("shimi_ima", "user_indexes", Qs, Project, S).
     
 indexes_options(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),

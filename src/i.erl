@@ -51,7 +51,7 @@ create(R, S) ->
         <<"doctype">> ->
             case couch:create(Json, h:project(R), S) of
                 {ok, created} ->
-                    {ok, _} = update_design(R, S),
+                    {ok, _} = create_design(Json, h:project(R), S),
                     {true, R, S};
                 {forbidden, Message} ->
                     R1 = wrq:set_resp_body(Message, R),
@@ -59,8 +59,13 @@ create(R, S) ->
             end
     end.
 
-get_design(R, S) ->
-    {ok, Json} = q:index_design(R, S),
+create_design(DocJson, Project, S) ->
+    DocId = jsn:get_value(<<"_id">>, DocJson),
+    Design = get_design(binary_to_list(DocId), Project, S),
+    couch:create(Design, Project, [{admin, true}|S]).
+
+get_design(Id, Project, S) ->
+    {ok, Json} = q:index_design(Id, Project, S),
     [Row|[]] = jsn:get_value(<<"rows">>, Json),
     jsn:decode(jsn:get_value(<<"value">>, Row)).
             
@@ -93,18 +98,19 @@ update(R, S) ->
 
 update_design(R, S) ->
     Project = h:project(R),
-    Design = get_design(R, S),
-    Id = "_design/" ++ h:id(R),
+    DocId = h:id(R),
+    DesignId = "_design/" ++ DocId,
+    Design = get_design(DocId, Project, S),
   
-    case h:get(Id, R, S) of
+    case h:get(DesignId, R, S) of
         {error, not_found} ->
             couch:create(Design, Project, [{admin, true}|S]);
         {ok, PrevDesign} ->
             Rev = jsn:get_value(<<"_rev">>, PrevDesign),
             Design2 = jsn:set_value(<<"_rev">>, Rev, Design),
-            couch:update(Id, Design2, Project, [{admin, true}|S])
+            couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
-
+    
 view(R, S) ->
     Msg = <<"still building. Please wait and try again.">>,
     Item = <<"Index">>,
