@@ -14,6 +14,9 @@ shimi.sui = (function () {
   var dSearchExclude = function () {
     return $('#document-search-exclude');
   };
+  var dSearchInvert = function () {
+    return $('#document-search-invert');
+  };
   var searchListing = function () {
     return $('#search-listing');
   };
@@ -55,19 +58,31 @@ shimi.sui = (function () {
     }
   };
 
-  var updateSearchVals = function (fieldids, labels, exclude, index) {
+  var invertedVal = function () {
+    var invert = dSearchInvert().is(':checked');
+
+    if (!invert) {
+      return null;
+    } else {
+      return invert;
+    }
+  };
+
+  var updateSearchVals = function (fieldids, labels, exclude, index, invert) {
     if (index) {
       localStorage.setItem("searchIndex", index);
       localStorage.setItem("searchIndexLabel", labels);
       localStorage.setItem("searchLabels", null);
       localStorage.setItem("searchFields", null);
       localStorage.setItem("searchExclude", null);
+      localStorage.setItem("searchInvert", invert);
     } else {
       localStorage.setItem("searchIndex", null);
       localStorage.setItem("searchIndexLabel", null);
       localStorage.setItem("searchLabels", labels);
       localStorage.setItem("searchFields", fieldids);
       localStorage.setItem("searchExclude", exclude);
+      localStorage.setItem("searchInvert", invert);
     }
 
     return true;
@@ -78,6 +93,7 @@ shimi.sui = (function () {
     var url = "documents/search?q=" + window.encodeURIComponent(query);
     var field = dSearchField().val();
     var exclude = dSearchExclude().is(':checked');
+    var invert = dSearchInvert().is(':checked');
     var index = dSearchIndex().val();
     var lookup = fieldLookup();
 
@@ -91,6 +107,9 @@ shimi.sui = (function () {
         url = url + "&exclude=true";
       }
     }
+    if (invert) {
+      url = url + "&invert=true";
+    }
 
     searchListing().hide();
 
@@ -102,30 +121,17 @@ shimi.sui = (function () {
         target.html(label);
         target.attr('data-search-label', label);
       });
-      $('.search-results th').each(function (index, item) {
-        var itemText = $.trim($(item).children('a').html());
-        var re = new RegExp("(" + query + ")", "g");
-        var newText =
-        itemText.replace(re, "<span class='highlight'>$1</span>");
-        $(item).children('a').html(newText);
-      });
+      if (!invert) {
+        $('.search-results th').each(function (index, item) {
+          var itemText = $.trim($(item).children('a').html());
+          var re = new RegExp("(" + query + ")", "g");
+          var newText =
+          itemText.replace(re, "<span class='highlight'>$1</span>");
+          $(item).children('a').html(newText);
+        });
+      }
       searchListing().show();
     });
-
-    return mod;
-  };
-
-  mod.toggleExclusion = function () {
-    var exclude = excludedVal();
-    var excludeLabel = $('#search-exclude-label');
-
-    if (exclude) {
-      excludeLabel.show();
-    } else {
-      excludeLabel.hide();
-    }
-
-    localStorage.setItem("searchExclude", exclude);
 
     return mod;
   };
@@ -134,6 +140,7 @@ shimi.sui = (function () {
     dSearchField().val(null);
     dSearchIndex().val(null);
     $('#document-search-exclude:checked').click();
+    $('#document-search-invert:checked').click();
     $('.search-optional, #search-exclude-label').hide();
     $('.search-field-item').remove();
     $('#search-index-label').empty();
@@ -141,6 +148,7 @@ shimi.sui = (function () {
       localStorage.setItem("searchLabels", null);
       localStorage.setItem("searchFields", null);
       localStorage.setItem("searchExclude", null);
+      localStorage.setItem("searchInvert", null);
       localStorage.setItem("searchIndex", null);
       localStorage.setItem("searchIndexLabel", null);
     }
@@ -155,6 +163,11 @@ shimi.sui = (function () {
     if (index !== null) {
       dSearchIndex().val(index);
       $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
+
+      if (lookup("searchInvert") !== invertedVal()) {
+        dSearchInvert().click();
+      }
+
       $('.search-optional').show();
       dSearchExclude().parent('div').hide();
     } else if (fieldids !== null) {
@@ -166,6 +179,14 @@ shimi.sui = (function () {
       }
 
       $('.search-optional').show();
+
+      if (fieldids.length === 36) {
+        if (lookup("searchInvert") !== invertedVal()) {
+          dSearchInvert().click();
+        }
+      } else {
+        dSearchInvert().parent('div').hide();
+      }
     }
 
     return mod;
@@ -177,6 +198,7 @@ shimi.sui = (function () {
     var currentVal = searchField.val();
     var valDecoded = JSON.parse(currentVal);
     var exclude = excludedVal();
+    var invert = invertedVal();
     var newVal = null;
 
     if (valDecoded.length === 1) {
@@ -191,6 +213,12 @@ shimi.sui = (function () {
       }
 
       target.remove();
+    }
+
+    if (valDecoded.length === 1) {
+      $('.search-only-one').show();
+    } else {
+      $('.search-only-one').hide();
     }
 
     updateSearchVals(newVal, $('#search-field-label').html(), exclude);
@@ -210,6 +238,10 @@ shimi.sui = (function () {
       dSearchExclude().parent('div').hide();
       $('#search-index-label').html(indexLabel).show();
       dSearchIndex().val(indexVal);
+      $('.search-only-one').show();
+      if (dSearchInvert().is(':checked')) {
+        dSearchInvert().click();
+      }
       updateSearchVals(null, indexLabel, null, indexVal);
     }
 
@@ -225,6 +257,7 @@ shimi.sui = (function () {
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
       var exclude = excludedVal();
+      var invert = invertedVal();
       var newDecoded;
       var newVal = null;
       var newAnchor = '<a href="#" data-index="' + fieldid + '" class="search-field-item" title="click to remove">' + fieldLabel + '</a>';
@@ -238,6 +271,13 @@ shimi.sui = (function () {
 
         newVal = JSON.stringify(value);
         searchField.val(newVal);
+
+        if (value.length === 1) {
+          $('.search-only-one').show();
+        } else {
+          $('.search-only-one').hide();
+        }
+
         updateSearchVals(newVal, searchLabel.html(), exclude);
       };
 
@@ -245,14 +285,15 @@ shimi.sui = (function () {
         var valDecoded = JSON.parse(currentVal);
         if (valDecoded.indexOf(fieldid) < 0) {
           newDecoded = valDecoded.concat(fieldid);
+          $('.search-optional').show();
           setSearchVals(newDecoded);
         }
       } else {
         newDecoded = [fieldid];
+        $('.search-optional').show();
         setSearchVals(newDecoded);
       }
 
-      $('.search-optional').show();
     }
 
     return mod;
