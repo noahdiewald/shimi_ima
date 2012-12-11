@@ -163,7 +163,7 @@ get_allowed_docs(Json, Project, S) ->
     ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
     {ok, Keys} = q:index(ForeignDoctype, [], Project, S),
     F = fun(X) ->
-                [[_|[H|_]]|_] = jsn:get_value(<<"key">>, X),
+                H = list_to_binary(string:join([binary_to_list(Z)||[_,Z]<-jsn:get_value(<<"key">>, X), Z /= <<>>], ", ")),
                 [{<<"key">>, H}, {<<"value">>, H}]
         end,
     Allowed = lists:map(F, jsn:get_value(<<"rows">>, Keys)),
