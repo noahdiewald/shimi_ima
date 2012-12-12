@@ -102,9 +102,10 @@ content_types_accepted(R, S) ->
   {[{"application/json", from_json}], R, S}.
   
 index_html(R, S) ->
-    DT = list_to_binary(wrq:path_info(doctype, R)),
-    FS = list_to_binary(wrq:path_info(fieldset, R)),
-    {ok, Json} = q:field(DT, FS, R, S),
+    Doctype = h:doctype(R),
+    Fieldset = h:fieldset(R),
+    Project = h:project(R),
+    {ok, Json} = q:field(Doctype, Fieldset, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fields = field:arrange(Rows),
     {render:renderings([{<<"rows">>, Fields}], 

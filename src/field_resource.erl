@@ -105,7 +105,7 @@ json_fields(R, S) ->
     Doctype = h:doctype(R),
     Fieldset = h:fieldset(R),
     Project = h:project(R),
-    {ok, Json} = q:field(Doctype, Fieldset, R, S),
+    {ok, Json} = q:field(Doctype, Fieldset, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
@@ -131,7 +131,8 @@ html_fields(R, S) ->
 html_as_fieldset(R, S) -> 
     Doctype = h:doctype(R),
     Fieldset = h:fieldset(R),
-    {ok, Json} = q:field(Doctype, Fieldset, R, S),
+    Project = h:project(R),
+    {ok, Json} = q:field(Doctype, Fieldset, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
   
     F = fun(Row) ->
@@ -193,7 +194,7 @@ option_list(R, S) ->
     case h:fieldset(R) of
         "metadata" -> field:meta_options();
         Fieldset -> 
-            {ok, Json} = q:field(h:doctype(R), Fieldset, false, R, S),
+            {ok, Json} = q:field(h:doctype(R), Fieldset, false, h:project(R), S),
             jsn:set_value(<<"rows">>, 
                           lists:map(F, jsn:get_value(<<"rows">>, Json)), 
                           Json)

@@ -44,30 +44,26 @@ doctypes(true, R, S) ->
 fieldset(Doctype, Project, S) ->
     fieldset(Doctype, true, Project, S).
 
-fieldset(Doctype, Include, Project, S) when is_list(Doctype) ->
-    fieldset(list_to_binary(Doctype), Include, Project, S);
-fieldset(DT, Include, Project, S) when is_binary(DT) ->
+fieldset(Doctype, Include, Project, S) when is_binary(DT) ->
+    DT = list_to_binary(Doctype),
     VQ = #vq{startkey = [DT, <<"">>],
              endkey = [DT, []],
              include_docs = Include},
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
-field(Doctype, Fieldset, R, S) ->
-    field(Doctype, Fieldset, true, R, S).
+field(Doctype, Fieldset, Project, S) ->
+    field(Doctype, Fieldset, true, Project, S).
 
-field(Doctype, Fieldset, Include, R, S) 
-  when is_list(Doctype) ->
-    field(list_to_binary(Doctype), Fieldset, Include, R, S);
-field(DT, Fieldset, Include, R, S) when is_list(Fieldset) ->
-    field(DT, list_to_binary(Fieldset), Include, R, S);
-field(DT, FS, Include, R, S) when is_binary(DT), is_binary(FS) ->
+field(Doctype, Fieldset, Include, Project, S) ->
+    FS = list_to_binary(Fieldset),
+    DT = list_to_binary(Doctype),
     VQ = #vq{startkey = [DT, FS, <<"fieldset-field">>, 0],
              endkey = [DT, FS, <<"fieldset-field">>, true],
              descending = true,
              include_docs = Include},
     Qs = view:to_string(VQ),
-    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, h:project(R), S).
+    couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 files(R, S) ->
     VQ = view:from_reqdata(R),
