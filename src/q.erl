@@ -47,8 +47,8 @@ fieldset(Doctype, Project, S) ->
 fieldset(Doctype, Include, Project, S) when is_binary(DT) ->
     DT = list_to_binary(Doctype),
     VQ = #vq{startkey = [DT, <<"">>],
-             endkey = [DT, []],
-             include_docs = Include},
+	     endkey = [DT, []],
+	     include_docs = Include},
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
@@ -88,7 +88,7 @@ index(Id, Qs, Project, S) ->
 index_design(Id, Project, S) ->
     Qs = view:to_string(#vq{key = list_to_binary(Id)}),
     couch:get_view_json("shimi_ima", "user_indexes", Qs, Project, S).
-    
+
 indexes_options(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),
     couch:get_view_json("shimi_ima", "options", Qs, h:project(R), S).
