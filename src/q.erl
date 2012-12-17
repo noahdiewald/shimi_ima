@@ -44,7 +44,7 @@ doctypes(true, R, S) ->
 fieldset(Doctype, Project, S) ->
     fieldset(Doctype, true, Project, S).
 
-fieldset(Doctype, Include, Project, S) when is_binary(DT) ->
+fieldset(Doctype, Include, Project, S) ->
     DT = list_to_binary(Doctype),
     VQ = #vq{startkey = [DT, <<"">>],
 	     endkey = [DT, []],
