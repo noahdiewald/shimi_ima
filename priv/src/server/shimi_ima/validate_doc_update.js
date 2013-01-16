@@ -24,7 +24,7 @@ function validate(newDoc, saveDoc, userCtx) {
     if (Object.testEnv) {
       throw new Error(errorMsg);
     } else {
-      throw new Error({
+      throw ({
         forbidden: errorMsg
       });
     }
