@@ -35,6 +35,7 @@ shimi.vui = (function (args) {
 
     $.get(url, function (documentHtml) {
       htmlTarget.html(documentHtml);
+      window.location.hash = id;
       mod.formatTimestamps();
       dv().fadeTo('slow', 1);
       if (callback) {
