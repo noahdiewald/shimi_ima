@@ -13,10 +13,6 @@ shimi.piui = (function () {
         url: url,
         target: target
       }).get(startkey, startid, prevkeys, previds);
-
-      filterForm.keyup(function () {
-        mod.get();
-      });
     }
 
     return mod;

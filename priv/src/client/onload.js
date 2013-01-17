@@ -26,10 +26,12 @@ $(function () {
 
     $('#index-filter-form input').keyup(
 
-    function () {
+    function (e) {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
-        shimi.iui.get();
+        if (e.which !== 8 && e.which !== 46) {
+          shimi.iui.get();
+        }
       }, 500);
     });
 
