@@ -296,7 +296,11 @@ shimi.efs = (function () {
     localStorage.setItem(versionKey, curVersion);
 
     $('fieldset').each(function (i, fieldset) {
-      mod.initFieldset(fieldset, false, reload);
+      var fs = store($(fieldset));
+
+      if (fs.fs("multiple") === "false") {
+        mod.initFieldset(fieldset, false, reload);
+      }
     });
 
     return mod;

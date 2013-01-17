@@ -46,7 +46,7 @@
   
   <a 
     class="add-button link-button" 
-    data-group-id="{{ fieldset.id }}">Add Additional</a>
+    data-group-id="{{ fieldset.id }}">Add</a>
   
   {% endif %}
     
