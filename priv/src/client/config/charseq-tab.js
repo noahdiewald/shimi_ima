@@ -11,7 +11,7 @@ shimi.charseqTab = (function () {
     var attrs = shimi.charseqElems.attrs;
 
     attrs.forEach(function (item) {
-      oldobj[item] = shimi.store(target).get('charseq-' + item);
+      oldobj[item] = shimi.store(target).get64('charseq-' + item);
     });
     shimi.charseqDialog(oldobj).dialog("open");
 

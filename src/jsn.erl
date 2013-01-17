@@ -14,6 +14,7 @@
 -author('losthost@narod.ru').
 -export([encoder/1, encode/1, encode_to_list/1]).
 -export([decoder/1, decode/1]).
+-export([to_base64/1, from_base64/1]).
 -export([get_value/2, get_values/2, set_value/3, delete_value/2]).
 -export([test/0]).
 
@@ -90,6 +91,16 @@ decoder(Options) ->
 %% @doc Decode the given iolist to Erlang terms.
 decode(S) ->
     json_decode(S, #decoder{}).
+
+%% @doc Encode the Erlang terms to a base64 encoded string of JSON.
+-spec to_base64(json_term()) -> binary().
+to_base64(Json) ->
+    base64:encode(iolist_to_binary(encode(Json))).
+
+%% @doc Decode the base64 encoded JSON string to an Erlang term.
+-spec from_base64(iolist()) -> json_term().
+from_base64(IOList) ->
+    decode(base64:decode(iolist_to_binary(IOList))).
 
 test() ->
     test_all().

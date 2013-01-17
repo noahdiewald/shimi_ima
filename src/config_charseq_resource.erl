@@ -113,10 +113,14 @@ html_as_tabs(R, S) ->
     {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
   
 id_html(R, S) ->
-    {ok, Json} = h:id_data(R, S), 
-    {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json)),
+    {ok, Json} = h:id_data(R, S),
+    F = fun({Key, Value}) ->
+                {Key, jsn:to_base64(Value)}
+        end,
+    Json1 = lists:map(F, Json),
+    {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json1)),
     {Html, R, S}.
-  
+
 from_json(R, S) ->
   case proplists:get_value(target, S) of
       index -> json_create(R, S);

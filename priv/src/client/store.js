@@ -107,6 +107,12 @@ shimi.store = function (elem) {
     return getValue1.t(key, elem, identity);
   };
 
+  mod.get64 = function (key) {
+    var retval = mod.get(key);
+    retval = shimi.utils().Base64.decode(retval.replace(/"/g, '')).replace(/(^"|"$)/g, '');
+    return retval;
+  };
+
   mod.put = function (key, value) {
     var dataElem = elem.attr('data-group-id');
     $('#' + dataElem).attr('data-' + key, value);

@@ -32,16 +32,13 @@
 
 add_encoded_key(Row) ->
     Key = jsn:get_value(<<"key">>, Row),
-    jsn:set_value(<<"encoded_key">>, json_to_base64(Key), Row).
+    jsn:set_value(<<"encoded_key">>, jsn:to_base64(Key), Row).
 
 %% @doc Add escaped keys to view output
 -spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
 add_encoded_keys(Json) ->
     Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
     jsn:set_value(<<"rows">>, Rows, Json).
-
-json_to_base64(Json) ->
-    base64:encode(iolist_to_binary(jsn:encode(Json))).
 
 create(R, S) ->
     Json = proplists:get_value(posted_json, S),
