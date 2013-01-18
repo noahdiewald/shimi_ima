@@ -56,7 +56,7 @@ shimi.eui = (function () {
       return false;
     });
 
-    $(document).live('keydown', 'Alt+c', function (e) {
+    $(document).bind('keydown', 'Alt+c', function (e) {
       window.console.log("debugg keydown");
       var active = $(document.activeElement);
       mod.showCommandDialog(active);
