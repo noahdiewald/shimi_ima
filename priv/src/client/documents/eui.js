@@ -247,6 +247,8 @@ shimi.eui = (function () {
     var document = s.d("document");
     var rev = s.d("rev");
     var url = "./documents/" + document + "?rev=" + rev;
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
       doctype: s.d("doctype"),
       description: s.d("description")
@@ -268,7 +270,7 @@ shimi.eui = (function () {
           title = "Success";
           body = "Your document was saved.";
           shimi.vui.get(document);
-          shimi.iui.get();
+          shimi.iui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -288,6 +290,8 @@ shimi.eui = (function () {
   mod.create = function () {
     var s = store(createButton());
     var root = $('#edit-document-form');
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
       doctype: s.d("doctype"),
       description: s.d("description")
@@ -313,7 +317,7 @@ shimi.eui = (function () {
           $('.fields').remove();
           shimi.efs.initFieldsets();
           shimi.vui.get(documentId);
-          shimi.iui.get();
+          shimi.iui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {

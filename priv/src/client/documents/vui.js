@@ -61,6 +61,8 @@ shimi.vui = (function (args) {
   mod.restore = function (id, rev) {
     var url = "./documents/" + id + "?rev=" + rev;
     var restoreButton = $('#document-restore-button');
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
     var body;
     var title;
 
@@ -76,7 +78,7 @@ shimi.vui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.iui.get();
+            shimi.iui.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -99,6 +101,8 @@ shimi.vui = (function (args) {
   mod.del = function (id, rev) {
     var url = "./documents/" + id + "?rev=" + rev;
     var restoreButton = $('#document-restore-button');
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
     var body;
     var title;
 
@@ -120,7 +124,7 @@ shimi.vui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.iui.get();
+          shimi.iui.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
