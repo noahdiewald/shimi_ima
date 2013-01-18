@@ -56,21 +56,20 @@ shimi.eui = (function () {
       return false;
     });
 
-    $(document).bind('keydown', 'Alt+c', function (e) {
+    $(document).live('keydown', 'Alt+c', function (e) {
       var active = $(document.activeElement);
       mod.showCommandDialog(active);
+      return true;
+    });
+
+    $('#edit-command-form').live("submit", function (e) {
       return false;
     });
 
-    $('#edit-command-input').on("keyup", function (e) {
-      if (e.which === 13) {
-        return true;
-      }
-    });
-
-    $('#edit-command-input').on("keydown", function (e) {
+    $('#edit-command-input').live("keydown", function (e) {
       if (e.which === 13) {
         var command = $('#edit-command-input').val();
+        var restoreFocus = true;
         $('#command-dialog').dialog("close");
 
         switch (command) {
@@ -86,11 +85,6 @@ shimi.eui = (function () {
         case "save":
           mod.save();
           break;
-        case "g":
-        case "go":
-          $("#document-view").show();
-          $("input#view-jump-id").focus();
-          break;
         case "d":
         case "delete":
           $("#document-view").show();
@@ -103,6 +97,7 @@ shimi.eui = (function () {
           $("#document-view").show();
           if ($("#document-edit-button").css("display") !== "none") {
             $("#document-edit-button").click();
+            restoreFocus = false;
           }
           break;
         case "r":
@@ -113,20 +108,27 @@ shimi.eui = (function () {
           }
           break;
         }
+
+        if (restoreFocus) {
+          $('#' + $('#command-dialog').attr('data-last-active')).focus();
+        } else {
+          selectInput();
+        }
       }
 
-      $('#' + $('#command-dialog').attr('data-last-active')).focus();
-      return false;
+      return true;
     });
 
-/*
-    $("#edit-document-form").bind('keydown', function (e) {
-      if (e.which === 13 && !$(e.target).hasClass("textarea") && !$(e.target).hasClass("textarea")) {
-        mod.create();
+    $("#edit-document-form input").live('keydown', function (e) {
+      if (e.which === 13) {
+        if ($("#save-document-button").css("display") === "none") {
+          mod.create();
+        } else {
+          mod.save();
+        }
       }
-      return false;
+      return true;
     });
-*/
 
     $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
       mod.toggleTextarea($(e.target));
