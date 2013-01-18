@@ -59,16 +59,16 @@ shimi.eui = (function () {
     $(document).bind('keydown', 'Alt+c', function (e) {
       var active = $(document.activeElement);
       mod.showCommandDialog(active);
-      return true;
+      return false;
     });
 
-    $('#edit-command-input').live("keyup", function (e) {
+    $('#edit-command-input').on("keyup", function (e) {
       if (e.which === 13) {
         return true;
       }
     });
 
-    $('#edit-command-input').live("keydown", function (e) {
+    $('#edit-command-input').on("keydown", function (e) {
       if (e.which === 13) {
         var command = $('#edit-command-input').val();
         $('#command-dialog').dialog("close");
@@ -116,19 +116,21 @@ shimi.eui = (function () {
       }
 
       $('#' + $('#command-dialog').attr('data-last-active')).focus();
-      return true;
+      return false;
     });
 
+/*
     $("#edit-document-form").bind('keydown', function (e) {
-      if (e.which === 13 && !$(e.target).hasClass("textarea")) {
+      if (e.which === 13 && !$(e.target).hasClass("textarea") && !$(e.target).hasClass("textarea")) {
         mod.create();
       }
-      return true;
+      return false;
     });
+*/
 
-    $("#edit-document-form textarea").live('keydown', 'Alt+x', function (e) {
+    $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
       mod.toggleTextarea($(e.target));
-      return true;
+      return false;
     });
 
     return mod;
