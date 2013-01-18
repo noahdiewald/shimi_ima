@@ -56,6 +56,81 @@ shimi.eui = (function () {
       return false;
     });
 
+    $(document).live('keydown', 'Alt+c', function (e) {
+      var active = $(document.activeElement);
+      mod.showCommandDialog(active);
+      return true;
+    });
+
+    $('#edit-command-input').live("keyup", function (e) {
+      if (e.which === 13) {
+        return true;
+      }
+    });
+
+    $('#edit-command-input').live("keydown", function (e) {
+      if (e.which === 13) {
+        var command = $('#edit-command-input').val();
+        $('#command-dialog').dialog("close");
+
+        switch (command) {
+        case "w":
+        case "clear":
+          mod.clear();
+          break;
+        case "c":
+        case "create":
+          mod.create();
+          break;
+        case "s":
+        case "save":
+          mod.save();
+          break;
+        case "g":
+        case "go":
+          $("#document-view").show();
+          $("input#view-jump-id").focus();
+          break;
+        case "d":
+        case "delete":
+          $("#document-view").show();
+          if ($("#document-delete-button").css("display") !== "none") {
+            $("#document-delete-button").click();
+          }
+          break;
+        case "e":
+        case "edit":
+          $("#document-view").show();
+          if ($("#document-edit-button").css("display") !== "none") {
+            $("#document-edit-button").click();
+          }
+          break;
+        case "r":
+        case "restore":
+          $("#document-view").show();
+          if ($("#document-restore-button").css("display") !== "none") {
+            $("#document-restore-button").click();
+          }
+          break;
+        }
+      }
+
+      $('#' + $('#command-dialog').attr('data-last-active')).focus();
+      return true;
+    });
+
+    $("#edit-document-form").bind('keydown', function (e) {
+      if (e.which === 13 && !$(e.target).hasClass("textarea")) {
+        mod.create();
+      }
+      return true;
+    });
+
+    $("#edit-document-form textarea").live('keydown', 'Alt+x', function (e) {
+      mod.toggleTextarea($(e.target));
+      return true;
+    });
+
     return mod;
   };
 
@@ -266,11 +341,30 @@ shimi.eui = (function () {
     return mod;
   };
 
+  mod.showCommandDialog = function (context) {
+    $('#edit-command-input').val("");
+    $('#edit-dialog').attr('data-last-active', context.id);
+    var commandDialog = $('#command-dialog').dialog({
+      modal: true,
+      close: function () {
+        $('#edit-command-input').val("");
+        context.focus();
+      }
+    });
+    commandDialog.dialog('open');
+    return mod;
+  };
+
   mod.toggleTextarea = function (target) {
     var textarea = $('#' + target.attr('data-group-id'));
 
-    textarea.toggleClass('expanded');
-    target.toggleClass('expanded');
+    if (target.attr("id") === textarea.attr("data-group-id")) {
+      textarea.toggleClass('expanded');
+      textarea.next().next("span").toggleClass('expanded');
+    } else {
+      textarea.toggleClass('expanded');
+      target.toggleClass('expanded');
+    }
 
     return mod;
   };
