@@ -6,7 +6,10 @@ shimi.loadHash = function (urlHash) {
 };
 
 shimi.jumpForm = function () {
-  $('#view-jump-id').live("keydown", function (e) {
+  $('#view-jump').live("submit", function () {
+    return false;
+  });
+  $('#view-jump-id').live("keypress", function (e) {
     if (e.which === 13) {
       var docid = $('#view-jump-id').val();
       shimi.vui.get(docid);
@@ -17,7 +20,7 @@ shimi.jumpForm = function () {
 
 shimi.searchForm = function () {
   shimi.sui.clearSearchVals(true).loadSearchVals();
-  $('#document-search-term').live("keydown", function (e) {
+  $('#document-search-term').on("keydown", function (e) {
     if (e.which === 13) {
       shimi.sui.getSearch();
       return false;
