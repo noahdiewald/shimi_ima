@@ -2404,6 +2404,7 @@ shimi.eui = (function () {
     });
 
     $(document).live('keydown', 'Alt+c', function (e) {
+      window.console.log("debugg keydown");
       var active = $(document.activeElement);
       mod.showCommandDialog(active);
       return true;
@@ -2411,14 +2412,12 @@ shimi.eui = (function () {
 
     $('#edit-command-input').live("keyup", function (e) {
       if (e.which === 13) {
-        window.console.log("debugg keyup");
         return true;
       }
     });
 
     $('#edit-command-input').live("keydown", function (e) {
       if (e.which === 13) {
-        window.console.log("debugg keydown");
         var command = $('#edit-command-input').val();
         $('#command-dialog').dialog("close");
 
