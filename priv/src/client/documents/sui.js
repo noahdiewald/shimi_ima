@@ -22,21 +22,8 @@ shimi.sui = (function () {
   };
 
   var fieldLookup = function () {
-    var lookup = {};
-
-    $('fieldset').each(
-
-    function (index, fset) {
-      var fsLabel = $(fset).attr('data-fieldset-label');
-      $(fset).find('.field-container').each(
-
-      function (index, item) {
-        var id = $(item).attr('data-field-field');
-        var label = $(item).find('.label-text').first().text();
-        lookup[id] = fsLabel + ": " + label;
-      });
-    });
-    return lookup;
+    var fieldlables = JSON.parse(sessionStorage.getItem("lables"));
+    return fieldlables;
   };
 
   var lookup = function (item) {
@@ -105,7 +92,7 @@ shimi.sui = (function () {
     var exclude = dSearchExclude().is(':checked');
     var invert = dSearchInvert().is(':checked');
     var index = dSearchIndex().val();
-    var lookup = fieldLookup();
+    var fieldLabels = fieldLookup();
 
     if (index) {
       url = url + "&index=" + index;
@@ -126,7 +113,7 @@ shimi.sui = (function () {
     $.get(url, function (searchResults) {
       searchListing().html(searchResults);
       $('.search-result-field-id').each(function (index, item) {
-        var label = lookup[$(item).attr('data-field-field')];
+        var label = fieldLabels[$(item).attr('data-field-field')].join(": ");
         var target = $(item).children('a').first();
         target.html(label);
         target.attr('data-search-label', label);
@@ -255,7 +242,7 @@ shimi.sui = (function () {
     }
 
     if (utils.validID(fieldid)) {
-      var fieldLabel = fieldLookup()[fieldid];
+      var fieldLabel = fieldLookup()[fieldid].join(": ");
       var searchField = dSearchField();
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');

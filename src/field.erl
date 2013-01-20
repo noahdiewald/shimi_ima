@@ -27,6 +27,7 @@
          from_json/1,
          from_json/2,
          is_meta/1,
+         labels/1,
          meta_field/1,
          meta_options/0,
          set_sortkeys/3,
@@ -56,6 +57,24 @@ is_meta(Id, [H|T]) ->
     case jsn:get_value(<<"id">>, H) of
         Id -> true;
         _ -> is_meta(Id, T)
+    end.
+
+-spec labels(jsn:json_term()) -> jsn:json_term().
+labels(Rows) ->
+    labels(Rows, <<>>, []).
+    
+-spec labels(jsn:json_term(), binary(), [jsn:json_term()]) -> jsn:json_term().
+labels([], _FieldsetLabel, Acc) -> Acc;
+labels([H|Rows], FieldsetLabel, Acc) ->
+    [_, _, Type, _] = jsn:get_value(<<"key">>, H),
+    case Type of
+        <<"fieldset">> ->
+            [_, FieldsetLabel1] = jsn:get_value(<<"value">>, H),
+            labels(Rows, FieldsetLabel1, Acc);
+        <<"fieldset-field">> ->
+            [_, FieldLabel] = jsn:get_value(<<"value">>, H),
+            FieldId = jsn:get_value(<<"id">>, H),
+            labels(Rows, FieldsetLabel, [{FieldId, [FieldsetLabel, FieldLabel]}|Acc])
     end.
 
 meta_options() ->

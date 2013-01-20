@@ -201,6 +201,12 @@ shimi.efs = (function () {
     });
   };
 
+  var loadLabels = function (url) {
+    $.getJSON(url, function (data) {
+      sessionStorage.setItem("lables", JSON.stringify(data));
+    });
+  };
+
   var setFieldValue = function (field, value) {
     if (field.is('input.boolean')) {
       field.attr("checked", value === "true");
@@ -285,6 +291,8 @@ shimi.efs = (function () {
 
     if (oldVersion !== curVersion) {
       sessionStorage.clear();
+      var url = shimi.path(container, "fieldset").toString();
+      loadLabels(url);
     }
 
     sessionStorage.setItem(versionKey, curVersion);

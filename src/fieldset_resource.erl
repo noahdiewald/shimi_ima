@@ -29,7 +29,8 @@
          init/1, 
          is_authorized/2,
          resource_exists/2,
-         to_html/2
+         to_html/2,
+         to_json/2
         ]).
 
 % Custom
@@ -56,14 +57,23 @@ allowed_methods(R, S) ->
     {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-    {[{"text/html", to_html}], R, S}.
+    ContentTypes = case proplists:get_value(target, S) of
+                       identifier -> [];
+                       index -> [{"application/json", to_json}]
+                   end,
+    {[{"text/html", to_html}|ContentTypes], R, S}.
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> {html_fieldset(R, S), R, S};
         index -> {html_fieldsets(R, S), R, S}
     end.
-  
+
+to_json(R, S) ->
+    {ok, Json} = q:fieldset(h:doctype(R), false, h:project(R), S),
+    Labels = field:labels(jsn:get_value(<<"rows">>, Json)),
+    {jsn:encode(Labels), R, S}.
+    
 % Helpers
 
 html_fieldset(R, S) -> 

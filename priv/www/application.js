@@ -2223,6 +2223,12 @@ shimi.efs = (function () {
     });
   };
 
+  var loadLabels = function (url) {
+    $.getJSON(url, function (data) {
+      sessionStorage.setItem("lables", JSON.stringify(data));
+    });
+  };
+
   var setFieldValue = function (field, value) {
     if (field.is('input.boolean')) {
       field.attr("checked", value === "true");
@@ -2307,6 +2313,8 @@ shimi.efs = (function () {
 
     if (oldVersion !== curVersion) {
       sessionStorage.clear();
+      var url = shimi.path(container, "fieldset").toString();
+      loadLabels(url);
     }
 
     sessionStorage.setItem(versionKey, curVersion);
@@ -2788,20 +2796,7 @@ shimi.sui = (function () {
   };
 
   var fieldLookup = function () {
-    var fieldlables = {};
-
-    $('fieldset').each(
-
-    function (index, fset) {
-      var fsLabel = $(fset).attr('data-fieldset-label');
-      $(fset).find('.field-container').each(
-
-      function (index, item) {
-        var id = $(item).attr('data-field-field');
-        var label = $(item).find('.label-text').first().text();
-        fieldlables[id] = fsLabel + ": " + label;
-      });
-    });
+    var fieldlables = JSON.parse(sessionStorage.getItem("lables"));
     return fieldlables;
   };
 
@@ -2871,7 +2866,8 @@ shimi.sui = (function () {
     var exclude = dSearchExclude().is(':checked');
     var invert = dSearchInvert().is(':checked');
     var index = dSearchIndex().val();
-    //var lookup = fieldLookup();
+    var fieldLabels = fieldLookup();
+
     if (index) {
       url = url + "&index=" + index;
     } else {
@@ -2891,7 +2887,7 @@ shimi.sui = (function () {
     $.get(url, function (searchResults) {
       searchListing().html(searchResults);
       $('.search-result-field-id').each(function (index, item) {
-        var label = fieldLookup()[$(item).attr('data-field-field')];
+        var label = fieldLabels[$(item).attr('data-field-field')].join(": ");
         var target = $(item).children('a').first();
         target.html(label);
         target.attr('data-search-label', label);
@@ -3020,7 +3016,7 @@ shimi.sui = (function () {
     }
 
     if (utils.validID(fieldid)) {
-      var fieldLabel = fieldLookup()[fieldid];
+      var fieldLabel = fieldLookup()[fieldid].join(": ");
       var searchField = dSearchField();
       var currentVal = searchField.val();
       var searchLabel = $('#search-field-label');
