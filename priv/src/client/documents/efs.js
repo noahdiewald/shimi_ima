@@ -16,7 +16,7 @@ shimi.efs = (function () {
   var ifStoredElse = function (key, success, otherwise) {
     var item = null;
 
-    item = localStorage.getItem(key);
+    item = sessionStorage.getItem(key);
 
     if (item) {
       success(item);
@@ -145,7 +145,7 @@ shimi.efs = (function () {
     return value;
   };
 
-  var initFields = function (container, callback, reload) {
+  var initFields = function (container, callback) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
     var prependIt = function (data) {
@@ -157,13 +157,9 @@ shimi.efs = (function () {
       shimi.eui.afterFreshRefresh();
     };
     var storeIt = function (data) {
-      localStorage.setItem(url, data);
+      sessionStorage.setItem(url, data);
       prependIt(data);
     };
-
-    if (reload) {
-      localStorage.removeItem(url);
-    }
 
     ifStoredElse(url.toString(), prependIt, storeIt);
 
@@ -219,22 +215,18 @@ shimi.efs = (function () {
     }
   };
 
-  mod.initFieldset = function (fieldset, callback, reload) {
+  mod.initFieldset = function (fieldset, callback) {
     var url = dpath($(fieldset), "fieldset").toString();
     var id = store($(fieldset)).fs("fieldset");
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
-      initFields(container, callback, reload);
+      initFields(container, callback);
     };
     var storeIt = function (data) {
-      localStorage.setItem(url, data);
+      sessionStorage.setItem(url, data);
       appendIt(data);
     };
-
-    if (reload) {
-      localStorage.removeItem(url);
-    }
 
     ifStoredElse(url.toString(), appendIt, storeIt);
 
@@ -284,22 +276,24 @@ shimi.efs = (function () {
   };
 
   mod.initFieldsets = function () {
-    var reload;
     var container = $("#create-document-button");
     var s = store(container);
     var doctype = s.d("doctype");
     var versionKey = doctype + "_version";
-    var oldVersion = localStorage.getItem(versionKey);
+    var oldVersion = sessionStorage.getItem(versionKey);
     var curVersion = s.d("version");
 
-    reload = oldVersion !== curVersion;
-    localStorage.setItem(versionKey, curVersion);
+    if (oldVersion !== curVersion) {
+      sessionStorage.clear();
+    }
+
+    sessionStorage.setItem(versionKey, curVersion);
 
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
       if (fs.fs("multiple") === "false") {
-        mod.initFieldset(fieldset, false, reload);
+        mod.initFieldset(fieldset, false);
       }
     });
 
