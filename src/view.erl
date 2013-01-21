@@ -31,7 +31,6 @@
          to_string/1
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
 -spec new() -> view_query().

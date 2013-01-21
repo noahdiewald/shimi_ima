@@ -44,7 +44,6 @@
          code_change/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("types.hrl").
 
 -record(state, {

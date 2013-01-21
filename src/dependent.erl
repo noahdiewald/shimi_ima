@@ -27,7 +27,6 @@
          bump/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
 -spec find(string(), utils:req_data(), any()) -> [jsn:json_term()].

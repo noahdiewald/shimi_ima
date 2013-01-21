@@ -33,7 +33,6 @@
          to_renderable/1
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
 %% @doc Get a sortkey for a string.

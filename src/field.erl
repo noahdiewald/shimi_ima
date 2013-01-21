@@ -35,7 +35,6 @@
          unconvert_value/2
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
 -spec arrange(jsn:json_term()) -> jsn:json_term().
