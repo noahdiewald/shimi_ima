@@ -33,11 +33,11 @@
 
 -include_lib("types.hrl").
 
--spec arrange(jsn:json_term()) -> jsn:json_term().
-arrange(Fieldsets) ->
+-spec arrange([jsn:json_term()]) -> jsn:json_term().
+arrange(Fieldsets) when length(Fieldsets) >= 0 ->
     arrange(Fieldsets, []).
 
--spec arrange(jsn:json_term(), [] | nofields) -> jsn:json_term().
+-spec arrange([jsn:json_term()], [jsn:json_term()] | nofields) -> jsn:json_term().
 arrange(Everything, nofields) ->
     PredF = fun(X) ->
                     case jsn:get_value(<<"key">>, X) of
@@ -52,11 +52,11 @@ arrange(Everything, nofields) ->
         end,
     Fieldsets = lists:filter(PredF, Everything),
     lists:sort(SortF, Fieldsets);
-arrange([], Acc) ->  
+arrange([], Acc) when length(Acc) >= 0 ->  
     arrange(Acc, nofields);
-arrange([H|T], []) ->
+arrange([H|T], []) when length(T) >= 0 ->
     arrange(T, [jsn:set_value(<<"fields">>, [], H)]);
-arrange([H|T], [AccH|AccT]) ->
+arrange([H|T], [AccH|AccT]) when length(T) >= 0, length(AccT) >= 0  ->
     case jsn:get_value(<<"key">>, H) of
         [_, _, <<"fieldset">>, _] ->
             arrange(T, [jsn:set_value(<<"fields">>, [], H), AccH|AccT]);

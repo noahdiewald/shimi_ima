@@ -117,6 +117,7 @@ parse_decoder_options([], State) ->
 parse_decoder_options([{object_hook, Hook} | Rest], State) ->
     parse_decoder_options(Rest, State#decoder{object_hook=Hook}).
 
+-spec json_encode(term(), #encoder{}) -> iolist().
 json_encode(true, _State) ->
     <<"true">>;
 json_encode(false, _State) ->
@@ -157,11 +158,8 @@ json_encode_array(L, State) ->
 json_encode_empty(_State) ->
     <<"{}">>.
 
-% XXX rest only for a case
-json_encode_proplist([], _State) ->
-    <<"{}">>;
-
-json_encode_proplist(Props, State) ->
+-spec json_encode_proplist(proplists:proplist(), #encoder{}) -> iolist().
+json_encode_proplist(Props, State) when length(Props) >= 0 ->
     F = fun ({K, V}, Acc) ->
                 KS = json_encode_string(K, State),
                 VS = json_encode(V, State),
@@ -558,8 +556,8 @@ get_values([Key | Keys], Struct, Acc) ->
 get_values([], _Struct, Acc) ->
     lists:reverse(Acc).
 
-%% @spec set_value(key(), value(), struct()) -> struct()
 %% @doc Set value in the top level of object
+-spec set_value(binary(), json_term(), json_term()) -> json_term().
 set_value(Key, Value, [{}]) ->
     [{Key, Value}];
 set_value(Key, Value, Struct) when is_list(Key) ->
