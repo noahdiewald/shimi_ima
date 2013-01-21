@@ -8,7 +8,8 @@
 @level4:red;
 @highlight:yellow;
 @darkbgcolor:#555555;
-@widgetborder:#CCCCCC;
+@widgetborder:#CCC;
+@infobackground:#9BC1F2;
 @helpborder:#1c94c4;
 @semitrans:rgba(255,255,255,0.5);
 
@@ -41,7 +42,7 @@ header {
   padding-left:0.5em;
   text-align:left;
   margin:0;
-  background:@bgcontrast;
+  background:@bgcolor;
 }
 nav {
   display:block !important;
@@ -71,7 +72,7 @@ table {
 }
 .ui-widget-content {
   background:@bgcolor;
-  border-color:@widgetborder;
+  border-color:@infobackground;
   border-style:solid;
   border-width:thin;
 }
@@ -411,7 +412,7 @@ th {
   display:none;
 }
 .mini-header {
-  background:@widgetborder;
+  background:@infobackground;
   clear: both;
   padding:0.5ex 1em 0.25ex 1em;
 }
@@ -441,7 +442,7 @@ td {
 }
 .search-field-item {
   margin-left:2px;
-  background:@widgetborder;
+  background:@infobackground;
   text-decoration:none;
   font-size:8pt;
 }

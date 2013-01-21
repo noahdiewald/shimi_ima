@@ -27,7 +27,7 @@ header {
   padding-left: 0.5em;
   text-align: left;
   margin: 0;
-  background: #eeeeee;
+  background: #ffffff;
 }
 nav {
   display: block !important;
@@ -58,7 +58,7 @@ table {
 }
 .ui-widget-content {
   background: #ffffff;
-  border-color: #cccccc;
+  border-color: #9bc1f2;
   border-style: solid;
   border-width: thin;
 }
@@ -423,31 +423,31 @@ th a {
   display: none;
 }
 .mini-header {
-  background: #cccccc;
+  background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
 }
 .total-rows-info {
-  background: #cccccc;
+  background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
 }
 #deleted-message {
-  background: #cccccc;
+  background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
   background: #eeeeee;
   color: #ff0000;
 }
 #revision-message {
-  background: #cccccc;
+  background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
   background: #eeeeee;
   color: #ba5d12;
 }
 nav#history {
-  background: #cccccc;
+  background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
 }
@@ -461,7 +461,7 @@ td {
 }
 .search-field-item {
   margin-left: 2px;
-  background: #cccccc;
+  background: #9bc1f2;
   text-decoration: none;
   font-size: 8pt;
 }
