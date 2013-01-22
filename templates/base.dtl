@@ -10,15 +10,16 @@
     <link href="/css/smoothness/jquery-ui-1.8.4.custom.css" rel="stylesheet" type="text/css">
     <link href="/css/screen.css" rel="stylesheet" type="text/css">
     {% if devel %}
-    <script type="text/javascript" src="/jquery.min.js"></script>
-    <script type="text/javascript" src="/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/jquery.js"></script>
+    <script type="text/javascript" src="/jquery-ui.js"></script>
+    <script type="text/javascript" src="/bacon.js"></script>
     <script type="text/javascript" src="/application.js"></script>
     {% else %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/bacon.min.js"></script>
     <script type="text/javascript" src="/application.min.js"></script>
     {% endif %}
-    <script type="text/javascript" src="/bacon.js"></script>
   </head>
   <body>
 
