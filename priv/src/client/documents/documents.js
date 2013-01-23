@@ -19,7 +19,10 @@ shimi.jumpForm = function () {
 };
 
 shimi.searchForm = function () {
-  shimi.sui.clearSearchVals(true).loadSearchVals();
+  shimi.sui.loadSearchVals();
+  $('#document-search-form').on("submit", function () {
+    return false;
+  });
   $('#document-search-term').on("keydown", function (e) {
     if (e.which === 13) {
       shimi.sui.getSearch();

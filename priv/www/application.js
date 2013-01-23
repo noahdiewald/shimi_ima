@@ -832,9 +832,9 @@ shimi.dblclickDispatch = function (e) {
   var sui = shimi.sui;
 
   var action = shimi.dispatcher({
-    ".search-result-field-id a, .field-view b, .field-container label span": function (t) {
-      sui.addSearchField(t);
-    },
+    //".search-result-field-id a, .field-view b, .field-container label span": function (t) {
+    //  sui.addSearchField(t);
+    //},
     "#index-index-input-label": function () {
       sui.addSearchIndex();
     },
@@ -942,7 +942,7 @@ shimi.clickDispatch = function (e) {
       vui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
-      sui.clearSearchVals();
+      sui.allFields();
     },
     ".search-field-item": function (t) {
       sui.removeSearchField(t);
@@ -2011,7 +2011,10 @@ shimi.jumpForm = function () {
 };
 
 shimi.searchForm = function () {
-  shimi.sui.clearSearchVals(true).loadSearchVals();
+  shimi.sui.loadSearchVals();
+  $('#document-search-form').on("submit", function () {
+    return false;
+  });
   $('#document-search-term').on("keydown", function (e) {
     if (e.which === 13) {
       shimi.sui.getSearch();
@@ -2776,97 +2779,163 @@ shimi.sui = (function () {
   var mod = {};
   var utils = shimi.utils();
   var localStorage = window.localStorage;
-  var dSearchIndex = function () {
+  var searchIndex = function () {
     return $('#document-search-index');
   };
-  var dSearchTerm = function () {
+  var searchIndexLabel = function () {
+    return $('#search-index-label');
+  };
+  var searchTerm = function () {
     return $('#document-search-term');
   };
-  var dSearchField = function () {
+  var searchFields = function () {
     return $('#document-search-field');
   };
-  var dSearchExclude = function () {
+  var searchFieldsLabel = function () {
+    return $('#search-field-label');
+  };
+  var searchExclude = function () {
     return $('#document-search-exclude');
   };
-  var dSearchInvert = function () {
+  var searchInvert = function () {
     return $('#document-search-invert');
+  };
+  var searchAll = function () {
+    return $('#search-all-fields-switch');
   };
   var searchListing = function () {
     return $('#search-listing');
   };
+  var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
-  var fieldLookup = function () {
+  var clearStore = function () {
+    localStorage.setItem("searchIndex", null);
+    localStorage.setItem("searchIndexLabel", null);
+    localStorage.setItem("searchFields", null);
+    localStorage.setItem("searchExclude", null);
+    localStorage.setItem("searchInvert", null);
+  };
+
+  var clearVals = function () {
+    formElems.forEach(function (x) {
+      var elem = x();
+      switch (elem.attr('type')) {
+      case "hidden":
+        elem.val('');
+        break;
+      case "checkbox":
+        elem.attr("checked", false);
+        break;
+      default:
+        elem.html("");
+      }
+    });
+  };
+
+  var hideElems = function () {
+    formElems.forEach(function (x) {
+      var elem = x();
+      switch (elem.attr('type')) {
+      case "hidden":
+        break;
+      case "checkbox":
+        elem.parent("div").hide();
+        break;
+      default:
+        elem.hide();
+      }
+    });
+  };
+
+  var fieldLabels = function () {
     var fieldlables = JSON.parse(sessionStorage.getItem("lables"));
     return fieldlables;
   };
 
-  var lookup = function (item) {
-    var stored = localStorage.getItem(item);
-    if (stored === "" || stored === "null") {
-      return null;
-    } else {
-      return stored;
-    }
+  var searchFieldItem = function (field, fieldLabel) {
+    return "<a class='search-field-item' title='click to remove' data-index='" + field + "' href='#'>" + fieldLabel + "</a>";
   };
 
-  var excludedVal = function () {
-    var exclude = dSearchExclude().is(':checked');
+  var setFields = function (fields) {
+    var fLabels = fieldLabels();
+    var jFields = JSON.stringify(fields);
+    var sfls = searchFieldsLabel();
 
-    if (!exclude) {
-      return null;
-    } else {
-      return exclude;
-    }
-  };
+    searchFields.val(jFields);
+    localStorage.setItem("searchFields", fields);
 
-  var invertedVal = function () {
-    var invert = dSearchInvert().is(':checked');
+    var linkLabels = fields.map(function (x) {
+      return searchFieldItem(x, fLabels[x].join(": "));
+    });
 
-    if (!invert) {
-      return null;
-    } else {
-      return invert;
-    }
-  };
-
-  var updateSearchVals = function (fieldids, labels, exclude, index, invert) {
-    if (index) {
-      localStorage.setItem("searchIndex", index);
-      localStorage.setItem("searchIndexLabel", labels);
-      localStorage.setItem("searchLabels", null);
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchExclude", null);
-      localStorage.setItem("searchInvert", invert);
-    } else {
-      localStorage.setItem("searchIndex", null);
-      localStorage.setItem("searchIndexLabel", null);
-      localStorage.setItem("searchLabels", labels);
-      localStorage.setItem("searchFields", fieldids);
-      localStorage.setItem("searchExclude", exclude);
-      localStorage.setItem("searchInvert", invert);
-    }
+    sfls.html(linkLabels.join(" "));
 
     return true;
   };
 
-  mod.toggleInversion = function () {
-    localStorage.setItem("searchInvert", invertedVal());
+  mod.allFields = function () {
+    clearStore();
+    hideElems();
+    clearVals();
     return mod;
   };
 
-  mod.toggleExclusion = function () {
-    localStorage.setItem("searchExclude", excludedVal());
+  mod.singleField = function (fields) {
+    mod.multipleFields(fields);
+    searchInvert().parent().show();
+    return mod;
+  };
+
+  mod.singleFieldInverse = function (fields) {
+    mod.singleField(fields);
+    searchInvert().attr('checked', true);
+    localStorage.setItem("searchInvert", true);
+    return mod;
+  };
+
+  mod.multipleFields = function (fields) {
+    mod.allFields();
+    setFields(fields);
+    [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
+      x.show();
+    });
+    return mod;
+  };
+
+  mod.excludedFields = function (fields) {
+    mod.multipleFields();
+    searchExclude().attr('checked', true);
+    localStorage.setItem("searchExclude", true);
+    return mod;
+  };
+
+  mod.indexOnly = function (index, indexLabel) {
+    mod.allFields();
+    localStorage.setItem("searchIndex", index);
+    localStorage.setItem("searchIndexLabel", indexLabel);
+    searchIndex().val(index);
+    searchIndexLabel().html(indexLabel);
+    [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
+      x.show();
+    });
+    return mod;
+  };
+
+  mod.indexInverse = function (index, indexLabel) {
+    mod.indexOnly(index, indexLabel);
+    searchInvert().attr('checked', true);
+    localStorage.setItem("searchInvert", true);
     return mod;
   };
 
   mod.getSearch = function () {
-    var query = dSearchTerm().val();
+    var query = searchTerm().val();
     var url = "documents/search?q=" + window.encodeURIComponent(query);
-    var field = dSearchField().val();
-    var exclude = dSearchExclude().is(':checked');
-    var invert = dSearchInvert().is(':checked');
-    var index = dSearchIndex().val();
-    var fieldLabels = fieldLookup();
+    var field = searchFields().val();
+    var exclude = searchExclude().is(':checked');
+    var invert = searchInvert().is(':checked');
+    var index = searchIndex().val();
+    var fieldlabels = fieldLabels();
 
     if (index) {
       url = url + "&index=" + index;
@@ -2887,7 +2956,7 @@ shimi.sui = (function () {
     $.get(url, function (searchResults) {
       searchListing().html(searchResults);
       $('.search-result-field-id').each(function (index, item) {
-        var label = fieldLabels[$(item).attr('data-field-field')].join(": ");
+        var label = fieldlabels[$(item).attr('data-field-field')].join(": ");
         var target = $(item).children('a').first();
         target.html(label);
         target.attr('data-search-label', label);
@@ -2907,155 +2976,41 @@ shimi.sui = (function () {
     return mod;
   };
 
-  mod.clearSearchVals = function (initial) {
-    dSearchField().val(null);
-    dSearchIndex().val(null);
-    $('#document-search-exclude:checked').click();
-    $('#document-search-invert:checked').click();
-    $('.search-field-item').remove();
-    $('#search-index-label').empty();
-    if (!initial) {
-      localStorage.setItem("searchLabels", null);
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchExclude", null);
-      localStorage.setItem("searchInvert", null);
-      localStorage.setItem("searchIndex", null);
-      localStorage.setItem("searchIndexLabel", null);
-    }
-
-    return mod;
-  };
-
   mod.loadSearchVals = function () {
-    var index = lookup("searchIndex");
-    var fieldids = lookup("searchFields");
+    var exclude = localStorage.getItem("searchExclude");
+    var invert = localStorage.getItem("searchInvert");
+    var index = localStorage.getItem("searchIndex");
+    var fieldids = localStorage.getItem("searchFields");
+    var fields;
+    var indexLabel;
+    var params = [exclude, invert, index, fieldids].map(function (x) {
+      return (x === "null" || x === "false" || x === "true") ? JSON.parse(x) : x;
+    });
+    var allNull = params.every(function (x) {
+      return x === null;
+    });
 
-    if (index !== null) {
-      dSearchIndex().val(index);
-      $('#search-index-label').html(localStorage.getItem("searchIndexLabel"));
-
-      $('.search-optional').show();
-      dSearchExclude().parent('div').hide();
-    } else if (fieldids !== null) {
-      dSearchField().val(fieldids);
-      $('#search-field-label').html(localStorage.getItem("searchLabels"));
-
-      if (lookup("searchExclude") !== excludedVal()) {
-        dSearchExclude().click();
-      }
-
-      $('.search-optional').show();
-
-      if (fieldids.length === 36) {
-        if (lookup("searchInvert") !== invertedVal()) {
-          dSearchInvert().click();
-        }
+    if (allNull) {
+      mod.allFields();
+    } else if (params[0] === true) {
+      fields = JSON.parse(fieldids);
+      mod.excludedFields(fields);
+    } else if (params[1] === null && params[3] !== null) {
+      fields = JSON.parse(fieldids);
+      if (fields.length > 1) {
+        mod.multipleFields(fields);
       } else {
-        dSearchInvert().parent('div').hide();
+        mod.singleField(fields);
       }
-    }
-
-    return mod;
-  };
-
-  mod.removeSearchField = function (target) {
-    var value = target.attr('data-index');
-    var searchField = dSearchField();
-    var currentVal = searchField.val();
-    var valDecoded = JSON.parse(currentVal);
-    var newVal = null;
-
-    if (valDecoded.length === 1) {
-      mod.clearSearchVals();
-    } else {
-      var index = valDecoded.indexOf(value);
-
-      if (index >= 0) {
-        valDecoded.splice(index, 1);
-        newVal = JSON.stringify(valDecoded);
-        searchField.val(JSON.stringify(valDecoded));
-      }
-
-      target.remove();
-    }
-
-    if (valDecoded.length === 1 && newVal !== null) {
-      $('.search-only-one').show();
-    } else {
-      if (invertedVal()) {
-        dSearchInvert().click();
-      }
-      $('.search-only-one').hide();
-    }
-
-    updateSearchVals(newVal, $('#search-field-label').html(), excludedVal(), null, invertedVal());
-
-    return mod;
-  };
-
-  mod.addSearchIndex = function () {
-    var indexVal = $('#index-index-input').val();
-    var indexLabel = $('option[value=' + indexVal + ']').text();
-
-    if (utils.validID(indexVal)) {
-      mod.clearSearchVals();
-      $('#search-index-label').html(indexLabel).show();
-      dSearchIndex().val(indexVal);
-      $('.search-only-one').show();
-      updateSearchVals(null, indexLabel, null, indexVal, invertedVal());
-    }
-
-    return mod;
-  };
-
-  mod.addSearchField = function (target) {
-    var fieldid = $(target).closest('[data-field-field]').attr('data-field-field');
-
-    if (dSearchIndex().val()) {
-      mod.clearSearchVals();
-    }
-
-    if (utils.validID(fieldid)) {
-      var fieldLabel = fieldLookup()[fieldid].join(": ");
-      var searchField = dSearchField();
-      var currentVal = searchField.val();
-      var searchLabel = $('#search-field-label');
-      var newDecoded;
-      var newVal = null;
-      var newAnchor = '<a href="#" data-index="' + fieldid + '" class="search-field-item" title="click to remove">' + fieldLabel + '</a>';
-
-      var setSearchVals = function (value) {
-        if (searchLabel.html()) {
-          searchLabel.children().last().after(newAnchor);
-        } else {
-          searchLabel.html(newAnchor);
-        }
-
-        newVal = JSON.stringify(value);
-        searchField.val(newVal);
-
-        if (value.length === 1) {
-          $('.search-only-one').show();
-        } else {
-          $('.search-only-one').hide();
-        }
-
-        updateSearchVals(newVal, searchLabel.html(), excludedVal(), null, invertedVal());
-      };
-
-      if (currentVal !== '') {
-        var valDecoded = JSON.parse(currentVal);
-        if (valDecoded.indexOf(fieldid) < 0) {
-          newDecoded = valDecoded.concat(fieldid);
-          $('.search-optional').show();
-          setSearchVals(newDecoded);
-        }
-      } else {
-        newDecoded = [fieldid];
-        $('.search-optional').show();
-        setSearchVals(newDecoded);
-      }
-
+    } else if (params[3] !== null) {
+      fields = JSON.parse(fieldids);
+      mod.singleFieldInverse(fields);
+    } else if (params[1] === null) {
+      indexLabel = localStorage.getItem("searchIndexLabel");
+      mod.indexOnly(index, indexLabel);
+    } else if (params[1] === true) {
+      indexLabel = localStorage.getItem("searchIndexLabel");
+      mod.indexInverse(index, indexLabel);
     }
 
     return mod;

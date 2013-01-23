@@ -33,9 +33,9 @@ shimi.dblclickDispatch = function (e) {
   var sui = shimi.sui;
 
   var action = shimi.dispatcher({
-    ".search-result-field-id a, .field-view b, .field-container label span": function (t) {
-      sui.addSearchField(t);
-    },
+    //".search-result-field-id a, .field-view b, .field-container label span": function (t) {
+    //  sui.addSearchField(t);
+    //},
     "#index-index-input-label": function () {
       sui.addSearchIndex();
     },
@@ -143,7 +143,7 @@ shimi.clickDispatch = function (e) {
       vui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
-      sui.clearSearchVals();
+      sui.allFields();
     },
     ".search-field-item": function (t) {
       sui.removeSearchField(t);
