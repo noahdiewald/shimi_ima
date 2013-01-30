@@ -31,6 +31,23 @@ shimi.sui = (function () {
   };
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
+  var indexVal = function () {
+    var val = $("#index-index-input").val();
+    if (val.length === 0) {
+      return null;
+    } else {
+      return val;
+    }
+  };
+
+  var maybeTrue = function (bool) {
+    if (bool) {
+      return true;
+    } else {
+      return null;
+    }
+  };
+
   var clearStore = function () {
     localStorage.setItem("searchIndex", null);
     localStorage.setItem("searchIndexLabel", null);
@@ -49,8 +66,6 @@ shimi.sui = (function () {
       case "checkbox":
         elem.attr("checked", false);
         break;
-      default:
-        elem.html("");
       }
     });
   };
@@ -76,7 +91,7 @@ shimi.sui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return "<a class='search-field-item' title='click to remove' data-index='" + field + "' href='#'>" + fieldLabel + "</a>";
+    return "<a class='search-field-item' title='click to remove' data-field-field='" + field + "' href='#'>" + fieldLabel + "</a>";
   };
 
   var setFields = function (fields) {
@@ -84,8 +99,8 @@ shimi.sui = (function () {
     var jFields = JSON.stringify(fields);
     var sfls = searchFieldsLabel();
 
-    searchFields.val(jFields);
-    localStorage.setItem("searchFields", fields);
+    searchFields().val(jFields);
+    localStorage.setItem("searchFields", jFields);
 
     var linkLabels = fields.map(function (x) {
       return searchFieldItem(x, fLabels[x].join(": "));
@@ -126,7 +141,11 @@ shimi.sui = (function () {
   };
 
   mod.excludedFields = function (fields) {
-    mod.multipleFields();
+    if (fields.length > 1) {
+      mod.multipleFields(fields);
+    } else {
+      mod.singleField(fields);
+    }
     searchExclude().attr('checked', true);
     localStorage.setItem("searchExclude", true);
     return mod;
@@ -199,6 +218,75 @@ shimi.sui = (function () {
     return mod;
   };
 
+  mod.removeField = function (t) {
+    var searchFields = localStorage.getItem("searchFields");
+    var newSearchFields;
+    var fields = JSON.parse(searchFields);
+    var newFields;
+    var id = $(t).attr("data-field-field");
+
+    if (fields !== null) {
+      newFields = fields.filter(function (x) {
+        return x !== id;
+      });
+      newSearchFields = JSON.stringify(newFields);
+      localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
+      localStorage.setItem("searchIndex", null);
+      mod.loadSearchVals();
+    }
+
+    return mod;
+  };
+
+  mod.addField = function (t) {
+    var searchFields = localStorage.getItem("searchFields");
+    var newSearchFields;
+    var fields = JSON.parse(searchFields);
+    var newFields;
+    var id = $(t).attr("data-field-field");
+
+    if (fields === null) {
+      fields = [];
+    }
+
+    newFields = fields.concat(id);
+    newSearchFields = JSON.stringify(newFields);
+    localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
+    localStorage.setItem("searchIndex", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
+  mod.addIndex = function () {
+    var val = indexVal();
+
+    if (val) {
+      localStorage.setItem("searchFields", null);
+      localStorage.setItem("searchIndex", val);
+      localStorage.setItem("searchIndexLabel", $("option[value=" + val + "]").html());
+      mod.loadSearchVals();
+    }
+
+    return mod;
+  };
+
+  mod.toggleInversion = function () {
+    localStorage.setItem("searchInvert", maybeTrue(searchInvert().is(":checked")));
+    localStorage.setItem("searchExclude", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
+  mod.toggleExclusion = function () {
+    localStorage.setItem("searchExclude", maybeTrue(searchExclude().is(":checked")));
+    localStorage.getItem("searchInvert", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
   mod.loadSearchVals = function () {
     var exclude = localStorage.getItem("searchExclude");
     var invert = localStorage.getItem("searchInvert");
@@ -213,27 +301,36 @@ shimi.sui = (function () {
       return x === null;
     });
 
-    if (allNull) {
-      mod.allFields();
-    } else if (params[0] === true) {
-      fields = JSON.parse(fieldids);
-      mod.excludedFields(fields);
-    } else if (params[1] === null && params[3] !== null) {
-      fields = JSON.parse(fieldids);
-      if (fields.length > 1) {
-        mod.multipleFields(fields);
-      } else {
-        mod.singleField(fields);
+    try {
+      if (allNull) {
+        mod.allFields();
+      } else if (params[0] === true) {
+        fields = JSON.parse(fieldids);
+        mod.excludedFields(fields);
+      } else if (params[1] === null && params[3] !== null) {
+        fields = JSON.parse(fieldids);
+        if (fields.length > 1) {
+          mod.multipleFields(fields);
+        } else {
+          mod.singleField(fields);
+        }
+      } else if (params[3] !== null) {
+        fields = JSON.parse(fieldids);
+        if (fields.length > 1) {
+          mod.multipleFields(fields);
+        } else {
+          mod.singleFieldInverse(fields);
+        }
+      } else if (params[1] === null) {
+        indexLabel = localStorage.getItem("searchIndexLabel");
+        mod.indexOnly(index, indexLabel);
+      } else if (params[1] === true) {
+        indexLabel = localStorage.getItem("searchIndexLabel");
+        mod.indexInverse(index, indexLabel);
       }
-    } else if (params[3] !== null) {
-      fields = JSON.parse(fieldids);
-      mod.singleFieldInverse(fields);
-    } else if (params[1] === null) {
-      indexLabel = localStorage.getItem("searchIndexLabel");
-      mod.indexOnly(index, indexLabel);
-    } else if (params[1] === true) {
-      indexLabel = localStorage.getItem("searchIndexLabel");
-      mod.indexInverse(index, indexLabel);
+    } catch (e) {
+      window.console.log(e);
+      mod.allFields();
     }
 
     return mod;

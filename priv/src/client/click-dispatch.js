@@ -33,11 +33,17 @@ shimi.dblclickDispatch = function (e) {
   var sui = shimi.sui;
 
   var action = shimi.dispatcher({
-    //".search-result-field-id a, .field-view b, .field-container label span": function (t) {
-    //  sui.addSearchField(t);
-    //},
+    ".search-result-field-id a": function (t) {
+      sui.addField($(t).parent("h5"));
+    },
+    ".field-view b": function (t) {
+      sui.addField($(t).parent("li"));
+    },
+    ".field-container label span": function (t) {
+      sui.addField($(t).parent("label").parent("div"));
+    },
     "#index-index-input-label": function () {
-      sui.addSearchIndex();
+      sui.addIndex();
     },
     ".panel > h2": function (t) {
       shimi.panelToggle.toggler(t);
@@ -146,16 +152,16 @@ shimi.clickDispatch = function (e) {
       sui.allFields();
     },
     ".search-field-item": function (t) {
-      sui.removeSearchField(t);
+      sui.removeField(t);
+    },
+    "#document-search-exclude": function () {
+      sui.toggleExclusion();
+    },
+    "#document-search-invert": function () {
+      sui.toggleInversion();
     },
     ".view-document-link": function (t) {
       iui.load(t);
-    },
-    "#document-search-exclude": function (t) {
-      sui.toggleExclusion();
-    },
-    "#document-search-invert": function (t) {
-      sui.toggleInversion();
     },
 
     // Index Tool

@@ -43,9 +43,8 @@
 
     <div class="ui-widget panel hidden" id="document-search">
       <h2 class="ui-widget ui-widget-header">Search</h2>
-
       <form id="document-search-form">
-        <div id="search-all-fields-switch" class="search-optional hidden">
+        <div id="search-all-fields-switch" class="hidden">
           <a href="#">Search All Fields</a><br />
         </div>
         
@@ -55,15 +54,15 @@
 
         <label for="document-search-term">
           Search
-          <span class="search-optional hidden" id="search-field-label"></span>
-          <span class="search-optional hidden" id="search-index-label"></span>
+          <span class="hidden" id="search-field-label"></span>
+          <span class="hidden" id="search-index-label"></span>
         </label>
         <input type="text" name="document-search-term" id="document-search-term" />
-        <div class="search-optional hidden">
+        <div class="hidden">
           <input type="checkbox" name="document-search-exclude" id="document-search-exclude" />
           <label for="document-search-exclude">Exclude Fields</label><br />
         </div>
-        <div class="search-optional search-only-one hidden">
+        <div class="hidden">
           <input type="checkbox" name="document-search-invert" id="document-search-invert" />
           <label for="document-search-invert">Invert Search</label><br />
         </div>
