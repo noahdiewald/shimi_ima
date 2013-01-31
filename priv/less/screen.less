@@ -167,7 +167,7 @@ label span.ui-icon-help {
     font-weight:normal;
   }
 }
-select, input, textarea {
+select, input, textarea, fieldset {
   background:@bgcontrast;
   border-style:solid;
   border-width:thin;
@@ -210,48 +210,45 @@ ul.head-elements {
   background:@bgcolor;
   display:table-row;
 }
-#document-index {
-  width:25%;
+.panel {
   display:table-cell;
-}
-#index-index {
-  width:10%;
-  display:table-cell;
-}
-#document-view {
   vertical-align:top;
-  width:25%;
   padding-top:0;
-  display:table-cell;
-  ul {
-    padding-left:1em;
-    line-height:120%;
-    list-style-type:none;
+  &#document-index {
+    width:25%;
   }
-  ol {
-    padding-left:1.5em;
+  &#index-index {
+    width:10%;
+  }
+  &#document-view {
+    width:25%;
     ul {
-      padding-left:0;
+      padding-left:1em;
+      line-height:120%;
+      list-style-type:none;
+    }
+    ol {
+      padding-left:1.5em;
+      ul {
+        padding-left:0;
+      }
+    }
+    li b {
+      color:@fgstark;
+      font-weight: normal;
+    }
+    li.collapsed {
+      ul, ol {
+        display:none;
+      }
     }
   }
-  li b {
-    color:@fgstark;
-    font-weight: normal;
-  }
-  li.collapsed {
-    ul, ol {
-      display:none;
-    }
+  &#document-edit, &#index-edit {
+    width:50%;
   }
 }
 span.retain-white {
   white-space:pre-wrap;
-}
-#document-edit, #index-edit {
-  vertical-align:top;
-  width:50%;
-  padding-top:0;
-  display:table-cell;
 }
 #all-document-container h2, #all-index-container h2 {
   margin-top:0;
@@ -446,7 +443,7 @@ td {
   text-decoration:none;
   font-size:8pt;
 }
-.ui-widget-header {
+.header {
   border:none;
   color:@bgcontrast;
   background:@level2;
@@ -509,9 +506,6 @@ nav.pager {
       float: right;
     }
   }
-}
-fieldset {
-  margin: 0;
 }
 #edit-tabs {
   padding: 0 0 3px 0;

@@ -27,7 +27,7 @@
 <div id="index-conditions-listing">
 <table>
   <thead>
-    <tr class="ui-widget-header ui-corner-all">
+    <tr class="header">
       <td></td>
       <th>Negate</th>
       <th>Fieldset</th>

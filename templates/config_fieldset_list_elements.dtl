@@ -31,7 +31,7 @@
      class="add-field-button link-button">Add Field</a>
   <table class="fields ui-widget ui-widget-content">
     <thead>
-      <tr class="ui-widget-header">
+      <tr class="header">
         <th>Name</th>
         <th>Label</th>
         <th>Subcategory</th>
