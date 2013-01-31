@@ -29,16 +29,15 @@
 
 <div id="panel-toggle">
   <ul>
-    <li data-panel="document-index">Index</li>
-    <li data-panel="document-search">Search</li>
     <li data-panel="document-sets">Sets</li>
+    <li data-panel="document-search">Search</li>
+    <li data-panel="document-index">Index</li>
     <li data-panel="document-view">View</li>
     <li data-panel="document-edit">Edit</li>
   </ul>
 </div>
 
-<div class="ui-widget ui-corner-all" 
-     data-project-id="{{ project_info._id }}" 
+<div data-project-id="{{ project_info._id }}" 
      id="container">
   
   <div 
@@ -48,11 +47,57 @@
      data-group-id="document-view-info"
      id="all-document-container">
     
-    <div class="ui-widget panel" id="document-sets">
+    <div class="hidden panel" id="document-sets">
+      <h2 class="header">Sets</h2>
+      <form id="document-sets-form">
+        <fieldset>
+          <legend>Sets</legend>
+          <label for="document-set-a-input">Set A</label>
+          <select name="document-set-a-input" id="document-set-a-input"></select>
+          <label for="document-set-b-input">Set B</label>
+          <select name="document-set-b-input" id="document-set-b-input"></select>
+        </fieldset>
+        <label for="document-set-operation-input">Operation</label>
+        <select name="document-set-operation-input" id="document-set-operation-input">
+          <option></option>
+          <option value="view-a">View A</option>
+          <option value="view-b">View B</option>
+          <option value="remove-a">Remove A</option>
+          <option value="remove-b">Remove B</option>
+          <option value="union">Union</option>
+          <option value="intersection">Intersection</option>
+          <option value="relative-complement-b-in-a">Relative Complement of B in A</option>
+          <option value="relative-complement-a-in-b">Relative Complement of A in B</option>
+        </select>
+        <label for="document-set-name-input">(Optional) Name</label>
+        <input type="text" name="document-set-name-input" id="document-set-name-input" />
+      </form>
+      <div class="hidden" id="set-listing">
+        <div class="total-rows-info">
+          <b>Total</b>: <span id="total-set-rows"></span>
+        </div>
+        <div id="save-set-results">
+          <a href="#">(Save Selected)</a>
+        </div>
+        <table id="set-elements">
+          <thead>
+            <tr>
+              <td>
+                <input type="checkbox" id="select-all-set-elements" title="Click to select or deselect all elemens" />
+              </td>
+              <th>
+                Elements
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="ui-widget panel hidden" id="document-search">
-      <h2 class="ui-widget ui-widget-header">Search</h2>
+    <div class="hidden panel" id="document-search">
+      <h2 class="header">Search</h2>
       <form id="document-search-form">
         <div id="search-all-fields-switch" class="hidden">
           <a href="#">Search All Fields</a><br />
@@ -80,8 +125,8 @@
       <div id="search-listing"></div>
     </div>
 
-    <div class="ui-widget panel" id="document-index">
-      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape }} Index</h2>
+    <div class="panel" id="document-index">
+      <h2 class="header">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
         <label id="index-index-input-label" 
@@ -95,11 +140,11 @@
       <div id="index-listing"></div>
     </div>
     
-    <div class="ui-widget panel" id="document-view">
+    <div class="panel" id="document-view">
       {% include "document_view_header.dtl" %}
     </div>
     
-    <div class="ui-widget panel" id="document-edit">
+    <div class="panel" id="document-edit">
     </div>
     
   </div>
