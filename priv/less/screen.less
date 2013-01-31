@@ -34,6 +34,11 @@ h1 {
   font-size:12pt;
   margin:0;
 }
+h5 a {
+  color:@level3;
+  text-decoration:none;
+  font-weight:normal;
+}
 section {
   display:block !important;
 }
@@ -233,9 +238,16 @@ ul.head-elements {
         padding-left:0;
       }
     }
-    li b {
-      color:@fgstark;
-      font-weight: normal;
+    li {
+      b {
+        color:@fgstark;
+        font-weight: normal;
+      }
+      ul b {
+        color:@level3;
+        text-decoration:none;
+        font-weight:normal;
+      }
     }
     li.collapsed {
       ul, ol {
@@ -299,11 +311,6 @@ nav ul li, #panel-toggle ul li {
 }
 #tabs-container {
   width:100%;
-}
-#document-view li ul b, h5 a {
-  color:@level3;
-  text-decoration:none;
-  font-weight:normal;
 }
 h5 {
   font-size:10pt;
