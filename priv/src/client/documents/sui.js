@@ -91,7 +91,10 @@ shimi.sui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return "<a class='search-field-item' title='click to remove' data-field-field='" + field + "' href='#'>" + fieldLabel + "</a>";
+    return templates['search-field-item'].render({
+      fieldLabel: fieldLabel,
+      field: field
+    });
   };
 
   var setFields = function (fields) {

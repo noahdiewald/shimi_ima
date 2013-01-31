@@ -30,7 +30,14 @@ shimi.panelToggle = (function () {
     } else {
       panel = $(target).closest('.panel');
     }
-    panel.toggle();
+
+    if (panel.css("display") === "none") {
+      panel.css("display", "table-cell");
+    } else {
+      panel.css("display", "none");
+    }
+
+    return mod;
   };
 
   return mod;
@@ -2874,7 +2881,10 @@ shimi.sui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return "<a class='search-field-item' title='click to remove' data-field-field='" + field + "' href='#'>" + fieldLabel + "</a>";
+    return templates['search-field-item'].render({
+      fieldLabel: fieldLabel,
+      field: field
+    });
   };
 
   var setFields = function (fields) {
