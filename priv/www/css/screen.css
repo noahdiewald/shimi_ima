@@ -172,7 +172,8 @@ label span.ui-icon-help {
 }
 select,
 input,
-textarea {
+textarea,
+fieldset {
   background: #eeeeee;
   border-style: solid;
   border-width: thin;
@@ -216,48 +217,45 @@ ul.head-elements li:first-child:before {
   background: #ffffff;
   display: table-row;
 }
-#document-index {
-  width: 25%;
+.panel {
   display: table-cell;
-}
-#index-index {
-  width: 10%;
-  display: table-cell;
-}
-#document-view {
   vertical-align: top;
-  width: 25%;
   padding-top: 0;
-  display: table-cell;
 }
-#document-view ul {
+.panel#document-index {
+  width: 25%;
+}
+.panel#index-index {
+  width: 10%;
+}
+.panel#document-view {
+  width: 25%;
+}
+.panel#document-view ul {
   padding-left: 1em;
   line-height: 120%;
   list-style-type: none;
 }
-#document-view ol {
+.panel#document-view ol {
   padding-left: 1.5em;
 }
-#document-view ol ul {
+.panel#document-view ol ul {
   padding-left: 0;
 }
-#document-view li b {
+.panel#document-view li b {
   color: #000000;
   font-weight: normal;
 }
-#document-view li.collapsed ul,
-#document-view li.collapsed ol {
+.panel#document-view li.collapsed ul,
+.panel#document-view li.collapsed ol {
   display: none;
+}
+.panel#document-edit,
+.panel#index-edit {
+  width: 50%;
 }
 span.retain-white {
   white-space: pre-wrap;
-}
-#document-edit,
-#index-edit {
-  vertical-align: top;
-  width: 50%;
-  padding-top: 0;
-  display: table-cell;
 }
 #all-document-container h2,
 #all-index-container h2 {
@@ -465,7 +463,7 @@ td {
   text-decoration: none;
   font-size: 8pt;
 }
-.ui-widget-header {
+.header {
   border: none;
   color: #eeeeee;
   background: #f07818;
@@ -530,9 +528,6 @@ tr.ui-widget-header th {
 nav.pager a#next-index-page {
   text-align: right;
   float: right;
-}
-fieldset {
-  margin: 0;
 }
 #edit-tabs {
   padding: 0 0 3px 0;
