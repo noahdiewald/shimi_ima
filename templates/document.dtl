@@ -17,6 +17,12 @@
     <input type="text" id="edit-command-input" autocomplete="off" name="edit-command-input">
   </form>
 </div>
+<div class="hidden" id="save-results-dialog" title="New Set">
+  <form id="new-set-form">
+    <label for="new-set-input">Set Name</label>
+    <input type="text" id="new-set-input" autocomplete="off" name="new-set-input">
+  </form>
+</div>
 {% endblock %}
     
 {% block main_content %}
@@ -25,6 +31,7 @@
   <ul>
     <li data-panel="document-index">Index</li>
     <li data-panel="document-search">Search</li>
+    <li data-panel="document-sets">Sets</li>
     <li data-panel="document-view">View</li>
     <li data-panel="document-edit">Edit</li>
   </ul>
@@ -40,6 +47,9 @@
      data-document-version="{{ doctype_info._rev }}"
      data-group-id="document-view-info"
      id="all-document-container">
+    
+    <div class="ui-widget panel" id="document-sets">
+    </div>
 
     <div class="ui-widget panel hidden" id="document-search">
       <h2 class="ui-widget ui-widget-header">Search</h2>
