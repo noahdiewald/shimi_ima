@@ -1,5 +1,5 @@
-<table id="file-listing-table" class="ui-widget">
-  <thead class="ui-widget-header">
+<table id="file-listing-table">
+  <thead class="header">
     <tr>
       <th>File Name</th>
       <th>Content Type</th>
