@@ -5,6 +5,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-beautify');
   grunt.loadNpmTasks('grunt-simple-mocha');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-mustache');
 
   // Project configuration.
   grunt.initConfig({
