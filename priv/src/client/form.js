@@ -1,20 +1,35 @@
 shimi.form = (function () {
   var mod = {};
 
-  mod.toggle = function (target) {
+  mod.toggle = function (t) {
     var toggleElem;
-    var t = $(target);
+    var target = $(t);
 
-    if (t.attr('data-target')) {
-      toggleElem = $('#' + t.attr('data-target'));
+    if (target.attr('data-target')) {
+      toggleElem = $('#' + target.attr('data-target'));
       toggleElem.toggle();
     }
     return mod;
   };
 
-  mod.clear = function (inputFields) {
-    inputFields.each(function (index) {
-      var inputField = $(this);
+  mod.cancelDialog = function (t) {
+    var target = $(t);
+    var toggleElem;
+
+    if (target.attr('data-dialog')) {
+      toggleElem = $('#' + target.attr('data-target'));
+      toggleElem.hide();
+      mod.clear(undefined, toggleElem.find("form"));
+    }
+    return mod;
+  };
+
+  mod.clear = function (inputFields, form) {
+    if (inputFields === undefined) {
+      inputFields = $(form).find("input, select, textarea");
+    }
+    inputFields.each(function (index, elem) {
+      var inputField = $(elem);
 
       if (!inputField.attr('data-retain')) {
         if (inputField.is(':checked')) {
@@ -23,7 +38,6 @@ shimi.form = (function () {
         inputField.val('');
       }
     });
-
     return inputFields;
   };
 

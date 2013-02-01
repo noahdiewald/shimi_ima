@@ -19,11 +19,6 @@ h1 {
   font-size: 12pt;
   margin: 0;
 }
-h5 a {
-  color: #ba5d12;
-  text-decoration: none;
-  font-weight: normal;
-}
 section {
   display: block !important;
 }
@@ -329,6 +324,11 @@ h5 + .search-results {
   max-height: 50ex;
   display: none;
 }
+h5 a {
+  color: #ba5d12;
+  text-decoration: none;
+  font-weight: normal;
+}
 #document-view-tree > ul > li.collapsed.fieldset-view > b:before {
   content: "▸ ";
 }
@@ -458,15 +458,6 @@ td {
   border-color: #cccccc;
   border-width: thin;
 }
-#search-field-label {
-  font-weight: normal;
-}
-.search-field-item {
-  margin-left: 2px;
-  background: #9bc1f2;
-  text-decoration: none;
-  font-size: 8pt;
-}
 .header {
   border: none;
   color: #eeeeee;
@@ -493,16 +484,25 @@ li.ui-corner-all.ui-state-default {
 tr.ui-widget-header th {
   color: #000000;
 }
+#search-field-label {
+  font-weight: normal;
+}
+.search-field-item {
+  margin-left: 2px;
+  background: #9bc1f2;
+  text-decoration: none;
+  font-size: 8pt;
+}
 .search-result-context a {
   text-decoration: none;
   color: #000000;
 }
-#index-index-input-label {
-  text-decoration: underline;
-}
 .search-results {
   max-height: 70ex;
   overflow-y: scroll;
+}
+#index-index-input-label {
+  text-decoration: underline;
 }
 .highlight {
   background: #ffff00;

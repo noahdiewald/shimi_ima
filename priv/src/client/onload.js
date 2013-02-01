@@ -22,6 +22,7 @@ $(function () {
     shimi.iui.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
+    shimi.setForm();
     shimi.eui.init();
 
     $('#index-filter-form input').keyup(

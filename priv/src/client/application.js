@@ -10,6 +10,7 @@
 //= index.js
 //= form.js
 //= sess.js
+//= sets.js
 //= config
 //= documents
 //= file_manager
