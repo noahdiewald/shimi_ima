@@ -14,6 +14,7 @@
 %%%
 %%% You should have received a copy of the GNU General Public License
 %%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
@@ -88,33 +89,41 @@ index_filter2([[_,K]|T], RE) ->
 
 %% @doc filter for inverted searches on indexes
 index_inverted_filter([], _Query, Acc) ->
-    lists:reverse(Acc);
+    inverted_filter_sort(Acc);
 index_inverted_filter([Row|T], Query, Acc) ->
     case index_inverted_filter2(jsn:get_value(<<"key">>, Row), Query) of
         false -> index_inverted_filter(T, Query, Acc);
-        _ -> index_inverted_filter(T, Query, [Row|Acc])
+        {true, K} -> index_inverted_filter(T, Query, [jsn:set_value(<<"key">>, K, Row)|Acc])
     end.
 
 index_inverted_filter2([], _Query) ->
     false;
 index_inverted_filter2([[_,K]|T], Query) ->
     {ok, RE} = re:compile(K, [unicode]),
-    case re:run(Query, RE) of
+    case re:run(Query, RE, [{capture, first, list}]) of
         nomatch -> index_inverted_filter2(T, Query);
-        _ -> true
+        {match, [Match]}  -> {true, [[length(Match), K]]}
     end.
 
 %% @doc inverted filter
 inverted_filter([], _Query, Acc) ->
-    Acc;
+    inverted_filter_sort(Acc);
 inverted_filter([H|T], Query, Acc) ->
-    [_, _, SK, K] = jsn:get_value(<<"key">>, H),
+    [_, _, _, K] = jsn:get_value(<<"key">>, H),
     {ok, RE} = re:compile(K, [unicode]),
-    case re:run(Query, RE) of
+    case re:run(Query, RE, [{capture, first, list}]) of
         nomatch -> inverted_filter(T, Query, Acc);
-        _ -> inverted_filter(T, Query, [jsn:set_value(<<"key">>, [[SK, K]], H)|Acc])
+        {match, [Match]} -> inverted_filter(T, Query, [jsn:set_value(<<"key">>, [[length(Match), K]], H)|Acc])
     end.
 
+inverted_filter_sort(Acc) ->
+    F = fun (X, Y) ->
+        [[A, _]] = jsn:get_value(<<"key">>, X),
+        [[B, _]] = jsn:get_value(<<"key">>, Y),
+        A >= B
+    end,
+    lists:sort(F, Acc).
+    
 %% @doc Assuming that there is more than one field that was searched,
 %% compute the totals.
 prep_ret(TID) ->
