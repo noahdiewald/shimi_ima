@@ -1,6 +1,8 @@
 shimi.sui = (function () {
   var mod = {};
   var utils = shimi.utils();
+  var sets = shimi.sets;
+  var setsui = shimi.setsui;
   var localStorage = window.localStorage;
   var searchIndex = function () {
     return $('#document-search-index');
@@ -91,7 +93,10 @@ shimi.sui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return "<a class='search-field-item' title='click to remove' data-field-field='" + field + "' href='#'>" + fieldLabel + "</a>";
+    return templates['search-field-item'].render({
+      fieldLabel: fieldLabel,
+      field: field
+    });
   };
 
   var setFields = function (fields) {
@@ -331,6 +336,18 @@ shimi.sui = (function () {
     } catch (e) {
       window.console.log(e);
       mod.allFields();
+    }
+
+    return mod;
+  };
+
+  mod.toggleSelection = function (t) {
+    var target = $(t);
+
+    if (target.is(":checked")) {
+      target.next("label").next("table").addClass("selected-for-save");
+    } else {
+      target.next("label").next("table").removeClass("selected-for-save");
     }
 
     return mod;

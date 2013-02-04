@@ -167,7 +167,7 @@ label span.ui-icon-help {
     font-weight:normal;
   }
 }
-select, input, textarea {
+select, input, textarea, fieldset {
   background:@bgcontrast;
   border-style:solid;
   border-width:thin;
@@ -210,48 +210,52 @@ ul.head-elements {
   background:@bgcolor;
   display:table-row;
 }
-#document-index {
-  width:25%;
+.panel {
   display:table-cell;
-}
-#index-index {
-  width:10%;
-  display:table-cell;
-}
-#document-view {
   vertical-align:top;
-  width:25%;
   padding-top:0;
-  display:table-cell;
-  ul {
-    padding-left:1em;
-    line-height:120%;
-    list-style-type:none;
+  &#document-index {
+    width:25%;
   }
-  ol {
-    padding-left:1.5em;
+  &#index-index {
+    width:10%;
+  }
+  &#document-view {
+    width:25%;
     ul {
-      padding-left:0;
+      padding-left:1em;
+      line-height:120%;
+      list-style-type:none;
+    }
+    ol {
+      padding-left:1.5em;
+      ul {
+        padding-left:0;
+      }
+    }
+    li {
+      b {
+        color:@fgstark;
+        font-weight: normal;
+      }
+      ul b {
+        color:@level3;
+        text-decoration:none;
+        font-weight:normal;
+      }
+    }
+    li.collapsed {
+      ul, ol {
+        display:none;
+      }
     }
   }
-  li b {
-    color:@fgstark;
-    font-weight: normal;
-  }
-  li.collapsed {
-    ul, ol {
-      display:none;
-    }
+  &#document-edit, &#index-edit {
+    width:50%;
   }
 }
 span.retain-white {
   white-space:pre-wrap;
-}
-#document-edit, #index-edit {
-  vertical-align:top;
-  width:50%;
-  padding-top:0;
-  display:table-cell;
 }
 #all-document-container h2, #all-index-container h2 {
   margin-top:0;
@@ -303,11 +307,6 @@ nav ul li, #panel-toggle ul li {
 #tabs-container {
   width:100%;
 }
-#document-view li ul b, h5 a {
-  color:@level3;
-  text-decoration:none;
-  font-weight:normal;
-}
 h5 {
   font-size:10pt;
   padding:0;
@@ -315,6 +314,11 @@ h5 {
   + .search-results {
     max-height:50ex;
     display:none;
+  }
+  a {
+    color:@level3;
+    text-decoration:none;
+    font-weight:normal;
   }
 }
 #document-view-tree > ul > li.collapsed.fieldset-view > b:before {
@@ -437,16 +441,7 @@ td {
   border-color:@widgetborder;
   border-width:thin;
 }
-#search-field-label {
-  font-weight:normal;
-}
-.search-field-item {
-  margin-left:2px;
-  background:@infobackground;
-  text-decoration:none;
-  font-size:8pt;
-}
-.ui-widget-header {
+.header {
   border:none;
   color:@bgcontrast;
   background:@level2;
@@ -468,16 +463,25 @@ li.ui-corner-all.ui-state-default.ui-tabs-selected.ui-state-active, li.ui-corner
 tr.ui-widget-header th {
   color:@fgstark;
 }
+#search-field-label {
+  font-weight:normal;
+}
+.search-field-item {
+  margin-left:2px;
+  background:@infobackground;
+  text-decoration:none;
+  font-size:8pt;
+}
 .search-result-context a {
   text-decoration:none;
   color:@fgstark;
 }
-#index-index-input-label {
-  text-decoration:underline;
-}
 .search-results {
   max-height:70ex;
   overflow-y:scroll;
+}
+#index-index-input-label {
+  text-decoration:underline;
 }
 .highlight {
   background:@highlight;
@@ -509,9 +513,6 @@ nav.pager {
       float: right;
     }
   }
-}
-fieldset {
-  margin: 0;
 }
 #edit-tabs {
   padding: 0 0 3px 0;

@@ -59,6 +59,7 @@ shimi.clickDispatch = function (e) {
   var eui = shimi.eui;
   var vui = shimi.vui;
   var iui = shimi.iui;
+  var setsui = shimi.setsui;
   var sui = shimi.sui;
   var efs = shimi.efs;
   var ieui = shimi.ieui;
@@ -160,6 +161,23 @@ shimi.clickDispatch = function (e) {
     "#document-search-invert": function () {
       sui.toggleInversion();
     },
+    ".select-results": function (t) {
+      sui.toggleSelection(t);
+    },
+    "#save-search-results a": function () {
+      $("#new-set-target-input").val("search");
+      $("#new-set-dialog").show();
+    },
+    "#save-set-results a": function () {
+      $("#new-set-target-input").val("sets");
+      $("#new-set-dialog").show();
+    },
+    "#new-set-save-button": function () {
+      setsui.saveSelected($("#new-set-target-input").val());
+    },
+    "#select-all-set-elements": function (t) {
+      setsui.toggleSelectAll(t);
+    },
     ".view-document-link": function (t) {
       iui.load(t);
     },
@@ -215,6 +233,9 @@ shimi.clickDispatch = function (e) {
     // General
     ".toggler": function (t) {
       form.toggle(t);
+    },
+    ".cancel-dialog": function (t) {
+      form.cancelDialog(t);
     },
     "#panel-toggle li": function (t) {
       shimi.panelToggle.toggler(t);

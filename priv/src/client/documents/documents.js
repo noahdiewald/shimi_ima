@@ -18,6 +18,20 @@ shimi.jumpForm = function () {
   });
 };
 
+shimi.setForm = function () {
+  $('#new-set-form').on("submit", function () {
+    return false;
+  });
+  $('#document-sets-form').on("keydown", function (e) {
+    if (e.which === 13) {
+      shimi.setsui.performOp();
+      return false;
+    }
+    return true;
+  });
+  shimi.setsui.updateSelection();
+};
+
 shimi.searchForm = function () {
   shimi.sui.loadSearchVals();
   $('#document-search-form').on("submit", function () {

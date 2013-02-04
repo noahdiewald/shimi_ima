@@ -30,7 +30,14 @@ shimi.panelToggle = (function () {
     } else {
       panel = $(target).closest('.panel');
     }
-    panel.toggle();
+
+    if (panel.css("display") === "none") {
+      panel.css("display", "table-cell");
+    } else {
+      panel.css("display", "none");
+    }
+
+    return mod;
   };
 
   return mod;

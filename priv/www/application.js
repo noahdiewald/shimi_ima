@@ -30,7 +30,14 @@ shimi.panelToggle = (function () {
     } else {
       panel = $(target).closest('.panel');
     }
-    panel.toggle();
+
+    if (panel.css("display") === "none") {
+      panel.css("display", "table-cell");
+    } else {
+      panel.css("display", "none");
+    }
+
+    return mod;
   };
 
   return mod;
@@ -858,6 +865,7 @@ shimi.clickDispatch = function (e) {
   var eui = shimi.eui;
   var vui = shimi.vui;
   var iui = shimi.iui;
+  var setsui = shimi.setsui;
   var sui = shimi.sui;
   var efs = shimi.efs;
   var ieui = shimi.ieui;
@@ -959,6 +967,23 @@ shimi.clickDispatch = function (e) {
     "#document-search-invert": function () {
       sui.toggleInversion();
     },
+    ".select-results": function (t) {
+      sui.toggleSelection(t);
+    },
+    "#save-search-results a": function () {
+      $("#new-set-target-input").val("search");
+      $("#new-set-dialog").show();
+    },
+    "#save-set-results a": function () {
+      $("#new-set-target-input").val("sets");
+      $("#new-set-dialog").show();
+    },
+    "#new-set-save-button": function () {
+      setsui.saveSelected($("#new-set-target-input").val());
+    },
+    "#select-all-set-elements": function (t) {
+      setsui.toggleSelectAll(t);
+    },
     ".view-document-link": function (t) {
       iui.load(t);
     },
@@ -1014,6 +1039,9 @@ shimi.clickDispatch = function (e) {
     // General
     ".toggler": function (t) {
       form.toggle(t);
+    },
+    ".cancel-dialog": function (t) {
+      form.cancelDialog(t);
     },
     "#panel-toggle li": function (t) {
       shimi.panelToggle.toggler(t);
@@ -1131,20 +1159,35 @@ shimi.index = function (args) {
 shimi.form = (function () {
   var mod = {};
 
-  mod.toggle = function (target) {
+  mod.toggle = function (t) {
     var toggleElem;
-    var t = $(target);
+    var target = $(t);
 
-    if (t.attr('data-target')) {
-      toggleElem = $('#' + t.attr('data-target'));
+    if (target.attr('data-target')) {
+      toggleElem = $('#' + target.attr('data-target'));
       toggleElem.toggle();
     }
     return mod;
   };
 
-  mod.clear = function (inputFields) {
-    inputFields.each(function (index) {
-      var inputField = $(this);
+  mod.cancelDialog = function (t) {
+    var target = $(t);
+    var toggleElem;
+
+    if (target.attr('data-dialog')) {
+      toggleElem = $('#' + target.attr('data-target'));
+      toggleElem.hide();
+      mod.clear(undefined, toggleElem.find("form"));
+    }
+    return mod;
+  };
+
+  mod.clear = function (inputFields, form) {
+    if (inputFields === undefined) {
+      inputFields = $(form).find("input, select, textarea");
+    }
+    inputFields.each(function (index, elem) {
+      var inputField = $(elem);
 
       if (!inputField.attr('data-retain')) {
         if (inputField.is(':checked')) {
@@ -1153,7 +1196,6 @@ shimi.form = (function () {
         inputField.val('');
       }
     });
-
     return inputFields;
   };
 
@@ -1264,6 +1306,142 @@ shimi.sess = function () {
 
   return mod;
 };
+shimi.sets = (function () {
+  var mod = {};
+
+  var member = function (arr, x) {
+    return arr.some(function (y) {
+      return x[0] === y[0] && x[1] === y[1];
+    });
+  };
+
+  var unique = function (x) {
+    return x.reduce(function (acc, curr) {
+      if (member(acc, curr)) {
+        return acc;
+      } else {
+        return acc.concat([curr]);
+      }
+    }, []);
+  };
+
+  var union = function (xs, ys) {
+    return unique(xs.concat(ys));
+  };
+
+  var intersection = function (xs, ys) {
+    return xs.filter(function (x) {
+      return member(ys, x);
+    });
+  };
+
+  var relativeComplement = function (xs, ys) {
+    return xs.filter(function (x) {
+      return !member(ys, x);
+    });
+  };
+
+  var processSet = function (set) {
+    var name = set[0];
+    var arr = unique(set[1]);
+    var procSet = [name, arr];
+    return procSet;
+  };
+
+  mod.union = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = union(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  mod.intersection = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = intersection(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  // To be basically read as A minus B.
+  mod.relativeComplement = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = relativeComplement(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  mod.symetricDifference = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = union(relativeComplement(setElemsA, setElemsB), relativeComplement(setElemsB, setElemsA));
+    return newSet;
+  };
+
+  mod.getSets = function () {
+    var curr = window.sessionStorage.getItem("sets");
+    var retval = [];
+
+    if (curr !== null) {
+      retval = JSON.parse(curr);
+    }
+
+    return retval;
+  };
+
+  mod.getSet = function (setName) {
+    var retval;
+    var curr = mod.getSets();
+    retval = curr.filter(function (x) {
+      return x[0] === setName;
+    })[0];
+    return retval;
+  };
+
+  mod.removeSet = function (setName) {
+    var nnew;
+    var curr = mod.getSets();
+    nnew = curr.filter(function (x) {
+      return x[0] !== setName;
+    });
+    mod.setSets(nnew);
+    return mod;
+  };
+
+  mod.getSetNames = function () {
+    var curr = mod.getSets();
+    return curr.map(function (x) {
+      return x[0];
+    });
+  };
+
+  mod.setSets = function (nnew) {
+    var procSets;
+    if (Array.isArray(nnew)) {
+      procSets = nnew.map(function (x) {
+        return processSet(x);
+      });
+      window.sessionStorage.setItem("sets", JSON.stringify(procSets));
+    } else {
+      window.sessionStorage.settem("sets", "[]");
+    }
+
+    return mod;
+  };
+
+  mod.setSet = function (nnew) {
+    if (Array.isArray(nnew) && nnew.length === 2) {
+      var curr = mod.getSets();
+      var newName = nnew[0];
+      var filtered = curr.filter(function (x) {
+        return x[0] !== newName;
+      });
+      mod.setSets(filtered.concat([nnew]));
+    }
+    return mod;
+  };
+
+  return mod;
+})();
 // Dialog for manipulating doctypes
 shimi.charseqDialog = function (values) {
   var f = shimi.charseqElems.get(values);
@@ -2014,6 +2192,20 @@ shimi.jumpForm = function () {
     }
     return true;
   });
+};
+
+shimi.setForm = function () {
+  $('#new-set-form').on("submit", function () {
+    return false;
+  });
+  $('#document-sets-form').on("keydown", function (e) {
+    if (e.which === 13) {
+      shimi.setsui.performOp();
+      return false;
+    }
+    return true;
+  });
+  shimi.setsui.updateSelection();
 };
 
 shimi.searchForm = function () {
@@ -2781,9 +2973,209 @@ shimi.iui = (function () {
 
   return mod;
 })();
+shimi.setsui = function () {
+  var mod = {};
+
+  mod.updateSelection = function () {
+    return mod;
+  };
+
+  return mod;
+};
+shimi.setsui = (function () {
+  var mod = {};
+  var sets = shimi.sets;
+  var utils = shimi.utils();
+  var setA = function () {
+    return $("#document-set-a-input");
+  };
+  var setB = function () {
+    return $("#document-set-b-input");
+  };
+  var op = function () {
+    return $("#document-set-operation-input");
+  };
+  var setListing = function () {
+    return $("#set-listing");
+  };
+
+  var selectedToArray = function (target) {
+    var retval = [];
+
+    switch (target) {
+    case "search":
+      retval = selectedSaveResultsToArray();
+      break;
+    case "sets":
+      retval = selectedElementsToArray();
+      break;
+    }
+
+    return retval;
+  };
+
+  var selectedElementsToArray = function () {
+    var retval;
+    var selected = $("input.set-element-selection:checked");
+
+    retval = $.map(selected, function (elem) {
+      var anchor = $(elem).parent("td").next("td").find("a").first();
+      var id = anchor.first().attr("href").replace(/^#/, "");
+      var context = anchor.html().trim();
+      return [[context, id]];
+    });
+    return retval;
+  };
+
+  var selectedSaveResultsToArray = function () {
+    var retval;
+    var selected = $("table.selected-for-save tr");
+
+    retval = $.map(selected, function (elem) {
+      var id = $(elem).find("th a").first().attr("href").replace(/^#/, "");
+      var context = $(elem).find("td.search-result-context a").first().html().trim();
+      return [[context, id]];
+    });
+
+    return retval;
+  };
+
+  var render = function (setElems) {
+    var total = setElems.length;
+    var elems = setElems.map(function (x) {
+      return {
+        id: x[1],
+        context: x[0]
+      };
+    });
+    var listing = templates['set-listing'].render({
+      elements: elems,
+      total: total
+    });
+    setListing().html(listing);
+    return mod;
+  };
+
+  var view = function (setName) {
+    var elems = sets.getSet(setName)[1];
+    render(elems);
+    return mod;
+  };
+
+  var remove = function (setName) {
+    sets.removeSet(setName);
+    render([]);
+    mod.updateSelection();
+    return mod;
+  };
+
+  var union = function (setNameA, setNameB) {
+    var newSet = sets.union(setNameA, setNameB);
+    render(newSet);
+    return mod;
+  };
+
+  var intersection = function (setNameA, setNameB) {
+    var newSet = sets.intersection(setNameA, setNameB);
+    render(newSet);
+    return mod;
+  };
+
+  var symetricDifference = function (setNameA, setNameB) {
+    var newSet = sets.symetricDifference(setNameA, setNameB);
+    render(newSet);
+    return mod;
+  };
+
+  var relativeComplement = function (setName1, setName2) {
+    var newSet = sets.relativeComplement(setName1, setName2);
+    render(newSet);
+    return mod;
+  };
+
+  mod.performOp = function () {
+    switch (op().val()) {
+    case "view-a":
+      view(setA().val());
+      break;
+    case "view-b":
+      view(setB().val());
+      break;
+    case "remove-a":
+      remove(setA().val());
+      break;
+    case "remove-b":
+      remove(setB().val());
+      break;
+    case "union":
+      union(setA().val(), setB().val());
+      break;
+    case "intersection":
+      intersection(setA().val(), setB().val());
+      break;
+    case "symetric-difference":
+      symetricDifference(setA().val(), setB().val());
+      break;
+    case "relative-complement-b-in-a":
+      relativeComplement(setA().val(), setB().val());
+      break;
+    case "relative-complement-a-in-b":
+      relativeComplement(setB().val(), setA().val());
+      break;
+    default:
+      break;
+    }
+    return mod;
+  };
+
+  mod.updateSelection = function () {
+    var currNames = sets.getSetNames();
+    var newOptions = templates['set-options'].render({
+      names: currNames
+    });
+    setA().html(newOptions);
+    setB().html(newOptions);
+    return mod;
+  };
+
+  mod.saveSelected = function () {
+    var dialog = $("#new-set-dialog");
+    var name = $("#new-set-input").val();
+    var target = $("#new-set-target-input").val();
+    var selected;
+    var newSet;
+
+    if (!utils.isBlank(name)) {
+      dialog.hide();
+      selected = selectedToArray(target);
+      newSet = [name, selected];
+      sets.setSet(newSet);
+      $("#new-set-input").val("");
+      mod.updateSelection();
+      shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
+    } else {
+      shimi.flash("Input invalid:", "You must supply a valid name.").error();
+    }
+
+    return mod;
+  };
+
+  mod.toggleSelectAll = function (target) {
+    if ($(target).is(":checked")) {
+      $("input.set-element-selection").attr("checked", true);
+    } else {
+      $("input.set-element-selection").attr("checked", false);
+    }
+    return mod;
+  };
+
+  return mod;
+})();
 shimi.sui = (function () {
   var mod = {};
   var utils = shimi.utils();
+  var sets = shimi.sets;
+  var setsui = shimi.setsui;
   var localStorage = window.localStorage;
   var searchIndex = function () {
     return $('#document-search-index');
@@ -2874,7 +3266,10 @@ shimi.sui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return "<a class='search-field-item' title='click to remove' data-field-field='" + field + "' href='#'>" + fieldLabel + "</a>";
+    return templates['search-field-item'].render({
+      fieldLabel: fieldLabel,
+      field: field
+    });
   };
 
   var setFields = function (fields) {
@@ -3114,6 +3509,18 @@ shimi.sui = (function () {
     } catch (e) {
       window.console.log(e);
       mod.allFields();
+    }
+
+    return mod;
+  };
+
+  mod.toggleSelection = function (t) {
+    var target = $(t);
+
+    if (target.is(":checked")) {
+      target.next("label").next("table").addClass("selected-for-save");
+    } else {
+      target.next("label").next("table").removeClass("selected-for-save");
     }
 
     return mod;
@@ -4319,6 +4726,7 @@ $(function () {
     shimi.iui.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
+    shimi.setForm();
     shimi.eui.init();
 
     $('#index-filter-form input').keyup(

@@ -15,16 +15,16 @@
   </ul>
 </div>
 
-<div class="ui-widget ui-corner-all" id="container">
+<div id="container">
   
   <div id="all-index-container">
-    <div class="ui-widget panel" id="index-index">
-      <h2 class="ui-widget ui-widget-header">Indexes</h2>
+    <div class="panel" id="index-index">
+      <h2 class="header">Indexes</h2>
       <div id="index-index-listing"></div>
     </div>
 
-    <div class="ui-widget panel" id="index-edit">
-      <h2 class="ui-widget ui-widget-header">Edit Index</h2>
+    <div class="panel" id="index-edit">
+      <h2 class="header">Edit Index</h2>
 
       <div id="button-bar">
         <a id="new-index-button" class="link-button">New</a>
@@ -37,8 +37,8 @@
       <div id="index-conditions"></div>
     </div>
     
-    <div class="ui-widget panel hidden" id="index-view">
-      <h2 class="ui-widget ui-widget-header">Preview Index</h2>
+    <div class="panel hidden" id="index-view">
+      <h2 class="header">Preview Index</h2>
 
       <form id="index-filter-form">
         <label for="index-filter">Filter</label>

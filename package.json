@@ -1,12 +1,16 @@
 {
     "name": "dictionary_maker",
+    "description": "Manages JavaScript Source for this Project",
+    "version": "0.0.1",
     "devDependencies": {
         "mocha": "1.7.3",
         "should": "1.2.1",
         "less": "1.3.1",
+        "hogan.js": "2.0.0",
         "grunt-rigger": "0.3.x",
         "grunt-beautify": "0.1.1",
         "grunt-simple-mocha": "0.2.0",
-        "grunt-contrib-less": "0.3.1"
+        "grunt-contrib-less": "0.3.1",
+        "grunt-hogan": "0.1.0-4"
     }
 }

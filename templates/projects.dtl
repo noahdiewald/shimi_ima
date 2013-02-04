@@ -18,7 +18,7 @@
 <div id="projects-container" class="ui-widget ui-corner-all">
   
   <table id="projects-table" class="ui-widget ui-corner-all">
-    <thead class="ui-widget-header">
+    <thead class="header">
       <tr>
         <th>Project Name</th>
         <th>Project Description</th>

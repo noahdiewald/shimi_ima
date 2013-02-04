@@ -17,21 +17,30 @@
     <input type="text" id="edit-command-input" autocomplete="off" name="edit-command-input">
   </form>
 </div>
+<div class="hidden dialog" id="new-set-dialog" title="New Set">
+  <form id="new-set-form">
+    <input type="hidden" id="new-set-target-input" name="new-set-target-input" />
+    <label for="new-set-input">Set Name</label>
+    <input type="text" id="new-set-input" autocomplete="off" name="new-set-input" />
+    <a id="new-set-save-button" class="link-button">Save</a>
+    <a class="link-button cancel-dialog" data-dialog="new-set-dialog">Cancel</a>
+  </form>
+</div>
 {% endblock %}
     
 {% block main_content %}
 
 <div id="panel-toggle">
   <ul>
-    <li data-panel="document-index">Index</li>
+    <li data-panel="document-sets">Sets</li>
     <li data-panel="document-search">Search</li>
+    <li data-panel="document-index">Index</li>
     <li data-panel="document-view">View</li>
     <li data-panel="document-edit">Edit</li>
   </ul>
 </div>
 
-<div class="ui-widget ui-corner-all" 
-     data-project-id="{{ project_info._id }}" 
+<div data-project-id="{{ project_info._id }}" 
      id="container">
   
   <div 
@@ -40,9 +49,34 @@
      data-document-version="{{ doctype_info._rev }}"
      data-group-id="document-view-info"
      id="all-document-container">
+    
+    <div class="hidden panel" id="document-sets">
+      <h2 class="header">Sets</h2>
+      <form id="document-sets-form">
+        <label for="document-set-a-input">Set A</label>
+        <select name="document-set-a-input" id="document-set-a-input"></select><br/>
+        <label for="document-set-b-input">Set B</label>
+        <select name="document-set-b-input" id="document-set-b-input"></select><br/>
+        <label for="document-set-operation-input">Operation</label>
+        <select name="document-set-operation-input" id="document-set-operation-input">
+          <option></option>
+          <option value="view-a">View A</option>
+          <option value="view-b">View B</option>
+          <option value="remove-a">Remove A</option>
+          <option value="remove-b">Remove B</option>
+          <option value="union">Union</option>
+          <option value="intersection">Intersection</option>
+          <option value="symetric-difference">Symetric Difference</option>
+          <option value="relative-complement-b-in-a">Relative Complement of B in A</option>
+          <option value="relative-complement-a-in-b">Relative Complement of A in B</option>
+        </select>
+      </form>
+      <div id="set-listing">
+      </div>
+    </div>
 
-    <div class="ui-widget panel hidden" id="document-search">
-      <h2 class="ui-widget ui-widget-header">Search</h2>
+    <div class="hidden panel" id="document-search">
+      <h2 class="header">Search</h2>
       <form id="document-search-form">
         <div id="search-all-fields-switch" class="hidden">
           <a href="#">Search All Fields</a><br />
@@ -70,8 +104,8 @@
       <div id="search-listing"></div>
     </div>
 
-    <div class="ui-widget panel" id="document-index">
-      <h2 class="ui-widget ui-widget-header">{{ doctype_info._id|escape }} Index</h2>
+    <div class="panel" id="document-index">
+      <h2 class="header">{{ doctype_info._id|escape }} Index</h2>
   
       <form id="index-filter-form">
         <label id="index-index-input-label" 
@@ -85,11 +119,11 @@
       <div id="index-listing"></div>
     </div>
     
-    <div class="ui-widget panel" id="document-view">
+    <div class="panel" id="document-view">
       {% include "document_view_header.dtl" %}
     </div>
     
-    <div class="ui-widget panel" id="document-edit">
+    <div class="panel" id="document-edit">
     </div>
     
   </div>
