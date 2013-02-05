@@ -2973,15 +2973,6 @@ shimi.iui = (function () {
 
   return mod;
 })();
-shimi.setsui = function () {
-  var mod = {};
-
-  mod.updateSelection = function () {
-    return mod;
-  };
-
-  return mod;
-};
 shimi.setsui = (function () {
   var mod = {};
   var sets = shimi.sets;
