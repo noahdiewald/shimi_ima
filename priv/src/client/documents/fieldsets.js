@@ -201,15 +201,15 @@ shimi.fieldsets = (function () {
     });
   };
 
-  var loadLabels = function (doctype, url) {
+  var loadLabels = function (project, doctype, url) {
     $.getJSON(url, function (data) {
-      sessionStorage.setItem(doctype + "_labels", JSON.stringify(data));
+      sessionStorage.setItem(project + "_" + doctype + "_labels", JSON.stringify(data));
     });
   };
 
-  var loadDoctype = function (doctype) {
+  var loadDoctype = function (project, doctype) {
     $.getJSON("./", function (data) {
-      sessionStorage.setItem(doctype + "_info", JSON.stringify(data));
+      sessionStorage.setItem(project + "_" + doctype + "_info", JSON.stringify(data));
     });
   };
 
@@ -291,6 +291,7 @@ shimi.fieldsets = (function () {
     var container = $("#create-document-button");
     var s = store(container);
     var doctype = s.d("doctype");
+    var project = store($("#container")).get("project-id");
     var versionKey = doctype + "_version";
     var oldVersion = sessionStorage.getItem(versionKey);
     var curVersion = s.d("version");
@@ -298,8 +299,8 @@ shimi.fieldsets = (function () {
     if (oldVersion !== curVersion) {
       sessionStorage.clear();
       var labelsUrl = shimi.path(container, "fieldset").toString();
-      loadDoctype(doctype);
-      loadLabels(doctype, labelsUrl);
+      loadDoctype(project, doctype);
+      loadLabels(project, doctype, labelsUrl);
     }
 
     sessionStorage.setItem(versionKey, curVersion);

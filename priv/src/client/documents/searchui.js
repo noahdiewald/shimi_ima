@@ -34,6 +34,12 @@ shimi.searchui = (function () {
   var getDoctype = function () {
     return shimi.store($("#all-document-container")).d("doctype");
   };
+  var getProject = function () {
+    return shimi.store($("#container")).get("project-id");
+  };
+  var getIdentifier = function () {
+    return getProject() + "_" + getDoctype();
+  };
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
   var indexVal = function () {
@@ -54,11 +60,12 @@ shimi.searchui = (function () {
   };
 
   var clearStore = function () {
-    localStorage.setItem("searchIndex", null);
-    localStorage.setItem("searchIndexLabel", null);
-    localStorage.setItem("searchFields", null);
-    localStorage.setItem("searchExclude", null);
-    localStorage.setItem("searchInvert", null);
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchIndex", null);
+    localStorage.setItem(ident + "_searchIndexLabel", null);
+    localStorage.setItem(ident + "_searchFields", null);
+    localStorage.setItem(ident + "_searchExclude", null);
+    localStorage.setItem(ident + "_searchInvert", null);
   };
 
   var clearVals = function () {
@@ -91,8 +98,8 @@ shimi.searchui = (function () {
   };
 
   var fieldLabels = function () {
-    var doctype = getDoctype();
-    var fieldlabels = JSON.parse(sessionStorage.getItem(doctype + "_labels"));
+    var ident = getIdentifier();
+    var fieldlabels = JSON.parse(sessionStorage.getItem(ident + "_labels"));
     return fieldlabels;
   };
 
@@ -107,9 +114,10 @@ shimi.searchui = (function () {
     var fLabels = fieldLabels();
     var jFields = JSON.stringify(fields);
     var sfls = searchFieldsLabel();
+    var ident = getIdentifier();
 
     searchFields().val(jFields);
-    localStorage.setItem("searchFields", jFields);
+    localStorage.setItem(ident + "_searchFields", jFields);
 
     var linkLabels = fields.map(function (x) {
       return searchFieldItem(x, fLabels[x].join(": "));
@@ -134,9 +142,10 @@ shimi.searchui = (function () {
   };
 
   mod.singleFieldInverse = function (fields) {
+    var ident = getIdentifier();
     mod.singleField(fields);
     searchInvert().attr('checked', true);
-    localStorage.setItem("searchInvert", true);
+    localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
 
@@ -150,20 +159,22 @@ shimi.searchui = (function () {
   };
 
   mod.excludedFields = function (fields) {
+    var ident = getIdentifier();
     if (fields.length > 1) {
       mod.multipleFields(fields);
     } else {
       mod.singleField(fields);
     }
     searchExclude().attr('checked', true);
-    localStorage.setItem("searchExclude", true);
+    localStorage.setItem(ident + "_searchExclude", true);
     return mod;
   };
 
   mod.indexOnly = function (index, indexLabel) {
+    var ident = getIdentifier();
     mod.allFields();
-    localStorage.setItem("searchIndex", index);
-    localStorage.setItem("searchIndexLabel", indexLabel);
+    localStorage.setItem(ident + "_searchIndex", index);
+    localStorage.setItem(ident + "_searchIndexLabel", indexLabel);
     searchIndex().val(index);
     searchIndexLabel().html(indexLabel);
     [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
@@ -173,9 +184,10 @@ shimi.searchui = (function () {
   };
 
   mod.indexInverse = function (index, indexLabel) {
+    var ident = getIdentifier();
     mod.indexOnly(index, indexLabel);
     searchInvert().attr('checked', true);
-    localStorage.setItem("searchInvert", true);
+    localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
 
@@ -228,7 +240,8 @@ shimi.searchui = (function () {
   };
 
   mod.removeField = function (t) {
-    var searchFields = localStorage.getItem("searchFields");
+    var ident = getIdentifier();
+    var searchFields = localStorage.getItem(ident + "_searchFields");
     var newSearchFields;
     var fields = JSON.parse(searchFields);
     var newFields;
@@ -239,8 +252,8 @@ shimi.searchui = (function () {
         return x !== id;
       });
       newSearchFields = JSON.stringify(newFields);
-      localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
-      localStorage.setItem("searchIndex", null);
+      localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
+      localStorage.setItem(ident + "_searchIndex", null);
       mod.loadSearchVals();
     }
 
@@ -248,7 +261,8 @@ shimi.searchui = (function () {
   };
 
   mod.addField = function (t) {
-    var searchFields = localStorage.getItem("searchFields");
+    var ident = getIdentifier();
+    var searchFields = localStorage.getItem(ident + "_searchFields");
     var newSearchFields;
     var fields = JSON.parse(searchFields);
     var newFields;
@@ -260,8 +274,8 @@ shimi.searchui = (function () {
 
     newFields = fields.concat(id);
     newSearchFields = JSON.stringify(newFields);
-    localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
-    localStorage.setItem("searchIndex", null);
+    localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
+    localStorage.setItem(ident + "_searchIndex", null);
     mod.loadSearchVals();
 
     return mod;
@@ -269,11 +283,12 @@ shimi.searchui = (function () {
 
   mod.addIndex = function () {
     var val = indexVal();
+    var ident = getIdentifier();
 
     if (val) {
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchIndex", val);
-      localStorage.setItem("searchIndexLabel", $("option[value=" + val + "]").html());
+      localStorage.setItem(ident + "_searchFields", null);
+      localStorage.setItem(ident + "_searchIndex", val);
+      localStorage.setItem(ident + "_searchIndexLabel", $("option[value=" + val + "]").html());
       mod.loadSearchVals();
     }
 
@@ -281,26 +296,29 @@ shimi.searchui = (function () {
   };
 
   mod.toggleInversion = function () {
-    localStorage.setItem("searchInvert", maybeTrue(searchInvert().is(":checked")));
-    localStorage.setItem("searchExclude", null);
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchInvert", maybeTrue(searchInvert().is(":checked")));
+    localStorage.setItem(ident + "_searchExclude", null);
     mod.loadSearchVals();
 
     return mod;
   };
 
   mod.toggleExclusion = function () {
-    localStorage.setItem("searchExclude", maybeTrue(searchExclude().is(":checked")));
-    localStorage.getItem("searchInvert", null);
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchExclude", maybeTrue(searchExclude().is(":checked")));
+    localStorage.getItem(ident + "_searchInvert", null);
     mod.loadSearchVals();
 
     return mod;
   };
 
   mod.loadSearchVals = function () {
-    var exclude = localStorage.getItem("searchExclude");
-    var invert = localStorage.getItem("searchInvert");
-    var index = localStorage.getItem("searchIndex");
-    var fieldids = localStorage.getItem("searchFields");
+    var ident = getIdentifier();
+    var exclude = localStorage.getItem(ident + "_searchExclude");
+    var invert = localStorage.getItem(ident + "_searchInvert");
+    var index = localStorage.getItem(ident + "_searchIndex");
+    var fieldids = localStorage.getItem(ident + "_searchFields");
     var fields;
     var indexLabel;
     var params = [exclude, invert, index, fieldids].map(function (x) {
@@ -331,10 +349,10 @@ shimi.searchui = (function () {
           mod.singleFieldInverse(fields);
         }
       } else if (params[1] === null) {
-        indexLabel = localStorage.getItem("searchIndexLabel");
+        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
         mod.indexOnly(index, indexLabel);
       } else if (params[1] === true) {
-        indexLabel = localStorage.getItem("searchIndexLabel");
+        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
         mod.indexInverse(index, indexLabel);
       }
     } catch (e) {
