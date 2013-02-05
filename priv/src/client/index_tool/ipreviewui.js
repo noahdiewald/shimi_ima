@@ -1,4 +1,4 @@
-shimi.piui = (function () {
+shimi.ipreviewui = (function () {
   var mod = {};
   var index = shimi.index;
 

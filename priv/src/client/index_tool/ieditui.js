@@ -146,7 +146,7 @@ shimi.ieditui = (function () {
     $.get(url, function (indexData) {
       htmlTarget.html(indexData);
       tableBody().sortable();
-      shimi.piui.get();
+      shimi.ipreviewui.get();
     });
 
     return false;
