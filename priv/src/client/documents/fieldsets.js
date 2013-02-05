@@ -207,8 +207,8 @@ shimi.fieldsets = (function () {
     });
   };
 
-  var loadDoctype = function (doctype, url) {
-    $.getJSON(url, function (data) {
+  var loadDoctype = function (doctype) {
+    $.getJSON("./", function (data) {
       sessionStorage.setItem(doctype + "_info", JSON.stringify(data));
     });
   };
@@ -298,8 +298,7 @@ shimi.fieldsets = (function () {
     if (oldVersion !== curVersion) {
       sessionStorage.clear();
       var labelsUrl = shimi.path(container, "fieldset").toString();
-      var doctypeUrl = shimi.path(container, "doctype") + "/" + doctype;
-      loadDoctype(doctype, doctypeUrl);
+      loadDoctype(doctype);
       loadLabels(doctype, labelsUrl);
     }
 
