@@ -1,5 +1,5 @@
 // Edit pane UI elements
-shimi.eui = (function () {
+shimi.editui = (function () {
   var mod = {};
 
   // Imports

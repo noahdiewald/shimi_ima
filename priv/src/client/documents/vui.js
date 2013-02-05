@@ -156,7 +156,7 @@ shimi.vui = (function (args) {
   };
 
   mod.edit = function () {
-    shimi.eui.resetFields();
+    shimi.editui.resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {

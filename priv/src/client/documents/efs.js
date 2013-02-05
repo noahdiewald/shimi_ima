@@ -154,7 +154,7 @@ shimi.efs = (function () {
         callback(section);
       }
 
-      shimi.eui.afterFreshRefresh();
+      shimi.editui.afterFreshRefresh();
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -321,7 +321,7 @@ shimi.efs = (function () {
       }
     });
 
-    shimi.eui.afterEditRefresh();
+    shimi.editui.afterEditRefresh();
 
     return mod;
   };

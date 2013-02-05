@@ -56,7 +56,7 @@ shimi.dblclickDispatch = function (e) {
 shimi.clickDispatch = function (e) {
   var doctypeTab = shimi.doctypeTab;
   var charseqTab = shimi.charseqTab;
-  var eui = shimi.eui;
+  var editui = shimi.editui;
   var vui = shimi.vui;
   var iui = shimi.iui;
   var setsui = shimi.setsui;
@@ -120,19 +120,19 @@ shimi.clickDispatch = function (e) {
       efs.removeFieldset(t);
     },
     "#save-document-button": function (t) {
-      eui.save();
+      editui.save();
     },
     "#create-document-button": function (t) {
-      eui.create();
+      editui.create();
     },
     "#clear-document-button": function (t) {
-      eui.clear();
+      editui.clear();
     },
     ".expander": function (t) {
-      eui.toggleTextarea(t);
+      editui.toggleTextarea(t);
     },
     "label span.ui-icon-help": function (t) {
-      eui.showHelpDialog(t);
+      editui.showHelpDialog(t);
     },
     "#document-edit-button": function (t) {
       vui.edit(t);
