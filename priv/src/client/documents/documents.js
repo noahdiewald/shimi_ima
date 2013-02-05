@@ -1,6 +1,6 @@
 shimi.loadHash = function (urlHash) {
   if (urlHash) {
-    shimi.vui.get(urlHash);
+    shimi.viewui.get(urlHash);
   }
   return false;
 };
@@ -12,7 +12,7 @@ shimi.jumpForm = function () {
   $('#view-jump-id').live("keypress", function (e) {
     if (e.which === 13) {
       var docid = $('#view-jump-id').val();
-      shimi.vui.get(docid);
+      shimi.viewui.get(docid);
     }
     return true;
   });

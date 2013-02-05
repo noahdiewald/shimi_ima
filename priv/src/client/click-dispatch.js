@@ -57,7 +57,7 @@ shimi.clickDispatch = function (e) {
   var doctypeTab = shimi.doctypeTab;
   var charseqTab = shimi.charseqTab;
   var editui = shimi.editui;
-  var vui = shimi.vui;
+  var viewui = shimi.viewui;
   var indexiu = shimi.indexiu;
   var setsui = shimi.setsui;
   var sui = shimi.sui;
@@ -135,19 +135,19 @@ shimi.clickDispatch = function (e) {
       editui.showHelpDialog(t);
     },
     "#document-edit-button": function (t) {
-      vui.edit(t);
+      viewui.edit(t);
     },
     "#document-delete-button": function (t) {
-      vui.confirmDelete();
+      viewui.confirmDelete();
     },
     "#document-restore-button": function (t) {
-      vui.confirmRestore();
+      viewui.confirmRestore();
     },
     "#document-view-tree > ul > li > b": function (t) {
-      vui.collapseToggle(t);
+      viewui.collapseToggle(t);
     },
     ".revision-link": function (t) {
-      vui.fetchRevision(t);
+      viewui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
       sui.allFields();

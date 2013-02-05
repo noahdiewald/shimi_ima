@@ -1,5 +1,5 @@
 // View pane UI elements
-shimi.vui = (function (args) {
+shimi.viewui = (function (args) {
   var mod = {};
   var dv = function () {
     return $("#document-view");
