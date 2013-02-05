@@ -211,7 +211,7 @@ shimi.ieditui = (function () {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function () {
         $('#index-conditions').empty();
-        shimi.iiui.init();
+        shimi.ilistingui.init();
       };
 
       if (window.confirm("Are you sure?")) {

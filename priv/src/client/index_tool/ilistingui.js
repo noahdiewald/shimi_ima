@@ -1,4 +1,4 @@
-shimi.iiui = (function () {
+shimi.ilistingui = (function () {
   var mod = {};
 
   mod.init = function () {

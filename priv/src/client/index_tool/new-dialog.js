@@ -56,7 +56,7 @@ shimi.initIndexNewDialog = function () {
             "fields": [indexField.val()]
           },
               complete = function (context) {
-              shimi.iiui.init();
+              shimi.ilistingui.init();
               $(context).dialog("close");
               };
           shimi.form.send("indexes", obj, 'POST', complete, this);

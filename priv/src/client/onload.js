@@ -73,7 +73,7 @@ $(function () {
 
   // Index Tool
   if ($('#all-index-container').length > 0) {
-    shimi.iiui.init();
+    shimi.ilistingui.init();
   }
 
   // Project
