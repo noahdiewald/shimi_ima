@@ -33,13 +33,13 @@ shimi.setForm = function () {
 };
 
 shimi.searchForm = function () {
-  shimi.sui.loadSearchVals();
+  shimi.searchui.loadSearchVals();
   $('#document-search-form').on("submit", function () {
     return false;
   });
   $('#document-search-term').on("keydown", function (e) {
     if (e.which === 13) {
-      shimi.sui.getSearch();
+      shimi.searchui.getSearch();
       return false;
     }
     return true;

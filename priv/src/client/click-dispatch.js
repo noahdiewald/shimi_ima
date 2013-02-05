@@ -30,20 +30,20 @@ shimi.dispatcher = function (patterns) {
 };
 
 shimi.dblclickDispatch = function (e) {
-  var sui = shimi.sui;
+  var searchui = shimi.searchui;
 
   var action = shimi.dispatcher({
     ".search-result-field-id a": function (t) {
-      sui.addField($(t).parent("h5"));
+      searchui.addField($(t).parent("h5"));
     },
     ".field-view b": function (t) {
-      sui.addField($(t).parent("li"));
+      searchui.addField($(t).parent("li"));
     },
     ".field-container label span": function (t) {
-      sui.addField($(t).parent("label").parent("div"));
+      searchui.addField($(t).parent("label").parent("div"));
     },
     "#index-index-input-label": function () {
-      sui.addIndex();
+      searchui.addIndex();
     },
     ".panel > h2": function (t) {
       shimi.panelToggle.toggler(t);
@@ -60,7 +60,7 @@ shimi.clickDispatch = function (e) {
   var viewui = shimi.viewui;
   var indexiu = shimi.indexiu;
   var setsui = shimi.setsui;
-  var sui = shimi.sui;
+  var searchui = shimi.searchui;
   var efs = shimi.efs;
   var ieui = shimi.ieui;
   var form = shimi.form;
@@ -150,19 +150,19 @@ shimi.clickDispatch = function (e) {
       viewui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
-      sui.allFields();
+      searchui.allFields();
     },
     ".search-field-item": function (t) {
-      sui.removeField(t);
+      searchui.removeField(t);
     },
     "#document-search-exclude": function () {
-      sui.toggleExclusion();
+      searchui.toggleExclusion();
     },
     "#document-search-invert": function () {
-      sui.toggleInversion();
+      searchui.toggleInversion();
     },
     ".select-results": function (t) {
-      sui.toggleSelection(t);
+      searchui.toggleSelection(t);
     },
     "#save-search-results a": function () {
       $("#new-set-target-input").val("search");

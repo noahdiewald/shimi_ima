@@ -1,4 +1,4 @@
-shimi.sui = (function () {
+shimi.searchui = (function () {
   var mod = {};
   var utils = shimi.utils();
   var sets = shimi.sets;
