@@ -1,4 +1,4 @@
-shimi.ieui = (function () {
+shimi.ieditui = (function () {
   var mod = {};
 
   var tableBody = function () {

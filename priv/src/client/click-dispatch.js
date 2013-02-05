@@ -62,7 +62,7 @@ shimi.clickDispatch = function (e) {
   var setsui = shimi.setsui;
   var searchui = shimi.searchui;
   var fieldsets = shimi.fieldsets;
-  var ieui = shimi.ieui;
+  var ieditui = shimi.ieditui;
   var form = shimi.form;
   var projectui = shimi.projectui;
   var fm = shimi.fm;
@@ -184,25 +184,25 @@ shimi.clickDispatch = function (e) {
 
     // Index Tool
     "#new-index-button": function (t) {
-      ieui.newCond();
+      ieditui.newCond();
     },
     ".remove-condition-button": function (t) {
-      ieui.remCond(t);
+      ieditui.remCond(t);
     },
     "#delete-index-button": function (t) {
-      ieui.del();
+      ieditui.del();
     },
     "#save-index-button": function (t) {
-      ieui.save();
+      ieditui.save();
     },
     "#replace-button": function (t) {
-      ieui.replace();
+      ieditui.replace();
     },
     "#add-index-condition-button": function (t) {
-      ieui.addCond();
+      ieditui.addCond();
     },
     "#index-index-listing ul li a": function (t) {
-      ieui.init(t);
+      ieditui.init(t);
     },
 
     // Project
