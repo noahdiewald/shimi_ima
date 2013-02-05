@@ -201,9 +201,15 @@ shimi.fieldsets = (function () {
     });
   };
 
-  var loadLabels = function (url) {
+  var loadLabels = function (doctype, url) {
     $.getJSON(url, function (data) {
-      sessionStorage.setItem("lables", JSON.stringify(data));
+      sessionStorage.setItem(doctype + "_labels", JSON.stringify(data));
+    });
+  };
+
+  var loadDoctype = function (doctype, url) {
+    $.getJSON(url, function (data) {
+      sessionStorage.setItem(doctype + "_info", JSON.stringify(data));
     });
   };
 
@@ -291,8 +297,10 @@ shimi.fieldsets = (function () {
 
     if (oldVersion !== curVersion) {
       sessionStorage.clear();
-      var url = shimi.path(container, "fieldset").toString();
-      loadLabels(url);
+      var labelsUrl = shimi.path(container, "fieldset").toString();
+      var doctypeUrl = shimi.path(container, "doctype") + "/" + doctype;
+      loadDoctype(doctype, doctypeUrl);
+      loadLabels(doctype, labelsUrl);
     }
 
     sessionStorage.setItem(versionKey, curVersion);

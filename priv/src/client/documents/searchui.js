@@ -31,6 +31,9 @@ shimi.searchui = (function () {
   var searchListing = function () {
     return $('#search-listing');
   };
+  var getDoctype = function () {
+    return shimi.store($("#all-document-container")).d("doctype");
+  };
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
   var indexVal = function () {
@@ -88,8 +91,9 @@ shimi.searchui = (function () {
   };
 
   var fieldLabels = function () {
-    var fieldlables = JSON.parse(sessionStorage.getItem("lables"));
-    return fieldlables;
+    var doctype = getDoctype();
+    var fieldlabels = JSON.parse(sessionStorage.getItem(doctype + "_labels"));
+    return fieldlabels;
   };
 
   var searchFieldItem = function (field, fieldLabel) {
