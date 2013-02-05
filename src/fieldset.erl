@@ -28,6 +28,7 @@
          from_json/1,
          from_json/2,
          set_sortkeys/3,
+         to_json/1,
          to_json/2
         ]).
 
@@ -92,8 +93,9 @@ from_json(doc, Json) ->
 
 %% @doc Convert a jsn:json_term() fieldset within a document to a
 %% fieldset() record.
--spec from_json(Json :: jsn:json_term()) -> fieldset().
+-spec from_json(jsn:json_term()) -> fieldset().
 from_json(Json) ->
+    Fields = lists:map(fun field:from_json/1, jsn:get_value(<<"fields">>, Json)),
     #fieldset{
            id = jsn:get_value(<<"_id">>, Json),
            rev = jsn:get_value(<<"_rev">>, Json),
@@ -104,8 +106,25 @@ from_json(Json) ->
            name = jsn:get_value(<<"name">>, Json),
            order = jsn:get_value(<<"order">>, Json),
            multiple = jsn:get_value(<<"multiple">>, Json),
-           collapse = jsn:get_value(<<"collapse">>, Json)
+           collapse = jsn:get_value(<<"collapse">>, Json),
+           fields = Fields
           }.
+
+%% @doc Convert a fieldset() record to a jsn:json_term().
+-spec to_json(fieldset()) -> jsn:json_term().
+to_json(FS) ->
+    Fields = [field:to_json(X) || X <- FS#fieldset.fields],
+    [{<<"_id">>, FS#fieldset.id},
+     {<<"_rev">>, FS#fieldset.rev},
+     {<<"category">>, <<"fieldset">>},
+     {<<"description">>, FS#fieldset.description},
+     {<<"doctype">>, FS#fieldset.doctype},
+     {<<"name">>, FS#fieldset.name},
+     {<<"label">>, FS#fieldset.label},
+     {<<"order">>, FS#fieldset.order},
+     {<<"multiple">>, FS#fieldset.multiple},
+     {<<"collapse">>, FS#fieldset.collapse},
+     {<<"fields">>, Fields}].
 
 %% @doc Convert a docfieldset() record within a document to a
 %% jsn:json_term() fieldset.

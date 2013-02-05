@@ -100,14 +100,16 @@
           name :: bstring(),
           order :: integer(),
           multiple :: boolean(),
-          collapse :: boolean()
+          collapse :: boolean(),
+          fields :: [field()]
          }).
 
 -record(doctype, {
           id :: doctypeid(),
           rev :: rev(),
           category :: doctype,
-          description :: text()
+          description :: text(),
+          fieldsets :: [fieldset()]
          }).
 
 -record(docfield, {

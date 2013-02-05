@@ -122,7 +122,7 @@ json_create(R, S) ->
     Json1 = document:set_sortkeys(Json, R, S),
     % Normalization assumes a complete record, which would normally
     % contain a revision
-    NormJson = jsn:delete_value(<<"_rev">>, document:normalize(Json1)),
+    NormJson = jsn:delete_value(<<"_rev">>, document:normalize(doc, Json1)),
     case couch:create(NormJson, h:project(R), S) of
         {ok, created} -> 
             bump_deps(R, S),
@@ -196,14 +196,14 @@ html_search(R, S) ->
 html_document(R, S) ->
     {ok, OrigJson} = h:id_data(R, [{revs_info, true}|S]),
     RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
-    NormJson = document:normalize(OrigJson),
+    NormJson = document:normalize(doc, OrigJson),
     Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ h:basic_info("", "", R, S),
     {ok, Html} = render:render(document_view_dtl, Vals),
     Html.
 
 html_revision(R, S) ->
     {ok, Data} = h:rev_data(R, S),
-    Requested = document:normalize(Data),
+    Requested = document:normalize(doc, Data),
     Prev = case h:id_data(R, S) of
                {ok, Curr} ->
                    CurrRev = jsn:get_value(<<"_rev">>, Curr),

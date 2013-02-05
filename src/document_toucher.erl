@@ -156,9 +156,9 @@ me(Doctype) ->
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.project, S#state.wm_state),
-    Doc = document:from_json(Json),
+    Doc = document:from_json(doc, Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
-    Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
+    Doc2 = document:to_json(doc, Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
     case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
         {ok, updated} ->

@@ -31,6 +31,7 @@
          meta_field/1,
          meta_options/0,
          set_sortkeys/3,
+         to_json/1,
          to_json/2,
          unconvert_value/2
         ]).
@@ -107,7 +108,7 @@ set_sortkeys(Fields, Project, S) ->
     set_sortkeys(Fields, [], Project, S).
 
 %% @doc Convert a jsn:json_term() field to a field()
--spec from_json(Json :: jsn:json_term()) -> docfield().
+-spec from_json(jsn:json_term()) -> docfield().
 from_json(Json) ->
     Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
     #field{

@@ -1,26 +1,24 @@
-%% @author Noah Diewald <noah@diewald.me>
-%% @copyright 2010 University of Wisconsin Madison Board of Regents.
-%% Copyright (c) 2010 University of Wisconsin Madison Board of Regents
-%%
-%% Permission is hereby granted, free of charge, to any person obtaining
-%% a copy of this software and associated documentation files (the
-%% "Software"), to deal in the Software without restriction, including
-%% without limitation the rights to use, copy, modify, merge, publish,
-%% distribute, sublicense, and/or sell copies of the Software, and to
-%% permit persons to whom the Software is furnished to do so, subject to
-%% the following conditions:
-%%
-%% The above copyright notice and this permission notice shall be included
-%% in all copies or substantial portions of the Software.
-%%
-%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-%% EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-%% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-%% NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-%% DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-%% OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-%% THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-%% @doc Dictionary Maker main resource 
+%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%%
+%%% This file is part of dictionary_maker.
+%%%
+%%% dictionary_maker is free software: you can redistribute it and/or modify
+%%% it under the terms of the GNU General Public License as published by
+%%% the Free Software Foundation, either version 3 of the License, or
+%%% (at your option) any later version.
+%%%
+%%% dictionary_maker is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%%% GNU General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+
+%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @version {@version}
+%%% @author Noah Diewald <noah@diewald.me>
+%%% @doc Dictionary Maker main resource 
 
 -module(doctype_resource).
 
@@ -30,7 +28,8 @@
   content_types_provided/2,
   init/1, 
   is_authorized/2,
-  to_html/2
+  to_html/2,
+  to_json/2
 ]).
 
 % Custom
@@ -45,19 +44,30 @@
 init(Opts) -> {ok, Opts}.
 
 is_authorized(R, S) ->
-  proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+    proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-  {['HEAD', 'GET'], R, S}.
+    {['HEAD', 'GET'], R, S}.
 
 content_types_provided(R, S) ->
-    {[{"text/html", to_html}], R, S}.
-  
+    case proplists:get_value(target, S) of
+        index -> {[{"text/html", to_html}], R, S};
+        identifier -> {[{"*/*", to_json}], R, S}
+    end.
+
 to_html(R, S) ->
-  {html_index(R, S), R, S}.
+    {html_index(R, S), R, S}.
+  
+to_json(R, S) ->
+    S1 = [{project, h:project(R)}, {doctype, h:doctype(R)}|S],
+    {json_doctype(R, S1), R, S1}.
   
 % Helpers
-  
+
+json_doctype(R, S) ->
+    {ok, DocData} = h:doctype_data(R, S),
+    jsn:encode(document:normalize(DocData, S)).
+
 html_index(R, S) ->
     User = proplists:get_value(user, S),
     {ok, ProjectData} = h:project_data(R, S),
@@ -82,6 +92,8 @@ validate_authentication(Props, R, S) ->
     case {Target, Normal, Admin} of
         {index, true, _} -> {true, R, S};
         {index, false, _} -> {proplists:get_value(auth_head, S), R, S};
+        {identifier, true, _} -> {true, R, S};
+        {identifier, false, _} -> {proplists:get_value(auth_head, S), R, S};
         {touch, _, true} -> {true, R, S};
         {touch, _, false} -> {proplists:get_value(auth_head, S), R, S}
     end.
