@@ -1,4 +1,4 @@
-shimi.efs = (function () {
+shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;
   var utils = shimi.utils();

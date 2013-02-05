@@ -162,7 +162,7 @@ shimi.viewui = (function (args) {
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    shimi.efs.fillFieldsets();
+    shimi.fieldsets.fillFieldsets();
 
     return mod;
   };

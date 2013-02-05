@@ -183,7 +183,7 @@ shimi.editui = (function () {
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
       keyboard();
-      shimi.efs.initFieldsets();
+      shimi.fieldsets.initFieldsets();
     });
 
     return mod;
@@ -260,7 +260,7 @@ shimi.editui = (function () {
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     $.ajax({
       type: "PUT",
@@ -303,7 +303,7 @@ shimi.editui = (function () {
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     createButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     var postUrl = $.ajax({
       type: "POST",
@@ -319,7 +319,7 @@ shimi.editui = (function () {
 
           saveButton().hide().attr('disabled', 'true');
           $('.fields').remove();
-          shimi.efs.initFieldsets();
+          shimi.fieldsets.initFieldsets();
           shimi.viewui.get(documentId);
           shimi.indexiu.get(skey, sid);
           flash(title, body).highlight();
@@ -336,7 +336,7 @@ shimi.editui = (function () {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled', 'disabled');
     $('.fields').remove();
-    shimi.efs.initFieldsets();
+    shimi.fieldsets.initFieldsets();
   };
 
   mod.showHelpDialog = function (target) {

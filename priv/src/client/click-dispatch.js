@@ -61,7 +61,7 @@ shimi.clickDispatch = function (e) {
   var indexiu = shimi.indexiu;
   var setsui = shimi.setsui;
   var searchui = shimi.searchui;
-  var efs = shimi.efs;
+  var fieldsets = shimi.fieldsets;
   var ieui = shimi.ieui;
   var form = shimi.form;
   var pui = shimi.pui;
@@ -114,10 +114,10 @@ shimi.clickDispatch = function (e) {
 
     // Documents
     ".add-button": function (t) {
-      efs.initFieldset(t);
+      fieldsets.initFieldset(t);
     },
     ".remove-button": function (t) {
-      efs.removeFieldset(t);
+      fieldsets.removeFieldset(t);
     },
     "#save-document-button": function (t) {
       editui.save();
