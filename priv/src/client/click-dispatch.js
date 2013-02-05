@@ -58,7 +58,7 @@ shimi.clickDispatch = function (e) {
   var charseqTab = shimi.charseqTab;
   var editui = shimi.editui;
   var vui = shimi.vui;
-  var iui = shimi.iui;
+  var indexiu = shimi.indexiu;
   var setsui = shimi.setsui;
   var sui = shimi.sui;
   var efs = shimi.efs;
@@ -179,7 +179,7 @@ shimi.clickDispatch = function (e) {
       setsui.toggleSelectAll(t);
     },
     ".view-document-link": function (t) {
-      iui.load(t);
+      indexiu.load(t);
     },
 
     // Index Tool

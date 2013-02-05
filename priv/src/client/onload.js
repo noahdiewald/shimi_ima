@@ -19,7 +19,7 @@ $(function () {
   if ($('#all-document-container').length > 0) {
     var getIndexTimer;
 
-    shimi.iui.iOpts().get();
+    shimi.indexiu.iOpts().get();
     shimi.jumpForm();
     shimi.searchForm();
     shimi.setForm();
@@ -31,7 +31,7 @@ $(function () {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
         if (e.which !== 8 && e.which !== 46) {
-          shimi.iui.get();
+          shimi.indexiu.get();
         }
       }, 500);
     });
@@ -39,7 +39,7 @@ $(function () {
     $('#index-filter-form select').change(
 
     function () {
-      shimi.iui.get();
+      shimi.indexiu.get();
     });
 
     shimi.loadHash($(location)[0].hash.split("#")[1]);

@@ -1,4 +1,4 @@
-shimi.iui = (function () {
+shimi.indexiu = (function () {
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;

@@ -78,7 +78,7 @@ shimi.vui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.iui.get(skey, sid);
+            shimi.indexiu.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -124,7 +124,7 @@ shimi.vui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.iui.get(skey, sid);
+          shimi.indexiu.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);

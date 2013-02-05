@@ -274,7 +274,7 @@ shimi.editui = (function () {
           title = "Success";
           body = "Your document was saved.";
           shimi.vui.get(document);
-          shimi.iui.get(skey, sid);
+          shimi.indexiu.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -321,7 +321,7 @@ shimi.editui = (function () {
           $('.fields').remove();
           shimi.efs.initFieldsets();
           shimi.vui.get(documentId);
-          shimi.iui.get(skey, sid);
+          shimi.indexiu.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {
