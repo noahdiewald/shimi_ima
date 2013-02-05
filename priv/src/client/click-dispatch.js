@@ -64,7 +64,7 @@ shimi.clickDispatch = function (e) {
   var fieldsets = shimi.fieldsets;
   var ieui = shimi.ieui;
   var form = shimi.form;
-  var pui = shimi.pui;
+  var projectui = shimi.projectui;
   var fm = shimi.fm;
 
   var action = shimi.dispatcher({
@@ -207,10 +207,10 @@ shimi.clickDispatch = function (e) {
 
     // Project
     "#create-project": function () {
-      pui.add().dialog("open");
+      projectui.add().dialog("open");
     },
     ".project-delete-button": function (t) {
-      pui.del(t);
+      projectui.del(t);
     },
 
     // File Manager

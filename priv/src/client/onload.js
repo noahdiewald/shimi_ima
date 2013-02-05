@@ -78,6 +78,6 @@ $(function () {
 
   // Project
   if ($('#projects-container').length > 0) {
-    shimi.pui.init();
+    shimi.projectui.init();
   }
 });
