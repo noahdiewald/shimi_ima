@@ -1,7 +1,3 @@
-/*
-  This module largely deals with operations on fields and fieldsets
-  related to simple one at a time editing.
-*/
 shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;

@@ -1,5 +1,5 @@
 <div class="total-rows-info">
-  <b>Total</b>: <span id="total-set-rows"><%- total %></span>
+  <b>Total</b>: <span id="total-set-rows">{{ total }}</span>
 </div>
 <div id="save-set-results">
   <a href="#">(Save Selected)</a>
@@ -16,15 +16,15 @@
     </tr>
   </thead>
   <tbody>
-    <% _.each(elements, function(elem) { %>
+    {{#elements}}
     <tr>
       <td>
         <input type="checkbox" class="set-element-selection" title="Click to select element" />
       </td>
       <td>
-        <a class="view-document-link" href="#<%- elem.id %>"><%- elem.context %></a>
+        <a class="view-document-link" href="#{{ id }}">{{ context }}</a>
       </td>
     </tr>
-    <% }); %>
+    {{/elements}}
   </tbody>
 </table>

@@ -1416,7 +1416,7 @@ shimi.sets = (function () {
 
   mod.setSets = function (nnew) {
     var procSets;
-    if (_.isArray(nnew)) {
+    if (Array.isArray(nnew)) {
       procSets = nnew.map(function (x) {
         return processSet(x);
       });
@@ -1429,7 +1429,7 @@ shimi.sets = (function () {
   };
 
   mod.setSet = function (nnew) {
-    if (_.isArray(nnew) && nnew.length === 2) {
+    if (Array.isArray(nnew) && nnew.length === 2) {
       var curr = mod.getSets();
       var newName = nnew[0];
       var filtered = curr.filter(function (x) {
@@ -2602,10 +2602,6 @@ shimi.editui = (function () {
 
   return mod;
 })();
-/*
-  This module largely deals with operations on fields and fieldsets
-  related to simple one at a time editing.
-*/
 shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;
@@ -2969,7 +2965,7 @@ shimi.indexiu = (function () {
     var options;
 
     $.getJSON(url, function (data) {
-      options = JST['priv/templates/index-options'](data);
+      options = templates['index-options'].render(data);
       $('#index-index-input').html(options);
     });
 
@@ -3093,7 +3089,7 @@ shimi.searchui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return JST['priv/templates/search-field-item']({
+    return templates['search-field-item'].render({
       fieldLabel: fieldLabel,
       field: field
     });
@@ -3432,7 +3428,7 @@ shimi.setsui = (function () {
         context: x[0]
       };
     });
-    var listing = JST['priv/templates/set-listing']({
+    var listing = templates['set-listing'].render({
       elements: elems,
       total: total
     });
@@ -3514,7 +3510,7 @@ shimi.setsui = (function () {
 
   mod.updateSelection = function () {
     var currNames = sets.getSetNames();
-    var newOptions = JST['priv/templates/set-options']({
+    var newOptions = templates['set-options'].render({
       names: currNames
     });
     setA().html(newOptions);
@@ -3757,29 +3753,6 @@ shimi.viewui = (function (args) {
     $(target).addClass('selected-revision');
 
     mod.get(id, oldrev);
-
-    return mod;
-  };
-
-  return mod;
-})();
-shimi.worksheetui = (function (args) {
-  var mod = {};
-  var getDoctype = function () {
-    return shimi.store($("#all-document-container")).d("doctype");
-  };
-  var getProject = function () {
-    return shimi.store($("#container")).get("project-id");
-  };
-  var getIdentifier = function () {
-    return getProject() + "_" + getDoctype();
-  };
-  var getDoctypeInfo = function () {
-    return JSON.parse(sessionStorage.getItem(getIdentifier + "_info"));
-  };
-
-  mod.buildTemplate = function () {
-    var doctypeInfo = getDoctypeInfo();
 
     return mod;
   };
@@ -4505,7 +4478,7 @@ shimi.ilistingui = (function () {
     var listing;
 
     $.getJSON(url, function (data) {
-      listing = JST['priv/templates/index-listing'](data);
+      listing = templates['index-listing'].render(data);
       target.html(listing);
     });
 
