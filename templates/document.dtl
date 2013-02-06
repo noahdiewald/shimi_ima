@@ -32,6 +32,7 @@
 
 <div id="panel-toggle">
   <ul>
+    <li data-panel="document-worksheets">Worksheets</li>
     <li data-panel="document-sets">Sets</li>
     <li data-panel="document-search">Search</li>
     <li data-panel="document-index">Index</li>
@@ -49,6 +50,16 @@
      data-document-version="{{ doctype_info._rev }}"
      data-group-id="document-view-info"
      id="all-document-container">
+    
+    <div class="hidden panel" id="document-worksheet">
+      <h2 class="header">Worksheets</h2>
+      <form id="document-worksheets-form">
+        <label for="document-worksheet-set-input">Set</label>
+        <select name="document-worksheet-set-input" id="document-worksheet-set-input"></select><br/>
+      </form>
+      <div id="worksheet-area">
+      </div>
+    </div>
     
     <div class="hidden panel" id="document-sets">
       <h2 class="header">Sets</h2>
