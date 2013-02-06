@@ -2961,10 +2961,12 @@ shimi.indexiu = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "/projects/project-" + $('#container').attr('data-project-id') + "/indexes?as=options";
+    var url = "indexes?as=options";
+    var options;
 
-    $.get(url, function (data) {
-      $('#index-index-input').html(data);
+    $.getJSON(url, function (data) {
+      options = templates['index-options'].render(data);
+      $('#index-index-input').html(options);
     });
 
     return mod;
@@ -4473,9 +4475,11 @@ shimi.ilistingui = (function () {
   mod.init = function () {
     var url = "indexes";
     var target = $('#index-index-listing');
+    var listing;
 
-    $.get(url, function (index) {
-      target.html(index);
+    $.getJSON(url, function (data) {
+      listing = templates['index-listing'].render(data);
+      target.html(listing);
     });
 
     return mod;

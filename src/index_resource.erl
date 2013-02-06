@@ -34,7 +34,8 @@
          is_authorized/2,
          post_is_create/2,
          resource_exists/2,
-         to_html/2
+         to_html/2,
+         to_json/2
         ]).
 
 % Custom
@@ -85,15 +86,20 @@ create_path(R, S) ->
     {Id, R1, [{posted_json, Json1}|S]}.
 
 content_types_provided(R, S) ->
-    {[{"text/html", to_html}], R, S}.
+    {[{"text/html", to_html}, {"application/json", to_json}], R, S}.
   
 content_types_accepted(R, S) ->
     {[{"application/json", from_json}], R, S}.
+
+to_json(R, S) ->
+    case proplists:get_value(target, S) of
+        index -> {json_index(R, S), R, S};
+        _ -> to_html(R, S)
+    end.
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
         view -> html_view(R, S);
-        index -> {html_index(R, S), R, S};
         condition -> {html_condition(R, S), R, S};
         identifier -> {html_identifier(R, S), R, S}
     end.
@@ -112,16 +118,9 @@ json_create(R, S) ->
 json_update(R, S) ->
     i:update(R, S).
   
-html_index(R, S) ->
+json_index(R, S) ->
     {ok, Json} = q:indexes_options(R, S),
-
-    case wrq:get_qs_value("as", R) of
-        "options" -> 
-            {ok, Html} = render:render(options_dtl, Json);
-        _Else ->
-            {ok, Html} = render:render(index_index_dtl, Json)
-    end,
-    Html.
+    jsn:encode(Json).
 
 html_identifier(R, S) ->
     {ok, Json} = h:id_data(R, S),

@@ -19,10 +19,12 @@ shimi.indexiu = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "/projects/project-" + $('#container').attr('data-project-id') + "/indexes?as=options";
+    var url = "indexes?as=options";
+    var options;
 
-    $.get(url, function (data) {
-      $('#index-index-input').html(data);
+    $.getJSON(url, function (data) {
+      options = templates['index-options'].render(data);
+      $('#index-index-input').html(options);
     });
 
     return mod;

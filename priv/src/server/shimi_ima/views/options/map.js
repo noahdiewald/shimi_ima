@@ -1,5 +1,5 @@
 function map(doc) {
   if (doc.category === 'index') {
-    emit(doc.name);
+    emit([doc.doctype, doc.name]);
   }
 }

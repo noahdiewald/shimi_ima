@@ -1,5 +1,0 @@
-  <ul>
-  {% for row in rows %}
-    <li><a href="#" data-index-id="{{row.id}}">{{row.key}}</a></li>
-  {% endfor %}
-  </ul>

@@ -552,3 +552,6 @@ a.selected-revision {
   background: #f07818;
   background: rgba(255, 255, 255, 0.5);
 }
+.quiet {
+  color: #9bc1f2;
+}

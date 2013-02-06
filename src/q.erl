@@ -90,7 +90,15 @@ index_design(Id, Project, S) ->
     couch:get_view_json("shimi_ima", "user_indexes", Qs, Project, S).
 
 indexes_options(R, S) ->
-    Qs = view:normalize_vq(wrq:req_qs(R)),
+    Qs = case h:doctype(R) of
+             undefined ->
+                 view:normalize_vq(wrq:req_qs(R));
+             Doctype ->
+                 VQ = #vq{startkey = [list_to_binary(Doctype), []],
+                          endkey = [list_to_binary(Doctype), <<"">>],
+                          descending = true},
+                 view:to_string(VQ)
+         end,
     couch:get_view_json("shimi_ima", "options", Qs, h:project(R), S).
 
 search(Doctype, Field, Project, S) ->

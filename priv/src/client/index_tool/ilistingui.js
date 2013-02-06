@@ -4,9 +4,11 @@ shimi.ilistingui = (function () {
   mod.init = function () {
     var url = "indexes";
     var target = $('#index-index-listing');
+    var listing;
 
-    $.get(url, function (index) {
-      target.html(index);
+    $.getJSON(url, function (data) {
+      listing = templates['index-listing'].render(data);
+      target.html(listing);
     });
 
     return mod;
