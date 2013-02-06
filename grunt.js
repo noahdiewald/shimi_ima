@@ -82,6 +82,7 @@ module.exports = function (grunt) {
       globals: {
         jQuery: true,
         $: true,
+        _: true,
         shimi: true,
         emit: true,
         send: true,
@@ -93,8 +94,7 @@ module.exports = function (grunt) {
         exports: true,
         JST: true
       }
-    },
-    uglify: {}
+    }
   });
 
   // Default task.

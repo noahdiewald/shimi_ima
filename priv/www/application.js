@@ -1416,7 +1416,7 @@ shimi.sets = (function () {
 
   mod.setSets = function (nnew) {
     var procSets;
-    if (Array.isArray(nnew)) {
+    if (_.isArray(nnew)) {
       procSets = nnew.map(function (x) {
         return processSet(x);
       });
@@ -1429,7 +1429,7 @@ shimi.sets = (function () {
   };
 
   mod.setSet = function (nnew) {
-    if (Array.isArray(nnew) && nnew.length === 2) {
+    if (_.isArray(nnew) && nnew.length === 2) {
       var curr = mod.getSets();
       var newName = nnew[0];
       var filtered = curr.filter(function (x) {
