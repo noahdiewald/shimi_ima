@@ -64,7 +64,7 @@ shimi.setsui = (function () {
         context: x[0]
       };
     });
-    var listing = templates['set-listing'].render({
+    var listing = JST['priv/templates/set-listing']({
       elements: elems,
       total: total
     });
@@ -146,7 +146,7 @@ shimi.setsui = (function () {
 
   mod.updateSelection = function () {
     var currNames = sets.getSetNames();
-    var newOptions = templates['set-options'].render({
+    var newOptions = JST['priv/templates/set-options']({
       names: currNames
     });
     setA().html(newOptions);

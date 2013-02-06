@@ -23,7 +23,7 @@ shimi.indexiu = (function () {
     var options;
 
     $.getJSON(url, function (data) {
-      options = templates['index-options'].render(data);
+      options = JST['priv/templates/index-options'](data);
       $('#index-index-input').html(options);
     });
 

@@ -11,6 +11,7 @@
         "grunt-beautify": "0.1.1",
         "grunt-simple-mocha": "0.2.0",
         "grunt-contrib-less": "0.3.1",
-        "grunt-hogan": "0.1.0-4"
+        "grunt-hogan": "0.1.0-4",
+        "grunt-contrib-jst": "0.3.1"
     }
 }

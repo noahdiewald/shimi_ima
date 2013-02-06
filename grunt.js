@@ -5,7 +5,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-beautify');
   grunt.loadNpmTasks('grunt-simple-mocha');
   grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-hogan');
+  grunt.loadNpmTasks('grunt-contrib-jst');
 
   // Project configuration.
   grunt.initConfig({
@@ -54,12 +54,10 @@ module.exports = function (grunt) {
         }
       }
     },
-    hogan: {
-      all: {
-        compile: {
-        templates: "priv/templates/*.mustache",
-        output: "priv/www/templates.js",
-        binderName: "hulk"
+    jst: {
+      compile: {
+        files: {
+          "priv/www/templates.js": ["priv/templates/*"]
         }
       }
     },
@@ -93,13 +91,13 @@ module.exports = function (grunt) {
         it: true,
         require: true,
         exports: true,
-        templates: true
+        JST: true
       }
     },
     uglify: {}
   });
 
   // Default task.
-  grunt.registerTask('default', 'hogan beautify lint rig simplemocha min less');
+  grunt.registerTask('default', 'jst beautify lint rig simplemocha min less');
 
 };

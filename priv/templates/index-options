@@ -1,0 +1,4 @@
+<option></option>
+<% _.each(rows, function(row) { %>
+<option value="<%- row.id %>"><%- row.key[1] %></option>
+<% }); %>

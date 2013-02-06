@@ -1,6 +1,81 @@
-var templates = {};
-templates["set-options"] = new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("names",c,p,1),c,p,0,28,66,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.d(".",c,p,0)));_.b("\">");_.b(_.v(_.d(".",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;});
-templates["set-listing"] = new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: <span id=\"total-set-rows\">");_.b(_.v(_.f("total",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<div id=\"save-set-results\">");_.b("\n" + i);_.b("  <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table id=\"set-elements\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" id=\"select-all-set-elements\" title=\"Click to select or deselect all elements\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <th>");_.b("\n" + i);_.b("        Elements");_.b("\n" + i);_.b("      </th>");_.b("\n" + i);_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("elements",c,p,1),c,p,0,435,674,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" class=\"set-element-selection\" title=\"Click to select element\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <a class=\"view-document-link\" href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.f("context",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;});
-templates["search-field-item"] = new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<a class='search-field-item' ");_.b("\n" + i);_.b("  title='click to remove' ");_.b("\n" + i);_.b("  data-field-field='");_.b(_.v(_.f("field",c,p,0)));_.b("' ");_.b("\n" + i);_.b("  href='#'>");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("</a>");_.b("\n");return _.fl();;});
-templates["index-listing"] = new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<ul>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,16,122,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <li><a href=\"#\" data-index-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("<span class=\"quiet\">(");_.b(_.v(_.d("key.0",c,p,0)));_.b(")</span></a></li>");_.b("\n");});c.pop();}_.b("</ul>");_.b("\n");return _.fl();;});
-templates["index-options"] = new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,27,74,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;});
+this["JST"] = this["JST"] || {};
+
+this["JST"]["priv/templates/set-listing"] = function(obj){
+var __p='';var print=function(){__p+=Array.prototype.join.call(arguments, '')};
+with(obj||{}){
+__p+='<div class="total-rows-info">\n  <b>Total</b>: <span id="total-set-rows">'+
+_.escape( total )+
+'</span>\n</div>\n<div id="save-set-results">\n  <a href="#">(Save Selected)</a>\n</div>\n<table id="set-elements">\n  <thead>\n    <tr>\n      <td>\n        <input type="checkbox" id="select-all-set-elements" title="Click to select or deselect all elements" />\n      </td>\n      <th>\n        Elements\n      </th>\n    </tr>\n  </thead>\n  <tbody>\n    ';
+ _.each(elements, function(elem) { 
+;__p+='\n    <tr>\n      <td>\n        <input type="checkbox" class="set-element-selection" title="Click to select element" />\n      </td>\n      <td>\n        <a class="view-document-link" href="#'+
+_.escape( elem.id )+
+'">'+
+_.escape( elem.context )+
+'</a>\n      </td>\n    </tr>\n    ';
+ }); 
+;__p+='\n  </tbody>\n</table>\n';
+}
+return __p;
+};
+
+this["JST"]["priv/templates/set-options"] = function(obj){
+var __p='';var print=function(){__p+=Array.prototype.join.call(arguments, '')};
+with(obj||{}){
+__p+='<option></option>\n';
+ names.forEach(function(name) { 
+;__p+='\n<option value="'+
+_.escape( name )+
+'">'+
+_.escape( name )+
+'</option>\n';
+ }); 
+;__p+='\n';
+}
+return __p;
+};
+
+this["JST"]["priv/templates/search-field-item"] = function(obj){
+var __p='';var print=function(){__p+=Array.prototype.join.call(arguments, '')};
+with(obj||{}){
+__p+='<a class=\'search-field-item\' \n  title=\'click to remove\' \n  data-field-field=\''+
+_.escape( field )+
+'\' \n  href=\'#\'>'+
+_.escape( fieldLabel )+
+'</a>\n';
+}
+return __p;
+};
+
+this["JST"]["priv/templates/index-listing"] = function(obj){
+var __p='';var print=function(){__p+=Array.prototype.join.call(arguments, '')};
+with(obj||{}){
+__p+='<ul>\n  ';
+ _.each(rows, function(row) { 
+;__p+='\n  <li><a href="#" data-index-id="'+
+_.escape( row.id )+
+'">'+
+_.escape( row.key[1] )+
+'<span class="quiet">('+
+_.escape( row.key[0] )+
+')</span></a></li>\n  ';
+ }); 
+;__p+='\n</ul>\n';
+}
+return __p;
+};
+
+this["JST"]["priv/templates/index-options"] = function(obj){
+var __p='';var print=function(){__p+=Array.prototype.join.call(arguments, '')};
+with(obj||{}){
+__p+='<option></option>\n';
+ _.each(rows, function(row) { 
+;__p+='\n<option value="'+
+_.escape( row.id )+
+'">'+
+_.escape( row.key[1] )+
+'</option>\n';
+ }); 
+;__p+='\n';
+}
+return __p;
+};

@@ -2602,6 +2602,10 @@ shimi.editui = (function () {
 
   return mod;
 })();
+/*
+  This module largely deals with operations on fields and fieldsets
+  related to simple one at a time editing.
+*/
 shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;
@@ -2965,7 +2969,7 @@ shimi.indexiu = (function () {
     var options;
 
     $.getJSON(url, function (data) {
-      options = templates['index-options'].render(data);
+      options = JST['priv/templates/index-options'](data);
       $('#index-index-input').html(options);
     });
 
@@ -3089,7 +3093,7 @@ shimi.searchui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return templates['search-field-item'].render({
+    return JST['priv/templates/search-field-item']({
       fieldLabel: fieldLabel,
       field: field
     });
@@ -3428,7 +3432,7 @@ shimi.setsui = (function () {
         context: x[0]
       };
     });
-    var listing = templates['set-listing'].render({
+    var listing = JST['priv/templates/set-listing']({
       elements: elems,
       total: total
     });
@@ -3510,7 +3514,7 @@ shimi.setsui = (function () {
 
   mod.updateSelection = function () {
     var currNames = sets.getSetNames();
-    var newOptions = templates['set-options'].render({
+    var newOptions = JST['priv/templates/set-options']({
       names: currNames
     });
     setA().html(newOptions);
@@ -3753,6 +3757,29 @@ shimi.viewui = (function (args) {
     $(target).addClass('selected-revision');
 
     mod.get(id, oldrev);
+
+    return mod;
+  };
+
+  return mod;
+})();
+shimi.worksheetui = (function (args) {
+  var mod = {};
+  var getDoctype = function () {
+    return shimi.store($("#all-document-container")).d("doctype");
+  };
+  var getProject = function () {
+    return shimi.store($("#container")).get("project-id");
+  };
+  var getIdentifier = function () {
+    return getProject() + "_" + getDoctype();
+  };
+  var getDoctypeInfo = function () {
+    return JSON.parse(sessionStorage.getItem(getIdentifier + "_info"));
+  };
+
+  mod.buildTemplate = function () {
+    var doctypeInfo = getDoctypeInfo();
 
     return mod;
   };
@@ -4478,7 +4505,7 @@ shimi.ilistingui = (function () {
     var listing;
 
     $.getJSON(url, function (data) {
-      listing = templates['index-listing'].render(data);
+      listing = JST['priv/templates/index-listing'](data);
       target.html(listing);
     });
 

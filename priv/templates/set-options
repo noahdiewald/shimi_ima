@@ -1,0 +1,4 @@
+<option></option>
+<% names.forEach(function(name) { %>
+<option value="<%- name %>"><%- name %></option>
+<% }); %>

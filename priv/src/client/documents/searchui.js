@@ -104,7 +104,7 @@ shimi.searchui = (function () {
   };
 
   var searchFieldItem = function (field, fieldLabel) {
-    return templates['search-field-item'].render({
+    return JST['priv/templates/search-field-item']({
       fieldLabel: fieldLabel,
       field: field
     });

@@ -7,7 +7,7 @@ shimi.ilistingui = (function () {
     var listing;
 
     $.getJSON(url, function (data) {
-      listing = templates['index-listing'].render(data);
+      listing = JST['priv/templates/index-listing'](data);
       target.html(listing);
     });
 
