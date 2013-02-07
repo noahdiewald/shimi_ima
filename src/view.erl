@@ -52,6 +52,7 @@ to_string(VQ) ->
 get_vq(R) ->
     #vq{
         key = getv("key", R), 
+        keys = getv("keys", R), 
         startkey = getv("startkey", R), 
         startkey_docid = proplists:get_value("startkey_docid", R), 
         endkey = getv("endkey", R), 
@@ -207,6 +208,8 @@ encode(Term) ->
 -spec make_vqs(view_query(), [string()]) -> [string()].
 make_vqs(VQ, Acc) when VQ#vq.key /= undefined ->
     make_vqs(VQ#vq{key = undefined}, ["key=" ++ encode(VQ#vq.key)|Acc]);
+make_vqs(VQ, Acc) when VQ#vq.keys /= undefined ->
+    make_vqs(VQ#vq{keys = undefined}, ["keys=" ++ encode(VQ#vq.keys)|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.startkey /= undefined ->
     make_vqs(VQ#vq{startkey = undefined}, ["startkey=" ++ encode(VQ#vq.startkey)|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.startkey_docid /= undefined ->

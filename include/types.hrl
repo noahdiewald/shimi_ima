@@ -36,6 +36,7 @@
           
 -record(vq, {
           key :: jsn:json_term(), 
+          keys :: jsn:json_term(), 
           startkey :: jsn:json_term(), 
           startkey_docid :: string(), 
           endkey :: jsn:json_term(), 

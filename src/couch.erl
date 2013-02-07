@@ -32,6 +32,7 @@
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
+         get_view_json/3,
          get_view_json/5,
          get_views/1,
          new_db/1,
@@ -180,6 +181,17 @@ get_views(Project) ->
                      end
              end,
     lists:flatten(lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
+    
+-spec get_view_json(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_view_json(Qs, Project, S) ->
+    Headers = proplists:get_value(headers, S, []),
+    Url = ndb(Project),
+    FullUrl = Url ++ "_all_docs" ++ "?" ++ Qs,
+    case get_json_helper(FullUrl, Headers) of
+        {error, req_timedout} -> {error, req_timedout};
+        {error, not_found} -> {error, not_found};
+        {ok, Json} -> {ok, Json}
+    end.
     
 -spec get_view_json(string(), string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Id, Name, Qs, Project, S) ->

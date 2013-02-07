@@ -29,6 +29,9 @@
 -include_lib("types.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
+all_docs(Qs, Project, S) ->
+    couch:get_view_json("_all_docs", Qs, Project, S).
+
 charseqs(R, S) ->
     Qs = view:normalize_vq(wrq:req_qs(R)),
     couch:get_view_json("shimi_ima", "all_charseqs", Qs, h:project(R), S).

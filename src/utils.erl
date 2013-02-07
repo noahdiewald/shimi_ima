@@ -62,16 +62,16 @@ ndb() ->
     {ok, Val} = application:get_env(normal_db),
     Val.
 
-%% @doc Return a unique id
+%% @doc Return a unique id. Probably not a real UUID but it isn't
+%% necessary here.
 uuid() ->
     binary_to_hexlist(crypto:rand_bytes(16)).
 
 %% @doc Takes a tuple that describes a view path and a function. The
-%% function argument takes a document and returns {ok, document} or
-%% the atom 'null'. It is applied to every document returned by the
-%% view, which will be queried using the include_docs option. The
-%% result of the function argument will be used to update the
-%% document.
+%% function argument takes a document and returns {ok, document} or the
+%% atom 'null'. It is applied to every document returned by the view,
+%% which will be queried using the include_docs option. The result of
+%% the function argument will be used to update the document.
 -spec update_all_by({Project :: string(), Id :: string(), View :: string()}, 
                     fun((jsn:json_term()) -> {ok, jsn:json_term()} | null)) -> 
                            ok.
