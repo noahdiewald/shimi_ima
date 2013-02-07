@@ -34,7 +34,8 @@
          is_authorized/2,
          post_is_create/2,
          resource_exists/2,
-         to_html/2
+         to_html/2,
+         to_json/2
         ]).
 
 % Custom
@@ -66,7 +67,9 @@ allowed_methods(R, S) ->
         identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S};
         revision -> {['HEAD', 'GET'], R, S};
         edit -> {['HEAD', 'GET'], R, S};
-        search -> {['HEAD', 'GET'], R, S}
+        search -> {['HEAD', 'GET'], R, S};
+        ws_get -> {['HEAD', 'GET'], R, S};
+        ws_put -> {['HEAD', 'PUT'], R, S}
     end.
   
 delete_resource(R, S) ->
@@ -94,7 +97,10 @@ create_path(R, S) ->
     {Id, R1, [{posted_json, Json1}|S]}.
 
 content_types_provided(R, S) ->
-    {[{"text/html", to_html}], R, S}.
+    case proplists:get_value(target, S) of
+        ws_get -> {[{"application/json", to_json}], R, S};
+        _ -> {[{"text/html", to_html}], R, S}
+    end.
   
 content_types_accepted(R, S) ->
     {[{"application/json", from_json}], R, S}.
@@ -108,7 +114,10 @@ to_html(R, S) ->
         revision -> {html_revision(R, S), R, S};
         search -> {html_search(R, S), R, S}
     end.
-  
+    
+to_json(R, S) ->
+    {json_ws(R, S), R, S}.
+
 from_json(R, S) ->
     case proplists:get_value(target, S) of
         main -> json_create(R, S);
@@ -158,6 +167,11 @@ json_update(Json, R, S) ->
             R1 = wrq:set_resp_body(Message, R),
             {{halt, 409}, R1, S}
     end.
+
+json_ws(R, S) ->
+    Docs = jsn:decode(wrq:get_qs_value("set", R)),
+    Json = worksheet:get(Docs, h:project(R), S),
+    jsn:encode(Json).
 
 html_documents(R, S) ->
     {ok, Html} = render:render(document_dtl, h:basic_info("", " Documents", R, S)),

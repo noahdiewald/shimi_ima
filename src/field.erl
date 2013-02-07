@@ -167,7 +167,7 @@ to_json(F) ->
      {<<"default">>, F#field.default},
      {<<"description">>, F#field.description},
      {<<"doctype">>, F#field.doctype},
-     {<<"fieldset">>, <<"metadata">>},
+     {<<"fieldset">>, F#field.fieldset},
      {<<"head">>, F#field.head},
      {<<"label">>, F#field.label},
      {<<"max">>, unconvert_value(F#field.subcategory, F#field.max)},

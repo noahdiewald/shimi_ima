@@ -22,31 +22,31 @@
 %%% @doc Helpers for providing and accepting data in a format suitable
 %%% for the worksheet multiple editing form.
 
--module(h).
+-module(worksheet).
 
 -include_lib("types.hrl").
 
 -export([
-         get/4
+         get/3
         ]).
 
 -spec fmt_fieldsets([docfieldset()], jsn:json_term()) -> jsn:json_term().
 fmt_fieldsets([], Acc) ->
     Acc;
 fmt_fieldsets([H=#docfieldset{multiple=true}|T], Acc) ->
-    fmt_fieldsets(T, lists:foldl(fun fmt_multifields/2, H#docfieldset.fields, Acc));
+    fmt_fieldsets(T, lists:foldl(fun fmt_multifields/2, Acc, H#docfieldset.fields));
 fmt_fieldsets([H=#docfieldset{multiple=false}|T], Acc) ->
     FSInstance = list_to_binary(utils:uuid()),
     Fun = fun (F, X) ->
                   FInstance = list_to_binary(utils:uuid()),
                   New = [{<<"fieldset_instance">>, FSInstance},
                          {<<"field_instance">>, FInstance},
-                         {<<"value">>, F#docfield.value}],
-                  jsn:set_value(F#docfield.id, [{<<"single">>, New}])
+                         {<<"value">>, fmt_value(F#docfield.subcategory, F#docfield.value)}],
+                  jsn:set_value(F#docfield.id, [{<<"single">>, New}], X)
           end,
-    fmt_fieldsets(T, lists:foldl(Fun, H#docfieldset.fields, Acc)).
+    fmt_fieldsets(T, lists:foldl(Fun, Acc, H#docfieldset.fields)).
     
--spec fmt_multifields([docfields()], jsn:json_term()) -> jsn:json_term().
+-spec fmt_multifields([docfield()], jsn:json_term()) -> jsn:json_term().
 fmt_multifields(Fields, Acc) ->
     FSInstance = list_to_binary(utils:uuid()),
     Fun = fun (F, X) ->
@@ -55,22 +55,26 @@ fmt_multifields(Fields, Acc) ->
                   Items = jsn:get_value(<<"items">>, jsn:get_value(<<"multiple">>, Prev)),
                   New = [{<<"fieldset_instance">>, FSInstance},
                          {<<"field_instance">>, FInstance},
-                         {<<"value">>, F#docfield.value}],
-                  jsn:set_value(F#docfield.id, [{<<"multiple">>, [{<<"items">>, Items ++ [New]}]}])
+                         {<<"value">>, fmt_value(F#docfield.subcategory, F#docfield.value)}],
+                  jsn:set_value(F#docfield.id, [{<<"multiple">>, [{<<"items">>, Items ++ [New]}]}], X)
           end,
-    lists:foldl(Fun, Fields, Acc).
+    lists:foldl(Fun, Acc, Fields).
 
--spec get(string(), string(), string(), any()) -> jsn:json_term().
+-spec fmt_value(subcategory(), anyval()) -> binary().
+fmt_value(Subcat, Val) ->
+  iolist_to_binary(jsn:encode(field:unconvert_value(Subcat, Val))).
+  
+-spec get([binary()], string(), any()) -> jsn:json_term().
 get(Docs, Project, S) ->
     VQ = #vq{keys =  Docs, include_docs = true},
     Qs = view:to_string(VQ),
-    {ok, Json} = q:index(Qs, Project, S),
+    {ok, Json} = q:all_docs(Qs, Project, S),
     trans_from(Json).
 
 -spec trans_from(jsn:json_term()) -> jsn:json_term().
 trans_from(Json) ->
     Transed = trans_from(jsn:get_value(<<"rows">>, Json), []),
-    jsn:set_value(<<"rows">>, Transed).
+    [{<<"rows">>, Transed}].
 
 -spec trans_from([jsn:json_term()], [jsn:json_term()]) -> jsn:json_term().
 trans_from([], Acc) ->
@@ -81,4 +85,4 @@ trans_from([H|T], Acc) ->
     Id = Doc#document.id,
     Rev = Doc#document.rev,
     New = fmt_fieldsets(Doc#document.fieldsets, []),
-    [{<<"head">>, Head}, {<<"_id">>, Id}, {<<"_rev">>, Rev}|New].
+    trans_from(T, [[{<<"head">>, Head}, {<<"_id">>, Id}, {<<"_rev">>, Rev}|New]|Acc]).
