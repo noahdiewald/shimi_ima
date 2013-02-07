@@ -82,17 +82,18 @@ module.exports = function (grunt) {
         browser: true
       },
       globals: {
-        jQuery: true,
         $: true,
-        shimi: true,
-        emit: true,
-        send: true,
-        getRow: true,
-        start: true,
         describe: true,
-        it: true,
-        require: true,
+        emit: true,
         exports: true,
+        getRow: true,
+        hogan: true,
+        it: true,
+        jQuery: true,
+        require: true,
+        send: true,
+        shimi: true,
+        start: true,
         templates: true
       }
     },

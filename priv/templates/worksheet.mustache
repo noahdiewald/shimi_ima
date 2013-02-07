@@ -1,0 +1,85 @@
+<table class="worksheet-table">
+  <colgroup span="1" id="worksheet-check-boxes-column"></col>
+  <colgroup span="1" id="worksheet-keys-column"></col>
+  {{#fieldsets}}
+    <colgroup span="1"
+      id="worksheet-handle-column-{{ _id }}"
+      class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}}">
+    <colgroup 
+      id="worksheet-column-group-{{ _id }}"
+      class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}}">
+      {{#fields}}
+        <col
+          id="worksheet-column-{{ _id }}"
+          data-field-fieldset="{{ fieldset }}"
+          data-field-field="{{ _id }}">
+      {{/fields}}
+    </colgroup>
+  {{/fieldsets}}
+  <thead>
+    <tr>
+      <td>
+        <input 
+          id="select-all-worksheet-rows"
+          type="checkbox"
+          title="Click to select all rows">
+      </td>
+      <th>Key</th>
+      {{#fieldsets}}
+        <th 
+          class="worksheet-header-min single-header hidden"
+          data-field-fieldset="{{ _id }}">
+          {{ label }}
+        </th>
+        {{#fields}}
+          <th
+            class="worksheet-header"
+            data-field-fieldset="{{ fieldset }}"
+            data-field-field="{{ _id }}">
+            {{ _id }}
+          </th>
+        {{/fields}}
+      {{/fieldsets}}
+    </tr>
+  </thead>
+  <tbody>
+    <%#rows%>
+      <tr id="worksheet-row-<% _id %>">
+        <td>
+          <input 
+            class="select-worksheet-row"
+            type="checkbox"
+            title="Click to select rows">
+        </td>
+        <td>
+          <%#head%>
+            <span class="head-id"><%.%></span>
+          <%/head%>
+        </td>
+        {{#fieldsets}}
+          <td class="empty-handle" data-field-fieldset="{{ _id }}">...</td>
+          {{#fields}}
+            <td
+              data-field-fieldset="{{ fieldset }}"
+              data-field-field="{{ _id }}">
+              <%#{{ _id }}%>
+                <%#multiple%>
+                <ol>
+                  <%#items%>
+                    <li
+                      data-field-fieldset_instance="<% fieldset_instance %>"
+                      data-field-field_instance="<% field_instance %>"><% value %></li>
+                  <%/items%>
+                </ol>
+                <%/multiple%>
+                <%#single%>
+                  <% value %>
+                <%/single%>
+              <%/{{ _id }}%>
+            </td>
+          {{/fields}}
+        {{/fieldsets}}
+      </tr>
+    <%/rows%>
+  </tbody>
+</table>
