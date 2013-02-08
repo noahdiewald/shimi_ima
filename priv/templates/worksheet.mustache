@@ -1,6 +1,6 @@
 <table class="worksheet-table">
-  <colgroup span="1" id="worksheet-check-boxes-column"></col>
-  <colgroup span="1" id="worksheet-keys-column"></col>
+  <colgroup span="1" id="worksheet-check-boxes-column">
+  <colgroup span="1" id="worksheet-keys-column">
   {{#fieldsets}}
     <colgroup span="1"
       id="worksheet-handle-column-{{ _id }}"
@@ -27,7 +27,7 @@
       <th>Key</th>
       {{#fieldsets}}
         <th 
-          class="worksheet-header-min single-header hidden"
+          class="worksheet-handle-header"
           data-field-fieldset="{{ _id }}">
           {{ label }}
         </th>
