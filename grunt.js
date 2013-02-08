@@ -87,7 +87,7 @@ module.exports = function (grunt) {
         emit: true,
         exports: true,
         getRow: true,
-        hogan: true,
+        Hogan: true,
         it: true,
         jQuery: true,
         require: true,

@@ -31,14 +31,8 @@ shimi.searchui = (function () {
   var searchListing = function () {
     return $('#search-listing');
   };
-  var getDoctype = function () {
-    return shimi.store($("#all-document-container")).d("doctype");
-  };
-  var getProject = function () {
-    return shimi.store($("#container")).get("project-id");
-  };
   var getIdentifier = function () {
-    return getProject() + "_" + getDoctype();
+    return shimi.documents.identifier();
   };
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 

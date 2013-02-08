@@ -1,6 +1,10 @@
 shimi.sets = (function () {
   var mod = {};
 
+  var sessionKey = function () {
+    return shimi.documents.identifier() + "_sets";
+  };
+
   var member = function (arr, x) {
     return arr.some(function (y) {
       return x[0] === y[0] && x[1] === y[1];
@@ -70,7 +74,7 @@ shimi.sets = (function () {
   };
 
   mod.getSets = function () {
-    var curr = window.sessionStorage.getItem("sets");
+    var curr = window.sessionStorage.getItem(sessionKey());
     var retval = [];
 
     if (curr !== null) {
@@ -112,9 +116,9 @@ shimi.sets = (function () {
       procSets = nnew.map(function (x) {
         return processSet(x);
       });
-      window.sessionStorage.setItem("sets", JSON.stringify(procSets));
+      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
     } else {
-      window.sessionStorage.settem("sets", "[]");
+      window.sessionStorage.settem(sessionKey(), "[]");
     }
 
     return mod;

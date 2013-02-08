@@ -51,11 +51,11 @@
      data-group-id="document-view-info"
      id="all-document-container">
     
-    <div class="hidden panel" id="document-worksheet">
+    <div class="hidden panel" id="document-worksheets">
       <h2 class="header">Worksheets</h2>
       <form id="document-worksheets-form">
-        <label for="document-worksheet-set-input">Set</label>
-        <select name="document-worksheet-set-input" id="document-worksheet-set-input"></select><br/>
+        <label for="document-worksheets-set-input">Set</label>
+        <select name="document-worksheets-set-input" id="document-worksheets-set-input"></select><br/>
       </form>
       <div id="worksheet-area">
       </div>

@@ -1,5 +1,8 @@
 var shimi = {};
 
+// A place to temporarily store global objects
+shimi.globals = {};
+
 // functions added to String
 String.prototype.isBlank = function () {
   return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
@@ -979,7 +982,7 @@ shimi.clickDispatch = function (e) {
       $("#new-set-dialog").show();
     },
     "#new-set-save-button": function () {
-      setsui.saveSelected($("#new-set-target-input").val());
+      shimi.dispatch.send("new-set-form-submit");
     },
     "#select-all-set-elements": function (t) {
       setsui.toggleSelectAll(t);
@@ -1060,6 +1063,65 @@ $(function () {
     shimi.dblclickDispatch(e);
   });
 });
+$('#document-worksheets-form').live("keydown", function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("worksheet-form-submit");
+    return false;
+  }
+  return true;
+});
+$('#document-sets-form').live("keydown", function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("sets-form-submit");
+    return false;
+  }
+  return true;
+});
+$('#new-set-form').live("keydown", function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("new-set-form-submit");
+    return false;
+  }
+  return true;
+});
+shimi.dispatch = (function () {
+  var mod = {};
+
+  mod.send = function (message) {
+    switch (message) {
+    case "bad-session-state":
+      shimi.documents.clearSession();
+      break;
+    case "doctype-info-ready":
+      shimi.documents.makeLabels();
+      break;
+    case "labels-ready":
+      shimi.searchui.loadSearchVals();
+      shimi.worksheetui.buildTemplate();
+      break;
+    case "new-set-form-submit":
+      shimi.setsui.saveSelected();
+      break;
+    case "sets-changed":
+      shimi.setsui.updateSelection();
+      break;
+    case "sets-form-submit":
+      shimi.setsui.performOp();
+      break;
+    case "session-cleared":
+      shimi.documents.setVersion();
+      shimi.documents.loadDoctype();
+      break;
+    case "worksheet-form-submit":
+      shimi.worksheetui.fillWorksheet();
+      break;
+    }
+
+    return false;
+  };
+
+  return mod;
+})();
 // Get the index that is displayed in the index pane. 
 // startkey and startid map directly to the same concepts in
 // couchdb view queries. The prevkeys and previds are used to
@@ -1306,142 +1368,6 @@ shimi.sess = function () {
 
   return mod;
 };
-shimi.sets = (function () {
-  var mod = {};
-
-  var member = function (arr, x) {
-    return arr.some(function (y) {
-      return x[0] === y[0] && x[1] === y[1];
-    });
-  };
-
-  var unique = function (x) {
-    return x.reduce(function (acc, curr) {
-      if (member(acc, curr)) {
-        return acc;
-      } else {
-        return acc.concat([curr]);
-      }
-    }, []);
-  };
-
-  var union = function (xs, ys) {
-    return unique(xs.concat(ys));
-  };
-
-  var intersection = function (xs, ys) {
-    return xs.filter(function (x) {
-      return member(ys, x);
-    });
-  };
-
-  var relativeComplement = function (xs, ys) {
-    return xs.filter(function (x) {
-      return !member(ys, x);
-    });
-  };
-
-  var processSet = function (set) {
-    var name = set[0];
-    var arr = unique(set[1]);
-    var procSet = [name, arr];
-    return procSet;
-  };
-
-  mod.union = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = union(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  mod.intersection = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = intersection(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  // To be basically read as A minus B.
-  mod.relativeComplement = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = relativeComplement(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  mod.symetricDifference = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = union(relativeComplement(setElemsA, setElemsB), relativeComplement(setElemsB, setElemsA));
-    return newSet;
-  };
-
-  mod.getSets = function () {
-    var curr = window.sessionStorage.getItem("sets");
-    var retval = [];
-
-    if (curr !== null) {
-      retval = JSON.parse(curr);
-    }
-
-    return retval;
-  };
-
-  mod.getSet = function (setName) {
-    var retval;
-    var curr = mod.getSets();
-    retval = curr.filter(function (x) {
-      return x[0] === setName;
-    })[0];
-    return retval;
-  };
-
-  mod.removeSet = function (setName) {
-    var nnew;
-    var curr = mod.getSets();
-    nnew = curr.filter(function (x) {
-      return x[0] !== setName;
-    });
-    mod.setSets(nnew);
-    return mod;
-  };
-
-  mod.getSetNames = function () {
-    var curr = mod.getSets();
-    return curr.map(function (x) {
-      return x[0];
-    });
-  };
-
-  mod.setSets = function (nnew) {
-    var procSets;
-    if (Array.isArray(nnew)) {
-      procSets = nnew.map(function (x) {
-        return processSet(x);
-      });
-      window.sessionStorage.setItem("sets", JSON.stringify(procSets));
-    } else {
-      window.sessionStorage.settem("sets", "[]");
-    }
-
-    return mod;
-  };
-
-  mod.setSet = function (nnew) {
-    if (Array.isArray(nnew) && nnew.length === 2) {
-      var curr = mod.getSets();
-      var newName = nnew[0];
-      var filtered = curr.filter(function (x) {
-        return x[0] !== newName;
-      });
-      mod.setSets(filtered.concat([nnew]));
-    }
-    return mod;
-  };
-
-  return mod;
-})();
 // Dialog for manipulating doctypes
 shimi.charseqDialog = function (values) {
   var f = shimi.charseqElems.get(values);
@@ -2174,53 +2100,167 @@ shimi.fieldsetElems = (function () {
 
   return mod;
 })();
-shimi.loadHash = function (urlHash) {
-  if (urlHash) {
-    shimi.viewui.get(urlHash);
-  }
-  return false;
-};
+// Shared document editing stuff plus initialization.
+shimi.documents = (function () {
+  var mod = {};
 
-shimi.jumpForm = function () {
-  $('#view-jump').live("submit", function () {
-    return false;
-  });
-  $('#view-jump-id').live("keypress", function (e) {
-    if (e.which === 13) {
-      var docid = $('#view-jump-id').val();
-      shimi.viewui.get(docid);
+  var jumpForm = function () {
+    $('#view-jump-id').live("keypress", function (e) {
+      if (e.which === 13) {
+        var docid = $('#view-jump-id').val();
+        shimi.viewui.get(docid);
+      }
+      return true;
+    });
+
+    return mod;
+  };
+  var searchForm = function () {
+    $('#document-search-term').on("keydown", function (e) {
+      if (e.which === 13) {
+        shimi.searchui.getSearch();
+        return false;
+      }
+      return true;
+    });
+
+    return mod;
+  };
+  var indexForm = function () {
+    var getIndexTimer;
+
+    $('#index-filter-form input').keyup(function (e) {
+      clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function () {
+        if (e.which !== 8 && e.which !== 46) {
+          shimi.indexiu.get();
+        }
+      }, 500);
+    });
+    $('#index-filter-form select').change(function () {
+      shimi.indexiu.get();
+    });
+
+    return mod;
+  };
+  var loadHash = function (urlHash) {
+    if (urlHash) {
+      shimi.viewui.get(urlHash);
     }
-    return true;
-  });
-};
 
-shimi.setForm = function () {
-  $('#new-set-form').on("submit", function () {
-    return false;
-  });
-  $('#document-sets-form').on("keydown", function (e) {
-    if (e.which === 13) {
-      shimi.setsui.performOp();
+    return mod;
+  };
+  var allDocContainer = function () {
+    return $("#all-document-container");
+  };
+  var versionKey = function () {
+    return mod.identifier() + "_version";
+  };
+  var infoKey = function () {
+    return mod.identifier() + "_info";
+  };
+  var labelsKey = function () {
+    return mod.identifier() + "_labels";
+  };
+  var storeDoctype = function (doctype) {
+    sessionStorage.setItem(infoKey(), doctype);
+    shimi.dispatch.send('doctype-info-ready');
+
+    return mod;
+  };
+
+  mod.getVersion = function () {
+    return sessionStorage.getItem(versionKey());
+  };
+
+  mod.getCurrentVersion = function () {
+    return shimi.store(allDocContainer()).d("version");
+  };
+
+  mod.isCurrentVersionStored = function () {
+    return (mod.getVersion() && mod.getVersion() === mod.getCurrentVersion());
+  };
+
+  mod.setVersion = function () {
+    sessionStorage.setItem(versionKey(), mod.getCurrentVersion());
+    shimi.dispatch.send("version-set");
+
+    return mod;
+  };
+
+  mod.clearSession = function () {
+    sessionStorage.clear();
+    shimi.dispatch.send("session-cleared");
+
+    return mod;
+  };
+
+  mod.checkVersion = function () {
+    if (mod.isCurrentVersionStored()) {
+      window.console.log(mod.getVersion());
+      shimi.dispatch.send("labels-ready");
+    } else {
+      shimi.dispatch.send("bad-session-state");
+    }
+
+    return mod;
+  };
+
+  mod.name = function () {
+    return shimi.store($("#all-document-container")).d("doctype");
+  };
+
+  mod.project = function () {
+    return shimi.store($("#container")).get("project-id");
+  };
+
+  mod.identifier = function () {
+    return mod.project() + "_" + mod.name();
+  };
+
+  mod.info = function () {
+    return JSON.parse(sessionStorage.getItem(infoKey()));
+  };
+
+  mod.loadDoctype = function () {
+    $.getJSON("./", function (data) {
+      storeDoctype(JSON.stringify(data));
+    });
+
+    return mod;
+  };
+
+  mod.makeLabels = function () {
+    var info = mod.info();
+    var labels = {};
+
+    info.fieldsets.forEach(function (fieldset) {
+      fieldset.fields.forEach(function (field) {
+        labels[field._id] = [fieldset.label, field.label];
+      });
+    });
+
+    sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
+    shimi.dispatch.send("labels-ready");
+
+    return mod;
+  };
+
+  mod.init = function () {
+    $('form').on('submit', function () {
       return false;
-    }
-    return true;
-  });
-  shimi.setsui.updateSelection();
-};
+    });
+    mod.checkVersion();
+    shimi.setsui.updateSelection();
+    shimi.indexiu.iOpts().get();
+    jumpForm();
+    shimi.editui.init();
+    searchForm();
+    loadHash($(location)[0].hash.split("#")[1]);
+  };
 
-shimi.searchForm = function () {
-  shimi.searchui.loadSearchVals();
-  $('#document-search-form').on("submit", function () {
-    return false;
-  });
-  $('#document-search-term').on("keydown", function (e) {
-    if (e.which === 13) {
-      shimi.searchui.getSearch();
-      return false;
-    }
-    return true;
-  });
-};
+  return mod;
+})();
 // Edit pane UI elements
 shimi.editui = (function () {
   var mod = {};
@@ -2805,18 +2845,6 @@ shimi.fieldsets = (function () {
     });
   };
 
-  var loadLabels = function (project, doctype, url) {
-    $.getJSON(url, function (data) {
-      sessionStorage.setItem(project + "_" + doctype + "_labels", JSON.stringify(data));
-    });
-  };
-
-  var loadDoctype = function (project, doctype) {
-    $.getJSON("./", function (data) {
-      sessionStorage.setItem(project + "_" + doctype + "_info", JSON.stringify(data));
-    });
-  };
-
   var setFieldValue = function (field, value) {
     if (field.is('input.boolean')) {
       field.attr("checked", value === "true");
@@ -2892,23 +2920,6 @@ shimi.fieldsets = (function () {
   };
 
   mod.initFieldsets = function () {
-    var container = $("#create-document-button");
-    var s = store(container);
-    var doctype = s.d("doctype");
-    var project = store($("#container")).get("project-id");
-    var versionKey = doctype + "_version";
-    var oldVersion = sessionStorage.getItem(versionKey);
-    var curVersion = s.d("version");
-
-    if (oldVersion !== curVersion) {
-      sessionStorage.clear();
-      var labelsUrl = shimi.path(container, "fieldset").toString();
-      loadDoctype(project, doctype);
-      loadLabels(project, doctype, labelsUrl);
-    }
-
-    sessionStorage.setItem(versionKey, curVersion);
-
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
@@ -3016,14 +3027,8 @@ shimi.searchui = (function () {
   var searchListing = function () {
     return $('#search-listing');
   };
-  var getDoctype = function () {
-    return shimi.store($("#all-document-container")).d("doctype");
-  };
-  var getProject = function () {
-    return shimi.store($("#container")).get("project-id");
-  };
   var getIdentifier = function () {
-    return getProject() + "_" + getDoctype();
+    return shimi.documents.identifier();
   };
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
@@ -3362,6 +3367,146 @@ shimi.searchui = (function () {
 
   return mod;
 })();
+shimi.sets = (function () {
+  var mod = {};
+
+  var sessionKey = function () {
+    return shimi.documents.identifier() + "_sets";
+  };
+
+  var member = function (arr, x) {
+    return arr.some(function (y) {
+      return x[0] === y[0] && x[1] === y[1];
+    });
+  };
+
+  var unique = function (x) {
+    return x.reduce(function (acc, curr) {
+      if (member(acc, curr)) {
+        return acc;
+      } else {
+        return acc.concat([curr]);
+      }
+    }, []);
+  };
+
+  var union = function (xs, ys) {
+    return unique(xs.concat(ys));
+  };
+
+  var intersection = function (xs, ys) {
+    return xs.filter(function (x) {
+      return member(ys, x);
+    });
+  };
+
+  var relativeComplement = function (xs, ys) {
+    return xs.filter(function (x) {
+      return !member(ys, x);
+    });
+  };
+
+  var processSet = function (set) {
+    var name = set[0];
+    var arr = unique(set[1]);
+    var procSet = [name, arr];
+    return procSet;
+  };
+
+  mod.union = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = union(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  mod.intersection = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = intersection(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  // To be basically read as A minus B.
+  mod.relativeComplement = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = relativeComplement(setElemsA, setElemsB);
+    return newSet;
+  };
+
+  mod.symetricDifference = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = union(relativeComplement(setElemsA, setElemsB), relativeComplement(setElemsB, setElemsA));
+    return newSet;
+  };
+
+  mod.getSets = function () {
+    var curr = window.sessionStorage.getItem(sessionKey());
+    var retval = [];
+
+    if (curr !== null) {
+      retval = JSON.parse(curr);
+    }
+
+    return retval;
+  };
+
+  mod.getSet = function (setName) {
+    var retval;
+    var curr = mod.getSets();
+    retval = curr.filter(function (x) {
+      return x[0] === setName;
+    })[0];
+    return retval;
+  };
+
+  mod.removeSet = function (setName) {
+    var nnew;
+    var curr = mod.getSets();
+    nnew = curr.filter(function (x) {
+      return x[0] !== setName;
+    });
+    mod.setSets(nnew);
+    return mod;
+  };
+
+  mod.getSetNames = function () {
+    var curr = mod.getSets();
+    return curr.map(function (x) {
+      return x[0];
+    });
+  };
+
+  mod.setSets = function (nnew) {
+    var procSets;
+    if (Array.isArray(nnew)) {
+      procSets = nnew.map(function (x) {
+        return processSet(x);
+      });
+      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
+    } else {
+      window.sessionStorage.settem(sessionKey(), "[]");
+    }
+
+    return mod;
+  };
+
+  mod.setSet = function (nnew) {
+    if (Array.isArray(nnew) && nnew.length === 2) {
+      var curr = mod.getSets();
+      var newName = nnew[0];
+      var filtered = curr.filter(function (x) {
+        return x[0] !== newName;
+      });
+      mod.setSets(filtered.concat([nnew]));
+    }
+    return mod;
+  };
+
+  return mod;
+})();
 shimi.setsui = (function () {
   var mod = {};
   var sets = shimi.sets;
@@ -3371,6 +3516,9 @@ shimi.setsui = (function () {
   };
   var setB = function () {
     return $("#document-set-b-input");
+  };
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
   };
   var op = function () {
     return $("#document-set-operation-input");
@@ -3445,7 +3593,7 @@ shimi.setsui = (function () {
   var remove = function (setName) {
     sets.removeSet(setName);
     render([]);
-    mod.updateSelection();
+    shimi.dispatch.send("sets-changed");
     return mod;
   };
 
@@ -3515,6 +3663,7 @@ shimi.setsui = (function () {
     });
     setA().html(newOptions);
     setB().html(newOptions);
+    worksheetsSet().html(newOptions);
     return mod;
   };
 
@@ -3531,7 +3680,7 @@ shimi.setsui = (function () {
       newSet = [name, selected];
       sets.setSet(newSet);
       $("#new-set-input").val("");
-      mod.updateSelection();
+      shimi.dispatch.send("sets-changed");
       shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
     } else {
       shimi.flash("Input invalid:", "You must supply a valid name.").error();
@@ -3759,25 +3908,44 @@ shimi.viewui = (function (args) {
 
   return mod;
 })();
-shimi.worksheetui = (function (args) {
+shimi.worksheetui = (function () {
   var mod = {};
-  var getDoctype = function () {
-    return shimi.store($("#all-document-container")).d("doctype");
+  var sets = shimi.sets;
+
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
   };
-  var getProject = function () {
-    return shimi.store($("#container")).get("project-id");
+  var worksheetsArea = function () {
+    return $("#worksheet-area");
   };
-  var getIdentifier = function () {
-    return getProject() + "_" + getDoctype();
-  };
-  var getDoctypeInfo = function () {
-    return JSON.parse(sessionStorage.getItem(getIdentifier + "_info"));
+  var worksheetName = function () {
+    return shimi.documents.identifier() + "_worksheet-template";
   };
 
   mod.buildTemplate = function () {
-    var doctypeInfo = getDoctypeInfo();
-    var metaTemp = "<!-- {{=|| ||=}} -->\n" + templates['worksheet'].render(doctypeInfo);
-    shimi["worksheet-template"] = hogan.compile(metaTemp);
+    var doctypeInfo = shimi.documents.info();
+    var metaTemp = "<!-- {{=<% %>=}} -->\n" + templates['worksheet'].render(doctypeInfo);
+    shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
+
+    return mod;
+  };
+
+  mod.fillWorksheet = function () {
+    var setName = worksheetsSet().val();
+    var url = "ws?set=";
+
+    if (!setName.isBlank()) {
+      var thisSet = sets.getSet(setName)[1];
+      var setIds = thisSet.map(function (x) {
+        return x[1];
+      });
+      url = url + JSON.stringify(setIds);
+
+      $.getJSON(url, function (data) {
+        var ws = shimi.globals[worksheetName()].render(data);
+        worksheetsArea().html(ws);
+      });
+    }
 
     return mod;
   };
@@ -4771,32 +4939,7 @@ $(function () {
 
   // Documents
   if ($('#all-document-container').length > 0) {
-    var getIndexTimer;
-
-    shimi.indexiu.iOpts().get();
-    shimi.jumpForm();
-    shimi.searchForm();
-    shimi.setForm();
-    shimi.editui.init();
-
-    $('#index-filter-form input').keyup(
-
-    function (e) {
-      clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function () {
-        if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
-        }
-      }, 500);
-    });
-
-    $('#index-filter-form select').change(
-
-    function () {
-      shimi.indexiu.get();
-    });
-
-    shimi.loadHash($(location)[0].hash.split("#")[1]);
+    shimi.documents.init();
   }
 
   // File Manager

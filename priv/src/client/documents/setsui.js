@@ -8,6 +8,9 @@ shimi.setsui = (function () {
   var setB = function () {
     return $("#document-set-b-input");
   };
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
+  };
   var op = function () {
     return $("#document-set-operation-input");
   };
@@ -81,7 +84,7 @@ shimi.setsui = (function () {
   var remove = function (setName) {
     sets.removeSet(setName);
     render([]);
-    mod.updateSelection();
+    shimi.dispatch.send("sets-changed");
     return mod;
   };
 
@@ -151,6 +154,7 @@ shimi.setsui = (function () {
     });
     setA().html(newOptions);
     setB().html(newOptions);
+    worksheetsSet().html(newOptions);
     return mod;
   };
 
@@ -167,7 +171,7 @@ shimi.setsui = (function () {
       newSet = [name, selected];
       sets.setSet(newSet);
       $("#new-set-input").val("");
-      mod.updateSelection();
+      shimi.dispatch.send("sets-changed");
       shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
     } else {
       shimi.flash("Input invalid:", "You must supply a valid name.").error();

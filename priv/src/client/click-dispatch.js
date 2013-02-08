@@ -173,7 +173,7 @@ shimi.clickDispatch = function (e) {
       $("#new-set-dialog").show();
     },
     "#new-set-save-button": function () {
-      setsui.saveSelected($("#new-set-target-input").val());
+      shimi.dispatch.send("new-set-form-submit");
     },
     "#select-all-set-elements": function (t) {
       setsui.toggleSelectAll(t);

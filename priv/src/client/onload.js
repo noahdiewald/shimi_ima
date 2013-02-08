@@ -17,32 +17,7 @@ $(function () {
 
   // Documents
   if ($('#all-document-container').length > 0) {
-    var getIndexTimer;
-
-    shimi.indexiu.iOpts().get();
-    shimi.jumpForm();
-    shimi.searchForm();
-    shimi.setForm();
-    shimi.editui.init();
-
-    $('#index-filter-form input').keyup(
-
-    function (e) {
-      clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function () {
-        if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
-        }
-      }, 500);
-    });
-
-    $('#index-filter-form select').change(
-
-    function () {
-      shimi.indexiu.get();
-    });
-
-    shimi.loadHash($(location)[0].hash.split("#")[1]);
+    shimi.documents.init();
   }
 
   // File Manager

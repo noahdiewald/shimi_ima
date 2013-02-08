@@ -201,18 +201,6 @@ shimi.fieldsets = (function () {
     });
   };
 
-  var loadLabels = function (project, doctype, url) {
-    $.getJSON(url, function (data) {
-      sessionStorage.setItem(project + "_" + doctype + "_labels", JSON.stringify(data));
-    });
-  };
-
-  var loadDoctype = function (project, doctype) {
-    $.getJSON("./", function (data) {
-      sessionStorage.setItem(project + "_" + doctype + "_info", JSON.stringify(data));
-    });
-  };
-
   var setFieldValue = function (field, value) {
     if (field.is('input.boolean')) {
       field.attr("checked", value === "true");
@@ -288,23 +276,6 @@ shimi.fieldsets = (function () {
   };
 
   mod.initFieldsets = function () {
-    var container = $("#create-document-button");
-    var s = store(container);
-    var doctype = s.d("doctype");
-    var project = store($("#container")).get("project-id");
-    var versionKey = doctype + "_version";
-    var oldVersion = sessionStorage.getItem(versionKey);
-    var curVersion = s.d("version");
-
-    if (oldVersion !== curVersion) {
-      sessionStorage.clear();
-      var labelsUrl = shimi.path(container, "fieldset").toString();
-      loadDoctype(project, doctype);
-      loadLabels(project, doctype, labelsUrl);
-    }
-
-    sessionStorage.setItem(versionKey, curVersion);
-
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 

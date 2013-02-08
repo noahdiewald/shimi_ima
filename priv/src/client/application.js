@@ -7,10 +7,11 @@
 //= jquery-ui-input-state.js
 //= compat.js
 //= click-dispatch.js
+//= keystrokes.js
+//= gen-dispatch.js
 //= index.js
 //= form.js
 //= sess.js
-//= sets.js
 //= config
 //= documents
 //= file_manager
