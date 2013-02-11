@@ -541,16 +541,11 @@ a.selected-revision {
 table.worksheet-table {
   table-layout: fixed;
   .header-row {
-    height: 2em;
-    th {
-      width: 8em;
-      overflow: hidden;
-    }
     th.worksheet-handle-header {
       width: 2em;
       overflow: visible;
       div {
-        height: 2em;
+        height: 1.5em;
         position: relative;
         span {
           -webkit-transform-origin: left bottom;
@@ -572,7 +567,6 @@ table.worksheet-table {
     }
   }
   .body-row {
-    height: 2em;
     td {
       overflow: hidden;
       white-space:nowrap;
@@ -585,13 +579,15 @@ table.worksheet-table {
   .select-column {
     width: 2em;
   }
-  .fieldset-handle-column {
+  .fieldset.handle-column {
     background: @darkbgcolor;
     border-top-color: @darkbgcolor;
     border-bottom-color: @darkbgcolor;
-    color: @bgcolor;
+    a {
+      color: @bgcolor;
+    }
   }
-  .field-handle-column {
+  .field.handle-column {
     background: @bgcolor;
     border-top-color: @bgcolor;
     border-bottom-color: @bgcolor;
