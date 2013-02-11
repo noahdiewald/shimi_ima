@@ -208,7 +208,6 @@ ul.head-elements {
   display:table-row;
 }
 table {
-  width:100%;
   border-collapse:collapse;
   background:@bgcontrast;
   th {
@@ -236,12 +235,21 @@ table {
   padding-top:0;
   &#document-index {
     width:25%;
+    table {
+      width:100%;
+    }
   }
   &#index-index {
     width:10%;
+    table {
+      width:100%;
+    }
   }
   &#document-view {
     width:25%;
+    table {
+      width:100%;
+    }
     ul {
       padding-left:1em;
       line-height:120%;
@@ -271,7 +279,76 @@ table {
     }
   }
   &#document-edit, &#index-edit {
+    table {
+      width:100%;
+    }
     width:50%;
+  }
+  &#document-worksheets {
+    #worksheet-area {
+      width: 100%;
+      overflow: auto;
+      table.worksheet-table {
+        table-layout: fixed;
+        .header-row {
+          th.worksheet-handle-header {
+            width: 2em;
+            min-width: 2em;
+            overflow: visible;
+            div {
+              height: 2em;
+              position: relative;
+              span {
+                -webkit-transform-origin: left bottom;
+                -ms-transform-origin: left bottom;
+                -o-transform-origin: left bottom;
+                transform-origin: left bottom;
+                 -webkit-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                -o-transform: rotate(90deg);
+                transform: rotate(90deg);
+                padding: 0;
+                margin: 0;
+                position: absolute;
+                top: 0em;
+                left: 0.5em;
+                white-space: nowrap;
+              }
+            }
+          }
+        }
+        .body-row {
+          td {
+            overflow: hidden;
+            white-space:nowrap;
+            ol {
+              padding: 0;
+              margin: 0;
+            }
+          }
+        }
+        .select-column {
+          width: 2em;
+        }
+        .fieldset.handle-column {
+          background: @darkbgcolor;
+          border-top-color: @darkbgcolor;
+          border-bottom-color: @darkbgcolor;
+          a {
+            color: @bgcolor;
+          }
+        }
+        .field.handle-column {
+          background: @bgcolor;
+          border-top-color: @bgcolor;
+          border-bottom-color: @bgcolor;
+          color: @fgcolor;
+        }
+        .collapse, .field-column {
+          display: none;
+        }
+      }
+    }
   }
 }
 span.retain-white {
@@ -537,64 +614,4 @@ a.selected-revision {
 }
 .quiet {
   color: @infobackground;
-}
-table.worksheet-table {
-  table-layout: fixed;
-  max-width: 1px;
-  .header-row {
-    th.worksheet-handle-header {
-      width: 2em;
-      overflow: visible;
-      div {
-        height: 2em;
-        position: relative;
-        span {
-          -webkit-transform-origin: left bottom;
-          -ms-transform-origin: left bottom;
-          -o-transform-origin: left bottom;
-          transform-origin: left bottom;
-           -webkit-transform: rotate(90deg);
-          -ms-transform: rotate(90deg);
-          -o-transform: rotate(90deg);
-          transform: rotate(90deg);
-          padding: 0;
-          margin: 0;
-          position: absolute;
-          top: 0em;
-          left: 0.5em;
-          white-space: nowrap;
-        }
-      }
-    }
-  }
-  .body-row {
-    td {
-      overflow: hidden;
-      white-space:nowrap;
-      ol {
-        padding: 0;
-        margin: 0;
-      }
-    }
-  }
-  .select-column {
-    width: 2em;
-  }
-  .fieldset.handle-column {
-    background: @darkbgcolor;
-    border-top-color: @darkbgcolor;
-    border-bottom-color: @darkbgcolor;
-    a {
-      color: @bgcolor;
-    }
-  }
-  .field.handle-column {
-    background: @bgcolor;
-    border-top-color: @bgcolor;
-    border-bottom-color: @bgcolor;
-    color: @fgcolor;
-  }
-  .collapse, .field-column {
-    display: none;
-  }
 }
