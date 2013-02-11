@@ -61,6 +61,7 @@ shimi.clickDispatch = function (e) {
   var indexiu = shimi.indexiu;
   var setsui = shimi.setsui;
   var searchui = shimi.searchui;
+  var worksheetui = shimi.worksheetui;
   var fieldsets = shimi.fieldsets;
   var ieditui = shimi.ieditui;
   var form = shimi.form;
@@ -180,6 +181,15 @@ shimi.clickDispatch = function (e) {
     },
     ".view-document-link": function (t) {
       indexiu.load(t);
+    },
+    ".fieldset-handle": function (t) {
+      worksheetui.toggleFieldset($(t).attr("data-field-fieldset"));
+    },
+    ".field-handle": function (t) {
+      worksheetui.showField($(t).attr("data-field-field"));
+    },
+    ".field-header": function (t) {
+      worksheetui.hideField($(t).attr("data-field-field"));
     },
 
     // Index Tool
