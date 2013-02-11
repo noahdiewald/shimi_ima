@@ -44,11 +44,6 @@ nav ul {
 #main-content #main-tabs {
   font-size: 8pt;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #eeeeee;
-}
 .ui-dialog-content {
   text-align: left;
 }
@@ -216,6 +211,29 @@ ul.head-elements li:first-child:before {
 #all-index-container {
   background: #ffffff;
   display: table-row;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #eeeeee;
+}
+table th {
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: thin;
+  background: #ffffff;
+  color: #000000;
+  vertical-align: top;
+}
+table th a {
+  text-decoration: none;
+  font-weight: normal;
+  color: #000000;
+}
+table td {
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: thin;
 }
 .panel {
   display: table-cell;
@@ -408,19 +426,6 @@ input[disabled] {
 #query-view {
   margin-top: 10px;
 }
-th {
-  border-style: solid;
-  border-color: #cccccc;
-  border-width: thin;
-  background: #ffffff;
-  color: #000000;
-  vertical-align: top;
-}
-th a {
-  text-decoration: none;
-  font-weight: normal;
-  color: #000000;
-}
 #file-upload-target {
   display: none;
 }
@@ -452,11 +457,6 @@ nav#history {
   background: #9bc1f2;
   clear: both;
   padding: 0.5ex 1em 0.25ex 1em;
-}
-td {
-  border-style: solid;
-  border-color: #cccccc;
-  border-width: thin;
 }
 .header {
   border: none;
@@ -554,4 +554,68 @@ a.selected-revision {
 }
 .quiet {
   color: #9bc1f2;
+}
+table.worksheet-table {
+  table-layout: fixed;
+}
+table.worksheet-table .header-row {
+  height: 2em;
+}
+table.worksheet-table .header-row th {
+  width: 8em;
+  overflow: hidden;
+}
+table.worksheet-table .header-row th.worksheet-handle-header {
+  width: 2em;
+  overflow: visible;
+}
+table.worksheet-table .header-row th.worksheet-handle-header div {
+  height: 2em;
+  position: relative;
+}
+table.worksheet-table .header-row th.worksheet-handle-header div span {
+  -webkit-transform-origin: left bottom;
+  -ms-transform-origin: left bottom;
+  -o-transform-origin: left bottom;
+  transform-origin: left bottom;
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  top: -1em;
+  left: 0.5em;
+  white-space: nowrap;
+}
+table.worksheet-table .body-row {
+  height: 2em;
+}
+table.worksheet-table .body-row td {
+  overflow: hidden;
+  white-space: nowrap;
+}
+table.worksheet-table .body-row td ol {
+  padding: 0;
+  margin: 0;
+}
+table.worksheet-table .select-column {
+  width: 2em;
+}
+table.worksheet-table .fieldset-handle-column {
+  background: #555555;
+  border-top-color: #555555;
+  border-bottom-color: #555555;
+  color: #ffffff;
+}
+table.worksheet-table .field-handle-column {
+  background: #ffffff;
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
+  color: #222222;
+}
+table.worksheet-table .collapse,
+table.worksheet-table .field-column {
+  display: none;
 }

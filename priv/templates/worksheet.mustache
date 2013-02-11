@@ -1,65 +1,61 @@
 <table class="worksheet-table">
-  <colgroup span="1" id="worksheet-check-boxes-column">
-  <colgroup span="1" id="worksheet-keys-column">
-  {{#fieldsets}}
-    <colgroup span="1"
-      id="worksheet-handle-column-{{ _id }}"
-      class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}}">
-    <colgroup 
-      id="worksheet-column-group-{{ _id }}"
-      class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}}">
-      {{#fields}}
-        <col
-          id="worksheet-column-{{ _id }}"
-          data-field-fieldset="{{ fieldset }}"
-          data-field-field="{{ _id }}">
-      {{/fields}}
-    </colgroup>
-  {{/fieldsets}}
   <thead>
-    <tr>
-      <td>
+    <tr class="header-row">
+      <td id="select-all-worksheet-rows-cell"
+        class="select-column">
         <input 
           id="select-all-worksheet-rows"
           type="checkbox"
           title="Click to select all rows">
       </td>
-      <th>Key</th>
       {{#fieldsets}}
         <th 
-          class="worksheet-handle-header"
-          data-field-fieldset="{{ _id }}">
-          {{ label }}
+          class="worksheet-handle-header fieldset-handle-column {{_id}}"
+          data-field-fieldset="{{ _id }}"
+          title="{{ label }}">
+          <div><span>{{ label }}</span></div>
         </th>
         {{#fields}}
           <th
-            class="worksheet-header"
+            class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}} {{ fieldset }} {{ _id }} worksheet-handle-header field-handle-column"
             data-field-fieldset="{{ fieldset }}"
-            data-field-field="{{ _id }}">
-            {{ _id }}
+            data-field-field="{{ _id }}"
+            title="{{ label }}">
+            <div><span>{{ label }}</span></div>
           </th>
+          <td
+            class="{{ fieldset }} {{ _id }} field-column"
+            data-field-fieldset="{{ fieldset }}"
+            data-field-field="{{ _id }}"
+            title="{{ label }}">
+            <input 
+              class="select-worksheet-column"
+              type="checkbox"
+              title="Click to select column">
+          </td>
         {{/fields}}
       {{/fieldsets}}
     </tr>
   </thead>
   <tbody>
     <%#rows%>
-      <tr id="worksheet-row-<% _id %>">
-        <td>
+      <tr id="worksheet-row-<% _id %>"
+        class="body-row">
+        <td class="select-column">
           <input 
             class="select-worksheet-row"
             type="checkbox"
-            title="Click to select rows">
-        </td>
-        <td>
-          <%#head%>
-            <span class="head-id"><%.%></span>
-          <%/head%>
+            title="Click to select row">
         </td>
         {{#fieldsets}}
-          <td class="empty-handle" data-field-fieldset="{{ _id }}">...</td>
+          <td class="{{ _id }} fieldset-handle-column"
+            data-field-fieldset="{{ _id }}"></td>
           {{#fields}}
+            <td class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}} {{ _id }} {{ fieldset }} field-handle-column"
+              data-field-fieldset="{{ _id }}"
+              data-field-field="{{ _id }}"></td>
             <td
+              class="{{#multiple}}multiple{{/multiple}} {{#collapse}}collapse{{/collapse}} {{ fieldset }} {{ _id }} field-column"
               data-field-fieldset="{{ fieldset }}"
               data-field-field="{{ _id }}">
               <%#{{ _id }}%>
@@ -73,7 +69,7 @@
                 </ol>
                 <%/multiple%>
                 <%#single%>
-                  <% value %>
+                  <span><% value %></span>
                 <%/single%>
               <%/{{ _id }}%>
             </td>

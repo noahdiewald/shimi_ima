@@ -13,6 +13,8 @@
 @helpborder:#1c94c4;
 @semitrans:rgba(255,255,255,0.5);
 
+// Mixins
+
 body {
   font-family:sans-serif;
   font-size:9pt;
@@ -58,11 +60,6 @@ nav {
   #main-tabs {
     font-size:8pt;
   }
-}
-table {
-  width:100%;
-  border-collapse:collapse;
-  background:@bgcontrast;
 }
 .ui-dialog-content {
   text-align:left;
@@ -209,6 +206,29 @@ ul.head-elements {
 #all-document-container, #all-index-container {
   background:@bgcolor;
   display:table-row;
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  background:@bgcontrast;
+  th {
+    border-style:solid;
+    border-color:@widgetborder;
+    border-width:thin;
+    background:@bgcolor;
+    color:@fgstark;
+    vertical-align:top;
+    a {
+      text-decoration:none;
+      font-weight:normal;
+      color:@fgstark;
+    }
+  }
+  td {
+    border-style:solid;
+    border-color:@widgetborder;
+    border-width:thin;
+  }
 }
 .panel {
   display:table-cell;
@@ -399,19 +419,6 @@ input[disabled] {
 #query-view {
   margin-top:10px;
 }
-th {
-  border-style:solid;
-  border-color:@widgetborder;
-  border-width:thin;
-  background:@bgcolor;
-  color:@fgstark;
-  vertical-align:top;
-  a {
-    text-decoration:none;
-    font-weight:normal;
-    color:@fgstark;
-  }
-}
 #file-upload-target {
   display:none;
 }
@@ -435,11 +442,6 @@ th {
 }
 nav#history {
   .mini-header;
-}
-td {
-  border-style:solid;
-  border-color:@widgetborder;
-  border-width:thin;
 }
 .header {
   border:none;
@@ -535,4 +537,67 @@ a.selected-revision {
 }
 .quiet {
   color: @infobackground;
+}
+table.worksheet-table {
+  table-layout: fixed;
+  .header-row {
+    height: 2em;
+    th {
+      width: 8em;
+      overflow: hidden;
+    }
+    th.worksheet-handle-header {
+      width: 2em;
+      overflow: visible;
+      div {
+        height: 2em;
+        position: relative;
+        span {
+          -webkit-transform-origin: left bottom;
+          -ms-transform-origin: left bottom;
+          -o-transform-origin: left bottom;
+          transform-origin: left bottom;
+           -webkit-transform: rotate(90deg);
+          -ms-transform: rotate(90deg);
+          -o-transform: rotate(90deg);
+          transform: rotate(90deg);
+          padding: 0;
+          margin: 0;
+          position: absolute;
+          top: -1em;
+          left: 0.5em;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+  .body-row {
+    height: 2em;
+    td {
+      overflow: hidden;
+      white-space:nowrap;
+      ol {
+        padding: 0;
+        margin: 0;
+      }
+    }
+  }
+  .select-column {
+    width: 2em;
+  }
+  .fieldset-handle-column {
+    background: @darkbgcolor;
+    border-top-color: @darkbgcolor;
+    border-bottom-color: @darkbgcolor;
+    color: @bgcolor;
+  }
+  .field-handle-column {
+    background: @bgcolor;
+    border-top-color: @bgcolor;
+    border-bottom-color: @bgcolor;
+    color: @fgcolor;
+  }
+  .collapse, .field-column {
+    display: none;
+  }
 }
