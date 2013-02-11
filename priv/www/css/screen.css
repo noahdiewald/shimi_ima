@@ -557,13 +557,14 @@ a.selected-revision {
 }
 table.worksheet-table {
   table-layout: fixed;
+  max-width: 1px;
 }
 table.worksheet-table .header-row th.worksheet-handle-header {
   width: 2em;
   overflow: visible;
 }
 table.worksheet-table .header-row th.worksheet-handle-header div {
-  height: 1.5em;
+  height: 2em;
   position: relative;
 }
 table.worksheet-table .header-row th.worksheet-handle-header div span {
