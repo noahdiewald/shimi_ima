@@ -288,8 +288,18 @@ table {
     #worksheet-area {
       width: 100%;
       overflow: auto;
-      table.worksheet-table {
+      table#worksheet-table {
         table-layout: fixed;
+        td.selected-column {
+          background: @infobackground;
+        }
+        tr.selected-row {
+          background: @level1;
+          td.selected-column {
+            background: @bgcolor;
+            font-weight: bold;
+          }
+        }
         .header-row {
           th.worksheet-handle-header {
             width: 2em;
@@ -545,7 +555,7 @@ tr.ui-widget-header th {
 #search-field-label {
   font-weight:normal;
 }
-.search-field-item {
+.search-field-item, .small-control {
   margin-left:2px;
   background:@infobackground;
   text-decoration:none;

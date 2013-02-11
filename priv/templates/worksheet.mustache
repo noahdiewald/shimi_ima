@@ -1,4 +1,4 @@
-<table class="worksheet-table">
+<table id="worksheet-table">
   <thead>
     <tr class="header-row">
       <td id="select-all-worksheet-rows-cell"
@@ -28,7 +28,7 @@
                   data-field-field="{{ _id }}" 
                   href="#">{{ label }}</a></span></div>
           </th>
-          <td
+          <th
             class="{{ fieldset }} {{ _id }} field-column"
             title="{{ label }}">
             <a class="field-header" 
@@ -36,6 +36,7 @@
               href="#">{{ label }}</a>
             <input 
               class="select-worksheet-column"
+              data-field-field="{{ _id }}" 
               type="checkbox"
               title="Click to select column">
           </td>
@@ -50,6 +51,7 @@
         <td class="select-column">
           <input 
             class="select-worksheet-row"
+            data-row="worksheet-row-<% _id %>"
             type="checkbox"
             title="Click to select row">
         </td>

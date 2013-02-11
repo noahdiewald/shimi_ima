@@ -840,6 +840,7 @@ shimi.dispatcher = function (patterns) {
 
 shimi.dblclickDispatch = function (e) {
   var searchui = shimi.searchui;
+  var worksheetui = shimi.worksheetui;
 
   var action = shimi.dispatcher({
     ".search-result-field-id a": function (t) {
@@ -856,6 +857,15 @@ shimi.dblclickDispatch = function (e) {
     },
     ".panel > h2": function (t) {
       shimi.panelToggle.toggler(t);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.hideHandles();
+    },
+    ".fieldset-handle": function (t) {
+      worksheetui.hideFieldset($(t).attr("data-field-fieldset"));
+    },
+    ".field-handle": function (t) {
+      worksheetui.hideField($(t).attr("data-field-field"));
     }
   });
 
@@ -991,8 +1001,27 @@ shimi.clickDispatch = function (e) {
     ".view-document-link": function (t) {
       indexiu.load(t);
     },
+    ".select-worksheet-column": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var field = target.attr("data-field-field");
+      worksheetui.columnSelection(field, checked);
+    },
+    ".select-worksheet-row": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var row = target.attr("data-row");
+      worksheetui.rowSelection(row, checked);
+    },
+    "#select-all-worksheet-rows": function (t) {
+      var checked = $(t).is(':checked');
+      worksheetui.selectAllRows(checked);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.showHandles();
+    },
     ".fieldset-handle": function (t) {
-      worksheetui.toggleFieldset($(t).attr("data-field-fieldset"));
+      worksheetui.showFieldset($(t).attr("data-field-fieldset"));
     },
     ".field-handle": function (t) {
       worksheetui.showField($(t).attr("data-field-field"));
@@ -3932,8 +3961,58 @@ shimi.worksheetui = (function () {
     return shimi.documents.identifier() + "_worksheet-template";
   };
 
-  mod.toggleFieldset = function (fsid) {
-    $('.handle-column.field.' + fsid).toggle();
+  mod.selectAllRows = function (select) {
+    if (select) {
+      $('#worksheet-table tbody tr').addClass('selected-row');
+      $('#worksheet-table tbody tr input').attr('checked', true);
+    } else {
+      $('#worksheet-table tbody tr').removeClass('selected-row');
+      $('#worksheet-table tbody tr input:checked').attr('checked', false);
+    }
+
+    return mod;
+  };
+
+  mod.rowSelection = function (row, select) {
+    if (select) {
+      $('#' + row).addClass('selected-row');
+    } else {
+      $('#' + row).removeClass('selected-row');
+    }
+
+    return mod;
+  };
+
+  mod.columnSelection = function (column, select) {
+    if (select) {
+      $('.field-column.' + column).addClass('selected-column');
+    } else {
+      $('.field-column.' + column).removeClass('selected-column');
+    }
+
+    return mod;
+  };
+
+  mod.showHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').show();
+
+    return mod;
+  };
+
+  mod.hideHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').hide();
+
+    return mod;
+  };
+
+  mod.showFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).show();
+
+    return mod;
+  };
+
+  mod.hideFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).hide();
 
     return mod;
   };

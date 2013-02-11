@@ -31,6 +31,7 @@ shimi.dispatcher = function (patterns) {
 
 shimi.dblclickDispatch = function (e) {
   var searchui = shimi.searchui;
+  var worksheetui = shimi.worksheetui;
 
   var action = shimi.dispatcher({
     ".search-result-field-id a": function (t) {
@@ -47,6 +48,15 @@ shimi.dblclickDispatch = function (e) {
     },
     ".panel > h2": function (t) {
       shimi.panelToggle.toggler(t);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.hideHandles();
+    },
+    ".fieldset-handle": function (t) {
+      worksheetui.hideFieldset($(t).attr("data-field-fieldset"));
+    },
+    ".field-handle": function (t) {
+      worksheetui.hideField($(t).attr("data-field-field"));
     }
   });
 
@@ -182,8 +192,27 @@ shimi.clickDispatch = function (e) {
     ".view-document-link": function (t) {
       indexiu.load(t);
     },
+    ".select-worksheet-column": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var field = target.attr("data-field-field");
+      worksheetui.columnSelection(field, checked);
+    },
+    ".select-worksheet-row": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var row = target.attr("data-row");
+      worksheetui.rowSelection(row, checked);
+    },
+    "#select-all-worksheet-rows": function (t) {
+      var checked = $(t).is(':checked');
+      worksheetui.selectAllRows(checked);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.showHandles();
+    },
     ".fieldset-handle": function (t) {
-      worksheetui.toggleFieldset($(t).attr("data-field-fieldset"));
+      worksheetui.showFieldset($(t).attr("data-field-fieldset"));
     },
     ".field-handle": function (t) {
       worksheetui.showField($(t).attr("data-field-field"));

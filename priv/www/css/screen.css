@@ -293,19 +293,29 @@ table td {
   width: 100%;
   overflow: auto;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table {
+.panel#document-worksheets #worksheet-area table#worksheet-table {
   table-layout: fixed;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .header-row th.worksheet-handle-header {
+.panel#document-worksheets #worksheet-area table#worksheet-table td.selected-column {
+  background: #9bc1f2;
+}
+.panel#document-worksheets #worksheet-area table#worksheet-table tr.selected-row {
+  background: #f0a265;
+}
+.panel#document-worksheets #worksheet-area table#worksheet-table tr.selected-row td.selected-column {
+  background: #ffffff;
+  font-weight: bold;
+}
+.panel#document-worksheets #worksheet-area table#worksheet-table .header-row th.worksheet-handle-header {
   width: 2em;
   min-width: 2em;
   overflow: visible;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .header-row th.worksheet-handle-header div {
+.panel#document-worksheets #worksheet-area table#worksheet-table .header-row th.worksheet-handle-header div {
   height: 2em;
   position: relative;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .header-row th.worksheet-handle-header div span {
+.panel#document-worksheets #worksheet-area table#worksheet-table .header-row th.worksheet-handle-header div span {
   -webkit-transform-origin: left bottom;
   -ms-transform-origin: left bottom;
   -o-transform-origin: left bottom;
@@ -321,33 +331,33 @@ table td {
   left: 0.5em;
   white-space: nowrap;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .body-row td {
+.panel#document-worksheets #worksheet-area table#worksheet-table .body-row td {
   overflow: hidden;
   white-space: nowrap;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .body-row td ol {
+.panel#document-worksheets #worksheet-area table#worksheet-table .body-row td ol {
   padding: 0;
   margin: 0;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .select-column {
+.panel#document-worksheets #worksheet-area table#worksheet-table .select-column {
   width: 2em;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .fieldset.handle-column {
+.panel#document-worksheets #worksheet-area table#worksheet-table .fieldset.handle-column {
   background: #555555;
   border-top-color: #555555;
   border-bottom-color: #555555;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .fieldset.handle-column a {
+.panel#document-worksheets #worksheet-area table#worksheet-table .fieldset.handle-column a {
   color: #ffffff;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .field.handle-column {
+.panel#document-worksheets #worksheet-area table#worksheet-table .field.handle-column {
   background: #ffffff;
   border-top-color: #ffffff;
   border-bottom-color: #ffffff;
   color: #222222;
 }
-.panel#document-worksheets #worksheet-area table.worksheet-table .collapse,
-.panel#document-worksheets #worksheet-area table.worksheet-table .field-column {
+.panel#document-worksheets #worksheet-area table#worksheet-table .collapse,
+.panel#document-worksheets #worksheet-area table#worksheet-table .field-column {
   display: none;
 }
 span.retain-white {
@@ -560,7 +570,8 @@ tr.ui-widget-header th {
 #search-field-label {
   font-weight: normal;
 }
-.search-field-item {
+.search-field-item,
+.small-control {
   margin-left: 2px;
   background: #9bc1f2;
   text-decoration: none;

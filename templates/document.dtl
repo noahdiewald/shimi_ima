@@ -57,6 +57,9 @@
         <label for="document-worksheets-set-input">Set</label>
         <select name="document-worksheets-set-input" id="document-worksheets-set-input"></select><br/>
       </form>
+      <a href="#" 
+        id="toggle-handles" 
+        class="small-control">Toggle</a>
       <div id="worksheet-area">
       </div>
     </div>

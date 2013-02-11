@@ -12,8 +12,58 @@ shimi.worksheetui = (function () {
     return shimi.documents.identifier() + "_worksheet-template";
   };
 
-  mod.toggleFieldset = function (fsid) {
-    $('.handle-column.field.' + fsid).toggle();
+  mod.selectAllRows = function (select) {
+    if (select) {
+      $('#worksheet-table tbody tr').addClass('selected-row');
+      $('#worksheet-table tbody tr input').attr('checked', true);
+    } else {
+      $('#worksheet-table tbody tr').removeClass('selected-row');
+      $('#worksheet-table tbody tr input:checked').attr('checked', false);
+    }
+
+    return mod;
+  };
+
+  mod.rowSelection = function (row, select) {
+    if (select) {
+      $('#' + row).addClass('selected-row');
+    } else {
+      $('#' + row).removeClass('selected-row');
+    }
+
+    return mod;
+  };
+
+  mod.columnSelection = function (column, select) {
+    if (select) {
+      $('.field-column.' + column).addClass('selected-column');
+    } else {
+      $('.field-column.' + column).removeClass('selected-column');
+    }
+
+    return mod;
+  };
+
+  mod.showHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').show();
+
+    return mod;
+  };
+
+  mod.hideHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').hide();
+
+    return mod;
+  };
+
+  mod.showFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).show();
+
+    return mod;
+  };
+
+  mod.hideFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).hide();
 
     return mod;
   };
