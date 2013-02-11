@@ -87,7 +87,9 @@ from_json(Json, S) ->
 -spec get_fieldsets(any()) -> [fieldset()].
 get_fieldsets(S) ->
     {ok, RawFieldsets} = q:fieldset(proplists:get_value(doctype, S), proplists:get_value(project, S), S),
-    process_fieldsets(jsn:get_value(<<"rows">>, RawFieldsets), []).
+    Unsorted = process_fieldsets(jsn:get_value(<<"rows">>, RawFieldsets), []),
+    Ordering = fun (A, B) -> A#fieldset.order =< B#fieldset.order end,
+    lists:sort(Ordering, Unsorted).
     
 %% @doc Convert a document() record to a jsn:json_term() document.
 -spec to_json(doc, document()) -> Json :: jsn:json_term().
