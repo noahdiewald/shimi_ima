@@ -2992,7 +2992,7 @@ shimi.fieldsets = (function () {
 
   return mod;
 })();
-shimi.indexiu = (function () {
+shimi.indexui = (function () {
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
