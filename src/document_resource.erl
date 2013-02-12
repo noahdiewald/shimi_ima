@@ -149,7 +149,7 @@ json_update(R, S) ->
 json_update(Json, R, S) ->
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
-    NormJson = document:normalize(Json2),
+    NormJson = document:normalize(doc, Json2),
   
     case couch:update(h:id(R), NormJson, h:project(R), S) of
         {ok, updated} ->
