@@ -2,28 +2,6 @@
 shimi.documents = (function () {
   var mod = {};
 
-  var jumpForm = function () {
-    $(document).on("keypress", '#view-jump-id', function (e) {
-      if (e.which === 13) {
-        var docid = $('#view-jump-id').val();
-        shimi.viewui.get(docid);
-      }
-      return true;
-    });
-
-    return mod;
-  };
-  var searchForm = function () {
-    $('#document-search-term').on("keydown", function (e) {
-      if (e.which === 13) {
-        shimi.searchui.getSearch();
-        return false;
-      }
-      return true;
-    });
-
-    return mod;
-  };
   var indexForm = function () {
     var getIndexTimer;
 
@@ -150,10 +128,8 @@ shimi.documents = (function () {
     mod.checkVersion();
     shimi.setsui.updateSelection();
     shimi.indexui.iOpts().get();
-    jumpForm();
     indexForm();
     shimi.editui.init();
-    searchForm();
     loadHash($(location)[0].hash.split("#")[1]);
   };
 

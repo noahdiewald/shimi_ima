@@ -143,3 +143,20 @@ $(document).on('keydown', "#edit-document-form textarea", 'Alt+x', function (e) 
   shimi.editui.toggleTextarea($(e.target));
   return false;
 });
+
+$(document).on("keypress", '#view-jump-id', function (e) {
+  if (e.which === 13) {
+    var docid = $('#view-jump-id').val();
+    shimi.viewui.get(docid);
+    return false;
+  }
+  return true;
+});
+
+$('#document-search-term').on("keydown", function (e) {
+  if (e.which === 13) {
+    shimi.searchui.getSearch();
+    return false;
+  }
+  return true;
+});
