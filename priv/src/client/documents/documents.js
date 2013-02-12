@@ -2,28 +2,6 @@
 shimi.documents = (function () {
   var mod = {};
 
-  var jumpForm = function () {
-    $('#view-jump-id').live("keypress", function (e) {
-      if (e.which === 13) {
-        var docid = $('#view-jump-id').val();
-        shimi.viewui.get(docid);
-      }
-      return true;
-    });
-
-    return mod;
-  };
-  var searchForm = function () {
-    $('#document-search-term').on("keydown", function (e) {
-      if (e.which === 13) {
-        shimi.searchui.getSearch();
-        return false;
-      }
-      return true;
-    });
-
-    return mod;
-  };
   var indexForm = function () {
     var getIndexTimer;
 
@@ -31,12 +9,12 @@ shimi.documents = (function () {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
         if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
+          shimi.indexui.get();
         }
       }, 500);
     });
     $('#index-filter-form select').change(function () {
-      shimi.indexiu.get();
+      shimi.indexui.get();
     });
 
     return mod;
@@ -95,7 +73,6 @@ shimi.documents = (function () {
 
   mod.checkVersion = function () {
     if (mod.isCurrentVersionStored()) {
-      window.console.log(mod.getVersion());
       shimi.dispatch.send("labels-ready");
     } else {
       shimi.dispatch.send("bad-session-state");
@@ -150,10 +127,9 @@ shimi.documents = (function () {
     });
     mod.checkVersion();
     shimi.setsui.updateSelection();
-    shimi.indexiu.iOpts().get();
-    jumpForm();
+    shimi.indexui.iOpts().get();
+    indexForm();
     shimi.editui.init();
-    searchForm();
     loadHash($(location)[0].hash.split("#")[1]);
   };
 

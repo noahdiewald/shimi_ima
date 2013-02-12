@@ -877,7 +877,7 @@ shimi.clickDispatch = function (e) {
   var charseqTab = shimi.charseqTab;
   var editui = shimi.editui;
   var viewui = shimi.viewui;
-  var indexiu = shimi.indexiu;
+  var indexui = shimi.indexui;
   var setsui = shimi.setsui;
   var searchui = shimi.searchui;
   var worksheetui = shimi.worksheetui;
@@ -999,7 +999,7 @@ shimi.clickDispatch = function (e) {
       setsui.toggleSelectAll(t);
     },
     ".view-document-link": function (t) {
-      indexiu.load(t);
+      indexui.load(t);
     },
     ".select-worksheet-column": function (t) {
       var target = $(t);
@@ -1102,23 +1102,164 @@ $(function () {
     shimi.dblclickDispatch(e);
   });
 });
-$('#document-worksheets-form').live("keydown", function (e) {
+var selectInput = function () {
+  var inputable = 'input, select';
+  var t = function () {
+    return $('#edit-tabs');
+  };
+
+  var cur = t().find('.ui-tabs-active a').attr('href');
+  $(cur).find(inputable + ", textarea").first().focus();
+};
+
+$(document).on("keydown", '#document-worksheets-form', function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("worksheet-form-submit");
     return false;
   }
   return true;
 });
-$('#document-sets-form').live("keydown", function (e) {
+
+$(document).on("keydown", '#document-sets-form', function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("sets-form-submit");
     return false;
   }
   return true;
 });
-$('#new-set-form').live("keydown", function (e) {
+
+$('#new-set-form').on("keydown", function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("new-set-form-submit");
+    return false;
+  }
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+n', function (e) {
+  var t = function () {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected < totaltabs - 1) {
+    t().tabs('option', 'active', selected + 1);
+    selectInput();
+  } else {
+    t().tabs('option', 'active', 0);
+    selectInput();
+  }
+
+  return false;
+});
+
+$(document).bind('keydown', 'Alt+c', function (e) {
+  var active = $(document.activeElement);
+  shimi.editui.showCommandDialog(active);
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+p', function (e) {
+  var t = function () {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected !== 0) {
+    t().tabs('option', 'active', selected - 1);
+    selectInput();
+  } else {
+    t().tabs('option', 'active', totaltabs - 1);
+    selectInput();
+  }
+
+  return false;
+});
+
+
+$('#edit-command-input').on("keydown", function (e) {
+  if (e.which === 13) {
+    var command = $('#edit-command-input').val();
+    var restoreFocus = true;
+    $('#command-dialog').dialog("close");
+
+    switch (command) {
+    case "w":
+    case "clear":
+      shimi.editui.clear();
+      break;
+    case "c":
+    case "create":
+      shimi.editui.create();
+      break;
+    case "s":
+    case "save":
+      shimi.editui.save();
+      break;
+    case "d":
+    case "delete":
+      $("#document-view").show();
+      if ($("#document-delete-button").css("display") !== "none") {
+        $("#document-delete-button").click();
+      }
+      break;
+    case "e":
+    case "edit":
+      $("#document-view").show();
+      if ($("#document-edit-button").css("display") !== "none") {
+        $("#document-edit-button").click();
+        restoreFocus = false;
+      }
+      break;
+    case "r":
+    case "restore":
+      $("#document-view").show();
+      if ($("#document-restore-button").css("display") !== "none") {
+        $("#document-restore-button").click();
+      }
+      break;
+    }
+
+    if (restoreFocus) {
+      $('#' + $('#command-dialog').attr('data-last-active')).focus();
+    } else {
+      selectInput();
+    }
+  }
+
+  return true;
+});
+
+$("#edit-document-form input").on('keydown', function (e) {
+  if (e.which === 13) {
+    if ($("#save-document-button").css("display") === "none") {
+      shimi.editui.create();
+    } else {
+      shimi.editui.save();
+    }
+  }
+  return true;
+});
+
+$(document).on('keydown', "#edit-document-form textarea", 'Alt+x', function (e) {
+  shimi.editui.toggleTextarea($(e.target));
+  return false;
+});
+
+$(document).on("keypress", '#view-jump-id', function (e) {
+  if (e.which === 13) {
+    var docid = $('#view-jump-id').val();
+    shimi.viewui.get(docid);
+    return false;
+  }
+  return true;
+});
+
+$(document).on("keydown", '#document-search-term', function (e) {
+  if (e.which === 13) {
+    shimi.searchui.getSearch();
     return false;
   }
   return true;
@@ -1709,6 +1850,7 @@ shimi.doctypeTab = (function () {
       var fieldsetContainer = $("#fieldsets-" + url.doctype);
 
       fieldsetContainer.empty();
+      fieldsetContainer.accordion();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
 
@@ -2143,28 +2285,6 @@ shimi.fieldsetElems = (function () {
 shimi.documents = (function () {
   var mod = {};
 
-  var jumpForm = function () {
-    $('#view-jump-id').live("keypress", function (e) {
-      if (e.which === 13) {
-        var docid = $('#view-jump-id').val();
-        shimi.viewui.get(docid);
-      }
-      return true;
-    });
-
-    return mod;
-  };
-  var searchForm = function () {
-    $('#document-search-term').on("keydown", function (e) {
-      if (e.which === 13) {
-        shimi.searchui.getSearch();
-        return false;
-      }
-      return true;
-    });
-
-    return mod;
-  };
   var indexForm = function () {
     var getIndexTimer;
 
@@ -2172,12 +2292,12 @@ shimi.documents = (function () {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
         if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
+          shimi.indexui.get();
         }
       }, 500);
     });
     $('#index-filter-form select').change(function () {
-      shimi.indexiu.get();
+      shimi.indexui.get();
     });
 
     return mod;
@@ -2236,7 +2356,6 @@ shimi.documents = (function () {
 
   mod.checkVersion = function () {
     if (mod.isCurrentVersionStored()) {
-      window.console.log(mod.getVersion());
       shimi.dispatch.send("labels-ready");
     } else {
       shimi.dispatch.send("bad-session-state");
@@ -2291,10 +2410,9 @@ shimi.documents = (function () {
     });
     mod.checkVersion();
     shimi.setsui.updateSelection();
-    shimi.indexiu.iOpts().get();
-    jumpForm();
+    shimi.indexui.iOpts().get();
+    indexForm();
     shimi.editui.init();
-    searchForm();
     loadHash($(location)[0].hash.split("#")[1]);
   };
 
@@ -2317,127 +2435,6 @@ shimi.editui = (function () {
   };
   var editButton = function () {
     return $('#document-edit-button');
-  };
-
-  var keyboard = function () {
-    var inputable = 'input, select';
-    var t = $('#edit-tabs');
-
-    var selectInput = function () {
-      var cur = t.find('.ui-tabs-selected a').attr('href');
-      $(cur).find(inputable + ", textarea").first().focus();
-    };
-
-    $(document).bind('keydown', 'Alt+p', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected !== 0) {
-        t.tabs('select', selected - 1);
-        selectInput();
-      } else {
-        t.tabs('select', totaltabs - 1);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).bind('keydown', 'Alt+n', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected < totaltabs - 1) {
-        t.tabs('select', selected + 1);
-        selectInput();
-      } else {
-        t.tabs('select', 0);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).live('keydown', 'Alt+c', function (e) {
-      var active = $(document.activeElement);
-      mod.showCommandDialog(active);
-      return true;
-    });
-
-    $('#edit-command-form').live("submit", function (e) {
-      return false;
-    });
-
-    $('#edit-command-input').live("keydown", function (e) {
-      if (e.which === 13) {
-        var command = $('#edit-command-input').val();
-        var restoreFocus = true;
-        $('#command-dialog').dialog("close");
-
-        switch (command) {
-        case "w":
-        case "clear":
-          mod.clear();
-          break;
-        case "c":
-        case "create":
-          mod.create();
-          break;
-        case "s":
-        case "save":
-          mod.save();
-          break;
-        case "d":
-        case "delete":
-          $("#document-view").show();
-          if ($("#document-delete-button").css("display") !== "none") {
-            $("#document-delete-button").click();
-          }
-          break;
-        case "e":
-        case "edit":
-          $("#document-view").show();
-          if ($("#document-edit-button").css("display") !== "none") {
-            $("#document-edit-button").click();
-            restoreFocus = false;
-          }
-          break;
-        case "r":
-        case "restore":
-          $("#document-view").show();
-          if ($("#document-restore-button").css("display") !== "none") {
-            $("#document-restore-button").click();
-          }
-          break;
-        }
-
-        if (restoreFocus) {
-          $('#' + $('#command-dialog').attr('data-last-active')).focus();
-        } else {
-          selectInput();
-        }
-      }
-
-      return true;
-    });
-
-    $("#edit-document-form input").live('keydown', function (e) {
-      if (e.which === 13) {
-        if ($("#save-document-button").css("display") === "none") {
-          mod.create();
-        } else {
-          mod.save();
-        }
-      }
-      return true;
-    });
-
-    $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
-      mod.toggleTextarea($(e.target));
-      return false;
-    });
-
-    return mod;
   };
 
   var validationError = function (req) {
@@ -2484,7 +2481,6 @@ shimi.editui = (function () {
 
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
-      keyboard();
       shimi.fieldsets.initFieldsets();
     });
 
@@ -2576,7 +2572,7 @@ shimi.editui = (function () {
           title = "Success";
           body = "Your document was saved.";
           shimi.viewui.get(document);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -2623,7 +2619,7 @@ shimi.editui = (function () {
           $('.fields').remove();
           shimi.fieldsets.initFieldsets();
           shimi.viewui.get(documentId);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {
@@ -2990,7 +2986,7 @@ shimi.fieldsets = (function () {
 
   return mod;
 })();
-shimi.indexiu = (function () {
+shimi.indexui = (function () {
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
@@ -3819,7 +3815,7 @@ shimi.viewui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.indexiu.get(skey, sid);
+            shimi.indexui.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -3865,7 +3861,7 @@ shimi.viewui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);

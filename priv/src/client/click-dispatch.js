@@ -68,7 +68,7 @@ shimi.clickDispatch = function (e) {
   var charseqTab = shimi.charseqTab;
   var editui = shimi.editui;
   var viewui = shimi.viewui;
-  var indexiu = shimi.indexiu;
+  var indexui = shimi.indexui;
   var setsui = shimi.setsui;
   var searchui = shimi.searchui;
   var worksheetui = shimi.worksheetui;
@@ -190,7 +190,7 @@ shimi.clickDispatch = function (e) {
       setsui.toggleSelectAll(t);
     },
     ".view-document-link": function (t) {
-      indexiu.load(t);
+      indexui.load(t);
     },
     ".select-worksheet-column": function (t) {
       var target = $(t);

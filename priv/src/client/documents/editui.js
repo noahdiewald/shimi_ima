@@ -17,127 +17,6 @@ shimi.editui = (function () {
     return $('#document-edit-button');
   };
 
-  var keyboard = function () {
-    var inputable = 'input, select';
-    var t = $('#edit-tabs');
-
-    var selectInput = function () {
-      var cur = t.find('.ui-tabs-selected a').attr('href');
-      $(cur).find(inputable + ", textarea").first().focus();
-    };
-
-    $(document).bind('keydown', 'Alt+p', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected !== 0) {
-        t.tabs('select', selected - 1);
-        selectInput();
-      } else {
-        t.tabs('select', totaltabs - 1);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).bind('keydown', 'Alt+n', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected < totaltabs - 1) {
-        t.tabs('select', selected + 1);
-        selectInput();
-      } else {
-        t.tabs('select', 0);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).live('keydown', 'Alt+c', function (e) {
-      var active = $(document.activeElement);
-      mod.showCommandDialog(active);
-      return true;
-    });
-
-    $('#edit-command-form').live("submit", function (e) {
-      return false;
-    });
-
-    $('#edit-command-input').live("keydown", function (e) {
-      if (e.which === 13) {
-        var command = $('#edit-command-input').val();
-        var restoreFocus = true;
-        $('#command-dialog').dialog("close");
-
-        switch (command) {
-        case "w":
-        case "clear":
-          mod.clear();
-          break;
-        case "c":
-        case "create":
-          mod.create();
-          break;
-        case "s":
-        case "save":
-          mod.save();
-          break;
-        case "d":
-        case "delete":
-          $("#document-view").show();
-          if ($("#document-delete-button").css("display") !== "none") {
-            $("#document-delete-button").click();
-          }
-          break;
-        case "e":
-        case "edit":
-          $("#document-view").show();
-          if ($("#document-edit-button").css("display") !== "none") {
-            $("#document-edit-button").click();
-            restoreFocus = false;
-          }
-          break;
-        case "r":
-        case "restore":
-          $("#document-view").show();
-          if ($("#document-restore-button").css("display") !== "none") {
-            $("#document-restore-button").click();
-          }
-          break;
-        }
-
-        if (restoreFocus) {
-          $('#' + $('#command-dialog').attr('data-last-active')).focus();
-        } else {
-          selectInput();
-        }
-      }
-
-      return true;
-    });
-
-    $("#edit-document-form input").live('keydown', function (e) {
-      if (e.which === 13) {
-        if ($("#save-document-button").css("display") === "none") {
-          mod.create();
-        } else {
-          mod.save();
-        }
-      }
-      return true;
-    });
-
-    $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
-      mod.toggleTextarea($(e.target));
-      return false;
-    });
-
-    return mod;
-  };
-
   var validationError = function (req) {
     var body = JSON.parse(req.responseText);
     var title = req.statusText;
@@ -182,7 +61,6 @@ shimi.editui = (function () {
 
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
-      keyboard();
       shimi.fieldsets.initFieldsets();
     });
 
@@ -274,7 +152,7 @@ shimi.editui = (function () {
           title = "Success";
           body = "Your document was saved.";
           shimi.viewui.get(document);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -321,7 +199,7 @@ shimi.editui = (function () {
           $('.fields').remove();
           shimi.fieldsets.initFieldsets();
           shimi.viewui.get(documentId);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {

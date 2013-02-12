@@ -34,6 +34,7 @@ module.exports = function (grunt) {
     },
     beautifier: {
       options: {
+        preserve_newlines: false,
         indentSize: 2
       }
     },
