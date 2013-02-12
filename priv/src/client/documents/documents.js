@@ -151,6 +151,7 @@ shimi.documents = (function () {
     shimi.setsui.updateSelection();
     shimi.indexiu.iOpts().get();
     jumpForm();
+    indexForm();
     shimi.editui.init();
     searchForm();
     loadHash($(location)[0].hash.split("#")[1]);
