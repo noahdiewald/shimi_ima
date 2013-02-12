@@ -1112,7 +1112,7 @@ var selectInput = function () {
   $(cur).find(inputable + ", textarea").first().focus();
 };
 
-$('#document-worksheets-form').on("keydown", function (e) {
+$(document).on("keydown", '#document-worksheets-form', function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("worksheet-form-submit");
     return false;
