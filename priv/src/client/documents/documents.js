@@ -3,7 +3,7 @@ shimi.documents = (function () {
   var mod = {};
 
   var jumpForm = function () {
-    $('#view-jump-id').live("keypress", function (e) {
+    $(document).on("keypress", '#view-jump-id', function (e) {
       if (e.which === 13) {
         var docid = $('#view-jump-id').val();
         shimi.viewui.get(docid);
@@ -95,7 +95,6 @@ shimi.documents = (function () {
 
   mod.checkVersion = function () {
     if (mod.isCurrentVersionStored()) {
-      window.console.log(mod.getVersion());
       shimi.dispatch.send("labels-ready");
     } else {
       shimi.dispatch.send("bad-session-state");
