@@ -1120,7 +1120,7 @@ $('#document-worksheets-form').on("keydown", function (e) {
   return true;
 });
 
-$('#document-sets-form').on("keydown", function (e) {
+$(document).on("keydown", '#document-sets-form', function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("sets-form-submit");
     return false;
@@ -1257,7 +1257,7 @@ $(document).on("keypress", '#view-jump-id', function (e) {
   return true;
 });
 
-$('#document-search-term').on("keydown", function (e) {
+$(document).on("keydown", '#document-search-term', function (e) {
   if (e.which === 13) {
     shimi.searchui.getSearch();
     return false;
