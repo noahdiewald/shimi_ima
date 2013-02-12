@@ -2296,12 +2296,12 @@ shimi.documents = (function () {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
         if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
+          shimi.indexui.get();
         }
       }, 500);
     });
     $('#index-filter-form select').change(function () {
-      shimi.indexiu.get();
+      shimi.indexui.get();
     });
 
     return mod;
@@ -2414,7 +2414,7 @@ shimi.documents = (function () {
     });
     mod.checkVersion();
     shimi.setsui.updateSelection();
-    shimi.indexiu.iOpts().get();
+    shimi.indexui.iOpts().get();
     jumpForm();
     indexForm();
     shimi.editui.init();
@@ -2578,7 +2578,7 @@ shimi.editui = (function () {
           title = "Success";
           body = "Your document was saved.";
           shimi.viewui.get(document);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -2625,7 +2625,7 @@ shimi.editui = (function () {
           $('.fields').remove();
           shimi.fieldsets.initFieldsets();
           shimi.viewui.get(documentId);
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {
@@ -3821,7 +3821,7 @@ shimi.viewui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.indexiu.get(skey, sid);
+            shimi.indexui.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -3867,7 +3867,7 @@ shimi.viewui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.indexiu.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);

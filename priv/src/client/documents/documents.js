@@ -31,12 +31,12 @@ shimi.documents = (function () {
       clearTimeout(getIndexTimer);
       getIndexTimer = setTimeout(function () {
         if (e.which !== 8 && e.which !== 46) {
-          shimi.indexiu.get();
+          shimi.indexui.get();
         }
       }, 500);
     });
     $('#index-filter-form select').change(function () {
-      shimi.indexiu.get();
+      shimi.indexui.get();
     });
 
     return mod;
@@ -149,7 +149,7 @@ shimi.documents = (function () {
     });
     mod.checkVersion();
     shimi.setsui.updateSelection();
-    shimi.indexiu.iOpts().get();
+    shimi.indexui.iOpts().get();
     jumpForm();
     indexForm();
     shimi.editui.init();
