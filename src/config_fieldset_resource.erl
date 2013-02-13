@@ -44,8 +44,6 @@
          validate_authentication/3
         ]).
 
-% Standard webmachine functions
-
 init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
 rest_init(R, S) -> {ok, R, S}.
