@@ -1,6 +1,6 @@
 %%% Copyright 2011 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
 %%% dictionary_maker is free software: you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -9,16 +9,16 @@
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-
 %%% @doc CouchDB View API
 
 -module(view).
@@ -31,7 +31,7 @@
          to_string/1
         ]).
 
--include_lib("include/types.hrl").
+-include_lib("types.hrl").
 
 -spec new() -> view_query().
 new() ->

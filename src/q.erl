@@ -73,8 +73,9 @@ field(Doctype, Fieldset, Include, Project, S) ->
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 files(R, S) ->
-    {VQ, R1} = view:from_reqdata(R),
+    {QsVals, R1} = cowboy_req:qs_values(R),
     {Project, R2} = h:project(R1),
+    VQ = view:from_list(QsVals),
     Qs = view:to_string(VQ),
     {couch:get_view_json("shimi_ima", "by_path", Qs, Project, S), R2}.
 
