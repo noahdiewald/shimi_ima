@@ -24,170 +24,235 @@
 
 -module(h).
 
--compile(export_all).
+-export([
+         accept_json/2,
+         basic_info/4,
+         charseq/1,
+         charseq_data/2,
+         create/3,
+         delete/2,
+         delete_project/2,
+         doctype/1,
+         doctype_data/2,
+         exists/3,
+         exists_id/2,
+         field/1,
+         field_data/2,
+         fieldset/1,
+         fieldset_data/2,
+         g/2,
+         get/3,
+         get/4,
+         id/1,
+         id_data/2,
+         id_html/3,
+         index/1,
+         project/1,
+         project_data/2,
+         rev/1,
+         rev_data/2,
+         update/3,
+         update_doctype_version/2
+        ]).
 
 -export_type([req_data/0, req_state/0, req_retval/0]).
 
 -include_lib("types.hrl").
--include_lib("webmachine/include/webmachine.hrl").
 
--type req_data() :: #wm_reqdata{}.
+-type req_data() :: cowboy_req:req().
 -type req_state() :: [{atom(), any()}].
--type req_retval() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
+-type couch_ret() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
+-type req_retval() :: {couch_ret(), req_data()}.
 
--spec basic_info(string(), string(), req_data(), req_state()) -> jsn:json_term().
+-spec accept_json(req_data(), req_state()) -> {[{{binary(), binary(), list()}, from_json}], req_data(), req_state()}.
+accept_json(R, S) ->
+    {[{{<<"application">>, <<"json">>, []}, from_json}], R, S}.
+    
+-spec basic_info(string(), string(), req_data(), req_state()) -> {jsn:json_term(), req_data()}.
 basic_info(Title1, Title2, R, S) ->
-    {ok, ProjectData} = project_data(R, S),
-    {ok, DoctypeData} = doctype_data(R, S),
-    [{<<"project_info">>, ProjectData},
-     {<<"doctype_info">>, DoctypeData},
-     {<<"title">>, list_to_binary(Title1 ++ doctype(R) ++ Title2)},
-     {<<"user">>, proplists:get_value(user, S)}].
-     
--spec charseq(req_data()) -> string().
+    {{ok, ProjectData}, R1} = project_data(R, S),
+    {{ok, DoctypeData}, R2} = doctype_data(R1, S),
+    {[{<<"project_info">>, ProjectData},
+      {<<"doctype_info">>, DoctypeData},
+      {<<"title">>, list_to_binary(Title1 ++ doctype(R) ++ Title2)},
+      {<<"user">>, proplists:get_value(user, S)}], R2}.
+    
+-spec charseq(req_data()) -> {string(), req_data()}.
 charseq(R) ->
-    wrq:path_info(charseq, R).
+    {CharseqBin, R1} = cowboy_req:binding(charseq, R),
+    {binary_to_list(CharseqBin), R1}.
 
 -spec charseq_data(req_data(), req_state()) -> req_retval().
 charseq_data(R, S) ->
-    get(charseq(R), project(R), S).
+    {[Charseq, Project], R1} = g([charseq, project], R),
+    {get(Charseq, Project, S), R1}.
 
--spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()}.
+-spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 create(Json, R, S) ->
-    case couch:create(Json, project(R), S) of
+    {Project, R1} = project(R),
+    case couch:create(Json, Project, S) of
         {ok, created} -> 
-            {true, R, S};
+            {true, R1, S};
         {forbidden, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S}
+            cowboy_req:reply(403, [], Message, R1)
     end.
 
--spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, 409}, req_data(), req_state()}.
+-spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 delete(R, S) ->
-    case couch:delete(id(R), rev(R), project(R), S) of
+    {[Project, Rev, Id], R1} = g([project, rev, id], R),
+    case couch:delete(Id, Rev, Project, S) of
         {ok, deleted} -> 
-            {true, R, S};
+            {true, R1, S};
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
-            R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
-            {{halt, 409}, R1, S}
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            cowboy_req:reply(409, [], Msg1, R1)
     end.
 
--spec delete_project(req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, 409}, req_data(), req_state()}.
+-spec delete_project(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 delete_project(R, S) ->
-    {ok, Json} = get(id(R), "shimi_ima", S),
+    {Id, R1} = id(R),
+    {ok, Json} = get(Id, "shimi_ima", S),
     Rev = jsn:get_value(<<"_rev">>, Json),
-    case couch:delete(id(R), binary_to_list(Rev), "shimi_ima", S) of
+    case couch:delete(Id, binary_to_list(Rev), "shimi_ima", S) of
         {ok, deleted} ->
-            {ok, deleted} = couch:rm_db("project-" ++ id(R)),
-            {true, R, S};
+            {ok, deleted} = couch:rm_db("project-" ++ Id),
+            {true, R1, S};
         {error, conflict} ->
             Msg = <<"This project has been updated or deleted by another user.">>,
-            R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
-            {{halt, 409}, R1, S}
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            cowboy_req:reply(409, [], Msg1, R1)
     end.
     
 -spec doctype(req_data()) -> string().
 doctype(R) ->
-    wrq:path_info(doctype, R).
+    {DoctypeBin, R1} = cowboy_req:binding(doctype, R),
+    {binary_to_list(DoctypeBin), R1}.
 
 -spec doctype_data(req_data(), req_state()) -> req_retval().
 doctype_data(R, S) ->
-    get(doctype(R), project(R), S).
+    {[Project, Doctype], R1} = g([project, doctype], R),
+    {get(Doctype, Project, S), R1}.
 
--spec exists(string(), req_data(), req_state()) -> boolean().
+-spec exists(string(), req_data(), req_state()) -> {boolean(), req_data()}.
 exists(Id, R, S) ->
-    couch:exists(Id, project(R), S).
+    {Project, R1} = project(R),
+    {couch:exists(Id, Project, S), R1}.
 
--spec field(req_data()) -> string().
+-spec exists_id(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+exists_id(R, S) ->
+    {[Project, Id], R1} = g([project, id], R),
+    {couch:exists(Id, Project, S), R1, S}.
+    
+
+-spec field(req_data()) -> {string() | undefined, req_data()}.
 field(R) ->
-    case wrq:path_info(field, R) of
+    {FieldBin, R1} = cowboy_req:binding(field, R),
+    case FieldBin of
         undefined ->
-            wrq:get_qs_value("field", R);
-         Field ->
-             Field
-     end.
+            cowboy_req:qs_value(<<"field">>, R1);
+        FieldBin when is_binary(FieldBin) ->
+            {binary_to_list(FieldBin), R1}
+    end.
 
 -spec field_data(req_data(), req_state()) -> req_retval().
 field_data(R, S) ->
-    get(field(R), project(R), S).
+    {[Project, Field], R1} = g([project, field], R),
+    {get(Field, Project, S), R1}.
 
--spec fieldset(req_data()) -> string().
+-spec fieldset(req_data()) -> {string(), req_data()}.
 fieldset(R) ->
-    wrq:path_info(fieldset, R).
+    {FieldsetBin, R1} = cowboy_req:binding(fieldset, R),
+    {binary_to_list(FieldsetBin), R1}.
 
 -spec fieldset_data(req_data(), req_state()) -> req_retval().
 fieldset_data(R, S) ->
-    get(fieldset(R), project(R), S).
+    {[Project, Fieldset], R1} = g([project, fieldset], R),
+    {get(Fieldset, Project, S), R1}.
 
--spec get(string(), string() | req_data(), req_state()) -> req_retval().
-get(Id, Project, S) when is_list(Project) ->
-    couch:get(Id, Project, S);
-get(Id, R, S) ->
-    get(Id, project(R), S).
+-spec g([atom()], req_data()) -> {[string() | undefined], req_data()}.
+g(Keys, R) ->
+  F = fun (X, {RX, Acc}) ->
+    {Val, RY} = X(RX),
+    {RY, [Val|Acc]}
+  end,
+  {R1, Vals} = lists:foldl(F, {R, []}, Keys),
+  {lists:reverse(Vals), R1}.
+  
+-spec get(string(), string() | req_data(), req_state()) -> couch_ret().
+get(Id, Project, S) ->
+    couch:get(Id, Project, S).
 
--spec get(string(), string(), string() | req_data(), req_state()) -> req_retval().
-get(Id, Rev, Project, S) when is_list(Project) ->
-    couch:get(Id, Rev, Project, S);
-get(Id, Rev, R, S) ->
-    get(Id, Rev, project(R), S).
+-spec get(string(), string(), string() | req_data(), req_state()) -> couch_ret().
+get(Id, Rev, Project, S) ->
+    couch:get(Id, Rev, Project, S).
 
 -spec id(req_data()) -> string().
 id(R) ->
-    wrq:path_info(id, R).
+    {IdBin, R1} = cowboy_req:binding(id, R),
+    {binary_to_list(IdBin), R1}.
 
 -spec id_data(req_data(), req_state()) -> req_retval().
 id_data(R, S) ->
-    get(id(R), project(R), S).
+    {[Project, Id], R1} = g([project, id], R),
+    {get(Id, Project, S), R1}.
 
+-spec id_html(atom(), req_data(), req_state()) -> {iolist(), req_data(), req_state()}.
 id_html(Template, R, S) ->
-    {ok, Json} = h:id_data(R, S), 
+    {{ok, Json}, R1} = h:id_data(R, S), 
     {ok, Html} = render:render(Template, Json),
-    {Html, R, S}.
+    {Html, R1, S}.
 
--spec index(req_data()) -> string() | undefined.
+-spec index(req_data()) -> {string() | undefined, req_data()}.
 index(R) ->
-    wrq:get_qs_value("index", R).
+    {IndexBin, R1} = cowboy_req:qs_value(<<"index">>, R),
+    {binary_to_list(IndexBin), R1}.
 
--spec project(req_data()) -> string().
+-spec project(req_data()) -> {string(), req_data()}.
 project(R) ->
-    wrq:path_info(project, R).
-    
+    {ProjectBin, R1} = cowboy_req:binding(project, R),
+    {binary_to_list(ProjectBin), R1}.
+
 -spec project_data(req_data(), req_state()) -> req_retval().
 project_data(R, S) ->
-    get(project(R) -- "project-", "shimi_ima", S).
-    
--spec rev(req_data()) -> string().
+    {Project, R1} = project(R),
+    {get(Project -- "project-", "shimi_ima", S), R1}.
+
+-spec rev(req_data()) -> {string(), req_data()}.
 rev(R) ->
-    case wrq:path_info(rev, R) of
+    {RevBin, R1} = cowboy_req:binding(rev, R),
+    case RevBin of
         undefined ->
-            wrq:get_qs_value("rev", R);
-         Rev ->
-             Rev
-     end.
-    
+            cowboy_req:qs_value(<<"rev">>, R1);
+        RevBin when is_binary(RevBin) ->
+            {binary_to_list(RevBin), R1}
+    end.
+
 -spec rev_data(req_data(), req_state()) -> req_retval().
 rev_data(R, S) ->
-    get(id(R), rev(R), project(R), S).
+    {[Project, Rev, Id], R1} = g([project, rev, id], R),
+    {get(Id, Rev, Project, S), R1}.
 
--spec update(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {{halt, integer()}, req_data(), req_state()}.
+-spec update(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 update(Json, R, S) ->
-     Json1 = jsn:set_value(<<"_id">>, list_to_binary(id(R)), Json),
-     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(rev(R)), Json1),
-     case couch:update(id(R), Json2, project(R), S) of
+    {[Project, Rev, Id], R1} = g([project, rev, id], R),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
+    case couch:update(Id, Json2, Project, S) of
         {ok, updated} -> 
-            {true, R, S};
+            {true, R1, S};
         {forbidden, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
+            cowboy_req:reply(403, [], Message, R1);
         {error, conflict} ->
-            Msg = <<"This resource has been updated or deleted by another user.">>,
-            R1 = wrq:set_resp_body(jsn:encode([{<<"message">>, Msg}]), R),
-            {{halt, 409}, R1, S}
+            Msg = <<"This document has been updated or deleted by another user.">>,
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            cowboy_req:reply(409, [], Msg1, R1)
     end.
-    
+
 -spec update_doctype_version(req_data(), req_state()) -> req_retval().
 update_doctype_version(R, S) ->
-    {ok, Json} = get(doctype(R), R, S),
+    {[Project, Doctype], R1} = g([project, doctype], R),
+    {ok, Json} = get(Doctype, Project, S),
     Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
-    {ok, updated} = couch:update(Id, Json, project(R), S).
+    {ok, updated} = couch:update(Id, Json, Project, S),
+    {{ok, updated}, R1}.
