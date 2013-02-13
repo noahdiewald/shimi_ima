@@ -22,6 +22,7 @@
 %%% @doc For manipulating indexes.
 
 -module(i).
+-author('Noah Diewald <noah@diewald.me>').
 
 -export([
     create/2,
