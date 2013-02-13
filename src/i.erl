@@ -110,7 +110,7 @@ update_design(DocId, Project, S) ->
             couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
     
--spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data(), h:req_state()} | {ok, h:req_data()}.
+-spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data()} | {ok, h:req_data()}.
 view(R, S) ->
     Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
     Item = <<"Index">>,
@@ -121,9 +121,9 @@ view(R, S) ->
             Index = add_encoded_keys(Json),
             Vals = [{<<"limit">>, Limit}|Index] ++ Info,
             {ok, Html} = render:render(document_index_dtl, Vals),
-            {Html, R2, S};
+            {Html, R2};
         {{error, not_found}, _, R2} ->
-            {<<"">>, R2, S};
+            {<<"">>, R2};
         {{error, req_timedout}, _, R2} ->
             cowboy_req:reply(504, [], Message, R2)
     end.

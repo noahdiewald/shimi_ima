@@ -43,8 +43,6 @@
          validate_authentication/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
-
 % Standard webmachine functions
 
 init(Opts) -> {ok, Opts}.
@@ -96,7 +94,8 @@ to_json(R, S) ->
         index -> {json_index(R, S), R, S};
         _ -> to_html(R, S)
     end.
-  
+
+%TODO: see document_resource about html_view  
 to_html(R, S) ->
     case proplists:get_value(target, S) of
         view -> html_view(R, S);
