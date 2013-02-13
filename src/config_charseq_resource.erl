@@ -43,7 +43,7 @@
          validate_authentication/3
         ]).
 
--include_lib("include/types.hrl").
+-include_lib("types.hrl").
 
 init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
