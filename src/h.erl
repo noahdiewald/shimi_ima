@@ -23,6 +23,7 @@
 %%% @doc Helpers for resources.
 
 -module(h).
+-author('Noah Diewald <noah@diewald.me>').
 
 -export([
          accept_json/2,
