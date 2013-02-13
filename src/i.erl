@@ -94,18 +94,16 @@ update(R, S) ->
     end.
 
 update_design(R, S) ->
-    Project = h:project(R),
-    DocId = h:id(R),
+    {[Project, DocId], R1} = h:g([project, id], R),
     DesignId = "_design/" ++ DocId,
     Design = get_design(DocId, Project, S),
-  
-    case h:get(DesignId, R, S) of
+    case h:get(DesignId, Project, S) of
         {error, not_found} ->
-            couch:create(Design, Project, [{admin, true}|S]);
+            {couch:create(Design, Project, [{admin, true}|S]), R1};
         {ok, PrevDesign} ->
             Rev = jsn:get_value(<<"_rev">>, PrevDesign),
             Design2 = jsn:set_value(<<"_rev">>, Rev, Design),
-            couch:update(DesignId, Design2, Project, [{admin, true}|S])
+            {couch:update(DesignId, Design2, Project, [{admin, true}|S]), R1}
     end.
     
 view(R, S) ->
