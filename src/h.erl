@@ -19,7 +19,6 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-
 %%% @doc Helpers for resources.
 
 -module(h).
