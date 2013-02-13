@@ -61,7 +61,7 @@
 
 -type req_data() :: cowboy_req:req().
 -type req_state() :: [{atom(), any()}].
--type couch_ret() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
+-type couch_ret() :: couch:ret().
 -type req_retval() :: {couch_ret(), req_data()}.
 
 -spec accept_json(req_data(), req_state()) -> {[{{binary(), binary(), list()}, from_json}], req_data(), req_state()}.
