@@ -27,7 +27,6 @@
 -compile(export_all).
 
 -include_lib("types.hrl").
--include_lib("webmachine/include/webmachine.hrl").
 
 all_docs(Qs, Project, S) ->
     couch:get_view_json(Qs, Project, S).
@@ -82,8 +81,10 @@ head_charseqs(Doctype, Project, S) ->
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 index(Id, R, S) ->
-    Qs = view:normalize_sortkey_vq(Id, wrq:req_qs(R), h:project(R), S),
-    index(Id, Qs, h:project(R), S).
+    {QsVals, R1} = cowboy_req:qs_values(R),
+    {Project, R2} = h:project(R1),
+    Qs = view:normalize_sortkey_vq(Id, QsVals, Project, S),
+    {index(Id, Qs, Project, S), R2}.
 
 index(Id, Qs, Project, S) ->
     couch:get_view_json(Id, "index", Qs, Project, S).

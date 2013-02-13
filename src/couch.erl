@@ -43,7 +43,11 @@
          update/4
         ]).
 
+-export_type([ret/0]).
+
 -include_lib("types.hrl").
+
+-type ret() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
 
 adb(Project) ->
     {ok, Val} = application:get_env(dictionary_maker, admin_db),
