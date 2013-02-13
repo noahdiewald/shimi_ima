@@ -51,10 +51,7 @@ rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        identifier ->
-            {Id, R1} = h:id(R),
-            {Exists, R2} = h:exists(Id, R1, S),
-            {Exists, R2, S};
+        identifier -> h:exists_id(R, S);
         _ -> {true, R, S}
     end.
 
@@ -68,7 +65,7 @@ allowed_methods(R, S) ->
     end.
   
 content_types_accepted(R, S) ->
-    {[{{<<"application">>, <<"json">>, []}, from_json}], R, S}.
+    h:accept_json(R, S).
 
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
@@ -101,16 +98,16 @@ index_html(R, S) ->
     end.
   
 html_as_options(R, S) ->
-    {ok, Json, R1} = q:charseqs(R, S),
+    {{ok, Json}, R1} = q:charseqs(R, S),
     {ok, Opts} = render:render(options_dtl, Json),
     {Opts, R1, S}.
 
 html_as_tabs(R, S) ->
-    {ok, Json, R1} = q:charseqs(R, S),
+    {{ok, Json}, R1} = q:charseqs(R, S),
     {render:renderings(Json, config_charseq_list_elements_dtl), R1, S}.
   
 id_html(R, S) ->
-    {ok, Json, R1} = h:id_data(R, S),
+    {{ok, Json}, R1} = h:id_data(R, S),
     F = fun({Key, Value}) ->
                 {Key, jsn:to_base64(Value)}
         end,
