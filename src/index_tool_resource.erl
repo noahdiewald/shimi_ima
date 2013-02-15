@@ -30,7 +30,7 @@
          is_authorized/2, 
          resource_exists/2,
          rest_init/2,
-         to_html/2,
+         to_html/2
         ]).
 -export([
          validate_authentication/3
@@ -46,7 +46,7 @@ to_html(R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),
     {QsVals, R2} = cowboy_req:qs_values(R1),
     {Project, R3} = h:project(R2),
-    {ok, Doctypes} = q:doctypes(Project, S),
+    {ok, Doctypes} = q:doctypes(QsVals, Project, S),
     Vals = [{<<"project_info">>, ProjectData},
         {<<"doctypes">>, Doctypes},
         {<<"user">>, proplists:get_value(user, S)}],

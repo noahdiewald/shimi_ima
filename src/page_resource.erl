@@ -27,11 +27,13 @@
 -export([
          allowed_methods/2,
          content_types_provided/2,
-         main_html/2
-         rest_init/2,
+         main_html/2,
+         rest_init/2
         ]).
 
 init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
+
+rest_init(R, S) -> {ok, R, S}.
 
 allowed_methods(R, S) ->
     {[<<"HEAD">>, <<"GET">>], R, S}.
