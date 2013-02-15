@@ -33,7 +33,7 @@ start(_Type, _StartArgs) ->
     Dispatch = 
         [{'_', [
                 {"/", page_resource, [{target, main}|Opts]},
-                {"/projects/:project_resource", [{target, main}|Opts]},
+                {"/projects", project_resource, [{target, main}|Opts]},
                 {"/projects/index", project_resource, [{target, index}|Opts]},
                 {"/projects/:id", project_resource, [{target, identifier}|Opts]},
                 {"/projects/:project/index_tool", index_tool_resource, [{target, main}|Opts]},
