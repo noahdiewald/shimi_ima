@@ -91,14 +91,15 @@ charseq_data(R, S) ->
     {[Charseq, Project], R1} = g([charseq, project], R),
     {get(Charseq, Project, S), R1}.
 
--spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
+-spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | req_data().
 create(Json, R, S) ->
     {Project, R1} = project(R),
     case couch:create(Json, Project, S) of
         {ok, created} -> 
             {true, R1, S};
         {forbidden, Message} ->
-            cowboy_req:reply(403, [], Message, R1)
+            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+            R2
     end.
 
 -spec create_attachment(string(), string(), binary(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.

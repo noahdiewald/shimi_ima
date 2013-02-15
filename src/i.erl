@@ -40,7 +40,7 @@ add_encoded_keys(Json) ->
     Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
     jsn:set_value(<<"rows">>, Rows, Json).
 
--spec create(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | {ok, h:req_data()}.
+-spec create(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 create(R, S) ->
     Json = proplists:get_value(posted_json, S),
     {Project, R1} = h:project(R),
@@ -53,7 +53,8 @@ create(R, S) ->
                     {ok, _} = create_design(Json, Project, S),
                     {true, R1, S};
                 {forbidden, Message} ->
-                    cowboy_req:reply(403, [], Message, R1)
+                    {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+                    R2
             end
     end.
 
@@ -69,7 +70,7 @@ get_design(Id, Project, S) ->
     [Row|[]] = jsn:get_value(<<"rows">>, Json),
     jsn:decode(jsn:get_value(<<"value">>, Row)).
             
--spec update(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | {ok, h:req_data()}.
+-spec update(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 update(R, S) ->
     {[Id, Rev, Project], R1} = h:g([id, rev, project], R),
     {Body, R2} = cowboy_req:body(R1),
@@ -90,14 +91,16 @@ update(R, S) ->
             {ok, _} = update_design(Id, Project, S),
             {true, R2, S};
         {forbidden, Message} ->
-            cowboy_req:reply(403, [], Message, R2);
+            {ok, R3} = cowboy_req:reply(403, [], Message, R2),
+            R3;
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R1)
+            {ok, R3} = cowboy_req:reply(409, [], Msg1, R2),
+            R3
     end.
 
--spec update_design(string(), string(), h:req_state()) -> {true, h:req_data(), h:req_state()} | {ok, h:req_data()}.
+-spec update_design(string(), string(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 update_design(DocId, Project, S) ->
     DesignId = "_design/" ++ DocId,
     Design = get_design(DocId, Project, S),
@@ -110,7 +113,7 @@ update_design(DocId, Project, S) ->
             couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
     
--spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data()} | {ok, h:req_data()}.
+-spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data(), h:req_state()} | h:req_data().
 view(R, S) ->
     Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
     Item = <<"Index">>,
@@ -121,11 +124,12 @@ view(R, S) ->
             Index = add_encoded_keys(Json),
             Vals = [{<<"limit">>, Limit}|Index] ++ Info,
             {ok, Html} = render:render(document_index_dtl, Vals),
-            {Html, R2};
+            {Html, R2, S};
         {{error, not_found}, _, R2} ->
-            {<<"">>, R2};
+            {<<"">>, R2, S};
         {{error, req_timedout}, _, R2} ->
-            cowboy_req:reply(504, [], Message, R2)
+            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
+            R3
     end.
 
 -spec get_index(h:req_data(), h:req_state()) -> {couch:ret(), jsn:json_term(), h:req_data()}.

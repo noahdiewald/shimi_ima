@@ -116,20 +116,17 @@ create_path(R, S) ->
     {Id, R1, [{posted_json, Json1}|S]}.
   
 to_html(R, S) ->
-    F = case proplists:get_value(target, S) of
+    case proplists:get_value(target, S) of
         edit -> html_edit;
         main -> html_documents;
         index -> html_index;
         identifier -> html_document;
         revision -> html_revision;
         search -> html_search
-    end,
-    {Html, R1} = F(R, S),
-    {Html, R1, S}.
+    end.
     
 to_json(R, S) ->
-    {Json, R1} = json_ws(R, S),
-    {Json, R1, S}.
+    json_ws(R, S).
 
 from_json(R, S) ->
     case proplists:get_value(target, S) of
@@ -187,12 +184,12 @@ json_ws(R, S) ->
     {Project, R2} = h:project(R1),
     Docs = jsn:decode(Set),
     Json = worksheet:get(Docs, Project, S),
-    {jsn:encode(Json), R2}.
+    {jsn:encode(Json), R2, S}.
 
 html_documents(R, S) ->
     {Info, R1} = h:basic_info("", " Documents", R, S),
     {ok, Html} = render:render(document_dtl, Info),
-    {Html, R1}.
+    {Html, R1, S}.
 
 html_edit(R, S) ->
     {[Doctype, Project], R1} = h:g([doctype, project], R),
@@ -201,7 +198,7 @@ html_edit(R, S) ->
     Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
     Vals = [{<<"fieldsets">>, Fieldsets}|Info],
     {ok, Html} = render:render(document_edit_dtl, Vals),
-    {Html, R2}.
+    {Html, R2, S}.
 
 html_index(R, S) ->
     i:view(R, S).
@@ -227,7 +224,7 @@ html_search(R, S) ->
     },
     Results = search:values(Params, Project, S),
     {ok, Html} = render:render(document_search_dtl, Results),
-    {Html, R4}.
+    {Html, R4, S}.
 
 html_document(R, S) ->
     {{ok, OrigJson}, R1} = h:id_data(R, [{revs_info, true}|S]),
@@ -236,7 +233,7 @@ html_document(R, S) ->
     NormJson = document:normalize(doc, OrigJson),
     Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ Info,
     {ok, Html} = render:render(document_view_dtl, Vals),
-    {Html, R2}.
+    {Html, R2, S}.
 
 html_revision(R, S) ->
     {{ok, RevData}, R1} = h:rev_data(R, S),
@@ -252,7 +249,7 @@ html_revision(R, S) ->
            end,
     Json = [{<<"previous_revision">>, Prev}|Requested],
     {ok, Html} = render:render(document_view_tree_dtl, Json),
-    {Html, R2}.
+    {Html, R2, S}.
 
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),
