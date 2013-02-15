@@ -29,6 +29,7 @@
          fold_view/6,
          get/3,
          get/4,
+         get_attachment/4,
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
@@ -127,6 +128,13 @@ get(Id, Rev, Project, S) ->
     Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     get_json_helper(Url, Headers).
 
+%% @doc Get an attachment.
+-spec get_attachment(string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_attachment(Id, Name, Project, S) ->
+    Headers = proplists:get_value(headers, S, []),
+    Url = ndb(Project) ++ Id ++ "/" ++ Name,
+    get_helper(Url, Headers).
+
 -spec get_db_info(string()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_db_info(Project) ->
     get_json_helper(adb(Project), []).
@@ -158,7 +166,7 @@ get_design_rev(Name, Project, Headers) ->
 get_helper(Url, Headers) ->
     Opts = [{connect_timeout, 500}, {inactivity_timeout, 10000}],
     case ibrowse:send_req(Url, Headers, get, [], Opts) of
-        {ok, "200", _, Json} -> {ok, Json};
+        {ok, "200", _, Body} -> {ok, Body};
         {ok, "404", _, _} -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout}
     end.
@@ -281,7 +289,10 @@ should_wait(Project, ViewPath) ->
   
 -spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
 update(Id, Json, Project, S) ->
-    CT = [{"Content-Type","application/json"}],
+    CT = case proplists:get_value(content_type, S) of
+        undefined -> [{"Content-Type", "application/json"}];
+        ContentType -> [{"Content-Type", ContentType}]
+    end,
     {DB, Headers} = case proplists:get_value(admin, S) of
         true ->
             {adb(Project), CT};

@@ -30,6 +30,7 @@
          charseq/1,
          charseq_data/2,
          create/3,
+         create_attachment/5,
          delete/2,
          delete_project/2,
          doctype/1,
@@ -43,10 +44,13 @@
          g/2,
          get/3,
          get/4,
+         get_attachment/4,
          id/1,
          id_data/2,
          id_html/3,
          index/1,
+         path_exists/2,
+         path_exists/3,
          project/1,
          project_data/2,
          rev/1,
@@ -95,6 +99,18 @@ create(Json, R, S) ->
             {true, R1, S};
         {forbidden, Message} ->
             cowboy_req:reply(403, [], Message, R1)
+    end.
+
+-spec create_attachment(string(), string(), binary(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
+create_attachment(Id, Name, Content, R, S) ->
+    {Project, R1} = project(R),
+    case couch:update(Id ++ "/" ++ Name, Content, Project, S) of
+        {ok, updated} -> 
+            {ok, R2} = cowboy_req:reply(200, [], <<"File Uploaded">>, R1),
+            R2;
+        {forbidden, Message} ->
+            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+            R2
     end.
 
 -spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
@@ -179,13 +195,17 @@ g(Keys, R) ->
   {R1, Vals} = lists:foldl(F, {R, []}, Keys),
   {lists:reverse(Vals), R1}.
   
--spec get(string(), string() | req_data(), req_state()) -> couch_ret().
+-spec get(string(), string(), req_state()) -> couch_ret().
 get(Id, Project, S) ->
     couch:get(Id, Project, S).
 
--spec get(string(), string(), string() | req_data(), req_state()) -> couch_ret().
+-spec get(string(), string(), string(), req_state()) -> couch_ret().
 get(Id, Rev, Project, S) ->
     couch:get(Id, Rev, Project, S).
+
+-spec get_attachment(string(), string(), string(), req_state()) -> couch_ret().
+get_attachment(Id, Name, Project, S) ->
+    couch:get_attachment(Id, Name, Project, S).
 
 -spec id(req_data()) -> string().
 id(R) ->
@@ -207,6 +227,18 @@ id_html(Template, R, S) ->
 index(R) ->
     {IndexBin, R1} = cowboy_req:qs_value(<<"index">>, R),
     {binary_to_list(IndexBin), R1}.
+
+-spec path_exists(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+path_exists(R, S) ->
+    {Path, R1} = cowboy_req:path_info(R),
+    path_exists(Path, R1, S).
+
+-spec path_exists([string()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+path_exists(Path, R, S) ->
+    {Project, R1} = project(R),
+    {ok, Json} = q:full_path([{"key", Path}], Project, S),
+    Total = length(proplists:get_value(<<"total_rows">>, Json)),
+    {Total > 0, R1, S}.
 
 -spec project(req_data()) -> {string(), req_data()}.
 project(R) ->

@@ -1,24 +1,24 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
-%%% dictionary_maker is free software: you can redistribute it and/or modify
-%%% it under the terms of the GNU General Public License as published by
-%%% the Free Software Foundation, either version 3 of the License, or
-%%% (at your option) any later version.
+%%% dictionary_maker is free software: you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation, either version 3 of the
+%%% License, or (at your option) any later version.
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-
 %%% @doc Utilities and helpers for working with file attachments
 
 -module(attach).
@@ -27,8 +27,6 @@
          create/3,
          delete/2,
          dirs_by_path/2,
-         file_exists/2,
-         file_path_exists/2,
          files_by_path/2,
          get/2,
          get/3,
@@ -39,16 +37,9 @@
          update/2
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("types.hrl").
 
 % API Functions   
-
-%% @doc Determine if the entry exists by extracting the id from the
-%% URL path
-file_exists(R, S) ->
-    Id = wrq:path_info(id, R),
-    file_exists(Id, R, S).
 
 %% @doc Determine if there is at least one entry with the filename and
 %% path combination specified by the URL
@@ -230,15 +221,6 @@ files_by_path(Tokens, R, S) ->
     Url = get_view_url("by_path", view:from_list([{"key", Tokens}]), R, S),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     jsn:decode(Json).
-
-%% @doc  file_exists/2 helper
-file_exists(Id, R, S) ->
-    Headers = [{"Content-Type", "application/json"}],
-    Url = get_url([Id], [], R, S),
-    case ibrowse:send_req(Url, Headers, head) of
-        {ok, "200", _, _} -> {true, R, [{identifier, Id}|S]};
-        _ -> {false, R, S}
-    end.
 
 %% @doc For sending back a conflict error and message.  
 halt_conflict() ->

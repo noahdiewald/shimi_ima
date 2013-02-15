@@ -37,6 +37,11 @@ charseqs(R, S) ->
     Qs = view:normalize_vq(QsVals),
     {couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S), R2}.
 
+dirs(QsVals, Project, S) ->
+    VQ = view:from_list(QsVals),
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "paths", Qs, Project, S).
+
 doctypes(R, S) ->
     {QsVals, R1} = cowboy_req:qs_values(R),
     {Project, R2} = h:project(R1),
@@ -72,13 +77,16 @@ field(Doctype, Fieldset, Include, Project, S) ->
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
-files(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_values(R),
-    {Project, R2} = h:project(R1),
+files(QsVals, Project, S) ->
     VQ = view:from_list(QsVals),
     Qs = view:to_string(VQ),
-    {couch:get_view_json("shimi_ima", "by_path", Qs, Project, S), R2}.
+    couch:get_view_json("shimi_ima", "by_path", Qs, Project, S).
 
+full_path(QsVals, Project, S) ->
+    VQ = view:from_list(QsVals),
+    Qs = view:to_string(VQ),
+    couch:get_view_json("shimi_ima", "full_paths", Qs, Project, S).
+    
 head_charseqs(Doctype, Project, S) ->
     DT = list_to_binary(Doctype),
     VQ = #vq{startkey =  [<<"_head-charseq">>, DT, 0],
