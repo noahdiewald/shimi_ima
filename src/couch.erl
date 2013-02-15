@@ -51,7 +51,7 @@
 -type ret() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
 
 adb(Project) ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val ++ Project ++ "/".
 
 %% @doc Create a document
@@ -241,12 +241,12 @@ new_db(DB) ->
 
 -spec ndb(string()) -> string().
 ndb(Project) ->
-    {ok, Val} = application:get_env(dictionary_maker, normal_db),
+    {ok, Val} = application:get_env(shimi_ima, normal_db),
     Val ++ Project ++ "/".
 
 -spec pdb() -> string().
 pdb() ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val ++ "shimi_ima" ++ "/".
 
 -spec replicate(string(), string()) -> {ok, replicated}.

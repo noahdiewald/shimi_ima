@@ -10,14 +10,14 @@ doc/.*\.css
 doc/edoc-info
 c_src/.*\.o
 priv/.*\.so
-dictionary_maker\.pid
+shimi_ima\.pid
 .*\~
 .*\.orig
 misc/importers/.*\.(hi|o|ho|csv|temp|json)
 misc/importers/working/.*
 (.*/)?\.?\#[^/]*\#?$
 scratch\.txt
-^dm\.config$
+^shimi_ima\.config$
 node_modules
 .*\.couchapprc
 
