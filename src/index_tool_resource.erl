@@ -27,6 +27,7 @@
 
 -export([init/3]).
 -export([
+         is_authorized/2, 
          resource_exists/2,
          rest_init/2,
          to_html/2,
@@ -55,3 +56,16 @@ to_html(R, S) ->
 resource_exists(R, S) ->
     {Exist, R2} = h:exists("", R, S),
     {Exist, R2, S}.
+
+is_authorized(R, S) ->
+    proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
+
+validate_authentication(Props, R, S) ->
+    {{ok, ProjectData}, R1} = h:project_data(R, S),
+    Name = jsn:get_value(<<"name">>, ProjectData),
+    ValidRoles = [<<"_admin">>, <<"manager">>, Name],
+    IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
+    case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
+        true -> {true, R1, S};
+        false -> {proplists:get_value(auth_head, S), R1, S}
+    end.
