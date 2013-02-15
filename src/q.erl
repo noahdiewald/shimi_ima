@@ -42,16 +42,12 @@ dirs(QsVals, Project, S) ->
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "paths", Qs, Project, S).
 
-doctypes(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_values(R),
-    {Project, R2} = h:project(R1),
+doctypes(QsVals, Project, S) ->
     Qs = view:normalize_vq(QsVals),
-    {couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S), R2}.
-
-doctypes(true, R, S) ->
-    {Project, R1} = h:project(R),
+    couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S);
+doctypes(true, Project, S) ->
     Qs = view:to_string(#vq{include_docs = true}),
-    {couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S), R1}.
+    couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S).
 
 fieldset(Doctype, Project, S) ->
     fieldset(Doctype, true, Project, S).
