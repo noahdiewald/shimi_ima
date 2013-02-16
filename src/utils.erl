@@ -45,7 +45,7 @@
 
 %% @doc Return whether we're in development mode
 is_devel() ->
-    case application:get_env(dictionary_maker, devel) of
+    case application:get_env(shimi_ima, devel) of
         {ok, true} ->
             true;
         _ ->
@@ -54,12 +54,12 @@ is_devel() ->
 
 %% @doc Return the Admin DB URL.
 adb() ->
-    {ok, Val} = application:get_env(admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val.
 
 %% @doc Return the Normal DB URL.
 ndb() ->
-    {ok, Val} = application:get_env(normal_db),
+    {ok, Val} = application:get_env(shimi_ima, normal_db),
     Val.
 
 %% @doc Return a unique id. Probably not a real UUID but it isn't

@@ -89,7 +89,7 @@ delete_resource(R, S) ->
     h:delete(R, S).
 
 from_json(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     h:update(Json, R1, S).
 

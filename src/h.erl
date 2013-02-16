@@ -70,7 +70,8 @@
 
 -spec accept_json(req_data(), req_state()) -> {[{{binary(), binary(), list()}, from_json}], req_data(), req_state()}.
 accept_json(R, S) ->
-    {[{{<<"application">>, <<"json">>, []}, from_json}], R, S}.
+    {[{{<<"application">>, <<"json">>, []}, from_json},
+      {{<<"application">>, <<"json">>, [{<<"charset">>, <<"UTF-8">>}]}, from_json}], R, S}.
     
 -spec basic_info(string(), string(), req_data(), req_state()) -> {jsn:json_term(), req_data()}.
 basic_info(Title1, Title2, R, S) ->

@@ -73,7 +73,7 @@ get_design(Id, Project, S) ->
 -spec update(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 update(R, S) ->
     {[Id, Rev, Project], R1} = h:g([id, rev, project], R),
-    {Body, R2} = cowboy_req:body(R1),
+    {ok, Body, R2} = cowboy_req:body(R1),
     Json = jsn:decode(Body),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),

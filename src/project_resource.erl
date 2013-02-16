@@ -47,14 +47,7 @@ init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 rest_init(R, S) -> {ok, R, S}.
 
 is_authorized(R, S) ->
-    case cowboy_req:method(R) of
-        {<<"DELETE">>, R1} ->
-            proxy_auth:is_authorized(R1, [{source_mod, ?MODULE}|S]);
-        {<<"POST">>, R1} ->
-            proxy_auth:is_authorized(R1, [{source_mod, ?MODULE}|S]);
-        {_, R1} ->
-            {true, R1, S}
-    end.
+    proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
     case proplists:get_value(target, S) of
@@ -80,7 +73,7 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    Uuid = list_to_binary("project-" ++ utils:uuid()),
+    Uuid = list_to_binary("/project-" ++ utils:uuid()),
     {Uuid, R, [{newid, Uuid}|S]}.
   
 index_html(R, S) ->
@@ -93,7 +86,7 @@ main_html(R, S) ->
     {Html, R, S}.
   
 from_json(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     ProjectData = jsn:decode(Body),
     {ok, ProjectId} = project:create(ProjectData, S),
     database_seqs:set_seq(ProjectId, 0),

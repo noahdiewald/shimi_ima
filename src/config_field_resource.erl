@@ -88,7 +88,7 @@ post_is_create(R, S) ->
   {true, R, S}.
 
 create_path(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
@@ -122,7 +122,7 @@ json_create(R, S) ->
   
 json_update(R, S) ->
     {{ok, updated}, R1} = h:update_doctype_version(R, S),
-    {Body, R2} = cowboy_req:body(R1),
+    {ok, Body, R2} = cowboy_req:body(R1),
     Json = jsn:decode(Body),
     h:update(Json, R2, S).
       

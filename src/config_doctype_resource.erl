@@ -88,7 +88,7 @@ post_is_create(R, S) ->
     end.
 
 create_path(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     Id = jsn:get_value(<<"_id">>, Json),
     {Id, R1, [{posted_json, Json}|S]}.

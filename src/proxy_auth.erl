@@ -29,20 +29,20 @@
         ]).
 
 is_authorized(R, S) ->
-    S1 = [{auth_head, "Basic realm=dictionary"}|S],
+    S1 = [{auth_head, <<"Basic realm=\"dictionary\"">>}|S],
     {Auth, R1} = cowboy_req:header(<<"authorization">>, R),
-    case binary_to_list(Auth) of
-        "Basic " ++ Base64 ->
-            S2 = update_client_headers({"Authorization", "Basic " ++ Base64}, S1),
+    case Auth of
+        <<"Basic ", Base64/binary>> ->
+            S2 = update_client_headers({"Authorization", binary_to_list(Auth)}, S1),
             do_basic_authentication(Base64, R1, S2);
-        _ -> {proplists:get_value(auth_head, S1), R1, S1}
+        _ -> {{false, proplists:get_value(auth_head, S1)}, R1, S1}
     end.
 
 do_basic_authentication(Base64, R, S) ->
     Str = base64:mime_decode_to_string(Base64),
     case string:tokens(Str, ":") of
         [Username, Password] -> couchdb_authenticate(Username, Password, R, S);
-        _ -> {proplists:get_value(auth_head, S), R, S}
+        _ -> {{false, proplists:get_value(auth_head, S)}, R, S}
     end.
 
 couchdb_authenticate(Username, Password, R, S) ->
@@ -52,7 +52,7 @@ couchdb_authenticate(Username, Password, R, S) ->
     case Resp of
         {ok, "200", _, Json} -> 
             do_validations(jsn:decode(Json), R, S);
-        {ok, "401", _, _} -> {proplists:get_value(auth_head, S), R, S}
+        {ok, "401", _, _} -> {{false, proplists:get_value(auth_head, S)}, R, S}
     end.
 
 do_validations(Struct, R, S) ->

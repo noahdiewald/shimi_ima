@@ -78,7 +78,7 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 

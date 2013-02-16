@@ -105,7 +105,7 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
@@ -117,12 +117,12 @@ create_path(R, S) ->
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        edit -> html_edit;
-        main -> html_documents;
-        index -> html_index;
-        identifier -> html_document;
-        revision -> html_revision;
-        search -> html_search
+        edit -> html_edit(R, S);
+        main -> html_documents(R, S);
+        index -> html_index(R, S);
+        identifier -> html_document(R, S);
+        revision -> html_revision(R, S);
+        search -> html_search(R, S)
     end.
     
 to_json(R, S) ->
@@ -153,7 +153,7 @@ json_create(R, S) ->
   
 json_update(R, S) ->
     {Project, R1} = h:project(R),
-    {Body, R2} = cowboy_req:body(R1),
+    {ok, Body, R2} = cowboy_req:body(R1),
     Json = jsn:decode(Body),
     Json1 = document:set_sortkeys(Json, Project, S),
     json_update(Json1, R2, S).

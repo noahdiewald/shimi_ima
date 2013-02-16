@@ -80,7 +80,7 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
@@ -125,7 +125,7 @@ json_create(R, S) ->
     h:create(proplists:get_value(posted_json, S), R, S).
 
 json_update(R, S) ->
-    {Body, R1} = cowboy_req:body(R),
+    {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     h:update(Json, R1, S).  
 
