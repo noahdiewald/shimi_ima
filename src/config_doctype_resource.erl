@@ -99,7 +99,8 @@ process_post(R, S) ->
     cowboy_req:reply(204, [], <<>>, R1).
     
 index_html(R, S) ->
-    {{ok, Json}, R1} = q:doctypes(true, R, S),
+    {Project, R1} = h:project(R),
+    {ok, Json} = q:doctypes(true, Project, S),
     {render:renderings(Json, config_doctype_list_elements_dtl), R1, S}.
   
 id_html(R, S) ->
