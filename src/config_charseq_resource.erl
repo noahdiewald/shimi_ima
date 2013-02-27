@@ -91,7 +91,7 @@ create_path(R, S) ->
     {Id, R1, [{posted_json, Json1}|S]}.
   
 index_html(R, S) ->
-    {Val, R1} = cowboy_req:qs_value(<<"as">>, R),
+    {Val, R1} = cowboy_req:qs_val(<<"as">>, R),
     case Val of
         undefined -> html_as_tabs(R1, S);
         <<"options">> -> html_as_options(R1, S)

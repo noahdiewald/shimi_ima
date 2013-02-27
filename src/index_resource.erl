@@ -144,7 +144,7 @@ html_identifier(R, S) ->
     {Html, R2, S}.
 
 html_condition(R, S) ->
-    {Vals, R1} = cowboy:qs_values(R),
+    {Vals, R1} = cowboy_req:qs_vals(R),
     {Html, R2} = render_conditions(Vals, R1, S),
     {Html, R2, S}.
   

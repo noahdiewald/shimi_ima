@@ -168,7 +168,7 @@ field(R) ->
     {FieldBin, R1} = cowboy_req:binding(field, R),
     case FieldBin of
         undefined ->
-            cowboy_req:qs_value(<<"field">>, R1);
+            cowboy_req:qs_val(<<"field">>, R1);
         FieldBin when is_binary(FieldBin) ->
             {binary_to_list(FieldBin), R1}
     end.
@@ -227,7 +227,7 @@ id_html(Template, R, S) ->
 
 -spec index(req_data()) -> {string() | undefined, req_data()}.
 index(R) ->
-    {IndexBin, R1} = cowboy_req:qs_value(<<"index">>, R),
+    {IndexBin, R1} = cowboy_req:qs_val(<<"index">>, R),
     {binary_to_list(IndexBin), R1}.
 
 -spec path_exists(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
@@ -257,7 +257,7 @@ rev(R) ->
     {RevBin, R1} = cowboy_req:binding(rev, R),
     case RevBin of
         undefined ->
-            cowboy_req:qs_value(<<"rev">>, R1);
+            cowboy_req:qs_val(<<"rev">>, R1);
         RevBin when is_binary(RevBin) ->
             {binary_to_list(RevBin), R1}
     end.

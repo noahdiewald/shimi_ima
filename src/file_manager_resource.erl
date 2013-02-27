@@ -141,7 +141,7 @@ html_main(R, S) ->
 
 html_index(R, S) ->
     {Project, R1} = h:project(R),
-    {QsVals, R2} = cowboy_req:qs_values(R1),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
     {ok, Files} = q:files(QsVals, Project, S),
     Vals = [{<<"files">>, Files}],
     {ok, Html} = render:render(file_manager_listing_dtl, Vals),

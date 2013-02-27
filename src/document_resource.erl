@@ -180,7 +180,7 @@ json_update(Json, R, S) ->
     end.
 
 json_ws(R, S) ->
-    {Set, R1} = cowboy_req:qs_value(<<"set">>, R),
+    {Set, R1} = cowboy_req:qs_val(<<"set">>, R),
     {Project, R2} = h:project(R1),
     Docs = jsn:decode(Set),
     Json = worksheet:get(Docs, Project, S),
@@ -204,9 +204,9 @@ html_index(R, S) ->
     i:view(R, S).
 
 html_search(R, S) ->
-    {Query, R1} = cowboy_req:qs_value(<<"q">>, R),
-    {Exclude, R2} = cowboy_req:qs_value(<<"exclude">>, R1),
-    {Invert, R3} = cowboy_req:qs_value(<<"invert">>, R2),
+    {Query, R1} = cowboy_req:qs_val(<<"q">>, R),
+    {Exclude, R2} = cowboy_req:qs_val(<<"exclude">>, R1),
+    {Invert, R3} = cowboy_req:qs_val(<<"invert">>, R2),
     {[Project, Doctype, Index], R4} = h:g([project, doctype, index], R3),
     Fields = case h:field(R) of
         undefined ->

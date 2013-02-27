@@ -32,7 +32,7 @@ all_docs(Qs, Project, S) ->
     couch:get_view_json(Qs, Project, S).
 
 charseqs(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_values(R),
+    {QsVals, R1} = cowboy_req:qs_vals(R),
     {Project, R2} = h:project(R1),
     Qs = view:normalize_vq(QsVals),
     {couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S), R2}.
@@ -92,7 +92,7 @@ head_charseqs(Doctype, Project, S) ->
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
 index(Id, R, S) ->
-    {QsVals, R1} = cowboy_req:qs_values(R),
+    {QsVals, R1} = cowboy_req:qs_vals(R),
     {Project, R2} = h:project(R1),
     Qs = view:normalize_sortkey_vq(Id, QsVals, Project, S),
     {index(Id, Qs, Project, S), R2}.
@@ -105,7 +105,7 @@ index_design(Id, Project, S) ->
     couch:get_view_json("shimi_ima", "user_indexes", Qs, Project, S).
 
 indexes_options(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_values(R),
+    {QsVals, R1} = cowboy_req:qs_vals(R),
     {[Project, Doctype], R2} = h:g([project, doctype], R1),
     Qs = case Doctype of
              undefined ->

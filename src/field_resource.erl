@@ -76,7 +76,7 @@ allowed_methods(R, S) ->
 content_types_provided(R, S) ->
     % Currently having a problem with jquery and Accepts headers
     % this is a work around. TODO: verify newer version has problem.
-    {Format, R1} = cowboy_req:qs_value(<<"format">>, R),
+    {Format, R1} = cowboy_req:qs_val(<<"format">>, R),
     case Format of
         undefined -> {[{{<<"text">>, <<"html">>, []}, to_html}, 
                        {{<<"application">>, <<"json">>, []}, to_json}], R1, S};
@@ -137,7 +137,7 @@ html_field(R, S) ->
      get_field_html(Json, R1, S).
   
 html_fields(R, S) -> 
-    {As, R1} = cowboy_req:qs_value(<<"as">>, R),
+    {As, R1} = cowboy_req:qs_val(<<"as">>, R),
     case As of
         undefined -> html_as_fieldset(R1, S);
         <<"fieldset">> -> html_as_fieldset(R1, S);
