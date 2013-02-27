@@ -34,6 +34,7 @@
          peach/3,
          read_file_info/1,
          record_to_proplist/2,
+         search_revs/3,
          shuffle/1,
          update_all_by/2,
          update_all_by/3,
@@ -54,12 +55,12 @@ is_devel() ->
 
 %% @doc Return the Admin DB URL.
 adb() ->
-    {ok, Val} = application:get_env(admin_db),
+    {ok, Val} = application:get_env(dictionary_maker, admin_db),
     Val.
 
 %% @doc Return the Normal DB URL.
 ndb() ->
-    {ok, Val} = application:get_env(normal_db),
+    {ok, Val} = application:get_env(dictionary_maker, admin_db),
     Val.
 
 %% @doc Return a unique id
@@ -110,6 +111,25 @@ update_all_by(revs, {Project, Id, View}, Fun) ->
           end,
     peach(Run, Rows, 20),
     ok.
+
+search_revs({Project, Id, View}, Fun, Tid) ->
+    Url = adb() ++ Project ++ "/" ++ "_design/" ++ Id ++ "/_view/" ++ View,
+    ViewData = case ibrowse:send_req(Url, [], get) of
+                   {ok, "200", _, Json} -> jsn:decode(Json)
+               end,
+    Rows = jsn:get_value(<<"rows">>, ViewData),
+    Run = fun (X) ->
+                  DocId = jsn:get_value(<<"id">>, X),
+                  Doc = get_doc(revs, Project, DocId),
+                  case Fun(Doc) of
+                      null -> ok;
+                      {ok, MatchID} ->
+                          ets:insert(Tid, {MatchID, MatchID}),
+                          ok
+                  end
+          end,
+    peach(Run, Rows, 20),
+    ok.
     
 get_doc(Project, Doc) ->
     Url = adb() ++ Project ++ "/" ++ binary_to_list(Doc),
@@ -117,24 +137,17 @@ get_doc(Project, Doc) ->
     jsn:decode(Json).
 
 get_doc(revs, Project, Id) ->
-    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++ 
-        "?revs_info=true",
+    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++  "?revs_info=true",
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Doc = jsn:decode(Json),
-    jsn:set_value(
-      <<"revs">>, 
-      get_revs(
-        Project,
-        Id,
-        jsn:get_value(<<"_revs_info">>, Doc), []), Doc).
+    jsn:set_value(<<"revs">>, get_revs(Project, Id, jsn:get_value(<<"_revs_info">>, Doc), []), Doc).
 
 get_revs(_, _, [], Acc) ->
     lists:reverse(Acc);
 get_revs(_, _, [[_,{<<"status">>,<<"missing">>}]|_], Acc) ->
     lists:reverse(Acc);
 get_revs(Project, Id, [[{_,Rev},_]|Rest], Acc) ->
-    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++ 
-        "?rev=" ++ binary_to_list(Rev),
+    Url = adb() ++ Project ++ "/" ++ binary_to_list(Id) ++  "?rev=" ++ binary_to_list(Rev),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Doc = jsn:decode(Json),
     get_revs(Project, Id, Rest, [Doc|Acc]).
