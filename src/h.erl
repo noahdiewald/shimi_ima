@@ -191,7 +191,7 @@ fieldset_data(R, S) ->
 -spec g([atom()], req_data()) -> {[string() | undefined], req_data()}.
 g(Keys, R) ->
   F = fun (X, {RX, Acc}) ->
-    {Val, RY} = X(RX),
+    {Val, RY} = ?MODULE:X(RX),
     {RY, [Val|Acc]}
   end,
   {R1, Vals} = lists:foldl(F, {R, []}, Keys),
