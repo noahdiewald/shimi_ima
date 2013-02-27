@@ -58,7 +58,7 @@ content_types_provided(R, S) ->
 to_html(R, S) ->
     User = proplists:get_value(user, S),
     {{ok, ProjectData}, R1} = h:project_data(R, S),
-    {QsVals, R2} = cowboy_req:qs_values(R1),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
     {Project, R3} = h:project(R2),
     {ok, Json} = q:doctypes(QsVals, Project, S),
     Vals = [{<<"title">>, <<"All Document Types">>},
