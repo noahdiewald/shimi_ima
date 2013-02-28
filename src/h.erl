@@ -77,15 +77,17 @@ accept_json(R, S) ->
 basic_info(Title1, Title2, R, S) ->
     {{ok, ProjectData}, R1} = project_data(R, S),
     {{ok, DoctypeData}, R2} = doctype_data(R1, S),
+    % TODO: use the data above?
+    {Doctype, R3} = doctype(R2),
     {[{<<"project_info">>, ProjectData},
       {<<"doctype_info">>, DoctypeData},
-      {<<"title">>, list_to_binary(Title1 ++ doctype(R) ++ Title2)},
-      {<<"user">>, proplists:get_value(user, S)}], R2}.
+      {<<"title">>, list_to_binary(Title1 ++ Doctype ++ Title2)},
+      {<<"user">>, proplists:get_value(user, S)}], R3}.
     
 -spec charseq(req_data()) -> {string(), req_data()}.
 charseq(R) ->
     {CharseqBin, R1} = cowboy_req:binding(charseq, R),
-    {binary_to_list(CharseqBin), R1}.
+    {list_or_undefined(CharseqBin), R1}.
 
 -spec charseq_data(req_data(), req_state()) -> req_retval().
 charseq_data(R, S) ->
@@ -145,7 +147,7 @@ delete_project(R, S) ->
 -spec doctype(req_data()) -> string().
 doctype(R) ->
     {DoctypeBin, R1} = cowboy_req:binding(doctype, R),
-    {binary_to_list(DoctypeBin), R1}.
+    {list_or_undefined(DoctypeBin), R1}.
 
 -spec doctype_data(req_data(), req_state()) -> req_retval().
 doctype_data(R, S) ->
@@ -168,7 +170,8 @@ field(R) ->
     {FieldBin, R1} = cowboy_req:binding(field, R),
     case FieldBin of
         undefined ->
-            cowboy_req:qs_val(<<"field">>, R1);
+            {Field, R2} = cowboy_req:qs_val(<<"field">>, R1),
+            {list_or_undefined(Field), R2};
         FieldBin when is_binary(FieldBin) ->
             {binary_to_list(FieldBin), R1}
     end.
@@ -181,7 +184,7 @@ field_data(R, S) ->
 -spec fieldset(req_data()) -> {string(), req_data()}.
 fieldset(R) ->
     {FieldsetBin, R1} = cowboy_req:binding(fieldset, R),
-    {binary_to_list(FieldsetBin), R1}.
+    {list_or_undefined(FieldsetBin), R1}.
 
 -spec fieldset_data(req_data(), req_state()) -> req_retval().
 fieldset_data(R, S) ->
@@ -212,7 +215,7 @@ get_attachment(Id, Name, Project, S) ->
 -spec id(req_data()) -> string().
 id(R) ->
     {IdBin, R1} = cowboy_req:binding(id, R),
-    {binary_to_list(IdBin), R1}.
+    {list_or_undefined(IdBin), R1}.
 
 -spec id_data(req_data(), req_state()) -> req_retval().
 id_data(R, S) ->
@@ -228,7 +231,13 @@ id_html(Template, R, S) ->
 -spec index(req_data()) -> {string() | undefined, req_data()}.
 index(R) ->
     {IndexBin, R1} = cowboy_req:qs_val(<<"index">>, R),
-    {binary_to_list(IndexBin), R1}.
+    {list_or_undefined(IndexBin), R1}.
+
+-spec list_or_undefined(binary()|any()) -> string()|undefined.
+list_or_undefined(Bin) when is_binary(Bin) ->
+    binary_to_list(Bin);
+list_or_undefined(_) ->
+    undefined.
 
 -spec path_exists(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 path_exists(R, S) ->
@@ -245,7 +254,7 @@ path_exists(Path, R, S) ->
 -spec project(req_data()) -> {string(), req_data()}.
 project(R) ->
     {ProjectBin, R1} = cowboy_req:binding(project, R),
-    {binary_to_list(ProjectBin), R1}.
+    {list_or_undefined(ProjectBin), R1}.
 
 -spec project_data(req_data(), req_state()) -> req_retval().
 project_data(R, S) ->
@@ -258,7 +267,7 @@ rev(R) ->
     case RevBin of
         undefined ->
             {Rev, R2} = cowboy_req:qs_val(<<"rev">>, R1),
-            {binary_to_list(Rev), R2};
+            {list_or_undefined(Rev), R2};
         RevBin when is_binary(RevBin) ->
             {binary_to_list(RevBin), R1}
     end.

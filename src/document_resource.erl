@@ -42,15 +42,6 @@
 -export([
          validate_authentication/3
         ]).
-% WARNING: not for external use
--export([
-         html_document/2,
-         html_documents/2,
-         html_edit/2,
-         html_index/2,
-         html_revision/2,
-         html_search/2
-        ]).
 
 -include_lib("types.hrl").
 
