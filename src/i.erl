@@ -118,7 +118,8 @@ view(R, S) ->
     Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
     Item = <<"Index">>,
     Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    {Limit, R1} = cowboy_req:qs_val(<<"limit">>, R),
+    {LimitString, R1} = cowboy_req:qs_val(<<"limit">>, R),
+    Limit = list_to_integer(binary_to_list(LimitString)),
     case get_index(R1, S) of
         {{ok, Json}, Info, R2} ->
             Index = add_encoded_keys(Json),

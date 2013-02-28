@@ -1376,10 +1376,8 @@ shimi.index = function (args) {
     $('#next-index-page').click(function () {
       var nextkey = $('#next-index-page').attr('data-startkey');
       var nextid = $('#next-index-page').attr('data-startid');
-      var prevkey =
-      $('#first-index-element').attr('data-first-key');
-      var previd =
-      $('#first-index-element').attr('data-first-id');
+      var prevkey = $('#first-index-element').attr('data-first-key');
+      var previd = $('#first-index-element').attr('data-first-id');
       state.pks.push(prevkey);
       state.pids.push(previd);
 

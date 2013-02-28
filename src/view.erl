@@ -48,36 +48,36 @@ to_string(VQ) ->
     string:join(make_vqs(VQ, []), "&").
 
 %% @doc Process an incoming proplist into a view_query record.
--spec get_vq(list(tuple())) -> view_query().
+-spec get_vq([{binary(), jsn:json_term()}]) -> view_query().
 get_vq(R) ->
     #vq{
-        key = getv("key", R), 
-        keys = getv("keys", R), 
-        startkey = getv("startkey", R), 
-        startkey_docid = proplists:get_value("startkey_docid", R), 
-        endkey = getv("endkey", R), 
-        endkey_docid = proplists:get_value("endkey_docid", R), 
-        limit = getv("limit", R), 
-        stale = stale_val(proplists:get_value("stale", R)), 
-        descending = getv("descending", R, false), 
-        skip = getv("skip", R, 0), 
-        group_level = getv("group_level", R, exact), 
-        reduce = getv("reduce", R, true), 
-        include_docs = getv("include_docs", R, false), 
-        inclusive_end = getv("inclusive_end", R, true),
-        update_seq = getv("inclusive_end", R, false)}.
+        key = getv(<<"key">>, R), 
+        keys = getv(<<"keys">>, R), 
+        startkey = getv(<<"startkey">>, R), 
+        startkey_docid = proplists:get_value(<<"startkey_docid">>, R), 
+        endkey = getv(<<"endkey">>, R), 
+        endkey_docid = proplists:get_value(<<"endkey_docid">>, R), 
+        limit = getv(<<"limit">>, R), 
+        stale = stale_val(proplists:get_value(<<"stale">>, R)), 
+        descending = getv(<<"descending">>, R, false), 
+        skip = getv(<<"skip">>, R, 0), 
+        group_level = getv(<<"group_level">>, R, exact), 
+        reduce = getv(<<"reduce">>, R, true), 
+        include_docs = getv(<<"include_docs">>, R, false), 
+        inclusive_end = getv(<<"inclusive_end">>, R, true),
+        update_seq = getv(<<"update_seq">>, R, false)}.
 
 %% @doc Takes the unique portion of a design document id and
 %% webmachine state and will possibly alter the default return value
 %% of from_reqdata/1 to set sortkeys for the startkey, if needed.
--spec get_sortkey_vq(string(), [{string(), string()}], string(), h:req_state()) -> view_query().
+-spec get_sortkey_vq(string(), [{binary(), jsn:json_term()}], string(), h:req_state()) -> view_query().
 get_sortkey_vq(Id, Qs, Project, S) ->
     Vq = from_list(Qs),
     set_keys_sortkeys(Id, Vq, Project, S).
 
 %% @doc This is like normal normalize_vq/1 except that it uses
 %% get_sortkey_vq/3
--spec normalize_sortkey_vq(string(), [{string(),string()}], string(), h:req_state()) -> string().
+-spec normalize_sortkey_vq(string(), [{binary(), jsn:json_term()}], string(), h:req_state()) -> string().
 normalize_sortkey_vq(Id, Qs, Project, S) ->
     to_string(get_sortkey_vq(Id, Qs, Project, S)).
 
@@ -174,32 +174,24 @@ getv(Key, R, Default) ->
 % module itself. The big problem is cases where there are lists of
 % numbers that happen to coincide with characters.
 -spec decode_qs_value(jsn:json_term()|list()) -> jsn:json_term().
-decode_qs_value([]) ->
-    [];
-decode_qs_value(Bin) when is_binary(Bin) ->
-    Bin;
-decode_qs_value(Atom) when is_atom(Atom) ->
-    Atom;
-decode_qs_value(Num) when is_number(Num) ->
-    Num;
-decode_qs_value(String=[$"|_]) ->
+decode_qs_value(String = <<$",_/binary>>) ->
     jsn:decode(String);
-decode_qs_value(List=[$[|_]) ->
+decode_qs_value(List = <<$[,_/binary>>) ->
     jsn:decode(List);
-decode_qs_value(Obj=[${|_]) ->
+decode_qs_value(Obj = <<${,_/binary>>) ->
     jsn:decode(Obj);
-decode_qs_value(Num=[F|_]) when F >= 48, F =< 57 ->
+decode_qs_value(Num = <<F,_/binary>>) when F >= 48, F =< 57 ->
     jsn:decode(Num);
-decode_qs_value(Num=[$-,F|_]) when F >= 48, F =< 57 ->
+decode_qs_value(Num = <<$-,F,_/binary>>) when F >= 48, F =< 57 ->
     jsn:decode(Num);
-decode_qs_value("true") ->
+decode_qs_value(<<"true">>) ->
     true;
-decode_qs_value("false") ->
+decode_qs_value(<<"false">>) ->
     false;
-decode_qs_value("null") ->
+decode_qs_value(<<"null">>) ->
     null;
-decode_qs_value(List=[_|_]) ->
-    List.
+decode_qs_value(Bin) when is_binary(Bin) ->
+    Bin.
 
 -spec encode(jsn:json_term()) -> string().
 encode(Term) ->
