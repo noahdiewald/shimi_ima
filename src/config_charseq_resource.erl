@@ -88,7 +88,7 @@ create_path(R, S) ->
                           {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
                       IdBin -> {IdBin, Json}
                   end,
-    {Id, R1, [{posted_json, Json1}|S]}.
+    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
   
 index_html(R, S) ->
     {Val, R1} = cowboy_req:qs_val(<<"as">>, R),

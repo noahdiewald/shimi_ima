@@ -105,7 +105,7 @@ create_path(R, S) ->
                           {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
                       IdBin -> {IdBin, Json}
                   end,
-    {Id, R1, [{posted_json, Json1}|S]}.
+    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of

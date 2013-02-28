@@ -91,7 +91,7 @@ create_path(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),
     Json = jsn:decode(Body),
     Id = jsn:get_value(<<"_id">>, Json),
-    {Id, R1, [{posted_json, Json}|S]}.
+    {<<"/", Id/binary>>, R1, [{posted_json, Json}|S]}.
 
 process_post(R, S) ->
     {[Doctype, Project], R1} = h:g([doctype, project], R),
