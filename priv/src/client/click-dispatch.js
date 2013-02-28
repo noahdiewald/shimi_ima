@@ -166,12 +166,6 @@ shimi.clickDispatch = function (e) {
     ".search-field-item": function (t) {
       searchui.removeField(t);
     },
-    "#document-search-exclude": function () {
-      searchui.toggleExclusion();
-    },
-    "#document-search-invert": function () {
-      searchui.toggleInversion();
-    },
     ".select-results": function (t) {
       searchui.toggleSelection(t);
     },

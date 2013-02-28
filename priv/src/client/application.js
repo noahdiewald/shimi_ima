@@ -8,6 +8,7 @@
 //= compat.js
 //= click-dispatch.js
 //= keystrokes.js
+//= changes.js
 //= gen-dispatch.js
 //= index.js
 //= form.js

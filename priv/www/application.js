@@ -975,12 +975,6 @@ shimi.clickDispatch = function (e) {
     ".search-field-item": function (t) {
       searchui.removeField(t);
     },
-    "#document-search-exclude": function () {
-      searchui.toggleExclusion();
-    },
-    "#document-search-invert": function () {
-      searchui.toggleInversion();
-    },
     ".select-results": function (t) {
       searchui.toggleSelection(t);
     },
@@ -1262,6 +1256,15 @@ $(document).on("keydown", '#document-search-term', function (e) {
     shimi.searchui.getSearch();
     return false;
   }
+  return true;
+});
+$(document).on("change", '#document-search-exclude', function (e) {
+  shimi.searchui.toggleExclusion();
+  return true;
+});
+
+$(document).on("change", '#document-search-invert', function (e) {
+  shimi.searchui.toggleInversion();
   return true;
 });
 shimi.dispatch = (function () {
@@ -3169,7 +3172,7 @@ shimi.searchui = (function () {
   mod.singleFieldInverse = function (fields) {
     var ident = getIdentifier();
     mod.singleField(fields);
-    searchInvert().attr('checked', true);
+    searchInvert().prop('checked', true);
     localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
@@ -3190,7 +3193,7 @@ shimi.searchui = (function () {
     } else {
       mod.singleField(fields);
     }
-    searchExclude().attr('checked', true);
+    searchExclude().prop('checked', true);
     localStorage.setItem(ident + "_searchExclude", true);
     return mod;
   };
@@ -3211,7 +3214,7 @@ shimi.searchui = (function () {
   mod.indexInverse = function (index, indexLabel) {
     var ident = getIdentifier();
     mod.indexOnly(index, indexLabel);
-    searchInvert().attr('checked', true);
+    searchInvert().prop('checked', true);
     localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
