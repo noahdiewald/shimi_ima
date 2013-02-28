@@ -266,7 +266,7 @@ shimi.searchui = (function () {
       fields = [];
     }
 
-    newFields = fields.concat(id);
+    newFields = shimi.sets.union(fields, id);
     newSearchFields = JSON.stringify(newFields);
     localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
     localStorage.setItem(ident + "_searchIndex", null);

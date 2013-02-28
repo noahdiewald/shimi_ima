@@ -1,5 +1,6 @@
 //= init.js
 //= utils.js
+//= sets.js
 //= flash.js
 //= store.js
 //= path.js
