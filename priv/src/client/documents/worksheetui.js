@@ -90,7 +90,7 @@ shimi.worksheetui = (function () {
 
   mod.fillWorksheet = function () {
     var setName = worksheetsSet().val();
-    var url = "ws?set=";
+    var url = "worksheets?set=";
 
     if (!setName.isBlank()) {
       var thisSet = sets.getSet(setName)[1];

@@ -172,7 +172,7 @@ values(P=#sparams{doctype=Doctype, fields=Fields, exclude=true}, Project, S) ->
     values(P#sparams{fields=NewFields, exclude=false}, Project, S);
 % Search multiple fields
 values(#sparams{qs=Query, doctype=Doctype, fields=Fields}, Project, S) ->
-    {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
+    {ok, RE} = re:compile(Query, [unicode]),
     TID = ets:new(list_to_atom("search-" ++ utils:uuid()), [public]),
     ets:insert(TID, {total, 0}),
     F = fun(X) ->

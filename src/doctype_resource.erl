@@ -72,7 +72,7 @@ to_json(R, S) ->
     {[Project, Doctype], R1} = h:g([project, doctype], R),
     S1 = [{project, Project}, {doctype, Doctype}|S],
     {{ok, DocData}, R2} = h:doctype_data(R1, S1),
-    {jsn:encode(document:normalize(DocData, S)), R2, S1}.
+    {jsn:encode(document:normalize(DocData, S1)), R2, S1}.
   
 % Helpers
 

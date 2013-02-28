@@ -50,13 +50,14 @@ init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
+    {[Doctype, Project], R1} = h:g([doctype, project], R),
+    S1 = [{doctype, Doctype}, {project, Project}|S],
     case proplists:get_value(target, S) of
-        identifier -> h:exists_id(R, S);
-        revision -> h:exists_id(R, S);
+        identifier -> h:exists_id(R1, S1);
+        revision -> h:exists_id(R1, S1);
         _ -> 
-          {Doctype, R1} = h:doctype(R),
           {Exist, R2} = h:exists(Doctype, R1, S),
-          {Exist, R2, S}
+          {Exist, R2, S1}
     end. 
 
 is_authorized(R, S) ->
@@ -198,8 +199,8 @@ html_search(R, S) ->
     {Query, R1} = cowboy_req:qs_val(<<"q">>, R),
     {Exclude, R2} = cowboy_req:qs_val(<<"exclude">>, R1),
     {Invert, R3} = cowboy_req:qs_val(<<"invert">>, R2),
-    {[Project, Doctype, Index], R4} = h:g([project, doctype, index], R3),
-    Fields = case h:field(R) of
+    {[Project, Doctype, Index, Field], R4} = h:g([project, doctype, index, field], R3),
+    Fields = case Field of
         undefined ->
             [];
         Value ->
