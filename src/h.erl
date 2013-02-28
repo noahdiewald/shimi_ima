@@ -257,7 +257,8 @@ rev(R) ->
     {RevBin, R1} = cowboy_req:binding(rev, R),
     case RevBin of
         undefined ->
-            cowboy_req:qs_val(<<"rev">>, R1);
+            {Rev, R2} = cowboy_req:qs_val(<<"rev">>, R1),
+            {binary_to_list(Rev), R2};
         RevBin when is_binary(RevBin) ->
             {binary_to_list(RevBin), R1}
     end.

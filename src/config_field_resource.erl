@@ -99,7 +99,7 @@ create_path(R, S) ->
     {Id, R1, [{posted_json, Json1}|S]}.
   
 index_html(R, S) ->
-    {[Doctype, Fieldset, Project], R1} = g:h([doctype, fieldset, project], R),
+    {[Doctype, Fieldset, Project], R1} = h:g([doctype, fieldset, project], R),
     {ok, Json} = q:field(Doctype, Fieldset, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Fields = field:arrange(Rows),

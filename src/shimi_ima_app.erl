@@ -47,7 +47,7 @@ start(_Type, _StartArgs) ->
              {"/projects/:project/config/upgrade", config_resource, [{target, upgrade}|Opts]},
              {"/projects/:project/config/doctypes", config_doctype_resource, [{target, index}|Opts]},
              {"/projects/:project/config/doctypes/:id", config_doctype_resource, [{target, identifier}|Opts]},
-             {"/projects/:project/config/doctypes/touch", config_doctype_resource, [{target, touch}|Opts]},
+             {"/projects/:project/config/doctypes/:doctype/touch", config_doctype_resource, [{target, touch}|Opts]},
              {"/projects/:project/config/doctypes/:doctype/fieldsets", config_fieldset_resource, [{target, index}|Opts]},
              {"/projects/:project/config/doctypes/:doctype/fieldsets/:id", config_fieldset_resource, [{target, identifier}|Opts]},
              {"/projects/:project/config/doctypes/:doctype/fieldsets/:fieldset/fields", config_field_resource, [{target, index}|Opts]},
