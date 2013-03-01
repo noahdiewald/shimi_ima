@@ -119,7 +119,7 @@ get_file(R, S) ->
     {Project, R1} = h:project(R),
     {Path, R2} = cowboy_req:path_info(R1),
     [Name|_] = lists:reverse(Path),
-    {ok, Json} = q:full_path([{"key", Path}], Project, S),
+    {ok, Json} = q:full_path([{<<"key">>, Path}], Project, S),
     [Row|_] = jsn:get_value(<<"rows">>, Json),
     {ok, Body} = h:get_attachment(binary_to_list(jsn:get_value(<<"id">>, Row)), binary_to_list(Name), Project, S),
     {Body, R2, S}.
@@ -150,7 +150,7 @@ html_index(R, S) ->
 html_files(R, S) ->  
     {Project, R1} = h:project(R),
     {Path, R2} = cowboy_req:path_info(R1),
-    {ok, Json} = q:files([{"key", Path}], Project, S),
+    {ok, Json} = q:files([{<<"key">>, Path}], Project, S),
     Vals = [{<<"files">>, Json}],
     {ok, Html} = render:render(file_manager_listing_dtl, Vals),
     {Html, R2, S}.
@@ -158,10 +158,10 @@ html_files(R, S) ->
 html_dirs(R, S) ->  
     {Project, R1} = h:project(R),
     {Path, R2} = cowboy_req:path_info(R1),
-    GroupLevel = length(Path),
+    GroupLevel = length(Path) + 1,
     StartKey = lists:reverse([0|lists:reverse(Path)]),
     EndKey = lists:reverse([[{}]|lists:reverse(Path)]),
-    {ok, Dirs} = q:dirs([{"startkey", StartKey}, {"endkey", EndKey}, {"group_level", GroupLevel}], Project, S),
+    {ok, Dirs} = q:dirs([{<<"startkey">>, StartKey}, {<<"endkey">>, EndKey}, {<<"group_level">>, GroupLevel}], Project, S),
     Vals = [{<<"dirs">>, Dirs}],
     {ok, Html} = render:render(file_manager_paths_dtl, Vals),
     {Html, R2, S}.
