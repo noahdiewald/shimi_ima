@@ -250,8 +250,8 @@ path_exists(R, S) ->
 -spec path_exists([string()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 path_exists(Path, R, S) ->
     {Project, R1} = project(R),
-    {ok, Json} = q:full_path([{"key", Path}], Project, S),
-    Total = length(proplists:get_value(<<"total_rows">>, Json)),
+    {ok, Json} = q:full_path([{<<"key">>, Path}], Project, S),
+    Total = proplists:get_value(<<"total_rows">>, Json),
     {Total > 0, R1, S}.
 
 -spec project(req_data()) -> {string(), req_data()}.
