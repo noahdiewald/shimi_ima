@@ -27,6 +27,8 @@
 
 -export([init/3]).
 -export([
+         allowed_methods/2,
+         content_types_provided/2,
          is_authorized/2, 
          resource_exists/2,
          rest_init/2,
@@ -41,6 +43,12 @@
 init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
 rest_init(R, S) -> {ok, R, S}.
+
+allowed_methods(R, S) ->
+    {[<<"HEAD">>, <<"GET">>], R, S}.
+
+content_types_provided(R, S) ->
+    {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}.
 
 to_html(R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

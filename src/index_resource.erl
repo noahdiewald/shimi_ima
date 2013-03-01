@@ -121,19 +121,17 @@ json_index(R, S) ->
     {jsn:encode(Json), R1, S}.
 
 html_identifier(R, S) ->
-    {{ok, Json}, R1, S} = h:id_data(R, S),
+    {{ok, Json}, R1} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
-    Json1 = jsn:set_value(<<"fields">>,
-                          iolist_to_binary(
-                            jsn:encode(jsn:get_value(<<"fields">>, Json))),
-                          Json),
+    Fields = iolist_to_binary(jsn:encode(jsn:get_value(<<"fields">>, Json))),
+    Json1 = jsn:set_value(<<"fields">>, Fields, Json),
     Labels = jsn:get_value(<<"fields_label">>, Json1),
     Json2 = jsn:set_value(<<"fields_label">>, iolist_to_binary(jsn:encode(Labels)), Json1),
     F = fun(X, {RX, Acc}) -> 
                 {Html, RY} = render_conditions(X, RX, S),
                 {RY, [Html|Acc]}
         end,
-    {R2, RenderedConditions} = lists:map(F, {R1, []}, Conditions),
+    {R2, RenderedConditions} = lists:foldl(F, {R1, []}, Conditions),
   
     Vals = [
             {<<"rendered_conditions">>, lists:reverse(RenderedConditions)},
@@ -165,7 +163,7 @@ render_conditions(Arg, R, S) ->
     {{ok, Html}, R1} = 
         case is_true(jsn:get_value(<<"is_or">>, Arg)) of
             true -> 
-                index_condition_dtl:render([{<<"is_or">>, true}]);
+                {index_condition_dtl:render([{<<"is_or">>, true}]), R};
             _ ->
                 Negate = jsn:get_value(<<"negate">>, Arg),
                 {Vals, R0} = 
