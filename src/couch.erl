@@ -180,9 +180,9 @@ get_json_helper(Url, Headers) ->
 
 -spec get_views(string()) -> [binary()].
 get_views(Project) ->
-    Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
-                                        {"endkey", <<"_design0">>},
-                                        {"include_docs", true}])),
+    Qs = view:to_string(view:from_list([{<<"startkey">>, <<"_design/">>},
+                                        {<<"endkey">>, <<"_design0">>},
+                                        {<<"include_docs">>, true}])),
     Url = adb(Project) ++ "_all_docs" ++ "?" ++ Qs,
     {ok, Json} = get_json_helper(Url, []),
     Designs = proplists:get_value(<<"rows">>, Json),

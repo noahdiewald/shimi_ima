@@ -22,7 +22,7 @@
 %%% @doc Supervisor for the shimi_ima application.
 
 -module(shimi_ima_sup).
--author('author <author@example.com>').
+-author('Noah Diewald <noah@diewald.me>').
 
 -behaviour(supervisor).
 

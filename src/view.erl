@@ -190,8 +190,8 @@ decode_qs_value(<<"false">>) ->
     false;
 decode_qs_value(<<"null">>) ->
     null;
-decode_qs_value(Bin) when is_binary(Bin) ->
-    Bin.
+decode_qs_value(NotJsonBin) ->
+    NotJsonBin.
 
 -spec encode(jsn:json_term()) -> string().
 encode(Term) ->
