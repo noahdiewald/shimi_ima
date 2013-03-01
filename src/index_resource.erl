@@ -1,6 +1,6 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
 %%% dictionary_maker is free software: you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -9,20 +9,22 @@
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
 %%% @doc Index resource.
 
 -module(index_resource).
+-author('Noah Diewald <noah@diewald.me>').
 
-% Webmachine API
+-export([init/3]).
 -export([
          allowed_methods/2,
          content_types_accepted/2,
@@ -30,29 +32,25 @@
          create_path/2,
          delete_resource/2,
          from_json/2,
-         init/1, 
          is_authorized/2,
          post_is_create/2,
          resource_exists/2,
+         rest_init/2,
          to_html/2,
          to_json/2
         ]).
-
-% Custom
 -export([
          validate_authentication/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
+init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
-% Standard webmachine functions
-
-init(Opts) -> {ok, Opts}.
+rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> {h:exists(h:id(R), R, S), R, S};
-        view -> {h:exists(h:id(R), R, S), R, S};
+        identifier -> h:exists_id(R, S);
+        view -> h:exists_id(R, S);
         _ -> {true, R, S}
     end. 
 
@@ -61,11 +59,17 @@ is_authorized(R, S) ->
 
 allowed_methods(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {['HEAD', 'GET', 'POST'], R, S};
-        view -> {['HEAD', 'GET'], R, S};
-        condition -> {['HEAD', 'GET'], R, S};
-        identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
+        index -> {[<<"HEAD">>, <<"GET">>, <<"POST">>], R, S};
+        view -> {[<<"HEAD">>, <<"GET">>], R, S};
+        condition -> {[<<"HEAD">>, <<"GET">>], R, S};
+        identifier -> {[<<"HEAD">>, <<"GET">>, <<"PUT">>, <<"DELETE">>], R, S}
     end.
+  
+content_types_accepted(R, S) ->
+    h:accept_json(R, S).
+
+content_types_provided(R, S) ->
+    {[{{<<"text">>, <<"html">>, []}, to_html}, {{<<"application">>, <<"json">>, []}, to_json}], R, S}.
   
 delete_resource(R, S) ->
     h:delete(R, S).
@@ -74,34 +78,28 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-  
-    Id = utils:uuid(),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
-  
-    Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
-        wrq:path(R) ++ "/" ++ Id,
-    R1 = wrq:set_resp_header("Location", Location, R),
-  
-    {Id, R1, [{posted_json, Json1}|S]}.
-
-content_types_provided(R, S) ->
-    {[{"text/html", to_html}, {"application/json", to_json}], R, S}.
-  
-content_types_accepted(R, S) ->
-    {[{"application/json", from_json}], R, S}.
+    {ok, Body, R1} = cowboy_req:body(R),
+    Json = jsn:decode(Body),
+    {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
+                      undefined -> 
+                          GenId = list_to_binary(utils:uuid()),
+                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
+                      IdBin -> {IdBin, Json}
+                  end,
+    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
 
 to_json(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {json_index(R, S), R, S};
+        index -> json_index(R, S);
         _ -> to_html(R, S)
     end.
-  
+
+%TODO: see document_resource about html_view  
 to_html(R, S) ->
     case proplists:get_value(target, S) of
         view -> html_view(R, S);
-        condition -> {html_condition(R, S), R, S};
-        identifier -> {html_identifier(R, S), R, S}
+        condition -> html_condition(R, S);
+        identifier -> html_identifier(R, S)
     end.
   
 from_json(R, S) ->
@@ -119,108 +117,98 @@ json_update(R, S) ->
     i:update(R, S).
   
 json_index(R, S) ->
-    {ok, Json} = q:indexes_options(R, S),
-    jsn:encode(Json).
+    {{ok, Json}, R1} = q:indexes_options(R, S),
+    {jsn:encode(Json), R1, S}.
 
 html_identifier(R, S) ->
-    {ok, Json} = h:id_data(R, S),
+    {{ok, Json}, R1} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
-
-    Json1 = jsn:set_value(<<"fields">>,
-                          iolist_to_binary(
-                            jsn:encode(jsn:get_value(<<"fields">>, Json))),
-                          Json),
+    Fields = iolist_to_binary(jsn:encode(jsn:get_value(<<"fields">>, Json))),
+    Json1 = jsn:set_value(<<"fields">>, Fields, Json),
     Labels = jsn:get_value(<<"fields_label">>, Json1),
-    Json2 = jsn:set_value(<<"fields_label">>, 
-                          iolist_to_binary(jsn:encode(Labels)),
-                          Json1),
-
-    F = fun(X) -> 
-                render_conditions(jsn, get_value, X, R, S)
+    Json2 = jsn:set_value(<<"fields_label">>, iolist_to_binary(jsn:encode(Labels)), Json1),
+    F = fun(X, {RX, Acc}) -> 
+                {Html, RY} = render_conditions(X, RX, S),
+                {RY, [Html|Acc]}
         end,
-  
-    RenderedConditions = lists:map(F, Conditions),
+    {R2, RenderedConditions} = lists:foldl(F, {R1, []}, Conditions),
   
     Vals = [
-            {<<"rendered_conditions">>, RenderedConditions},
+            {<<"rendered_conditions">>, lists:reverse(RenderedConditions)},
             {<<"label">>, jsn:get_value(<<"fields_label">>, Json)}
             |Json2],
   
     {ok, Html} = render:render(index_edit_dtl, Vals),
-    Html.
+    {Html, R2, S}.
 
 html_condition(R, S) ->
-    render_conditions(wrq, get_qs_value, R, R, S).
+    {Vals, R1} = cowboy_req:qs_vals(R),
+    {Html, R2} = render_conditions(Vals, R1, S),
+    {Html, R2, S}.
   
 html_view(R, S) ->
     i:view(R, S).
     
 validate_authentication(Props, R, S) ->
-    {ok, ProjectData} = h:project_data(R, S),
+    {{ok, ProjectData}, R1} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-        true -> {true, R, S};
-        false -> {proplists:get_value(auth_head, S), R, S}
+        true -> {true, R1, S};
+        false -> {proplists:get_value(auth_head, S), R1, S}
     end.
 
-% This is passed the a getter function depending on the origin of the
-% request. It may have been a JSON post or put but could also be an
-% URL encoded query string.
-render_conditions(Module, Function, Arg, R, S) ->
-    {ok, Html} = 
-        case is_true(Module:Function("is_or", Arg)) of
+render_conditions(Arg, R, S) ->
+    {{ok, Html}, R1} = 
+        case is_true(jsn:get_value(<<"is_or">>, Arg)) of
             true -> 
-                index_condition_dtl:render([{<<"is_or">>, true}]);
+                {index_condition_dtl:render([{<<"is_or">>, true}]), R};
             _ ->
-                Negate = Module:Function("negate", Arg),
-                Vals = 
-                    case to_binary(Module:Function("parens", Arg)) of
-                        <<"open">> -> [{<<"is_or">>, false},
-                                       {<<"parens">>, <<"open">>}];
-                        <<"close">> -> [{<<"is_or">>, false},
-                                        {<<"parens">>, <<"close">>}];
-                        <<"exopen">> -> [{<<"is_or">>, false},
-                                         {<<"parens">>, <<"exopen">>}];
-                        <<"exclose">> -> [{<<"is_or">>, false},
-                                          {<<"parens">>, <<"exclose">>}];
-                        _ -> [{<<"is_or">>, false},
-                              {<<"negate">>, 
-                               (Negate =:= true) or (Negate =:= "true")},
-                              {<<"fieldset">>, 
-                               Module:Function("fieldset", Arg)},
-                              {<<"field">>, Module:Function("field", Arg)},
-                              {<<"operator">>, 
-                               Module:Function("operator", Arg)},
-                              {<<"argument">>, 
-                               Module:Function("argument", Arg)},
-                              {<<"fieldset_label">>, 
-                               get_label(
-                                 Module:Function("fieldset", Arg), R, S)},
-                              {<<"field_label">>, 
-                               get_label(
-                                 Module:Function("field", Arg), R, S)}]
+                Negate = jsn:get_value(<<"negate">>, Arg),
+                {Vals, R0} = 
+                    case to_binary(jsn:get_value(<<"parens">>, Arg)) of
+                        <<"open">> -> 
+                            {[{<<"is_or">>, false},
+                              {<<"parens">>, <<"open">>}], R};
+                        <<"close">> -> 
+                            {[{<<"is_or">>, false},
+                              {<<"parens">>, <<"close">>}], R};
+                        <<"exopen">> -> 
+                            {[{<<"is_or">>, false},
+                              {<<"parens">>, <<"exopen">>}], R};
+                        <<"exclose">> -> 
+                            {[{<<"is_or">>, false},
+                              {<<"parens">>, <<"exclose">>}], R};
+                        _ -> 
+                            {FSLabel, R2} = get_label(jsn:get_value(<<"fieldset">>, Arg), R, S),
+                            {FLabel, R3} = get_label(jsn:get_value(<<"field">>, Arg), R2, S),
+                            {[{<<"is_or">>, false},
+                              {<<"negate">>, (Negate =:= true) or (Negate =:= <<"true">>)},
+                              {<<"fieldset">>, jsn:get_value(<<"fieldset">>, Arg)},
+                              {<<"field">>, jsn:get_value(<<"field">>, Arg)},
+                              {<<"operator">>, jsn:get_value(<<"operator">>, Arg)},
+                              {<<"argument">>, jsn:get_value(<<"argument">>, Arg)},
+                              {<<"fieldset_label">>, FSLabel},
+                              {<<"field_label">>, FLabel}], R3}
                     end,
-                index_condition_dtl:render(Vals)
+                {index_condition_dtl:render(Vals), R0}
         end,
-    Html.
+    {Html, R1}.
 
-get_label(<<"metadata">>, _R, _S) ->
-    <<"Metadata">>;
-get_label("metadata", _R, _S) ->
-    <<"Metadata">>;
+get_label(<<"metadata">>, R, _S) ->
+    {<<"Metadata">>, R};
 get_label(Id, R, S) ->
-    Json = case field:is_meta(Id) of
-               false ->
-                   {ok, J} = h:get(Id, R, S),
-                   J;
-               _ ->
-                   field:meta_field(Id)
-           end,
-    jsn:get_value(<<"label">>, Json).
+    case field:is_meta(Id) of
+        false ->
+            {Project, R1} = h:project(R),
+            {ok, J} = h:get(Id, Project, S),
+            {jsn:get_value(<<"label">>, J), R1};
+        _ ->
+            {field:meta_field(Id), R}
+    end.
 
-is_true("true") ->
+is_true(<<"true">>) ->
     true;
 is_true(true) ->
     true;

@@ -80,7 +80,7 @@
           <option value="remove-b">Remove B</option>
           <option value="union">Union</option>
           <option value="intersection">Intersection</option>
-          <option value="symetric-difference">Symetric Difference</option>
+          <option value="symmetric-difference">Symmetric Difference</option>
           <option value="relative-complement-b-in-a">Relative Complement of B in A</option>
           <option value="relative-complement-a-in-b">Relative Complement of A in B</option>
         </select>

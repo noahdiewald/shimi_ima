@@ -138,7 +138,7 @@ shimi.searchui = (function () {
   mod.singleFieldInverse = function (fields) {
     var ident = getIdentifier();
     mod.singleField(fields);
-    searchInvert().attr('checked', true);
+    searchInvert().prop('checked', true);
     localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
@@ -159,7 +159,7 @@ shimi.searchui = (function () {
     } else {
       mod.singleField(fields);
     }
-    searchExclude().attr('checked', true);
+    searchExclude().prop('checked', true);
     localStorage.setItem(ident + "_searchExclude", true);
     return mod;
   };
@@ -180,7 +180,7 @@ shimi.searchui = (function () {
   mod.indexInverse = function (index, indexLabel) {
     var ident = getIdentifier();
     mod.indexOnly(index, indexLabel);
-    searchInvert().attr('checked', true);
+    searchInvert().prop('checked', true);
     localStorage.setItem(ident + "_searchInvert", true);
     return mod;
   };
@@ -266,7 +266,7 @@ shimi.searchui = (function () {
       fields = [];
     }
 
-    newFields = fields.concat(id);
+    newFields = shimi.sets.union(fields, id);
     newSearchFields = JSON.stringify(newFields);
     localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
     localStorage.setItem(ident + "_searchIndex", null);

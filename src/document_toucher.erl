@@ -352,6 +352,8 @@ fill_tables([H|T], Tid) ->
 %% field. The second is the field that the docfield is based on and
 %% the third argument is the version of the docfield being updated,
 %% which is already partially processed.
+%% TODO: THIS SHOULD NOT BE ALLOWED. CERTAIN ASPECTS OF THE FIELD LIKE
+%% THOSE BELOW SHOULD NOT BE CHANGEABLE.
 -spec update_normalize(docfield(), field(), docfield()) -> docfield() | {error, Reason :: term()}.
 % if the value of the docfield is the default, leave it.
 update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->

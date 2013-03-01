@@ -1,5 +1,6 @@
 //= init.js
 //= utils.js
+//= sets.js
 //= flash.js
 //= store.js
 //= path.js
@@ -8,6 +9,7 @@
 //= compat.js
 //= click-dispatch.js
 //= keystrokes.js
+//= changes.js
 //= gen-dispatch.js
 //= index.js
 //= form.js

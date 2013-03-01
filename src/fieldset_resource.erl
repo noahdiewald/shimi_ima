@@ -1,89 +1,96 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
-%%% dictionary_maker is free software: you can redistribute it and/or modify
-%%% it under the terms of the GNU General Public License as published by
-%%% the Free Software Foundation, either version 3 of the License, or
-%%% (at your option) any later version.
+%%% dictionary_maker is free software: you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation, either version 3 of the
+%%% License, or (at your option) any later version.
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
 %%% @doc Renders fields and fieldsets given an identifier 
 
 -module(fieldset_resource).
+-author('Noah Diewald <noah@diewald.me>').
 
-% Webmachine API
+-export([init/3]).
 -export([
          allowed_methods/2,
          content_types_provided/2,
-         init/1, 
          is_authorized/2,
          resource_exists/2,
+         rest_init/2,
          to_html/2,
          to_json/2
         ]).
-
-% Custom
 -export([
          validate_authentication/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
+init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
-% Standard webmachine functions
-
-init(Opts) -> {ok, Opts}.
+rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {h:exists(h:doctype(R), R, S), R, S};
-        identifier -> {h:exists(h:id(R), R, S), R, S}
+        index ->
+            {Doctype, R1} = h:doctype(R),
+            {Exist, R2} = h:exists(Doctype, R1, S),
+            {Exist, R2, S};
+        identifier -> h:exists_id(R, S)
     end. 
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
 
 allowed_methods(R, S) ->
-    {['HEAD', 'GET'], R, S}.
+    {[<<"HEAD">>, <<"GET">>], R, S}.
 
 content_types_provided(R, S) ->
     ContentTypes = case proplists:get_value(target, S) of
                        identifier -> [];
-                       index -> [{"application/json", to_json}]
+                       index -> [{{<<"application">>, <<"json">>, []}, to_json}]
                    end,
-    {[{"text/html", to_html}|ContentTypes], R, S}.
+    {[{{<<"text">>, <<"html">>, []}, to_html}|ContentTypes], R, S}.
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> {html_fieldset(R, S), R, S};
-        index -> {html_fieldsets(R, S), R, S}
+        identifier ->
+            {Html, R1} = html_fieldset(R, S),
+            {Html, R1, S};
+        index ->
+            {Html, R1} = html_fieldsets(R, S),
+            {Html, R1, S}
     end.
 
 to_json(R, S) ->
-    {ok, Json} = q:fieldset(h:doctype(R), false, h:project(R), S),
+    {[Doctype, Project], R1} = h:g([doctype, project], R),
+    {ok, Json} = q:fieldset(Doctype, false, Project, S),
     Labels = field:labels(jsn:get_value(<<"rows">>, Json)),
-    {jsn:encode(Labels), R, S}.
+    {jsn:encode(Labels), R1, S}.
     
 % Helpers
 
 html_fieldset(R, S) -> 
-    {ok, Json} = h:id_data(R, S),
-    Vals = h:basic_info("", "", R, S) ++ Json,
-    {ok, Html} = render:render(fieldset_dtl, Vals),
-    Html.
+    {{ok, Json}, R1} = h:id_data(R, S),
+    {Vals, R2} = h:basic_info("", "", R1, S),
+    {ok, Html} = render:render(fieldset_dtl, Vals ++ Json),
+    {Html, R2}.
   
 html_fieldsets(R, S) -> 
-    {ok, Json} = q:fieldset(h:doctype(R), false, h:project(R), S),
+    {[Doctype, Project], R1} = h:g([doctype, project], R),
+    {ok, Json} = q:fieldset(Doctype, false, Project, S),
     F = fun(X, Acc) ->
                 [_, Id, Type, _] = jsn:get_value(<<"key">>, X),
                 case Type of
@@ -103,14 +110,14 @@ html_fieldsets(R, S) ->
                               {<<"id">>, <<"metadata">>}]
                              |lists:reverse(Rows)], Json),
     {ok, Html} = render:render(options_dtl, Options),
-    Html.
+    {Html, R1}.
     
 validate_authentication(Props, R, S) ->
-    {ok, ProjectData} = h:project_data(R, S),
+    {{ok, ProjectData}, R1} = h:project_data(R, S),
     Name = jsn:get_value(<<"name">>, ProjectData),
     ValidRoles = [<<"_admin">>, <<"manager">>, Name],
     IsMember = fun (Role) -> lists:member(Role, ValidRoles) end,
     case lists:any(IsMember, proplists:get_value(<<"roles">>, Props)) of
-        true -> {true, R, S};
-        false -> {proplists:get_value(auth_head, S), R, S}
+        true -> {true, R1, S};
+        false -> {proplists:get_value(auth_head, S), R1, S}
     end.

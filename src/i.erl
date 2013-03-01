@@ -19,10 +19,10 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-
 %%% @doc For manipulating indexes.
 
 -module(i).
+-author('Noah Diewald <noah@diewald.me>').
 
 -export([
     create/2,
@@ -40,36 +40,43 @@ add_encoded_keys(Json) ->
     Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
     jsn:set_value(<<"rows">>, Rows, Json).
 
+-spec create(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 create(R, S) ->
     Json = proplists:get_value(posted_json, S),
+    {Project, R1} = h:project(R),
     case jsn:get_value(<<"category">>, Json) of
         <<"index">> ->
-            h:create(Json, R, S);
+            h:create(Json, R1, S);
         <<"doctype">> ->
-            case couch:create(Json, h:project(R), S) of
+            case couch:create(Json, Project, S) of
                 {ok, created} ->
-                    {ok, _} = create_design(Json, h:project(R), S),
-                    {true, R, S};
+                    {ok, _} = create_design(Json, Project, S),
+                    {true, R1, S};
                 {forbidden, Message} ->
-                    R1 = wrq:set_resp_body(Message, R),
-                    {{halt, 403}, R1, S}
+                    {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+                    R2
             end
     end.
 
+-spec create_design(jsn:json_term(), string(), h:req_state()) -> couch:ret().
 create_design(DocJson, Project, S) ->
     DocId = jsn:get_value(<<"_id">>, DocJson),
     Design = get_design(binary_to_list(DocId), Project, S),
     couch:create(Design, Project, [{admin, true}|S]).
 
+-spec get_design(string(), string(), h:req_state()) -> jsn:json_term().
 get_design(Id, Project, S) ->
     {ok, Json} = q:index_design(Id, Project, S),
     [Row|[]] = jsn:get_value(<<"rows">>, Json),
     jsn:decode(jsn:get_value(<<"value">>, Row)).
             
+-spec update(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    Json1 = jsn:set_value(<<"_id">>, list_to_binary(h:id(R)), Json),
-    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(h:rev(R)), Json1),
+    {[Id, Rev, Project], R1} = h:g([id, rev, project], R),
+    {ok, Body, R2} = cowboy_req:body(R1),
+    Json = jsn:decode(Body),
+    Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
+    Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
     
     Json3 = case jsn:get_value(<<"conditions">>, Json) of
         undefined ->
@@ -79,59 +86,67 @@ update(R, S) ->
             jsn:set_value(<<"expression">>, Expression, Json2)
     end,
     
-    case couch:update(h:id(R), Json3, h:project(R), S) of
+    case couch:update(Id, Json3, Project, S) of
         {ok, updated} -> 
-            {ok, _} = update_design(R, S),
-            {true, R, S};
+            {ok, _} = update_design(Id, Project, S),
+            {true, R2, S};
         {forbidden, Message} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 403}, R1, S};
+            {ok, R3} = cowboy_req:reply(403, [], Message, R2),
+            R3;
         {error, conflict} ->
-            Msg = <<"This resource has been edited or deleted by another user.">>,
-            Message = jsn:encode([{<<"message">>, Msg}]),
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 409}, R1, S}
+            Msg = <<"This document has been updated or deleted by another user.">>,
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            {ok, R3} = cowboy_req:reply(409, [], Msg1, R2),
+            R3
     end.
 
-update_design(R, S) ->
-    Project = h:project(R),
-    DocId = h:id(R),
+-spec update_design(string(), string(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
+update_design(DocId, Project, S) ->
     DesignId = "_design/" ++ DocId,
     Design = get_design(DocId, Project, S),
-  
-    case h:get(DesignId, R, S) of
+    case h:get(DesignId, Project, S) of
         {error, not_found} ->
-            couch:create(Design, Project, [{admin, true}|S]);
+            create_design(Design, Project, [{admin, true}|S]);
         {ok, PrevDesign} ->
             Rev = jsn:get_value(<<"_rev">>, PrevDesign),
             Design2 = jsn:set_value(<<"_rev">>, Rev, Design),
             couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
     
+-spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data(), h:req_state()} | h:req_data().
 view(R, S) ->
-    Msg = <<"still building. Please wait and try again.">>,
+    Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
     Item = <<"Index">>,
     Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    Limit = wrq:get_qs_value("limit", R),
-    case get_index(R, S) of
-        {{ok, Json}, Info} ->
+    {LimitString, R1} = cowboy_req:qs_val(<<"limit">>, R),
+    Limit = list_to_integer(binary_to_list(LimitString)),
+    case get_index(R1, S) of
+        {{ok, Json}, Info, R2} ->
             Index = add_encoded_keys(Json),
             Vals = [{<<"limit">>, Limit}|Index] ++ Info,
             {ok, Html} = render:render(document_index_dtl, Vals),
-            {Html, R, S};
-        {{error, not_found}, _} ->
-            {<<"">>, R, S};
-        {{error, req_timedout}, _} ->
-            R1 = wrq:set_resp_body(Message, R),
-            {{halt, 504}, R1, S}
+            {Html, R2, S};
+        {{error, not_found}, _, R2} ->
+            {<<"">>, R2, S};
+        {{error, req_timedout}, _, R2} ->
+            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
+            R3
     end.
 
+-spec get_index(h:req_data(), h:req_state()) -> {couch:ret(), jsn:json_term(), h:req_data()}.
 get_index(R, S) ->
-    case {h:id(R), h:index(R)} of
-        {undefined, undefined} -> 
-            {q:index(h:doctype(R), R, S), h:basic_info("", " Index", R, S)};
-        {Id, undefined} -> 
-            {q:index(Id, R, S), []};
-        {undefined, Id} ->
-            {q:index(Id, R, S), h:basic_info("", " Index", R, S)}
+    {[Id, Index], R1} = h:g([id, index], R),
+    case {Id, Index} of
+        {undefined, undefined} ->
+            {Doctype, R2} = h:doctype(R1),
+            {Ret, R3} = q:index(Doctype, R2, S),
+            {Info, R4} = h:basic_info("", " Index", R3, S),
+            {Ret, Info, R4};
+        {IndexId, undefined} -> 
+            {Ret, R2} = q:index(IndexId, R1, S),
+            {Ret, [], R2};
+        {undefined, IndexId} ->
+            {Ret, R2} = q:index(IndexId, R1, S),
+            {Info, R3} = h:basic_info("", " Index", R2, S),
+            {Ret, Info, R3}
     end.

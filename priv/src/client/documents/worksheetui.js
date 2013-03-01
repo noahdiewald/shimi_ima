@@ -1,6 +1,6 @@
 shimi.worksheetui = (function () {
   var mod = {};
-  var sets = shimi.sets;
+  var setsui = shimi.setsui;
 
   var worksheetsSet = function () {
     return $("#document-worksheets-set-input");
@@ -90,10 +90,10 @@ shimi.worksheetui = (function () {
 
   mod.fillWorksheet = function () {
     var setName = worksheetsSet().val();
-    var url = "ws?set=";
+    var url = "worksheets?set=";
 
     if (!setName.isBlank()) {
-      var thisSet = sets.getSet(setName)[1];
+      var thisSet = setsui.getSet(setName)[1];
       var setIds = thisSet.map(function (x) {
         return x[1];
       });
