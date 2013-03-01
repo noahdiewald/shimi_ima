@@ -162,7 +162,10 @@ exists(Id, R, S) ->
 -spec exists_id(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_id(R, S) ->
     {[Project, Id], R1} = g([project, id], R),
-    {couch:exists(Id, Project, S), R1, S}.
+    case Id of
+        undefined -> {false, R1, S};
+        _ -> {couch:exists(Id, Project, S), R1, S}
+    end.
     
 
 -spec field(req_data()) -> {string() | undefined, req_data()}.

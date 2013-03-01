@@ -95,7 +95,11 @@ from_json(doc, Json) ->
 %% fieldset() record.
 -spec from_json(jsn:json_term()) -> fieldset().
 from_json(Json) ->
-    Fields = lists:map(fun field:from_json/1, jsn:get_value(<<"fields">>, Json)),
+    FieldsJson = jsn:get_value(<<"fields">>, Json),
+    Fields = case FieldsJson of
+        undefined -> undefined;
+        _ -> lists:map(fun field:from_json/1, FieldsJson)
+    end,
     #fieldset{
            id = jsn:get_value(<<"_id">>, Json),
            rev = jsn:get_value(<<"_rev">>, Json),

@@ -54,7 +54,10 @@ rest_init(R, S) -> {ok, R, S}.
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R, S);
-        touch -> h:exists_id(R, S);
+        touch -> 
+            {Doctype, R1} = h:doctype(R),
+            {Exist, R2} = h:exists(Doctype, R1, S),
+            {Exist, R2, S};
         index -> {true, R, S}
     end.
 
@@ -96,7 +99,8 @@ create_path(R, S) ->
 process_post(R, S) ->
     {[Doctype, Project], R1} = h:g([doctype, project], R),
     document_toucher:start(Doctype, Project, S),
-    cowboy_req:reply(204, [], <<>>, R1).
+    {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
+    {halt, R2, S}.
     
 index_html(R, S) ->
     {Project, R1} = h:project(R),
