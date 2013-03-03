@@ -140,7 +140,8 @@ json_create(R, S) ->
             R2 = bump_deps(R1, S),
             {true, R2, S};
         {forbidden, Message} ->
-            cowboy_req:reply(403, [], Message, R1)
+            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+            {halt, R2, S}
     end.
   
 json_update(R, S) ->
@@ -164,11 +165,13 @@ json_update(Json, R, S) ->
             R4 = bump_deps(R3, S),
             {true, R4, S};
         {forbidden, Message} ->
-            cowboy_req:reply(403, [], Message, R1);
+            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+            {halt, R2, S};
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R1)
+            {ok, R2} = cowboy_req:reply(409, [], Msg1, R1),
+            {halt, R2, S}
     end.
 
 json_ws(R, S) ->

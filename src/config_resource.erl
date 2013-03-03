@@ -76,11 +76,12 @@ content_types_provided(R, S) ->
 content_types_accepted(R, S) ->
     h:accept_json(R, S).
 
-process_post(R, _S) ->
+process_post(R, S) ->
     {Project, R1} = cowboy_req:binding(project, R),
     DatabaseUrl = utils:adb() ++ binary_to_list(Project),
     spawn_link(project, upgrade, [DatabaseUrl]),
-    cowboy_req:reply(204, [], <<>>, R1).
+    {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
+    {halt, R2, S}.
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),

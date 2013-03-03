@@ -102,19 +102,19 @@ create(Json, R, S) ->
             {true, R1, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
-            R2
+            {halt, R2, S}
     end.
 
 -spec create_attachment(string(), string(), binary(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 create_attachment(Id, Name, Content, R, S) ->
     {Project, R1} = project(R),
-    case couch:update(Id ++ "/" ++ Name, Content, Project, S) of
+    case couch:update_raw(Id ++ "/" ++ Name, Content, Project, S) of
         {ok, updated} -> 
             {ok, R2} = cowboy_req:reply(200, [], <<"File Uploaded">>, R1),
-            R2;
+            {halt, R2, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
-            R2
+            {halt, R2, S}
     end.
 
 -spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
@@ -126,7 +126,8 @@ delete(R, S) ->
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R1)
+            {ok, R2} = cowboy_req:reply(409, [], Msg1, R1),
+            {halt, R2, S}
     end.
 
 -spec delete_project(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
@@ -141,7 +142,8 @@ delete_project(R, S) ->
         {error, conflict} ->
             Msg = <<"This project has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R1)
+            {ok, R2} = cowboy_req:reply(409, [], Msg1, R1),
+            {halt, R2, S}
     end.
     
 -spec doctype(req_data()) -> string().
@@ -247,11 +249,11 @@ path_exists(R, S) ->
     {Path, R1} = cowboy_req:path_info(R),
     path_exists(Path, R1, S).
 
--spec path_exists([string()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+-spec path_exists([string()|binary()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 path_exists(Path, R, S) ->
     {Project, R1} = project(R),
     {ok, Json} = q:full_path([{<<"key">>, Path}], Project, S),
-    Total = proplists:get_value(<<"total_rows">>, Json),
+    Total = length(proplists:get_value(<<"rows">>, Json)),
     {Total > 0, R1, S}.
 
 -spec project(req_data()) -> {string(), req_data()}.
@@ -289,11 +291,13 @@ update(Json, R, S) ->
         {ok, updated} -> 
             {true, R1, S};
         {forbidden, Message} ->
-            cowboy_req:reply(403, [], Message, R1);
+            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
+            {halt, R2, S};
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R1)
+            {ok, R2} = cowboy_req:reply(409, [], Msg1, R1),
+            {halt, R2, S}
     end.
 
 -spec update_doctype_version(req_data(), req_state()) -> req_retval().

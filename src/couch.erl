@@ -41,7 +41,8 @@
          replicate/3,
          rm_db/1,
          should_wait/2,
-         update/4
+         update/4,
+         update_raw/4
         ]).
 
 -export_type([ret/0]).
@@ -289,21 +290,11 @@ should_wait(Project, ViewPath) ->
   
 -spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
 update(Id, Json, Project, S) ->
-    CT = case proplists:get_value(content_type, S) of
-        undefined -> [{"Content-Type", "application/json"}];
-        ContentType -> [{"Content-Type", ContentType}]
-    end,
-    {DB, Headers} = case proplists:get_value(admin, S) of
-        true ->
-            {adb(Project), CT};
-        _ ->
-            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
-    end,
-    update(Json, DB ++ "_design/shimi_ima/_update/stamp/" ++ Id, Headers).
+    update_raw("_design/shimi_ima/_update/stamp/" ++ Id, jsn:encode(Json), Project, S).
 
--spec update(string(), [tuple()], jsn:json_term()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
-update(Json, Url, Headers) ->
-    case ibrowse:send_req(Url, Headers, put, jsn:encode(Json)) of
+-spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+update(Data, Url, Headers) ->
+    case ibrowse:send_req(Url, Headers, put, Data) of
         {ok, "201", _, _} -> 
             {ok, updated};
         {error, req_timedout} -> 
@@ -315,3 +306,17 @@ update(Json, Url, Headers) ->
         {ok, "409", _, _} -> 
             {error, conflict}
     end.
+
+-spec update_raw(string(), iodata(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+update_raw(Id, Data, Project, S) ->
+    CT = case proplists:get_value(content_type, S) of
+        undefined -> [{"Content-Type", "application/json"}];
+        ContentType -> [{"Content-Type", ContentType}]
+    end,
+    {DB, Headers} = case proplists:get_value(admin, S) of
+        true ->
+            {adb(Project), CT};
+        _ ->
+            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
+    end,
+    update(Data, DB ++ Id, Headers).

@@ -76,13 +76,12 @@ content_types_provided(R, S) ->
             {Filepath, R1} = cowboy_req:path(R),
             Mimetypes = [{T, get_file} || T <- mimetypes:path_to_mimes(Filepath, default)],
             {Mimetypes, R1, S};
-        upload -> {[{"text/plain", to_null}], R, S}
+        upload -> {[{{<<"text">>, <<"plain">>, []}, to_null}], R, S}
     end.
   
 content_types_accepted(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> {[{{<<"application">>, <<"json">>, []}, from_json}], R, S};
-        _Else -> {[], R, S}
+        identifier -> {[{{<<"application">>, <<"json">>, []}, from_json}], R, S}
     end.
   
 delete_resource(R, S) ->
@@ -95,16 +94,30 @@ from_json(R, S) ->
 
 %% @doc Process a file upload
 process_post(R, S) ->
-    {ContentType, Path, Content, R1} = get_file_data(R, S),
-    {Exists, R2, _} = h:path_exists(Path, R1, S),
+    {[{[{_, <<"form-data; name=\"file-chooser\"; filename=", Filename/binary>>}, {_, ContentType}], Content}|_], R1} = acc_multipart(R),
+    Filename2 = jsn:decode(Filename),
+    {Exists, R2, _} = h:path_exists([Filename2], R1, S),
     case Exists of
         true ->
             Msg = <<"File already exists. Rename or delete file and try again.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
-            cowboy_req:reply(409, [], Msg1, R2);
+            {ok, R3} = cowboy_req:reply(409, [], Msg1, R2),
+            {halt, R3, S};
         false ->
-            h:create_attachment(utils:uuid(), Path, Content, R, [{content_type, ContentType}|S])
+            h:create_attachment(utils:uuid(), binary_to_list(Filename2), Content, R2, [{content_type, binary_to_list(ContentType)}|S])
     end.
+
+acc_multipart(R) ->
+    acc_multipart(cowboy_req:multipart_data(R), []).
+
+acc_multipart({headers, Headers, R}, Acc) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, []}|Acc]);
+acc_multipart({body, Data, R}, [{Headers, BodyAcc}|Acc]) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, [Data|BodyAcc]}|Acc]);
+acc_multipart({end_of_part, R}, [{Headers, BodyAcc}|Acc]) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, list_to_binary(lists:reverse(BodyAcc))}|Acc]);
+acc_multipart({eof, R}, Acc) ->
+    {lists:reverse(Acc), R}.
 
 %% @doc A generic return value when there must be a provided content
 %% type but no content is actually intended to be returned.
@@ -175,33 +188,3 @@ validate_authentication(Props, R, S) ->
         true -> {true, R1, S};
         false -> {proplists:get_value(auth_head, S), R1, S}
     end.
-
-%%% @doc Get md5sum as hex list
-%md5sum(Bin) ->
-%    binary_to_hexlist(crypto:md5(Bin)).
-%  
-%%% @doc Take binary and return a hexstring
-%binary_to_hexlist(Bin) ->
-%    lists:flatten([io_lib:format("~2.16.0b",[X])||X<- binary_to_list(Bin)]).
-%  
-%get_streamed_body(done_parts, ContentType, FileName, Acc) ->
-%    Bin = iolist_to_binary(lists:reverse(Acc)),
-%    {ContentType, FileName, size(Bin)/1024.0, Bin, md5sum(Bin)};
-%  
-%get_streamed_body({{"file-chooser", {Params, Hdrs}, Content}, Next}, Types, 
-%                  Names, Acc) ->
-%    FileName = binary_to_list(proplists:get_value(<<"filename">>, Params)),
-%    ContentType = binary_to_list(proplists:get_value(<<"Content-Type">>, Hdrs)),
-%    get_streamed_body(Next(), [ContentType|Types], [FileName|Names], 
-%                      [Content|Acc]);
-%  
-%get_streamed_body({{"file-submit", {_Params, _Hdrs}, _Content}, Next}, Types, 
-%                  Names, Acc) ->
-%    get_streamed_body(Next(), Types, Names, Acc).
-
-get_file_data(R, _S) ->
-    {"", "", R}.
-%    Boundary = webmachine_multipart:find_boundary(R),
-%    SBody = wrq:stream_req_body(R, 4096),
-%    SParts = webmachine_multipart:stream_parts(SBody, Boundary),
-%    get_streamed_body(SParts, [], [], []).

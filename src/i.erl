@@ -54,7 +54,7 @@ create(R, S) ->
                     {true, R1, S};
                 {forbidden, Message} ->
                     {ok, R2} = cowboy_req:reply(403, [], Message, R1),
-                    R2
+                    {halt, R2, S}
             end
     end.
 
@@ -92,12 +92,12 @@ update(R, S) ->
             {true, R2, S};
         {forbidden, Message} ->
             {ok, R3} = cowboy_req:reply(403, [], Message, R2),
-            R3;
+            {halt, R3, S};
         {error, conflict} ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
             {ok, R3} = cowboy_req:reply(409, [], Msg1, R2),
-            R3
+            {halt, R3, S}
     end.
 
 -spec update_design(string(), string(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
@@ -130,7 +130,7 @@ view(R, S) ->
             {<<"">>, R2, S};
         {{error, req_timedout}, _, R2} ->
             {ok, R3} = cowboy_req:reply(504, [], Message, R2),
-            R3
+            {halt, R3, S}
     end.
 
 -spec get_index(h:req_data(), h:req_state()) -> {couch:ret(), jsn:json_term(), h:req_data()}.
