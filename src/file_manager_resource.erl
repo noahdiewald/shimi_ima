@@ -81,7 +81,7 @@ content_types_provided(R, S) ->
   
 content_types_accepted(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> {[{{<<"application">>, <<"json">>, []}, from_json}], R, S}
+        identifier -> h:accept_json(R, S)
     end.
   
 delete_resource(R, S) ->
@@ -106,18 +106,6 @@ process_post(R, S) ->
         false ->
             h:create_attachment(utils:uuid(), binary_to_list(Filename2), Content, R2, [{content_type, binary_to_list(ContentType)}|S])
     end.
-
-acc_multipart(R) ->
-    acc_multipart(cowboy_req:multipart_data(R), []).
-
-acc_multipart({headers, Headers, R}, Acc) ->
-    acc_multipart(cowboy_req:multipart_data(R), [{Headers, []}|Acc]);
-acc_multipart({body, Data, R}, [{Headers, BodyAcc}|Acc]) ->
-    acc_multipart(cowboy_req:multipart_data(R), [{Headers, [Data|BodyAcc]}|Acc]);
-acc_multipart({end_of_part, R}, [{Headers, BodyAcc}|Acc]) ->
-    acc_multipart(cowboy_req:multipart_data(R), [{Headers, list_to_binary(lists:reverse(BodyAcc))}|Acc]);
-acc_multipart({eof, R}, Acc) ->
-    {lists:reverse(Acc), R}.
 
 %% @doc A generic return value when there must be a provided content
 %% type but no content is actually intended to be returned.
@@ -178,6 +166,18 @@ html_dirs(R, S) ->
     Vals = [{<<"dirs">>, Dirs}],
     {ok, Html} = render:render(file_manager_paths_dtl, Vals),
     {Html, R2, S}.
+
+acc_multipart(R) ->
+    acc_multipart(cowboy_req:multipart_data(R), []).
+
+acc_multipart({headers, Headers, R}, Acc) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, []}|Acc]);
+acc_multipart({body, Data, R}, [{Headers, BodyAcc}|Acc]) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, [Data|BodyAcc]}|Acc]);
+acc_multipart({end_of_part, R}, [{Headers, BodyAcc}|Acc]) ->
+    acc_multipart(cowboy_req:multipart_data(R), [{Headers, list_to_binary(lists:reverse(BodyAcc))}|Acc]);
+acc_multipart({eof, R}, Acc) ->
+    {lists:reverse(Acc), R}.
 
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

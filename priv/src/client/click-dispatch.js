@@ -1,19 +1,3 @@
-/**
- WARNING: OUT OF DATE
- 
- == Click Dispatcher
- 
- Each section of the application calls this function with an object
- composed of keys of CSS patterns of elements which should have click
- event actions bound to them and values of functions that will be
- called if a click event occurs and the key pattern matches.
- 
- @dispatcher(patterns)@
- 
- *More to come*
- */
-
-
 shimi.dispatcher = function (patterns) {
   var d = function (e) {
     var target = $(e.target);
