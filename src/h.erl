@@ -109,8 +109,10 @@ create(Json, R, S) ->
 create_attachment(Id, Name, Content, R, S) ->
     {Project, R1} = project(R),
     case couch:update_raw(Id ++ "/" ++ Name, Content, Project, S) of
-        {ok, updated} -> 
-            {ok, R2} = cowboy_req:reply(200, [], <<"File Uploaded">>, R1),
+        {ok, updated} ->
+            Msg = <<"File Uploaded">>,
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            {ok, R2} = cowboy_req:reply(200, [], Msg1, R1),
             {halt, R2, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
