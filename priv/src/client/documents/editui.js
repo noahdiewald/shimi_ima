@@ -67,6 +67,18 @@ shimi.editui = (function () {
     return mod;
   };
 
+  mod.selectInput = function () {
+    var inputable = 'input, select, textarea';
+    var t = function () {
+      return $('#edit-tabs');
+    };
+
+    var cur = t().find('.ui-tabs-active a').attr('href');
+    $(cur).find(inputable).first().focus();
+
+    return mod;
+  };
+
   mod.afterFreshRefresh = function () {
     afterRefresh();
 
@@ -224,20 +236,6 @@ shimi.editui = (function () {
 
     $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
 
-    return mod;
-  };
-
-  mod.showCommandDialog = function (context) {
-    $('#edit-command-input').val("");
-    $('#edit-dialog').attr('data-last-active', context.id);
-    var commandDialog = $('#command-dialog').dialog({
-      modal: true,
-      close: function () {
-        $('#edit-command-input').val("");
-        context.focus();
-      }
-    });
-    commandDialog.dialog('open');
     return mod;
   };
 

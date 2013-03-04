@@ -1144,16 +1144,6 @@ $(function () {
     shimi.dblclickDispatch(e);
   });
 });
-var selectInput = function () {
-  var inputable = 'input, select';
-  var t = function () {
-    return $('#edit-tabs');
-  };
-
-  var cur = t().find('.ui-tabs-active a').attr('href');
-  $(cur).find(inputable + ", textarea").first().focus();
-};
-
 $(document).on("keydown", '#document-worksheets-form', function (e) {
   if (e.which === 13) {
     shimi.dispatch.send("worksheet-form-submit");
@@ -1187,18 +1177,18 @@ $(document).bind('keydown', 'Alt+n', function (e) {
 
   if (selected < totaltabs - 1) {
     t().tabs('option', 'active', selected + 1);
-    selectInput();
+    shimi.dispatch.send("lost-focus");
   } else {
     t().tabs('option', 'active', 0);
-    selectInput();
+    shimi.dispatch.send("lost-focus");
   }
 
   return false;
 });
 
 $(document).bind('keydown', 'Alt+c', function (e) {
-  var active = $(document.activeElement);
-  shimi.editui.showCommandDialog(active);
+  var active = $(document.activeElement).attr("id");
+  shimi.dispatch.send("initiated-command", active);
   return true;
 });
 
@@ -1211,70 +1201,25 @@ $(document).bind('keydown', 'Alt+p', function (e) {
 
   if (selected !== 0) {
     t().tabs('option', 'active', selected - 1);
-    selectInput();
+    shimi.dispatch.send("lost-focus");
   } else {
     t().tabs('option', 'active', totaltabs - 1);
-    selectInput();
+    shimi.dispatch.send("lost-focus");
   }
 
   return false;
 });
 
 
-$('#edit-command-input').on("keydown", function (e) {
+$(document).on("keydown", '#edit-command-input', function (e) {
   if (e.which === 13) {
     var command = $('#edit-command-input').val();
-    var restoreFocus = true;
-    $('#command-dialog').dialog("close");
-
-    switch (command) {
-    case "w":
-    case "clear":
-      shimi.editui.clear();
-      break;
-    case "c":
-    case "create":
-      shimi.editui.create();
-      break;
-    case "s":
-    case "save":
-      shimi.editui.save();
-      break;
-    case "d":
-    case "delete":
-      $("#document-view").show();
-      if ($("#document-delete-button").css("display") !== "none") {
-        $("#document-delete-button").click();
-      }
-      break;
-    case "e":
-    case "edit":
-      $("#document-view").show();
-      if ($("#document-edit-button").css("display") !== "none") {
-        $("#document-edit-button").click();
-        restoreFocus = false;
-      }
-      break;
-    case "r":
-    case "restore":
-      $("#document-view").show();
-      if ($("#document-restore-button").css("display") !== "none") {
-        $("#document-restore-button").click();
-      }
-      break;
-    }
-
-    if (restoreFocus) {
-      $('#' + $('#command-dialog').attr('data-last-active')).focus();
-    } else {
-      selectInput();
-    }
+    shimi.dispatch.send("submitted-command", command);
   }
-
   return true;
 });
 
-$("#edit-document-form input").on('keydown', function (e) {
+$(document).on('keydown', "#edit-document-form input", function (e) {
   if (e.which === 13) {
     if ($("#save-document-button").css("display") === "none") {
       shimi.editui.create();
@@ -1318,7 +1263,7 @@ $(document).on("change", '#document-search-invert', function (e) {
 shimi.dispatch = (function () {
   var mod = {};
 
-  mod.send = function (message) {
+  mod.send = function (message, arg) {
     switch (message) {
     case "bad-session-state":
       shimi.documents.clearSession();
@@ -1345,6 +1290,18 @@ shimi.dispatch = (function () {
       break;
     case "worksheet-form-submit":
       shimi.worksheetui.fillWorksheet();
+      break;
+    case "initiated-command":
+      shimi.commands.dialogOpen(arg);
+      break;
+    case "executed-command":
+      shimi.commands.dialogClose();
+      break;
+    case "submitted-command":
+      shimi.commands.execute(arg);
+      break;
+    case "lost-focus":
+      shimi.editui.selectInput();
       break;
     }
 
@@ -2330,6 +2287,93 @@ shimi.fieldsetElems = (function () {
 
   return mod;
 })();
+shimi.commands = (function () {
+  var mod = {};
+  var commandInput = function () {
+    return $('#edit-command-input');
+  };
+  var commandDialog = function () {
+    return $('#command-dialog');
+  };
+  var setContext = function (elem, context) {
+    return elem.attr("data-last-active", context);
+  };
+  var getContext = function (elem) {
+    return elem.attr("data-last-active");
+  };
+
+  mod.execute = function (command) {
+    var restoreFocus = true;
+
+    switch (command) {
+    case "w":
+    case "clear":
+      shimi.editui.clear();
+      break;
+    case "c":
+    case "create":
+      shimi.editui.create();
+      restoreFocus = false;
+      break;
+    case "s":
+    case "save":
+      shimi.editui.save();
+      break;
+    case "d":
+    case "delete":
+      $("#document-view").show();
+      if ($("#document-delete-button").css("display") !== "none") {
+        $("#document-delete-button").click();
+      }
+      break;
+    case "e":
+    case "edit":
+      $("#document-view").show();
+      if ($("#document-edit-button").css("display") !== "none") {
+        $("#document-edit-button").click();
+        restoreFocus = false;
+      }
+      break;
+    case "r":
+    case "restore":
+      $("#document-view").show();
+      if ($("#document-restore-button").css("display") !== "none") {
+        $("#document-restore-button").click();
+      }
+      break;
+    }
+
+    if (restoreFocus) {
+      var cdialog = commandDialog();
+      var context = getContext(cdialog);
+      $('#' + context).focus();
+    } else {
+      shimi.dispatch.send("lost-focus");
+    }
+
+    shimi.dispatch.send("executed-command");
+    return mod;
+  };
+
+  mod.dialogOpen = function (context) {
+    var cinput = commandInput();
+    var cdialog = commandDialog();
+    cinput.val("");
+    setContext(cdialog, context).show();
+    cinput.focus();
+    return mod;
+  };
+
+  mod.dialogClose = function () {
+    var cinput = commandInput();
+    var cdialog = commandDialog();
+    setContext(cdialog, "").hide();
+    cinput.val("");
+    return mod;
+  };
+
+  return mod;
+})();
 // Shared document editing stuff plus initialization.
 shimi.documents = (function () {
   var mod = {};
@@ -2536,6 +2580,18 @@ shimi.editui = (function () {
     return mod;
   };
 
+  mod.selectInput = function () {
+    var inputable = 'input, select, textarea';
+    var t = function () {
+      return $('#edit-tabs');
+    };
+
+    var cur = t().find('.ui-tabs-active a').attr('href');
+    $(cur).find(inputable).first().focus();
+
+    return mod;
+  };
+
   mod.afterFreshRefresh = function () {
     afterRefresh();
 
@@ -2693,20 +2749,6 @@ shimi.editui = (function () {
 
     $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
 
-    return mod;
-  };
-
-  mod.showCommandDialog = function (context) {
-    $('#edit-command-input').val("");
-    $('#edit-dialog').attr('data-last-active', context.id);
-    var commandDialog = $('#command-dialog').dialog({
-      modal: true,
-      close: function () {
-        $('#edit-command-input').val("");
-        context.focus();
-      }
-    });
-    commandDialog.dialog('open');
     return mod;
   };
 

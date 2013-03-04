@@ -8,10 +8,10 @@
 {% endblock %}
 
 {% block dialogs %}
-<div class="hidden" id="help-dialog" title="Help">
+<div class="hidden dialog" id="help-dialog" title="Help">
   <p id="help-dialog-text"></p>
 </div>
-<div class="hidden" id="command-dialog" title="Command">
+<div class="hidden dialog" id="command-dialog" title="Command">
   <form id="edit-command-form">
     <label for="edit-command-input">Edit Command</label>
     <input type="text" id="edit-command-input" autocomplete="off" name="edit-command-input">

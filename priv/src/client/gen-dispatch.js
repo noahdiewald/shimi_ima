@@ -1,7 +1,7 @@
 shimi.dispatch = (function () {
   var mod = {};
 
-  mod.send = function (message) {
+  mod.send = function (message, arg) {
     switch (message) {
     case "bad-session-state":
       shimi.documents.clearSession();
@@ -28,6 +28,18 @@ shimi.dispatch = (function () {
       break;
     case "worksheet-form-submit":
       shimi.worksheetui.fillWorksheet();
+      break;
+    case "initiated-command":
+      shimi.commands.dialogOpen(arg);
+      break;
+    case "executed-command":
+      shimi.commands.dialogClose();
+      break;
+    case "submitted-command":
+      shimi.commands.execute(arg);
+      break;
+    case "lost-focus":
+      shimi.editui.selectInput();
       break;
     }
 
