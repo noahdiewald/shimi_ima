@@ -190,25 +190,40 @@ shimi.fieldsets = (function () {
     $('#save-document-button').show();
 
     container.find('.field-view').each(function (i, field) {
-      var value = $(field).attr('data-field-value');
+      var valueJson = $(field).attr('data-field-value');
       var id = $(field).attr('data-field-field');
+      var value;
+
+      if (valueJson) {
+        value = JSON.parse(valueJson);
+      }
 
       if (!context) {
         context = $('body');
       }
 
+      // TODO: There is still a mismatch in template systems and
+      // conventions that means that I cannot simply set the values
+      // directly. There are different rules for escaping, etc.
       setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
     });
   };
 
   var setFieldValue = function (field, value) {
     if (field.is('input.boolean')) {
-      field.attr("checked", value === "true");
+      field.prop("checked", value);
+    } else if (value && field.is('select.open-boolean')) {
+      field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
-      field.val(value.split(","));
+      window.console.log(value);
+      value = value.map(function (x) {
+        return encodeURIComponent(x).replace(/%20/g, "+");
+      });
+      field.val(value);
+    } else if (value && field.is('select.select')) {
+      value = encodeURIComponent(value).replace(/%20/g, "+");
+      field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
-      field.val(decodeURIComponent(value.replace(/\+/g, " ")));
-    } else if (field.is('textarea.textarea')) {
       field.val(decodeURIComponent(value.replace(/\+/g, " ")));
     } else {
       field.val(value);

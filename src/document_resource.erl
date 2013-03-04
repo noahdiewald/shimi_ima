@@ -81,6 +81,8 @@ content_types_accepted(R, S) ->
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
         worksheets_get -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        revision -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         _ -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
     end.
   
@@ -112,13 +114,15 @@ to_html(R, S) ->
         edit -> html_edit(R, S);
         main -> html_documents(R, S);
         index -> html_index(R, S);
-        identifier -> html_document(R, S);
-        revision -> html_revision(R, S);
         search -> html_search(R, S)
     end.
     
 to_json(R, S) ->
-    json_ws(R, S).
+    case proplists:get_value(target, S) of
+        worksheets_get -> json_ws(R, S);
+        identifier -> json_document(R, S);
+        revision -> json_revision(R, S)
+    end.
 
 from_json(R, S) ->
     case proplists:get_value(target, S) of
@@ -181,6 +185,34 @@ json_ws(R, S) ->
     Json = worksheet:get(Docs, Project, S),
     {jsn:encode(Json), R2, S}.
 
+json_document(R, S) ->
+    {{ok, OrigJson}, R1} = h:id_data(R, [{revs_info, true}|S]),
+    {Info, R2} = h:basic_info("", "", R1, S),
+    [First|RevsInfo] = proplists:get_value(<<"_revs_info">>, OrigJson),
+    F = fun (This=[{<<"rev">>, Rev}, {<<"status">>, Status}]) ->
+        {_, [$-|Count]} = lists:split(32, lists:reverse(binary_to_list(Rev))),
+        [{<<"rev">>, Rev}, {<<"status">>, Status =:= <<"available">>}, {<<"count">>, list_to_binary(lists:reverse(Count))}, {<<"first">>, This =:= First}]
+    end,
+    RevsInfo2 = lists:map(F, [First|RevsInfo]),
+    NormJson = document:normalize(doc, OrigJson),
+    Vals = [{<<"revs_info">>, RevsInfo2}|NormJson] ++ Info,
+    {jsn:encode(Vals), R2, S}.
+
+json_revision(R, S) ->
+    {{ok, RevData}, R1} = h:rev_data(R, S),
+    {IdData, R2} = h:id_data(R1, S),
+    Requested = document:normalize(doc, RevData),
+    Prev = case IdData of
+               {ok, Curr} ->
+                   CurrRev = jsn:get_value(<<"_rev">>, Curr),
+                   ReqRev = jsn:get_value(<<"_rev">>, Requested),
+                   CurrRev /= ReqRev;
+               _ ->
+                   false
+           end,
+    Json = [{<<"previous_revision">>, Prev}|Requested],
+    {jsn:encode(Json), R2, S}.
+
 html_documents(R, S) ->
     {Info, R1} = h:basic_info("", " Documents", R, S),
     {ok, Html} = render:render(document_dtl, Info),
@@ -220,31 +252,6 @@ html_search(R, S) ->
     Results = search:values(Params, Project, S),
     {ok, Html} = render:render(document_search_dtl, Results),
     {Html, R4, S}.
-
-html_document(R, S) ->
-    {{ok, OrigJson}, R1} = h:id_data(R, [{revs_info, true}|S]),
-    {Info, R2} = h:basic_info("", "", R1, S),
-    RevsInfo = proplists:get_value(<<"_revs_info">>, OrigJson),
-    NormJson = document:normalize(doc, OrigJson),
-    Vals = [{<<"revs_info">>, RevsInfo}|NormJson] ++ Info,
-    {ok, Html} = render:render(document_view_dtl, Vals),
-    {Html, R2, S}.
-
-html_revision(R, S) ->
-    {{ok, RevData}, R1} = h:rev_data(R, S),
-    {IdData, R2} = h:id_data(R1, S),
-    Requested = document:normalize(doc, RevData),
-    Prev = case IdData of
-               {ok, Curr} ->
-                   CurrRev = jsn:get_value(<<"_rev">>, Curr),
-                   ReqRev = jsn:get_value(<<"_rev">>, Requested),
-                   CurrRev /= ReqRev;
-               _ ->
-                   false
-           end,
-    Json = [{<<"previous_revision">>, Prev}|Requested],
-    {ok, Html} = render:render(document_view_tree_dtl, Json),
-    {Html, R2, S}.
 
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

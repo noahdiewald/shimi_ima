@@ -11,6 +11,40 @@ shimi.viewui = (function (args) {
     return $("#document-view-info");
   };
 
+  var processIncoming = function (docJson) {
+    shimi.globals.currentDocument = docJson;
+
+    docJson.fieldsets.forEach(function (fset) {
+      var fieldFunc = function (field) {
+        field.json_value = JSON.stringify(field.value);
+        if (field.subcategory === "textarea") {
+          field.is_textarea = true;
+        } else if (field.value && field.subcategory.match("multi")) {
+          field.value = field.value.join(", ");
+        }
+        return true;
+      };
+
+      if (fset.multiple) {
+        fset.multifields.forEach(function (mfs) {
+          mfs.fields.forEach(function (field) {
+            fieldFunc(field);
+            return true;
+          });
+        });
+      } else {
+        fset.fields.forEach(function (field) {
+          fieldFunc(field);
+          return true;
+        });
+      }
+
+      return true;
+    });
+
+    return true;
+  };
+
   mod.formatTimestamps = function () {
     $('.timestamp').each(
 
@@ -27,13 +61,31 @@ shimi.viewui = (function (args) {
   mod.get = function (id, rev, callback) {
     var url = "documents/" + id;
     var htmlTarget = dv();
+    var tmpl;
 
     if (rev) {
       url = url + "/" + rev;
       htmlTarget = dvt();
+      tmpl = function (docJson) {
+        return templates['document-view-tree'].render(docJson, {
+          'document-view-field': templates['document-view-field']
+        });
+      };
+    } else {
+      tmpl = function (docJson) {
+        return templates['document-view'].render(docJson, {
+          'document-view-tree': templates['document-view-tree'],
+          'document-view-field': templates['document-view-field']
+        });
+      };
+
     }
 
-    $.get(url, function (documentHtml) {
+    $.getJSON(url, function (docJson) {
+      var documentHtml;
+
+      processIncoming(docJson);
+      documentHtml = tmpl(docJson);
       htmlTarget.html(documentHtml);
       window.location.hash = id;
       mod.formatTimestamps();

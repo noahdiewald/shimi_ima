@@ -57,11 +57,9 @@ module.exports = function (grunt) {
     },
     hogan: {
       all: {
-        compile: {
         templates: "priv/templates/*.mustache",
         output: "priv/www/templates.js",
         binderName: "hulk"
-        }
       }
     },
     watch: {

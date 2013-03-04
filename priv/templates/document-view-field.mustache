@@ -1,0 +1,12 @@
+<li 
+  class="field-view" 
+  data-field-field="{{ id }}"
+  data-field-value="{{ json_value }}">
+  <b>{{ label }}</b>:
+  {{#text_area}}
+    <span class="retain-white">{{value}}</span>
+  {{/text_area}}
+  {{^text_area}}
+    {{value}}
+  {{/text_area}}
+</li>
