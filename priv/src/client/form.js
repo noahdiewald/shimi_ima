@@ -15,9 +15,11 @@ shimi.form = (function () {
   mod.cancelDialog = function (t) {
     var target = $(t);
     var toggleElem;
+    var elemId;
 
-    if (target.attr('data-dialog')) {
-      toggleElem = $('#' + target.attr('data-target'));
+    if (target.attr('data-target')) {
+      elemId = '#' + target.attr('data-target');
+      toggleElem = $(elemId);
       toggleElem.hide();
       mod.clear(undefined, toggleElem.find("form"));
     }

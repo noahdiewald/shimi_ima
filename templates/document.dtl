@@ -23,7 +23,7 @@
     <label for="new-set-input">Set Name</label>
     <input type="text" id="new-set-input" autocomplete="off" name="new-set-input" />
     <a id="new-set-save-button" class="link-button">Save</a>
-    <a class="link-button cancel-dialog" data-dialog="new-set-dialog">Cancel</a>
+    <a class="link-button cancel-dialog" data-target="new-set-dialog">Cancel</a>
   </form>
 </div>
 {% endblock %}
