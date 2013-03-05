@@ -8,7 +8,7 @@ end
 task :deploy, :roles => :lingserver do
   run "cd /home/dictionary_maker/dictionary_maker && 
        /usr/bin/hg pull && 
-       /usr/bin/hg update && 
+       /usr/bin/hg update staging && 
        rm ebin/* && 
        ./rebar compile"
 end
