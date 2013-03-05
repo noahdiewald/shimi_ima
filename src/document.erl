@@ -70,6 +70,7 @@ from_json(doc, Json) ->
        deleted = proplists:get_value(<<"deleted_">>, Json, false),
        fieldsets = Fieldsets,
        index = Index,
+       changes = proplists:get_value(<<"changes">>, Json, null),
        head = Head,
        reverse = Reverse
       };
@@ -108,6 +109,7 @@ to_json(doc, D) ->
      {<<"deleted_">>, D#document.deleted},
      {<<"fieldsets">>, Fieldsets},
      {<<"index">>, Index},
+     {<<"changes">>, D#document.changes},
      {<<"head">>, Head},
      {<<"reverse">>, Reverse}].
 

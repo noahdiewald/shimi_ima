@@ -43,12 +43,19 @@ shimi.editui = (function () {
     $("[data-field-instance]").each(
 
     function (index, item) {
-      var newInstance = makeInstance();
-      $(item).first().attr('data-field-instance', newInstance);
-      $(item).first().attr('data-group-id', newInstance);
-      $(item).first().attr('id', newInstance);
-      $(item).first().next('.expander').attr('data-group-id', newInstance);
-      $(item).first().next().next('.expander').attr('data-group-id', newInstance);
+      var itemElem = $(item).first();
+      var oldInstance = itemElem.attr('data-field-instance');
+      var newInstance = oldInstance;
+
+      if (itemElem.attr('data-field-instance').isBlank()) {
+        newInstance = makeInstance();
+      }
+
+      itemElem.attr('data-group-id', newInstance);
+      itemElem.attr('id', newInstance);
+      // Differences in Firefox and Chrome
+      itemElem.next('.expander').attr('data-group-id', newInstance);
+      itemElem.next().next('.expander').attr('data-group-id', newInstance);
     });
 
     return mod;

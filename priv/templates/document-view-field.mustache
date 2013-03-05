@@ -1,12 +1,19 @@
 <li 
-  class="field-view" 
+  class="field-view 
+    {{#changed}}changed{{/changed}}"
   data-field-field="{{ id }}"
+  {{#changed}}
+  data-field-original-value="{{ originalValue }}"
+  {{/changed}}
+  {{#instance}}
+  data-field-instance="{{ instance }}"
+  {{/instance}}
   data-field-value="{{ json_value }}">
   <b>{{ label }}</b>:
-  {{#text_area}}
+  {{#is_textarea}}
     <span class="retain-white">{{value}}</span>
-  {{/text_area}}
-  {{^text_area}}
+  {{/is_textarea}}
+  {{^is_textarea}}
     {{value}}
-  {{/text_area}}
+  {{/is_textarea}}
 </li>

@@ -9,7 +9,14 @@
 <ul>
 {{#fieldsets}}
   <li
-    class="fieldset-view {{#collapse}}collapsed{{/collapse}}"
+    class="fieldset-view
+      {{#collapse}}collapsed{{/collapse}}
+      {{#changed}}changed{{/changed}}
+      {{#addition}}addition{{/addition}}
+      {{#removal}}removal{{/removal}}"
+    {{#removal}}
+    data-fieldset-original-values="{{ originalValues }}"
+    {{/removal}}
     data-fieldset-fieldset="{{ id }}" 
     data-group-id="{{ id }}">
     <b>{{ label }}</b>:

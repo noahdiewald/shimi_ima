@@ -11,17 +11,61 @@ shimi.viewui = (function (args) {
     return $("#document-view-info");
   };
 
+  // Make an object where fieldsets with deletions are identified.
+  var getDeletions = function (changes) {
+    return Object.keys(changes).reduce(function (acc, x) {
+      // If it was changed and there is no new value, it was deleted.
+      if (changes[x].newValue === undefined) {
+        if (acc[changes[x].fieldset] === undefined) {
+          acc[changes[x].fieldset] = {};
+        }
+        acc[changes[x].fieldset][x] = changes[x];
+      }
+
+      return acc;
+    }, {});
+  };
+
   var processIncoming = function (docJson) {
-    shimi.globals.currentDocument = docJson;
+    shimi.globals.changes = {};
+    var withDeletions = getDeletions(docJson.changes);
 
     docJson.fieldsets.forEach(function (fset) {
+      var fsetId = fset.id;
+
+      if (withDeletions[fsetId] !== undefined) {
+        fset.removal = true;
+        fset.originalValues = JSON.stringify(withDeletions[fsetId]);
+      }
+
       var fieldFunc = function (field) {
+        var change = docJson.changes[field.instance];
+
         field.json_value = JSON.stringify(field.value);
+        shimi.globals.changes[field.instance] = {
+          fieldset: fsetId,
+          field: field.id,
+          originalValue: field.json_value
+        };
+
+        if (change) {
+          field.originalValue = change.originalValue;
+
+          if (change.originalValue === undefined) {
+            fset.addition = true;
+            field.changed = true;
+          } else {
+            fset.changed = true;
+            field.changed = true;
+          }
+        }
+
         if (field.subcategory === "textarea") {
           field.is_textarea = true;
         } else if (field.value && field.subcategory.match("multi")) {
           field.value = field.value.join(", ");
         }
+
         return true;
       };
 

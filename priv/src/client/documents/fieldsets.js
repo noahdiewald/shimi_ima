@@ -35,6 +35,10 @@ shimi.fieldsets = (function () {
     fields.each(function (i, field) {
       field = $(field);
       var s = store(field);
+      var value = getFieldValue(field);
+      var instance = s.f("instance");
+
+      shimi.globals.changes[instance].newValue = JSON.stringify(value);
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -45,12 +49,12 @@ shimi.fieldsets = (function () {
         required: s.f("required") === "true",
         min: dateOrNumber(s.f("subcategory"), s.f("min")),
         max: dateOrNumber(s.f("subcategory"), s.f("max")),
-        instance: s.f("instance"),
+        instance: instance,
         charseq: s.f("charseq"),
         regex: s.f("regex"),
         order: s.f("order") * 1,
         subcategory: s.f("subcategory"),
-        value: getFieldValue(field)
+        value: value
       };
 
       if (index >= 0) {
@@ -192,6 +196,7 @@ shimi.fieldsets = (function () {
     container.find('.field-view').each(function (i, field) {
       var valueJson = $(field).attr('data-field-value');
       var id = $(field).attr('data-field-field');
+      var instance = $(field).attr('data-field-instance');
       var value;
 
       if (valueJson) {
@@ -205,17 +210,16 @@ shimi.fieldsets = (function () {
       // TODO: There is still a mismatch in template systems and
       // conventions that means that I cannot simply set the values
       // directly. There are different rules for escaping, etc.
-      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
+      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
     });
   };
 
-  var setFieldValue = function (field, value) {
+  var setFieldValue = function (field, value, instance) {
     if (field.is('input.boolean')) {
       field.prop("checked", value);
     } else if (value && field.is('select.open-boolean')) {
       field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
-      window.console.log(value);
       value = value.map(function (x) {
         return encodeURIComponent(x).replace(/%20/g, "+");
       });
@@ -228,6 +232,20 @@ shimi.fieldsets = (function () {
     } else {
       field.val(value);
     }
+    field.attr('data-field-instance', instance);
+  };
+
+  var processChanges = function (changes) {
+    var processed = {};
+
+    Object.keys(changes).forEach(function (x) {
+      if (changes[x].newValue !== changes[x].originalValue) {
+        processed[x] = changes[x];
+      }
+      return true;
+    });
+
+    return processed;
   };
 
   mod.initFieldset = function (fieldset, callback) {
@@ -283,6 +301,8 @@ shimi.fieldsets = (function () {
           fsObj.multifields[j] = fieldsToObject(field, j);
         });
       }
+
+      obj.changes = processChanges(shimi.globals.changes);
 
       obj.fieldsets[i] = fsObj;
     });
