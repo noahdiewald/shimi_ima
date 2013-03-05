@@ -14,7 +14,7 @@
       {{#altered}}changed{{/altered}}"
     data-fieldset-fieldset="{{ id }}" 
     data-group-id="{{ id }}">
-    <b>{{ label }}</b>{{#addition}}+{{/addition}}{{#removal}}−{{/removal}}:
+    <b>{{ label }}</b>{{#addition}}<span title="fieldset added" class="addition">+</span>{{/addition}}{{#removal}}<span title="fieldset removed" class="removal">−</span>{{/removal}}:
     {{#multiple}}
       <ol>
       {{#multifields}}

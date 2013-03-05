@@ -32,7 +32,7 @@ shimi.editui = (function () {
     return mod;
   };
 
-  var instances = function () {
+  var instances = function (addInstances) {
     var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
     var makeInstance = function () {
       return text.map(function () {
@@ -40,23 +40,27 @@ shimi.editui = (function () {
       }).join('');
     };
 
-    $("[data-field-instance]").each(
-
-    function (index, item) {
+    $("#last-added [data-field-instance]").each(function (index, item) {
       var itemElem = $(item).first();
       var oldInstance = itemElem.attr('data-field-instance');
       var newInstance = oldInstance;
 
-      if (itemElem.attr('data-field-instance').isBlank()) {
+      if (addInstances) {
         newInstance = makeInstance();
       }
 
       itemElem.attr('data-group-id', newInstance);
+      // TODO: This is a little redundant
       itemElem.attr('id', newInstance);
+      itemElem.attr('data-field-instance', newInstance);
       // Differences in Firefox and Chrome
       itemElem.next('.expander').attr('data-group-id', newInstance);
       itemElem.next().next('.expander').attr('data-group-id', newInstance);
     });
+
+    if (addInstances) {
+      $("#last-added").removeAttr("id");
+    }
 
     return mod;
   };
@@ -86,8 +90,8 @@ shimi.editui = (function () {
     return mod;
   };
 
-  mod.afterFreshRefresh = function () {
-    afterRefresh();
+  mod.afterFreshRefresh = function (addInstances) {
+    afterRefresh(addInstances);
 
     return mod;
   };
@@ -105,9 +109,9 @@ shimi.editui = (function () {
     return mod;
   };
 
-  var afterRefresh = function () {
+  var afterRefresh = function (addInstances) {
     shimi.form.initDateFields();
-    instances();
+    instances(addInstances);
 
     return mod;
   };

@@ -59,12 +59,13 @@ shimi.viewui = (function (args) {
         };
 
         if (change !== undefined) {
-          field.originalValue = JSON.parse(change.originalValue);
           field.changed = true;
           fset.altered = true;
 
           if (change.originalValue === undefined) {
             fset.addition = true;
+          } else {
+            field.originalValue = JSON.parse(change.originalValue);
           }
         }
 

@@ -109,7 +109,7 @@ shimi.clickDispatch = function (e) {
 
     // Documents
     ".add-button": function (t) {
-      fieldsets.initFieldset(t);
+      fieldsets.initFieldset(t, false, true);
     },
     ".remove-button": function (t) {
       fieldsets.removeFieldset(t);

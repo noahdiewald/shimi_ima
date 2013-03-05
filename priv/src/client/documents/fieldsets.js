@@ -154,16 +154,19 @@ shimi.fieldsets = (function () {
     return value;
   };
 
-  var initFields = function (container, callback) {
+  var initFields = function (container, callback, addInstances) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
     var prependIt = function (data) {
+      if (addInstances) {
+        section.attr("id", "last-added");
+      }
       section.prepend(data);
       if (callback) {
         callback(section);
       }
 
-      shimi.editui.afterFreshRefresh();
+      shimi.editui.afterFreshRefresh(addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -253,13 +256,13 @@ shimi.fieldsets = (function () {
     return processed;
   };
 
-  mod.initFieldset = function (fieldset, callback) {
+  mod.initFieldset = function (fieldset, callback, addInstances) {
     var url = dpath($(fieldset), "fieldset").toString();
     var id = store($(fieldset)).fs("fieldset");
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
-      initFields(container, callback);
+      initFields(container, callback, addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
