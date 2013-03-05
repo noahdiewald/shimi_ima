@@ -37,8 +37,13 @@ shimi.fieldsets = (function () {
       var s = store(field);
       var value = getFieldValue(field);
       var instance = s.f("instance");
+      var changes = shimi.globals.changes;
 
-      shimi.globals.changes[instance].newValue = JSON.stringify(value);
+      if (changes[instance] === undefined) {
+        changes[instance] = {};
+      }
+
+      changes[instance].newValue = JSON.stringify(value);
 
       obj.fields[i] = {
         id: s.f("field"),

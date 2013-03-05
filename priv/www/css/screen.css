@@ -575,7 +575,6 @@ tr.ui-widget-header th {
   margin-left: 2px;
   background: #9bc1f2;
   text-decoration: none;
-  font-size: 8pt;
 }
 .search-result-context a {
   text-decoration: none;
@@ -638,4 +637,7 @@ a.selected-revision {
 }
 .quiet {
   color: #9bc1f2;
+}
+.changed > b {
+  font-style: italic;
 }

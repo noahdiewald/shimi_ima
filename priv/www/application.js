@@ -2816,8 +2816,13 @@ shimi.fieldsets = (function () {
       var s = store(field);
       var value = getFieldValue(field);
       var instance = s.f("instance");
+      var changes = shimi.globals.changes;
 
-      shimi.globals.changes[instance].newValue = JSON.stringify(value);
+      if (changes[instance] === undefined) {
+        changes[instance] = {};
+      }
+
+      changes[instance].newValue = JSON.stringify(value);
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -3847,18 +3852,28 @@ shimi.viewui = (function (args) {
 
   var processIncoming = function (docJson) {
     shimi.globals.changes = {};
-    var withDeletions = getDeletions(docJson.changes);
+    var withDeletions = {};
+
+    if (docJson.changes) {
+      withDeletions = getDeletions(docJson.changes);
+    }
 
     docJson.fieldsets.forEach(function (fset) {
       var fsetId = fset.id;
 
       if (withDeletions[fsetId] !== undefined) {
         fset.removal = true;
-        fset.originalValues = JSON.stringify(withDeletions[fsetId]);
+        fset.altered = true;
       }
 
       var fieldFunc = function (field) {
-        var change = docJson.changes[field.instance];
+        var changes = {};
+        var change;
+
+        if (docJson.changes) {
+          changes = docJson.changes;
+        }
+        change = changes[field.instance];
 
         field.json_value = JSON.stringify(field.value);
         shimi.globals.changes[field.instance] = {
@@ -3867,15 +3882,13 @@ shimi.viewui = (function (args) {
           originalValue: field.json_value
         };
 
-        if (change) {
-          field.originalValue = change.originalValue;
+        if (change !== undefined) {
+          field.originalValue = JSON.parse(change.originalValue);
+          field.changed = true;
+          fset.altered = true;
 
           if (change.originalValue === undefined) {
             fset.addition = true;
-            field.changed = true;
-          } else {
-            fset.changed = true;
-            field.changed = true;
           }
         }
 
