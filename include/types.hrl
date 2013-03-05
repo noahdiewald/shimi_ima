@@ -6,7 +6,6 @@
 -type basicval() :: number() | binary() | calendar:date() | null.
 -type anyval() :: basicval() | [binary()] | boolean() | null.
 -type instance() :: binary().
--type value_type() :: binary().
 -type sortkey() :: binary().
 -type fieldid() :: binary().
 -type fieldsetid() :: binary().
@@ -156,7 +155,7 @@
           deleted :: boolean(),
           fieldsets :: [docfieldset()],
           index :: [{fieldid(),sortkey_val() | [sortkey_val()]}],
-          changes :: [{instance(), [{fieldid()|fieldsetid()|value_type(), jsn:json_term()}]}],
+          changes :: [{instance(), [{binary(), jsn:json_term()}]}],
           head :: [fieldid()],
           reverse :: [fieldid()]
          }).

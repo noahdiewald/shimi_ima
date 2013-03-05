@@ -575,6 +575,7 @@ tr.ui-widget-header th {
   margin-left: 2px;
   background: #9bc1f2;
   text-decoration: none;
+  cursor: pointer;
 }
 .search-result-context a {
   text-decoration: none;

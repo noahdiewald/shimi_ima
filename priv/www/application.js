@@ -3885,7 +3885,9 @@ shimi.viewui = (function (args) {
         field.json_value = JSON.stringify(field.value);
         shimi.globals.changes[field.instance] = {
           fieldset: fsetId,
+          fieldsetLabel: fset.label,
           field: field.id,
+          fieldLabel: field.label,
           originalValue: field.json_value
         };
 
