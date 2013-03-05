@@ -9,7 +9,8 @@ task :deploy, :roles => :lingserver do
   run "cd /home/dictionary_maker/dictionary_maker && 
        /usr/bin/hg pull && 
        /usr/bin/hg update staging && 
-       rm ebin/* && 
+       rm ebin/* &&
+       ./rebar get-deps &&
        ./rebar compile"
 end
 
@@ -24,8 +25,9 @@ end
 task :proddeploy, :roles => :production do
   run "cd /home/dictionary_maker/dictionary_maker &&
        /usr/bin/hg pull &&
-       /usr/bin/hg update &&
+       /usr/bin/hg update production &&
        rm ebin/* &&
+       ./rebar get-deps &&
        ./rebar compile"
 end
 
