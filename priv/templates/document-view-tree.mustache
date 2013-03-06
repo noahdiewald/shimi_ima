@@ -1,0 +1,50 @@
+{{#previous_revision}}
+  <div id="revision-message">Previous Revision</div>
+{{/previous_revision}}
+
+{{#deleted_}}
+  <div id="deleted-message"><b>Deleted</b></div>
+{{/deleted_}}
+
+<ul>
+{{#fieldsets}}
+  <li
+    class="fieldset-view
+      {{#collapse}}collapsed{{/collapse}}
+      {{#altered}}changed{{/altered}}"
+    data-fieldset-fieldset="{{ id }}" 
+    data-group-id="{{ id }}">
+    <b>{{ label }}</b>{{#addition}}<span title="fieldset added" class="addition">+</span>{{/addition}}{{#removal}}<span title="fieldset removed" class="removal">−</span>{{/removal}}:
+    {{#multiple}}
+      <ol>
+      {{#multifields}}
+        <li>
+          <ul class="multifield">
+            {{#fields}}
+              {{> document-view-field}}
+            {{/fields}}
+          </ul>
+        </li>
+      {{/multifields}}
+      </ol>
+    {{/multiple}}
+    {{^multiple}}
+      <ul>
+        {{#fields}}
+          {{> document-view-field}}
+        {{/fields}}
+      </ul>
+    {{/multiple}}
+  </li>
+{{/fieldsets}}
+</ul>
+
+<div class="timestamps">
+  <dl>
+    <dt>Created At</dt><dd class="timestamp">{{ created_at_ }}</dd>
+    <dt>Created By</dt><dd>{{ created_by_ }}</dd>
+    <dt>Updated At</dt><dd class="timestamp">{{ updated_at_ }}</dd>
+    <dt>Updated By</dt><dd>{{ updated_by_ }}</dd>
+    <dt>ID</dt><dd>{{ _id }}</dd>
+  </dl>
+</div>

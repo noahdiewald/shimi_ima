@@ -1,21 +1,22 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
-%%% dictionary_maker is free software: you can redistribute it and/or modify
-%%% it under the terms of the GNU General Public License as published by
-%%% the Free Software Foundation, either version 3 of the License, or
-%%% (at your option) any later version.
+%%% dictionary_maker is free software: you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation, either version 3 of the
+%%% License, or (at your option) any later version.
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
 %%% @doc Keep track of database update sequences.
@@ -106,8 +107,13 @@ make_seqs(Json) ->
 get_all_dbs([], Acc) ->
     Acc;
 get_all_dbs([H|T], Acc) ->
-    Id = binary_to_list(jsn:get_value(<<"id">>, H)),
-    get_all_dbs(T, ["project-" ++ Id, "files-" ++ Id|Acc]).
+    case jsn:get_value(<<"id">>, H) of
+        <<"_design/shimi_ima">> -> 
+            get_all_dbs(T, Acc);
+        IdBin when is_binary(IdBin) ->
+            Id = binary_to_list(IdBin),
+            get_all_dbs(T, ["project-" ++ Id, "files-" ++ Id|Acc])
+    end.
 
 set_seqs([], Acc) ->
     Acc;

@@ -1,0 +1,43 @@
+{{#doctype_info}}
+  <h2 class="header">{{ _id }} View</h2>
+
+  <form id="view-jump">
+    <label for="view-jump-id">Id</label>
+    <input type="text" id="view-jump-id" name="view-jump-id">
+  </form>
+{{/doctype_info}}
+
+<div id="document-view-info"
+     data-document-deleted="{{ deleted_ }}"
+     data-document-document="{{ _id }}" 
+     data-document-rev="{{ _rev }}"></div>
+
+<a id="document-restore-button"
+   data-group-id="document-view-info"
+   class="link-button hidden">Restore</a>
+
+<a id="document-edit-button"
+   data-group-id="document-view-info"
+   class="link-button">Edit</a>
+
+<a id="document-delete-button"
+   data-group-id="document-view-info"
+   class="link-button">Delete</a>
+
+<nav id="history">
+  {{#revs_info}}
+    {{#status}}
+      <a href="#{{ _id }}"
+         class="revision-link"
+         data-group-id="document-view-info"
+         {{#first}}
+         id="current-revision-link"
+         {{/first}}
+         data-document-oldrev="{{ rev }}">{{ count }}</a>
+      {{/status}}
+    {{/revs_info}}
+</nav>
+
+<div id="document-view-tree">
+  {{> document-view-tree}}
+</div>

@@ -50,7 +50,6 @@ trans(Conditions, Acc, Ex) ->
     and_or(Conditions, Acc, Ex).
 
 exopener([Condition|_], false) ->
-    io:format("~p", [Condition]),
     Field = binary_to_list(proplists:get_value(<<"field">>, Condition)),
     "(existentialTest('" ++ Field ++ "'," ++ "function (x) {return ".
 

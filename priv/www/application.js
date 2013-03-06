@@ -1,5 +1,8 @@
 var shimi = {};
 
+// A place to temporarily store global objects
+shimi.globals = {};
+
 // functions added to String
 String.prototype.isBlank = function () {
   return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
@@ -212,6 +215,70 @@ shimi.utils = function () {
   return mod;
 
 };
+shimi.sets = (function () {
+  var mod = {};
+
+  mod.member = function (arr, x) {
+    var memb = arr.some(function (y) {
+      return x === y;
+    });
+    return memb;
+  };
+
+  mod.unique = function (x, mem) {
+    if (!mem) {
+      mem = mod.member;
+    }
+    var uniq = x.reduce(function (acc, curr) {
+      if (mem(acc, curr)) {
+        return acc;
+      } else {
+        return acc.concat([curr]);
+      }
+    }, []);
+    return uniq;
+  };
+
+  mod.union = function (xs, ys, mem) {
+    if (!mem) {
+      mem = mod.member;
+    }
+    var uni = mod.unique(xs.concat(ys), mem);
+    return uni;
+  };
+
+  mod.intersection = function (xs, ys, mem) {
+    if (!mem) {
+      mem = mod.member;
+    }
+    var inter = xs.filter(function (x) {
+      return mem(ys, x);
+    });
+    return inter;
+  };
+
+  mod.relativeComplement = function (xs, ys, mem) {
+    if (!mem) {
+      mem = mod.member;
+    }
+    var comp = xs.filter(function (x) {
+      return !mem(ys, x);
+    });
+    return comp;
+  };
+
+  mod.symmetricDifference = function (xs, ys, mem) {
+    if (!mem) {
+      mem = mod.member;
+    }
+    var comp1 = mod.relativeComplement(xs, ys, mem);
+    var comp2 = mod.relativeComplement(ys, xs, mem);
+    var uni = mod.union(comp1, comp2, mem);
+    return uni;
+  };
+
+  return mod;
+})();
 shimi.flash = function (title, body) {
   var mod = {};
 
@@ -804,22 +871,6 @@ if (!Array.prototype.reduce) {
     return accumulator;
   };
 }
-/**
- WARNING: OUT OF DATE
- 
- == Click Dispatcher
- 
- Each section of the application calls this function with an object
- composed of keys of CSS patterns of elements which should have click
- event actions bound to them and values of functions that will be
- called if a click event occurs and the key pattern matches.
- 
- @dispatcher(patterns)@
- 
- *More to come*
- */
-
-
 shimi.dispatcher = function (patterns) {
   var d = function (e) {
     var target = $(e.target);
@@ -836,23 +887,33 @@ shimi.dispatcher = function (patterns) {
 };
 
 shimi.dblclickDispatch = function (e) {
-  var sui = shimi.sui;
+  var searchui = shimi.searchui;
+  var worksheetui = shimi.worksheetui;
 
   var action = shimi.dispatcher({
     ".search-result-field-id a": function (t) {
-      sui.addField($(t).parent("h5"));
+      searchui.addField($(t).parent("h5"));
     },
     ".field-view b": function (t) {
-      sui.addField($(t).parent("li"));
+      searchui.addField($(t).parent("li"));
     },
     ".field-container label span": function (t) {
-      sui.addField($(t).parent("label").parent("div"));
+      searchui.addField($(t).parent("label").parent("div"));
     },
     "#index-index-input-label": function () {
-      sui.addIndex();
+      searchui.addIndex();
     },
     ".panel > h2": function (t) {
       shimi.panelToggle.toggler(t);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.hideHandles();
+    },
+    ".fieldset-handle": function (t) {
+      worksheetui.hideFieldset($(t).attr("data-field-fieldset"));
+    },
+    ".field-handle": function (t) {
+      worksheetui.hideField($(t).attr("data-field-field"));
     }
   });
 
@@ -862,15 +923,16 @@ shimi.dblclickDispatch = function (e) {
 shimi.clickDispatch = function (e) {
   var doctypeTab = shimi.doctypeTab;
   var charseqTab = shimi.charseqTab;
-  var eui = shimi.eui;
-  var vui = shimi.vui;
-  var iui = shimi.iui;
+  var editui = shimi.editui;
+  var viewui = shimi.viewui;
+  var indexui = shimi.indexui;
   var setsui = shimi.setsui;
-  var sui = shimi.sui;
-  var efs = shimi.efs;
-  var ieui = shimi.ieui;
+  var searchui = shimi.searchui;
+  var worksheetui = shimi.worksheetui;
+  var fieldsets = shimi.fieldsets;
+  var ieditui = shimi.ieditui;
   var form = shimi.form;
-  var pui = shimi.pui;
+  var projectui = shimi.projectui;
   var fm = shimi.fm;
 
   var action = shimi.dispatcher({
@@ -920,55 +982,49 @@ shimi.clickDispatch = function (e) {
 
     // Documents
     ".add-button": function (t) {
-      efs.initFieldset(t);
+      fieldsets.initFieldset(t, false, true);
     },
     ".remove-button": function (t) {
-      efs.removeFieldset(t);
+      fieldsets.removeFieldset(t);
     },
     "#save-document-button": function (t) {
-      eui.save();
+      editui.save();
     },
     "#create-document-button": function (t) {
-      eui.create();
+      editui.create();
     },
     "#clear-document-button": function (t) {
-      eui.clear();
+      editui.clear();
     },
     ".expander": function (t) {
-      eui.toggleTextarea(t);
+      editui.toggleTextarea(t);
     },
     "label span.ui-icon-help": function (t) {
-      eui.showHelpDialog(t);
+      editui.showHelpDialog(t);
     },
     "#document-edit-button": function (t) {
-      vui.edit(t);
+      viewui.edit(t);
     },
     "#document-delete-button": function (t) {
-      vui.confirmDelete();
+      viewui.confirmDelete();
     },
     "#document-restore-button": function (t) {
-      vui.confirmRestore();
+      viewui.confirmRestore();
     },
     "#document-view-tree > ul > li > b": function (t) {
-      vui.collapseToggle(t);
+      viewui.collapseToggle(t);
     },
     ".revision-link": function (t) {
-      vui.fetchRevision(t);
+      viewui.fetchRevision(t);
     },
     "#search-all-fields-switch a": function () {
-      sui.allFields();
+      searchui.allFields();
     },
     ".search-field-item": function (t) {
-      sui.removeField(t);
-    },
-    "#document-search-exclude": function () {
-      sui.toggleExclusion();
-    },
-    "#document-search-invert": function () {
-      sui.toggleInversion();
+      searchui.removeField(t);
     },
     ".select-results": function (t) {
-      sui.toggleSelection(t);
+      searchui.toggleSelection(t);
     },
     "#save-search-results a": function () {
       $("#new-set-target-input").val("search");
@@ -979,44 +1035,72 @@ shimi.clickDispatch = function (e) {
       $("#new-set-dialog").show();
     },
     "#new-set-save-button": function () {
-      setsui.saveSelected($("#new-set-target-input").val());
+      shimi.dispatch.send("new-set-form-submit");
     },
     "#select-all-set-elements": function (t) {
       setsui.toggleSelectAll(t);
     },
     ".view-document-link": function (t) {
-      iui.load(t);
+      indexui.load(t);
+    },
+    ".select-worksheet-column": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var field = target.attr("data-field-field");
+      worksheetui.columnSelection(field, checked);
+    },
+    ".select-worksheet-row": function (t) {
+      var target = $(t);
+      var checked = target.is(':checked');
+      var row = target.attr("data-row");
+      worksheetui.rowSelection(row, checked);
+    },
+    "#select-all-worksheet-rows": function (t) {
+      var checked = $(t).is(':checked');
+      worksheetui.selectAllRows(checked);
+    },
+    "#toggle-handles": function (t) {
+      worksheetui.showHandles();
+    },
+    ".fieldset-handle": function (t) {
+      worksheetui.showFieldset($(t).attr("data-field-fieldset"));
+    },
+    ".field-handle": function (t) {
+      worksheetui.showField($(t).attr("data-field-field"));
+    },
+    ".field-header": function (t) {
+      worksheetui.hideField($(t).attr("data-field-field"));
     },
 
     // Index Tool
     "#new-index-button": function (t) {
-      ieui.newCond();
+      ieditui.newCond();
     },
     ".remove-condition-button": function (t) {
-      ieui.remCond(t);
+      ieditui.remCond(t);
     },
     "#delete-index-button": function (t) {
-      ieui.del();
+      ieditui.del();
     },
     "#save-index-button": function (t) {
-      ieui.save();
+      ieditui.save();
     },
     "#replace-button": function (t) {
-      ieui.replace();
+      ieditui.replace();
     },
     "#add-index-condition-button": function (t) {
-      ieui.addCond();
+      ieditui.addCond();
     },
     "#index-index-listing ul li a": function (t) {
-      ieui.init(t);
+      ieditui.init(t);
     },
 
     // Project
     "#create-project": function () {
-      pui.add().dialog("open");
+      projectui.add().dialog("open");
     },
     ".project-delete-button": function (t) {
-      pui.del(t);
+      projectui.del(t);
     },
 
     // File Manager
@@ -1060,6 +1144,172 @@ $(function () {
     shimi.dblclickDispatch(e);
   });
 });
+$(document).on("keydown", '#document-worksheets-form', function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("worksheet-form-submit");
+    return false;
+  }
+  return true;
+});
+
+$(document).on("keydown", '#document-sets-form', function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("sets-form-submit");
+    return false;
+  }
+  return true;
+});
+
+$('#new-set-form').on("keydown", function (e) {
+  if (e.which === 13) {
+    shimi.dispatch.send("new-set-form-submit");
+    return false;
+  }
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+n', function (e) {
+  var t = function () {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected < totaltabs - 1) {
+    t().tabs('option', 'active', selected + 1);
+    shimi.dispatch.send("lost-focus");
+  } else {
+    t().tabs('option', 'active', 0);
+    shimi.dispatch.send("lost-focus");
+  }
+
+  return false;
+});
+
+$(document).bind('keydown', 'Alt+c', function (e) {
+  var active = $(document.activeElement).attr("id");
+  shimi.dispatch.send("initiated-command", active);
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+p', function (e) {
+  var t = function () {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected !== 0) {
+    t().tabs('option', 'active', selected - 1);
+    shimi.dispatch.send("lost-focus");
+  } else {
+    t().tabs('option', 'active', totaltabs - 1);
+    shimi.dispatch.send("lost-focus");
+  }
+
+  return false;
+});
+
+
+$(document).on("keydown", '#edit-command-input', function (e) {
+  if (e.which === 13) {
+    var command = $('#edit-command-input').val();
+    shimi.dispatch.send("submitted-command", command);
+  }
+  return true;
+});
+
+$(document).on('keydown', "#edit-document-form input", function (e) {
+  if (e.which === 13) {
+    if ($("#save-document-button").css("display") === "none") {
+      shimi.editui.create();
+    } else {
+      shimi.editui.save();
+    }
+  }
+  return true;
+});
+
+$(document).on('keydown', "#edit-document-form textarea", 'Alt+x', function (e) {
+  shimi.editui.toggleTextarea($(e.target));
+  return false;
+});
+
+$(document).on("keypress", '#view-jump-id', function (e) {
+  if (e.which === 13) {
+    var docid = $('#view-jump-id').val();
+    shimi.viewui.get(docid);
+    return false;
+  }
+  return true;
+});
+
+$(document).on("keydown", '#document-search-term', function (e) {
+  if (e.which === 13) {
+    shimi.searchui.getSearch();
+    return false;
+  }
+  return true;
+});
+$(document).on("change", '#document-search-exclude', function (e) {
+  shimi.searchui.toggleExclusion();
+  return true;
+});
+
+$(document).on("change", '#document-search-invert', function (e) {
+  shimi.searchui.toggleInversion();
+  return true;
+});
+shimi.dispatch = (function () {
+  var mod = {};
+
+  mod.send = function (message, arg) {
+    switch (message) {
+    case "bad-session-state":
+      shimi.documents.clearSession();
+      break;
+    case "doctype-info-ready":
+      shimi.documents.makeLabels();
+      break;
+    case "labels-ready":
+      shimi.searchui.loadSearchVals();
+      shimi.worksheetui.buildTemplate();
+      break;
+    case "new-set-form-submit":
+      shimi.setsui.saveSelected();
+      break;
+    case "sets-changed":
+      shimi.setsui.updateSelection();
+      break;
+    case "sets-form-submit":
+      shimi.setsui.performOp();
+      break;
+    case "session-cleared":
+      shimi.documents.setVersion();
+      shimi.documents.loadDoctype();
+      break;
+    case "worksheet-form-submit":
+      shimi.worksheetui.fillWorksheet();
+      break;
+    case "initiated-command":
+      shimi.commands.dialogOpen(arg);
+      break;
+    case "executed-command":
+      shimi.commands.dialogClose();
+      break;
+    case "submitted-command":
+      shimi.commands.execute(arg);
+      break;
+    case "lost-focus":
+      shimi.editui.selectInput();
+      break;
+    }
+
+    return false;
+  };
+
+  return mod;
+})();
 // Get the index that is displayed in the index pane. 
 // startkey and startid map directly to the same concepts in
 // couchdb view queries. The prevkeys and previds are used to
@@ -1131,10 +1381,8 @@ shimi.index = function (args) {
     $('#next-index-page').click(function () {
       var nextkey = $('#next-index-page').attr('data-startkey');
       var nextid = $('#next-index-page').attr('data-startid');
-      var prevkey =
-      $('#first-index-element').attr('data-first-key');
-      var previd =
-      $('#first-index-element').attr('data-first-id');
+      var prevkey = $('#first-index-element').attr('data-first-key');
+      var previd = $('#first-index-element').attr('data-first-id');
       state.pks.push(prevkey);
       state.pids.push(previd);
 
@@ -1173,9 +1421,11 @@ shimi.form = (function () {
   mod.cancelDialog = function (t) {
     var target = $(t);
     var toggleElem;
+    var elemId;
 
-    if (target.attr('data-dialog')) {
-      toggleElem = $('#' + target.attr('data-target'));
+    if (target.attr('data-target')) {
+      elemId = '#' + target.attr('data-target');
+      toggleElem = $(elemId);
       toggleElem.hide();
       mod.clear(undefined, toggleElem.find("form"));
     }
@@ -1306,142 +1556,6 @@ shimi.sess = function () {
 
   return mod;
 };
-shimi.sets = (function () {
-  var mod = {};
-
-  var member = function (arr, x) {
-    return arr.some(function (y) {
-      return x[0] === y[0] && x[1] === y[1];
-    });
-  };
-
-  var unique = function (x) {
-    return x.reduce(function (acc, curr) {
-      if (member(acc, curr)) {
-        return acc;
-      } else {
-        return acc.concat([curr]);
-      }
-    }, []);
-  };
-
-  var union = function (xs, ys) {
-    return unique(xs.concat(ys));
-  };
-
-  var intersection = function (xs, ys) {
-    return xs.filter(function (x) {
-      return member(ys, x);
-    });
-  };
-
-  var relativeComplement = function (xs, ys) {
-    return xs.filter(function (x) {
-      return !member(ys, x);
-    });
-  };
-
-  var processSet = function (set) {
-    var name = set[0];
-    var arr = unique(set[1]);
-    var procSet = [name, arr];
-    return procSet;
-  };
-
-  mod.union = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = union(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  mod.intersection = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = intersection(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  // To be basically read as A minus B.
-  mod.relativeComplement = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = relativeComplement(setElemsA, setElemsB);
-    return newSet;
-  };
-
-  mod.symetricDifference = function (setNameA, setNameB) {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = union(relativeComplement(setElemsA, setElemsB), relativeComplement(setElemsB, setElemsA));
-    return newSet;
-  };
-
-  mod.getSets = function () {
-    var curr = window.sessionStorage.getItem("sets");
-    var retval = [];
-
-    if (curr !== null) {
-      retval = JSON.parse(curr);
-    }
-
-    return retval;
-  };
-
-  mod.getSet = function (setName) {
-    var retval;
-    var curr = mod.getSets();
-    retval = curr.filter(function (x) {
-      return x[0] === setName;
-    })[0];
-    return retval;
-  };
-
-  mod.removeSet = function (setName) {
-    var nnew;
-    var curr = mod.getSets();
-    nnew = curr.filter(function (x) {
-      return x[0] !== setName;
-    });
-    mod.setSets(nnew);
-    return mod;
-  };
-
-  mod.getSetNames = function () {
-    var curr = mod.getSets();
-    return curr.map(function (x) {
-      return x[0];
-    });
-  };
-
-  mod.setSets = function (nnew) {
-    var procSets;
-    if (Array.isArray(nnew)) {
-      procSets = nnew.map(function (x) {
-        return processSet(x);
-      });
-      window.sessionStorage.setItem("sets", JSON.stringify(procSets));
-    } else {
-      window.sessionStorage.settem("sets", "[]");
-    }
-
-    return mod;
-  };
-
-  mod.setSet = function (nnew) {
-    if (Array.isArray(nnew) && nnew.length === 2) {
-      var curr = mod.getSets();
-      var newName = nnew[0];
-      var filtered = curr.filter(function (x) {
-        return x[0] !== newName;
-      });
-      mod.setSets(filtered.concat([nnew]));
-    }
-    return mod;
-  };
-
-  return mod;
-})();
 // Dialog for manipulating doctypes
 shimi.charseqDialog = function (values) {
   var f = shimi.charseqElems.get(values);
@@ -1744,6 +1858,7 @@ shimi.doctypeTab = (function () {
       var fieldsetContainer = $("#fieldsets-" + url.doctype);
 
       fieldsetContainer.empty();
+      fieldsetContainer.accordion();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
 
@@ -2174,54 +2289,499 @@ shimi.fieldsetElems = (function () {
 
   return mod;
 })();
-shimi.loadHash = function (urlHash) {
-  if (urlHash) {
-    shimi.vui.get(urlHash);
-  }
-  return false;
-};
+shimi.commands = (function () {
+  var mod = {};
+  var commandInput = function () {
+    return $('#edit-command-input');
+  };
+  var commandDialog = function () {
+    return $('#command-dialog');
+  };
+  var setContext = function (elem, context) {
+    return elem.attr("data-last-active", context);
+  };
+  var getContext = function (elem) {
+    return elem.attr("data-last-active");
+  };
 
-shimi.jumpForm = function () {
-  $('#view-jump').live("submit", function () {
-    return false;
-  });
-  $('#view-jump-id').live("keypress", function (e) {
-    if (e.which === 13) {
-      var docid = $('#view-jump-id').val();
-      shimi.vui.get(docid);
+  mod.execute = function (command) {
+    var restoreFocus = true;
+
+    switch (command) {
+    case "w":
+    case "clear":
+      shimi.editui.clear();
+      break;
+    case "c":
+    case "create":
+      shimi.editui.create();
+      restoreFocus = false;
+      break;
+    case "s":
+    case "save":
+      shimi.editui.save();
+      break;
+    case "d":
+    case "delete":
+      $("#document-view").show();
+      if ($("#document-delete-button").css("display") !== "none") {
+        $("#document-delete-button").click();
+      }
+      break;
+    case "e":
+    case "edit":
+      $("#document-view").show();
+      if ($("#document-edit-button").css("display") !== "none") {
+        $("#document-edit-button").click();
+        restoreFocus = false;
+      }
+      break;
+    case "r":
+    case "restore":
+      $("#document-view").show();
+      if ($("#document-restore-button").css("display") !== "none") {
+        $("#document-restore-button").click();
+      }
+      break;
     }
-    return true;
-  });
-};
 
-shimi.setForm = function () {
-  $('#new-set-form').on("submit", function () {
-    return false;
-  });
-  $('#document-sets-form').on("keydown", function (e) {
-    if (e.which === 13) {
-      shimi.setsui.performOp();
+    if (restoreFocus) {
+      var cdialog = commandDialog();
+      var context = getContext(cdialog);
+      $('#' + context).focus();
+    } else {
+      shimi.dispatch.send("lost-focus");
+    }
+
+    shimi.dispatch.send("executed-command");
+    return mod;
+  };
+
+  mod.dialogOpen = function (context) {
+    var cinput = commandInput();
+    var cdialog = commandDialog();
+    cinput.val("");
+    setContext(cdialog, context).show();
+    cinput.focus();
+    return mod;
+  };
+
+  mod.dialogClose = function () {
+    var cinput = commandInput();
+    var cdialog = commandDialog();
+    setContext(cdialog, "").hide();
+    cinput.val("");
+    return mod;
+  };
+
+  return mod;
+})();
+// Shared document editing stuff plus initialization.
+shimi.documents = (function () {
+  var mod = {};
+
+  var indexForm = function () {
+    var getIndexTimer;
+
+    $('#index-filter-form input').keyup(function (e) {
+      clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function () {
+        if (e.which !== 8 && e.which !== 46) {
+          shimi.indexui.get();
+        }
+      }, 500);
+    });
+    $('#index-filter-form select').change(function () {
+      shimi.indexui.get();
+    });
+
+    return mod;
+  };
+  var loadHash = function (urlHash) {
+    if (urlHash) {
+      shimi.viewui.get(urlHash);
+    }
+
+    return mod;
+  };
+  var allDocContainer = function () {
+    return $("#all-document-container");
+  };
+  var versionKey = function () {
+    return mod.identifier() + "_version";
+  };
+  var infoKey = function () {
+    return mod.identifier() + "_info";
+  };
+  var labelsKey = function () {
+    return mod.identifier() + "_labels";
+  };
+  var storeDoctype = function (doctype) {
+    sessionStorage.setItem(infoKey(), doctype);
+    shimi.dispatch.send('doctype-info-ready');
+
+    return mod;
+  };
+
+  mod.getVersion = function () {
+    return sessionStorage.getItem(versionKey());
+  };
+
+  mod.getCurrentVersion = function () {
+    return shimi.store(allDocContainer()).d("version");
+  };
+
+  mod.isCurrentVersionStored = function () {
+    return (mod.getVersion() && mod.getVersion() === mod.getCurrentVersion());
+  };
+
+  mod.setVersion = function () {
+    sessionStorage.setItem(versionKey(), mod.getCurrentVersion());
+    shimi.dispatch.send("version-set");
+
+    return mod;
+  };
+
+  mod.clearSession = function () {
+    sessionStorage.clear();
+    shimi.dispatch.send("session-cleared");
+
+    return mod;
+  };
+
+  mod.checkVersion = function () {
+    if (mod.isCurrentVersionStored()) {
+      shimi.dispatch.send("labels-ready");
+    } else {
+      shimi.dispatch.send("bad-session-state");
+    }
+
+    return mod;
+  };
+
+  mod.name = function () {
+    return shimi.store($("#all-document-container")).d("doctype");
+  };
+
+  mod.project = function () {
+    return shimi.store($("#container")).get("project-id");
+  };
+
+  mod.identifier = function () {
+    return mod.project() + "_" + mod.name();
+  };
+
+  mod.info = function () {
+    return JSON.parse(sessionStorage.getItem(infoKey()));
+  };
+
+  mod.loadDoctype = function () {
+    $.getJSON("./", function (data) {
+      storeDoctype(JSON.stringify(data));
+    });
+
+    return mod;
+  };
+
+  mod.makeLabels = function () {
+    var info = mod.info();
+    var labels = {};
+
+    info.fieldsets.forEach(function (fieldset) {
+      fieldset.fields.forEach(function (field) {
+        labels[field._id] = [fieldset.label, field.label];
+      });
+    });
+
+    sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
+    shimi.dispatch.send("labels-ready");
+
+    return mod;
+  };
+
+  mod.init = function () {
+    $('form').on('submit', function () {
       return false;
-    }
-    return true;
-  });
-  shimi.setsui.updateSelection();
-};
+    });
+    mod.checkVersion();
+    shimi.setsui.updateSelection();
+    shimi.indexui.iOpts().get();
+    indexForm();
+    shimi.editui.init();
+    loadHash($(location)[0].hash.split("#")[1]);
+  };
 
-shimi.searchForm = function () {
-  shimi.sui.loadSearchVals();
-  $('#document-search-form').on("submit", function () {
-    return false;
-  });
-  $('#document-search-term').on("keydown", function (e) {
-    if (e.which === 13) {
-      shimi.sui.getSearch();
-      return false;
+  return mod;
+})();
+// Edit pane UI elements
+shimi.editui = (function () {
+  var mod = {};
+
+  // Imports
+  var store = shimi.store;
+  var flash = shimi.flash;
+
+  // UI Elements
+  var saveButton = function () {
+    return $('#save-document-button');
+  };
+  var createButton = function () {
+    return $('#create-document-button');
+  };
+  var editButton = function () {
+    return $('#document-edit-button');
+  };
+
+  var validationError = function (req) {
+    var body = JSON.parse(req.responseText);
+    var title = req.statusText;
+
+    var invalid = $('[data-field-instance=' + body.instance + ']');
+    var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+
+    invalidTab.addClass('ui-state-error');
+    invalid.addClass('ui-state-error');
+
+    flash(title, body.fieldname + " " + body.message).error();
+
+    return mod;
+  };
+
+  var instances = function (addInstances) {
+    var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+    var makeInstance = function () {
+      return text.map(function () {
+        return text[Math.floor(Math.random() * text.length)];
+      }).join('');
+    };
+
+    $("#last-added [data-field-instance]").each(function (index, item) {
+      var itemElem = $(item).first();
+      var oldInstance = itemElem.attr('data-field-instance');
+      var newInstance = oldInstance;
+
+      if (addInstances) {
+        newInstance = makeInstance();
+      }
+
+      itemElem.attr('data-group-id', newInstance);
+      // TODO: This is a little redundant
+      itemElem.attr('id', newInstance);
+      itemElem.attr('data-field-instance', newInstance);
+      // Differences in Firefox and Chrome
+      itemElem.next('.expander').attr('data-group-id', newInstance);
+      itemElem.next().next('.expander').attr('data-group-id', newInstance);
+    });
+
+    if (addInstances) {
+      $("#last-added").removeAttr("id");
     }
-    return true;
-  });
-};
-shimi.efs = (function () {
+
+    return mod;
+  };
+
+  mod.init = function () {
+    var url = "documents/edit";
+
+    $.get(url, function (documentEditHtml) {
+
+      $('#document-edit').html(documentEditHtml);
+      $('#edit-tabs').tabs();
+      shimi.fieldsets.initFieldsets();
+    });
+
+    return mod;
+  };
+
+  mod.selectInput = function () {
+    var inputable = 'input, select, textarea';
+    var t = function () {
+      return $('#edit-tabs');
+    };
+
+    var cur = t().find('.ui-tabs-active a').attr('href');
+    $(cur).find(inputable).first().focus();
+
+    return mod;
+  };
+
+  mod.afterFreshRefresh = function (addInstances) {
+    afterRefresh(addInstances);
+
+    return mod;
+  };
+
+  mod.afterEditRefresh = function () {
+    var sharedAttrs = ['data-document-id', 'data-document-rev'];
+
+    sharedAttrs.forEach(function (elem) {
+      saveButton().attr(elem, editButton().attr(elem));
+    });
+
+    saveButton().show();
+    afterRefresh();
+
+    return mod;
+  };
+
+  var afterRefresh = function (addInstances) {
+    shimi.form.initDateFields();
+    instances(addInstances);
+
+    return mod;
+  };
+
+  mod.resetFields = function () {
+    $('.field').each(function (index) {
+      var field = $(this);
+      var thedefault = field.attr('data-field-default');
+
+      if (thedefault && thedefault !== '') {
+        if (field.is('select.multiselect')) {
+          field.val(thedefault.split(","));
+        } else if (field.is('input.boolean')) {
+          field.attr('checked', thedefault === true);
+        } else {
+          field.val(thedefault);
+        }
+      } else {
+        field.val('');
+        field.removeAttr('checked');
+      }
+    });
+
+    return mod;
+  };
+
+  mod.save = function () {
+    if (saveButton().hasClass('oldrev')) {
+      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
+        return false;
+      }
+    }
+
+    var body;
+    var title;
+    var s = store(saveButton());
+    var root = $('#edit-document-form');
+    var document = s.d("document");
+    var rev = s.d("rev");
+    var url = "./documents/" + document + "?rev=" + rev;
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
+    var obj = {
+      doctype: s.d("doctype"),
+      description: s.d("description")
+    };
+
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    saveButton().hide();
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
+
+    $.ajax({
+      type: "PUT",
+      url: url,
+      dataType: "json",
+      contentType: "application/json",
+      processData: false,
+      data: JSON.stringify(obj),
+      complete: function (req, status) {
+        if (req.status === 204 || req.status === 200) {
+          title = "Success";
+          body = "Your document was saved.";
+          shimi.viewui.get(document);
+          shimi.indexui.get(skey, sid);
+          flash(title, body).highlight();
+          saveButton().removeClass('oldrev').show();
+        } else if (req.status === 403) {
+          validationError(req);
+          saveButton().show();
+        } else if (req.status === 409) {
+          body = JSON.parse(req.responseText);
+          title = req.statusText;
+
+          flash(title, body.message).error();
+          saveButton().hide();
+        }
+      }
+    });
+  };
+
+  mod.create = function () {
+    var s = store(createButton());
+    var root = $('#edit-document-form');
+    var skey = $('#first-index-element').attr('data-first-key');
+    var sid = $('#first-index-element').attr('data-first-id');
+    var obj = {
+      doctype: s.d("doctype"),
+      description: s.d("description")
+    };
+
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    createButton().hide();
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
+
+    var postUrl = $.ajax({
+      type: "POST",
+      dataType: "json",
+      contentType: "application/json",
+      processData: false,
+      data: JSON.stringify(obj),
+      complete: function (req, status) {
+        if (req.status === 201) {
+          var title = "Success";
+          var body = "Your document was created.";
+          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
+
+          saveButton().hide().attr('disabled', 'true');
+          $('.fields').remove();
+          shimi.fieldsets.initFieldsets();
+          shimi.viewui.get(documentId);
+          shimi.indexui.get(skey, sid);
+          flash(title, body).highlight();
+          createButton().show();
+        } else if (req.status === 403) {
+          validationError(req);
+          createButton().show();
+        }
+      }
+    });
+  };
+
+  mod.clear = function () {
+    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+    saveButton().hide().attr('disabled', 'disabled');
+    $('.fields').remove();
+    shimi.fieldsets.initFieldsets();
+  };
+
+  mod.showHelpDialog = function (target) {
+    if (target.is('.label-text')) {
+      target = target.parent('label').find('.ui-icon-help');
+    }
+
+    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+
+    return mod;
+  };
+
+  mod.toggleTextarea = function (target) {
+    var textarea = $('#' + target.attr('data-group-id'));
+
+    if (target.attr("id") === textarea.attr("data-group-id")) {
+      textarea.toggleClass('expanded');
+      textarea.next().next("span").toggleClass('expanded');
+    } else {
+      textarea.toggleClass('expanded');
+      target.toggleClass('expanded');
+    }
+
+    return mod;
+  };
+
+  return mod;
+})();
+shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;
   var utils = shimi.utils();
@@ -2258,6 +2818,15 @@ shimi.efs = (function () {
     fields.each(function (i, field) {
       field = $(field);
       var s = store(field);
+      var value = getFieldValue(field);
+      var instance = s.f("instance");
+      var changes = shimi.globals.changes;
+
+      if (changes[instance] === undefined) {
+        changes[instance] = {};
+      }
+
+      changes[instance].newValue = JSON.stringify(value);
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -2268,12 +2837,12 @@ shimi.efs = (function () {
         required: s.f("required") === "true",
         min: dateOrNumber(s.f("subcategory"), s.f("min")),
         max: dateOrNumber(s.f("subcategory"), s.f("max")),
-        instance: s.f("instance"),
+        instance: instance,
         charseq: s.f("charseq"),
         regex: s.f("regex"),
         order: s.f("order") * 1,
         subcategory: s.f("subcategory"),
-        value: getFieldValue(field)
+        value: value
       };
 
       if (index >= 0) {
@@ -2368,16 +2937,19 @@ shimi.efs = (function () {
     return value;
   };
 
-  var initFields = function (container, callback) {
+  var initFields = function (container, callback, addInstances) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
     var prependIt = function (data) {
+      if (addInstances) {
+        section.attr("id", "last-added");
+      }
       section.prepend(data);
       if (callback) {
         callback(section);
       }
 
-      shimi.eui.afterFreshRefresh();
+      shimi.editui.afterFreshRefresh(addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -2413,44 +2985,67 @@ shimi.efs = (function () {
     $('#save-document-button').show();
 
     container.find('.field-view').each(function (i, field) {
-      var value = $(field).attr('data-field-value');
+      var valueJson = $(field).attr('data-field-value');
       var id = $(field).attr('data-field-field');
+      var instance = $(field).attr('data-field-instance');
+      var value;
+
+      if (valueJson) {
+        value = JSON.parse(valueJson);
+      }
 
       if (!context) {
         context = $('body');
       }
 
-      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
+      // TODO: There is still a mismatch in template systems and
+      // conventions that means that I cannot simply set the values
+      // directly. There are different rules for escaping, etc.
+      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
     });
   };
 
-  var loadLabels = function (url) {
-    $.getJSON(url, function (data) {
-      sessionStorage.setItem("lables", JSON.stringify(data));
-    });
-  };
-
-  var setFieldValue = function (field, value) {
+  var setFieldValue = function (field, value, instance) {
     if (field.is('input.boolean')) {
-      field.attr("checked", value === "true");
+      field.prop("checked", value);
+    } else if (value && field.is('select.open-boolean')) {
+      field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
-      field.val(value.split(","));
+      value = value.map(function (x) {
+        return encodeURIComponent(x).replace(/%20/g, "+");
+      });
+      field.val(value);
+    } else if (value && field.is('select.select')) {
+      value = encodeURIComponent(value).replace(/%20/g, "+");
+      field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
-      field.val(decodeURIComponent(value.replace(/\+/g, " ")));
-    } else if (field.is('textarea.textarea')) {
       field.val(decodeURIComponent(value.replace(/\+/g, " ")));
     } else {
       field.val(value);
     }
+    field.attr('data-field-instance', instance);
   };
 
-  mod.initFieldset = function (fieldset, callback) {
+  var processChanges = function (changes) {
+    var processed = {};
+
+    Object.keys(changes).forEach(function (x) {
+      if (changes[x].newValue !== changes[x].originalValue) {
+        processed[x] = changes[x];
+      }
+      return true;
+    });
+
+    return processed;
+  };
+
+  mod.initFieldset = function (fieldset, callback, addInstances) {
     var url = dpath($(fieldset), "fieldset").toString();
     var id = store($(fieldset)).fs("fieldset");
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
-      initFields(container, callback);
+      initFields(container, callback, addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -2498,6 +3093,8 @@ shimi.efs = (function () {
         });
       }
 
+      obj.changes = processChanges(shimi.globals.changes);
+
       obj.fieldsets[i] = fsObj;
     });
 
@@ -2505,21 +3102,6 @@ shimi.efs = (function () {
   };
 
   mod.initFieldsets = function () {
-    var container = $("#create-document-button");
-    var s = store(container);
-    var doctype = s.d("doctype");
-    var versionKey = doctype + "_version";
-    var oldVersion = sessionStorage.getItem(versionKey);
-    var curVersion = s.d("version");
-
-    if (oldVersion !== curVersion) {
-      sessionStorage.clear();
-      var url = shimi.path(container, "fieldset").toString();
-      loadLabels(url);
-    }
-
-    sessionStorage.setItem(versionKey, curVersion);
-
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
@@ -2544,395 +3126,14 @@ shimi.efs = (function () {
       }
     });
 
-    shimi.eui.afterEditRefresh();
+    shimi.editui.afterEditRefresh();
 
     return mod;
   };
 
   return mod;
 })();
-// Edit pane UI elements
-shimi.eui = (function () {
-  var mod = {};
-
-  // Imports
-  var store = shimi.store;
-  var flash = shimi.flash;
-
-  // UI Elements
-  var saveButton = function () {
-    return $('#save-document-button');
-  };
-  var createButton = function () {
-    return $('#create-document-button');
-  };
-  var editButton = function () {
-    return $('#document-edit-button');
-  };
-
-  var keyboard = function () {
-    var inputable = 'input, select';
-    var t = $('#edit-tabs');
-
-    var selectInput = function () {
-      var cur = t.find('.ui-tabs-selected a').attr('href');
-      $(cur).find(inputable + ", textarea").first().focus();
-    };
-
-    $(document).bind('keydown', 'Alt+p', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected !== 0) {
-        t.tabs('select', selected - 1);
-        selectInput();
-      } else {
-        t.tabs('select', totaltabs - 1);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).bind('keydown', 'Alt+n', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected < totaltabs - 1) {
-        t.tabs('select', selected + 1);
-        selectInput();
-      } else {
-        t.tabs('select', 0);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).live('keydown', 'Alt+c', function (e) {
-      var active = $(document.activeElement);
-      mod.showCommandDialog(active);
-      return true;
-    });
-
-    $('#edit-command-form').live("submit", function (e) {
-      return false;
-    });
-
-    $('#edit-command-input').live("keydown", function (e) {
-      if (e.which === 13) {
-        var command = $('#edit-command-input').val();
-        var restoreFocus = true;
-        $('#command-dialog').dialog("close");
-
-        switch (command) {
-        case "w":
-        case "clear":
-          mod.clear();
-          break;
-        case "c":
-        case "create":
-          mod.create();
-          break;
-        case "s":
-        case "save":
-          mod.save();
-          break;
-        case "d":
-        case "delete":
-          $("#document-view").show();
-          if ($("#document-delete-button").css("display") !== "none") {
-            $("#document-delete-button").click();
-          }
-          break;
-        case "e":
-        case "edit":
-          $("#document-view").show();
-          if ($("#document-edit-button").css("display") !== "none") {
-            $("#document-edit-button").click();
-            restoreFocus = false;
-          }
-          break;
-        case "r":
-        case "restore":
-          $("#document-view").show();
-          if ($("#document-restore-button").css("display") !== "none") {
-            $("#document-restore-button").click();
-          }
-          break;
-        }
-
-        if (restoreFocus) {
-          $('#' + $('#command-dialog').attr('data-last-active')).focus();
-        } else {
-          selectInput();
-        }
-      }
-
-      return true;
-    });
-
-    $("#edit-document-form input").live('keydown', function (e) {
-      if (e.which === 13) {
-        if ($("#save-document-button").css("display") === "none") {
-          mod.create();
-        } else {
-          mod.save();
-        }
-      }
-      return true;
-    });
-
-    $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
-      mod.toggleTextarea($(e.target));
-      return false;
-    });
-
-    return mod;
-  };
-
-  var validationError = function (req) {
-    var body = JSON.parse(req.responseText);
-    var title = req.statusText;
-
-    var invalid = $('[data-field-instance=' + body.instance + ']');
-    var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
-
-    invalidTab.addClass('ui-state-error');
-    invalid.addClass('ui-state-error');
-
-    flash(title, body.fieldname + " " + body.message).error();
-
-    return mod;
-  };
-
-  var instances = function () {
-    var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-    var makeInstance = function () {
-      return text.map(function () {
-        return text[Math.floor(Math.random() * text.length)];
-      }).join('');
-    };
-
-    $("[data-field-instance]").each(
-
-    function (index, item) {
-      var newInstance = makeInstance();
-      $(item).first().attr('data-field-instance', newInstance);
-      $(item).first().attr('data-group-id', newInstance);
-      $(item).first().attr('id', newInstance);
-      $(item).first().next('.expander').attr('data-group-id', newInstance);
-      $(item).first().next().next('.expander').attr('data-group-id', newInstance);
-    });
-
-    return mod;
-  };
-
-  mod.init = function () {
-    var url = "documents/edit";
-
-    $.get(url, function (documentEditHtml) {
-
-      $('#document-edit').html(documentEditHtml);
-      $('#edit-tabs').tabs();
-      keyboard();
-      shimi.efs.initFieldsets();
-    });
-
-    return mod;
-  };
-
-  mod.afterFreshRefresh = function () {
-    afterRefresh();
-
-    return mod;
-  };
-
-  mod.afterEditRefresh = function () {
-    var sharedAttrs = ['data-document-id', 'data-document-rev'];
-
-    sharedAttrs.forEach(function (elem) {
-      saveButton().attr(elem, editButton().attr(elem));
-    });
-
-    saveButton().show();
-    afterRefresh();
-
-    return mod;
-  };
-
-  var afterRefresh = function () {
-    shimi.form.initDateFields();
-    instances();
-
-    return mod;
-  };
-
-  mod.resetFields = function () {
-    $('.field').each(function (index) {
-      var field = $(this);
-      var thedefault = field.attr('data-field-default');
-
-      if (thedefault && thedefault !== '') {
-        if (field.is('select.multiselect')) {
-          field.val(thedefault.split(","));
-        } else if (field.is('input.boolean')) {
-          field.attr('checked', thedefault === true);
-        } else {
-          field.val(thedefault);
-        }
-      } else {
-        field.val('');
-        field.removeAttr('checked');
-      }
-    });
-
-    return mod;
-  };
-
-  mod.save = function () {
-    if (saveButton().hasClass('oldrev')) {
-      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
-        return false;
-      }
-    }
-
-    var body;
-    var title;
-    var s = store(saveButton());
-    var root = $('#edit-document-form');
-    var document = s.d("document");
-    var rev = s.d("rev");
-    var url = "./documents/" + document + "?rev=" + rev;
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
-    };
-
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
-
-    $.ajax({
-      type: "PUT",
-      url: url,
-      dataType: "json",
-      contentType: "application/json",
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function (req, status) {
-        if (req.status === 204 || req.status === 200) {
-          title = "Success";
-          body = "Your document was saved.";
-          shimi.vui.get(document);
-          shimi.iui.get(skey, sid);
-          flash(title, body).highlight();
-          saveButton().removeClass('oldrev').show();
-        } else if (req.status === 403) {
-          validationError(req);
-          saveButton().show();
-        } else if (req.status === 409) {
-          body = JSON.parse(req.responseText);
-          title = req.statusText;
-
-          flash(title, body.message).error();
-          saveButton().hide();
-        }
-      }
-    });
-  };
-
-  mod.create = function () {
-    var s = store(createButton());
-    var root = $('#edit-document-form');
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
-    };
-
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
-
-    var postUrl = $.ajax({
-      type: "POST",
-      dataType: "json",
-      contentType: "application/json",
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function (req, status) {
-        if (req.status === 201) {
-          var title = "Success";
-          var body = "Your document was created.";
-          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-
-          saveButton().hide().attr('disabled', 'true');
-          $('.fields').remove();
-          shimi.efs.initFieldsets();
-          shimi.vui.get(documentId);
-          shimi.iui.get(skey, sid);
-          flash(title, body).highlight();
-          createButton().show();
-        } else if (req.status === 403) {
-          validationError(req);
-          createButton().show();
-        }
-      }
-    });
-  };
-
-  mod.clear = function () {
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().hide().attr('disabled', 'disabled');
-    $('.fields').remove();
-    shimi.efs.initFieldsets();
-  };
-
-  mod.showHelpDialog = function (target) {
-    if (target.is('.label-text')) {
-      target = target.parent('label').find('.ui-icon-help');
-    }
-
-    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
-
-    return mod;
-  };
-
-  mod.showCommandDialog = function (context) {
-    $('#edit-command-input').val("");
-    $('#edit-dialog').attr('data-last-active', context.id);
-    var commandDialog = $('#command-dialog').dialog({
-      modal: true,
-      close: function () {
-        $('#edit-command-input').val("");
-        context.focus();
-      }
-    });
-    commandDialog.dialog('open');
-    return mod;
-  };
-
-  mod.toggleTextarea = function (target) {
-    var textarea = $('#' + target.attr('data-group-id'));
-
-    if (target.attr("id") === textarea.attr("data-group-id")) {
-      textarea.toggleClass('expanded');
-      textarea.next().next("span").toggleClass('expanded');
-    } else {
-      textarea.toggleClass('expanded');
-      target.toggleClass('expanded');
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
-shimi.iui = (function () {
+shimi.indexui = (function () {
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
@@ -2953,10 +3154,12 @@ shimi.iui = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "/projects/project-" + $('#container').attr('data-project-id') + "/indexes?as=options";
+    var url = "indexes?as=options";
+    var options;
 
-    $.get(url, function (data) {
-      $('#index-index-input').html(data);
+    $.getJSON(url, function (data) {
+      options = templates['index-options'].render(data);
+      $('#index-index-input').html(options);
     });
 
     return mod;
@@ -2965,23 +3168,387 @@ shimi.iui = (function () {
   mod.load = function (target) {
     var id = $(target).attr('href').slice(1);
     $("#document-view").html("<em>Loading...</em>");
-    shimi.eui.clear();
-    shimi.vui.get(id);
+    shimi.editui.clear();
+    shimi.viewui.get(id);
 
     return mod;
   };
 
   return mod;
 })();
-shimi.setsui = function () {
+shimi.searchui = (function () {
   var mod = {};
+  var utils = shimi.utils();
+  var sets = shimi.sets;
+  var setsui = shimi.setsui;
+  var localStorage = window.localStorage;
+  var searchIndex = function () {
+    return $('#document-search-index');
+  };
+  var searchIndexLabel = function () {
+    return $('#search-index-label');
+  };
+  var searchTerm = function () {
+    return $('#document-search-term');
+  };
+  var searchFields = function () {
+    return $('#document-search-field');
+  };
+  var searchFieldsLabel = function () {
+    return $('#search-field-label');
+  };
+  var searchExclude = function () {
+    return $('#document-search-exclude');
+  };
+  var searchInvert = function () {
+    return $('#document-search-invert');
+  };
+  var searchAll = function () {
+    return $('#search-all-fields-switch');
+  };
+  var searchListing = function () {
+    return $('#search-listing');
+  };
+  var getIdentifier = function () {
+    return shimi.documents.identifier();
+  };
+  var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
-  mod.updateSelection = function () {
+  var indexVal = function () {
+    var val = $("#index-index-input").val();
+    if (val.length === 0) {
+      return null;
+    } else {
+      return val;
+    }
+  };
+
+  var maybeTrue = function (bool) {
+    if (bool) {
+      return true;
+    } else {
+      return null;
+    }
+  };
+
+  var clearStore = function () {
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchIndex", null);
+    localStorage.setItem(ident + "_searchIndexLabel", null);
+    localStorage.setItem(ident + "_searchFields", null);
+    localStorage.setItem(ident + "_searchExclude", null);
+    localStorage.setItem(ident + "_searchInvert", null);
+  };
+
+  var clearVals = function () {
+    formElems.forEach(function (x) {
+      var elem = x();
+      switch (elem.attr('type')) {
+      case "hidden":
+        elem.val('');
+        break;
+      case "checkbox":
+        elem.attr("checked", false);
+        break;
+      }
+    });
+  };
+
+  var hideElems = function () {
+    formElems.forEach(function (x) {
+      var elem = x();
+      switch (elem.attr('type')) {
+      case "hidden":
+        break;
+      case "checkbox":
+        elem.parent("div").hide();
+        break;
+      default:
+        elem.hide();
+      }
+    });
+  };
+
+  var fieldLabels = function () {
+    var ident = getIdentifier();
+    var fieldlabels = JSON.parse(sessionStorage.getItem(ident + "_labels"));
+    return fieldlabels;
+  };
+
+  var searchFieldItem = function (field, fieldLabel) {
+    return templates['search-field-item'].render({
+      fieldLabel: fieldLabel,
+      field: field
+    });
+  };
+
+  var setFields = function (fields) {
+    var fLabels = fieldLabels();
+    var jFields = JSON.stringify(fields);
+    var sfls = searchFieldsLabel();
+    var ident = getIdentifier();
+
+    searchFields().val(jFields);
+    localStorage.setItem(ident + "_searchFields", jFields);
+
+    var linkLabels = fields.map(function (x) {
+      return searchFieldItem(x, fLabels[x].join(": "));
+    });
+
+    sfls.html(linkLabels.join(" "));
+
+    return true;
+  };
+
+  mod.allFields = function () {
+    clearStore();
+    hideElems();
+    clearVals();
+    return mod;
+  };
+
+  mod.singleField = function (fields) {
+    mod.multipleFields(fields);
+    searchInvert().parent().show();
+    return mod;
+  };
+
+  mod.singleFieldInverse = function (fields) {
+    var ident = getIdentifier();
+    mod.singleField(fields);
+    searchInvert().prop('checked', true);
+    localStorage.setItem(ident + "_searchInvert", true);
+    return mod;
+  };
+
+  mod.multipleFields = function (fields) {
+    mod.allFields();
+    setFields(fields);
+    [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
+      x.show();
+    });
+    return mod;
+  };
+
+  mod.excludedFields = function (fields) {
+    var ident = getIdentifier();
+    if (fields.length > 1) {
+      mod.multipleFields(fields);
+    } else {
+      mod.singleField(fields);
+    }
+    searchExclude().prop('checked', true);
+    localStorage.setItem(ident + "_searchExclude", true);
+    return mod;
+  };
+
+  mod.indexOnly = function (index, indexLabel) {
+    var ident = getIdentifier();
+    mod.allFields();
+    localStorage.setItem(ident + "_searchIndex", index);
+    localStorage.setItem(ident + "_searchIndexLabel", indexLabel);
+    searchIndex().val(index);
+    searchIndexLabel().html(indexLabel);
+    [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
+      x.show();
+    });
+    return mod;
+  };
+
+  mod.indexInverse = function (index, indexLabel) {
+    var ident = getIdentifier();
+    mod.indexOnly(index, indexLabel);
+    searchInvert().prop('checked', true);
+    localStorage.setItem(ident + "_searchInvert", true);
+    return mod;
+  };
+
+  mod.getSearch = function () {
+    var query = searchTerm().val();
+    var url = "documents/search?q=" + window.encodeURIComponent(query);
+    var field = searchFields().val();
+    var exclude = searchExclude().is(':checked');
+    var invert = searchInvert().is(':checked');
+    var index = searchIndex().val();
+    var fieldlabels = fieldLabels();
+
+    if (index) {
+      url = url + "&index=" + index;
+    } else {
+      if (field) {
+        url = url + "&field=" + field;
+      }
+      if (exclude) {
+        url = url + "&exclude=true";
+      }
+    }
+    if (invert) {
+      url = url + "&invert=true";
+    }
+
+    searchListing().hide();
+
+    $.get(url, function (searchResults) {
+      searchListing().html(searchResults);
+      $('.search-result-field-id').each(function (index, item) {
+        var label = fieldlabels[$(item).attr('data-field-field')].join(": ");
+        var target = $(item).children('a').first();
+        target.html(label);
+        target.attr('data-search-label', label);
+      });
+      if (!invert) {
+        $('.search-results th').each(function (index, item) {
+          var itemText = $.trim($(item).children('a').html());
+          var re = new RegExp("(" + query + ")", "g");
+          var newText =
+          itemText.replace(re, "<span class='highlight'>$1</span>");
+          $(item).children('a').html(newText);
+        });
+      }
+      searchListing().show();
+    });
+
+    return mod;
+  };
+
+  mod.removeField = function (t) {
+    var ident = getIdentifier();
+    var searchFields = localStorage.getItem(ident + "_searchFields");
+    var newSearchFields;
+    var fields = JSON.parse(searchFields);
+    var newFields;
+    var id = $(t).attr("data-field-field");
+
+    if (fields !== null) {
+      newFields = fields.filter(function (x) {
+        return x !== id;
+      });
+      newSearchFields = JSON.stringify(newFields);
+      localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
+      localStorage.setItem(ident + "_searchIndex", null);
+      mod.loadSearchVals();
+    }
+
+    return mod;
+  };
+
+  mod.addField = function (t) {
+    var ident = getIdentifier();
+    var searchFields = localStorage.getItem(ident + "_searchFields");
+    var newSearchFields;
+    var fields = JSON.parse(searchFields);
+    var newFields;
+    var id = $(t).attr("data-field-field");
+
+    if (fields === null) {
+      fields = [];
+    }
+
+    newFields = shimi.sets.union(fields, id);
+    newSearchFields = JSON.stringify(newFields);
+    localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
+    localStorage.setItem(ident + "_searchIndex", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
+  mod.addIndex = function () {
+    var val = indexVal();
+    var ident = getIdentifier();
+
+    if (val) {
+      localStorage.setItem(ident + "_searchFields", null);
+      localStorage.setItem(ident + "_searchIndex", val);
+      localStorage.setItem(ident + "_searchIndexLabel", $("option[value=" + val + "]").html());
+      mod.loadSearchVals();
+    }
+
+    return mod;
+  };
+
+  mod.toggleInversion = function () {
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchInvert", maybeTrue(searchInvert().is(":checked")));
+    localStorage.setItem(ident + "_searchExclude", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
+  mod.toggleExclusion = function () {
+    var ident = getIdentifier();
+    localStorage.setItem(ident + "_searchExclude", maybeTrue(searchExclude().is(":checked")));
+    localStorage.getItem(ident + "_searchInvert", null);
+    mod.loadSearchVals();
+
+    return mod;
+  };
+
+  mod.loadSearchVals = function () {
+    var ident = getIdentifier();
+    var exclude = localStorage.getItem(ident + "_searchExclude");
+    var invert = localStorage.getItem(ident + "_searchInvert");
+    var index = localStorage.getItem(ident + "_searchIndex");
+    var fieldids = localStorage.getItem(ident + "_searchFields");
+    var fields;
+    var indexLabel;
+    var params = [exclude, invert, index, fieldids].map(function (x) {
+      return (x === "null" || x === "false" || x === "true") ? JSON.parse(x) : x;
+    });
+    var allNull = params.every(function (x) {
+      return x === null;
+    });
+
+    try {
+      if (allNull) {
+        mod.allFields();
+      } else if (params[0] === true) {
+        fields = JSON.parse(fieldids);
+        mod.excludedFields(fields);
+      } else if (params[1] === null && params[3] !== null) {
+        fields = JSON.parse(fieldids);
+        if (fields.length > 1) {
+          mod.multipleFields(fields);
+        } else {
+          mod.singleField(fields);
+        }
+      } else if (params[3] !== null) {
+        fields = JSON.parse(fieldids);
+        if (fields.length > 1) {
+          mod.multipleFields(fields);
+        } else {
+          mod.singleFieldInverse(fields);
+        }
+      } else if (params[1] === null) {
+        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
+        mod.indexOnly(index, indexLabel);
+      } else if (params[1] === true) {
+        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
+        mod.indexInverse(index, indexLabel);
+      }
+    } catch (e) {
+      window.console.log(e);
+      mod.allFields();
+    }
+
+    return mod;
+  };
+
+  mod.toggleSelection = function (t) {
+    var target = $(t);
+
+    if (target.is(":checked")) {
+      target.next("label").next("table").addClass("selected-for-save");
+    } else {
+      target.next("label").next("table").removeClass("selected-for-save");
+    }
+
     return mod;
   };
 
   return mod;
-};
+})();
 shimi.setsui = (function () {
   var mod = {};
   var sets = shimi.sets;
@@ -2992,11 +3559,138 @@ shimi.setsui = (function () {
   var setB = function () {
     return $("#document-set-b-input");
   };
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
+  };
   var op = function () {
     return $("#document-set-operation-input");
   };
   var setListing = function () {
     return $("#set-listing");
+  };
+  var sessionKey = function () {
+    return shimi.documents.identifier() + "_sets";
+  };
+
+  var member = function (arr, x) {
+    return arr.some(function (y) {
+      return x[0] === y[0] && x[1] === y[1];
+    });
+  };
+
+  var processSet = function (set) {
+    var name = set[0];
+    var arr = sets.unique(set[1], member);
+    var procSet = [name, arr];
+    return procSet;
+  };
+
+  var union = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.union(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var intersection = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.intersection(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var relativeComplement = function (setName1, setName2) {
+    var setElems1 = mod.getSet(setName1)[1];
+    var setElems2 = mod.getSet(setName2)[1];
+    var newSet = sets.relativeComplement(setElems1, setElems2, member);
+    render(newSet);
+    return mod;
+  };
+
+  var symmetricDifference = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var getSets = function () {
+    var curr = window.sessionStorage.getItem(sessionKey());
+    var retval = [];
+
+    if (curr !== null) {
+      retval = JSON.parse(curr);
+    }
+
+    return retval;
+  };
+
+  var view = function (setName) {
+    var elems = mod.getSet(setName)[1];
+    render(elems);
+    return mod;
+  };
+
+  var remove = function (setName) {
+    removeSet(setName);
+    render([]);
+    shimi.dispatch.send("sets-changed");
+    return mod;
+  };
+
+  mod.getSet = function (setName) {
+    var retval;
+    var curr = getSets();
+    retval = curr.filter(function (x) {
+      return x[0] === setName;
+    })[0];
+    return retval;
+  };
+
+  var removeSet = function (setName) {
+    var nnew;
+    var curr = getSets();
+    nnew = curr.filter(function (x) {
+      return x[0] !== setName;
+    });
+    setSets(nnew);
+    return mod;
+  };
+
+  var getSetNames = function () {
+    var curr = getSets();
+    return curr.map(function (x) {
+      return x[0];
+    });
+  };
+
+  var setSets = function (nnew) {
+    var procSets;
+    if (Array.isArray(nnew)) {
+      procSets = nnew.map(function (x) {
+        return processSet(x);
+      });
+      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
+    } else {
+      window.sessionStorage.settem(sessionKey(), "[]");
+    }
+
+    return mod;
+  };
+
+  var setSet = function (nnew) {
+    if (Array.isArray(nnew) && nnew.length === 2) {
+      var curr = getSets();
+      var newName = nnew[0];
+      var filtered = curr.filter(function (x) {
+        return x[0] !== newName;
+      });
+      setSets(filtered.concat([nnew]));
+    }
+    return mod;
   };
 
   var selectedToArray = function (target) {
@@ -3056,43 +3750,6 @@ shimi.setsui = (function () {
     return mod;
   };
 
-  var view = function (setName) {
-    var elems = sets.getSet(setName)[1];
-    render(elems);
-    return mod;
-  };
-
-  var remove = function (setName) {
-    sets.removeSet(setName);
-    render([]);
-    mod.updateSelection();
-    return mod;
-  };
-
-  var union = function (setNameA, setNameB) {
-    var newSet = sets.union(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var intersection = function (setNameA, setNameB) {
-    var newSet = sets.intersection(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var symetricDifference = function (setNameA, setNameB) {
-    var newSet = sets.symetricDifference(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var relativeComplement = function (setName1, setName2) {
-    var newSet = sets.relativeComplement(setName1, setName2);
-    render(newSet);
-    return mod;
-  };
-
   mod.performOp = function () {
     switch (op().val()) {
     case "view-a":
@@ -3113,8 +3770,8 @@ shimi.setsui = (function () {
     case "intersection":
       intersection(setA().val(), setB().val());
       break;
-    case "symetric-difference":
-      symetricDifference(setA().val(), setB().val());
+    case "symmetric-difference":
+      symmetricDifference(setA().val(), setB().val());
       break;
     case "relative-complement-b-in-a":
       relativeComplement(setA().val(), setB().val());
@@ -3129,12 +3786,13 @@ shimi.setsui = (function () {
   };
 
   mod.updateSelection = function () {
-    var currNames = sets.getSetNames();
+    var currNames = getSetNames();
     var newOptions = templates['set-options'].render({
       names: currNames
     });
     setA().html(newOptions);
     setB().html(newOptions);
+    worksheetsSet().html(newOptions);
     return mod;
   };
 
@@ -3149,9 +3807,9 @@ shimi.setsui = (function () {
       dialog.hide();
       selected = selectedToArray(target);
       newSet = [name, selected];
-      sets.setSet(newSet);
+      setSet(newSet);
       $("#new-set-input").val("");
-      mod.updateSelection();
+      shimi.dispatch.send("sets-changed");
       shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
     } else {
       shimi.flash("Input invalid:", "You must supply a valid name.").error();
@@ -3171,365 +3829,8 @@ shimi.setsui = (function () {
 
   return mod;
 })();
-shimi.sui = (function () {
-  var mod = {};
-  var utils = shimi.utils();
-  var sets = shimi.sets;
-  var setsui = shimi.setsui;
-  var localStorage = window.localStorage;
-  var searchIndex = function () {
-    return $('#document-search-index');
-  };
-  var searchIndexLabel = function () {
-    return $('#search-index-label');
-  };
-  var searchTerm = function () {
-    return $('#document-search-term');
-  };
-  var searchFields = function () {
-    return $('#document-search-field');
-  };
-  var searchFieldsLabel = function () {
-    return $('#search-field-label');
-  };
-  var searchExclude = function () {
-    return $('#document-search-exclude');
-  };
-  var searchInvert = function () {
-    return $('#document-search-invert');
-  };
-  var searchAll = function () {
-    return $('#search-all-fields-switch');
-  };
-  var searchListing = function () {
-    return $('#search-listing');
-  };
-  var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
-
-  var indexVal = function () {
-    var val = $("#index-index-input").val();
-    if (val.length === 0) {
-      return null;
-    } else {
-      return val;
-    }
-  };
-
-  var maybeTrue = function (bool) {
-    if (bool) {
-      return true;
-    } else {
-      return null;
-    }
-  };
-
-  var clearStore = function () {
-    localStorage.setItem("searchIndex", null);
-    localStorage.setItem("searchIndexLabel", null);
-    localStorage.setItem("searchFields", null);
-    localStorage.setItem("searchExclude", null);
-    localStorage.setItem("searchInvert", null);
-  };
-
-  var clearVals = function () {
-    formElems.forEach(function (x) {
-      var elem = x();
-      switch (elem.attr('type')) {
-      case "hidden":
-        elem.val('');
-        break;
-      case "checkbox":
-        elem.attr("checked", false);
-        break;
-      }
-    });
-  };
-
-  var hideElems = function () {
-    formElems.forEach(function (x) {
-      var elem = x();
-      switch (elem.attr('type')) {
-      case "hidden":
-        break;
-      case "checkbox":
-        elem.parent("div").hide();
-        break;
-      default:
-        elem.hide();
-      }
-    });
-  };
-
-  var fieldLabels = function () {
-    var fieldlables = JSON.parse(sessionStorage.getItem("lables"));
-    return fieldlables;
-  };
-
-  var searchFieldItem = function (field, fieldLabel) {
-    return templates['search-field-item'].render({
-      fieldLabel: fieldLabel,
-      field: field
-    });
-  };
-
-  var setFields = function (fields) {
-    var fLabels = fieldLabels();
-    var jFields = JSON.stringify(fields);
-    var sfls = searchFieldsLabel();
-
-    searchFields().val(jFields);
-    localStorage.setItem("searchFields", jFields);
-
-    var linkLabels = fields.map(function (x) {
-      return searchFieldItem(x, fLabels[x].join(": "));
-    });
-
-    sfls.html(linkLabels.join(" "));
-
-    return true;
-  };
-
-  mod.allFields = function () {
-    clearStore();
-    hideElems();
-    clearVals();
-    return mod;
-  };
-
-  mod.singleField = function (fields) {
-    mod.multipleFields(fields);
-    searchInvert().parent().show();
-    return mod;
-  };
-
-  mod.singleFieldInverse = function (fields) {
-    mod.singleField(fields);
-    searchInvert().attr('checked', true);
-    localStorage.setItem("searchInvert", true);
-    return mod;
-  };
-
-  mod.multipleFields = function (fields) {
-    mod.allFields();
-    setFields(fields);
-    [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
-      x.show();
-    });
-    return mod;
-  };
-
-  mod.excludedFields = function (fields) {
-    if (fields.length > 1) {
-      mod.multipleFields(fields);
-    } else {
-      mod.singleField(fields);
-    }
-    searchExclude().attr('checked', true);
-    localStorage.setItem("searchExclude", true);
-    return mod;
-  };
-
-  mod.indexOnly = function (index, indexLabel) {
-    mod.allFields();
-    localStorage.setItem("searchIndex", index);
-    localStorage.setItem("searchIndexLabel", indexLabel);
-    searchIndex().val(index);
-    searchIndexLabel().html(indexLabel);
-    [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
-      x.show();
-    });
-    return mod;
-  };
-
-  mod.indexInverse = function (index, indexLabel) {
-    mod.indexOnly(index, indexLabel);
-    searchInvert().attr('checked', true);
-    localStorage.setItem("searchInvert", true);
-    return mod;
-  };
-
-  mod.getSearch = function () {
-    var query = searchTerm().val();
-    var url = "documents/search?q=" + window.encodeURIComponent(query);
-    var field = searchFields().val();
-    var exclude = searchExclude().is(':checked');
-    var invert = searchInvert().is(':checked');
-    var index = searchIndex().val();
-    var fieldlabels = fieldLabels();
-
-    if (index) {
-      url = url + "&index=" + index;
-    } else {
-      if (field) {
-        url = url + "&field=" + field;
-      }
-      if (exclude) {
-        url = url + "&exclude=true";
-      }
-    }
-    if (invert) {
-      url = url + "&invert=true";
-    }
-
-    searchListing().hide();
-
-    $.get(url, function (searchResults) {
-      searchListing().html(searchResults);
-      $('.search-result-field-id').each(function (index, item) {
-        var label = fieldlabels[$(item).attr('data-field-field')].join(": ");
-        var target = $(item).children('a').first();
-        target.html(label);
-        target.attr('data-search-label', label);
-      });
-      if (!invert) {
-        $('.search-results th').each(function (index, item) {
-          var itemText = $.trim($(item).children('a').html());
-          var re = new RegExp("(" + query + ")", "g");
-          var newText =
-          itemText.replace(re, "<span class='highlight'>$1</span>");
-          $(item).children('a').html(newText);
-        });
-      }
-      searchListing().show();
-    });
-
-    return mod;
-  };
-
-  mod.removeField = function (t) {
-    var searchFields = localStorage.getItem("searchFields");
-    var newSearchFields;
-    var fields = JSON.parse(searchFields);
-    var newFields;
-    var id = $(t).attr("data-field-field");
-
-    if (fields !== null) {
-      newFields = fields.filter(function (x) {
-        return x !== id;
-      });
-      newSearchFields = JSON.stringify(newFields);
-      localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
-      localStorage.setItem("searchIndex", null);
-      mod.loadSearchVals();
-    }
-
-    return mod;
-  };
-
-  mod.addField = function (t) {
-    var searchFields = localStorage.getItem("searchFields");
-    var newSearchFields;
-    var fields = JSON.parse(searchFields);
-    var newFields;
-    var id = $(t).attr("data-field-field");
-
-    if (fields === null) {
-      fields = [];
-    }
-
-    newFields = fields.concat(id);
-    newSearchFields = JSON.stringify(newFields);
-    localStorage.setItem("searchFields", (newFields.length === 0) ? null : newSearchFields);
-    localStorage.setItem("searchIndex", null);
-    mod.loadSearchVals();
-
-    return mod;
-  };
-
-  mod.addIndex = function () {
-    var val = indexVal();
-
-    if (val) {
-      localStorage.setItem("searchFields", null);
-      localStorage.setItem("searchIndex", val);
-      localStorage.setItem("searchIndexLabel", $("option[value=" + val + "]").html());
-      mod.loadSearchVals();
-    }
-
-    return mod;
-  };
-
-  mod.toggleInversion = function () {
-    localStorage.setItem("searchInvert", maybeTrue(searchInvert().is(":checked")));
-    localStorage.setItem("searchExclude", null);
-    mod.loadSearchVals();
-
-    return mod;
-  };
-
-  mod.toggleExclusion = function () {
-    localStorage.setItem("searchExclude", maybeTrue(searchExclude().is(":checked")));
-    localStorage.getItem("searchInvert", null);
-    mod.loadSearchVals();
-
-    return mod;
-  };
-
-  mod.loadSearchVals = function () {
-    var exclude = localStorage.getItem("searchExclude");
-    var invert = localStorage.getItem("searchInvert");
-    var index = localStorage.getItem("searchIndex");
-    var fieldids = localStorage.getItem("searchFields");
-    var fields;
-    var indexLabel;
-    var params = [exclude, invert, index, fieldids].map(function (x) {
-      return (x === "null" || x === "false" || x === "true") ? JSON.parse(x) : x;
-    });
-    var allNull = params.every(function (x) {
-      return x === null;
-    });
-
-    try {
-      if (allNull) {
-        mod.allFields();
-      } else if (params[0] === true) {
-        fields = JSON.parse(fieldids);
-        mod.excludedFields(fields);
-      } else if (params[1] === null && params[3] !== null) {
-        fields = JSON.parse(fieldids);
-        if (fields.length > 1) {
-          mod.multipleFields(fields);
-        } else {
-          mod.singleField(fields);
-        }
-      } else if (params[3] !== null) {
-        fields = JSON.parse(fieldids);
-        if (fields.length > 1) {
-          mod.multipleFields(fields);
-        } else {
-          mod.singleFieldInverse(fields);
-        }
-      } else if (params[1] === null) {
-        indexLabel = localStorage.getItem("searchIndexLabel");
-        mod.indexOnly(index, indexLabel);
-      } else if (params[1] === true) {
-        indexLabel = localStorage.getItem("searchIndexLabel");
-        mod.indexInverse(index, indexLabel);
-      }
-    } catch (e) {
-      window.console.log(e);
-      mod.allFields();
-    }
-
-    return mod;
-  };
-
-  mod.toggleSelection = function (t) {
-    var target = $(t);
-
-    if (target.is(":checked")) {
-      target.next("label").next("table").addClass("selected-for-save");
-    } else {
-      target.next("label").next("table").removeClass("selected-for-save");
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
 // View pane UI elements
-shimi.vui = (function (args) {
+shimi.viewui = (function (args) {
   var mod = {};
   var dv = function () {
     return $("#document-view");
@@ -3539,6 +3840,95 @@ shimi.vui = (function (args) {
   };
   var viewInfo = function () {
     return $("#document-view-info");
+  };
+
+  // Make an object where fieldsets with deletions are identified.
+  var getDeletions = function (changes) {
+    return Object.keys(changes).reduce(function (acc, x) {
+      // If it was changed and there is no new value, it was deleted.
+      if (changes[x].newValue === undefined) {
+        if (acc[changes[x].fieldset] === undefined) {
+          acc[changes[x].fieldset] = {};
+        }
+        acc[changes[x].fieldset][x] = changes[x];
+      }
+
+      return acc;
+    }, {});
+  };
+
+  var processIncoming = function (docJson) {
+    shimi.globals.changes = {};
+    var withDeletions = {};
+
+    if (docJson.changes) {
+      withDeletions = getDeletions(docJson.changes);
+    }
+
+    docJson.fieldsets.forEach(function (fset) {
+      var fsetId = fset.id;
+
+      if (withDeletions[fsetId] !== undefined) {
+        fset.removal = true;
+        fset.altered = true;
+      }
+
+      var fieldFunc = function (field) {
+        var changes = {};
+        var change;
+
+        if (docJson.changes) {
+          changes = docJson.changes;
+        }
+        change = changes[field.instance];
+
+        field.json_value = JSON.stringify(field.value);
+        shimi.globals.changes[field.instance] = {
+          fieldset: fsetId,
+          fieldsetLabel: fset.label,
+          field: field.id,
+          fieldLabel: field.label,
+          originalValue: field.json_value
+        };
+
+        if (change !== undefined) {
+          field.changed = true;
+          fset.altered = true;
+
+          if (change.originalValue === undefined) {
+            fset.addition = true;
+          } else {
+            field.originalValue = JSON.parse(change.originalValue);
+          }
+        }
+
+        if (field.subcategory === "textarea") {
+          field.is_textarea = true;
+        } else if (field.value && field.subcategory.match("multi")) {
+          field.value = field.value.join(", ");
+        }
+
+        return true;
+      };
+
+      if (fset.multiple) {
+        fset.multifields.forEach(function (mfs) {
+          mfs.fields.forEach(function (field) {
+            fieldFunc(field);
+            return true;
+          });
+        });
+      } else {
+        fset.fields.forEach(function (field) {
+          fieldFunc(field);
+          return true;
+        });
+      }
+
+      return true;
+    });
+
+    return true;
   };
 
   mod.formatTimestamps = function () {
@@ -3557,13 +3947,31 @@ shimi.vui = (function (args) {
   mod.get = function (id, rev, callback) {
     var url = "documents/" + id;
     var htmlTarget = dv();
+    var tmpl;
 
     if (rev) {
       url = url + "/" + rev;
       htmlTarget = dvt();
+      tmpl = function (docJson) {
+        return templates['document-view-tree'].render(docJson, {
+          'document-view-field': templates['document-view-field']
+        });
+      };
+    } else {
+      tmpl = function (docJson) {
+        return templates['document-view'].render(docJson, {
+          'document-view-tree': templates['document-view-tree'],
+          'document-view-field': templates['document-view-field']
+        });
+      };
+
     }
 
-    $.get(url, function (documentHtml) {
+    $.getJSON(url, function (docJson) {
+      var documentHtml;
+
+      processIncoming(docJson);
+      documentHtml = tmpl(docJson);
       htmlTarget.html(documentHtml);
       window.location.hash = id;
       mod.formatTimestamps();
@@ -3608,7 +4016,7 @@ shimi.vui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.iui.get(skey, sid);
+            shimi.indexui.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -3654,7 +4062,7 @@ shimi.vui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.iui.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
@@ -3686,13 +4094,13 @@ shimi.vui = (function (args) {
   };
 
   mod.edit = function () {
-    shimi.eui.resetFields();
+    shimi.editui.resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    shimi.efs.fillFieldsets();
+    shimi.fieldsets.fillFieldsets();
 
     return mod;
   };
@@ -3736,6 +4144,118 @@ shimi.vui = (function (args) {
 
   return mod;
 })();
+shimi.worksheetui = (function () {
+  var mod = {};
+  var setsui = shimi.setsui;
+
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
+  };
+  var worksheetsArea = function () {
+    return $("#worksheet-area");
+  };
+  var worksheetName = function () {
+    return shimi.documents.identifier() + "_worksheet-template";
+  };
+
+  mod.selectAllRows = function (select) {
+    if (select) {
+      $('#worksheet-table tbody tr').addClass('selected-row');
+      $('#worksheet-table tbody tr input').attr('checked', true);
+    } else {
+      $('#worksheet-table tbody tr').removeClass('selected-row');
+      $('#worksheet-table tbody tr input:checked').attr('checked', false);
+    }
+
+    return mod;
+  };
+
+  mod.rowSelection = function (row, select) {
+    if (select) {
+      $('#' + row).addClass('selected-row');
+    } else {
+      $('#' + row).removeClass('selected-row');
+    }
+
+    return mod;
+  };
+
+  mod.columnSelection = function (column, select) {
+    if (select) {
+      $('.field-column.' + column).addClass('selected-column');
+    } else {
+      $('.field-column.' + column).removeClass('selected-column');
+    }
+
+    return mod;
+  };
+
+  mod.showHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').show();
+
+    return mod;
+  };
+
+  mod.hideHandles = function () {
+    $('#worksheet-table .handle-column.fieldset').hide();
+
+    return mod;
+  };
+
+  mod.showFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).show();
+
+    return mod;
+  };
+
+  mod.hideFieldset = function (fsid) {
+    $('#worksheet-table .handle-column.field.' + fsid).hide();
+
+    return mod;
+  };
+
+  mod.showField = function (fid) {
+    $('.field-column.' + fid).show();
+
+    return mod;
+  };
+
+  mod.hideField = function (fid) {
+    $('.field-column.' + fid).hide();
+
+    return mod;
+  };
+
+  mod.buildTemplate = function () {
+    var doctypeInfo = shimi.documents.info();
+    var metaTemp = "{{=<% %>=}}\n" + templates['worksheet'].render(doctypeInfo);
+    shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
+
+    return mod;
+  };
+
+  mod.fillWorksheet = function () {
+    var setName = worksheetsSet().val();
+    var url = "worksheets?set=";
+
+    if (!setName.isBlank()) {
+      var thisSet = setsui.getSet(setName)[1];
+      var setIds = thisSet.map(function (x) {
+        return x[1];
+      });
+      url = url + JSON.stringify(setIds);
+
+      $.getJSON(url, function (data) {
+        var ws = shimi.globals[worksheetName()].render(data);
+        worksheetsArea().html(ws);
+      });
+    }
+
+    return mod;
+  };
+
+  return mod;
+})();
 shimi.fm = (function () {
   var mod = {};
 
@@ -3746,6 +4266,30 @@ shimi.fm = (function () {
 
     $.get("file_manager/list_dirs/" + path, function (data) {
       $('#file-paths').html(data);
+    });
+  };
+
+  mod.init = function () {
+    shimi.fm.refreshListings();
+    $('#file-upload-target').load(function () {
+      var encoded = $('#file-upload-target').contents().find('body pre').html();
+      var obj = function () {
+        if (encoded && encoded.length > 0) {
+          return JSON.parse(encoded);
+        } else {
+          return {
+            message: false
+          };
+        }
+      };
+
+      if (obj() && obj().message && obj().status !== "success") {
+        shimi.flash("Error", obj().message).error();
+        shimi.fm.refreshListings();
+      } else if (obj().message) {
+        shimi.flash("Success", obj().message).highlight();
+        shimi.fm.refreshListings();
+      }
     });
   };
 
@@ -4005,7 +4549,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
 
   return dialog;
 };
-shimi.ieui = (function () {
+shimi.ieditui = (function () {
   var mod = {};
 
   var tableBody = function () {
@@ -4153,7 +4697,7 @@ shimi.ieui = (function () {
     $.get(url, function (indexData) {
       htmlTarget.html(indexData);
       tableBody().sortable();
-      shimi.piui.get();
+      shimi.ipreviewui.get();
     });
 
     return false;
@@ -4218,7 +4762,7 @@ shimi.ieui = (function () {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function () {
         $('#index-conditions').empty();
-        shimi.iiui.init();
+        shimi.ilistingui.init();
       };
 
       if (window.confirm("Are you sure?")) {
@@ -4276,17 +4820,20 @@ shimi.ihelpers = (function () {
     return false;
   };
 
-  mod.alterArg =
-
-  function (argumentField, operatorField, fieldField, callback) {
+  mod.alterArg = function (argumentField, operatorField, fieldField, callback) {
     var fieldDoc = function () {
       return s.get(fieldField.val());
     };
 
     callback();
 
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
+    try {
+      // Destroy these if initialized already
+      argumentField.removeAttr('disabled').datepicker('destroy');
+      argumentField.removeAttr('disabled').autocomplete('destroy');
+    } catch (err) {
+      window.console.log(err.message);
+    }
 
     var dateOrText = function (argumentField, fdoc) {
       if (fdoc.subcategory === 'date') {
@@ -4446,15 +4993,17 @@ shimi.ihelpers = (function () {
 
   return mod;
 })();
-shimi.iiui = (function () {
+shimi.ilistingui = (function () {
   var mod = {};
 
   mod.init = function () {
     var url = "indexes";
     var target = $('#index-index-listing');
+    var listing;
 
-    $.get(url, function (index) {
-      target.html(index);
+    $.getJSON(url, function (data) {
+      listing = templates['index-listing'].render(data);
+      target.html(listing);
     });
 
     return mod;
@@ -4462,7 +5011,7 @@ shimi.iiui = (function () {
 
   return mod;
 })();
-shimi.piui = (function () {
+shimi.ipreviewui = (function () {
   var mod = {};
   var index = shimi.index;
 
@@ -4542,7 +5091,7 @@ shimi.initIndexNewDialog = function () {
             "fields": [indexField.val()]
           },
               complete = function (context) {
-              shimi.iiui.init();
+              shimi.ilistingui.init();
               $(context).dialog("close");
               };
           shimi.form.send("indexes", obj, 'POST', complete, this);
@@ -4614,7 +5163,7 @@ shimi.initReplaceDialog = function () {
 
   return dialog;
 };
-shimi.pui = (function () {
+shimi.projectui = (function () {
   var mod = {};
 
   var deleteProject = function (id) {
@@ -4721,67 +5270,21 @@ $(function () {
 
   // Documents
   if ($('#all-document-container').length > 0) {
-    var getIndexTimer;
-
-    shimi.iui.iOpts().get();
-    shimi.jumpForm();
-    shimi.searchForm();
-    shimi.setForm();
-    shimi.eui.init();
-
-    $('#index-filter-form input').keyup(
-
-    function (e) {
-      clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function () {
-        if (e.which !== 8 && e.which !== 46) {
-          shimi.iui.get();
-        }
-      }, 500);
-    });
-
-    $('#index-filter-form select').change(
-
-    function () {
-      shimi.iui.get();
-    });
-
-    shimi.loadHash($(location)[0].hash.split("#")[1]);
+    shimi.documents.init();
   }
 
   // File Manager
   if ($('#file-upload').length > 0) {
-    shimi.fm.refreshListings();
-
-    $('#file-upload-target').load(function () {
-      var encoded = $('#file-upload-target').contents().find('body pre').html();
-      var obj = function () {
-        if (encoded && encoded.length > 0) {
-          return JSON.parse(encoded);
-        } else {
-          return {
-            message: false
-          };
-        }
-      };
-
-      if (obj() && obj().message && obj().status === "error") {
-        shimi.flash("Error", obj().message).error();
-        shimi.fm.refreshListings();
-      } else if (obj().message) {
-        shimi.flash("Success", obj().message).highlight();
-        shimi.fm.refreshListings();
-      }
-    });
+    shimi.fm.init();
   }
 
   // Index Tool
   if ($('#all-index-container').length > 0) {
-    shimi.iiui.init();
+    shimi.ilistingui.init();
   }
 
   // Project
   if ($('#projects-container').length > 0) {
-    shimi.pui.init();
+    shimi.projectui.init();
   }
 });

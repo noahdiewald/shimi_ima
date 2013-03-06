@@ -144,7 +144,7 @@ values(#sparams{qs=[]}, _Project, _S) ->
     [{<<"rows">>, false}];
 % Normal case for searching over and index
 values(#sparams{qs=Query, index=Index, invert=false}, Project, S) when is_list(Index) ->
-    {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
+    {ok, RE} = re:compile(Query, [unicode]),
     {ok, Json} = q:index(Index, [], Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
     Filtered = index_filter(Rows, RE, []),
@@ -154,13 +154,13 @@ values(#sparams{qs=Query, index=Index, invert=false}, Project, S) when is_list(I
 values(#sparams{qs=Query, index=Index, invert=true}, Project, S) when is_list(Index) ->
     {ok, Json} = q:index(Index, [], Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
-    Filtered = index_inverted_filter(Rows, list_to_binary(Query), []),
+    Filtered = index_inverted_filter(Rows, Query, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, {<<"total_rows">>, length(Filtered)}];
 % Inverted search over field
 values(#sparams{doctype=Doctype, qs=Query, fields=[Field], invert=true}, Project, S) ->
     {ok, Json} = q:search(Doctype, Field, Project, S),
     Rows = jsn:get_value(<<"rows">>, Json),
-    Filtered = inverted_filter(Rows, list_to_binary(Query), []),
+    Filtered = inverted_filter(Rows, Query, []),
     [{<<"index_listing">>, true}, {<<"rows">>, Filtered}, {<<"total_rows">>, length(Filtered)}];
 % Search all fields
 values(P=#sparams{doctype=Doctype, fields=[], exclude=false}, Project, S) ->
@@ -172,13 +172,13 @@ values(P=#sparams{doctype=Doctype, fields=Fields, exclude=true}, Project, S) ->
     values(P#sparams{fields=NewFields, exclude=false}, Project, S);
 % Search multiple fields
 values(#sparams{qs=Query, doctype=Doctype, fields=Fields}, Project, S) ->
-    {ok, RE} = re:compile(list_to_binary(Query), [unicode]),
+    {ok, RE} = re:compile(Query, [unicode]),
     TID = ets:new(list_to_atom("search-" ++ utils:uuid()), [public]),
     ets:insert(TID, {total, 0}),
     F = fun(X) ->
                 do_search(Doctype, RE, X, TID, Project, S)
         end,
-    ok = utils:peach(F, Fields, 10),
+    ok = utils:peach(F, Fields, 20),
     Complete = prep_ret(TID),
     ets:delete(TID),
     Complete.

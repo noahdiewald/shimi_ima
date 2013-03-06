@@ -1,5 +1,6 @@
 //= init.js
 //= utils.js
+//= sets.js
 //= flash.js
 //= store.js
 //= path.js
@@ -7,10 +8,12 @@
 //= jquery-ui-input-state.js
 //= compat.js
 //= click-dispatch.js
+//= keystrokes.js
+//= changes.js
+//= gen-dispatch.js
 //= index.js
 //= form.js
 //= sess.js
-//= sets.js
 //= config
 //= documents
 //= file_manager

@@ -156,9 +156,9 @@ me(Doctype) ->
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
     Json = touch_get_json(Id, S#state.project, S#state.wm_state),
-    Doc = document:from_json(Json),
+    Doc = document:from_json(doc, Json),
     Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
-    Doc2 = document:to_json(Doc#document{prev = Doc#document.rev,
+    Doc2 = document:to_json(doc, Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
     case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
         {ok, updated} ->
@@ -352,6 +352,8 @@ fill_tables([H|T], Tid) ->
 %% field. The second is the field that the docfield is based on and
 %% the third argument is the version of the docfield being updated,
 %% which is already partially processed.
+%% TODO: THIS SHOULD NOT BE ALLOWED. CERTAIN ASPECTS OF THE FIELD LIKE
+%% THOSE BELOW SHOULD NOT BE CHANGEABLE.
 -spec update_normalize(docfield(), field(), docfield()) -> docfield() | {error, Reason :: term()}.
 % if the value of the docfield is the default, leave it.
 update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->

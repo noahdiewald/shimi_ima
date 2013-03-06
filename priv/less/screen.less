@@ -13,6 +13,8 @@
 @helpborder:#1c94c4;
 @semitrans:rgba(255,255,255,0.5);
 
+// Mixins
+
 body {
   font-family:sans-serif;
   font-size:9pt;
@@ -58,11 +60,6 @@ nav {
   #main-tabs {
     font-size:8pt;
   }
-}
-table {
-  width:100%;
-  border-collapse:collapse;
-  background:@bgcontrast;
 }
 .ui-dialog-content {
   text-align:left;
@@ -210,18 +207,49 @@ ul.head-elements {
   background:@bgcolor;
   display:table-row;
 }
+table {
+  border-collapse:collapse;
+  background:@bgcontrast;
+  th {
+    border-style:solid;
+    border-color:@widgetborder;
+    border-width:thin;
+    background:@bgcolor;
+    color:@fgstark;
+    vertical-align:top;
+    a {
+      text-decoration:none;
+      font-weight:normal;
+      color:@fgstark;
+    }
+  }
+  td {
+    border-style:solid;
+    border-color:@widgetborder;
+    border-width:thin;
+  }
+}
 .panel {
   display:table-cell;
   vertical-align:top;
   padding-top:0;
   &#document-index {
     width:25%;
+    table {
+      width:100%;
+    }
   }
   &#index-index {
     width:10%;
+    table {
+      width:100%;
+    }
   }
   &#document-view {
     width:25%;
+    table {
+      width:100%;
+    }
     ul {
       padding-left:1em;
       line-height:120%;
@@ -251,7 +279,86 @@ ul.head-elements {
     }
   }
   &#document-edit, &#index-edit {
+    table {
+      width:100%;
+    }
     width:50%;
+  }
+  &#document-worksheets {
+    #worksheet-area {
+      width: 100%;
+      overflow: auto;
+      table#worksheet-table {
+        table-layout: fixed;
+        td.selected-column {
+          background: @infobackground;
+        }
+        tr.selected-row {
+          background: @level1;
+          td.selected-column {
+            background: @bgcolor;
+            font-weight: bold;
+          }
+        }
+        .header-row {
+          th.worksheet-handle-header {
+            width: 2em;
+            min-width: 2em;
+            overflow: visible;
+            div {
+              height: 2em;
+              position: relative;
+              span {
+                -webkit-transform-origin: left bottom;
+                -ms-transform-origin: left bottom;
+                -o-transform-origin: left bottom;
+                transform-origin: left bottom;
+                 -webkit-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                -o-transform: rotate(90deg);
+                transform: rotate(90deg);
+                padding: 0;
+                margin: 0;
+                position: absolute;
+                top: 0em;
+                left: 0.5em;
+                white-space: nowrap;
+              }
+            }
+          }
+        }
+        .body-row {
+          td {
+            overflow: hidden;
+            white-space:nowrap;
+            ol {
+              padding: 0;
+              margin: 0;
+            }
+          }
+        }
+        .select-column {
+          width: 2em;
+        }
+        .fieldset.handle-column {
+          background: @darkbgcolor;
+          border-top-color: @darkbgcolor;
+          border-bottom-color: @darkbgcolor;
+          a {
+            color: @bgcolor;
+          }
+        }
+        .field.handle-column {
+          background: @bgcolor;
+          border-top-color: @bgcolor;
+          border-bottom-color: @bgcolor;
+          color: @fgcolor;
+        }
+        .collapse, .field-column {
+          display: none;
+        }
+      }
+    }
   }
 }
 span.retain-white {
@@ -399,19 +506,6 @@ input[disabled] {
 #query-view {
   margin-top:10px;
 }
-th {
-  border-style:solid;
-  border-color:@widgetborder;
-  border-width:thin;
-  background:@bgcolor;
-  color:@fgstark;
-  vertical-align:top;
-  a {
-    text-decoration:none;
-    font-weight:normal;
-    color:@fgstark;
-  }
-}
 #file-upload-target {
   display:none;
 }
@@ -435,11 +529,6 @@ th {
 }
 nav#history {
   .mini-header;
-}
-td {
-  border-style:solid;
-  border-color:@widgetborder;
-  border-width:thin;
 }
 .header {
   border:none;
@@ -466,11 +555,11 @@ tr.ui-widget-header th {
 #search-field-label {
   font-weight:normal;
 }
-.search-field-item {
+.search-field-item, .small-control {
   margin-left:2px;
   background:@infobackground;
   text-decoration:none;
-  font-size:8pt;
+  cursor:pointer;
 }
 .search-result-context a {
   text-decoration:none;
@@ -491,6 +580,7 @@ tr.ui-widget-header th {
   display:inline-block;
   padding:0.25ex 2em 0.25ex 2em;
   margin:0;
+  margin-top: 1px;
   cursor:pointer;
 }
 .remove-button {
@@ -531,4 +621,28 @@ a.selected-revision {
 .ui-state-highlight {
   background: @level2;
   background: @semitrans;
+}
+.quiet {
+  color: @infobackground;
+}
+.changed>b {
+  font-style: italic;
+}
+span.addition {
+  background: green;
+  margin: 1px;
+  padding: 1px;
+  font-weight: bold;
+  color: white;
+  border-radius: 50%;
+  cursor:pointer;
+}
+span.removal {
+  background: red;
+  margin: 1px;
+  padding: 1px;
+  font-weight: bold;
+  color: white;
+  border-radius: 50%;
+  cursor:pointer;
 }

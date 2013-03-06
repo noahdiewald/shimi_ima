@@ -1,5 +1,5 @@
 // View pane UI elements
-shimi.vui = (function (args) {
+shimi.viewui = (function (args) {
   var mod = {};
   var dv = function () {
     return $("#document-view");
@@ -9,6 +9,95 @@ shimi.vui = (function (args) {
   };
   var viewInfo = function () {
     return $("#document-view-info");
+  };
+
+  // Make an object where fieldsets with deletions are identified.
+  var getDeletions = function (changes) {
+    return Object.keys(changes).reduce(function (acc, x) {
+      // If it was changed and there is no new value, it was deleted.
+      if (changes[x].newValue === undefined) {
+        if (acc[changes[x].fieldset] === undefined) {
+          acc[changes[x].fieldset] = {};
+        }
+        acc[changes[x].fieldset][x] = changes[x];
+      }
+
+      return acc;
+    }, {});
+  };
+
+  var processIncoming = function (docJson) {
+    shimi.globals.changes = {};
+    var withDeletions = {};
+
+    if (docJson.changes) {
+      withDeletions = getDeletions(docJson.changes);
+    }
+
+    docJson.fieldsets.forEach(function (fset) {
+      var fsetId = fset.id;
+
+      if (withDeletions[fsetId] !== undefined) {
+        fset.removal = true;
+        fset.altered = true;
+      }
+
+      var fieldFunc = function (field) {
+        var changes = {};
+        var change;
+
+        if (docJson.changes) {
+          changes = docJson.changes;
+        }
+        change = changes[field.instance];
+
+        field.json_value = JSON.stringify(field.value);
+        shimi.globals.changes[field.instance] = {
+          fieldset: fsetId,
+          fieldsetLabel: fset.label,
+          field: field.id,
+          fieldLabel: field.label,
+          originalValue: field.json_value
+        };
+
+        if (change !== undefined) {
+          field.changed = true;
+          fset.altered = true;
+
+          if (change.originalValue === undefined) {
+            fset.addition = true;
+          } else {
+            field.originalValue = JSON.parse(change.originalValue);
+          }
+        }
+
+        if (field.subcategory === "textarea") {
+          field.is_textarea = true;
+        } else if (field.value && field.subcategory.match("multi")) {
+          field.value = field.value.join(", ");
+        }
+
+        return true;
+      };
+
+      if (fset.multiple) {
+        fset.multifields.forEach(function (mfs) {
+          mfs.fields.forEach(function (field) {
+            fieldFunc(field);
+            return true;
+          });
+        });
+      } else {
+        fset.fields.forEach(function (field) {
+          fieldFunc(field);
+          return true;
+        });
+      }
+
+      return true;
+    });
+
+    return true;
   };
 
   mod.formatTimestamps = function () {
@@ -27,13 +116,31 @@ shimi.vui = (function (args) {
   mod.get = function (id, rev, callback) {
     var url = "documents/" + id;
     var htmlTarget = dv();
+    var tmpl;
 
     if (rev) {
       url = url + "/" + rev;
       htmlTarget = dvt();
+      tmpl = function (docJson) {
+        return templates['document-view-tree'].render(docJson, {
+          'document-view-field': templates['document-view-field']
+        });
+      };
+    } else {
+      tmpl = function (docJson) {
+        return templates['document-view'].render(docJson, {
+          'document-view-tree': templates['document-view-tree'],
+          'document-view-field': templates['document-view-field']
+        });
+      };
+
     }
 
-    $.get(url, function (documentHtml) {
+    $.getJSON(url, function (docJson) {
+      var documentHtml;
+
+      processIncoming(docJson);
+      documentHtml = tmpl(docJson);
       htmlTarget.html(documentHtml);
       window.location.hash = id;
       mod.formatTimestamps();
@@ -78,7 +185,7 @@ shimi.vui = (function (args) {
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
-            shimi.iui.get(skey, sid);
+            shimi.indexui.get(skey, sid);
           });
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
@@ -124,7 +231,7 @@ shimi.vui = (function (args) {
           restoreButton.show();
           dv().fadeTo('slow', 0.5);
 
-          shimi.iui.get(skey, sid);
+          shimi.indexui.get(skey, sid);
           shimi.flash(title, body).highlight();
         } else if (req.status === 409) {
           body = JSON.parse(req.responseText);
@@ -156,13 +263,13 @@ shimi.vui = (function (args) {
   };
 
   mod.edit = function () {
-    shimi.eui.resetFields();
+    shimi.editui.resetFields();
     if ($('#document-view-tree').hasClass('oldrev')) {
       $('#save-document-button').addClass('oldrev');
     } else {
       $('#save-document-button').removeClass('oldrev');
     }
-    shimi.efs.fillFieldsets();
+    shimi.fieldsets.fillFieldsets();
 
     return mod;
   };

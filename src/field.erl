@@ -31,18 +31,18 @@
          meta_field/1,
          meta_options/0,
          set_sortkeys/3,
+         to_json/1,
          to_json/2,
          unconvert_value/2
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
 -include_lib("include/types.hrl").
 
 -spec arrange(jsn:json_term()) -> jsn:json_term().
 arrange(Fields) ->
     F = fun(X) ->
                 Doc = jsn:get_value(<<"doc">>, X),
-                [{<<"field">>, Doc}]
+                [{<<"field">>, to_json(from_json(Doc))}]
         end,
     lists:map(F, Fields).
 
@@ -107,7 +107,7 @@ set_sortkeys(Fields, Project, S) ->
     set_sortkeys(Fields, [], Project, S).
 
 %% @doc Convert a jsn:json_term() field to a field()
--spec from_json(Json :: jsn:json_term()) -> docfield().
+-spec from_json(jsn:json_term()) -> docfield().
 from_json(Json) ->
     Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
     #field{
@@ -166,7 +166,7 @@ to_json(F) ->
      {<<"default">>, F#field.default},
      {<<"description">>, F#field.description},
      {<<"doctype">>, F#field.doctype},
-     {<<"fieldset">>, <<"metadata">>},
+     {<<"fieldset">>, F#field.fieldset},
      {<<"head">>, F#field.head},
      {<<"label">>, F#field.label},
      {<<"max">>, unconvert_value(F#field.subcategory, F#field.max)},

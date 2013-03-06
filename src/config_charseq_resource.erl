@@ -1,28 +1,30 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2012 University of Wisconsin Madison Board of Regents.
 %%%
-%%% This file is part of dictionary_maker.
+%%% This file is part of Ʃimi Ima.
 %%%
-%%% dictionary_maker is free software: you can redistribute it and/or modify
-%%% it under the terms of the GNU General Public License as published by
-%%% the Free Software Foundation, either version 3 of the License, or
-%%% (at your option) any later version.
+%%% dictionary_maker is free software: you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation, either version 3 of the
+%%% License, or (at your option) any later version.
 %%%
 %%% dictionary_maker is distributed in the hope that it will be useful,
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+%%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% You should have received a copy of the GNU General
+%%% Public License along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
 %%% @doc Charseq configuration resource
 
 -module(config_charseq_resource).
+-author('Noah Diewald <noah@diewald.me>').
 
-% Webmachine API
+-export([init/3]).
 -export([
          allowed_methods/2,
          content_types_accepted/2,
@@ -32,27 +34,24 @@
          from_json/2,
          id_html/2,
          index_html/2,
-         init/1, 
          is_authorized/2,
          post_is_create/2,
-         resource_exists/2
+         resource_exists/2,
+         rest_init/2
         ]).
-
-% Custom
 -export([
          validate_authentication/3
         ]).
 
--include_lib("webmachine/include/webmachine.hrl").
--include_lib("include/types.hrl").
+-include_lib("types.hrl").
 
-% Standard webmachine functions
+init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
-init(Opts) -> {ok, Opts}.
+rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> {h:exists(h:id(R), R, S), R, S};
+        identifier -> h:exists_id(R, S);
         _ -> {true, R, S}
     end.
 
@@ -61,8 +60,17 @@ is_authorized(R, S) ->
 
 allowed_methods(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {['HEAD', 'GET', 'POST'], R, S};
-        identifier -> {['HEAD', 'GET', 'PUT', 'DELETE'], R, S}
+        index -> {[<<"HEAD">>, <<"GET">>, <<"POST">>], R, S};
+        identifier -> {[<<"HEAD">>, <<"GET">>, <<"PUT">>, <<"DELETE">>], R, S}
+    end.
+  
+content_types_accepted(R, S) ->
+    h:accept_json(R, S).
+
+content_types_provided(R, S) ->
+    case proplists:get_value(target, S) of
+        index -> {[{{<<"text">>, <<"html">>, []}, index_html}], R, S};
+        identifier -> {[{{<<"text">>, <<"html">>, []}, id_html}], R, S}
     end.
   
 delete_resource(R, S) ->
@@ -72,54 +80,40 @@ post_is_create(R, S) ->
     {true, R, S}.
 
 create_path(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-  
+    {ok, Body, R1} = cowboy_req:body(R),
+    Json = jsn:decode(Body),
     {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
                       undefined -> 
-                          GenId = utils:uuid(),
-                          {GenId, jsn:set_value(<<"_id">>, 
-                                                list_to_binary(GenId), Json)};
-                      IdBin -> {binary_to_list(IdBin), Json}
+                          GenId = list_to_binary(utils:uuid()),
+                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
+                      IdBin -> {IdBin, Json}
                   end,
-  
-    Location = "http://" ++ wrq:get_req_header("host", R) ++ "/" ++ 
-        wrq:path(R) ++ "/" ++ Id,
-    R1 = wrq:set_resp_header("Location", Location, R),
-  
-    {Id, R1, [{posted_json, Json1}|S]}.
-
-content_types_provided(R, S) ->
-    case proplists:get_value(target, S) of
-        index -> {[{"text/html", index_html}], R, S};
-        identifier -> {[{"text/html", id_html}], R, S}
-    end.
-  
-content_types_accepted(R, S) ->
-    {[{"application/json", from_json}], R, S}.
+    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
   
 index_html(R, S) ->
-    case wrq:get_qs_value("as", R) of
-        undefined -> html_as_tabs(R, S);
-        "options" -> html_as_options(R, S)
+    {Val, R1} = cowboy_req:qs_val(<<"as">>, R),
+    case Val of
+        undefined -> html_as_tabs(R1, S);
+        <<"options">> -> html_as_options(R1, S)
     end.
   
 html_as_options(R, S) ->
-    {ok, Json} = q:charseqs(R, S),
+    {{ok, Json}, R1} = q:charseqs(R, S),
     {ok, Opts} = render:render(options_dtl, Json),
-    {Opts, R, S}.
+    {Opts, R1, S}.
 
 html_as_tabs(R, S) ->
-    {ok, Json} = q:charseqs(R, S),
-    {render:renderings(Json, config_charseq_list_elements_dtl), R, S}.
+    {{ok, Json}, R1} = q:charseqs(R, S),
+    {render:renderings(Json, config_charseq_list_elements_dtl), R1, S}.
   
 id_html(R, S) ->
-    {ok, Json} = h:id_data(R, S),
+    {{ok, Json}, R1} = h:id_data(R, S),
     F = fun({Key, Value}) ->
                 {Key, jsn:to_base64(Value)}
         end,
     Json1 = lists:map(F, Json),
     {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json1)),
-    {Html, R, S}.
+    {Html, R1, S}.
 
 from_json(R, S) ->
   case proplists:get_value(target, S) of
@@ -131,8 +125,9 @@ json_create(R, S) ->
     h:create(proplists:get_value(posted_json, S), R, S).
 
 json_update(R, S) ->
-    Json = jsn:decode(wrq:req_body(R)),
-    h:update(Json, R, S).  
+    {ok, Body, R1} = cowboy_req:body(R),
+    Json = jsn:decode(Body),
+    h:update(Json, R1, S).  
 
 % Helpers
 

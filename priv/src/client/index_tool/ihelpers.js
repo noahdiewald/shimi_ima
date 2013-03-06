@@ -41,17 +41,20 @@ shimi.ihelpers = (function () {
     return false;
   };
 
-  mod.alterArg =
-
-  function (argumentField, operatorField, fieldField, callback) {
+  mod.alterArg = function (argumentField, operatorField, fieldField, callback) {
     var fieldDoc = function () {
       return s.get(fieldField.val());
     };
 
     callback();
 
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
+    try {
+      // Destroy these if initialized already
+      argumentField.removeAttr('disabled').datepicker('destroy');
+      argumentField.removeAttr('disabled').autocomplete('destroy');
+    } catch (err) {
+      window.console.log(err.message);
+    }
 
     var dateOrText = function (argumentField, fdoc) {
       if (fdoc.subcategory === 'date') {

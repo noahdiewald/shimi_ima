@@ -1,4 +1,4 @@
-shimi.iui = (function () {
+shimi.indexui = (function () {
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
@@ -19,10 +19,12 @@ shimi.iui = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "/projects/project-" + $('#container').attr('data-project-id') + "/indexes?as=options";
+    var url = "indexes?as=options";
+    var options;
 
-    $.get(url, function (data) {
-      $('#index-index-input').html(data);
+    $.getJSON(url, function (data) {
+      options = templates['index-options'].render(data);
+      $('#index-index-input').html(options);
     });
 
     return mod;
@@ -31,8 +33,8 @@ shimi.iui = (function () {
   mod.load = function (target) {
     var id = $(target).attr('href').slice(1);
     $("#document-view").html("<em>Loading...</em>");
-    shimi.eui.clear();
-    shimi.vui.get(id);
+    shimi.editui.clear();
+    shimi.viewui.get(id);
 
     return mod;
   };

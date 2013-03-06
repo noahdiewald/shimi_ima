@@ -1,4 +1,4 @@
-shimi.ieui = (function () {
+shimi.ieditui = (function () {
   var mod = {};
 
   var tableBody = function () {
@@ -146,7 +146,7 @@ shimi.ieui = (function () {
     $.get(url, function (indexData) {
       htmlTarget.html(indexData);
       tableBody().sortable();
-      shimi.piui.get();
+      shimi.ipreviewui.get();
     });
 
     return false;
@@ -211,7 +211,7 @@ shimi.ieui = (function () {
       var completeMessage = "Your index has been deleted.";
       var completeFunction = function () {
         $('#index-conditions').empty();
-        shimi.iiui.init();
+        shimi.ilistingui.init();
       };
 
       if (window.confirm("Are you sure?")) {

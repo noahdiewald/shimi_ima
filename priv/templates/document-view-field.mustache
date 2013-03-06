@@ -1,0 +1,16 @@
+<li 
+  class="field-view 
+    {{#changed}}changed{{/changed}}"
+  data-field-field="{{ id }}"
+  {{#instance}}
+  data-field-instance="{{ instance }}"
+  {{/instance}}
+  data-field-value="{{ json_value }}">
+  <b>{{ label }}</b>{{#changed}}{{^addition}}<span class="small-control view-field-change" title="{{ originalValue }}">→</span>{{/addition}}{{/changed}}:
+  {{#is_textarea}}
+    <span class="retain-white">{{value}}</span>
+  {{/is_textarea}}
+  {{^is_textarea}}
+    {{value}}
+  {{/is_textarea}}
+</li>

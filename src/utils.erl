@@ -46,7 +46,7 @@
 
 %% @doc Return whether we're in development mode
 is_devel() ->
-    case application:get_env(dictionary_maker, devel) of
+    case application:get_env(shimi_ima, devel) of
         {ok, true} ->
             true;
         _ ->
@@ -55,24 +55,24 @@ is_devel() ->
 
 %% @doc Return the Admin DB URL.
 adb() ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val.
 
 %% @doc Return the Normal DB URL.
 ndb() ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, normal_db),
     Val.
 
-%% @doc Return a unique id
+%% @doc Return a unique id. Probably not a real UUID but it isn't
+%% necessary here.
 uuid() ->
     binary_to_hexlist(crypto:rand_bytes(16)).
 
 %% @doc Takes a tuple that describes a view path and a function. The
-%% function argument takes a document and returns {ok, document} or
-%% the atom 'null'. It is applied to every document returned by the
-%% view, which will be queried using the include_docs option. The
-%% result of the function argument will be used to update the
-%% document.
+%% function argument takes a document and returns {ok, document} or the
+%% atom 'null'. It is applied to every document returned by the view,
+%% which will be queried using the include_docs option. The result of
+%% the function argument will be used to update the document.
 -spec update_all_by({Project :: string(), Id :: string(), View :: string()}, 
                     fun((jsn:json_term()) -> {ok, jsn:json_term()} | null)) -> 
                            ok.
@@ -309,7 +309,7 @@ takedrop([H|Rest], Acc, N) ->
     takedrop(Rest, [H|Acc], N - 1).
 
 delete_all_design_docs(DB) ->
-    Url = adb() ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{"startkey", <<"_design/">>},{"endkey", <<"_design0">>}])),
+    Url = adb() ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{<<"startkey">>, <<"_design/">>},{<<"endkey">>, <<"_design0">>}])),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Designs = proplists:get_value(<<"rows">>, jsn:decode(Json)),
     F = fun(X) ->

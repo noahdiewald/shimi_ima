@@ -34,6 +34,7 @@ module.exports = function (grunt) {
     },
     beautifier: {
       options: {
+        preserve_newlines: false,
         indentSize: 2
       }
     },
@@ -56,11 +57,9 @@ module.exports = function (grunt) {
     },
     hogan: {
       all: {
-        compile: {
         templates: "priv/templates/*.mustache",
         output: "priv/www/templates.js",
         binderName: "hulk"
-        }
       }
     },
     watch: {
@@ -82,17 +81,18 @@ module.exports = function (grunt) {
         browser: true
       },
       globals: {
-        jQuery: true,
         $: true,
-        shimi: true,
-        emit: true,
-        send: true,
-        getRow: true,
-        start: true,
         describe: true,
-        it: true,
-        require: true,
+        emit: true,
         exports: true,
+        getRow: true,
+        Hogan: true,
+        it: true,
+        jQuery: true,
+        require: true,
+        send: true,
+        shimi: true,
+        start: true,
         templates: true
       }
     },

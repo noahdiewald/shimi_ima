@@ -29,9 +29,11 @@
          fold_view/6,
          get/3,
          get/4,
+         get_attachment/4,
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
+         get_view_json/3,
          get_view_json/5,
          get_views/1,
          new_db/1,
@@ -39,13 +41,18 @@
          replicate/3,
          rm_db/1,
          should_wait/2,
-         update/4
+         update/4,
+         update_raw/4
         ]).
+
+-export_type([ret/0]).
 
 -include_lib("types.hrl").
 
+-type ret() :: {ok, jsn:json_term() | updated | created} | {error, atom()}.
+
 adb(Project) ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val ++ Project ++ "/".
 
 %% @doc Create a document
@@ -122,6 +129,13 @@ get(Id, Rev, Project, S) ->
     Url = ndb(Project) ++ Id ++ "?rev=" ++ Rev,
     get_json_helper(Url, Headers).
 
+%% @doc Get an attachment.
+-spec get_attachment(string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_attachment(Id, Name, Project, S) ->
+    Headers = proplists:get_value(headers, S, []),
+    Url = ndb(Project) ++ Id ++ "/" ++ Name,
+    get_helper(Url, Headers).
+
 -spec get_db_info(string()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_db_info(Project) ->
     get_json_helper(adb(Project), []).
@@ -153,7 +167,7 @@ get_design_rev(Name, Project, Headers) ->
 get_helper(Url, Headers) ->
     Opts = [{connect_timeout, 500}, {inactivity_timeout, 10000}],
     case ibrowse:send_req(Url, Headers, get, [], Opts) of
-        {ok, "200", _, Json} -> {ok, Json};
+        {ok, "200", _, Body} -> {ok, Body};
         {ok, "404", _, _} -> {error, not_found};
         {error, req_timedout} -> {error, req_timedout}
     end.
@@ -167,9 +181,9 @@ get_json_helper(Url, Headers) ->
 
 -spec get_views(string()) -> [binary()].
 get_views(Project) ->
-    Qs = view:to_string(view:from_list([{"startkey", <<"_design/">>},
-                                        {"endkey", <<"_design0">>},
-                                        {"include_docs", true}])),
+    Qs = view:to_string(view:from_list([{<<"startkey">>, <<"_design/">>},
+                                        {<<"endkey">>, <<"_design0">>},
+                                        {<<"include_docs">>, true}])),
     Url = adb(Project) ++ "_all_docs" ++ "?" ++ Qs,
     {ok, Json} = get_json_helper(Url, []),
     Designs = proplists:get_value(<<"rows">>, Json),
@@ -180,6 +194,17 @@ get_views(Project) ->
                      end
              end,
     lists:flatten(lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
+    
+-spec get_view_json(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_view_json(Qs, Project, S) ->
+    Headers = proplists:get_value(headers, S, []),
+    Url = ndb(Project),
+    FullUrl = Url ++ "_all_docs" ++ "?" ++ Qs,
+    case get_json_helper(FullUrl, Headers) of
+        {error, req_timedout} -> {error, req_timedout};
+        {error, not_found} -> {error, not_found};
+        {ok, Json} -> {ok, Json}
+    end.
     
 -spec get_view_json(string(), string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Id, Name, Qs, Project, S) ->
@@ -217,12 +242,12 @@ new_db(DB) ->
 
 -spec ndb(string()) -> string().
 ndb(Project) ->
-    {ok, Val} = application:get_env(dictionary_maker, normal_db),
+    {ok, Val} = application:get_env(shimi_ima, normal_db),
     Val ++ Project ++ "/".
 
 -spec pdb() -> string().
 pdb() ->
-    {ok, Val} = application:get_env(dictionary_maker, admin_db),
+    {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val ++ "shimi_ima" ++ "/".
 
 -spec replicate(string(), string()) -> {ok, replicated}.
@@ -265,18 +290,11 @@ should_wait(Project, ViewPath) ->
   
 -spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
 update(Id, Json, Project, S) ->
-    CT = [{"Content-Type","application/json"}],
-    {DB, Headers} = case proplists:get_value(admin, S) of
-        true ->
-            {adb(Project), CT};
-        _ ->
-            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
-    end,
-    update(Json, DB ++ "_design/shimi_ima/_update/stamp/" ++ Id, Headers).
+    update_raw("_design/shimi_ima/_update/stamp/" ++ Id, jsn:encode(Json), Project, S).
 
--spec update(string(), [tuple()], jsn:json_term()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
-update(Json, Url, Headers) ->
-    case ibrowse:send_req(Url, Headers, put, jsn:encode(Json)) of
+-spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+update(Data, Url, Headers) ->
+    case ibrowse:send_req(Url, Headers, put, Data) of
         {ok, "201", _, _} -> 
             {ok, updated};
         {error, req_timedout} -> 
@@ -288,3 +306,17 @@ update(Json, Url, Headers) ->
         {ok, "409", _, _} -> 
             {error, conflict}
     end.
+
+-spec update_raw(string(), iodata(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+update_raw(Id, Data, Project, S) ->
+    CT = case proplists:get_value(content_type, S) of
+        undefined -> [{"Content-Type", "application/json"}];
+        ContentType -> [{"Content-Type", ContentType}]
+    end,
+    {DB, Headers} = case proplists:get_value(admin, S) of
+        true ->
+            {adb(Project), CT};
+        _ ->
+            {ndb(Project), CT ++ proplists:get_value(headers, S, [])}
+    end,
+    update(Data, DB ++ Id, Headers).
