@@ -5259,10 +5259,12 @@ shimi.projectui = (function () {
 $(function () {
   $('.notification').hide();
 
-  $('#loading').hide().ajaxStart(function () {
-    $(this).show();
+  $('#loading').hide();
+
+  $(document).ajaxStart(function () {
+    $('#loading').show();
   }).ajaxStop(function () {
-    $(this).hide();
+    $('#loading').hide();
   });
 
   shimi.form.initDateFields();
