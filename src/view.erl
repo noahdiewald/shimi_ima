@@ -195,7 +195,7 @@ decode_qs_value(NotJsonBin) ->
 
 -spec encode(jsn:json_term()) -> string().
 encode(Term) ->
-    mochiweb_util:quote_plus(jsn:encode_to_list(Term)).
+    jsn:encode_to_list(Term).
 
 -spec make_vqs(view_query(), [string()]) -> [string()].
 make_vqs(VQ, Acc) when VQ#vq.key /= undefined ->
@@ -205,11 +205,11 @@ make_vqs(VQ, Acc) when VQ#vq.keys /= undefined ->
 make_vqs(VQ, Acc) when VQ#vq.startkey /= undefined ->
     make_vqs(VQ#vq{startkey = undefined}, ["startkey=" ++ encode(VQ#vq.startkey)|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.startkey_docid /= undefined ->
-    make_vqs(VQ#vq{startkey_docid = undefined}, ["startkey_docid=" ++ mochiweb_util:quote_plus(VQ#vq.startkey_docid)|Acc]);
+    make_vqs(VQ#vq{startkey_docid = undefined}, ["startkey_docid=" ++ VQ#vq.startkey_docid|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.endkey /= undefined ->
     make_vqs(VQ#vq{endkey=undefined}, ["endkey=" ++ encode(VQ#vq.endkey)|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.endkey_docid /= undefined ->
-    make_vqs(VQ#vq{endkey_docid=undefined}, ["endkey_docid=" ++ mochiweb_util:quote_plus(VQ#vq.endkey_docid)|Acc]);
+    make_vqs(VQ#vq{endkey_docid=undefined}, ["endkey_docid=" ++ VQ#vq.endkey_docid|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.limit /= undefined ->
     make_vqs(VQ#vq{limit = undefined}, ["limit=" ++ integer_to_list(VQ#vq.limit)|Acc]);
 make_vqs(VQ, Acc) when VQ#vq.stale /= undefined ->

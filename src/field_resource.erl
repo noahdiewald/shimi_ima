@@ -166,10 +166,11 @@ get_field_html(Json, R, S) ->
     {Project, R1} = h:project(R),
     % One time use identifier
     UUID = utils:uuid(),
-    Json1 = jsn:set_value(<<"instance_id">>, list_to_binary(UUID), Json),
-    Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json1)),
+    Json1 = field:to_json(field:from_json(Json)),
+    Json2 = jsn:set_value(<<"instance_id">>, list_to_binary(UUID), Json1),
+    Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json2)),
     Template = list_to_atom("field_" ++ Subcategory ++ "_dtl"),
-    {ok, Html} = Template:render(get_allowed(Subcategory, Json1, Project, S)),
+    {ok, Html} = Template:render(get_allowed(Subcategory, Json2, Project, S)),
     {Html, R1}.
 
 get_allowed([$d, $o, $c|_], Json, Project, S) -> get_allowed_docs(Json, Project, S);
