@@ -39,11 +39,14 @@ shimi.fieldsets = (function () {
       var instance = s.f("instance");
       var changes = shimi.globals.changes;
 
-      if (changes[instance] === undefined) {
-        changes[instance] = {};
+      if (changes === undefined) {
+        changes = {};
+      } else {
+        if (changes[instance] === undefined) {
+          changes[instance] = {};
+        }
+        changes[instance].newValue = JSON.stringify(value);
       }
-
-      changes[instance].newValue = JSON.stringify(value);
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -310,7 +313,9 @@ shimi.fieldsets = (function () {
         });
       }
 
-      obj.changes = processChanges(shimi.globals.changes);
+      if (shimi.globals.changes !== undefined) {
+        obj.changes = processChanges(shimi.globals.changes);
+      }
 
       obj.fieldsets[i] = fsObj;
     });
