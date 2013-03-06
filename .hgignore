@@ -10,6 +10,7 @@ doc/.*\.css
 doc/edoc-info
 c_src/.*\.o
 priv/.*\.so
+shimi_ima\.pid
 dictionary_maker\.pid
 .*\~
 .*\.orig
@@ -17,6 +18,7 @@ misc/importers/.*\.(hi|o|ho|csv|temp|json)
 misc/importers/working/.*
 (.*/)?\.?\#[^/]*\#?$
 scratch\.txt
+^shimi_ima\.config$
 ^dm\.config$
 node_modules
 .*\.couchapprc

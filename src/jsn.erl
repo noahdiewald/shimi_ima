@@ -78,8 +78,7 @@ encode(Any) ->
 %% @spec encode(json_term()) -> [char()]
 %% @doc Encode the given as JSON to a normal list.
 encode_to_list(Any) ->
-    [List] = io_lib:format("~ts", [json_encode(Any, #encoder{})]),
-    List.
+    binary_to_list(iolist_to_binary(json_encode(Any, #encoder{}))).
 
 %% @spec decoder([decoder_option()]) -> function()
 %% @doc Create a decoder/1 with the given options.

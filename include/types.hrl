@@ -5,6 +5,7 @@
 -type dateval() :: calendar:date() | today.
 -type basicval() :: number() | binary() | calendar:date() | null.
 -type anyval() :: basicval() | [binary()] | boolean() | null.
+-type instance() :: binary().
 -type sortkey() :: binary().
 -type fieldid() :: binary().
 -type fieldsetid() :: binary().
@@ -36,6 +37,7 @@
           
 -record(vq, {
           key :: jsn:json_term(), 
+          keys :: jsn:json_term(), 
           startkey :: jsn:json_term(), 
           startkey_docid :: string(), 
           endkey :: jsn:json_term(), 
@@ -100,19 +102,21 @@
           name :: bstring(),
           order :: integer(),
           multiple :: boolean(),
-          collapse :: boolean()
+          collapse :: boolean(),
+          fields :: [field()]
          }).
 
 -record(doctype, {
           id :: doctypeid(),
           rev :: rev(),
           category :: doctype,
-          description :: text()
+          description :: text(),
+          fieldsets :: [fieldset()]
          }).
 
 -record(docfield, {
           id :: fieldid(),
-          instance :: binary(),
+          instance :: instance(),
           charseq :: charseqid(),
           head :: boolean(),
           label :: bstring(),
@@ -151,6 +155,7 @@
           deleted :: boolean(),
           fieldsets :: [docfieldset()],
           index :: [{fieldid(),sortkey_val() | [sortkey_val()]}],
+          changes :: [{instance(), [{binary(), jsn:json_term()}]}],
           head :: [fieldid()],
           reverse :: [fieldid()]
          }).

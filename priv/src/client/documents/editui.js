@@ -1,5 +1,5 @@
 // Edit pane UI elements
-shimi.eui = (function () {
+shimi.editui = (function () {
   var mod = {};
 
   // Imports
@@ -17,127 +17,6 @@ shimi.eui = (function () {
     return $('#document-edit-button');
   };
 
-  var keyboard = function () {
-    var inputable = 'input, select';
-    var t = $('#edit-tabs');
-
-    var selectInput = function () {
-      var cur = t.find('.ui-tabs-selected a').attr('href');
-      $(cur).find(inputable + ", textarea").first().focus();
-    };
-
-    $(document).bind('keydown', 'Alt+p', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected !== 0) {
-        t.tabs('select', selected - 1);
-        selectInput();
-      } else {
-        t.tabs('select', totaltabs - 1);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).bind('keydown', 'Alt+n', function (e) {
-      var totaltabs = t.tabs('length');
-      var selected = t.tabs('option', 'selected');
-
-      if (selected < totaltabs - 1) {
-        t.tabs('select', selected + 1);
-        selectInput();
-      } else {
-        t.tabs('select', 0);
-        selectInput();
-      }
-
-      return false;
-    });
-
-    $(document).live('keydown', 'Alt+c', function (e) {
-      var active = $(document.activeElement);
-      mod.showCommandDialog(active);
-      return true;
-    });
-
-    $('#edit-command-form').live("submit", function (e) {
-      return false;
-    });
-
-    $('#edit-command-input').live("keydown", function (e) {
-      if (e.which === 13) {
-        var command = $('#edit-command-input').val();
-        var restoreFocus = true;
-        $('#command-dialog').dialog("close");
-
-        switch (command) {
-        case "w":
-        case "clear":
-          mod.clear();
-          break;
-        case "c":
-        case "create":
-          mod.create();
-          break;
-        case "s":
-        case "save":
-          mod.save();
-          break;
-        case "d":
-        case "delete":
-          $("#document-view").show();
-          if ($("#document-delete-button").css("display") !== "none") {
-            $("#document-delete-button").click();
-          }
-          break;
-        case "e":
-        case "edit":
-          $("#document-view").show();
-          if ($("#document-edit-button").css("display") !== "none") {
-            $("#document-edit-button").click();
-            restoreFocus = false;
-          }
-          break;
-        case "r":
-        case "restore":
-          $("#document-view").show();
-          if ($("#document-restore-button").css("display") !== "none") {
-            $("#document-restore-button").click();
-          }
-          break;
-        }
-
-        if (restoreFocus) {
-          $('#' + $('#command-dialog').attr('data-last-active')).focus();
-        } else {
-          selectInput();
-        }
-      }
-
-      return true;
-    });
-
-    $("#edit-document-form input").live('keydown', function (e) {
-      if (e.which === 13) {
-        if ($("#save-document-button").css("display") === "none") {
-          mod.create();
-        } else {
-          mod.save();
-        }
-      }
-      return true;
-    });
-
-    $("#edit-document-form textarea").on('keydown', 'Alt+x', function (e) {
-      mod.toggleTextarea($(e.target));
-      return false;
-    });
-
-    return mod;
-  };
-
   var validationError = function (req) {
     var body = JSON.parse(req.responseText);
     var title = req.statusText;
@@ -153,7 +32,7 @@ shimi.eui = (function () {
     return mod;
   };
 
-  var instances = function () {
+  var instances = function (addInstances) {
     var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
     var makeInstance = function () {
       return text.map(function () {
@@ -161,16 +40,27 @@ shimi.eui = (function () {
       }).join('');
     };
 
-    $("[data-field-instance]").each(
+    $("#last-added [data-field-instance]").each(function (index, item) {
+      var itemElem = $(item).first();
+      var oldInstance = itemElem.attr('data-field-instance');
+      var newInstance = oldInstance;
 
-    function (index, item) {
-      var newInstance = makeInstance();
-      $(item).first().attr('data-field-instance', newInstance);
-      $(item).first().attr('data-group-id', newInstance);
-      $(item).first().attr('id', newInstance);
-      $(item).first().next('.expander').attr('data-group-id', newInstance);
-      $(item).first().next().next('.expander').attr('data-group-id', newInstance);
+      if (addInstances) {
+        newInstance = makeInstance();
+      }
+
+      itemElem.attr('data-group-id', newInstance);
+      // TODO: This is a little redundant
+      itemElem.attr('id', newInstance);
+      itemElem.attr('data-field-instance', newInstance);
+      // Differences in Firefox and Chrome
+      itemElem.next('.expander').attr('data-group-id', newInstance);
+      itemElem.next().next('.expander').attr('data-group-id', newInstance);
     });
+
+    if (addInstances) {
+      $("#last-added").removeAttr("id");
+    }
 
     return mod;
   };
@@ -182,15 +72,26 @@ shimi.eui = (function () {
 
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
-      keyboard();
-      shimi.efs.initFieldsets();
+      shimi.fieldsets.initFieldsets();
     });
 
     return mod;
   };
 
-  mod.afterFreshRefresh = function () {
-    afterRefresh();
+  mod.selectInput = function () {
+    var inputable = 'input, select, textarea';
+    var t = function () {
+      return $('#edit-tabs');
+    };
+
+    var cur = t().find('.ui-tabs-active a').attr('href');
+    $(cur).find(inputable).first().focus();
+
+    return mod;
+  };
+
+  mod.afterFreshRefresh = function (addInstances) {
+    afterRefresh(addInstances);
 
     return mod;
   };
@@ -208,9 +109,9 @@ shimi.eui = (function () {
     return mod;
   };
 
-  var afterRefresh = function () {
+  var afterRefresh = function (addInstances) {
     shimi.form.initDateFields();
-    instances();
+    instances(addInstances);
 
     return mod;
   };
@@ -260,7 +161,7 @@ shimi.eui = (function () {
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     $.ajax({
       type: "PUT",
@@ -273,8 +174,8 @@ shimi.eui = (function () {
         if (req.status === 204 || req.status === 200) {
           title = "Success";
           body = "Your document was saved.";
-          shimi.vui.get(document);
-          shimi.iui.get(skey, sid);
+          shimi.viewui.get(document);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
         } else if (req.status === 403) {
@@ -303,7 +204,7 @@ shimi.eui = (function () {
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     createButton().hide();
-    $.extend(obj, shimi.efs.fieldsetsToObject(root));
+    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     var postUrl = $.ajax({
       type: "POST",
@@ -319,9 +220,9 @@ shimi.eui = (function () {
 
           saveButton().hide().attr('disabled', 'true');
           $('.fields').remove();
-          shimi.efs.initFieldsets();
-          shimi.vui.get(documentId);
-          shimi.iui.get(skey, sid);
+          shimi.fieldsets.initFieldsets();
+          shimi.viewui.get(documentId);
+          shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
         } else if (req.status === 403) {
@@ -336,7 +237,7 @@ shimi.eui = (function () {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled', 'disabled');
     $('.fields').remove();
-    shimi.efs.initFieldsets();
+    shimi.fieldsets.initFieldsets();
   };
 
   mod.showHelpDialog = function (target) {
@@ -346,20 +247,6 @@ shimi.eui = (function () {
 
     $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
 
-    return mod;
-  };
-
-  mod.showCommandDialog = function (context) {
-    $('#edit-command-input').val("");
-    $('#edit-dialog').attr('data-last-active', context.id);
-    var commandDialog = $('#command-dialog').dialog({
-      modal: true,
-      close: function () {
-        $('#edit-command-input').val("");
-        context.focus();
-      }
-    });
-    commandDialog.dialog('open');
     return mod;
   };
 

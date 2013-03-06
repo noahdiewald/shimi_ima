@@ -8,11 +8,138 @@ shimi.setsui = (function () {
   var setB = function () {
     return $("#document-set-b-input");
   };
+  var worksheetsSet = function () {
+    return $("#document-worksheets-set-input");
+  };
   var op = function () {
     return $("#document-set-operation-input");
   };
   var setListing = function () {
     return $("#set-listing");
+  };
+  var sessionKey = function () {
+    return shimi.documents.identifier() + "_sets";
+  };
+
+  var member = function (arr, x) {
+    return arr.some(function (y) {
+      return x[0] === y[0] && x[1] === y[1];
+    });
+  };
+
+  var processSet = function (set) {
+    var name = set[0];
+    var arr = sets.unique(set[1], member);
+    var procSet = [name, arr];
+    return procSet;
+  };
+
+  var union = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.union(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var intersection = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.intersection(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var relativeComplement = function (setName1, setName2) {
+    var setElems1 = mod.getSet(setName1)[1];
+    var setElems2 = mod.getSet(setName2)[1];
+    var newSet = sets.relativeComplement(setElems1, setElems2, member);
+    render(newSet);
+    return mod;
+  };
+
+  var symmetricDifference = function (setNameA, setNameB) {
+    var setElemsA = mod.getSet(setNameA)[1];
+    var setElemsB = mod.getSet(setNameB)[1];
+    var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
+    render(newSet);
+    return mod;
+  };
+
+  var getSets = function () {
+    var curr = window.sessionStorage.getItem(sessionKey());
+    var retval = [];
+
+    if (curr !== null) {
+      retval = JSON.parse(curr);
+    }
+
+    return retval;
+  };
+
+  var view = function (setName) {
+    var elems = mod.getSet(setName)[1];
+    render(elems);
+    return mod;
+  };
+
+  var remove = function (setName) {
+    removeSet(setName);
+    render([]);
+    shimi.dispatch.send("sets-changed");
+    return mod;
+  };
+
+  mod.getSet = function (setName) {
+    var retval;
+    var curr = getSets();
+    retval = curr.filter(function (x) {
+      return x[0] === setName;
+    })[0];
+    return retval;
+  };
+
+  var removeSet = function (setName) {
+    var nnew;
+    var curr = getSets();
+    nnew = curr.filter(function (x) {
+      return x[0] !== setName;
+    });
+    setSets(nnew);
+    return mod;
+  };
+
+  var getSetNames = function () {
+    var curr = getSets();
+    return curr.map(function (x) {
+      return x[0];
+    });
+  };
+
+  var setSets = function (nnew) {
+    var procSets;
+    if (Array.isArray(nnew)) {
+      procSets = nnew.map(function (x) {
+        return processSet(x);
+      });
+      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
+    } else {
+      window.sessionStorage.settem(sessionKey(), "[]");
+    }
+
+    return mod;
+  };
+
+  var setSet = function (nnew) {
+    if (Array.isArray(nnew) && nnew.length === 2) {
+      var curr = getSets();
+      var newName = nnew[0];
+      var filtered = curr.filter(function (x) {
+        return x[0] !== newName;
+      });
+      setSets(filtered.concat([nnew]));
+    }
+    return mod;
   };
 
   var selectedToArray = function (target) {
@@ -72,43 +199,6 @@ shimi.setsui = (function () {
     return mod;
   };
 
-  var view = function (setName) {
-    var elems = sets.getSet(setName)[1];
-    render(elems);
-    return mod;
-  };
-
-  var remove = function (setName) {
-    sets.removeSet(setName);
-    render([]);
-    mod.updateSelection();
-    return mod;
-  };
-
-  var union = function (setNameA, setNameB) {
-    var newSet = sets.union(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var intersection = function (setNameA, setNameB) {
-    var newSet = sets.intersection(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var symetricDifference = function (setNameA, setNameB) {
-    var newSet = sets.symetricDifference(setNameA, setNameB);
-    render(newSet);
-    return mod;
-  };
-
-  var relativeComplement = function (setName1, setName2) {
-    var newSet = sets.relativeComplement(setName1, setName2);
-    render(newSet);
-    return mod;
-  };
-
   mod.performOp = function () {
     switch (op().val()) {
     case "view-a":
@@ -129,8 +219,8 @@ shimi.setsui = (function () {
     case "intersection":
       intersection(setA().val(), setB().val());
       break;
-    case "symetric-difference":
-      symetricDifference(setA().val(), setB().val());
+    case "symmetric-difference":
+      symmetricDifference(setA().val(), setB().val());
       break;
     case "relative-complement-b-in-a":
       relativeComplement(setA().val(), setB().val());
@@ -145,12 +235,13 @@ shimi.setsui = (function () {
   };
 
   mod.updateSelection = function () {
-    var currNames = sets.getSetNames();
+    var currNames = getSetNames();
     var newOptions = templates['set-options'].render({
       names: currNames
     });
     setA().html(newOptions);
     setB().html(newOptions);
+    worksheetsSet().html(newOptions);
     return mod;
   };
 
@@ -165,9 +256,9 @@ shimi.setsui = (function () {
       dialog.hide();
       selected = selectedToArray(target);
       newSet = [name, selected];
-      sets.setSet(newSet);
+      setSet(newSet);
       $("#new-set-input").val("");
-      mod.updateSelection();
+      shimi.dispatch.send("sets-changed");
       shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
     } else {
       shimi.flash("Input invalid:", "You must supply a valid name.").error();

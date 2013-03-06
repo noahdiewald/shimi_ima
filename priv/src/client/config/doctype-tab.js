@@ -24,6 +24,7 @@ shimi.doctypeTab = (function () {
       var fieldsetContainer = $("#fieldsets-" + url.doctype);
 
       fieldsetContainer.empty();
+      fieldsetContainer.accordion();
       fieldsetContainer.accordion("destroy");
       fieldsetContainer.html(fieldsets);
 

@@ -1,5 +1,8 @@
 var shimi = {};
 
+// A place to temporarily store global objects
+shimi.globals = {};
+
 // functions added to String
 String.prototype.isBlank = function () {
   return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));

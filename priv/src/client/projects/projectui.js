@@ -1,4 +1,4 @@
-shimi.pui = (function () {
+shimi.projectui = (function () {
   var mod = {};
 
   var deleteProject = function (id) {

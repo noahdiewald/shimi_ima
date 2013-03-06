@@ -1,4 +1,4 @@
-shimi.efs = (function () {
+shimi.fieldsets = (function () {
   var mod = {};
   var store = shimi.store;
   var utils = shimi.utils();
@@ -35,6 +35,18 @@ shimi.efs = (function () {
     fields.each(function (i, field) {
       field = $(field);
       var s = store(field);
+      var value = getFieldValue(field);
+      var instance = s.f("instance");
+      var changes = shimi.globals.changes;
+
+      if (changes === undefined) {
+        changes = {};
+      } else {
+        if (changes[instance] === undefined) {
+          changes[instance] = {};
+        }
+        changes[instance].newValue = JSON.stringify(value);
+      }
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -45,12 +57,12 @@ shimi.efs = (function () {
         required: s.f("required") === "true",
         min: dateOrNumber(s.f("subcategory"), s.f("min")),
         max: dateOrNumber(s.f("subcategory"), s.f("max")),
-        instance: s.f("instance"),
+        instance: instance,
         charseq: s.f("charseq"),
         regex: s.f("regex"),
         order: s.f("order") * 1,
         subcategory: s.f("subcategory"),
-        value: getFieldValue(field)
+        value: value
       };
 
       if (index >= 0) {
@@ -145,16 +157,19 @@ shimi.efs = (function () {
     return value;
   };
 
-  var initFields = function (container, callback) {
+  var initFields = function (container, callback, addInstances) {
     var url = dpath(container, "field");
     var section = container.children('.fields').last();
     var prependIt = function (data) {
+      if (addInstances) {
+        section.attr("id", "last-added");
+      }
       section.prepend(data);
       if (callback) {
         callback(section);
       }
 
-      shimi.eui.afterFreshRefresh();
+      shimi.editui.afterFreshRefresh(addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -190,44 +205,67 @@ shimi.efs = (function () {
     $('#save-document-button').show();
 
     container.find('.field-view').each(function (i, field) {
-      var value = $(field).attr('data-field-value');
+      var valueJson = $(field).attr('data-field-value');
       var id = $(field).attr('data-field-field');
+      var instance = $(field).attr('data-field-instance');
+      var value;
+
+      if (valueJson) {
+        value = JSON.parse(valueJson);
+      }
 
       if (!context) {
         context = $('body');
       }
 
-      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value);
+      // TODO: There is still a mismatch in template systems and
+      // conventions that means that I cannot simply set the values
+      // directly. There are different rules for escaping, etc.
+      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
     });
   };
 
-  var loadLabels = function (url) {
-    $.getJSON(url, function (data) {
-      sessionStorage.setItem("lables", JSON.stringify(data));
-    });
-  };
-
-  var setFieldValue = function (field, value) {
+  var setFieldValue = function (field, value, instance) {
     if (field.is('input.boolean')) {
-      field.attr("checked", value === "true");
+      field.prop("checked", value);
+    } else if (value && field.is('select.open-boolean')) {
+      field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
-      field.val(value.split(","));
+      value = value.map(function (x) {
+        return encodeURIComponent(x).replace(/%20/g, "+");
+      });
+      field.val(value);
+    } else if (value && field.is('select.select')) {
+      value = encodeURIComponent(value).replace(/%20/g, "+");
+      field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
-      field.val(decodeURIComponent(value.replace(/\+/g, " ")));
-    } else if (field.is('textarea.textarea')) {
       field.val(decodeURIComponent(value.replace(/\+/g, " ")));
     } else {
       field.val(value);
     }
+    field.attr('data-field-instance', instance);
   };
 
-  mod.initFieldset = function (fieldset, callback) {
+  var processChanges = function (changes) {
+    var processed = {};
+
+    Object.keys(changes).forEach(function (x) {
+      if (changes[x].newValue !== changes[x].originalValue) {
+        processed[x] = changes[x];
+      }
+      return true;
+    });
+
+    return processed;
+  };
+
+  mod.initFieldset = function (fieldset, callback, addInstances) {
     var url = dpath($(fieldset), "fieldset").toString();
     var id = store($(fieldset)).fs("fieldset");
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
-      initFields(container, callback);
+      initFields(container, callback, addInstances);
     };
     var storeIt = function (data) {
       sessionStorage.setItem(url, data);
@@ -275,6 +313,10 @@ shimi.efs = (function () {
         });
       }
 
+      if (shimi.globals.changes !== undefined) {
+        obj.changes = processChanges(shimi.globals.changes);
+      }
+
       obj.fieldsets[i] = fsObj;
     });
 
@@ -282,21 +324,6 @@ shimi.efs = (function () {
   };
 
   mod.initFieldsets = function () {
-    var container = $("#create-document-button");
-    var s = store(container);
-    var doctype = s.d("doctype");
-    var versionKey = doctype + "_version";
-    var oldVersion = sessionStorage.getItem(versionKey);
-    var curVersion = s.d("version");
-
-    if (oldVersion !== curVersion) {
-      sessionStorage.clear();
-      var url = shimi.path(container, "fieldset").toString();
-      loadLabels(url);
-    }
-
-    sessionStorage.setItem(versionKey, curVersion);
-
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
@@ -321,7 +348,7 @@ shimi.efs = (function () {
       }
     });
 
-    shimi.eui.afterEditRefresh();
+    shimi.editui.afterEditRefresh();
 
     return mod;
   };

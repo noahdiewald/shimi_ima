@@ -8,10 +8,10 @@
 {% endblock %}
 
 {% block dialogs %}
-<div class="hidden" id="help-dialog" title="Help">
+<div class="hidden dialog" id="help-dialog" title="Help">
   <p id="help-dialog-text"></p>
 </div>
-<div class="hidden" id="command-dialog" title="Command">
+<div class="hidden dialog" id="command-dialog" title="Command">
   <form id="edit-command-form">
     <label for="edit-command-input">Edit Command</label>
     <input type="text" id="edit-command-input" autocomplete="off" name="edit-command-input">
@@ -23,7 +23,7 @@
     <label for="new-set-input">Set Name</label>
     <input type="text" id="new-set-input" autocomplete="off" name="new-set-input" />
     <a id="new-set-save-button" class="link-button">Save</a>
-    <a class="link-button cancel-dialog" data-dialog="new-set-dialog">Cancel</a>
+    <a class="link-button cancel-dialog" data-target="new-set-dialog">Cancel</a>
   </form>
 </div>
 {% endblock %}
@@ -32,6 +32,7 @@
 
 <div id="panel-toggle">
   <ul>
+    <li data-panel="document-worksheets">Worksheets</li>
     <li data-panel="document-sets">Sets</li>
     <li data-panel="document-search">Search</li>
     <li data-panel="document-index">Index</li>
@@ -50,6 +51,19 @@
      data-group-id="document-view-info"
      id="all-document-container">
     
+    <div class="hidden panel" id="document-worksheets">
+      <h2 class="header">Worksheets</h2>
+      <form id="document-worksheets-form">
+        <label for="document-worksheets-set-input">Set</label>
+        <select name="document-worksheets-set-input" id="document-worksheets-set-input"></select><br/>
+      </form>
+      <a href="#" 
+        id="toggle-handles" 
+        class="small-control">Toggle</a>
+      <div id="worksheet-area">
+      </div>
+    </div>
+    
     <div class="hidden panel" id="document-sets">
       <h2 class="header">Sets</h2>
       <form id="document-sets-form">
@@ -66,7 +80,7 @@
           <option value="remove-b">Remove B</option>
           <option value="union">Union</option>
           <option value="intersection">Intersection</option>
-          <option value="symetric-difference">Symetric Difference</option>
+          <option value="symmetric-difference">Symmetric Difference</option>
           <option value="relative-complement-b-in-a">Relative Complement of B in A</option>
           <option value="relative-complement-a-in-b">Relative Complement of A in B</option>
         </select>
