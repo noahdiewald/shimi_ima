@@ -91,12 +91,6 @@ head_charseqs(Doctype, Project, S) ->
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "all_fieldsets", Qs, Project, S).
 
-index(Id, R, S) ->
-    {QsVals, R1} = cowboy_req:qs_vals(R),
-    {Project, R2} = h:project(R1),
-    Qs = view:normalize_sortkey_vq(Id, QsVals, Project, S),
-    {index(Id, Qs, Project, S), R2}.
-
 index(Id, Qs, Project, S) ->
     couch:get_view_json(Id, "index", Qs, Project, S).
 

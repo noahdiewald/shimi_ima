@@ -135,18 +135,22 @@ view(R, S) ->
 
 -spec get_index(h:req_data(), h:req_state()) -> {couch:ret(), jsn:json_term(), h:req_data()}.
 get_index(R, S) ->
-    {[Id, Index], R1} = h:g([id, index], R),
+    {[Id, Index, Project], R1} = h:g([id, index, project], R),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
     case {Id, Index} of
         {undefined, undefined} ->
-            {Doctype, R2} = h:doctype(R1),
-            {Ret, R3} = q:index(Doctype, R2, S),
+            {Doctype, R3} = h:doctype(R2),
+            Qs = view:normalize_sortkey_vq(Doctype, QsVals, Project, S),
+            Ret = q:index(Doctype, Qs, Project, S),
             {Info, R4} = h:basic_info("", " Index", R3, S),
             {Ret, Info, R4};
         {IndexId, undefined} -> 
-            {Ret, R2} = q:index(IndexId, R1, S),
+            Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
+            Ret = q:index(IndexId, Qs, Project, S),
             {Ret, [], R2};
         {undefined, IndexId} ->
-            {Ret, R2} = q:index(IndexId, R1, S),
+            Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
+            Ret = q:index(IndexId, Qs, Project, S),
             {Info, R3} = h:basic_info("", " Index", R2, S),
             {Ret, Info, R3}
     end.

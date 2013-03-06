@@ -42,7 +42,7 @@
 arrange(Fields) ->
     F = fun(X) ->
                 Doc = jsn:get_value(<<"doc">>, X),
-                [{<<"field">>, Doc}]
+                [{<<"field">>, to_json(from_json(Doc))}]
         end,
     lists:map(F, Fields).
 

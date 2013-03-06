@@ -62,7 +62,7 @@ arrange([H|T], [AccH|AccT]) when length(T) >= 0, length(AccT) >= 0  ->
         [_, _, <<"fieldset">>, _] ->
             arrange(T, [jsn:set_value(<<"fields">>, [], H), AccH|AccT]);
         [_, _, <<"fieldset-field">>, _] ->
-            Field = jsn:get_value(<<"doc">>, H),
+            Field = field:to_json(field:from_json(jsn:get_value(<<"doc">>, H))),
             Fields = jsn:get_value(<<"fields">>, AccH),
             arrange(T, [jsn:set_value(<<"fields">>, [Field|Fields], AccH)|AccT])
     end.

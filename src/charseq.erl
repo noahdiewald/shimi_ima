@@ -132,11 +132,14 @@ get_sortkey(<<"undefined">>, _Value, _Project, _S) ->
     <<>>;
 get_sortkey(<<>>, _Value, _Project, _S) ->
     <<>>;
+get_sortkey(<<"null">>, _Value, _Project, _S) ->
+    <<>>;
 get_sortkey(CharseqId, Value, Project, S) when is_binary(CharseqId) ->
     try get_sortkey_helper(CharseqId, Value, Project, S) of
         Sortkey -> Sortkey
     catch
-        error:{badmatch, {ok, "404", _}} -> <<>>
+        error:{badmatch, {error,not_found}} ->
+          <<>>
     end.
   
 get_sortkey_helper(CharseqId, Value, Project, S) ->
