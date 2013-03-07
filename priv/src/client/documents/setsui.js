@@ -269,9 +269,9 @@ shimi.setsui = (function () {
 
   mod.toggleSelectAll = function (target) {
     if ($(target).is(":checked")) {
-      $("input.set-element-selection").attr("checked", true);
+      $("input.set-element-selection").prop("checked", true);
     } else {
-      $("input.set-element-selection").attr("checked", false);
+      $("input.set-element-selection").prop("checked", false);
     }
     return mod;
   };

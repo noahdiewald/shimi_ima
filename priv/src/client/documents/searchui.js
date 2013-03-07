@@ -70,7 +70,7 @@ shimi.searchui = (function () {
         elem.val('');
         break;
       case "checkbox":
-        elem.attr("checked", false);
+        elem.prop("checked", false);
         break;
       }
     });
