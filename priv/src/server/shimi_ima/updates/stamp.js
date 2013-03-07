@@ -29,5 +29,5 @@ function update(doc, req) {
     newDoc.prev_ = doc._rev;
   }
 
-  return [newDoc, message];
+  return [newDoc, newDoc._id];
 }
