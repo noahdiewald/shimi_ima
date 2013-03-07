@@ -49,7 +49,7 @@ create(R, S) ->
             h:create(Json, R1, S);
         <<"doctype">> ->
             case couch:create(Json, Project, S) of
-                {ok, created} ->
+                {ok, _, _} ->
                     {ok, _} = create_design(Json, Project, S),
                     {true, R1, S};
                 {forbidden, Message} ->
@@ -87,7 +87,7 @@ update(R, S) ->
     end,
     
     case couch:update(Id, Json3, Project, S) of
-        {ok, updated} -> 
+        {ok, _, _} -> 
             {ok, _} = update_design(Id, Project, S),
             {true, R2, S};
         {forbidden, Message} ->

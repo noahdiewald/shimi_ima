@@ -232,11 +232,13 @@ shimi.fieldsets = (function () {
       field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
       value = value.map(function (x) {
-        return encodeURIComponent(x).replace(/%20/g, "+");
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
       });
       field.val(value);
     } else if (value && field.is('select.select')) {
-      value = encodeURIComponent(value).replace(/%20/g, "+");
+      window.console.log(value);
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+      window.console.log(value);
       field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
       field.val(decodeURIComponent(value.replace(/\+/g, " ")));

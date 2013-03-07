@@ -3015,11 +3015,13 @@ shimi.fieldsets = (function () {
       field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
       value = value.map(function (x) {
-        return encodeURIComponent(x).replace(/%20/g, "+");
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
       });
       field.val(value);
     } else if (value && field.is('select.select')) {
-      value = encodeURIComponent(value).replace(/%20/g, "+");
+      window.console.log(value);
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+      window.console.log(value);
       field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
       field.val(decodeURIComponent(value.replace(/\+/g, " ")));
@@ -3253,7 +3255,7 @@ shimi.searchui = (function () {
         elem.val('');
         break;
       case "checkbox":
-        elem.attr("checked", false);
+        elem.prop("checked", false);
         break;
       }
     });
@@ -3825,9 +3827,9 @@ shimi.setsui = (function () {
 
   mod.toggleSelectAll = function (target) {
     if ($(target).is(":checked")) {
-      $("input.set-element-selection").attr("checked", true);
+      $("input.set-element-selection").prop("checked", true);
     } else {
-      $("input.set-element-selection").attr("checked", false);
+      $("input.set-element-selection").prop("checked", false);
     }
     return mod;
   };
@@ -3862,9 +3864,12 @@ shimi.viewui = (function (args) {
     }, {});
   };
 
-  var processIncoming = function (docJson) {
-    shimi.globals.changes = {};
+  var processIncoming = function (docJson, rev) {
     var withDeletions = {};
+
+    if (!rev) {
+      shimi.globals.changes = {};
+    }
 
     if (docJson.changes) {
       withDeletions = getDeletions(docJson.changes);
@@ -3888,13 +3893,16 @@ shimi.viewui = (function (args) {
         change = changes[field.instance];
 
         field.json_value = JSON.stringify(field.value);
-        shimi.globals.changes[field.instance] = {
-          fieldset: fsetId,
-          fieldsetLabel: fset.label,
-          field: field.id,
-          fieldLabel: field.label,
-          originalValue: field.json_value
-        };
+
+        if (!rev) {
+          shimi.globals.changes[field.instance] = {
+            fieldset: fsetId,
+            fieldsetLabel: fset.label,
+            field: field.id,
+            fieldLabel: field.label,
+            originalValue: field.json_value
+          };
+        }
 
         if (change !== undefined) {
           field.changed = true;
@@ -3902,6 +3910,7 @@ shimi.viewui = (function (args) {
 
           if (change.originalValue === undefined) {
             fset.addition = true;
+            field.newfield = true;
           } else {
             field.originalValue = JSON.parse(change.originalValue);
           }
@@ -3975,7 +3984,7 @@ shimi.viewui = (function (args) {
     $.getJSON(url, function (docJson) {
       var documentHtml;
 
-      processIncoming(docJson);
+      processIncoming(docJson, rev);
       documentHtml = tmpl(docJson);
       htmlTarget.html(documentHtml);
       window.location.hash = id;
@@ -3985,7 +3994,9 @@ shimi.viewui = (function (args) {
         callback();
       }
 
-      if (!rev) {
+      if (rev) {
+        $("#document-view-tree").addClass("oldrev");
+      } else {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
