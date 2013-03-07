@@ -90,9 +90,11 @@ delete_resource(R, S) ->
     {{ok, Json}, R1} = h:rev_data(R, S),
     case jsn:get_value(<<"deleted_">>, Json) of
         true ->
-            json_update(jsn:set_value(<<"deleted_">>, false, Json), R1, S);
+            S1 = [{change_type, restored}|S],
+            json_update(jsn:set_value(<<"deleted_">>, false, Json), R1, S1);
         _ ->
-            json_update(jsn:set_value(<<"deleted_">>, true, Json), R1, S)
+            S1 = [{change_type, deleted}|S],
+            json_update(jsn:set_value(<<"deleted_">>, true, Json), R1, S1)
     end.
   
 post_is_create(R, S) ->
@@ -126,8 +128,12 @@ to_json(R, S) ->
 
 from_json(R, S) ->
     case proplists:get_value(target, S) of
-        main -> json_create(R, S);
-        identifier -> json_update(R, S)
+        main -> 
+            S1 = [{change_type, created}|S],
+            json_create(R, S1);
+        identifier -> 
+            S1 = [{change_type, updated}|S],
+            json_update(R, S1)
     end.
   
 % Helpers
@@ -141,7 +147,7 @@ json_create(R, S) ->
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(doc, Json1)),
     case couch:create(NormJson, Project, S) of
         {ok, Id, Rev} ->
-            spawn(change_log, created, [Id, Rev, Doctype, Project, S]),
+            spawn(change_log, proplists:get_value(change_type, S), [Id, Rev, Doctype, Project, S]),
             R2 = bump_deps(R1, S),
             {true, R2, S};
         {forbidden, Message} ->
@@ -163,10 +169,10 @@ json_update(Json, R, S) ->
     NormJson = document:normalize(doc, Json2),
   
     case couch:update(Id, NormJson, Project, S) of
-        {ok, NewId, NewRev} ->
-            Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewRev)}]),
+        {ok, _, NewRev} ->
+            Message = jsn:encode([{<<"rev">>, NewRev}]),
             R2 = cowboy_req:set_resp_body(Message, R1),
-            spawn(change_log, updated, [NewId, NewRev, Doctype, Project, S]),
+            spawn(change_log, proplists:get_value(change_type, S), [Json2, NewRev, Doctype, Project, S]),
             R3 = bump_deps(R2, S),
             {true, R3, S};
         {forbidden, Message} ->

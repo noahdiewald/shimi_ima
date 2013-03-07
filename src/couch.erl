@@ -59,9 +59,9 @@ adb(Project) ->
 -spec create(jsn:json_term(), string(), [tuple()]) -> {ok, binary(), binary()} | {forbidden, binary()}.
 create(Json, Url=[$h,$t,$t,$p,$:|_], Headers) ->
     case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
-        {ok, "201", _, Body} ->
-            Resp = jsn:decode(Body),
-            {ok, jsn:get_value(<<"id">>, Resp), jsn:get_value(<<"rev">>, Resp)};
+        {ok, "201", RespHeads, Id} -> 
+            Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
+            {ok, iolist_to_binary(Id), list_to_binary(Rev)};
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
             Message = jsn:get_value(<<"reason">>, Resp),
@@ -296,9 +296,9 @@ update(Id, Json, Project, S) ->
 -spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, binary(), binary()} | {error, atom()} | {forbidden, binary()}.
 update(Data, Url, Headers) ->
     case ibrowse:send_req(Url, Headers, put, Data) of
-        {ok, "201", _, Body} -> 
-            Resp = jsn:decode(Body),
-            {ok, jsn:get_value(<<"id">>, Resp), jsn:get_value(<<"rev">>, Resp)};
+        {ok, "201", RespHeads, Id} -> 
+            Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
+            {ok, iolist_to_binary(Id), list_to_binary(Rev)};
         {error, req_timedout} -> 
             {error, req_timedout};
         {ok, "403", _, Body} ->
