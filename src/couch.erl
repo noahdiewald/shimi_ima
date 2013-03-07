@@ -56,11 +56,12 @@ adb(Project) ->
     Val ++ Project ++ "/".
 
 %% @doc Create a document
--spec create(jsn:json_term(), string(), [tuple()]) -> {ok, created} | {forbidden, binary()}.
+-spec create(jsn:json_term(), string(), [tuple()]) -> {ok, binary(), binary()} | {forbidden, binary()}.
 create(Json, Url=[$h,$t,$t,$p,$:|_], Headers) ->
     case ibrowse:send_req(Url, Headers, post, jsn:encode(Json)) of
-        {ok, "201", _, _} ->
-            {ok, created};
+        {ok, "201", _, Body} ->
+            Resp = jsn:decode(Body),
+            {ok, jsn:get_value(<<"id">>, Resp), jsn:get_value(<<"rev">>, Resp)};
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
             Message = jsn:get_value(<<"reason">>, Resp),
@@ -288,15 +289,16 @@ should_wait(Project, ViewPath) ->
         _ -> false
     end.
   
--spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+-spec update(string(), jsn:json_term(), string(), h:req_state()) -> {ok, binary(), binary()} | {error, atom()} | {forbidden, binary()}.
 update(Id, Json, Project, S) ->
     update_raw("_design/shimi_ima/_update/stamp/" ++ Id, jsn:encode(Json), Project, S).
 
--spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+-spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, binary(), binary()} | {error, atom()} | {forbidden, binary()}.
 update(Data, Url, Headers) ->
     case ibrowse:send_req(Url, Headers, put, Data) of
-        {ok, "201", _, _} -> 
-            {ok, updated};
+        {ok, "201", _, Body} -> 
+            Resp = jsn:decode(Body),
+            {ok, jsn:get_value(<<"id">>, Resp), jsn:get_value(<<"rev">>, Resp)};
         {error, req_timedout} -> 
             {error, req_timedout};
         {ok, "403", _, Body} ->
@@ -307,7 +309,7 @@ update(Data, Url, Headers) ->
             {error, conflict}
     end.
 
--spec update_raw(string(), iodata(), string(), h:req_state()) -> {ok, updated} | {error, atom()} | {forbidden, binary()}.
+-spec update_raw(string(), iodata(), string(), h:req_state()) -> {ok, binary(), binary()} | {error, atom()} | {forbidden, binary()}.
 update_raw(Id, Data, Project, S) ->
     CT = case proplists:get_value(content_type, S) of
         undefined -> [{"Content-Type", "application/json"}];

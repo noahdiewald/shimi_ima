@@ -98,7 +98,7 @@ charseq_data(R, S) ->
 create(Json, R, S) ->
     {Project, R1} = project(R),
     case couch:create(Json, Project, S) of
-        {ok, created} -> 
+        {ok, _, _} -> 
             {true, R1, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
@@ -109,7 +109,7 @@ create(Json, R, S) ->
 create_attachment(Id, Name, Content, R, S) ->
     {Project, R1} = project(R),
     case couch:update_raw(Id ++ "/" ++ Name, Content, Project, S) of
-        {ok, updated} ->
+        {ok, _, _} ->
             Msg = <<"File Uploaded">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}, {<<"status">>, <<"sucess">>}]),
             {ok, R2} = cowboy_req:reply(200, [], Msg1, R1),
@@ -290,7 +290,7 @@ update(Json, R, S) ->
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
     case couch:update(Id, Json2, Project, S) of
-        {ok, updated} -> 
+        {ok, _, _} -> 
             {true, R1, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
@@ -306,6 +306,6 @@ update(Json, R, S) ->
 update_doctype_version(R, S) ->
     {[Project, Doctype], R1} = g([project, doctype], R),
     {ok, Json} = get(Doctype, Project, S),
-    Id = binary_to_list(jsn:get_value(<<"_id">>, Json)),
-    {ok, updated} = couch:update(Id, Json, Project, S),
-    {{ok, updated}, R1}.
+    Id = jsn:get_value(<<"_id">>, Json),
+    {ok, Id, Rev} = couch:update(binary_to_list(Id), Json, Project, S),
+    {{ok, Id, Rev}, R1}.

@@ -116,12 +116,12 @@ from_json(R, S) ->
   end.
 
 json_create(R, S) ->  
-    {{ok, updated}, R1} = h:update_doctype_version(R, S),
+    {{ok, _, _}, R1} = h:update_doctype_version(R, S),
     Json = proplists:get_value(posted_json, S),
     h:create(Json, R1, S).
   
 json_update(R, S) ->
-    {{ok, updated}, R1} = h:update_doctype_version(R, S),
+    {{ok, _, _}, R1} = h:update_doctype_version(R, S),
     {ok, Body, R2} = cowboy_req:body(R1),
     Json = jsn:decode(Body),
     h:update(Json, R2, S).

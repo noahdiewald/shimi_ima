@@ -133,14 +133,15 @@ from_json(R, S) ->
 % Helpers
   
 json_create(R, S) ->
-    {Project, R1} = h:project(R),
+    {[Project, Doctype], R1} = h:g([project, doctype], R),
     Json = proplists:get_value(posted_json, S),
     Json1 = document:set_sortkeys(Json, Project, S),
     % Normalization assumes a complete record, which would normally
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(doc, Json1)),
     case couch:create(NormJson, Project, S) of
-        {ok, created} -> 
+        {ok, Id, Rev} ->
+            spawn(change_log, created, [Id, Rev, Doctype, Project, S]),
             R2 = bump_deps(R1, S),
             {true, R2, S};
         {forbidden, Message} ->
@@ -156,18 +157,18 @@ json_update(R, S) ->
     json_update(Json1, R2, S).
   
 json_update(Json, R, S) ->
-    {[Id, Rev, Project], R1} = h:g([id, rev, project], R),
+    {[Id, Rev, Project, Doctype], R1} = h:g([id, rev, project, doctype], R),
     Json1 = jsn:set_value(<<"_id">>, list_to_binary(Id), Json),
     Json2 = jsn:set_value(<<"_rev">>, list_to_binary(Rev), Json1),
     NormJson = document:normalize(doc, Json2),
   
     case couch:update(Id, NormJson, Project, S) of
-        {ok, updated} ->
-            {{ok, NewJson}, R2} = h:id_data(R1, S),
-            Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewJson)}]),
-            R3 = cowboy_req:set_resp_body(Message, R2),
-            R4 = bump_deps(R3, S),
-            {true, R4, S};
+        {ok, NewId, NewRev} ->
+            Message = jsn:encode([{<<"rev">>, jsn:get_value(<<"_rev">>, NewRev)}]),
+            R2 = cowboy_req:set_resp_body(Message, R1),
+            spawn(change_log, updated, [NewId, NewRev, Doctype, Project, S]),
+            R3 = bump_deps(R2, S),
+            {true, R3, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
             {halt, R2, S};
