@@ -66,6 +66,7 @@ shimi.viewui = (function (args) {
 
           if (change.originalValue === undefined) {
             fset.addition = true;
+            field.newfield = true;
           } else {
             field.originalValue = JSON.parse(change.originalValue);
           }
