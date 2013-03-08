@@ -32,6 +32,7 @@
 
 <div id="panel-toggle">
   <ul>
+    <li data-panel="document-changelog">Change log</li>
     <li data-panel="document-worksheets">Worksheets</li>
     <li data-panel="document-sets">Sets</li>
     <li data-panel="document-search">Search</li>
@@ -50,6 +51,18 @@
      data-document-version="{{ doctype_info._rev }}"
      data-group-id="document-view-info"
      id="all-document-container">
+    
+    <div class="hidden panel" id="document-changelog">
+      <h2 class="header">Change log</h2>
+      
+      <form id="changelog-filter-form">
+        <label for="changelog-filter">Filter</label>
+        <input type="text" name="changelog-filter" id="changelog-filter" /><br />
+        <label for="changelog-limit">Limit</label>
+        <input type="text" name="changelog-limit" id="changelog-limit" />
+      </form>
+      <div id="changelog-listing"></div>
+    </div>
     
     <div class="hidden panel" id="document-worksheets">
       <h2 class="header">Worksheets</h2>

@@ -19,30 +19,80 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc For manipulating indexes.
+%%% @doc For adding entries to the change log.
 
 -module(change_log).
 -author('Noah Diewald <noah@diewald.me>').
 
+-record(change, {
+    id :: binary(),
+    rev :: binary(),
+    category :: change,
+    change_type :: creation|update|deletion|restoration,
+    changes :: jsn:json_term(),
+    doctype :: binary(),
+    document_id :: binary(),
+    document_revision :: binary(),
+    user :: binary(),
+    timestamp :: binary()}).
+
 -export([
-    created/5,
-    deleted/5,
-    restored/5,
-    updated/5
+    created/4,
+    deleted/4,
+    restored/4,
+    updated/4
     ]).
 
-created(Id, Rev, Doctype, Project, S) ->
-    io:format("CREATED~n"),
-    {Id, Rev, Doctype, Project, S}.
+created(Data, Doctype, Project, S) ->
+    create_change(creation, Data, Doctype, Project, S).
 
-deleted(Doc, Rev, Doctype, Project, S) ->
-    io:format("DELETED~n"),
-    {Doc, Rev, Doctype, Project, S}.
+create_change(CType, Data, Doctype, Project, S) ->
+    Timestamp = jsn:get_value(<<"timestamp">>, Data),
+    User = jsn:get_value(<<"user">>, Data),
+    DocId = jsn:get_value(<<"id">>, Data),
+    DocRev = jsn:get_value(<<"rev">>, Data),
+    Id = create_id(list_to_binary(Doctype), Timestamp),
+    Changes = case CType of
+        update -> jsn:get_value(<<"changes">>, Data);
+        _ -> null
+    end,
+    C = #change{
+        id = Id,
+        category = change,
+        change_type = CType,
+        changes = Changes,
+        document_id = DocId,
+        document_revision = DocRev,
+        user = User,
+        timestamp = Timestamp
+    },
+    Json = to_json(C),
+    {ok, _} = couch:update(binary_to_list(Id), Json, Project, [{admin, true}|S]),
+    ok.
 
-restored(Doc, Rev, Doctype, Project, S) ->
-    io:format("RESTORED~n"),
-    {Doc, Rev, Doctype, Project, S}.
+create_id(Doctype, Timestamp) ->
+    T = timestamp_to_id_part(js_date:convert(binary_to_list(Timestamp))),
+    U = list_to_binary(utils:uuid()),
+    <<Doctype/binary,"-",T/binary,"-",U/binary>>.
+ 
+deleted(Data, Doctype, Project, S) ->
+    create_change(deletion, Data, Doctype, Project, S).
 
-updated(Doc, Rev, Doctype, Project, S) ->
-    io:format("UPDATED~n"),
-    {Doc, Rev, Doctype, Project, S}.
+restored(Data, Doctype, Project, S) ->
+    create_change(restoration, Data, Doctype, Project, S).
+
+timestamp_to_id_part({ok, {{Y, M, D}, {H, MM, S}}}) ->
+    iolist_to_binary(io_lib:format("~B~2..0B~2..0B~2..0B~2..0B~2..0B", [Y, M, D, H, MM, S])).
+
+to_json(C) ->
+    [{<<"timestamp">>, C#change.timestamp},
+     {<<"_id">>, C#change.id},
+     {<<"user">>, C#change.user},
+     {<<"document_id">>, C#change.document_id},
+     {<<"document_revision">>, C#change.document_revision},
+     {<<"category">>, <<"change">>},
+     {<<"changes">>, C#change.changes},
+     {<<"change_type">>, C#change.change_type}].
+
+updated(Data, Doctype, Project, S) ->
+    create_change(update, Data, Doctype, Project, S).

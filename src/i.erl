@@ -87,7 +87,7 @@ update(R, S) ->
     end,
     
     case couch:update(Id, Json3, Project, S) of
-        {ok, _, _} -> 
+        {ok, _} -> 
             {ok, _} = update_design(Id, Project, S),
             {true, R2, S};
         {forbidden, Message} ->

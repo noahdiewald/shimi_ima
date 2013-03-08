@@ -7,7 +7,11 @@ function update(doc, req) {
     if (newDoc._id) {
       newDoc.created_at_ = now;
       newDoc.created_by_ = req.userCtx.name;
-      message = 'Created at ' + now.toString + ' by ' + req.userCtx.name;
+      message = {
+        id: newDoc._id,
+        timestamp: newDoc.created_at_,
+        user: newDoc.created_by_
+      };
     } else {
       newDoc = null;
       message = 'This application expects the document _id in the JSON body';
@@ -24,10 +28,15 @@ function update(doc, req) {
       newDoc.created_by_ = doc.created_by_;
     }
 
-    message = 'Updated at ' + now.toString + ' by ' + req.userCtx.name;
+    message = {
+      id: newDoc._id,
+      timestamp: newDoc.updated_at_,
+      user: newDoc.updated_by_,
+      changes: newDoc.changes
+    };
 
     newDoc.prev_ = doc._rev;
   }
 
-  return [newDoc, newDoc._id];
+  return [newDoc, JSON.stringify(message)];
 }

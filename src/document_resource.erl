@@ -146,8 +146,8 @@ json_create(R, S) ->
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(doc, Json1)),
     case couch:create(NormJson, Project, S) of
-        {ok, Id, Rev} ->
-            spawn(change_log, proplists:get_value(change_type, S), [Id, Rev, Doctype, Project, S]),
+        {ok, Data} ->
+            spawn(change_log, proplists:get_value(change_type, S), [Data, Doctype, Project, S]),
             R2 = bump_deps(R1, S),
             {true, R2, S};
         {forbidden, Message} ->
@@ -169,10 +169,11 @@ json_update(Json, R, S) ->
     NormJson = document:normalize(doc, Json2),
   
     case couch:update(Id, NormJson, Project, S) of
-        {ok, _, NewRev} ->
+        {ok, Data} ->
+            NewRev = jsn:get_value(<<"rev">>, Data),
             Message = jsn:encode([{<<"rev">>, NewRev}]),
             R2 = cowboy_req:set_resp_body(Message, R1),
-            spawn(change_log, proplists:get_value(change_type, S), [Json2, NewRev, Doctype, Project, S]),
+            spawn(change_log, proplists:get_value(change_type, S), [Data, Doctype, Project, S]),
             R3 = bump_deps(R2, S),
             {true, R3, S};
         {forbidden, Message} ->
