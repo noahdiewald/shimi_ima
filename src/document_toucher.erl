@@ -161,7 +161,7 @@ touch_document(Id, S) ->
     Doc2 = document:to_json(doc, Doc#document{prev = Doc#document.rev,
                                          fieldsets = Fieldsets}),
     case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
-        {ok, _, _} ->
+        {ok, _} ->
             untouched:delete(S#state.doctype, Id),
             ok;
         {409, _} ->
