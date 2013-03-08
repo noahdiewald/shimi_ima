@@ -1,0 +1,33 @@
+<nav class="pager">
+<a
+  href="#" 
+  title="Previous Page"
+  id="previous-{{ category }}-page"
+  class="pager-button link-button"
+>Prev</a> 
+<a
+  href="#"
+  title="Next Page"
+  class="pager-button link-button"
+  id="next-{{ category }}-page"
+  {{#lastpage}}
+  data-last-page="true"
+  {{/lastpage}}
+  {{#rows}}
+    {{#last}}
+  data-startkey="{{row.encoded_key}}"
+  data-startid="{{row.id }}"
+    {{/last}}
+  {{/rows}}
+>Next</a>
+</nav>
+<div class="total-rows-info">
+  <b>Total</b>: {{ total_rows }}
+</div>
+<table>
+  {{#rows}}
+    {{^lastpage}} 
+      {{> listed-elements}}
+    {{/lastpage}}
+  {{/rows}}
+</table>

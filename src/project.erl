@@ -36,7 +36,7 @@ create(ProjectData, S) ->
     DBName = "project-" ++ Id,
     ProjectData1 = jsn:set_value(<<"_id">>, list_to_binary(Id), ProjectData),
     {ok, newdb} = couch:new_db(DBName),
-    {ok, _, _} = couch:create(ProjectData1, "shimi_ima", S),
+    {ok, _} = couch:create(ProjectData1, "shimi_ima", S),
     {ok, replicated} = couch:replicate("shimi_ima", DBName, "upgrade"),
     {ok, DBName}.
     
