@@ -60,10 +60,13 @@ create(R, S) ->
 
 -spec create_design(jsn:json_term(), string(), h:req_state()) -> couch:ret().
 create_design(DocJson, Project, S) ->
-    DocId = jsn:get_value(<<"_id">>, DocJson),
+    <<"_design/", DocId/binary>> = jsn:get_value(<<"_id">>, DocJson),
     Design = get_design(binary_to_list(DocId), Project, S),
     couch:create(Design, Project, [{admin, true}|S]).
 
+%% @doc The view used here is an index such that the keys are the ids
+%% of doctypes and user indexes and the values are the code for a design
+%% document for those user indexes and doctypes.
 -spec get_design(string(), string(), h:req_state()) -> jsn:json_term().
 get_design(Id, Project, S) ->
     {ok, Json} = q:index_design(Id, Project, S),
