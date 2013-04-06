@@ -49,7 +49,7 @@ create(R, S) ->
             h:create(Json, R1, S);
         <<"doctype">> ->
             case couch:create(Json, Project, S) of
-                {ok, _, _} ->
+                {ok, _} ->
                     {ok, _} = create_design(Json, Project, S),
                     {true, R1, S};
                 {forbidden, Message} ->
@@ -60,7 +60,10 @@ create(R, S) ->
 
 -spec create_design(jsn:json_term(), string(), h:req_state()) -> couch:ret().
 create_design(DocJson, Project, S) ->
-    <<"_design/", DocId/binary>> = jsn:get_value(<<"_id">>, DocJson),
+    DocId = case jsn:get_value(<<"_id">>, DocJson) of
+        <<"_design/", X/binary>> -> X;
+        X when is_binary(X) -> X
+    end,
     Design = get_design(binary_to_list(DocId), Project, S),
     couch:create(Design, Project, [{admin, true}|S]).
 
