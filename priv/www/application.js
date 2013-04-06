@@ -218,6 +218,19 @@ shimi.utils = function () {
 shimi.sets = (function () {
   var mod = {};
 
+  mod.arraysToCSV = function (a) {
+    return a.map(function (x) {
+      return x.map(function (y) {
+        return '"' + y.toString().replace(/"/, '""') + '"';
+      }).join(",");
+    }).join("\n");
+  };
+
+  return mod;
+})();
+shimi.sets = (function () {
+  var mod = {};
+
   mod.member = function (arr, x) {
     var memb = arr.some(function (y) {
       return x === y;
@@ -4175,20 +4188,23 @@ shimi.worksheetui = (function () {
   mod.selectAllRows = function (select) {
     if (select) {
       $('#worksheet-table tbody tr').addClass('selected-row');
-      $('#worksheet-table tbody tr input').attr('checked', true);
+      $('#worksheet-table tbody tr input').prop('checked', true);
     } else {
       $('#worksheet-table tbody tr').removeClass('selected-row');
-      $('#worksheet-table tbody tr input:checked').attr('checked', false);
+      $('#worksheet-table tbody tr input:checked').prop('checked', false);
     }
 
     return mod;
   };
 
+  // Set the proper class for a selected row and unset the "select all"
   mod.rowSelection = function (row, select) {
     if (select) {
       $('#' + row).addClass('selected-row');
+      $("#select-all-worksheet-rows").prop('checked', false);
     } else {
       $('#' + row).removeClass('selected-row');
+      $("#select-all-worksheet-rows").prop('checked', false);
     }
 
     return mod;
