@@ -34,6 +34,7 @@
          from_json/2,
          is_authorized/2,
          post_is_create/2,
+         process_post/2,
          resource_exists/2,
          rest_init/2,
          to_html/2,
@@ -71,7 +72,7 @@ allowed_methods(R, S) ->
         revision -> {[<<"HEAD">>, <<"GET">>], R, S};
         edit -> {[<<"HEAD">>, <<"GET">>], R, S};
         search -> {[<<"HEAD">>, <<"GET">>], R, S};
-        worksheets_get -> {[<<"HEAD">>, <<"GET">>], R, S};
+        worksheets_get -> {[<<"HEAD">>, <<"POST">>], R, S};
         worksheets_put -> {[<<"HEAD">>, <<"GET">>], R, S}
     end.
   
@@ -98,7 +99,13 @@ delete_resource(R, S) ->
     end.
   
 post_is_create(R, S) ->
-    {true, R, S}.
+    case proplists:get_value(target, S) of
+        worksheets_get -> {false, R, S};
+        _ -> {true, R, S}
+    end.
+
+process_post(R, S) ->
+    json_ws(R, S).
 
 create_path(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),
@@ -121,7 +128,6 @@ to_html(R, S) ->
     
 to_json(R, S) ->
     case proplists:get_value(target, S) of
-        worksheets_get -> json_ws(R, S);
         identifier -> json_document(R, S);
         revision -> json_revision(R, S)
     end.
@@ -187,11 +193,12 @@ json_update(Json, R, S) ->
     end.
 
 json_ws(R, S) ->
-    {Set, R1} = cowboy_req:qs_val(<<"set">>, R),
+    {ok, Body, R1} = cowboy_req:body(R),
     {Project, R2} = h:project(R1),
-    Docs = jsn:decode(Set),
-    Json = worksheet:get(Docs, Project, S),
-    {jsn:encode(Json), R2, S}.
+    Keys = jsn:decode(Body),
+    Json = worksheet:get(jsn:encode([{<<"keys">>, Keys}]), Project, S),
+    R3 = cowboy_req:set_resp_body(jsn:encode(Json), R2),
+    {true, R3, S}.
 
 json_document(R, S) ->
     {{ok, OrigJson}, R1} = h:id_data(R, [{revs_info, true}|S]),

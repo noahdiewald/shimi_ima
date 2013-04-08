@@ -93,19 +93,25 @@ shimi.worksheetui = (function () {
 
   mod.fillWorksheet = function () {
     var setName = worksheetsSet().val();
-    var url = "worksheets?set=";
+    var url = "worksheets";
+    var complete = function (_ignore, req) {
+      var data = JSON.parse(req.responseText);
+      var ws = shimi.globals[worksheetName()].render(data);
+      worksheetsArea().html(ws);
+    };
 
     if (!setName.isBlank()) {
       var thisSet = setsui.getSet(setName)[1];
-      var setIds = thisSet.map(function (x) {
-        return x[1];
-      });
-      url = url + JSON.stringify(setIds);
 
-      $.getJSON(url, function (data) {
-        var ws = shimi.globals[worksheetName()].render(data);
-        worksheetsArea().html(ws);
-      });
+      if (thisSet.lenght <= 250) {
+        var setIds = thisSet.map(function (x) {
+          return x[1];
+        });
+
+        shimi.form.send(url, setIds, 'POST', complete);
+      } else {
+        shimi.flash("Could not load worksheet", "the current set size is limited to 250 items.").error();
+      }
     }
 
     return mod;

@@ -33,7 +33,7 @@
          get_db_seq/1,
          get_dbs/0,
          get_design_rev/3,
-         get_view_json/3,
+         get_view_json/4,
          get_view_json/5,
          get_views/1,
          new_db/1,
@@ -198,12 +198,12 @@ get_views(Project) ->
              end,
     lists:flatten(lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
     
--spec get_view_json(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
-get_view_json(Qs, Project, S) ->
-    Headers = proplists:get_value(headers, S, []),
+-spec get_view_json(string(), string(), iolist(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_view_json(Qs, Keys, Project, S) ->
+    Headers = [{"Content-Type", "application/json"}|proplists:get_value(headers, S, [])],
     Url = ndb(Project),
     FullUrl = Url ++ "_all_docs" ++ "?" ++ Qs,
-    case get_json_helper(FullUrl, Headers) of
+    case post_json_helper(FullUrl, Keys, Headers) of
         {error, req_timedout} -> {error, req_timedout};
         {error, not_found} -> {error, not_found};
         {ok, Json} -> {ok, Json}
@@ -253,6 +253,21 @@ pdb() ->
     {ok, Val} = application:get_env(shimi_ima, admin_db),
     Val ++ "shimi_ima" ++ "/".
 
+-spec post_helper(string(), iolist(), [tuple()]) -> {ok, iolist()} | {error, atom()}.
+post_helper(Url, ReqBody, Headers) ->
+    case ibrowse:send_req(Url, Headers, post, ReqBody) of
+        {ok, [$2|_], _, Body} -> {ok, Body};
+        {ok, "404", _, _} -> {error, not_found};
+        {error, req_timedout} -> {error, req_timedout}
+    end.
+
+-spec post_json_helper(string(), iolist(), [tuple()]) -> {ok, jsn:json_term()} | {error, atom()}.
+post_json_helper(Url, Body, Headers) ->  
+    case post_helper(Url, Body, Headers) of
+        {ok, Json} -> {ok, jsn:decode(Json)};
+        Else -> Else
+    end.
+
 -spec replicate(string(), string()) -> {ok, replicated}.
 replicate(Source, Target) ->
     Json = [{<<"source">>, list_to_binary(Source)}, {<<"target">>, list_to_binary(Target)}],
@@ -269,7 +284,8 @@ replicate(Source, Target, Filter) ->
 replicate_helper(Json) ->
     Headers = [{"Content-Type", "application/json"}],
     Url = adb("_replicate"),
-    {ok, [$2|_], _, _} = ibrowse:send_req(Url, Headers, post, jsn:encode(Json)),
+    % TODO: In the future perhaps check return value.
+    {ok, _} = post_helper(Url, jsn:encode(Json), Headers),
     {ok, replicated}.
 
 -spec rm_db(string()) -> h:req_retval().
@@ -295,7 +311,7 @@ should_wait(Project, ViewPath) ->
 update(Id, Json, Project, S) ->
     update_raw("_design/shimi_ima/_update/stamp/" ++ Id, jsn:encode(Json), Project, S).
 
--spec update(iodata(), [tuple()], [{string(), string()}]) -> {ok, jsn:json_term()} | {error, atom()} | {forbidden, binary()}.
+-spec update(iolist(), [tuple()], [{string(), string()}]) -> {ok, jsn:json_term()} | {error, atom()} | {forbidden, binary()}.
 update(Data, Url, Headers) ->
     case ibrowse:send_req(Url, Headers, put, Data) of
         {ok, "201", RespHeads, RetData} -> 
@@ -313,7 +329,7 @@ update(Data, Url, Headers) ->
             {error, conflict}
     end.
 
--spec update_raw(string(), iodata(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()} | {forbidden, binary()}.
+-spec update_raw(string(), iolist(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()} | {forbidden, binary()}.
 update_raw(Id, Data, Project, S) ->
     CT = case proplists:get_value(content_type, S) of
         undefined -> [{"Content-Type", "application/json"}];

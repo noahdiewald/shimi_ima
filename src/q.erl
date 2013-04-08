@@ -28,8 +28,8 @@
 
 -include_lib("types.hrl").
 
-all_docs(Qs, Project, S) ->
-    couch:get_view_json(Qs, Project, S).
+all_docs(Qs, Keys, Project, S) ->
+    couch:get_view_json(Qs, Keys, Project, S).
 
 charseqs(R, S) ->
     {QsVals, R1} = cowboy_req:qs_vals(R),
