@@ -114,7 +114,7 @@ json_field(R, S) ->
             Subcategory = binary_to_list(jsn:get_value(<<"subcategory">>, Json)),
             Field = get_allowed(Subcategory, Json, Project, S),
             {jsn:encode(Field), R2};
-        Id -> 
+        Id ->
             Field = field:meta_field(Id),
             {jsn:encode(Field), R}
     end.
@@ -210,7 +210,8 @@ option_list(R, S) ->
         end,
     {[Doctype, Fieldset, Project], R1} = h:g([doctype, fieldset, project], R),
     case Fieldset of
-        <<"metadata">> -> {field:meta_options(), R1};
+        "metadata" -> 
+            {field:meta_options(), R1};
         Fieldset -> 
             {ok, Json} = q:field(Doctype, Fieldset, false, Project, S),
             {jsn:set_value(<<"rows">>, lists:map(F, jsn:get_value(<<"rows">>, Json)), Json), R1}

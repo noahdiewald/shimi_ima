@@ -205,7 +205,7 @@ get_label(Id, R, S) ->
             {ok, J} = h:get(Id, Project, S),
             {jsn:get_value(<<"label">>, J), R1};
         _ ->
-            {field:meta_field(Id), R}
+            {jsn:get_value(<<"label">>, field:meta_field(Id)), R}
     end.
 
 is_true(<<"true">>) ->

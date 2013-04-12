@@ -65,10 +65,10 @@ fmt_value(Subcat, Val) ->
   iolist_to_binary(jsn:encode(field:unconvert_value(Subcat, Val))).
   
 -spec get([binary()], string(), any()) -> jsn:json_term().
-get(Docs, Project, S) ->
-    VQ = #vq{keys =  Docs, include_docs = true},
+get(Keys, Project, S) ->
+    VQ = #vq{include_docs = true},
     Qs = view:to_string(VQ),
-    {ok, Json} = q:all_docs(Qs, Project, S),
+    {ok, Json} = q:all_docs(Qs, Keys, Project, S),
     trans_from(Json).
 
 -spec trans_from(jsn:json_term()) -> jsn:json_term().
