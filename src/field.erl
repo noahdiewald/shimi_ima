@@ -87,10 +87,10 @@ meta_options() ->
 
 meta_field(Id) when is_list(Id) ->
     meta_field(list_to_binary(Id));
-meta_field(Id) when Id =:= <<"created_by_">> ->
-    user_field(Id, <<"Created By">>);
-meta_field(Id) when Id =:= <<"updated_by_">> -> 
-    user_field(Id, <<"Updated By">>).
+meta_field(<<"created_by_">>) ->
+    user_field(<<"created_by_">>, <<"Created By">>);
+meta_field(<<"updated_by_">>) -> 
+    user_field(<<"updated_by_">>, <<"Updated By">>).
 
 user_field(Id, Label) ->
     Field = #field{id = Id,

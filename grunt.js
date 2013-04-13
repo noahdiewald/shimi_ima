@@ -3,7 +3,8 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-beautify');
-  grunt.loadNpmTasks('grunt-simple-mocha');
+  // Disabled until grunt upgrade
+  //grunt.loadNpmTasks('grunt-simple-mocha');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-hogan');
 
@@ -21,14 +22,15 @@ module.exports = function (grunt) {
     lint: {
       files: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
     },
-    simplemocha: {
-      all: {
-        src: 'priv/test/server/*.js',
-        options: {
-          globals: ['should']
-        }
-      }
-    },
+    // Disabled until grunt upgrade
+    //simplemocha: {
+    //  all: {
+    //    src: 'priv/test/server/*.js',
+    //    options: {
+    //      globals: ['should']
+    //    }
+    //  }
+    //},
     beautify: {
       files: ['priv/src/**/*.js', 'priv/test/fixtures/*.js']
     },
@@ -100,6 +102,7 @@ module.exports = function (grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'hogan beautify lint rig simplemocha min less');
+  //grunt.registerTask('default', 'hogan beautify lint rig simplemocha min less');
+  grunt.registerTask('default', 'hogan beautify lint rig min less');
 
 };

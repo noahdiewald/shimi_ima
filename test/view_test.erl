@@ -32,12 +32,12 @@ creation_test_() ->
      [
       {"New blank",
        ?_assertEqual(#vq{}, view:new())},
-      {"From list with list JSON values as provided by wrq:req_qs/1",
+      {"From list with list JSON values",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
-                     view:from_list([{"startkey", "\"_design/\""}, 
-                                     {"endkey", "\"_design0\""}]))},
+                     view:from_list([{<<"startkey">>, <<"\"_design/\"">>}, 
+                                     {<<"endkey">>, <<"\"_design0\"">>}]))},
       {"From list with decoded JSON values",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
-                     view:from_list([{"startkey", <<"_design/">>}, 
-                                     {"endkey", <<"_design0">>}]))}
+                     view:from_list([{<<"startkey">>, <<"_design/">>}, 
+                                     {<<"endkey">>, <<"_design0">>}]))}
      ]}.
