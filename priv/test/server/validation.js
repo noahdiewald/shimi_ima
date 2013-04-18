@@ -798,7 +798,6 @@ if (!Date.toLocaleFormat) {
 	}
 }
 
-
 Object.prototype.testEnv = true;
 
 function validate(newDoc, saveDoc, userCtx) {
