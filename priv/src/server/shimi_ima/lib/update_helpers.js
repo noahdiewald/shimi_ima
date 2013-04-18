@@ -1,4 +1,4 @@
-exports.stamp = function (newDoc, doc, req) {
+exports.stamp = function(newDoc, doc, req) {
   var now = (new Date()).toUTCString();
   var message;
 
@@ -37,5 +37,8 @@ exports.stamp = function (newDoc, doc, req) {
     newDoc.prev_ = doc._rev;
   }
 
-  return {doc: newDoc, message: message};
+  return {
+    doc: newDoc,
+    message: message
+  };
 };
