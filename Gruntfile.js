@@ -1,4 +1,4 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -33,7 +33,7 @@ module.exports = function (grunt) {
           'priv/www/templates.min.js': 'priv/www/templates.js'
         }
       }
-     },
+    },
     less: {
       all: {
         files: {
