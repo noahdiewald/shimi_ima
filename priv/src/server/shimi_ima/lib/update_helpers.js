@@ -16,16 +16,10 @@ exports.stamp = function(newDoc, doc, req) {
       message = 'This application expects the document _id in the JSON body';
     }
   } else {
-
     newDoc.updated_at_ = now;
     newDoc.updated_by_ = req.userCtx.name;
     newDoc.created_at_ = doc.created_at_;
-
-    if (doc.create_user_) {
-      newDoc.created_by_ = doc.create_user_;
-    } else {
-      newDoc.created_by_ = doc.created_by_;
-    }
+    newDoc.created_by_ = doc.created_by_;
 
     message = {
       id: newDoc._id,
@@ -41,4 +35,8 @@ exports.stamp = function(newDoc, doc, req) {
     doc: newDoc,
     message: message
   };
+};
+
+exports.get_changes = function(newDoc, doc) {
+
 };
