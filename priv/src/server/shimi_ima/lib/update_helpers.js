@@ -1,4 +1,4 @@
-exports.stamp = function(newDoc, doc, req) {
+var stamp = function(newDoc, doc, req) {
   var now = (new Date()).toUTCString();
   var message;
 
@@ -37,12 +37,18 @@ exports.stamp = function(newDoc, doc, req) {
   };
 };
 
-exports.get_changes = function(newDoc, doc) {
+var get_changes = function(newDoc, doc) {
   // This function is not implemented as efficiently as it could be but
   // I am more concerned with clarity at this point.
+  var foldFields;
+  
+  if (Object.testEnv) {
+    foldFields = Object.foldFields;
+  } else {
+    foldFields = require('lib/fields').fromFieldsetsFold;
+  }
   
   var metaInstance = "00000000000000000000000000000000";
-  var foldFields = require('lib/fields').fromFieldsetsFold;
   var makeChangeObject = function(field, fieldset) {
     var obj = {
       fieldset: fieldset.id,
@@ -89,3 +95,6 @@ exports.get_changes = function(newDoc, doc) {
     return changes;
   }
 };
+
+exports.get_changes = get_changes;
+exports.stamp = stamp;

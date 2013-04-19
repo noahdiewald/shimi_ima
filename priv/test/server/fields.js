@@ -249,7 +249,7 @@ describe("CouchDB shared field functions", function() {
       });
       return acc;
     };
-    it("should have the correct number of keys", function() {
+    it("should create the expected object", function() {
       var simp = fromFieldsetsFold(simple_doc.fieldsets, addTo, {});
       simp["25250e2ead108a8f60213f2404005d38"].should.equal("1990-08-23");
       simp["25250e2ead108a8f60213f2404006a4d"].should.equal("");
