@@ -29,10 +29,6 @@ shimi.viewui = (function (args) {
   var processIncoming = function (docJson, rev) {
     var withDeletions = {};
 
-    if (!rev) {
-      shimi.globals.changes = {};
-    }
-
     if (docJson.changes) {
       withDeletions = getDeletions(docJson.changes);
     }
@@ -55,16 +51,6 @@ shimi.viewui = (function (args) {
         change = changes[field.instance];
 
         field.json_value = JSON.stringify(field.value);
-
-        if (!rev) {
-          shimi.globals.changes[field.instance] = {
-            fieldset: fsetId,
-            fieldsetLabel: fset.label,
-            field: field.id,
-            fieldLabel: field.label,
-            originalValue: field.json_value
-          };
-        }
 
         if (change !== undefined) {
           field.changed = true;

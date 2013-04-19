@@ -2833,16 +2833,6 @@ shimi.fieldsets = (function () {
       var s = store(field);
       var value = getFieldValue(field);
       var instance = s.f("instance");
-      var changes = shimi.globals.changes;
-
-      if (changes === undefined) {
-        changes = {};
-      } else {
-        if (changes[instance] === undefined) {
-          changes[instance] = {};
-        }
-        changes[instance].newValue = JSON.stringify(value);
-      }
 
       obj.fields[i] = {
         id: s.f("field"),
@@ -3042,19 +3032,6 @@ shimi.fieldsets = (function () {
     field.attr('data-field-instance', instance);
   };
 
-  var processChanges = function (changes) {
-    var processed = {};
-
-    Object.keys(changes).forEach(function (x) {
-      if (changes[x].newValue !== changes[x].originalValue) {
-        processed[x] = changes[x];
-      }
-      return true;
-    });
-
-    return processed;
-  };
-
   mod.initFieldset = function (fieldset, callback, addInstances) {
     var url = dpath($(fieldset), "fieldset").toString();
     var id = store($(fieldset)).fs("fieldset");
@@ -3107,10 +3084,6 @@ shimi.fieldsets = (function () {
 
           fsObj.multifields[j] = fieldsToObject(field, j);
         });
-      }
-
-      if (shimi.globals.changes !== undefined) {
-        obj.changes = processChanges(shimi.globals.changes);
       }
 
       obj.fieldsets[i] = fsObj;
@@ -3878,10 +3851,6 @@ shimi.viewui = (function (args) {
   var processIncoming = function (docJson, rev) {
     var withDeletions = {};
 
-    if (!rev) {
-      shimi.globals.changes = {};
-    }
-
     if (docJson.changes) {
       withDeletions = getDeletions(docJson.changes);
     }
@@ -3904,16 +3873,6 @@ shimi.viewui = (function (args) {
         change = changes[field.instance];
 
         field.json_value = JSON.stringify(field.value);
-
-        if (!rev) {
-          shimi.globals.changes[field.instance] = {
-            fieldset: fsetId,
-            fieldsetLabel: fset.label,
-            field: field.id,
-            fieldLabel: field.label,
-            originalValue: field.json_value
-          };
-        }
 
         if (change !== undefined) {
           field.changed = true;
