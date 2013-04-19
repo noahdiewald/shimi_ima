@@ -69,4 +69,10 @@ describe("CouchDB get_changes function", function() {
       changes["6cfbfe0501e6c8b947a4c2cc8941b2da"].newValue.should.equal("\"hand\"");
     });
   });
+  describe("When creating a document", function() {
+    var changes = get_changes(simple_multifieldset_doc2, null);
+    it("should report creation", function() {
+      changes["00000000000000000000000000000000"].created.should.be.true;
+    });
+  });
 });

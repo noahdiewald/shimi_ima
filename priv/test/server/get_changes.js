@@ -527,7 +527,8 @@ var stamp = function(newDoc, doc, req) {
       message = {
         id: newDoc._id,
         timestamp: newDoc.created_at_,
-        user: newDoc.created_by_
+        user: newDoc.created_by_,
+        changes: newDoc.changes
       };
     } else {
       newDoc = null;
@@ -559,54 +560,65 @@ var get_changes = function(newDoc, doc) {
   // This function is not implemented as efficiently as it could be but
   // I am more concerned with clarity at this point.
   var foldFields;
-  
-  if (Object.testEnv) {
-    foldFields = Object.foldFields;
-  } else {
-    foldFields = require('lib/fields').fromFieldsetsFold;
-  }
-  
   var metaInstance = "00000000000000000000000000000000";
-  var makeChangeObject = function(field, fieldset) {
-    var obj = {
-      fieldset: fieldset.id,
-      fieldsetLabel: fieldset.label,
-      fieldsetInstance: fieldset.instance ? fieldset.instance : null,
-      field: field.id,
-      fieldLabel: field.label
-    };
+  var changes = {};
 
-    return obj;
-  };
-  var oldInstances = foldFields(doc.fieldsets, function(acc, fields, fieldset) {
-    fields.forEach(function(field) {
-      var obj = makeChangeObject(field, fieldset);
-      obj.originalValue = JSON.stringify(field.value);
-      acc[field.instance] = obj;
-    });
-    return acc;
-  }, {});
-  var changes = foldFields(newDoc.fieldsets, function(acc, fields, fieldset) {
-    fields.forEach(function(field) {
-      var val = JSON.stringify(field.value);
-      if (acc[field.instance] === undefined) {
-        acc[field.instance] = makeChangeObject(field, fieldset);
-        acc[field.instance]["newValue"] = val;
-      } else if (acc[field.instance]["originalValue"] === val) {
-        delete acc[field.instance];
-      } else {
-        acc[field.instance]["newValue"] = val;
-      }
-    });
-    return acc;
-  }, oldInstances);
+  if (!doc) {
+    changes[metaInstance] = {
+      created: true
+    };
+  } else {
+    if (Object.testEnv) {
+      foldFields = Object.foldFields;
+    } else {
+      foldFields = require('lib/fields').fromFieldsetsFold;
+    }
   
-  if (doc.deleted_ === true && newDoc.deleted_ !== true) {
-      changes[metaInstance] = {restored: true};
-  } else if (doc.deleted_ !== false && newDoc.deleted_ === true) {
-      changes[metaInstance] = {deleted: true};
+    var makeChangeObject = function(field, fieldset) {
+      var obj = {
+        fieldset: fieldset.id,
+        fieldsetLabel: fieldset.label,
+        fieldsetInstance: fieldset.instance ? fieldset.instance : null,
+        field: field.id,
+        fieldLabel: field.label
+      };
+
+      return obj;
+    };
+    var oldInstances = foldFields(doc.fieldsets, function(acc, fields, fieldset) {
+      fields.forEach(function(field) {
+        var obj = makeChangeObject(field, fieldset);
+        obj.originalValue = JSON.stringify(field.value);
+        acc[field.instance] = obj;
+      });
+      return acc;
+    }, {});
+    changes = foldFields(newDoc.fieldsets, function(acc, fields, fieldset) {
+      fields.forEach(function(field) {
+        var val = JSON.stringify(field.value);
+        if (acc[field.instance] === undefined) {
+          acc[field.instance] = makeChangeObject(field, fieldset);
+          acc[field.instance]["newValue"] = val;
+        } else if (acc[field.instance]["originalValue"] === val) {
+          delete acc[field.instance];
+        } else {
+          acc[field.instance]["newValue"] = val;
+        }
+      });
+      return acc;
+    }, oldInstances);
+
+    if (doc.deleted_ === true && newDoc.deleted_ !== true) {
+      changes[metaInstance] = {
+        restored: true
+      };
+    } else if (doc.deleted_ !== false && newDoc.deleted_ === true) {
+      changes[metaInstance] = {
+        deleted: true
+      };
+    }
   }
-  
+
   if (Object.keys(changes).length === 0) {
     return null;
   } else {
@@ -668,6 +680,12 @@ describe("CouchDB get_changes function", function() {
     it("should have an new but not original value", function() {
       should.not.exist(changes["6cfbfe0501e6c8b947a4c2cc8941b2da"].originalValue);
       changes["6cfbfe0501e6c8b947a4c2cc8941b2da"].newValue.should.equal("\"hand\"");
+    });
+  });
+  describe("When creating a document", function() {
+    var changes = get_changes(simple_multifieldset_doc2, null);
+    it("should report creation", function() {
+      changes["00000000000000000000000000000000"].created.should.be.true;
     });
   });
 });

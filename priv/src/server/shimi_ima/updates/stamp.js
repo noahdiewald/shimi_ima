@@ -1,11 +1,11 @@
 function update(doc, req) {
   var newDoc = JSON.parse(req.body);
-  var stamped = require('lib/update_helpers').stamp(newDoc, doc, req);
+  var stamped;
   
-  if (doc && doc.fieldsets) {
-    var changes = require('lib/update_helpers').get_changes(newDoc, doc);
-    stamped.doc.changes = changes;
+  if (newDoc.fieldsets && !newDoc.category) {
+    newDoc.changes = require('lib/update_helpers').get_changes(newDoc, doc);
   }
+  stamped = require('lib/update_helpers').stamp(newDoc, doc, req);
 
   return [stamped.doc, JSON.stringify(stamped.message)];
 }
