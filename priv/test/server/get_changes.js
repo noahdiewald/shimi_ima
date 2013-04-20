@@ -535,7 +535,7 @@ var stamp = function(newDoc, doc, req) {
     document_id: newDoc._id,
     doctype: newDoc.doctype,
     changes: newDoc.changes,
-    head_ids: newDoc,
+    head_ids: newDoc.head,
     head_values: get_head_values(newDoc)
   };
 
