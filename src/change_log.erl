@@ -52,7 +52,7 @@ create_change(CType, Data, Doctype, Project, S) ->
     Timestamp = jsn:get_value(<<"timestamp">>, Data),
     User = jsn:get_value(<<"user">>, Data),
     DocId = jsn:get_value(<<"document_id">>, Data),
-    DocRev = jsn:get_value(<<"rev">>, Data),
+    DocRev = jsn:get_value(<<"document_revision">>, Data),
     Id = create_id(list_to_binary(Doctype), Timestamp),
     Changes = jsn:get_value(<<"changes">>, Data),
     HeadIds = jsn:get_value(<<"head_ids">>, Data),
@@ -94,6 +94,8 @@ to_json(C) ->
      {<<"document_id">>, C#change.document_id},
      {<<"document_revision">>, C#change.document_revision},
      {<<"category">>, <<"change">>},
+     {<<"head_ids">>, C#change.head_ids},
+     {<<"head_values">>, C#change.head_values},
      {<<"changes">>, C#change.changes},
      {<<"change_type">>, C#change.change_type}].
 

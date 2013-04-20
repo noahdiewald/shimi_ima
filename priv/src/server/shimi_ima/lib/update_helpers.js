@@ -1,6 +1,6 @@
-var get_head_values = function(doc) {
-  return doc.head.map(function(x) {
-    var h = doc.index[x];
+var get_head_values = function(d) {
+  return d["head"].map(function(x) {
+    var h = d.index[x];
     if (typeof h[0] === "string") {
       return [JSON.stringify(h[1])];
     } else {
@@ -16,11 +16,14 @@ var stamp = function(newDoc, doc, req) {
   var message = {
     document_id: newDoc._id,
     doctype: newDoc.doctype,
-    changes: newDoc.changes,
-    head_ids: newDoc.head,
-    head_values: get_head_values(newDoc)
+    changes: newDoc.changes
   };
 
+  if (newDoc.head) {
+    message.head_ids = newDoc.head;
+    message.head_values = get_head_values(newDoc);
+  }
+  
   if (!doc) {
     if (newDoc._id) {
       newDoc.created_at_ = now;

@@ -176,7 +176,7 @@ json_update(Json, R, S) ->
   
     case couch:update(Id, NormJson, Project, S) of
         {ok, Data} ->
-            NewRev = jsn:get_value(<<"rev">>, Data),
+            NewRev = jsn:get_value(<<"document_revision">>, Data),
             Message = jsn:encode([{<<"rev">>, NewRev}]),
             R2 = cowboy_req:set_resp_body(Message, R1),
             spawn(change_log, proplists:get_value(change_type, S), [Data, Doctype, Project, S]),
