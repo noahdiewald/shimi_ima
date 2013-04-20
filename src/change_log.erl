@@ -33,6 +33,8 @@
     doctype :: binary(),
     document_id :: binary(),
     document_revision :: binary(),
+    head_ids :: [binary()],
+    head_values :: [binary()],
     user :: binary(),
     timestamp :: binary()}).
 
@@ -49,13 +51,12 @@ created(Data, Doctype, Project, S) ->
 create_change(CType, Data, Doctype, Project, S) ->
     Timestamp = jsn:get_value(<<"timestamp">>, Data),
     User = jsn:get_value(<<"user">>, Data),
-    DocId = jsn:get_value(<<"id">>, Data),
+    DocId = jsn:get_value(<<"document_id">>, Data),
     DocRev = jsn:get_value(<<"rev">>, Data),
     Id = create_id(list_to_binary(Doctype), Timestamp),
-    Changes = case CType of
-        update -> jsn:get_value(<<"changes">>, Data);
-        _ -> null
-    end,
+    Changes = jsn:get_value(<<"changes">>, Data),
+    HeadIds = jsn:get_value(<<"head_ids">>, Data),
+    HeadValues = jsn:get_value(<<"head_values">>, Data),
     C = #change{
         id = Id,
         category = change,
@@ -63,6 +64,8 @@ create_change(CType, Data, Doctype, Project, S) ->
         changes = Changes,
         document_id = DocId,
         document_revision = DocRev,
+        head_ids = HeadIds,
+        head_values = HeadValues,
         user = User,
         timestamp = Timestamp
     },

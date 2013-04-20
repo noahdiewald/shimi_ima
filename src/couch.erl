@@ -62,7 +62,7 @@ create(Json, Url=[$h,$t,$t,$p,$:|_], Headers) ->
         {ok, "201", RespHeads, Data} -> 
             Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
             Data1 = jsn:decode(Data),
-            Data2 = jsn:set_value(<<"rev">>, list_to_binary(Rev), Data1),
+            Data2 = jsn:set_value(<<"document_revision">>, list_to_binary(Rev), Data1),
             {ok, Data2};
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
@@ -317,7 +317,7 @@ update(Data, Url, Headers) ->
         {ok, "201", RespHeads, RetData} -> 
             Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
             RetData1 = jsn:decode(RetData),
-            RetData2 = jsn:set_value(<<"rev">>, list_to_binary(Rev), RetData1),
+            RetData2 = jsn:set_value(<<"document_revision">>, list_to_binary(Rev), RetData1),
             {ok, RetData2};
         {error, req_timedout} -> 
             {error, req_timedout};

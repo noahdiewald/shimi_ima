@@ -155,7 +155,7 @@
           deleted :: boolean(),
           fieldsets :: [docfieldset()],
           index :: [{fieldid(),sortkey_val() | [sortkey_val()]}],
-          changes :: [{instance(), [{binary(), jsn:json_term()}]}],
+          changes :: [{instance(), [{binary(), jsn:json_term()}]}] | null,
           head :: [fieldid()],
           reverse :: [fieldid()]
          }).

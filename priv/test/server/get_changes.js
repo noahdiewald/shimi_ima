@@ -516,20 +516,35 @@ exports.fromFieldsetsMapFold = fromFieldsetsMapFold;
 exports.fromFieldsets = fromFieldsets;
 exports.fromFieldsetsFold = fromFieldsetsFold;
 exports.fromFieldsetsMap = fromFieldsetsMap;
+var get_head_values = function(doc) {
+  return doc.head.map(function(x) {
+    var h = doc.index[x];
+    if (typeof h[0] === "string") {
+      return [JSON.stringify(h[1])];
+    } else {
+      return h.map(function(y) {
+        return [JSON.stringify(y[1])];
+      });
+    }
+  });
+};
+
 var stamp = function(newDoc, doc, req) {
   var now = (new Date()).toUTCString();
-  var message;
+  var message = {
+    document_id: newDoc._id,
+    doctype: newDoc.doctype,
+    changes: newDoc.changes,
+    head_ids: newDoc,
+    head_values: get_head_values(newDoc)
+  };
 
   if (!doc) {
     if (newDoc._id) {
       newDoc.created_at_ = now;
       newDoc.created_by_ = req.userCtx.name;
-      message = {
-        id: newDoc._id,
-        timestamp: newDoc.created_at_,
-        user: newDoc.created_by_,
-        changes: newDoc.changes
-      };
+      message.timestamp = newDoc.created_at_;
+      message.user = newDoc.created_by_;
     } else {
       newDoc = null;
       message = 'This application expects the document _id in the JSON body';
@@ -539,14 +554,8 @@ var stamp = function(newDoc, doc, req) {
     newDoc.updated_by_ = req.userCtx.name;
     newDoc.created_at_ = doc.created_at_;
     newDoc.created_by_ = doc.created_by_;
-
-    message = {
-      id: newDoc._id,
-      timestamp: newDoc.updated_at_,
-      user: newDoc.updated_by_,
-      changes: newDoc.changes
-    };
-
+    message.timestamp = newDoc.updated_at_;
+    message.user = newDoc.updated_by_;
     newDoc.prev_ = doc._rev;
   }
 
@@ -560,14 +569,9 @@ var get_changes = function(newDoc, doc) {
   // This function is not implemented as efficiently as it could be but
   // I am more concerned with clarity at this point.
   var foldFields;
-  var metaInstance = "00000000000000000000000000000000";
   var changes = {};
 
-  if (!doc) {
-    changes[metaInstance] = {
-      created: true
-    };
-  } else {
+  if (doc) {
     if (Object.testEnv) {
       foldFields = Object.foldFields;
     } else {
@@ -607,16 +611,6 @@ var get_changes = function(newDoc, doc) {
       });
       return acc;
     }, oldInstances);
-
-    if (doc.deleted_ === true && newDoc.deleted_ !== true) {
-      changes[metaInstance] = {
-        restored: true
-      };
-    } else if (doc.deleted_ !== false && newDoc.deleted_ === true) {
-      changes[metaInstance] = {
-        deleted: true
-      };
-    }
   }
 
   if (Object.keys(changes).length === 0) {
@@ -652,11 +646,8 @@ describe("CouchDB get_changes function", function() {
   });
   describe("When deleting and restoring", function() {
     var changes = get_changes(simple_doc3, simple_doc2);
-    it("should contain 00000000000000000000000000000000", function() {
-      should.exist(changes["00000000000000000000000000000000"]);
-    });
-    it("should report deletion", function() {
-      changes["00000000000000000000000000000000"].deleted.should.be.true;
+    it("should changes should be null", function() {
+      should.strictEqual(changes, null);
     });
   });
   describe("When making multiple changes", function() {
@@ -684,8 +675,8 @@ describe("CouchDB get_changes function", function() {
   });
   describe("When creating a document", function() {
     var changes = get_changes(simple_multifieldset_doc2, null);
-    it("should report creation", function() {
-      changes["00000000000000000000000000000000"].created.should.be.true;
+    it("should changes should be null", function() {
+      should.strictEqual(changes, null);
     });
   });
 });

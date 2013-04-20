@@ -39,11 +39,8 @@ describe("CouchDB get_changes function", function() {
   });
   describe("When deleting and restoring", function() {
     var changes = get_changes(simple_doc3, simple_doc2);
-    it("should contain 00000000000000000000000000000000", function() {
-      should.exist(changes["00000000000000000000000000000000"]);
-    });
-    it("should report deletion", function() {
-      changes["00000000000000000000000000000000"].deleted.should.be.true;
+    it("should changes should be null", function() {
+      should.strictEqual(changes, null);
     });
   });
   describe("When making multiple changes", function() {
@@ -71,8 +68,8 @@ describe("CouchDB get_changes function", function() {
   });
   describe("When creating a document", function() {
     var changes = get_changes(simple_multifieldset_doc2, null);
-    it("should report creation", function() {
-      changes["00000000000000000000000000000000"].created.should.be.true;
+    it("should changes should be null", function() {
+      should.strictEqual(changes, null);
     });
   });
 });
