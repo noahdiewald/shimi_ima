@@ -2305,7 +2305,7 @@ shimi.fieldsetElems = (function () {
 shimi.commands = (function () {
   var mod = {};
   var commandInput = function () {
-    return $('#edit-command-input');
+    return document.getElementById("edit-command-input");
   };
   var commandDialog = function () {
     return $('#command-dialog');
@@ -2373,7 +2373,7 @@ shimi.commands = (function () {
   mod.dialogOpen = function (context) {
     var cinput = commandInput();
     var cdialog = commandDialog();
-    cinput.val("");
+    cinput.value = "";
     setContext(cdialog, context).show();
     cinput.focus();
     return mod;
@@ -2383,7 +2383,7 @@ shimi.commands = (function () {
     var cinput = commandInput();
     var cdialog = commandDialog();
     setContext(cdialog, "").hide();
-    cinput.val("");
+    cinput.value = "";
     return mod;
   };
 
