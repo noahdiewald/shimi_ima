@@ -105,3 +105,17 @@ $(document).on("keydown", '#document-search-term', function (e) {
   }
   return true;
 });
+
+$(document).on("keyup", '#index-filter-form input', function (e) {
+  var getIndexTimer;
+  window.clearTimeout(getIndexTimer);
+  getIndexTimer = setTimeout(function () {
+    if (e.which !== 8 && e.which !== 46) {
+      if (document.getElementById("all-document-container")) {
+        shimi.indexui.get();
+      } else {
+        shimi.ipreviewui.get();
+      }
+    }
+  }, 500);
+});

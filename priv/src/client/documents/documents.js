@@ -3,17 +3,7 @@ shimi.documents = (function () {
   var mod = {};
 
   var indexForm = function () {
-    var getIndexTimer;
-
-    $('#index-filter-form input').keyup(function (e) {
-      clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function () {
-        if (e.which !== 8 && e.which !== 46) {
-          shimi.indexui.get();
-        }
-      }, 500);
-    });
-    $('#index-filter-form select').change(function () {
+     $('#index-filter-form select').change(function () {
       shimi.indexui.get();
     });
 

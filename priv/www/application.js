@@ -1268,6 +1268,20 @@ $(document).on("keydown", '#document-search-term', function (e) {
   }
   return true;
 });
+
+$(document).on("keyup", '#index-filter-form input', function (e) {
+  var getIndexTimer;
+  window.clearTimeout(getIndexTimer);
+  getIndexTimer = setTimeout(function () {
+    if (e.which !== 8 && e.which !== 46) {
+      if (document.getElementById("all-document-container")) {
+        shimi.indexui.get();
+      } else {
+        shimi.ipreviewui.get();
+      }
+    }
+  }, 500);
+});
 $(document).on("change", '#document-search-exclude', function (e) {
   shimi.searchui.toggleExclusion();
   return true;
@@ -2398,17 +2412,7 @@ shimi.documents = (function () {
   var mod = {};
 
   var indexForm = function () {
-    var getIndexTimer;
-
-    $('#index-filter-form input').keyup(function (e) {
-      clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function () {
-        if (e.which !== 8 && e.which !== 46) {
-          shimi.indexui.get();
-        }
-      }, 500);
-    });
-    $('#index-filter-form select').change(function () {
+     $('#index-filter-form select').change(function () {
       shimi.indexui.get();
     });
 
