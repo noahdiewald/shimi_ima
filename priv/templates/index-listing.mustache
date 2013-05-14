@@ -1,5 +1,14 @@
-<ul>
-  {{#rows}}
-  <li><a href="#" data-index-id="{{ id }}">{{ key.1}} <span class="quiet">({{ key.0 }})</span></a></li>
-  {{/rows}}
-</ul>
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Doctype</th>
+  </thead>
+  <tbody>
+    {{#rows}}
+    <tr>
+      <th><a href="#" data-index-id="{{ id }}">{{ key.1}}</a></th> 
+      <td>{{ key.0 }}</td>
+    </tr>
+    {{/rows}}
+  </tbody>
+</table>

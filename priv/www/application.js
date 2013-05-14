@@ -1108,7 +1108,7 @@ shimi.clickDispatch = function (e) {
     "#add-index-condition-button": function (t) {
       ieditui.addCond();
     },
-    "#index-index-listing ul li a": function (t) {
+    "#index-index-listing a": function (t) {
       ieditui.init(t);
     },
 
