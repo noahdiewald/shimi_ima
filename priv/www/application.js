@@ -1055,7 +1055,6 @@ shimi.clickDispatch = function (e) {
     },
     ".view-document-link span": function (t) {
       var parent = t[0].parentNode;
-      window.console.log("===" + parent.id);
       indexui.load(parent);
     },
     ".view-document-link": function (t) {
