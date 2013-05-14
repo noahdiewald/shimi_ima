@@ -81,6 +81,15 @@
           {<<"argument">>,<<"99">>}]]
        ).
 
+-define(BACKSLASH_MATCH,
+        [[{<<"is_or">>,false},{<<"negate">>,false},
+          {<<"parens">>,false},
+          {<<"fieldset">>,<<"d5331cbb4d62fe3d2899f142d904780e">>},
+          {<<"field">>,<<"d5331cbb4d62fe3d2899f142d90486fd">>},
+          {<<"operator">>,<<"match">>},
+          {<<"argument">>,<<"\\s99">>}]]
+       ).
+
 -define(MEMBER,
         [[{<<"is_or">>,false},{<<"negate">>,false},
           {<<"parens">>,false},
@@ -342,8 +351,11 @@ trans_test_() ->
      ?_assertEqual(<<"(isTrue('d5331cbb4d62fe3d2899f142d90486fd'))">>, 
                    conditions:trans(?TRUE)),
   
-     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd',/99/))">>, 
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd','99'))">>, 
                    conditions:trans(?MATCH)),
+  
+     ?_assertEqual(<<"(matches('d5331cbb4d62fe3d2899f142d90486fd','\\\\s99'))">>, 
+                   conditions:trans(?BACKSLASH_MATCH)),
   
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
                    conditions:trans(?DOUBLE)),
@@ -357,13 +369,13 @@ trans_test_() ->
      ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
                    conditions:trans(?COMPLEX1)),
   
-     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) || (!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888'))">>, 
                    conditions:trans(?COMPLEX2)),
      
-     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) || ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd','99')) || ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
                    conditions:trans(grouped1())),
 
-     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd',/99/)) && ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
+     ?_assertEqual(<<"(equals('d5331cbb4d62fe3d2899f142d90486fd','99')) && (!matches('d5331cbb4d62fe3d2899f142d90486fd','99')) && ((!greaterThan('d5331cbb4d62fe3d2899f142d90486fd','99')) || (!equals('d5331cbb4d62fe3d2899f142d9058ce0','888')))">>, 
                    conditions:trans(grouped2())),
 
      ?_assertEqual(<<"((equals('created_by_','lindsay')) || (equals('updated_by_','lindsay'))) && ((hasMember('d5331cbb4d62fe3d2899f142d905a4d7','fieldwork')) || (hasMember('4df410fea47fcdc8d509c025929706d3','fieldwork'))) && ((greaterThan('d5331cbb4d62fe3d2899f142d905dafa','2011-06-01')) || (greaterThan('d5331cbb4d62fe3d2899f142d9064c95','2011-06-01')))">>,
