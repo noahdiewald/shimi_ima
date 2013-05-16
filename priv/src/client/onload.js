@@ -1,4 +1,6 @@
 $(function () {
+  'use strict';
+
   $('.notification').hide();
 
   $('#loading').hide();

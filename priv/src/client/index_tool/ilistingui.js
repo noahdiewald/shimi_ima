@@ -1,8 +1,10 @@
 shimi.ilistingui = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.init = function () {
-    var url = "indexes";
+    var url = 'indexes';
     var target = $('#index-index-listing');
     var listing;
 

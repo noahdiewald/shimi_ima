@@ -1,4 +1,6 @@
 function map(doc) {
+  'use strict';
+
 /*
     The end user is able to define view indexes both explicitly, using
     the index tool, and implicitly, using the configuration interface
@@ -13,7 +15,7 @@ function map(doc) {
 
   var makeObj = function (fun) {
     return {
-      _id: "_design/" + doc._id,
+      _id: '_design/' + doc._id,
       version: doc._rev,
       views: {
         index: {
@@ -23,9 +25,9 @@ function map(doc) {
     };
   };
 
-  if (doc.category === "index") {
+  if (doc.category === 'index') {
     var userIndexMap = function (doc) {
-      if (doc.doctype === "doc.$doctype$" && !(doc.category) && doc.index && doc.deleted_.toString() === "doc.$show_deleted$") {
+      if (doc.doctype === 'doc.$doctype$' && !(doc.category) && doc.index && doc.deleted_.toString() === 'doc.$show_deleted$') {
 
         var display_fields = doc.$fields$;
         var runReplace = false;
@@ -262,7 +264,7 @@ function map(doc) {
           emitForField(item);
         });
 
-        return "passed initial if clause";
+        return 'passed initial if clause';
       }
 
       return false;
@@ -272,16 +274,16 @@ function map(doc) {
       if (item) {
         return item.toString();
       } else {
-        return "function () {return false;}";
+        return 'function () {return false;}';
       }
     };
 
-    var doctypeRe = new RegExp("doc\\.\\$doctype\\$", "g");
-    var deletedRe = new RegExp("doc\\.\\$show_deleted\\$", "g");
-    var expRe = new RegExp("doc\\.\\$expression\\$", "g");
-    var fieldsRe = new RegExp("doc\\.\\$fields\\$", "g");
-    var existsRe = new RegExp("doc\\.\\$replace_function_exists\\$", "g");
-    var replaceRe = new RegExp("doc\\.\\$replace_function\\$", "g");
+    var doctypeRe = new RegExp('doc\\.\\$doctype\\$', 'g');
+    var deletedRe = new RegExp('doc\\.\\$show_deleted\\$', 'g');
+    var expRe = new RegExp('doc\\.\\$expression\\$', 'g');
+    var fieldsRe = new RegExp('doc\\.\\$fields\\$', 'g');
+    var existsRe = new RegExp('doc\\.\\$replace_function_exists\\$', 'g');
+    var replaceRe = new RegExp('doc\\.\\$replace_function\\$', 'g');
 
     var fun = userIndexMap.toString().replace(doctypeRe, doc.doctype);
     fun = fun.replace(deletedRe, doc.show_deleted.toString());
@@ -292,7 +294,7 @@ function map(doc) {
 
     retval = makeObj(fun);
     emit(doc._id, JSON.stringify(retval));
-  } else if (doc.category === "doctype") {
+  } else if (doc.category === 'doctype') {
     var doctypeMap = function (doc) {
       var isReversal = function (elem) {
         return elem.reversal === true;
@@ -330,7 +332,7 @@ function map(doc) {
         return acc;
       };
 
-      if (doc.doctype === "$doctype$" && doc.fieldsets && !doc.deleted_) {
+      if (doc.doctype === '$doctype$' && doc.fieldsets && !doc.deleted_) {
         var heads = gather([], isHead);
         var reversals = gather([], isReversal, true);
 

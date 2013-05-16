@@ -1,11 +1,13 @@
 function validate(newDoc, saveDoc, userCtx) {
+  'use strict';
+
   // A predicate function to detect blank strings.
   // Warning: this is a bad implementation.
-  var isBlank = function (value) {
+  var isBlank = function(value) {
     return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
-  var forbid = function (name, msg) {
+  var forbid = function(name, msg) {
     var docid;
 
     if (newDoc._id) {
@@ -30,7 +32,7 @@ function validate(newDoc, saveDoc, userCtx) {
     }
   };
 
-  var charseq = function (newDoc, saveDoc, userCtx) {
+  var charseq = function(newDoc, saveDoc, userCtx) {
     if (newDoc.category === 'charseq') {
       if (isBlank(newDoc.name)) {
         forbid('Name', 'must be filled in.');
@@ -41,7 +43,7 @@ function validate(newDoc, saveDoc, userCtx) {
         [newDoc.sort_ignore, 'Ignore'],
         [newDoc.vowels, 'Vowels'],
         [newDoc.consonants, 'Consonants']
-      ].forEach(function (item) {
+      ].forEach(function(item) {
         if (item[0] === false) {
           forbid(item[1], 'contains quoting errors.');
         }
@@ -49,10 +51,81 @@ function validate(newDoc, saveDoc, userCtx) {
     }
   };
 
-  var documents = function (newDoc, saveDoc, userCtx) {
+  var not_parens = function (parens) {
+    return (parens !== 'open' && parens !== 'close' && parens !== 'exopen' && parens !== 'exclose');
+  };
+
+  var validate_paren_count = function(pcount, expcount, index) {
+    if (pcount < 0 || expcount < 0) {
+      forbid('Condition ' + index, 'too many closing parenthesis.');
+    }
+  };
+
+  var validate_exparen_nesting = function(expcount, index) {
+    if (expcount > 1) {
+      forbid('Condition ' + index, 'existential parenthesis cannot be nexted.');
+    }
+  };
+
+  var validate_exparen_fieldset = function(exfs, fieldset, is_or, index) {
+    if (exfs !== fieldset && !is_or) {
+      forbid('Condition ' + index, 'all conditions within existential scope must have ' + 'the same fieldset.');
+    }
+  };
+
+  var validate_negate = function(negate, index) {
+    if (negate !== true && negate !== false) {
+      forbid('Condition ' + index, 'negate must be true or false');
+    }
+  };
+
+  var validate_field = function(field, index) {
+    if (isBlank(field) || !(/^\w*$/).test(field)) {
+      forbid('Condition ' + index, 'invalid field.');
+    }
+  };
+
+  var validate_fieldset = function(fieldset, index) {
+    if (isBlank(fieldset) || !(/^\w*$/).test(fieldset)) {
+      forbid('Condition ' + index, 'invalid fieldset.');
+    }
+  };
+
+  var validate_operator = function(operator, argument, index) {
+    switch (operator) {
+    case 'hasGreater':
+    case 'hasLess':
+    case 'hasExactly':
+      if (typeof argument !== 'number' || (argument % 1) > 0) {
+        forbid('Condition ' + index, 'integer argument required.');
+      }
+      break;
+    case 'equal':
+    case 'match':
+    case 'greater':
+    case 'less':
+    case 'match':
+    case 'member':
+      if (typeof argument === 'string' && isBlank(argument)) {
+        forbid('Condition ' + index, 'blank argument is not allowed.');
+      }
+      break;
+    case 'true':
+    case 'blank':
+    case 'isDefined':
+      if (!isBlank(argument)) {
+        forbid('Condition ' + index, 'no argument allowed for this condition.');
+      }
+      break;
+    default:
+      forbid('Condition ' + index, 'invalid operator.');
+    }
+  };
+
+  var documents = function(newDoc, saveDoc, userCtx) {
     // A more detailed error message function for cases where we
     // want to indication what field caused the problem.
-    var forbidField = function (field, msg) {
+    var forbidField = function(field, msg) {
       var errorMsg = JSON.stringify({
         fieldname: field.name,
         instance: field.instance,
@@ -70,7 +143,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // The following are validation tests that are run for
     // each field by an expression below.
-    var requiredField = function (field) {
+    var requiredField = function(field) {
       if (field.required === true) {
         if (isBlank(field.value)) {
           forbidField(field, 'cannot be blank.');
@@ -80,7 +153,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // Determine if this is a datefield and run the date validations
     // if it is not blank
-    var dateField = function (field) {
+    var dateField = function(field) {
       if (field.subcategory === 'date' && !isBlank(field.value)) {
         dateFormat(field);
         dateRange(field);
@@ -88,7 +161,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is an integer field and the integer validations
-    var integerField = function (field) {
+    var integerField = function(field) {
       if (field.subcategory === 'integer' && field.value !== '') {
         isValidNumber(field);
         isInteger(field);
@@ -97,7 +170,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is an rational field and the rational validations
-    var rationalField = function (field) {
+    var rationalField = function(field) {
       if (field.subcategory === 'rational' && field.value !== '') {
         isValidNumber(field);
         numberRange(field);
@@ -105,7 +178,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a text field and run appropriate validations
-    var textField = function (field) {
+    var textField = function(field) {
       if (field.subcategory === 'text' && !isBlank(field.value)) {
         isString(field);
         isMatch(field);
@@ -113,7 +186,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a textarea field and run appropriate validations
-    var textareaField = function (field) {
+    var textareaField = function(field) {
       if (field.subcategory === 'textarea' && !isBlank(field.value)) {
         isString(field);
         isMatch(field);
@@ -121,14 +194,14 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a boolean field make sure it is true or false
-    var booleanField = function (field) {
+    var booleanField = function(field) {
       if (field.subcategory === 'boolean') {
         isBoolean(field);
       }
     };
 
     // Determine if this is a openboolean field make sure it is true or false
-    var openbooleanField = function (field) {
+    var openbooleanField = function(field) {
       if (field.subcategory === 'openboolean') {
         isOpenboolean(field);
       }
@@ -138,7 +211,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var selectField = function (field) {
+    var selectField = function(field) {
       if (field.subcategory === 'select' && !isBlank(field.value)) {
         isString(field);
       }
@@ -148,7 +221,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var docselectField = function (field) {
+    var docselectField = function(field) {
       if (field.subcategory === 'docselect' && !isBlank(field.value)) {
         isString(field);
       }
@@ -158,7 +231,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var docmultiselectField = function (field) {
+    var docmultiselectField = function(field) {
       if (field.subcategory === 'docmultiselect' && !isBlank(field.value)) {
         isStringArray(field);
       }
@@ -168,7 +241,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var multiselectField = function (field) {
+    var multiselectField = function(field) {
       if (field.subcategory === 'multiselect' && !isBlank(field.value)) {
         isStringArray(field);
       }
@@ -176,7 +249,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // Ensure that the date is formatted according to the standard of
     // this application.
-    var dateFormat = function (field) {
+    var dateFormat = function(field) {
       var pattern = (/^\d{4}-\d{2}-\d{2}$/);
 
       if (!pattern.test(field.value) && isNaN(Date.parse(field.value))) {
@@ -184,12 +257,12 @@ function validate(newDoc, saveDoc, userCtx) {
       }
     };
 
-    var myDateToUTC = function (myDate) {
+    var myDateToUTC = function(myDate) {
 
     };
 
     // Make sure that the date is not outside of a specified range
-    var dateRange = function (field) {
+    var dateRange = function(field) {
       var pattern = (/^\d{4}-\d{2}-\d{2}$/);
 
       if (pattern.test(field.max)) {
@@ -211,7 +284,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date is earlier than a maximum date. If it isn't fail.
-    var isEarlier = function (field) {
+    var isEarlier = function(field) {
       if (field.value >= field.max) {
         var message = 'date must be earlier than or equal to ' + field.max + '.';
         forbidField(field, message);
@@ -219,7 +292,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date is later than a minimum date. If it isn't fail.
-    var isLater = function (field) {
+    var isLater = function(field) {
       if (field.value < field.min) {
         var message = 'date must be later than ' + field.min + '.';
         forbidField(field, message);
@@ -227,27 +300,27 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date should be today. If it isn't fail.
-    var isToday = function (field) {
+    var isToday = function(field) {
       if (field.value !== new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be today.');
       }
     };
 
     // See if a date should be in the future. If it isn't fail.
-    var isFuture = function (field) {
+    var isFuture = function(field) {
       if (field.value <= new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be in the future.');
       }
     };
 
     // See if a date should be in the past. If it isn't fail.
-    var isPast = function (field) {
+    var isPast = function(field) {
       if (field.value > new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be in the past.');
       }
     };
 
-    var isInteger = function (field) {
+    var isInteger = function(field) {
       var message = 'Expected an integer but got rational number';
 
       if (field.value % 1 !== 0) {
@@ -256,19 +329,19 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Make sure this is a valid number
-    var isValidNumber = function (field) {
+    var isValidNumber = function(field) {
       if (!isNumber(field.value)) {
         forbidField(field, 'Not a valid number');
       }
     };
 
     // Test if it is a number and not NaN.
-    var isNumber = function (value) {
+    var isNumber = function(value) {
       return ((typeof value === 'number') && !(isNaN(value)));
     };
 
     // Determine if the number is within a given range
-    var numberRange = function (field) {
+    var numberRange = function(field) {
       if (isNumber(field.max) && (field.value > field.max)) {
         forbidField(field, 'Must be less than or equal to ' + field.max);
       }
@@ -278,7 +351,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if string should match pattern
-    var isMatch = function (field) {
+    var isMatch = function(field) {
       if (!isBlank(field.regex)) {
         var re = new RegExp(field.regex);
 
@@ -289,12 +362,12 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if it is an array of strings
-    var isStringArray = function (field) {
+    var isStringArray = function(field) {
       if (Object.prototype.toString.call(field.value) !== '[object Array]') {
         forbidField(field, 'Must be an array of strings.');
       }
 
-      field.value.forEach(function (v) {
+      field.value.forEach(function(v) {
         if (typeof v !== 'string') {
           forbidField(field, 'Must contain only text.');
         }
@@ -302,21 +375,21 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if it is a string
-    var isString = function (field) {
+    var isString = function(field) {
       if (typeof field.value !== 'string') {
         forbidField(field, 'Must be text.');
       }
     };
 
     // Fail if not a boolean
-    var isBoolean = function (field) {
+    var isBoolean = function(field) {
       if (typeof field.value !== 'boolean') {
         forbidField(field, 'Must be true or false.');
       }
     };
 
     // Fail if neither a boolean nor null
-    var isOpenboolean = function (field) {
+    var isOpenboolean = function(field) {
       if (typeof field.value !== 'boolean' && field.value !== null) {
         forbidField(field, 'Must be true, false or blank.');
       }
@@ -328,18 +401,18 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // This iterates through the fields and runs the above
     // validation test for each field.
-    newDoc.fieldsets.forEach(function (fieldset) {
+    newDoc.fieldsets.forEach(function(fieldset) {
       if (fieldset.multiple) {
-        fieldset.multifields.forEach(function (multifield) {
-          multifield.fields.forEach(function (field) {
-            validationTests.forEach(function (vTest) {
+        fieldset.multifields.forEach(function(multifield) {
+          multifield.fields.forEach(function(field) {
+            validationTests.forEach(function(vTest) {
               vTest(field);
             });
           });
         });
       } else {
-        fieldset.fields.forEach(function (field) {
-          validationTests.forEach(function (vTest) {
+        fieldset.fields.forEach(function(field) {
+          validationTests.forEach(function(vTest) {
             vTest(field);
           });
         });
@@ -347,10 +420,10 @@ function validate(newDoc, saveDoc, userCtx) {
     });
   };
 
-  var userIndex = function (newDoc, saveDoc, userCtx) {
+  var userIndex = function(newDoc, saveDoc, userCtx) {
     [newDoc.doctype, newDoc.name].forEach(
 
-    function (field) {
+    function(field) {
       if (isBlank(field)) {
         forbid('All fields', 'must be filled in.');
       }
@@ -383,9 +456,7 @@ function validate(newDoc, saveDoc, userCtx) {
         forbid('Conditions', 'begin or end with improper parenthesis.');
       }
 
-      newDoc.conditions.forEach(
-
-      function (condition, index) {
+      newDoc.conditions.forEach(function(condition, index) {
         var is_or = condition.is_or;
         var negate = condition.negate;
         var argument = condition.argument;
@@ -394,56 +465,14 @@ function validate(newDoc, saveDoc, userCtx) {
         var fieldset = condition.fieldset;
         var parens = condition.parens;
 
-        if (parenCount < 0 || exParenCount < 0) {
-          forbid('Condition ' + index, 'too many closing parenthesis.');
-        }
+        validate_paren_count(parenCount, exParenCount, index);
+        validate_exparen_nesting(exParenCount, index);
 
-        if (exParenCount > 1) {
-          forbid('Condition ' + index, 'existential parenthesis cannot be nexted.');
-        }
-
-        if (is_or !== true && (parens !== 'open' && parens !== 'close' && parens !== 'exopen' && parens !== 'exclose')) {
-
-          if (negate !== true && negate !== false) {
-            forbid('Condition ' + index, 'negate must be true or false');
-          }
-
-          if (isBlank(field) || !(/^\w*$/).test(field)) {
-            forbid('Condition ' + index, 'invalid field.');
-          }
-
-          if (isBlank(fieldset) || !(/^\w*$/).test(fieldset)) {
-            forbid('Condition ' + index, 'invalid fieldset.');
-          }
-
-          switch (operator) {
-          case 'hasGreater':
-          case 'hasLess':
-          case 'hasExactly':
-            if (typeof argument !== 'number' || (argument % 1) > 0) {
-              forbid('Condition ' + index, 'integer argument required.');
-            }
-            break;
-          case 'equal':
-          case 'match':
-          case 'greater':
-          case 'less':
-          case 'match':
-          case 'member':
-            if (typeof argument === 'string' && isBlank(argument)) {
-              forbid('Condition ' + index, 'blank argument is not allowed.');
-            }
-            break;
-          case 'true':
-          case 'blank':
-          case 'isDefined':
-            if (!isBlank(argument)) {
-              forbid('Condition ' + index, 'no argument allowed for this condition.');
-            }
-            break;
-          default:
-            forbid('Condition ' + index, 'invalid operator.');
-          }
+        if (is_or !== true && not_parens(parens)) {
+          validate_negate(negate, index);
+          validate_field(field, index);
+          validate_fieldset(fieldset, index);
+          validate_operator(operator, argument, index);
         }
 
         if (parens === 'open') {
@@ -459,9 +488,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
         if (!parens && exParenCount === 1) {
           if (exParenFS) {
-            if (exParenFS !== fieldset && !is_or) {
-              forbid('Condition ' + index, 'all conditions within existential scope must have ' + 'the same fieldset.');
-            }
+            validate_exparen_fieldset(exParenFS, fieldset, is_or, index);
           } else {
             exParenFS = fieldset;
           }
@@ -479,16 +506,16 @@ function validate(newDoc, saveDoc, userCtx) {
     forbid(userCtx.name, 'is a read only user.');
   }
 
-  if (newDoc.category === "charseq") {
+  if (newDoc.category === 'charseq') {
     charseq(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   } else if (newDoc.category === 'index') {
     userIndex(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   } else if (!newDoc.category && !! newDoc.doctype && !newDoc.deleted_) {
     documents(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   }
 
-  return "skipped";
+  return 'skipped';
 }

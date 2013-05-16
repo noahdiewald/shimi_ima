@@ -1,11 +1,13 @@
 shimi.flash = function (title, body) {
+  'use strict';
+
   var mod = {};
 
   var f = function (flasher, title, body) {
     var fadeout = function () {
       flasher.fadeOut();
     };
-    flasher.find('.notification-summary').text(title + ": ");
+    flasher.find('.notification-summary').text(title + ': ');
     flasher.find('.notification-message').text(body);
     var timeout = window.setTimeout(fadeout, 7000);
     flasher.fadeIn();

@@ -1,9 +1,11 @@
-shimi.utils = function () {
+shimi.utils = function() {
+  'use strict';
+
   var mod = {};
 
   // safer(ish) string to number. The difference is that in this app
   // I am using '' if the string isn't a valid number.
-  mod.stringToNumber = function (string) {
+  mod.stringToNumber = function(string) {
     if (typeof string === 'string' && !isNaN(string) && string !== '') {
       return string * 1;
     } else {
@@ -12,11 +14,11 @@ shimi.utils = function () {
   };
 
   // A predicate function to detect blankness
-  mod.isBlank = function (value) {
+  mod.isBlank = function(value) {
     return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
-  mod.validID = function (id) {
+  mod.validID = function(id) {
     return !!id.match(/^[a-f0-9]{32}$/);
   };
 
@@ -30,11 +32,11 @@ shimi.utils = function () {
   mod.Base64 = {
 
     // private property
-    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+    _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
 
     // public method for encoding
-    encode: function (input) {
-      var output = "";
+    encode: function(input) {
+      var output = '';
       var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
       var i = 0;
 
@@ -65,13 +67,13 @@ shimi.utils = function () {
     },
 
     // public method for decoding
-    decode: function (input) {
-      var output = "";
+    decode: function(input) {
+      var output = '';
       var chr1, chr2, chr3;
       var enc1, enc2, enc3, enc4;
       var i = 0;
 
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
 
       while (i < input.length) {
 
@@ -102,9 +104,9 @@ shimi.utils = function () {
     },
 
     // private method for UTF-8 encoding
-    _utf8_encode: function (string) {
-      string = string.replace(/\r\n/g, "\n");
-      var utftext = "";
+    _utf8_encode: function(string) {
+      string = string.replace(/\r\n/g, '\n');
+      var utftext = '';
 
       for (var n = 0; n < string.length; n++) {
 
@@ -112,12 +114,10 @@ shimi.utils = function () {
 
         if (c < 128) {
           utftext += String.fromCharCode(c);
-        }
-        else if ((c > 127) && (c < 2048)) {
+        } else if ((c > 127) && (c < 2048)) {
           utftext += String.fromCharCode((c >> 6) | 192);
           utftext += String.fromCharCode((c & 63) | 128);
-        }
-        else {
+        } else {
           utftext += String.fromCharCode((c >> 12) | 224);
           utftext += String.fromCharCode(((c >> 6) & 63) | 128);
           utftext += String.fromCharCode((c & 63) | 128);
@@ -129,8 +129,8 @@ shimi.utils = function () {
     },
 
     // private method for UTF-8 decoding
-    _utf8_decode: function (utftext) {
-      var string = "";
+    _utf8_decode: function(utftext) {
+      var string = '';
       var i = 0;
       var c = 0;
       var c1 = 0;
@@ -144,13 +144,11 @@ shimi.utils = function () {
         if (c < 128) {
           string += String.fromCharCode(c);
           i++;
-        }
-        else if ((c > 191) && (c < 224)) {
+        } else if ((c > 191) && (c < 224)) {
           c2 = utftext.charCodeAt(i + 1);
           string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
           i += 2;
-        }
-        else {
+        } else {
           c2 = utftext.charCodeAt(i + 1);
           c3 = utftext.charCodeAt(i + 2);
           string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));

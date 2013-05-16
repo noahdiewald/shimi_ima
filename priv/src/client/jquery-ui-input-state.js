@@ -3,6 +3,7 @@
 */
 
 (function ($) {
+  'use strict';
 
   $.fn.inputDisable = function () {
     this.val('');

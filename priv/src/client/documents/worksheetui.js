@@ -1,15 +1,17 @@
 shimi.worksheetui = (function () {
+  'use strict';
+
   var mod = {};
   var setsui = shimi.setsui;
 
   var worksheetsSet = function () {
-    return $("#document-worksheets-set-input");
+    return $('#document-worksheets-set-input');
   };
   var worksheetsArea = function () {
-    return $("#worksheet-area");
+    return $('#worksheet-area');
   };
   var worksheetName = function () {
-    return shimi.documents.identifier() + "_worksheet-template";
+    return shimi.documents.identifier() + '_worksheet-template';
   };
 
   mod.selectAllRows = function (select) {
@@ -24,14 +26,14 @@ shimi.worksheetui = (function () {
     return mod;
   };
 
-  // Set the proper class for a selected row and unset the "select all"
+  // Set the proper class for a selected row and unset the 'select all'
   mod.rowSelection = function (row, select) {
     if (select) {
       $('#' + row).addClass('selected-row');
-      $("#select-all-worksheet-rows").prop('checked', false);
+      $('#select-all-worksheet-rows').prop('checked', false);
     } else {
       $('#' + row).removeClass('selected-row');
-      $("#select-all-worksheet-rows").prop('checked', false);
+      $('#select-all-worksheet-rows').prop('checked', false);
     }
 
     return mod;
@@ -85,7 +87,7 @@ shimi.worksheetui = (function () {
 
   mod.buildTemplate = function () {
     var doctypeInfo = shimi.documents.info();
-    var metaTemp = "{{=<% %>=}}\n" + templates['worksheet'].render(doctypeInfo);
+    var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
     shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
 
     return mod;
@@ -93,7 +95,7 @@ shimi.worksheetui = (function () {
 
   mod.fillWorksheet = function () {
     var setName = worksheetsSet().val();
-    var url = "worksheets";
+    var url = 'worksheets';
     var complete = function (_ignore, req) {
       var data = JSON.parse(req.responseText);
       var ws = shimi.globals[worksheetName()].render(data);
@@ -110,7 +112,7 @@ shimi.worksheetui = (function () {
 
         shimi.form.send(url, setIds, 'POST', complete);
       } else {
-        shimi.flash("Could not load worksheet", "the current set size is limited to 250 items.").error();
+        shimi.flash('Could not load worksheet', 'the current set size is limited to 250 items.').error();
       }
     }
 

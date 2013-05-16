@@ -1,12 +1,14 @@
 shimi.fm = (function () {
+  'use strict';
+
   var mod = {};
 
   var getDirListing = function (path) {
     if (path === undefined) {
-      path = "";
+      path = '';
     }
 
-    $.get("file_manager/list_dirs/" + path, function (data) {
+    $.get('file_manager/list_dirs/' + path, function (data) {
       $('#file-paths').html(data);
     });
   };
@@ -25,11 +27,11 @@ shimi.fm = (function () {
         }
       };
 
-      if (obj() && obj().message && obj().status !== "success") {
-        shimi.flash("Error", obj().message).error();
+      if (obj() && obj().message && obj().status !== 'success') {
+        shimi.flash('Error', obj().message).error();
         shimi.fm.refreshListings();
       } else if (obj().message) {
-        shimi.flash("Success", obj().message).highlight();
+        shimi.flash('Success', obj().message).highlight();
         shimi.fm.refreshListings();
       }
     });
@@ -44,7 +46,7 @@ shimi.fm = (function () {
   };
 
   mod.rootDir = function () {
-    var path = window.sessionStorage.fmPath = "";
+    var path = window.sessionStorage.fmPath = '';
     mod.refreshListings();
 
     return mod;
@@ -52,9 +54,9 @@ shimi.fm = (function () {
 
   mod.upDir = function () {
     var path = window.sessionStorage.fmPath;
-    var newpath = path.split("/");
+    var newpath = path.split('/');
     newpath.pop();
-    newpath = newpath.join("/");
+    newpath = newpath.join('/');
     window.sessionStorage.fmPath = newpath;
 
     mod.refreshListings(newpath);
@@ -64,10 +66,10 @@ shimi.fm = (function () {
 
   var getFileListing = function (path) {
     if (path === undefined) {
-      path = "";
+      path = '';
     }
 
-    $.get("file_manager/list_files/" + path, function (data) {
+    $.get('file_manager/list_files/' + path, function (data) {
       $('#file-listing').html(data);
     });
   };
@@ -75,7 +77,7 @@ shimi.fm = (function () {
   mod.editFile = function (target) {
     var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
-    var url = "file_manager/" + fileId;
+    var url = 'file_manager/' + fileId;
 
     $.getJSON(url, function (obj) {
       pathEditDialog(obj, path).dialog('open');
@@ -88,10 +90,10 @@ shimi.fm = (function () {
     var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var fileRev = target.attr('data-file-rev');
-    var url = "file_manager/" + fileId + "?rev=" + fileRev;
+    var url = 'file_manager/' + fileId + '?rev=' + fileRev;
     var complete = function () {
       mod.refreshListings(path);
-      shimi.flash("Success", "File Deleted").highlight();
+      shimi.flash('Success', 'File Deleted').highlight();
     };
 
     shimi.form.send(url, null, 'DELETE', complete, target);
@@ -103,7 +105,7 @@ shimi.fm = (function () {
     var pathInput = $('#file-path-input');
 
     if (obj.path) {
-      pathInput.val(obj.path.join("/"));
+      pathInput.val(obj.path.join('/'));
     } else {
       pathInput.val('');
     }
@@ -112,19 +114,19 @@ shimi.fm = (function () {
       autoOpen: false,
       modal: true,
       buttons: {
-        "Move": function () {
-          var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
+        'Move': function () {
+          var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
           var complete = function () {
             mod.refreshListings(path);
-            shimi.flash("Success", "File Moved").highlight();
+            shimi.flash('Success', 'File Moved').highlight();
           };
 
-          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
+          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
           shimi.form.send(url, obj, 'PUT', complete, dialog);
-          $(this).dialog("close");
+          $(this).dialog('close');
         },
-        "Cancel": function () {
-          $(this).dialog("close");
+        'Cancel': function () {
+          $(this).dialog('close');
         }
       }
     });

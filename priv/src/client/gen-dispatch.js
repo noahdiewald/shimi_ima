@@ -1,44 +1,46 @@
-shimi.dispatch = (function () {
+shimi.dispatch = (function() {
+  'use strict';
+
   var mod = {};
 
-  mod.send = function (message, arg) {
+  mod.send = function(message, arg) {
     switch (message) {
-    case "bad-session-state":
+    case 'bad-session-state':
       shimi.documents.clearSession();
       break;
-    case "doctype-info-ready":
+    case 'doctype-info-ready':
       shimi.documents.makeLabels();
       break;
-    case "labels-ready":
+    case 'labels-ready':
       shimi.searchui.loadSearchVals();
       shimi.worksheetui.buildTemplate();
       break;
-    case "new-set-form-submit":
+    case 'new-set-form-submit':
       shimi.setsui.saveSelected();
       break;
-    case "sets-changed":
+    case 'sets-changed':
       shimi.setsui.updateSelection();
       break;
-    case "sets-form-submit":
+    case 'sets-form-submit':
       shimi.setsui.performOp();
       break;
-    case "session-cleared":
+    case 'session-cleared':
       shimi.documents.setVersion();
       shimi.documents.loadDoctype();
       break;
-    case "worksheet-form-submit":
+    case 'worksheet-form-submit':
       shimi.worksheetui.fillWorksheet();
       break;
-    case "initiated-command":
+    case 'initiated-command':
       shimi.commands.dialogOpen(arg);
       break;
-    case "executed-command":
+    case 'executed-command':
       shimi.commands.dialogClose();
       break;
-    case "submitted-command":
+    case 'submitted-command':
       shimi.commands.execute(arg);
       break;
-    case "lost-focus":
+    case 'lost-focus':
       shimi.editui.selectInput();
       break;
     }

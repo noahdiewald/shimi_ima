@@ -1,4 +1,6 @@
 function map(doc) {
+  'use strict';
+
   if (!doc.deleted_ && doc.index) {
     var isArray = function (anArray) {
       return Object.prototype.toString.apply(anArray) === '[object Array]';

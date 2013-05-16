@@ -1,548 +1,548 @@
 var bad_format_doc = {
-  "_id": "25250e2ead108a8f60213f2404007c91",
-  "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f2404005d38",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "23-1990-08"
-    },
-    {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": 0,
-      "max": 10,
-      "instance": "25250e2ead108a8f60213f2404006a4d",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": ""
-    },
-    {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f240400717c",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": false
+  '_id': '25250e2ead108a8f60213f2404007c91',
+  '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f2404005d38',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '23-1990-08'
+    }, {
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': 0,
+      'max': 10,
+      'instance': '25250e2ead108a8f60213f2404006a4d',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': ''
+    }, {
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f240400717c',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': false
     }]
   }],
-  "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-  "created_by_": "admin"
+  'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+  'created_by_': 'admin'
 };
 var early_doc = {
-  "_id": "25250e2ead108a8f60213f2404007c91",
-  "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "1990-09-23",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f2404005d38",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "1990-08-23"
-    },
-    {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": 0,
-      "max": 10,
-      "instance": "25250e2ead108a8f60213f2404006a4d",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": ""
-    },
-    {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f240400717c",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": false
+  '_id': '25250e2ead108a8f60213f2404007c91',
+  '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '1990-09-23',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f2404005d38',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '1990-08-23'
+    }, {
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': 0,
+      'max': 10,
+      'instance': '25250e2ead108a8f60213f2404006a4d',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': ''
+    }, {
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f240400717c',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': false
     }]
   }],
-  "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-  "created_by_": "admin"
+  'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+  'created_by_': 'admin'
 };
 var high_integer = {
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "2001-09-27",
-      "max": "2010-08-15",
-      "instance": "4d915decf693d51ab06a2f10920ca8d2",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "2009-09-20"
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '2001-09-27',
+      'max': '2010-08-15',
+      'instance': '4d915decf693d51ab06a2f10920ca8d2',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '2009-09-20'
     },
     {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": 0,
-      "instance": "4d915decf693d51ab06a2f10920cb7ee",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": 6
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': 0,
+      'instance': '4d915decf693d51ab06a2f10920cb7ee',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': 6
     },
     {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "4d915decf693d51ab06a2f10920cc144",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": true
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '4d915decf693d51ab06a2f10920cc144',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': true
     }]
   }]
 };
 var late_doc = {
-  "_id": "25250e2ead108a8f60213f2404007c91",
-  "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "1990-07-23",
-      "instance": "25250e2ead108a8f60213f2404005d38",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "1990-08-23"
+  '_id': '25250e2ead108a8f60213f2404007c91',
+  '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '1990-07-23',
+      'instance': '25250e2ead108a8f60213f2404005d38',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '1990-08-23'
     },
     {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": 0,
-      "max": 10,
-      "instance": "25250e2ead108a8f60213f2404006a4d",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": ""
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': 0,
+      'max': 10,
+      'instance': '25250e2ead108a8f60213f2404006a4d',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': ''
     },
     {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f240400717c",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": false
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f240400717c',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': false
     }]
   }],
-  "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-  "created_by_": "admin"
+  'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+  'created_by_': 'admin'
 };
 var lower_integer = {
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "2001-09-27",
-      "max": "2010-08-15",
-      "instance": "4d915decf693d51ab06a2f10920ca8d2",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "2009-09-20"
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '2001-09-27',
+      'max': '2010-08-15',
+      'instance': '4d915decf693d51ab06a2f10920ca8d2',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '2009-09-20'
     },
     {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": 0,
-      "max": "",
-      "instance": "4d915decf693d51ab06a2f10920cb7ee",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": -6
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': 0,
+      'max': '',
+      'instance': '4d915decf693d51ab06a2f10920cb7ee',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': -6
     },
     {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "4d915decf693d51ab06a2f10920cc144",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": true
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '4d915decf693d51ab06a2f10920cc144',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': true
     }]
   }]
 };
 var simple_doc = {
-  "_id": "25250e2ead108a8f60213f2404007c91",
-  "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-  "doctype": "bim",
-  "description": "",
-  "fieldsets": [{
-    "id": "b9ad37ea17a58d9be32160f393770e5d",
-    "multiple": false,
-    "collapse": false,
-    "name": "hip",
-    "label": "Hip",
-    "order": 50,
-    "fields": [{
-      "id": "25250e2ead108a8f60213f24040007e4",
-      "name": "caltest",
-      "label": "CalTest",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f2404005d38",
-      "regex": "",
-      "order": 50,
-      "subcategory": "date",
-      "value": "1990-08-23"
+  '_id': '25250e2ead108a8f60213f2404007c91',
+  '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+  'doctype': 'bim',
+  'description': '',
+  'fieldsets': [{
+    'id': 'b9ad37ea17a58d9be32160f393770e5d',
+    'multiple': false,
+    'collapse': false,
+    'name': 'hip',
+    'label': 'Hip',
+    'order': 50,
+    'fields': [{
+      'id': '25250e2ead108a8f60213f24040007e4',
+      'name': 'caltest',
+      'label': 'CalTest',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f2404005d38',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'date',
+      'value': '1990-08-23'
     },
     {
-      "id": "25250e2ead108a8f60213f240400248f",
-      "name": "ff",
-      "label": "FF",
-      "head": false,
-      "reversal": false,
-      "required": false,
-      "min": 0,
-      "max": 10,
-      "instance": "25250e2ead108a8f60213f2404006a4d",
-      "regex": "",
-      "order": 50,
-      "subcategory": "integer",
-      "value": ""
+      'id': '25250e2ead108a8f60213f240400248f',
+      'name': 'ff',
+      'label': 'FF',
+      'head': false,
+      'reversal': false,
+      'required': false,
+      'min': 0,
+      'max': 10,
+      'instance': '25250e2ead108a8f60213f2404006a4d',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'integer',
+      'value': ''
     },
     {
-      "id": "b9ad37ea17a58d9be32160f393771cdd",
-      "name": "yer",
-      "label": "Yer",
-      "head": true,
-      "reversal": false,
-      "required": false,
-      "min": "",
-      "max": "",
-      "instance": "25250e2ead108a8f60213f240400717c",
-      "regex": "",
-      "order": 50,
-      "subcategory": "boolean",
-      "value": false
+      'id': 'b9ad37ea17a58d9be32160f393771cdd',
+      'name': 'yer',
+      'label': 'Yer',
+      'head': true,
+      'reversal': false,
+      'required': false,
+      'min': '',
+      'max': '',
+      'instance': '25250e2ead108a8f60213f240400717c',
+      'regex': '',
+      'order': 50,
+      'subcategory': 'boolean',
+      'value': false
     }]
   }],
-  "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-  "created_by_": "admin"
+  'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+  'created_by_': 'admin'
 };
-var future_doc = function (theDate) {
+var future_doc = function(theDate) {
+  'use strict';
+
   return {
-    "_id": "25250e2ead108a8f60213f2404007c91",
-    "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-    "doctype": "bim",
-    "description": "",
-    "fieldsets": [{
-      "id": "b9ad37ea17a58d9be32160f393770e5d",
-      "multiple": false,
-      "collapse": false,
-      "name": "hip",
-      "label": "Hip",
-      "order": 50,
-      "fields": [{
-        "id": "25250e2ead108a8f60213f24040007e4",
-        "name": "caltest",
-        "label": "CalTest",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": "",
-        "max": "today",
-        "instance": "25250e2ead108a8f60213f2404005d38",
-        "regex": "",
-        "order": 50,
-        "subcategory": "date",
-        "value": theDate
-      },
-      {
-        "id": "25250e2ead108a8f60213f240400248f",
-        "name": "ff",
-        "label": "FF",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": 0,
-        "max": 10,
-        "instance": "25250e2ead108a8f60213f2404006a4d",
-        "regex": "",
-        "order": 50,
-        "subcategory": "integer",
-        "value": ""
-      },
-      {
-        "id": "b9ad37ea17a58d9be32160f393771cdd",
-        "name": "yer",
-        "label": "Yer",
-        "head": true,
-        "reversal": false,
-        "required": false,
-        "min": "",
-        "max": "",
-        "instance": "25250e2ead108a8f60213f240400717c",
-        "regex": "",
-        "order": 50,
-        "subcategory": "boolean",
-        "value": false
+    '_id': '25250e2ead108a8f60213f2404007c91',
+    '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+    'doctype': 'bim',
+    'description': '',
+    'fieldsets': [{
+      'id': 'b9ad37ea17a58d9be32160f393770e5d',
+      'multiple': false,
+      'collapse': false,
+      'name': 'hip',
+      'label': 'Hip',
+      'order': 50,
+      'fields': [{
+        'id': '25250e2ead108a8f60213f24040007e4',
+        'name': 'caltest',
+        'label': 'CalTest',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': '',
+        'max': 'today',
+        'instance': '25250e2ead108a8f60213f2404005d38',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'date',
+        'value': theDate
+      }, {
+        'id': '25250e2ead108a8f60213f240400248f',
+        'name': 'ff',
+        'label': 'FF',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': 0,
+        'max': 10,
+        'instance': '25250e2ead108a8f60213f2404006a4d',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'integer',
+        'value': ''
+      }, {
+        'id': 'b9ad37ea17a58d9be32160f393771cdd',
+        'name': 'yer',
+        'label': 'Yer',
+        'head': true,
+        'reversal': false,
+        'required': false,
+        'min': '',
+        'max': '',
+        'instance': '25250e2ead108a8f60213f240400717c',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'boolean',
+        'value': false
       }]
     }],
-    "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-    "created_by_": "admin"
+    'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+    'created_by_': 'admin'
   };
 };
 var past_doc = function (theDate) {
+  'use strict';
+
   return {
-    "_id": "25250e2ead108a8f60213f2404007c91",
-    "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-    "doctype": "bim",
-    "description": "",
-    "fieldsets": [{
-      "id": "b9ad37ea17a58d9be32160f393770e5d",
-      "multiple": false,
-      "collapse": false,
-      "name": "hip",
-      "label": "Hip",
-      "order": 50,
-      "fields": [{
-        "id": "25250e2ead108a8f60213f24040007e4",
-        "name": "caltest",
-        "label": "CalTest",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": "today",
-        "max": "",
-        "instance": "25250e2ead108a8f60213f2404005d38",
-        "regex": "",
-        "order": 50,
-        "subcategory": "date",
-        "value": theDate
+    '_id': '25250e2ead108a8f60213f2404007c91',
+    '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+    'doctype': 'bim',
+    'description': '',
+    'fieldsets': [{
+      'id': 'b9ad37ea17a58d9be32160f393770e5d',
+      'multiple': false,
+      'collapse': false,
+      'name': 'hip',
+      'label': 'Hip',
+      'order': 50,
+      'fields': [{
+        'id': '25250e2ead108a8f60213f24040007e4',
+        'name': 'caltest',
+        'label': 'CalTest',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': 'today',
+        'max': '',
+        'instance': '25250e2ead108a8f60213f2404005d38',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'date',
+        'value': theDate
       },
       {
-        "id": "25250e2ead108a8f60213f240400248f",
-        "name": "ff",
-        "label": "FF",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": 0,
-        "max": 10,
-        "instance": "25250e2ead108a8f60213f2404006a4d",
-        "regex": "",
-        "order": 50,
-        "subcategory": "integer",
-        "value": ""
+        'id': '25250e2ead108a8f60213f240400248f',
+        'name': 'ff',
+        'label': 'FF',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': 0,
+        'max': 10,
+        'instance': '25250e2ead108a8f60213f2404006a4d',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'integer',
+        'value': ''
       },
       {
-        "id": "b9ad37ea17a58d9be32160f393771cdd",
-        "name": "yer",
-        "label": "Yer",
-        "head": true,
-        "reversal": false,
-        "required": false,
-        "min": "",
-        "max": "",
-        "instance": "25250e2ead108a8f60213f240400717c",
-        "regex": "",
-        "order": 50,
-        "subcategory": "boolean",
-        "value": false
+        'id': 'b9ad37ea17a58d9be32160f393771cdd',
+        'name': 'yer',
+        'label': 'Yer',
+        'head': true,
+        'reversal': false,
+        'required': false,
+        'min': '',
+        'max': '',
+        'instance': '25250e2ead108a8f60213f240400717c',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'boolean',
+        'value': false
       }]
     }],
-    "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-    "created_by_": "admin"
+    'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+    'created_by_': 'admin'
   };
 };
 var today_doc = function (theDate) {
+  'use strict';
+
   return {
-    "_id": "25250e2ead108a8f60213f2404007c91",
-    "_rev": "1-6ec90301ac115fed382a77207e81a9ca",
-    "doctype": "bim",
-    "description": "",
-    "fieldsets": [{
-      "id": "b9ad37ea17a58d9be32160f393770e5d",
-      "multiple": false,
-      "collapse": false,
-      "name": "hip",
-      "label": "Hip",
-      "order": 50,
-      "fields": [{
-        "id": "25250e2ead108a8f60213f24040007e4",
-        "name": "caltest",
-        "label": "CalTest",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": "today",
-        "max": "today",
-        "instance": "25250e2ead108a8f60213f2404005d38",
-        "regex": "",
-        "order": 50,
-        "subcategory": "date",
-        "value": theDate
+    '_id': '25250e2ead108a8f60213f2404007c91',
+    '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
+    'doctype': 'bim',
+    'description': '',
+    'fieldsets': [{
+      'id': 'b9ad37ea17a58d9be32160f393770e5d',
+      'multiple': false,
+      'collapse': false,
+      'name': 'hip',
+      'label': 'Hip',
+      'order': 50,
+      'fields': [{
+        'id': '25250e2ead108a8f60213f24040007e4',
+        'name': 'caltest',
+        'label': 'CalTest',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': 'today',
+        'max': 'today',
+        'instance': '25250e2ead108a8f60213f2404005d38',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'date',
+        'value': theDate
       },
       {
-        "id": "25250e2ead108a8f60213f240400248f",
-        "name": "ff",
-        "label": "FF",
-        "head": false,
-        "reversal": false,
-        "required": false,
-        "min": 0,
-        "max": 10,
-        "instance": "25250e2ead108a8f60213f2404006a4d",
-        "regex": "",
-        "order": 50,
-        "subcategory": "integer",
-        "value": ""
+        'id': '25250e2ead108a8f60213f240400248f',
+        'name': 'ff',
+        'label': 'FF',
+        'head': false,
+        'reversal': false,
+        'required': false,
+        'min': 0,
+        'max': 10,
+        'instance': '25250e2ead108a8f60213f2404006a4d',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'integer',
+        'value': ''
       },
       {
-        "id": "b9ad37ea17a58d9be32160f393771cdd",
-        "name": "yer",
-        "label": "Yer",
-        "head": true,
-        "reversal": false,
-        "required": false,
-        "min": "",
-        "max": "",
-        "instance": "25250e2ead108a8f60213f240400717c",
-        "regex": "",
-        "order": 50,
-        "subcategory": "boolean",
-        "value": false
+        'id': 'b9ad37ea17a58d9be32160f393771cdd',
+        'name': 'yer',
+        'label': 'Yer',
+        'head': true,
+        'reversal': false,
+        'required': false,
+        'min': '',
+        'max': '',
+        'instance': '25250e2ead108a8f60213f240400717c',
+        'regex': '',
+        'order': 50,
+        'subcategory': 'boolean',
+        'value': false
       }]
     }],
-    "created_at_": "Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)",
-    "created_by_": "admin"
+    'created_at_': 'Tue Aug 23 2011 22:03:24 GMT-0500 (CDT)',
+    'created_by_': 'admin'
   };
 };
 /*
@@ -558,256 +558,255 @@ var today_doc = function (theDate) {
  */
 
 if (!Date.toLocaleFormat) {
-	/**
-	 * Converts a date to a string using the specified formatting.
-	 * 
-	 * The toLocaleFormat() provides greater software control over the formatting of the generated date and/or time.
-	 * Names for months and days of the week are localized using the operating system's locale. However, ordering of
-	 * the day and month and other localization tasks are not handled automatically since you have control over the
-	 * order in which they occur. You should take care that the format string is localized properly according to the
-	 * user's system settings. Be aware that the locale used is not necessarily the same as the locale of the browser.
-	 * 
-	 * @param formatString string A format string in the same format expected by the strftime() function in C.
-	 */
-	Date.prototype.toLocaleFormat = function(formatString) {
-		var self = this;
-		
-		return formatString.replace(Date.prototype.toLocaleFormat.re, function(match, code, position, str) {
-			if (match == '%%') return '%';
-			else return Date.prototype.toLocaleFormat[code](self);
-		});
-	}
-	
-	Date.prototype.toLocaleFormat.re = /%%|%([aAbBcCdDeFgGhHkIjlmMnprRsStTxXyYzZ])/g;
-	
-	Date.prototype.toLocaleFormat.weekDayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-	Date.prototype.toLocaleFormat.weekDayNamesShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-	
-	Date.prototype.toLocaleFormat.monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-	Date.prototype.toLocaleFormat.monthNamesShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-	
-	Date.prototype.toLocaleFormat.extend = function(str, fill, max_len) {
-		if (typeof fill == 'undefined') fill = '0';
-		if (typeof max_len == 'undefined') max_len = 2;
-		str = String(fill) + String(str);
-		return str.substr(-max_len);
-	}
-	
-	/**
-	 * %a is replaced by the locale's abbreviated weekday name.
-	 */
-	Date.prototype.toLocaleFormat.a = function(d) {
-		return Date.prototype.toLocaleFormat.weekDayNamesShort[d.getDay()];
-	}
-	/**
-	 * %A is replaced by the locale's full weekday name.
-	 */
-	Date.prototype.toLocaleFormat.A = function(d) {
-		return Date.prototype.toLocaleFormat.weekDayNames[d.getDay()];
-	}
-	/**
-	 * %b and %h is replaced by the locale's abbreviated month name.
-	 */
-	Date.prototype.toLocaleFormat.b
-	Date.prototype.toLocaleFormat.h = function(d) {
-		return Date.prototype.toLocaleFormat.monthNamesShort[d.getMonth()];
-	}
-	/**
-	 * %B is replaced by the locale's full month name.
-	 */
-	Date.prototype.toLocaleFormat.B = function(d) {
-		return Date.prototype.toLocaleFormat.monthNames[d.getMonth()];
-	}
-	/**
-	 * %c is replaced by the locale's appropriate date and time representation.
-	 */
-	Date.prototype.toLocaleFormat.c = function(d) {
-		return d.toLocaleString();
-	}
-	/**
-	 * %C is replaced by the century number (the year divided by 100 and truncated to an integer) as a decimal number [00-99].
-	 */
-	Date.prototype.toLocaleFormat.C = function(d) {
-		return new String(d.getFullYear()).substr(0,2);
-	}
-	/**
-	 * %d is replaced by the day of the month as a decimal number [01,31].
-	 */
-	Date.prototype.toLocaleFormat.d = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getDate());
-	}
-	/**
-	 * %D same as %m/%d/%y.
-	 */
-	Date.prototype.toLocaleFormat.D = function(d) {
-		return d.toLocaleFormat('%m/%d/%y');
-	}
-	/**
-	 * %e is replaced by the day of the month as a decimal number [1,31]; a single digit is preceded by a space.
-	 */
-	Date.prototype.toLocaleFormat.e = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getMonth()+1, ' ');
-	}
-	Date.prototype.toLocaleFormat.F = function(d) {
-		return d.toLocaleFormat('%Y-%m-%d');
-	}
-	/**
-	 * %y and %g is replaced by the year without century as a decimal number [00,99].
-	 */
-	Date.prototype.toLocaleFormat.g =
-	Date.prototype.toLocaleFormat.y = function(d) {
-		return new String(d.getFullYear()).substr(2);
-	}
-	/**
-	 * %Y and %G is replaced by the year with century as a decimal number.
-	 */
-	Date.prototype.toLocaleFormat.G =
-	Date.prototype.toLocaleFormat.Y = function(d) {
-		return d.getFullYear();
-	}
-	/**
-	 * %H and k is replaced by the hour (24-hour clock) as a decimal number [00,23].
-	 */
-	Date.prototype.toLocaleFormat.H = 
-	Date.prototype.toLocaleFormat.k = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getHours());
-	}
-	/**
-	 * %I is replaced by the hour (12-hour clock) as a decimal number [01,12].
-	 */
-	Date.prototype.toLocaleFormat.I = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getHours() % 12);
-	}
-	/**
-	 * %j is replaced by the day of the year as a decimal number [001,366].
-	 */
-	Date.prototype.toLocaleFormat.j = function(d) {
-		var n = 0;
-		for (var i = 0; i < d.getMonth(); i++) {
-			n += 30;
-		}
-		n += d.getDate();
-	}
-	/**
-	 * %l is replaced by the hour (12-hour clock) as a decimal number [1,12]; a single digit is preceded by a space.
-	 */
-	Date.prototype.toLocaleFormat.l = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getHours() % 12, ' ');
-	}
-	/**
-	 * %m is replaced by the month as a decimal number [01,12].
-	 */
-	Date.prototype.toLocaleFormat.m = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getMonth()+1);
-	}
-	/**
-	 * %M is replaced by the minute as a decimal number [00,59].
-	 */
-	Date.prototype.toLocaleFormat.M = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getMinutes());
-	}
-	/**
-	 * %n is replaced by a newline character.
-	 */
-	Date.prototype.toLocaleFormat.n = function() {
-		return '\n';
-	}
-	/**
-	 * %p is replaced by the locale's equivalent of either a.m. or p.m.
-	 */
-	Date.prototype.toLocaleFormat.p = function(d) {
-		return ['AM','PM'][Math.floor(d.getHours()/12)];
-	}
-	/**
-	 * %r is replaced by the time in a.m. and p.m. notation; in the POSIX locale this is equivalent to %I:%M:%S %p.
-	 */
-	Date.prototype.toLocaleFormat.r = function(d) {
-		return d.toLocaleFormat('%I:%M:%S %p');
-	}
-	/**
-	 * %R is replaced by the time in 24 hour notation (%H:%M).
-	 */
-	Date.prototype.toLocaleFormat.R = function(d) {
-		return d.toLocaleFormat('%H:%M');
-	}
-	/**
-	 * %s is replaced by the number of milliseconds since midnight Jan 1, 1970.
-	 */
-	Date.prototype.toLocaleFormat.s = function(d) {
-		return new String(parseInt(d.getTime() / 1000));
-	}
-	/**
-	 * %S is replaced by the second as a decimal number [00,61].
-	 */
-	Date.prototype.toLocaleFormat.S = function(d) {
-		return Date.prototype.toLocaleFormat.extend(d.getSeconds());
-	}
-	/**
-	 * %t is replaced by a tab character.
-	 */
-	Date.prototype.toLocaleFormat.t = function() {
-		return '\t';
-	}
-	/**
-	 * %T is replaced by the time (%H:%M:%S).
-	 */
-	Date.prototype.toLocaleFormat.T = function(d) {
-		return d.toLocaleFormat('%H:%M:%S');
-	}
-	/**
-	 * %u is replaced by the weekday as a decimal number [1,7], with 1 representing Monday.
-	 */
-	/**
-	 * %U is replaced by the week number of the year (Sunday as the first day of the week) as a decimal number [00,53].
-	 */
-	/**
-	 * %V is replaced by the week number of the year (Monday as the first day of the week) as a decimal number [01,53].
-	 * If the week containing 1 January has four or more days in the new year, then it is considered week 1. Otherwise,
-	 * it is the last week of the previous year, and the next week is week 1.
-	 */
-	/**
-	 * %w is replaced by the weekday as a decimal number [0,6], with 0 representing Sunday.
-	 */
-	/**
-	 * %W is replaced by the week number of the year (Monday as the first day of the week) as a decimal number [00,53].
-	 * All days in a new year preceding the first Monday are considered to be in week 0.
-	 */
-	/**
-	 * %x is replaced by the locale's appropriate date representation.
-	 */
-	Date.prototype.toLocaleFormat.x = function(d) {
-		return d.toLocaleDateString();
-	}
-	/**
-	 * %X is replaced by the locale's appropriate time representation.
-	 */
-	Date.prototype.toLocaleFormat.X = function(d) {
-		return d.toLocaleTimeString();
-	}
-	/**
-	 * %z
-	 */
-	Date.prototype.toLocaleFormat.z = function(d) {
-		return d.toString().match(/GMT([+-]\d{4})/)[1];
-	}
-	/**
-	 * %Z is replaced by the timezone name or abbreviation, or by no bytes if no timezone information exists.
-	 */
-	Date.prototype.toLocaleFormat.Z = function(d) {
-		return d.toString().match(/\((.*)\)$/)[1];
-	}
+  /**
+   * Converts a date to a string using the specified formatting.
+   *
+   * The toLocaleFormat() provides greater software control over the formatting of the generated date and/or time.
+   * Names for months and days of the week are localized using the operating system's locale. However, ordering of
+   * the day and month and other localization tasks are not handled automatically since you have control over the
+   * order in which they occur. You should take care that the format string is localized properly according to the
+   * user's system settings. Be aware that the locale used is not necessarily the same as the locale of the browser.
+   *
+   * @param formatString string A format string in the same format expected by the strftime() function in C.
+   */
+  Date.prototype.toLocaleFormat = function(formatString) {
+    var self = this;
+
+    return formatString.replace(Date.prototype.toLocaleFormat.re, function(match, code, position, str) {
+      if (match == '%%') return '%';
+      else return Date.prototype.toLocaleFormat[code](self);
+    });
+  }
+
+  Date.prototype.toLocaleFormat.re = /%%|%([aAbBcCdDeFgGhHkIjlmMnprRsStTxXyYzZ])/g;
+
+  Date.prototype.toLocaleFormat.weekDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  Date.prototype.toLocaleFormat.weekDayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  Date.prototype.toLocaleFormat.monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  Date.prototype.toLocaleFormat.monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  Date.prototype.toLocaleFormat.extend = function(str, fill, max_len) {
+    if (typeof fill == 'undefined') fill = '0';
+    if (typeof max_len == 'undefined') max_len = 2;
+    str = String(fill) + String(str);
+    return str.substr(-max_len);
+  }
+
+  /**
+   * %a is replaced by the locale's abbreviated weekday name.
+   */
+  Date.prototype.toLocaleFormat.a = function(d) {
+    return Date.prototype.toLocaleFormat.weekDayNamesShort[d.getDay()];
+  }
+  /**
+   * %A is replaced by the locale's full weekday name.
+   */
+  Date.prototype.toLocaleFormat.A = function(d) {
+    return Date.prototype.toLocaleFormat.weekDayNames[d.getDay()];
+  }
+  /**
+   * %b and %h is replaced by the locale's abbreviated month name.
+   */
+  Date.prototype.toLocaleFormat.b
+  Date.prototype.toLocaleFormat.h = function(d) {
+    return Date.prototype.toLocaleFormat.monthNamesShort[d.getMonth()];
+  }
+  /**
+   * %B is replaced by the locale's full month name.
+   */
+  Date.prototype.toLocaleFormat.B = function(d) {
+    return Date.prototype.toLocaleFormat.monthNames[d.getMonth()];
+  }
+  /**
+   * %c is replaced by the locale's appropriate date and time representation.
+   */
+  Date.prototype.toLocaleFormat.c = function(d) {
+    return d.toLocaleString();
+  }
+  /**
+   * %C is replaced by the century number (the year divided by 100 and truncated to an integer) as a decimal number [00-99].
+   */
+  Date.prototype.toLocaleFormat.C = function(d) {
+    return new String(d.getFullYear()).substr(0, 2);
+  }
+  /**
+   * %d is replaced by the day of the month as a decimal number [01,31].
+   */
+  Date.prototype.toLocaleFormat.d = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getDate());
+  }
+  /**
+   * %D same as %m/%d/%y.
+   */
+  Date.prototype.toLocaleFormat.D = function(d) {
+    return d.toLocaleFormat('%m/%d/%y');
+  }
+  /**
+   * %e is replaced by the day of the month as a decimal number [1,31]; a single digit is preceded by a space.
+   */
+  Date.prototype.toLocaleFormat.e = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getMonth() + 1, ' ');
+  }
+  Date.prototype.toLocaleFormat.F = function(d) {
+    return d.toLocaleFormat('%Y-%m-%d');
+  }
+  /**
+   * %y and %g is replaced by the year without century as a decimal number [00,99].
+   */
+  Date.prototype.toLocaleFormat.g = Date.prototype.toLocaleFormat.y = function(d) {
+    return new String(d.getFullYear()).substr(2);
+  }
+  /**
+   * %Y and %G is replaced by the year with century as a decimal number.
+   */
+  Date.prototype.toLocaleFormat.G = Date.prototype.toLocaleFormat.Y = function(d) {
+    return d.getFullYear();
+  }
+  /**
+   * %H and k is replaced by the hour (24-hour clock) as a decimal number [00,23].
+   */
+  Date.prototype.toLocaleFormat.H = Date.prototype.toLocaleFormat.k = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getHours());
+  }
+  /**
+   * %I is replaced by the hour (12-hour clock) as a decimal number [01,12].
+   */
+  Date.prototype.toLocaleFormat.I = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getHours() % 12);
+  }
+  /**
+   * %j is replaced by the day of the year as a decimal number [001,366].
+   */
+  Date.prototype.toLocaleFormat.j = function(d) {
+    var n = 0;
+    for (var i = 0; i < d.getMonth(); i++) {
+      n += 30;
+    }
+    n += d.getDate();
+  }
+  /**
+   * %l is replaced by the hour (12-hour clock) as a decimal number [1,12]; a single digit is preceded by a space.
+   */
+  Date.prototype.toLocaleFormat.l = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getHours() % 12, ' ');
+  }
+  /**
+   * %m is replaced by the month as a decimal number [01,12].
+   */
+  Date.prototype.toLocaleFormat.m = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getMonth() + 1);
+  }
+  /**
+   * %M is replaced by the minute as a decimal number [00,59].
+   */
+  Date.prototype.toLocaleFormat.M = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getMinutes());
+  }
+  /**
+   * %n is replaced by a newline character.
+   */
+  Date.prototype.toLocaleFormat.n = function() {
+    return '\n';
+  }
+  /**
+   * %p is replaced by the locale's equivalent of either a.m. or p.m.
+   */
+  Date.prototype.toLocaleFormat.p = function(d) {
+    return ['AM', 'PM'][Math.floor(d.getHours() / 12)];
+  }
+  /**
+   * %r is replaced by the time in a.m. and p.m. notation; in the POSIX locale this is equivalent to %I:%M:%S %p.
+   */
+  Date.prototype.toLocaleFormat.r = function(d) {
+    return d.toLocaleFormat('%I:%M:%S %p');
+  }
+  /**
+   * %R is replaced by the time in 24 hour notation (%H:%M).
+   */
+  Date.prototype.toLocaleFormat.R = function(d) {
+    return d.toLocaleFormat('%H:%M');
+  }
+  /**
+   * %s is replaced by the number of milliseconds since midnight Jan 1, 1970.
+   */
+  Date.prototype.toLocaleFormat.s = function(d) {
+    return new String(parseInt(d.getTime() / 1000));
+  }
+  /**
+   * %S is replaced by the second as a decimal number [00,61].
+   */
+  Date.prototype.toLocaleFormat.S = function(d) {
+    return Date.prototype.toLocaleFormat.extend(d.getSeconds());
+  }
+  /**
+   * %t is replaced by a tab character.
+   */
+  Date.prototype.toLocaleFormat.t = function() {
+    return '\t';
+  }
+  /**
+   * %T is replaced by the time (%H:%M:%S).
+   */
+  Date.prototype.toLocaleFormat.T = function(d) {
+    return d.toLocaleFormat('%H:%M:%S');
+  }
+  /**
+   * %u is replaced by the weekday as a decimal number [1,7], with 1 representing Monday.
+   */
+  /**
+   * %U is replaced by the week number of the year (Sunday as the first day of the week) as a decimal number [00,53].
+   */
+  /**
+   * %V is replaced by the week number of the year (Monday as the first day of the week) as a decimal number [01,53].
+   * If the week containing 1 January has four or more days in the new year, then it is considered week 1. Otherwise,
+   * it is the last week of the previous year, and the next week is week 1.
+   */
+  /**
+   * %w is replaced by the weekday as a decimal number [0,6], with 0 representing Sunday.
+   */
+  /**
+   * %W is replaced by the week number of the year (Monday as the first day of the week) as a decimal number [00,53].
+   * All days in a new year preceding the first Monday are considered to be in week 0.
+   */
+  /**
+   * %x is replaced by the locale's appropriate date representation.
+   */
+  Date.prototype.toLocaleFormat.x = function(d) {
+    return d.toLocaleDateString();
+  }
+  /**
+   * %X is replaced by the locale's appropriate time representation.
+   */
+  Date.prototype.toLocaleFormat.X = function(d) {
+    return d.toLocaleTimeString();
+  }
+  /**
+   * %z
+   */
+  Date.prototype.toLocaleFormat.z = function(d) {
+    return d.toString().match(/GMT([+-]\d{4})/)[1];
+  }
+  /**
+   * %Z is replaced by the timezone name or abbreviation, or by no bytes if no timezone information exists.
+   */
+  Date.prototype.toLocaleFormat.Z = function(d) {
+    return d.toString().match(/\((.*)\)$/)[1];
+  }
 }
 
 Object.prototype.testEnv = true;
 
 function validate(newDoc, saveDoc, userCtx) {
+  'use strict';
+
   // A predicate function to detect blank strings.
   // Warning: this is a bad implementation.
-  var isBlank = function (value) {
+  var isBlank = function(value) {
     return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
-  var forbid = function (name, msg) {
+  var forbid = function(name, msg) {
     var docid;
 
     if (newDoc._id) {
@@ -832,7 +831,7 @@ function validate(newDoc, saveDoc, userCtx) {
     }
   };
 
-  var charseq = function (newDoc, saveDoc, userCtx) {
+  var charseq = function(newDoc, saveDoc, userCtx) {
     if (newDoc.category === 'charseq') {
       if (isBlank(newDoc.name)) {
         forbid('Name', 'must be filled in.');
@@ -843,7 +842,7 @@ function validate(newDoc, saveDoc, userCtx) {
         [newDoc.sort_ignore, 'Ignore'],
         [newDoc.vowels, 'Vowels'],
         [newDoc.consonants, 'Consonants']
-      ].forEach(function (item) {
+      ].forEach(function(item) {
         if (item[0] === false) {
           forbid(item[1], 'contains quoting errors.');
         }
@@ -851,10 +850,81 @@ function validate(newDoc, saveDoc, userCtx) {
     }
   };
 
-  var documents = function (newDoc, saveDoc, userCtx) {
+  var not_parens = function (parens) {
+    return (parens !== 'open' && parens !== 'close' && parens !== 'exopen' && parens !== 'exclose');
+  };
+
+  var validate_paren_count = function(pcount, expcount, index) {
+    if (pcount < 0 || expcount < 0) {
+      forbid('Condition ' + index, 'too many closing parenthesis.');
+    }
+  };
+
+  var validate_exparen_nesting = function(expcount, index) {
+    if (expcount > 1) {
+      forbid('Condition ' + index, 'existential parenthesis cannot be nexted.');
+    }
+  };
+
+  var validate_exparen_fieldset = function(exfs, fieldset, is_or, index) {
+    if (exfs !== fieldset && !is_or) {
+      forbid('Condition ' + index, 'all conditions within existential scope must have ' + 'the same fieldset.');
+    }
+  };
+
+  var validate_negate = function(negate, index) {
+    if (negate !== true && negate !== false) {
+      forbid('Condition ' + index, 'negate must be true or false');
+    }
+  };
+
+  var validate_field = function(field, index) {
+    if (isBlank(field) || !(/^\w*$/).test(field)) {
+      forbid('Condition ' + index, 'invalid field.');
+    }
+  };
+
+  var validate_fieldset = function(fieldset, index) {
+    if (isBlank(fieldset) || !(/^\w*$/).test(fieldset)) {
+      forbid('Condition ' + index, 'invalid fieldset.');
+    }
+  };
+
+  var validate_operator = function(operator, argument, index) {
+    switch (operator) {
+    case 'hasGreater':
+    case 'hasLess':
+    case 'hasExactly':
+      if (typeof argument !== 'number' || (argument % 1) > 0) {
+        forbid('Condition ' + index, 'integer argument required.');
+      }
+      break;
+    case 'equal':
+    case 'match':
+    case 'greater':
+    case 'less':
+    case 'match':
+    case 'member':
+      if (typeof argument === 'string' && isBlank(argument)) {
+        forbid('Condition ' + index, 'blank argument is not allowed.');
+      }
+      break;
+    case 'true':
+    case 'blank':
+    case 'isDefined':
+      if (!isBlank(argument)) {
+        forbid('Condition ' + index, 'no argument allowed for this condition.');
+      }
+      break;
+    default:
+      forbid('Condition ' + index, 'invalid operator.');
+    }
+  };
+
+  var documents = function(newDoc, saveDoc, userCtx) {
     // A more detailed error message function for cases where we
     // want to indication what field caused the problem.
-    var forbidField = function (field, msg) {
+    var forbidField = function(field, msg) {
       var errorMsg = JSON.stringify({
         fieldname: field.name,
         instance: field.instance,
@@ -872,7 +942,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // The following are validation tests that are run for
     // each field by an expression below.
-    var requiredField = function (field) {
+    var requiredField = function(field) {
       if (field.required === true) {
         if (isBlank(field.value)) {
           forbidField(field, 'cannot be blank.');
@@ -882,7 +952,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // Determine if this is a datefield and run the date validations
     // if it is not blank
-    var dateField = function (field) {
+    var dateField = function(field) {
       if (field.subcategory === 'date' && !isBlank(field.value)) {
         dateFormat(field);
         dateRange(field);
@@ -890,7 +960,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is an integer field and the integer validations
-    var integerField = function (field) {
+    var integerField = function(field) {
       if (field.subcategory === 'integer' && field.value !== '') {
         isValidNumber(field);
         isInteger(field);
@@ -899,7 +969,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is an rational field and the rational validations
-    var rationalField = function (field) {
+    var rationalField = function(field) {
       if (field.subcategory === 'rational' && field.value !== '') {
         isValidNumber(field);
         numberRange(field);
@@ -907,7 +977,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a text field and run appropriate validations
-    var textField = function (field) {
+    var textField = function(field) {
       if (field.subcategory === 'text' && !isBlank(field.value)) {
         isString(field);
         isMatch(field);
@@ -915,7 +985,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a textarea field and run appropriate validations
-    var textareaField = function (field) {
+    var textareaField = function(field) {
       if (field.subcategory === 'textarea' && !isBlank(field.value)) {
         isString(field);
         isMatch(field);
@@ -923,14 +993,14 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if this is a boolean field make sure it is true or false
-    var booleanField = function (field) {
+    var booleanField = function(field) {
       if (field.subcategory === 'boolean') {
         isBoolean(field);
       }
     };
 
     // Determine if this is a openboolean field make sure it is true or false
-    var openbooleanField = function (field) {
+    var openbooleanField = function(field) {
       if (field.subcategory === 'openboolean') {
         isOpenboolean(field);
       }
@@ -940,7 +1010,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var selectField = function (field) {
+    var selectField = function(field) {
       if (field.subcategory === 'select' && !isBlank(field.value)) {
         isString(field);
       }
@@ -950,7 +1020,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var docselectField = function (field) {
+    var docselectField = function(field) {
       if (field.subcategory === 'docselect' && !isBlank(field.value)) {
         isString(field);
       }
@@ -960,7 +1030,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var docmultiselectField = function (field) {
+    var docmultiselectField = function(field) {
       if (field.subcategory === 'docmultiselect' && !isBlank(field.value)) {
         isStringArray(field);
       }
@@ -970,7 +1040,7 @@ function validate(newDoc, saveDoc, userCtx) {
     // NOTE validations on whether a selection is in the list of allowed
     //      values is done in the application layer in the document
     //      resource.
-    var multiselectField = function (field) {
+    var multiselectField = function(field) {
       if (field.subcategory === 'multiselect' && !isBlank(field.value)) {
         isStringArray(field);
       }
@@ -978,7 +1048,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // Ensure that the date is formatted according to the standard of
     // this application.
-    var dateFormat = function (field) {
+    var dateFormat = function(field) {
       var pattern = (/^\d{4}-\d{2}-\d{2}$/);
 
       if (!pattern.test(field.value) && isNaN(Date.parse(field.value))) {
@@ -986,12 +1056,12 @@ function validate(newDoc, saveDoc, userCtx) {
       }
     };
 
-    var myDateToUTC = function (myDate) {
+    var myDateToUTC = function(myDate) {
 
     };
 
     // Make sure that the date is not outside of a specified range
-    var dateRange = function (field) {
+    var dateRange = function(field) {
       var pattern = (/^\d{4}-\d{2}-\d{2}$/);
 
       if (pattern.test(field.max)) {
@@ -1013,7 +1083,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date is earlier than a maximum date. If it isn't fail.
-    var isEarlier = function (field) {
+    var isEarlier = function(field) {
       if (field.value >= field.max) {
         var message = 'date must be earlier than or equal to ' + field.max + '.';
         forbidField(field, message);
@@ -1021,7 +1091,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date is later than a minimum date. If it isn't fail.
-    var isLater = function (field) {
+    var isLater = function(field) {
       if (field.value < field.min) {
         var message = 'date must be later than ' + field.min + '.';
         forbidField(field, message);
@@ -1029,27 +1099,27 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // See if a date should be today. If it isn't fail.
-    var isToday = function (field) {
+    var isToday = function(field) {
       if (field.value !== new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be today.');
       }
     };
 
     // See if a date should be in the future. If it isn't fail.
-    var isFuture = function (field) {
+    var isFuture = function(field) {
       if (field.value <= new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be in the future.');
       }
     };
 
     // See if a date should be in the past. If it isn't fail.
-    var isPast = function (field) {
+    var isPast = function(field) {
       if (field.value > new Date().toLocaleFormat('%Y-%m-%d')) {
         forbidField(field, 'date must be in the past.');
       }
     };
 
-    var isInteger = function (field) {
+    var isInteger = function(field) {
       var message = 'Expected an integer but got rational number';
 
       if (field.value % 1 !== 0) {
@@ -1058,19 +1128,19 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Make sure this is a valid number
-    var isValidNumber = function (field) {
+    var isValidNumber = function(field) {
       if (!isNumber(field.value)) {
         forbidField(field, 'Not a valid number');
       }
     };
 
     // Test if it is a number and not NaN.
-    var isNumber = function (value) {
+    var isNumber = function(value) {
       return ((typeof value === 'number') && !(isNaN(value)));
     };
 
     // Determine if the number is within a given range
-    var numberRange = function (field) {
+    var numberRange = function(field) {
       if (isNumber(field.max) && (field.value > field.max)) {
         forbidField(field, 'Must be less than or equal to ' + field.max);
       }
@@ -1080,7 +1150,7 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if string should match pattern
-    var isMatch = function (field) {
+    var isMatch = function(field) {
       if (!isBlank(field.regex)) {
         var re = new RegExp(field.regex);
 
@@ -1091,12 +1161,12 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if it is an array of strings
-    var isStringArray = function (field) {
+    var isStringArray = function(field) {
       if (Object.prototype.toString.call(field.value) !== '[object Array]') {
         forbidField(field, 'Must be an array of strings.');
       }
 
-      field.value.forEach(function (v) {
+      field.value.forEach(function(v) {
         if (typeof v !== 'string') {
           forbidField(field, 'Must contain only text.');
         }
@@ -1104,21 +1174,21 @@ function validate(newDoc, saveDoc, userCtx) {
     };
 
     // Determine if it is a string
-    var isString = function (field) {
+    var isString = function(field) {
       if (typeof field.value !== 'string') {
         forbidField(field, 'Must be text.');
       }
     };
 
     // Fail if not a boolean
-    var isBoolean = function (field) {
+    var isBoolean = function(field) {
       if (typeof field.value !== 'boolean') {
         forbidField(field, 'Must be true or false.');
       }
     };
 
     // Fail if neither a boolean nor null
-    var isOpenboolean = function (field) {
+    var isOpenboolean = function(field) {
       if (typeof field.value !== 'boolean' && field.value !== null) {
         forbidField(field, 'Must be true, false or blank.');
       }
@@ -1130,18 +1200,18 @@ function validate(newDoc, saveDoc, userCtx) {
 
     // This iterates through the fields and runs the above
     // validation test for each field.
-    newDoc.fieldsets.forEach(function (fieldset) {
+    newDoc.fieldsets.forEach(function(fieldset) {
       if (fieldset.multiple) {
-        fieldset.multifields.forEach(function (multifield) {
-          multifield.fields.forEach(function (field) {
-            validationTests.forEach(function (vTest) {
+        fieldset.multifields.forEach(function(multifield) {
+          multifield.fields.forEach(function(field) {
+            validationTests.forEach(function(vTest) {
               vTest(field);
             });
           });
         });
       } else {
-        fieldset.fields.forEach(function (field) {
-          validationTests.forEach(function (vTest) {
+        fieldset.fields.forEach(function(field) {
+          validationTests.forEach(function(vTest) {
             vTest(field);
           });
         });
@@ -1149,10 +1219,10 @@ function validate(newDoc, saveDoc, userCtx) {
     });
   };
 
-  var userIndex = function (newDoc, saveDoc, userCtx) {
+  var userIndex = function(newDoc, saveDoc, userCtx) {
     [newDoc.doctype, newDoc.name].forEach(
 
-    function (field) {
+    function(field) {
       if (isBlank(field)) {
         forbid('All fields', 'must be filled in.');
       }
@@ -1185,9 +1255,7 @@ function validate(newDoc, saveDoc, userCtx) {
         forbid('Conditions', 'begin or end with improper parenthesis.');
       }
 
-      newDoc.conditions.forEach(
-
-      function (condition, index) {
+      newDoc.conditions.forEach(function(condition, index) {
         var is_or = condition.is_or;
         var negate = condition.negate;
         var argument = condition.argument;
@@ -1196,56 +1264,14 @@ function validate(newDoc, saveDoc, userCtx) {
         var fieldset = condition.fieldset;
         var parens = condition.parens;
 
-        if (parenCount < 0 || exParenCount < 0) {
-          forbid('Condition ' + index, 'too many closing parenthesis.');
-        }
+        validate_paren_count(parenCount, exParenCount, index);
+        validate_exparen_nesting(exParenCount, index);
 
-        if (exParenCount > 1) {
-          forbid('Condition ' + index, 'existential parenthesis cannot be nexted.');
-        }
-
-        if (is_or !== true && (parens !== 'open' && parens !== 'close' && parens !== 'exopen' && parens !== 'exclose')) {
-
-          if (negate !== true && negate !== false) {
-            forbid('Condition ' + index, 'negate must be true or false');
-          }
-
-          if (isBlank(field) || !(/^\w*$/).test(field)) {
-            forbid('Condition ' + index, 'invalid field.');
-          }
-
-          if (isBlank(fieldset) || !(/^\w*$/).test(fieldset)) {
-            forbid('Condition ' + index, 'invalid fieldset.');
-          }
-
-          switch (operator) {
-          case 'hasGreater':
-          case 'hasLess':
-          case 'hasExactly':
-            if (typeof argument !== 'number' || (argument % 1) > 0) {
-              forbid('Condition ' + index, 'integer argument required.');
-            }
-            break;
-          case 'equal':
-          case 'match':
-          case 'greater':
-          case 'less':
-          case 'match':
-          case 'member':
-            if (typeof argument === 'string' && isBlank(argument)) {
-              forbid('Condition ' + index, 'blank argument is not allowed.');
-            }
-            break;
-          case 'true':
-          case 'blank':
-          case 'isDefined':
-            if (!isBlank(argument)) {
-              forbid('Condition ' + index, 'no argument allowed for this condition.');
-            }
-            break;
-          default:
-            forbid('Condition ' + index, 'invalid operator.');
-          }
+        if (is_or !== true && not_parens(parens)) {
+          validate_negate(negate, index);
+          validate_field(field, index);
+          validate_fieldset(fieldset, index);
+          validate_operator(operator, argument, index);
         }
 
         if (parens === 'open') {
@@ -1261,9 +1287,7 @@ function validate(newDoc, saveDoc, userCtx) {
 
         if (!parens && exParenCount === 1) {
           if (exParenFS) {
-            if (exParenFS !== fieldset && !is_or) {
-              forbid('Condition ' + index, 'all conditions within existential scope must have ' + 'the same fieldset.');
-            }
+            validate_exparen_fieldset(exParenFS, fieldset, is_or, index);
           } else {
             exParenFS = fieldset;
           }
@@ -1281,32 +1305,32 @@ function validate(newDoc, saveDoc, userCtx) {
     forbid(userCtx.name, 'is a read only user.');
   }
 
-  if (newDoc.category === "charseq") {
+  if (newDoc.category === 'charseq') {
     charseq(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   } else if (newDoc.category === 'index') {
     userIndex(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   } else if (!newDoc.category && !! newDoc.doctype && !newDoc.deleted_) {
     documents(newDoc, saveDoc, userCtx);
-    return "ok";
+    return 'ok';
   }
 
-  return "skipped";
+  return 'skipped';
 }
 
-var assert = require("should");
+var assert = require('should');
 
 var roUser = function () {
   validate(simple_doc, {}, {
-    name: "charlie",
-    roles: ["readonly"]
+    name: 'charlie',
+    roles: ['readonly']
   });
 };
 
 var testCase = function (newDoc, saveDoc) {
   var testInstance = function () {
-    return validate(newDoc, saveDoc, {name: "charlie", roles: []});
+    return validate(newDoc, saveDoc, {name: 'charlie', roles: []});
   };
   
   return testInstance;
@@ -1319,58 +1343,58 @@ var manipDate = function(days) {
   return new Date(newDate).toLocaleFormat('%Y-%m-%d');
 };
 
-describe("CouchDB validation", function () {
-  describe("when testing for a valid user", function() {
-    it("should block changes by a readonly user", function () {
+describe('CouchDB validation', function () {
+  describe('when testing for a valid user', function() {
+    it('should block changes by a readonly user', function () {
       roUser.should.throwError(/is a read only user./);      
     });
   });
-  describe("when validating documents created by a user", function() {
-    describe("in simple cases", function() {
-      it("should ignore empty new and saved documents", function () {
-        testCase({}, {})().should.equal("skipped");
+  describe('when validating documents created by a user', function() {
+    describe('in simple cases', function() {
+      it('should ignore empty new and saved documents', function () {
+        testCase({}, {})().should.equal('skipped');
       });
-      it("should ignore the document if the saved document is null", function() {
-        testCase({})().should.equal("skipped");
+      it('should ignore the document if the saved document is null', function() {
+        testCase({})().should.equal('skipped');
       });
-      it("should pass a valid document", function() {
-        testCase(simple_doc)().should.equal("ok");
+      it('should pass a valid document', function() {
+        testCase(simple_doc)().should.equal('ok');
       });
     });
-    describe("and dealing with integers", function() {
-      it("should reject integers that are above the maximum", function() {
+    describe('and dealing with integers', function() {
+      it('should reject integers that are above the maximum', function() {
         testCase(high_integer).should.throwError(/Must be less than or equal to 0/);
       });
-      it("should reject integers that are below the minimum", function() {
+      it('should reject integers that are below the minimum', function() {
         testCase(lower_integer).should.throwError(/Must be greater than or equal to 0/);
       });
     });
-    describe("and dealing with dates", function() {
-      it("should reject a bad date format", function() {
+    describe('and dealing with dates', function() {
+      it('should reject a bad date format', function() {
         testCase(bad_format_doc).should.throwError(/date must be in format yyyy-mm-dd/);
       });
-      it("should reject dates that are below the minimum", function() {
+      it('should reject dates that are below the minimum', function() {
         testCase(early_doc).should.throwError(/date must be later than 1990-09-23./);
       });
-      it("should reject dates that are above the maximum", function() {
+      it('should reject dates that are above the maximum', function() {
         testCase(late_doc).should.throwError(/date must be earlier than or equal to 1990-07-23./);
       });
-      it("should reject dates that are below the relative minimum, i.e. today", function() {
+      it('should reject dates that are below the relative minimum, i.e. today', function() {
         testCase(past_doc(manipDate(-1))).should.throwError(/date must be in the future./);
       });
-      it("should reject dates that are equal to the relative minimum, i.e. today", function() {
+      it('should reject dates that are equal to the relative minimum, i.e. today', function() {
         testCase(past_doc(manipDate(0))).should.throwError(/date must be in the future./);
       });
-      it("should reject dates that are above the relative maximum, i.e. today", function() {
+      it('should reject dates that are above the relative maximum, i.e. today', function() {
         testCase(future_doc(manipDate(1))).should.throwError(/date must be in the past./);
       });
-      it("should accept today's date when both the maximum and minimum are today", function() {
-        testCase(today_doc(manipDate(0)))().should.equal("ok");
+      it('should accept today\'s date when both the maximum and minimum are today', function() {
+        testCase(today_doc(manipDate(0)))().should.equal('ok');
       });
-      it("should reject tomorrow's date when both the maximum and minimum are today", function() {
+      it('should reject tomorrow\'s date when both the maximum and minimum are today', function() {
         testCase(today_doc(manipDate(1))).should.throwError(/date must be today./);
       });
-      it("should reject yesterday's date when both the maximum and minimum are today", function() {
+      it('should reject yesterday\'s date when both the maximum and minimum are today', function() {
         testCase(today_doc(manipDate(-1))).should.throwError(/date must be today./);
       });
     });

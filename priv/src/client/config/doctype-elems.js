@@ -1,9 +1,11 @@
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions. 
 shimi.doctypeElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["description", "doctype", "rev"];
+  mod.attrs = ['description', 'doctype', 'rev'];
 
   mod.get = function (values) {
     var fObj = {};
@@ -17,9 +19,9 @@ shimi.doctypeElems = (function () {
 
     fObj.getDoctypeInputVals = function () {
       var valObj = {
-        "category": "doctype",
-        "description": fObj.description.val(),
-        "_id": fObj.doctype.val()
+        'category': 'doctype',
+        'description': fObj.description.val(),
+        '_id': fObj.doctype.val()
       };
       return valObj;
     };

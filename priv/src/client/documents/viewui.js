@@ -1,14 +1,16 @@
 // View pane UI elements
 shimi.viewui = (function (args) {
+  'use strict';
+
   var mod = {};
   var dv = function () {
-    return $("#document-view");
+    return $('#document-view');
   };
   var dvt = function () {
-    return $("#document-view-tree");
+    return $('#document-view-tree');
   };
   var viewInfo = function () {
-    return $("#document-view-info");
+    return $('#document-view-info');
   };
 
   // Make an object where fieldsets with deletions are identified.
@@ -64,10 +66,10 @@ shimi.viewui = (function (args) {
           }
         }
 
-        if (field.subcategory === "textarea") {
+        if (field.subcategory === 'textarea') {
           field.is_textarea = true;
-        } else if (field.value && field.subcategory.match("multi")) {
-          field.value = field.value.join(", ");
+        } else if (field.value && field.subcategory.match('multi')) {
+          field.value = field.value.join(', ');
         }
 
         return true;
@@ -98,7 +100,7 @@ shimi.viewui = (function (args) {
 
     function (i, item) {
       var newDate = (new Date($(item).text())).toLocaleString();
-      if (newDate !== "Invalid Date") {
+      if (newDate !== 'Invalid Date') {
         $(item).text(newDate);
       }
     });
@@ -107,12 +109,12 @@ shimi.viewui = (function (args) {
   };
 
   mod.get = function (id, rev, callback) {
-    var url = "documents/" + id;
+    var url = 'documents/' + id;
     var htmlTarget = dv();
     var tmpl;
 
     if (rev) {
-      url = url + "/" + rev;
+      url = url + '/' + rev;
       htmlTarget = dvt();
       tmpl = function (docJson) {
         return templates['document-view-tree'].render(docJson, {
@@ -143,13 +145,13 @@ shimi.viewui = (function (args) {
       }
 
       if (rev) {
-        $("#document-view-tree").addClass("oldrev");
+        $('#document-view-tree').addClass('oldrev');
       } else {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
 
-        if (shimi.store(restoreButton).d("deleted") === "true") {
+        if (shimi.store(restoreButton).d('deleted') === 'true') {
           editButton.hide();
           deleteButton.hide();
           restoreButton.show();
@@ -161,7 +163,7 @@ shimi.viewui = (function (args) {
   };
 
   mod.restore = function (id, rev) {
-    var url = "./documents/" + id + "?rev=" + rev;
+    var url = './documents/' + id + '?rev=' + rev;
     var restoreButton = $('#document-restore-button');
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
@@ -169,14 +171,14 @@ shimi.viewui = (function (args) {
     var title;
 
     $.ajax({
-      type: "DELETE",
+      type: 'DELETE',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       complete: function (req, status) {
         if (req.status === 200) {
-          title = "Success";
-          body = "Your document was restored.";
+          title = 'Success';
+          body = 'Your document was restored.';
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
@@ -189,7 +191,7 @@ shimi.viewui = (function (args) {
 
           shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
-          body = "Document was erased and cannot be restored.";
+          body = 'Document was erased and cannot be restored.';
           title = req.statusText;
 
           shimi.flash(title, body).error();
@@ -201,7 +203,7 @@ shimi.viewui = (function (args) {
   };
 
   mod.del = function (id, rev) {
-    var url = "./documents/" + id + "?rev=" + rev;
+    var url = './documents/' + id + '?rev=' + rev;
     var restoreButton = $('#document-restore-button');
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
@@ -209,17 +211,17 @@ shimi.viewui = (function (args) {
     var title;
 
     $.ajax({
-      type: "DELETE",
+      type: 'DELETE',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       complete: function (req, status) {
         if (req.status === 200) {
-          title = "Success";
-          body = "Your document was deleted.";
+          title = 'Success';
+          body = 'Your document was deleted.';
           var response = JSON.parse(req.responseText);
 
-          shimi.store(restoreButton).put("document-rev", response.rev);
+          shimi.store(restoreButton).put('document-rev', response.rev);
 
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
@@ -234,7 +236,7 @@ shimi.viewui = (function (args) {
 
           shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
-          body = "Document appears to have been deleted already.";
+          body = 'Document appears to have been deleted already.';
           title = req.statusText;
 
           shimi.flash(title, body).error();
@@ -246,10 +248,10 @@ shimi.viewui = (function (args) {
   };
 
   mod.confirmIt = function (callback) {
-    if (window.confirm("Are you sure?")) {
+    if (window.confirm('Are you sure?')) {
       var s = shimi.store(viewInfo());
-      var id = s.d("document");
-      var rev = s.d("rev");
+      var id = s.d('document');
+      var rev = s.d('rev');
 
       callback(id, rev);
     }
@@ -271,8 +273,8 @@ shimi.viewui = (function (args) {
 
   mod.confirmDelete = function () {
     var s = shimi.store(viewInfo());
-    var id = s.d("document");
-    var rev = s.d("rev");
+    var id = s.d('document');
+    var rev = s.d('rev');
     return mod.confirmIt(function () {
       mod.del(id, rev);
     });
@@ -280,8 +282,8 @@ shimi.viewui = (function (args) {
 
   mod.confirmRestore = function () {
     var s = shimi.store(viewInfo());
-    var id = s.d("document");
-    var rev = s.d("rev");
+    var id = s.d('document');
+    var rev = s.d('rev');
     return mod.confirmIt(function () {
       mod.restore(id, rev);
     });
@@ -295,8 +297,8 @@ shimi.viewui = (function (args) {
 
   mod.fetchRevision = function (target) {
     var s = shimi.store($(target));
-    var id = s.d("document");
-    var oldrev = s.d("oldrev");
+    var id = s.d('document');
+    var oldrev = s.d('oldrev');
 
     $('.revision-link').removeClass('selected-revision');
     $(target).addClass('selected-revision');

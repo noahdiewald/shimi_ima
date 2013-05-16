@@ -1,4 +1,6 @@
 shimi.indexui = (function () {
+  'use strict';
+
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
@@ -19,7 +21,7 @@ shimi.indexui = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "indexes?as=options";
+    var url = 'indexes?as=options';
     var options;
 
     $.getJSON(url, function (data) {
@@ -32,7 +34,7 @@ shimi.indexui = (function () {
 
   mod.load = function (target) {
     var id = $(target).attr('href').slice(1);
-    $("#document-view").html("<em>Loading...</em>");
+    $('#document-view').html('<em>Loading...</em>');
     shimi.editui.clear();
     shimi.viewui.get(id);
 

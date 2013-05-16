@@ -1,4 +1,6 @@
 function list(head, req) {
+  'use strict';
+
   start({
     'headers': {
       'Content-Type': 'text/csv; charset=utf-8'

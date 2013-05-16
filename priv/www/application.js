@@ -5,15 +5,21 @@ shimi.globals = {};
 
 // functions added to String
 String.prototype.isBlank = function () {
+  'use strict';
+
   return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
 };
 
 String.prototype.trim = function () {
+  'use strict';
+
   return this.replace(/^\s+/, '').replace(/\s+$/, '');
 };
 
 // functions added to Array
 Array.prototype.trimAll = function () {
+  'use strict';
+
   return this.map(function (i) {
     return i.trim();
   }).filter(function (i) {
@@ -23,6 +29,8 @@ Array.prototype.trimAll = function () {
 
 // General UI Stuff
 shimi.panelToggle = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.toggler = function (target) {
@@ -34,10 +42,10 @@ shimi.panelToggle = (function () {
       panel = $(target).closest('.panel');
     }
 
-    if (panel.css("display") === "none") {
-      panel.css("display", "table-cell");
+    if (panel.css('display') === 'none') {
+      panel.css('display', 'table-cell');
     } else {
-      panel.css("display", "none");
+      panel.css('display', 'none');
     }
 
     return mod;
@@ -45,12 +53,14 @@ shimi.panelToggle = (function () {
 
   return mod;
 })();
-shimi.utils = function () {
+shimi.utils = function() {
+  'use strict';
+
   var mod = {};
 
   // safer(ish) string to number. The difference is that in this app
   // I am using '' if the string isn't a valid number.
-  mod.stringToNumber = function (string) {
+  mod.stringToNumber = function(string) {
     if (typeof string === 'string' && !isNaN(string) && string !== '') {
       return string * 1;
     } else {
@@ -59,11 +69,11 @@ shimi.utils = function () {
   };
 
   // A predicate function to detect blankness
-  mod.isBlank = function (value) {
+  mod.isBlank = function(value) {
     return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
   };
 
-  mod.validID = function (id) {
+  mod.validID = function(id) {
     return !!id.match(/^[a-f0-9]{32}$/);
   };
 
@@ -77,11 +87,11 @@ shimi.utils = function () {
   mod.Base64 = {
 
     // private property
-    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+    _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
 
     // public method for encoding
-    encode: function (input) {
-      var output = "";
+    encode: function(input) {
+      var output = '';
       var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
       var i = 0;
 
@@ -112,13 +122,13 @@ shimi.utils = function () {
     },
 
     // public method for decoding
-    decode: function (input) {
-      var output = "";
+    decode: function(input) {
+      var output = '';
       var chr1, chr2, chr3;
       var enc1, enc2, enc3, enc4;
       var i = 0;
 
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
 
       while (i < input.length) {
 
@@ -149,9 +159,9 @@ shimi.utils = function () {
     },
 
     // private method for UTF-8 encoding
-    _utf8_encode: function (string) {
-      string = string.replace(/\r\n/g, "\n");
-      var utftext = "";
+    _utf8_encode: function(string) {
+      string = string.replace(/\r\n/g, '\n');
+      var utftext = '';
 
       for (var n = 0; n < string.length; n++) {
 
@@ -159,12 +169,10 @@ shimi.utils = function () {
 
         if (c < 128) {
           utftext += String.fromCharCode(c);
-        }
-        else if ((c > 127) && (c < 2048)) {
+        } else if ((c > 127) && (c < 2048)) {
           utftext += String.fromCharCode((c >> 6) | 192);
           utftext += String.fromCharCode((c & 63) | 128);
-        }
-        else {
+        } else {
           utftext += String.fromCharCode((c >> 12) | 224);
           utftext += String.fromCharCode(((c >> 6) & 63) | 128);
           utftext += String.fromCharCode((c & 63) | 128);
@@ -176,8 +184,8 @@ shimi.utils = function () {
     },
 
     // private method for UTF-8 decoding
-    _utf8_decode: function (utftext) {
-      var string = "";
+    _utf8_decode: function(utftext) {
+      var string = '';
       var i = 0;
       var c = 0;
       var c1 = 0;
@@ -191,13 +199,11 @@ shimi.utils = function () {
         if (c < 128) {
           string += String.fromCharCode(c);
           i++;
-        }
-        else if ((c > 191) && (c < 224)) {
+        } else if ((c > 191) && (c < 224)) {
           c2 = utftext.charCodeAt(i + 1);
           string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
           i += 2;
-        }
-        else {
+        } else {
           c2 = utftext.charCodeAt(i + 1);
           c3 = utftext.charCodeAt(i + 2);
           string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
@@ -216,19 +222,23 @@ shimi.utils = function () {
 
 };
 shimi.sets = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.arraysToCSV = function (a) {
     return a.map(function (x) {
       return x.map(function (y) {
         return '"' + y.toString().replace(/"/, '""') + '"';
-      }).join(",");
-    }).join("\n");
+      }).join(',');
+    }).join('\n');
   };
 
   return mod;
 })();
 shimi.sets = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.member = function (arr, x) {
@@ -293,13 +303,15 @@ shimi.sets = (function () {
   return mod;
 })();
 shimi.flash = function (title, body) {
+  'use strict';
+
   var mod = {};
 
   var f = function (flasher, title, body) {
     var fadeout = function () {
       flasher.fadeOut();
     };
-    flasher.find('.notification-summary').text(title + ": ");
+    flasher.find('.notification-summary').text(title + ': ');
     flasher.find('.notification-message').text(body);
     var timeout = window.setTimeout(fadeout, 7000);
     flasher.fadeIn();
@@ -344,35 +356,35 @@ shimi.flash = function (title, body) {
 
  <pre> 
    <div
-     id="someid"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
+     id='someid'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
      
    <div
-    id="thisid"
-    data-group-id="someid">
+    id='thisid'
+    data-group-id='someid'>
     
-   getValue("fieldset-doctype", $(thisid)) == "did";
+   getValue('fieldset-doctype', $(thisid)) == 'did';
  </pre> 
    
  The following also works:
 
  <pre> 
    <div
-     id="someid2"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
+     id='someid2'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
    
    <div
-     id="someid"
-     data-group-id="someid2"
-     data-fieldset-fieldset="fsid"></div>
+     id='someid'
+     data-group-id='someid2'
+     data-fieldset-fieldset='fsid'></div>
      
    <div
-    id="thisid"
-    data-group-id="someid"></div>
+    id='thisid'
+    data-group-id='someid'></div>
     
-   getValue("fieldset-doctype", $(thisid)) == "did";
+   getValue('fieldset-doctype', $(thisid)) == 'did';
  </pre> 
    
   @putValue(key, value, elem)@
@@ -390,14 +402,20 @@ shimi.flash = function (title, body) {
 */
 
 var identity = function (x) {
+  'use strict';
+
   return x;
 };
 
 Function.prototype.r = function () {
+  'use strict';
+
   return [this, arguments];
 };
 
 Function.prototype.t = function () {
+  'use strict';
+
   var c = [this, arguments];
   var escape = arguments[arguments.length - 1];
   while (c[0] !== escape) {
@@ -407,10 +425,12 @@ Function.prototype.t = function () {
 };
 
 shimi.store = function (elem) {
+  'use strict';
+
   var mod = {};
 
   mod.get = function (key) {
-    var prelim = elem.attr("data-" + key);
+    var prelim = elem.attr('data-' + key);
 
     if (prelim) {
       return prelim;
@@ -434,7 +454,7 @@ shimi.store = function (elem) {
 
   mod.get64 = function (key) {
     var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/"/g, '')).replace(/(^"|"$)/g, '');
+    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 
@@ -444,15 +464,15 @@ shimi.store = function (elem) {
   };
 
   mod.fs = function (key) {
-    return mod.get("fieldset-" + key);
+    return mod.get('fieldset-' + key);
   };
 
   mod.f = function (key) {
-    return mod.get("field-" + key);
+    return mod.get('field-' + key);
   };
 
   mod.d = function (key) {
-    return mod.get("document-" + key);
+    return mod.get('document-' + key);
   };
 
   return mod;
@@ -477,23 +497,23 @@ shimi.store = function (elem) {
  *
  * <pre> 
  *   <div
- *     id="someid"
- *     data-fieldset-fieldset="fsid"
- *     data-fieldset-doctype="did"></div>
+ *     id='someid'
+ *     data-fieldset-fieldset='fsid'
+ *     data-fieldset-doctype='did'></div>
  *     
  *   <div
- *    id="thisid"
- *    data-group-id="someid">
+ *    id='thisid'
+ *    data-group-id='someid'>
  *     
- *   mypath = path($('#thisid'), "fieldset");
- *   mypath.toString() == "doctypes/did/fieldsets/fsid";
+ *   mypath = path($('#thisid'), 'fieldset');
+ *   mypath.toString() == 'doctypes/did/fieldsets/fsid';
  *   
- *   mypath = path($('#thisid'), "fieldset", "config");
- *   mypath.toString() == "config/doctypes/did/fieldsets/fsid";
+ *   mypath = path($('#thisid'), 'fieldset', 'config');
+ *   mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
  *   
- *   mypath = path($('#thisid'), "fieldset");
+ *   mypath = path($('#thisid'), 'fieldset');
  *   mypath.fieldset = false; // unsets the fielset id
- *   mypath.toString() == "doctypes/did/fieldsets"; // all fieldsets
+ *   mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
  * </pre> 
  *   
  * Note that the category matches the x of data-x in someid. Different
@@ -526,7 +546,7 @@ shimi.store = function (elem) {
  *  Example:
  * 
  * <pre> 
- *   mypath = path($('#thisid'), "fieldset");
+ *   mypath = path($('#thisid'), 'fieldset');
  *   mypath.put(object, callback, context);
  *   mypath.post(object, callback, context);
  *   mypath.del(callback, context);
@@ -547,25 +567,27 @@ shimi.store = function (elem) {
 */
 
 shimi.path = function (source, category, section) {
+  'use strict';
+
   var mod = {};
   var prefix;
 
   if (category) {
-    prefix = category + "-";
+    prefix = category + '-';
   } else {
-    prefix = "";
+    prefix = '';
   }
 
   if (section) {
-    mod.string = section + "/";
+    mod.string = section + '/';
   } else {
-    mod.string = "";
+    mod.string = '';
   }
 
   mod.category = category;
   mod.origin = source;
-  mod.type = prefix + "path";
-  mod.valid_components = ["doctype", "fieldset", "field"];
+  mod.type = prefix + 'path';
+  mod.valid_components = ['doctype', 'fieldset', 'field'];
   var s = shimi.store(mod.origin);
 
   mod.valid_components.forEach(
@@ -609,12 +631,12 @@ shimi.path = function (source, category, section) {
     mod.valid_components.map(
 
     function (item) {
-      var plural = item + "s";
+      var plural = item + 's';
       var value = mod[item];
       var retval = null;
 
       if (value) {
-        retval = plural + "/" + value;
+        retval = plural + '/' + value;
       } else if (item === mod.category) {
         retval = plural;
       }
@@ -623,11 +645,11 @@ shimi.path = function (source, category, section) {
     }).filter(
 
     function (item) {
-      return (typeof item === "string" && !item.isBlank());
-    }).join("/"));
+      return (typeof item === 'string' && !item.isBlank());
+    }).join('/'));
 
     if (mod.rev) {
-      pathString = pathString.concat("?rev=" + mod.rev);
+      pathString = pathString.concat('?rev=' + mod.rev);
     }
 
     return pathString;
@@ -649,124 +671,126 @@ shimi.path = function (source, category, section) {
 */
 
 (function (jQuery) {
+  'use strict';
+
   jQuery.hotkeys = {
-    version: "0.8",
+    version: '0.8',
 
     specialKeys: {
-      8: "backspace",
-      9: "tab",
-      13: "return",
-      16: "shift",
-      17: "ctrl",
-      18: "alt",
-      19: "pause",
-      20: "capslock",
-      27: "esc",
-      32: "space",
-      33: "pageup",
-      34: "pagedown",
-      35: "end",
-      36: "home",
-      37: "left",
-      38: "up",
-      39: "right",
-      40: "down",
-      45: "insert",
-      46: "del",
-      96: "0",
-      97: "1",
-      98: "2",
-      99: "3",
-      100: "4",
-      101: "5",
-      102: "6",
-      103: "7",
-      104: "8",
-      105: "9",
-      106: "*",
-      107: "+",
-      109: "-",
-      110: ".",
-      111: "/",
-      112: "f1",
-      113: "f2",
-      114: "f3",
-      115: "f4",
-      116: "f5",
-      117: "f6",
-      118: "f7",
-      119: "f8",
-      120: "f9",
-      121: "f10",
-      122: "f11",
-      123: "f12",
-      144: "numlock",
-      145: "scroll",
-      191: "/",
-      224: "meta"
+      8: 'backspace',
+      9: 'tab',
+      13: 'return',
+      16: 'shift',
+      17: 'ctrl',
+      18: 'alt',
+      19: 'pause',
+      20: 'capslock',
+      27: 'esc',
+      32: 'space',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      37: 'left',
+      38: 'up',
+      39: 'right',
+      40: 'down',
+      45: 'insert',
+      46: 'del',
+      96: '0',
+      97: '1',
+      98: '2',
+      99: '3',
+      100: '4',
+      101: '5',
+      102: '6',
+      103: '7',
+      104: '8',
+      105: '9',
+      106: '*',
+      107: '+',
+      109: '-',
+      110: '.',
+      111: '/',
+      112: 'f1',
+      113: 'f2',
+      114: 'f3',
+      115: 'f4',
+      116: 'f5',
+      117: 'f6',
+      118: 'f7',
+      119: 'f8',
+      120: 'f9',
+      121: 'f10',
+      122: 'f11',
+      123: 'f12',
+      144: 'numlock',
+      145: 'scroll',
+      191: '/',
+      224: 'meta'
     },
 
     shiftNums: {
-      "`": "~",
-      "1": "!",
-      "2": "@",
-      "3": "#",
-      "4": "$",
-      "5": "%",
-      "6": "^",
-      "7": "&",
-      "8": "*",
-      "9": "(",
-      "0": ")",
-      "-": "_",
-      "=": "+",
-      ";": ": ",
-      "'": "\"",
-      ",": "<",
-      ".": ">",
-      "/": "?",
-      "\\": "|"
+      '`': '~',
+      '1': '!',
+      '2': '@',
+      '3': '#',
+      '4': '$',
+      '5': '%',
+      '6': '^',
+      '7': '&',
+      '8': '*',
+      '9': '(',
+      '0': ')',
+      '-': '_',
+      '=': '+',
+      ';': ': ',
+      '\'': '"',
+      ',': '<',
+      '.': '>',
+      '/': '?',
+      '\\': '|'
     }
   };
 
   function keyHandler(handleObj) {
     // Only care when a possible input has been specified
-    if (typeof handleObj.data !== "string") {
+    if (typeof handleObj.data !== 'string') {
       return;
     }
 
     var origHandler = handleObj.handler,
-        keys = handleObj.data.toLowerCase().split(" ");
+        keys = handleObj.data.toLowerCase().split(' ');
 
     handleObj.handler = function (event) {
       // Don't fire in text-accepting inputs that we didn't directly bind to
       // MODIFIED FROM ORIGINAL
       //if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
-      //      event.target.type === "text") ) {
+      //      event.target.type === 'text') ) {
       //	return;
       //}
       // Keypress represents characters, not special keys
-      var special = event.type !== "keypress" && jQuery.hotkeys.specialKeys[event.which],
+      var special = event.type !== 'keypress' && jQuery.hotkeys.specialKeys[event.which],
           character = String.fromCharCode(event.which).toLowerCase(),
-          key, modif = "",
+          key, modif = '',
           possible = {};
 
       // check combinations (alt|ctrl|shift+anything)
-      if (event.altKey && special !== "alt") {
-        modif += "alt+";
+      if (event.altKey && special !== 'alt') {
+        modif += 'alt+';
       }
 
-      if (event.ctrlKey && special !== "ctrl") {
-        modif += "ctrl+";
+      if (event.ctrlKey && special !== 'ctrl') {
+        modif += 'ctrl+';
       }
 
       // TODO: Need to make sure this works consistently across platforms
-      if (event.metaKey && !event.ctrlKey && special !== "meta") {
-        modif += "meta+";
+      if (event.metaKey && !event.ctrlKey && special !== 'meta') {
+        modif += 'meta+';
       }
 
-      if (event.shiftKey && special !== "shift") {
-        modif += "shift+";
+      if (event.shiftKey && special !== 'shift') {
+        modif += 'shift+';
       }
 
       if (special) {
@@ -776,8 +800,8 @@ shimi.path = function (source, category, section) {
         possible[modif + character] = true;
         possible[modif + jQuery.hotkeys.shiftNums[character]] = true;
 
-        // "$" can be triggered as "Shift+4" or "Shift+$" or just "$"
-        if (modif === "shift+") {
+        // '$' can be triggered as 'Shift+4' or 'Shift+$' or just '$'
+        if (modif === 'shift+') {
           possible[jQuery.hotkeys.shiftNums[character]] = true;
         }
       }
@@ -790,7 +814,7 @@ shimi.path = function (source, category, section) {
     };
   }
 
-  jQuery.each(["keydown", "keyup", "keypress"], function () {
+  jQuery.each(['keydown', 'keyup', 'keypress'], function () {
     jQuery.event.special[this] = {
       add: keyHandler
     };
@@ -802,6 +826,7 @@ shimi.path = function (source, category, section) {
 */
 
 (function ($) {
+  'use strict';
 
   $.fn.inputDisable = function () {
     this.val('');
@@ -817,74 +842,9 @@ shimi.path = function (source, category, section) {
   };
 
 })(jQuery);
-// Object.keys compatibility from MDC
-if (!Object.keys) {
-  Object.keys = function (o) {
-    if (o !== Object(o)) {
-      throw new TypeError('Object.keys called on non-object');
-    }
-    var ret = [],
-        p;
-    for (p in o) {
-      if (Object.prototype.hasOwnProperty.call(o, p)) {
-        ret.push(p);
-      }
-    }
-    return ret;
-  };
-}
-
-// Reduce compatibility from MDC
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function (fun /*, initialValue */ ) {
-    "use strict";
-
-    if (this === void 0 || this === null) {
-      throw new TypeError();
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    if (typeof fun !== "function") {
-      throw new TypeError();
-    }
-
-    // no value to return if no initial value and an empty array
-    if (len === 0 && arguments.length === 1) {
-      throw new TypeError();
-    }
-
-    var k = 0;
-    var accumulator;
-    if (arguments.length >= 2) {
-      accumulator = arguments[1];
-    }
-    else {
-      do {
-        if (k in t) {
-          accumulator = t[k++];
-          break;
-        }
-
-        // if array contains no values, no initial value to return
-        if (++k >= len) {
-          throw new TypeError();
-        }
-      }
-      while (true);
-    }
-
-    while (k < len) {
-      if (k in t) {
-        accumulator = fun.call(undefined, accumulator, t[k], k, t);
-      }
-      k++;
-    }
-
-    return accumulator;
-  };
-}
 shimi.dispatcher = function (patterns) {
+  'use strict';
+
   var d = function (e) {
     var target = $(e.target);
 
@@ -900,33 +860,35 @@ shimi.dispatcher = function (patterns) {
 };
 
 shimi.dblclickDispatch = function (e) {
+  'use strict';
+
   var searchui = shimi.searchui;
   var worksheetui = shimi.worksheetui;
 
   var action = shimi.dispatcher({
-    ".search-result-field-id a": function (t) {
-      searchui.addField($(t).parent("h5"));
+    '.search-result-field-id a': function (t) {
+      searchui.addField($(t).parent('h5'));
     },
-    ".field-view b": function (t) {
-      searchui.addField($(t).parent("li"));
+    '.field-view b': function (t) {
+      searchui.addField($(t).parent('li'));
     },
-    ".field-container label span": function (t) {
-      searchui.addField($(t).parent("label").parent("div"));
+    '.field-container label span': function (t) {
+      searchui.addField($(t).parent('label').parent('div'));
     },
-    "#index-index-input-label": function () {
+    '#index-index-input-label': function () {
       searchui.addIndex();
     },
-    ".panel > h2": function (t) {
+    '.panel > h2': function (t) {
       shimi.panelToggle.toggler(t);
     },
-    "#toggle-handles": function (t) {
+    '#toggle-handles': function (t) {
       worksheetui.hideHandles();
     },
-    ".fieldset-handle": function (t) {
-      worksheetui.hideFieldset($(t).attr("data-field-fieldset"));
+    '.fieldset-handle': function (t) {
+      worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
     },
-    ".field-handle": function (t) {
-      worksheetui.hideField($(t).attr("data-field-field"));
+    '.field-handle': function (t) {
+      worksheetui.hideField($(t).attr('data-field-field'));
     }
   });
 
@@ -934,6 +896,8 @@ shimi.dblclickDispatch = function (e) {
 };
 
 shimi.clickDispatch = function (e) {
+  'use strict';
+
   var doctypeTab = shimi.doctypeTab;
   var charseqTab = shimi.charseqTab;
   var editui = shimi.editui;
@@ -950,210 +914,211 @@ shimi.clickDispatch = function (e) {
 
   var action = shimi.dispatcher({
     // Config
-    ".edit-field-button": function (t) {
+    '.edit-field-button': function (t) {
       doctypeTab.editField(t);
     },
-    ".delete-field-button": function (t) {
+    '.delete-field-button': function (t) {
       doctypeTab.deleteField(t);
     },
-    ".add-field-button": function (t) {
+    '.add-field-button': function (t) {
       doctypeTab.addField(t);
     },
-    ".edit-fieldset-button": function (t) {
+    '.edit-fieldset-button': function (t) {
       doctypeTab.editFieldset(t);
     },
-    ".delete-fieldset-button": function (t) {
+    '.delete-fieldset-button': function (t) {
       doctypeTab.deleteFieldset(t);
     },
-    ".add-fieldset-button": function (t) {
+    '.add-fieldset-button': function (t) {
       doctypeTab.addFieldset(t);
     },
-    ".delete-doctype-button": function (t) {
+    '.delete-doctype-button': function (t) {
       doctypeTab.deleteDoctype(t);
     },
-    ".edit-doctype-button": function (t) {
+    '.edit-doctype-button': function (t) {
       doctypeTab.editDoctype(t);
     },
-    ".touch-doctype-button": function (t) {
+    '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    "#doctype-add-button": function (t) {
+    '#doctype-add-button': function (t) {
       doctypeTab.addDoctype(t);
     },
-    ".delete-charseq-button": function (t) {
+    '.delete-charseq-button': function (t) {
       charseqTab.del(t);
     },
-    ".edit-charseq-button": function (t) {
+    '.edit-charseq-button': function (t) {
       charseqTab.edit(t);
     },
-    "#charseq-add-button": function (t) {
+    '#charseq-add-button': function (t) {
       charseqTab.add();
     },
-    "#maintenance-upgrade-button": function (t) {
+    '#maintenance-upgrade-button': function (t) {
       shimi.upgradeButton(t);
     },
 
     // Documents
-    ".add-button": function (t) {
+    '.add-button': function (t) {
       fieldsets.initFieldset(t, false, true);
     },
-    ".remove-button": function (t) {
+    '.remove-button': function (t) {
       fieldsets.removeFieldset(t);
     },
-    "#save-document-button": function (t) {
+    '#save-document-button': function (t) {
       editui.save();
     },
-    "#create-document-button": function (t) {
+    '#create-document-button': function (t) {
       editui.create();
     },
-    "#clear-document-button": function (t) {
+    '#clear-document-button': function (t) {
       editui.clear();
     },
-    ".expander": function (t) {
+    '.expander': function (t) {
       editui.toggleTextarea(t);
     },
-    "label span.ui-icon-help": function (t) {
+    'label span.ui-icon-help': function (t) {
       editui.showHelpDialog(t);
     },
-    "#document-edit-button": function (t) {
+    '#document-edit-button': function (t) {
       viewui.edit(t);
     },
-    "#document-delete-button": function (t) {
+    '#document-delete-button': function (t) {
       viewui.confirmDelete();
     },
-    "#document-restore-button": function (t) {
+    '#document-restore-button': function (t) {
       viewui.confirmRestore();
     },
-    "#document-view-tree > ul > li > b": function (t) {
+    '#document-view-tree > ul > li > b': function (t) {
       viewui.collapseToggle(t);
     },
-    ".revision-link": function (t) {
+    '.revision-link': function (t) {
       viewui.fetchRevision(t);
     },
-    "#search-all-fields-switch a": function () {
+    '#search-all-fields-switch a': function () {
       searchui.allFields();
     },
-    ".search-field-item": function (t) {
+    '.search-field-item': function (t) {
       searchui.removeField(t);
     },
-    ".select-results": function (t) {
+    '.select-results': function (t) {
       searchui.toggleSelection(t);
     },
-    "#save-search-results a": function () {
-      $("#new-set-target-input").val("search");
-      $("#new-set-dialog").show();
+    '#save-search-results a': function () {
+      $('#new-set-target-input').val('search');
+      $('#new-set-dialog').show();
     },
-    "#save-set-results a": function () {
-      $("#new-set-target-input").val("sets");
-      $("#new-set-dialog").show();
+    '#save-set-results a': function () {
+      $('#new-set-target-input').val('sets');
+      $('#new-set-dialog').show();
     },
-    "#new-set-save-button": function () {
-      shimi.dispatch.send("new-set-form-submit");
+    '#new-set-save-button': function () {
+      shimi.dispatch.send('new-set-form-submit');
     },
-    "#select-all-set-elements": function (t) {
+    '#select-all-set-elements': function (t) {
       setsui.toggleSelectAll(t);
     },
-    ".view-document-link span": function (t) {
+    '.view-document-link span': function (t) {
       var parent = t[0].parentNode;
       indexui.load(parent);
     },
-    ".view-document-link": function (t) {
+    '.view-document-link': function (t) {
       indexui.load(t);
     },
-    ".select-worksheet-column": function (t) {
+    '.select-worksheet-column': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
-      var field = target.attr("data-field-field");
+      var field = target.attr('data-field-field');
       worksheetui.columnSelection(field, checked);
     },
-    ".select-worksheet-row": function (t) {
+    '.select-worksheet-row': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
-      var row = target.attr("data-row");
+      var row = target.attr('data-row');
       worksheetui.rowSelection(row, checked);
     },
-    "#select-all-worksheet-rows": function (t) {
+    '#select-all-worksheet-rows': function (t) {
       var checked = $(t).is(':checked');
       worksheetui.selectAllRows(checked);
     },
-    "#toggle-handles": function (t) {
+    '#toggle-handles': function (t) {
       worksheetui.showHandles();
     },
-    ".fieldset-handle": function (t) {
-      worksheetui.showFieldset($(t).attr("data-field-fieldset"));
+    '.fieldset-handle': function (t) {
+      worksheetui.showFieldset($(t).attr('data-field-fieldset'));
     },
-    ".field-handle": function (t) {
-      worksheetui.showField($(t).attr("data-field-field"));
+    '.field-handle': function (t) {
+      worksheetui.showField($(t).attr('data-field-field'));
     },
-    ".field-header": function (t) {
-      worksheetui.hideField($(t).attr("data-field-field"));
+    '.field-header': function (t) {
+      worksheetui.hideField($(t).attr('data-field-field'));
     },
 
     // Index Tool
-    "#new-index-button": function (t) {
+    '#new-index-button': function (t) {
       ieditui.newCond();
     },
-    ".remove-condition-button": function (t) {
+    '.remove-condition-button': function (t) {
       ieditui.remCond(t);
     },
-    "#delete-index-button": function (t) {
+    '#delete-index-button': function (t) {
       ieditui.del();
     },
-    "#save-index-button": function (t) {
+    '#save-index-button': function (t) {
       ieditui.save();
     },
-    "#replace-button": function (t) {
+    '#replace-button': function (t) {
       ieditui.replace();
     },
-    "#add-index-condition-button": function (t) {
+    '#add-index-condition-button': function (t) {
       ieditui.addCond();
     },
-    "#index-index-listing a": function (t) {
+    '#index-index-listing a': function (t) {
       ieditui.init(t);
     },
 
     // Project
-    "#create-project": function () {
-      projectui.add().dialog("open");
+    '#create-project': function () {
+      projectui.add().dialog('open');
     },
-    ".project-delete-button": function (t) {
+    '.project-delete-button': function (t) {
       projectui.del(t);
     },
 
     // File Manager
-    "#up-dir": function () {
+    '#up-dir': function () {
       fm.upDir();
     },
-    "#root-dir": function () {
+    '#root-dir': function () {
       fm.rootDir();
     },
-    ".dir": function (t) {
+    '.dir': function (t) {
       fm.goDir(t);
     },
-    ".delete-file-button": function (t) {
+    '.delete-file-button': function (t) {
       fm.deleteFile(t);
     },
-    ".edit-file-button": function (t) {
+    '.edit-file-button': function (t) {
       fm.editFile(t);
     },
 
     // General
-    ".toggler": function (t) {
+    '.toggler': function (t) {
       form.toggle(t);
     },
-    ".cancel-dialog": function (t) {
+    '.cancel-dialog': function (t) {
       form.cancelDialog(t);
     },
-    "#panel-toggle li": function (t) {
+    '#panel-toggle li': function (t) {
       shimi.panelToggle.toggler(t);
     }
-    //".remove-button": function(t) {$(t).parent().remove();}
+    //'.remove-button': function(t) {$(t).parent().remove();}
   });
 
   action(e);
 };
 
 $(function () {
+  'use strict';
   $('body').click(function (e) {
     shimi.clickDispatch(e);
   });
@@ -1161,31 +1126,39 @@ $(function () {
     shimi.dblclickDispatch(e);
   });
 });
-$(document).on("keydown", '#document-worksheets-form', function (e) {
+$(document).on('keydown', '#document-worksheets-form', function (e) {
+  'use strict';
+
   if (e.which === 13) {
-    shimi.dispatch.send("worksheet-form-submit");
+    shimi.dispatch.send('worksheet-form-submit');
     return false;
   }
   return true;
 });
 
-$(document).on("keydown", '#document-sets-form', function (e) {
+$(document).on('keydown', '#document-sets-form', function (e) {
+  'use strict';
+
   if (e.which === 13) {
-    shimi.dispatch.send("sets-form-submit");
+    shimi.dispatch.send('sets-form-submit');
     return false;
   }
   return true;
 });
 
-$('#new-set-form').on("keydown", function (e) {
+$('#new-set-form').on('keydown', function (e) {
+  'use strict';
+
   if (e.which === 13) {
-    shimi.dispatch.send("new-set-form-submit");
+    shimi.dispatch.send('new-set-form-submit');
     return false;
   }
   return true;
 });
 
 $(document).bind('keydown', 'Alt+n', function (e) {
+  'use strict';
+
   var t = function () {
     return $('#edit-tabs');
   };
@@ -1194,22 +1167,26 @@ $(document).bind('keydown', 'Alt+n', function (e) {
 
   if (selected < totaltabs - 1) {
     t().tabs('option', 'active', selected + 1);
-    shimi.dispatch.send("lost-focus");
+    shimi.dispatch.send('lost-focus');
   } else {
     t().tabs('option', 'active', 0);
-    shimi.dispatch.send("lost-focus");
+    shimi.dispatch.send('lost-focus');
   }
 
   return false;
 });
 
 $(document).bind('keydown', 'Alt+c', function (e) {
-  var active = $(document.activeElement).attr("id");
-  shimi.dispatch.send("initiated-command", active);
+  'use strict';
+
+  var active = $(document.activeElement).attr('id');
+  shimi.dispatch.send('initiated-command', active);
   return true;
 });
 
 $(document).bind('keydown', 'Alt+p', function (e) {
+  'use strict';
+
   var t = function () {
     return $('#edit-tabs');
   };
@@ -1218,27 +1195,31 @@ $(document).bind('keydown', 'Alt+p', function (e) {
 
   if (selected !== 0) {
     t().tabs('option', 'active', selected - 1);
-    shimi.dispatch.send("lost-focus");
+    shimi.dispatch.send('lost-focus');
   } else {
     t().tabs('option', 'active', totaltabs - 1);
-    shimi.dispatch.send("lost-focus");
+    shimi.dispatch.send('lost-focus');
   }
 
   return false;
 });
 
 
-$(document).on("keydown", '#edit-command-input', function (e) {
+$(document).on('keydown', '#edit-command-input', function (e) {
+  'use strict';
+
   if (e.which === 13) {
     var command = $('#edit-command-input').val();
-    shimi.dispatch.send("submitted-command", command);
+    shimi.dispatch.send('submitted-command', command);
   }
   return true;
 });
 
-$(document).on('keydown', "#edit-document-form input", function (e) {
+$(document).on('keydown', '#edit-document-form input', function (e) {
+  'use strict';
+
   if (e.which === 13) {
-    if ($("#save-document-button").css("display") === "none") {
+    if ($('#save-document-button').css('display') === 'none') {
       shimi.editui.create();
     } else {
       shimi.editui.save();
@@ -1247,12 +1228,16 @@ $(document).on('keydown', "#edit-document-form input", function (e) {
   return true;
 });
 
-$(document).on('keydown', "#edit-document-form textarea", 'Alt+x', function (e) {
+$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e) {
+  'use strict';
+
   shimi.editui.toggleTextarea($(e.target));
   return false;
 });
 
-$(document).on("keypress", '#view-jump-id', function (e) {
+$(document).on('keypress', '#view-jump-id', function (e) {
+  'use strict';
+
   if (e.which === 13) {
     var docid = $('#view-jump-id').val();
     shimi.viewui.get(docid);
@@ -1261,7 +1246,9 @@ $(document).on("keypress", '#view-jump-id', function (e) {
   return true;
 });
 
-$(document).on("keydown", '#document-search-term', function (e) {
+$(document).on('keydown', '#document-search-term', function (e) {
+  'use strict';
+
   if (e.which === 13) {
     shimi.searchui.getSearch();
     return false;
@@ -1269,12 +1256,14 @@ $(document).on("keydown", '#document-search-term', function (e) {
   return true;
 });
 
-$(document).on("keyup", '#index-filter-form input', function (e) {
+$(document).on('keyup', '#index-filter-form input', function (e) {
+  'use strict';
+
   var getIndexTimer;
   window.clearTimeout(getIndexTimer);
   getIndexTimer = setTimeout(function () {
     if (e.which !== 8 && e.which !== 46) {
-      if (document.getElementById("all-document-container")) {
+      if (document.getElementById('all-document-container')) {
         shimi.indexui.get();
       } else {
         shimi.ipreviewui.get();
@@ -1282,56 +1271,62 @@ $(document).on("keyup", '#index-filter-form input', function (e) {
     }
   }, 500);
 });
-$(document).on("change", '#document-search-exclude', function (e) {
+$(document).on('change', '#document-search-exclude', function (e) {
+  'use strict';
+
   shimi.searchui.toggleExclusion();
   return true;
 });
 
-$(document).on("change", '#document-search-invert', function (e) {
+$(document).on('change', '#document-search-invert', function (e) {
+  'use strict';
+
   shimi.searchui.toggleInversion();
   return true;
 });
-shimi.dispatch = (function () {
+shimi.dispatch = (function() {
+  'use strict';
+
   var mod = {};
 
-  mod.send = function (message, arg) {
+  mod.send = function(message, arg) {
     switch (message) {
-    case "bad-session-state":
+    case 'bad-session-state':
       shimi.documents.clearSession();
       break;
-    case "doctype-info-ready":
+    case 'doctype-info-ready':
       shimi.documents.makeLabels();
       break;
-    case "labels-ready":
+    case 'labels-ready':
       shimi.searchui.loadSearchVals();
       shimi.worksheetui.buildTemplate();
       break;
-    case "new-set-form-submit":
+    case 'new-set-form-submit':
       shimi.setsui.saveSelected();
       break;
-    case "sets-changed":
+    case 'sets-changed':
       shimi.setsui.updateSelection();
       break;
-    case "sets-form-submit":
+    case 'sets-form-submit':
       shimi.setsui.performOp();
       break;
-    case "session-cleared":
+    case 'session-cleared':
       shimi.documents.setVersion();
       shimi.documents.loadDoctype();
       break;
-    case "worksheet-form-submit":
+    case 'worksheet-form-submit':
       shimi.worksheetui.fillWorksheet();
       break;
-    case "initiated-command":
+    case 'initiated-command':
       shimi.commands.dialogOpen(arg);
       break;
-    case "executed-command":
+    case 'executed-command':
       shimi.commands.dialogClose();
       break;
-    case "submitted-command":
+    case 'submitted-command':
       shimi.commands.execute(arg);
       break;
-    case "lost-focus":
+    case 'lost-focus':
       shimi.editui.selectInput();
       break;
     }
@@ -1355,6 +1350,8 @@ shimi.dispatch = (function () {
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
 shimi.index = function (args) {
+  'use strict';
+
   var mod = {};
 
   mod.get = function (startkey, startid, prevkeys, previds) {
@@ -1436,6 +1433,8 @@ shimi.index = function (args) {
   return mod;
 };
 shimi.form = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.toggle = function (t) {
@@ -1458,14 +1457,14 @@ shimi.form = (function () {
       elemId = '#' + target.attr('data-target');
       toggleElem = $(elemId);
       toggleElem.hide();
-      mod.clear(undefined, toggleElem.find("form"));
+      mod.clear(undefined, toggleElem.find('form'));
     }
     return mod;
   };
 
   mod.clear = function (inputFields, form) {
     if (inputFields === undefined) {
-      inputFields = $(form).find("input, select, textarea");
+      inputFields = $(form).find('input, select, textarea');
     }
     inputFields.each(function (index, elem) {
       var inputField = $(elem);
@@ -1490,21 +1489,21 @@ shimi.form = (function () {
     $.ajax({
       type: method,
       url: ajaxUrl,
-      dataType: "json",
+      dataType: 'json',
       context: callContext,
-      contentType: "application/json",
+      contentType: 'application/json',
       processData: false,
       data: dataObj,
       complete: function (req, status) {
         if (req.status >= 200 && req.status < 300) {
           completeFun(this, req);
         } else if (req.status === 500) {
-          shimi.flash("Unknown Server Error", "Please report that you received " + "this message").error();
+          shimi.flash('Unknown Server Error', 'Please report that you received ' + 'this message').error();
         } else if (req.status >= 400) {
           var body = JSON.parse(req.responseText);
           var title = req.statusText;
 
-          shimi.flash(title, body.fieldname + " " + body.message).error();
+          shimi.flash(title, body.fieldname + ' ' + body.message).error();
         }
       }
     });
@@ -1525,7 +1524,7 @@ shimi.form = (function () {
   mod.checkLength = function (o, n, min, max, tips) {
     if (o.val().length > max || o.val().length < min) {
       o.addClass('ui-state-error');
-      mod.updateTips("Length of " + n + " must be between " + min + " and " + max + ".", tips);
+      mod.updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
       return false;
     } else {
       return true;
@@ -1544,8 +1543,8 @@ shimi.form = (function () {
 
   // Date Picker
   mod.initDateFields = function () {
-    $(".date").datepicker({
-      dateFormat: "yy-mm-dd"
+    $('.date').datepicker({
+      dateFormat: 'yy-mm-dd'
     });
 
     return true;
@@ -1565,6 +1564,8 @@ shimi.form = (function () {
   return mod;
 })();
 shimi.sess = function () {
+  'use strict';
+
   var mod = {};
 
   mod.put = function (doc) {
@@ -1589,20 +1590,21 @@ shimi.sess = function () {
 };
 // Dialog for manipulating doctypes
 shimi.charseqDialog = function (values) {
+  'use strict';
   var f = shimi.charseqElems.get(values);
 
-  var dialog = $("#charseq-dialog").dialog({
+  var dialog = $('#charseq-dialog').dialog({
     width: 650,
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function () {
+      'Save': function () {
         var obj = f.getCharseqInputVals();
         var url = 'config/charseqs';
         var method = 'POST';
         var complete = function (context) {
           shimi.charseqTab.init();
-          $(context).dialog("close");
+          $(context).dialog('close');
         };
 
         if (values && values.rev) {
@@ -1612,8 +1614,8 @@ shimi.charseqDialog = function (values) {
 
         shimi.form.send(url, obj, method, complete, this);
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {
@@ -1651,9 +1653,11 @@ shimi.charseqDialog = function (values) {
 */
 
 shimi.charseqElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
+  mod.attrs = ['description', 'characters', 'name', 'sort_ignore', 'locale', 'tailoring', 'vowels', 'consonants', 'ietf_tag', 'iso639_tag', 'charseq', 'rev'];
 
   mod.get = function (values) {
     var cObj = {};
@@ -1669,19 +1673,19 @@ shimi.charseqElems = (function () {
 
     cObj.getCharseqInputVals = function () {
       var valObj = {
-        "category": "charseq",
-        "description": cObj.description.val(),
-        "characters": cObj.parse(cObj.characters.val()),
-        "name": cObj.name.val(),
-        "sort_ignore": cObj.parse(cObj.sort_ignore.val()),
-        "locale": cObj.locale.val(),
-        "tailoring": cObj.tailoring.val(),
-        "vowels": cObj.parse(cObj.vowels.val()),
-        "consonants": cObj.parse(cObj.consonants.val()),
-        "ietf_tag": cObj.ietf_tag.val(),
-        "iso639_tag": cObj.iso639_tag.val(),
-        "_id": (cObj.charseq.val() || undefined),
-        "rev": (cObj.rev.val() || undefined)
+        'category': 'charseq',
+        'description': cObj.description.val(),
+        'characters': cObj.parse(cObj.characters.val()),
+        'name': cObj.name.val(),
+        'sort_ignore': cObj.parse(cObj.sort_ignore.val()),
+        'locale': cObj.locale.val(),
+        'tailoring': cObj.tailoring.val(),
+        'vowels': cObj.parse(cObj.vowels.val()),
+        'consonants': cObj.parse(cObj.consonants.val()),
+        'ietf_tag': cObj.ietf_tag.val(),
+        'iso639_tag': cObj.iso639_tag.val(),
+        '_id': (cObj.charseq.val() || undefined),
+        'rev': (cObj.rev.val() || undefined)
       };
       return valObj;
     };
@@ -1713,10 +1717,12 @@ shimi.charseqElems = (function () {
   return mod;
 })();
 shimi.charseqTab = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.add = function () {
-    shimi.charseqDialog().dialog("open");
+    shimi.charseqDialog().dialog('open');
     return mod;
   };
 
@@ -1727,7 +1733,7 @@ shimi.charseqTab = (function () {
     attrs.forEach(function (item) {
       oldobj[item] = shimi.store(target).get64('charseq-' + item);
     });
-    shimi.charseqDialog(oldobj).dialog("open");
+    shimi.charseqDialog(oldobj).dialog('open');
 
     return mod;
   };
@@ -1741,7 +1747,7 @@ shimi.charseqTab = (function () {
       mod.init();
     };
 
-    if (window.confirm("Are you sure? This is permanent.")) {
+    if (window.confirm('Are you sure? This is permanent.')) {
       shimi.form.send(url, {}, 'DELETE', complete, this);
     }
 
@@ -1749,17 +1755,17 @@ shimi.charseqTab = (function () {
   };
 
   mod.init = function () {
-    var tabs = $("#charseq-tabs");
-    var heads = $("#charseq-tabs-headings");
-    var url = "config/charseqs";
+    var tabs = $('#charseq-tabs');
+    var heads = $('#charseq-tabs-headings');
+    var url = 'config/charseqs';
 
     tabs.tabs();
 
     $.get(url, function (charseqs) {
       heads.empty();
-      //$("#charseq-tabs-headings + .ui-tabs-panel").remove();
+      //$('#charseq-tabs-headings + .ui-tabs-panel').remove();
       heads.find('.ui-tabs-panel').remove();
-      tabs.tabs("destroy");
+      tabs.tabs('destroy');
       heads.html(charseqs);
 
       tabs.tabs();
@@ -1771,19 +1777,25 @@ shimi.charseqTab = (function () {
   return mod;
 })();
 shimi.upgradeButton = function (target) {
-  $.post("config/upgrade");
-  window.alert("Upgrade In Progress");
+  'use strict';
+
+  $.post('config/upgrade');
+  window.alert('Upgrade In Progress');
 };
 
 shimi.initTabs = function () {
+  'use strict';
+
   shimi.doctypeTab.init();
-  $("#main-tabs").tabs();
+  $('#main-tabs').tabs();
   shimi.charseqTab.init();
 
   return true;
 };
 // Dialog for manipulating doctypes
 shimi.doctypeDialog = function (url, values) {
+  'use strict';
+
   var f = shimi.doctypeElems.get(values);
 
   if (values.rev && !values.rev.isBlank()) {
@@ -1792,15 +1804,15 @@ shimi.doctypeDialog = function (url, values) {
     f.doctype.removeAttr('disabled');
   }
 
-  var dialog = $("#doctype-dialog").dialog({
+  var dialog = $('#doctype-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function () {
+      'Save': function () {
         var obj = f.getDoctypeInputVals();
         var complete = function (context) {
           shimi.doctypeTab.init();
-          $(context).dialog("close");
+          $(context).dialog('close');
         };
 
         if (!values.rev || values.rev.isBlank()) {
@@ -1810,8 +1822,8 @@ shimi.doctypeDialog = function (url, values) {
           url.put(obj, complete, this);
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {
@@ -1824,9 +1836,11 @@ shimi.doctypeDialog = function (url, values) {
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions. 
 shimi.doctypeElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["description", "doctype", "rev"];
+  mod.attrs = ['description', 'doctype', 'rev'];
 
   mod.get = function (values) {
     var fObj = {};
@@ -1840,9 +1854,9 @@ shimi.doctypeElems = (function () {
 
     fObj.getDoctypeInputVals = function () {
       var valObj = {
-        "category": "doctype",
-        "description": fObj.description.val(),
-        "_id": fObj.doctype.val()
+        'category': 'doctype',
+        'description': fObj.description.val(),
+        '_id': fObj.doctype.val()
       };
       return valObj;
     };
@@ -1864,10 +1878,12 @@ shimi.doctypeElems = (function () {
   return mod;
 })();
 shimi.doctypeTab = (function () {
+  'use strict';
+
   var mod = {};
 
   var cpath = function (source, category) {
-    return shimi.path(source, category, "config");
+    return shimi.path(source, category, 'config');
   };
 
   // Populate the listing of fields
@@ -1875,7 +1891,7 @@ shimi.doctypeTab = (function () {
     path.field = false;
 
     $.get(path.toString(), function (fields) {
-      var fieldContainer = $("#fields-" + path.fieldset);
+      var fieldContainer = $('#fields-' + path.fieldset);
       fieldContainer.empty();
       fieldContainer.html(fields);
     });
@@ -1886,11 +1902,11 @@ shimi.doctypeTab = (function () {
   // Populate the listing of fieldsets
   mod.initFieldsets = function (url) {
     $.get(url.toString(), function (fieldsets) {
-      var fieldsetContainer = $("#fieldsets-" + url.doctype);
+      var fieldsetContainer = $('#fieldsets-' + url.doctype);
 
       fieldsetContainer.empty();
       fieldsetContainer.accordion();
-      fieldsetContainer.accordion("destroy");
+      fieldsetContainer.accordion('destroy');
       fieldsetContainer.html(fieldsets);
 
       fieldsetContainer.accordion({
@@ -1903,25 +1919,25 @@ shimi.doctypeTab = (function () {
 
   // populate the tabs listing the doctypes
   mod.init = function () {
-    var url = "config/doctypes";
+    var url = 'config/doctypes';
 
-    $("#doctype-tabs").tabs();
+    $('#doctype-tabs').tabs();
 
     $.get(url, function (doctypes) {
-      var fieldsetDoctype = $("#fieldset-doctype-input");
+      var fieldsetDoctype = $('#fieldset-doctype-input');
 
-      $("#doctype-tabs-headings").empty();
-      $("#doctype-tabs-headings + .ui-tabs-panel").remove();
-      $("#doctype-tabs").tabs("destroy");
-      $("#doctype-tabs-headings").html(doctypes);
+      $('#doctype-tabs-headings').empty();
+      $('#doctype-tabs-headings + .ui-tabs-panel').remove();
+      $('#doctype-tabs').tabs('destroy');
+      $('#doctype-tabs-headings').html(doctypes);
 
       var loadFun = function (event, ui) {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
-        var fieldsetsPath = shimi.path(source, "fieldset", "config");
+        var fieldsetsPath = shimi.path(source, 'fieldset', 'config');
         mod.initFieldsets(fieldsetsPath);
       };
 
-      $("#doctype-tabs").tabs({
+      $('#doctype-tabs').tabs({
         load: function (e, ui) {
           loadFun(e, ui);
         }
@@ -1931,26 +1947,26 @@ shimi.doctypeTab = (function () {
 
   // Button that opens a dialog for editing a field
   mod.editField = function (target) {
-    var url = cpath(target, "field");
+    var url = cpath(target, 'field');
     var oldobj = {};
     var attrs = shimi.fieldElems.attrs;
-    var charseqUrl = "config/charseqs?as=options";
+    var charseqUrl = 'config/charseqs?as=options';
 
     $.get(charseqUrl, function (charseqs) {
-      $("#field-charseq-input").html(charseqs);
+      $('#field-charseq-input').html(charseqs);
       attrs.forEach(function (item) {
         oldobj[item] = shimi.store(target).get('field-' + item);
       });
-      shimi.fieldDialog(url, oldobj).dialog("open");
+      shimi.fieldDialog(url, oldobj).dialog('open');
     });
   };
 
   // Button that opens a dialog for deleting a field
   mod.deleteField = function (target) {
-    var answer = window.confirm("Are you sure? This is permanent.");
+    var answer = window.confirm('Are you sure? This is permanent.');
 
     if (answer) {
-      var url = cpath(target, "field");
+      var url = cpath(target, 'field');
       var complete = function () {
         url.field = false;
         url.rev = false;
@@ -1963,21 +1979,21 @@ shimi.doctypeTab = (function () {
 
   // Button that opens a dialog for adding a field
   mod.addField = function (target) {
-    var url = cpath(target, "field");
-    var charseqUrl = "config/charseqs?as=options";
+    var url = cpath(target, 'field');
+    var charseqUrl = 'config/charseqs?as=options';
 
     $.get(charseqUrl, function (charseqs) {
-      $("#field-charseq-input").html(charseqs);
+      $('#field-charseq-input').html(charseqs);
       shimi.fieldDialog(url, {
         fieldset: url.fieldset,
         doctype: url.doctype
-      }).dialog("open");
+      }).dialog('open');
     });
   };
 
   // Button that opens a dialog for editing a fieldset
   mod.editFieldset = function (target) {
-    var url = cpath(target, "fieldset");
+    var url = cpath(target, 'fieldset');
     var oldobj = {};
     var attrs = shimi.fieldsetElems.attrs;
 
@@ -1985,12 +2001,12 @@ shimi.doctypeTab = (function () {
       oldobj[item] = shimi.store(target).get('fieldset-' + item);
     });
 
-    shimi.fieldsetDialog(url, oldobj).dialog("open");
+    shimi.fieldsetDialog(url, oldobj).dialog('open');
   };
 
   // Button that opens a dialog for deleting a fieldset
   mod.deleteFieldset = function (target) {
-    var url = cpath(target, "fieldset");
+    var url = cpath(target, 'fieldset');
 
     var complete = function () {
       url.fieldset = false;
@@ -1998,69 +2014,71 @@ shimi.doctypeTab = (function () {
       mod.initFieldsets(url);
     };
 
-    if (window.confirm("Are you sure? This is permanent.")) {
+    if (window.confirm('Are you sure? This is permanent.')) {
       url.del(complete, this);
     }
   };
 
   // Button that opens a dialog for adding a fieldset
   mod.addFieldset = function (target) {
-    var url = cpath(target, "fieldset");
+    var url = cpath(target, 'fieldset');
     shimi.fieldsetDialog(url, {
       doctype: url.doctype
-    }).dialog("open");
+    }).dialog('open');
   };
 
   mod.editDoctype = function (target) {
-    var url = cpath(target, "doctype");
+    var url = cpath(target, 'doctype');
     var oldobj = {};
     var attrs = shimi.doctypeElems.attrs;
 
     attrs.forEach(function (item) {
       oldobj[item] = shimi.store(target).get('doctype-' + item);
     });
-    shimi.doctypeDialog(url, oldobj).dialog("open");
+    shimi.doctypeDialog(url, oldobj).dialog('open');
   };
 
   mod.touchDoctype = function (target) {
-    var docid = shimi.store(target).get("doctype-doctype");
-    $.post("config/doctypes/" + docid + "/touch");
-    window.alert("Touch In Progress");
+    var docid = shimi.store(target).get('doctype-doctype');
+    $.post('config/doctypes/' + docid + '/touch');
+    window.alert('Touch In Progress');
   };
 
   mod.deleteDoctype = function (target) {
-    var url = cpath(target, "doctype");
+    var url = cpath(target, 'doctype');
     var complete = function () {
       url.doctype = false;
       url.rev = false;
       mod.init();
     };
 
-    if (window.confirm("Are you sure? This is permanent.")) {
+    if (window.confirm('Are you sure? This is permanent.')) {
       url.del(complete, this);
     }
   };
 
   mod.addDoctype = function (target) {
-    var url = cpath(target, "doctype");
-    shimi.doctypeDialog(url, {}).dialog("open");
+    var url = cpath(target, 'doctype');
+    shimi.doctypeDialog(url, {}).dialog('open');
   };
 
   return mod;
 })();
 // Dialog for manipulating fields
 shimi.fieldDialog = function (url, values) {
+  'use strict';
+
   var f = shimi.fieldElems.get(values);
 
-  var dialog = $("#field-dialog").dialog({
+  var dialog = $('#field-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function () {
+      'Save': function () {
         var obj = f.clearDisabled().getFieldInputVals();
         var complete = function (context) {
           shimi.doctypeTab.initFields(url);
-          $(context).dialog("close");
+          $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
@@ -2069,8 +2087,8 @@ shimi.fieldDialog = function (url, values) {
           url.put(obj, complete, this);
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {
@@ -2083,9 +2101,11 @@ shimi.fieldDialog = function (url, values) {
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions. 
 shimi.fieldElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["name", "label", "order", "description", "subcategory", "head", "reversal", "default", "required", "allowed", "source", "max", "min", "regex", "doctype", "fieldset", "charseq", "rev", "field"];
+  mod.attrs = ['name', 'label', 'order', 'description', 'subcategory', 'head', 'reversal', 'default', 'required', 'allowed', 'source', 'max', 'min', 'regex', 'doctype', 'fieldset', 'charseq', 'rev', 'field'];
 
   mod.get = function (values) {
     var fObj = {};
@@ -2101,15 +2121,15 @@ shimi.fieldElems = (function () {
 
     fObj.disable = function () {
       fObj.notDefault().forEach(function (field) {
-        field.attr("disabled", "disabled");
+        field.attr('disabled', 'disabled');
       });
       return fObj;
     };
 
     fObj.clearDisabled = function () {
       fObj.notDefault().forEach(function (field) {
-        if (field.attr("disabled")) {
-          field.val("");
+        if (field.attr('disabled')) {
+          field.val('');
         }
       });
       return fObj;
@@ -2119,7 +2139,7 @@ shimi.fieldElems = (function () {
       Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] === "true") {
+          if (source[field] === 'true') {
             fObj[field].attr('checked', true);
           }
         }
@@ -2129,24 +2149,24 @@ shimi.fieldElems = (function () {
 
     fObj.getFieldInputVals = function () {
       var valObj = {
-        "category": "field",
-        "name": fObj.name.val(),
-        "label": fObj.label.val(),
-        "default": fObj.decodeDefaults(fObj.subcategory.val(), fObj["default"].val()),
-        "head": fObj.head.is(':checked'),
-        "reversal": fObj.reversal.is(':checked'),
-        "required": fObj.required.is(':checked'),
-        "order": fObj.order.val() * 1,
-        "allowed": fObj.allowed.val().split(",").trimAll(),
-        "source": fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
-        "min": fObj.decodeBound(fObj.subcategory.val(), fObj.min.val()),
-        "max": fObj.decodeBound(fObj.subcategory.val(), fObj.max.val()),
-        "regex": fObj.regex.val(),
-        "description": fObj.description.val(),
-        "charseq": fObj.charseq.val(),
-        "doctype": fObj.doctype.val(),
-        "fieldset": fObj.fieldset.val(),
-        "subcategory": fObj.subcategory.val()
+        'category': 'field',
+        'name': fObj.name.val(),
+        'label': fObj.label.val(),
+        'default': fObj.decodeDefaults(fObj.subcategory.val(), fObj['default'].val()),
+        'head': fObj.head.is(':checked'),
+        'reversal': fObj.reversal.is(':checked'),
+        'required': fObj.required.is(':checked'),
+        'order': fObj.order.val() * 1,
+        'allowed': fObj.allowed.val().split(',').trimAll(),
+        'source': fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
+        'min': fObj.decodeBound(fObj.subcategory.val(), fObj.min.val()),
+        'max': fObj.decodeBound(fObj.subcategory.val(), fObj.max.val()),
+        'regex': fObj.regex.val(),
+        'description': fObj.description.val(),
+        'charseq': fObj.charseq.val(),
+        'doctype': fObj.doctype.val(),
+        'fieldset': fObj.fieldset.val(),
+        'subcategory': fObj.subcategory.val()
       };
       return valObj;
     };
@@ -2158,7 +2178,7 @@ shimi.fieldElems = (function () {
     };
 
     fObj.decodeBound = function (subcategory, bound) {
-      if (subcategory === "date") {
+      if (subcategory === 'date') {
         return bound;
       } else {
         return shimi.utils().stringToNumber(fObj.min.val());
@@ -2166,50 +2186,50 @@ shimi.fieldElems = (function () {
     };
 
     fObj.decodeSource = function (subcategory, source) {
-      if (subcategory === "file") {
-        return source.split("/").trimAll();
+      if (subcategory === 'file') {
+        return source.split('/').trimAll();
       } else {
         return source;
       }
     };
 
-    fObj.decodeDefaults = function (subcategory, defaults) {
+    fObj.decodeDefaults = function(subcategory, defaults) {
       switch (subcategory) {
-      case "docmultiselect":
-      case "multiselect":
-        return defaults.split(",").trimAll();
-      case "file":
-        return defaults.split("/").trimAll();
+      case 'docmultiselect':
+      case 'multiselect':
+        return defaults.split(',').trimAll();
+      case 'file':
+        return defaults.split('/').trimAll();
       default:
         return defaults;
       }
     };
 
-    fObj.displayFields = function (subcategory) {
+    fObj.displayFields = function(subcategory) {
       switch (subcategory) {
-      case "select":
-      case "multiselect":
+      case 'select':
+      case 'multiselect':
         fObj.disable();
-        fObj.allowed.removeAttr("disabled");
+        fObj.allowed.removeAttr('disabled');
         break;
-      case "docselect":
-      case "docmultiselect":
-      case "file":
+      case 'docselect':
+      case 'docmultiselect':
+      case 'file':
         fObj.disable();
-        fObj.source.removeAttr("disabled");
+        fObj.source.removeAttr('disabled');
         break;
-      case "text":
-      case "textarea":
+      case 'text':
+      case 'textarea':
         fObj.disable();
-        fObj.charseq.removeAttr("disabled");
-        fObj.regex.removeAttr("disabled");
+        fObj.charseq.removeAttr('disabled');
+        fObj.regex.removeAttr('disabled');
         break;
-      case "date":
-      case "integer":
-      case "rational":
+      case 'date':
+      case 'integer':
+      case 'rational':
         fObj.disable();
-        fObj.min.removeAttr("disabled");
-        fObj.max.removeAttr("disabled");
+        fObj.min.removeAttr('disabled');
+        fObj.max.removeAttr('disabled');
         break;
       default:
         fObj.disable();
@@ -2233,20 +2253,22 @@ shimi.fieldElems = (function () {
   return mod;
 })();
 shimi.fieldsetDialog = function (url, values) {
+  'use strict';
+
   var f = shimi.fieldsetElems.get(values);
 
-  var dialog = $("#fieldset-dialog").dialog({
+  var dialog = $('#fieldset-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function () {
+      'Save': function () {
         var obj = f.getFieldsetInputVals();
         var complete = function (context) {
           url.fieldset = false;
           url.rev = false;
 
           shimi.doctypeTab.initFieldsets(url);
-          $(context).dialog("close");
+          $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
@@ -2255,8 +2277,8 @@ shimi.fieldsetDialog = function (url, values) {
           url.put(obj, complete, this);
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {
@@ -2269,9 +2291,11 @@ shimi.fieldsetDialog = function (url, values) {
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions. 
 shimi.fieldsetElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["name", "label", "order", "description", "doctype", "rev", "multiple", "collapse", "fieldset"];
+  mod.attrs = ['name', 'label', 'order', 'description', 'doctype', 'rev', 'multiple', 'collapse', 'fieldset'];
 
   mod.get = function (values) {
     var fObj = {};
@@ -2282,7 +2306,7 @@ shimi.fieldsetElems = (function () {
       Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] === "true") {
+          if (source[field] === 'true') {
             fObj[field].attr('checked', true);
           }
         }
@@ -2292,14 +2316,14 @@ shimi.fieldsetElems = (function () {
 
     fObj.getFieldsetInputVals = function () {
       var valObj = {
-        "category": "fieldset",
-        "name": fObj.name.val(),
-        "label": fObj.label.val(),
-        "order": fObj.order.val() * 1,
-        "description": fObj.description.val(),
-        "doctype": fObj.doctype.val(),
-        "multiple": fObj.multiple.is(':checked'),
-        "collapse": fObj.collapse.is(':checked')
+        'category': 'fieldset',
+        'name': fObj.name.val(),
+        'label': fObj.label.val(),
+        'order': fObj.order.val() * 1,
+        'description': fObj.description.val(),
+        'doctype': fObj.doctype.val(),
+        'multiple': fObj.multiple.is(':checked'),
+        'collapse': fObj.collapse.is(':checked')
       };
       return valObj;
     };
@@ -2321,57 +2345,59 @@ shimi.fieldsetElems = (function () {
   return mod;
 })();
 shimi.commands = (function () {
+  'use strict';
+
   var mod = {};
   var commandInput = function () {
-    return document.getElementById("edit-command-input");
+    return document.getElementById('edit-command-input');
   };
   var commandDialog = function () {
     return $('#command-dialog');
   };
   var setContext = function (elem, context) {
-    return elem.attr("data-last-active", context);
+    return elem.attr('data-last-active', context);
   };
   var getContext = function (elem) {
-    return elem.attr("data-last-active");
+    return elem.attr('data-last-active');
   };
 
   mod.execute = function (command) {
     var restoreFocus = true;
 
     switch (command) {
-    case "w":
-    case "clear":
+    case 'w':
+    case 'clear':
       shimi.editui.clear();
       break;
-    case "c":
-    case "create":
+    case 'c':
+    case 'create':
       shimi.editui.create();
       restoreFocus = false;
       break;
-    case "s":
-    case "save":
+    case 's':
+    case 'save':
       shimi.editui.save();
       break;
-    case "d":
-    case "delete":
-      $("#document-view").show();
-      if ($("#document-delete-button").css("display") !== "none") {
-        $("#document-delete-button").click();
+    case 'd':
+    case 'delete':
+      $('#document-view').show();
+      if ($('#document-delete-button').css('display') !== 'none') {
+        $('#document-delete-button').click();
       }
       break;
-    case "e":
-    case "edit":
-      $("#document-view").show();
-      if ($("#document-edit-button").css("display") !== "none") {
-        $("#document-edit-button").click();
+    case 'e':
+    case 'edit':
+      $('#document-view').show();
+      if ($('#document-edit-button').css('display') !== 'none') {
+        $('#document-edit-button').click();
         restoreFocus = false;
       }
       break;
-    case "r":
-    case "restore":
-      $("#document-view").show();
-      if ($("#document-restore-button").css("display") !== "none") {
-        $("#document-restore-button").click();
+    case 'r':
+    case 'restore':
+      $('#document-view').show();
+      if ($('#document-restore-button').css('display') !== 'none') {
+        $('#document-restore-button').click();
       }
       break;
     }
@@ -2381,17 +2407,17 @@ shimi.commands = (function () {
       var context = getContext(cdialog);
       $('#' + context).focus();
     } else {
-      shimi.dispatch.send("lost-focus");
+      shimi.dispatch.send('lost-focus');
     }
 
-    shimi.dispatch.send("executed-command");
+    shimi.dispatch.send('executed-command');
     return mod;
   };
 
   mod.dialogOpen = function (context) {
     var cinput = commandInput();
     var cdialog = commandDialog();
-    cinput.value = "";
+    cinput.value = '';
     setContext(cdialog, context).show();
     cinput.focus();
     return mod;
@@ -2400,128 +2426,130 @@ shimi.commands = (function () {
   mod.dialogClose = function () {
     var cinput = commandInput();
     var cdialog = commandDialog();
-    setContext(cdialog, "").hide();
-    cinput.value = "";
+    setContext(cdialog, '').hide();
+    cinput.value = '';
     return mod;
   };
 
   return mod;
 })();
 // Shared document editing stuff plus initialization.
-shimi.documents = (function () {
+shimi.documents = (function() {
+  'use strict';
+
   var mod = {};
 
-  var indexForm = function () {
-     $('#index-filter-form select').change(function () {
+  var indexForm = function() {
+    $('#index-filter-form select').change(function() {
       shimi.indexui.get();
     });
 
     return mod;
   };
-  var loadHash = function (urlHash) {
+  var loadHash = function(urlHash) {
     if (urlHash) {
       shimi.viewui.get(urlHash);
     }
 
     return mod;
   };
-  var allDocContainer = function () {
-    return $("#all-document-container");
+  var allDocContainer = function() {
+    return $('#all-document-container');
   };
-  var versionKey = function () {
-    return mod.identifier() + "_version";
+  var versionKey = function() {
+    return mod.identifier() + '_version';
   };
-  var infoKey = function () {
-    return mod.identifier() + "_info";
+  var infoKey = function() {
+    return mod.identifier() + '_info';
   };
-  var labelsKey = function () {
-    return mod.identifier() + "_labels";
+  var labelsKey = function() {
+    return mod.identifier() + '_labels';
   };
-  var storeDoctype = function (doctype) {
+  var storeDoctype = function(doctype) {
     sessionStorage.setItem(infoKey(), doctype);
     shimi.dispatch.send('doctype-info-ready');
 
     return mod;
   };
 
-  mod.getVersion = function () {
+  mod.getVersion = function() {
     return sessionStorage.getItem(versionKey());
   };
 
-  mod.getCurrentVersion = function () {
-    return shimi.store(allDocContainer()).d("version");
+  mod.getCurrentVersion = function() {
+    return shimi.store(allDocContainer()).d('version');
   };
 
-  mod.isCurrentVersionStored = function () {
+  mod.isCurrentVersionStored = function() {
     return (mod.getVersion() && mod.getVersion() === mod.getCurrentVersion());
   };
 
-  mod.setVersion = function () {
+  mod.setVersion = function() {
     sessionStorage.setItem(versionKey(), mod.getCurrentVersion());
-    shimi.dispatch.send("version-set");
+    shimi.dispatch.send('version-set');
 
     return mod;
   };
 
-  mod.clearSession = function () {
+  mod.clearSession = function() {
     sessionStorage.clear();
-    shimi.dispatch.send("session-cleared");
+    shimi.dispatch.send('session-cleared');
 
     return mod;
   };
 
-  mod.checkVersion = function () {
+  mod.checkVersion = function() {
     if (mod.isCurrentVersionStored()) {
-      shimi.dispatch.send("labels-ready");
+      shimi.dispatch.send('labels-ready');
     } else {
-      shimi.dispatch.send("bad-session-state");
+      shimi.dispatch.send('bad-session-state');
     }
 
     return mod;
   };
 
-  mod.name = function () {
-    return shimi.store($("#all-document-container")).d("doctype");
+  mod.name = function() {
+    return shimi.store($('#all-document-container')).d('doctype');
   };
 
-  mod.project = function () {
-    return shimi.store($("#container")).get("project-id");
+  mod.project = function() {
+    return shimi.store($('#container')).get('project-id');
   };
 
-  mod.identifier = function () {
-    return mod.project() + "_" + mod.name();
+  mod.identifier = function() {
+    return mod.project() + '_' + mod.name();
   };
 
-  mod.info = function () {
+  mod.info = function() {
     return JSON.parse(sessionStorage.getItem(infoKey()));
   };
 
-  mod.loadDoctype = function () {
-    $.getJSON("./", function (data) {
+  mod.loadDoctype = function() {
+    $.getJSON('./', function(data) {
       storeDoctype(JSON.stringify(data));
     });
 
     return mod;
   };
 
-  mod.makeLabels = function () {
+  mod.makeLabels = function() {
     var info = mod.info();
     var labels = {};
 
-    info.fieldsets.forEach(function (fieldset) {
-      fieldset.fields.forEach(function (field) {
+    info.fieldsets.forEach(function(fieldset) {
+      fieldset.fields.forEach(function(field) {
         labels[field._id] = [fieldset.label, field.label];
       });
     });
 
     sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-    shimi.dispatch.send("labels-ready");
+    shimi.dispatch.send('labels-ready');
 
     return mod;
   };
 
-  mod.init = function () {
-    $('form').on('submit', function () {
+  mod.init = function() {
+    $('form').on('submit', function() {
       return false;
     });
     mod.checkVersion();
@@ -2529,13 +2557,15 @@ shimi.documents = (function () {
     shimi.indexui.iOpts().get();
     indexForm();
     shimi.editui.init();
-    loadHash($(location)[0].hash.split("#")[1]);
+    loadHash($(location)[0].hash.split('#')[1]);
   };
 
   return mod;
 })();
 // Edit pane UI elements
 shimi.editui = (function () {
+  'use strict';
+
   var mod = {};
 
   // Imports
@@ -2563,7 +2593,7 @@ shimi.editui = (function () {
     invalidTab.addClass('ui-state-error');
     invalid.addClass('ui-state-error');
 
-    flash(title, body.fieldname + " " + body.message).error();
+    flash(title, body.fieldname + ' ' + body.message).error();
 
     return mod;
   };
@@ -2576,7 +2606,7 @@ shimi.editui = (function () {
       }).join('');
     };
 
-    $("#last-added [data-field-instance]").each(function (index, item) {
+    $('#last-added [data-field-instance]').each(function (index, item) {
       var itemElem = $(item).first();
       var oldInstance = itemElem.attr('data-field-instance');
       var newInstance = oldInstance;
@@ -2595,14 +2625,14 @@ shimi.editui = (function () {
     });
 
     if (addInstances) {
-      $("#last-added").removeAttr("id");
+      $('#last-added').removeAttr('id');
     }
 
     return mod;
   };
 
   mod.init = function () {
-    var url = "documents/edit";
+    var url = 'documents/edit';
 
     $.get(url, function (documentEditHtml) {
 
@@ -2659,7 +2689,7 @@ shimi.editui = (function () {
 
       if (thedefault && thedefault !== '') {
         if (field.is('select.multiselect')) {
-          field.val(thedefault.split(","));
+          field.val(thedefault.split(','));
         } else if (field.is('input.boolean')) {
           field.attr('checked', thedefault === true);
         } else {
@@ -2685,14 +2715,14 @@ shimi.editui = (function () {
     var title;
     var s = store(saveButton());
     var root = $('#edit-document-form');
-    var document = s.d("document");
-    var rev = s.d("rev");
-    var url = "./documents/" + document + "?rev=" + rev;
+    var document = s.d('document');
+    var rev = s.d('rev');
+    var url = './documents/' + document + '?rev=' + rev;
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
+      doctype: s.d('doctype'),
+      description: s.d('description')
     };
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -2700,16 +2730,16 @@ shimi.editui = (function () {
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     $.ajax({
-      type: "PUT",
+      type: 'PUT',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
       complete: function (req, status) {
         if (req.status === 204 || req.status === 200) {
-          title = "Success";
-          body = "Your document was saved.";
+          title = 'Success';
+          body = 'Your document was saved.';
           shimi.viewui.get(document);
           shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
@@ -2734,8 +2764,8 @@ shimi.editui = (function () {
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
+      doctype: s.d('doctype'),
+      description: s.d('description')
     };
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -2743,15 +2773,15 @@ shimi.editui = (function () {
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     var postUrl = $.ajax({
-      type: "POST",
-      dataType: "json",
-      contentType: "application/json",
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
       complete: function (req, status) {
         if (req.status === 201) {
-          var title = "Success";
-          var body = "Your document was created.";
+          var title = 'Success';
+          var body = 'Your document was created.';
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
           saveButton().hide().attr('disabled', 'true');
@@ -2789,9 +2819,9 @@ shimi.editui = (function () {
   mod.toggleTextarea = function (target) {
     var textarea = $('#' + target.attr('data-group-id'));
 
-    if (target.attr("id") === textarea.attr("data-group-id")) {
+    if (target.attr('id') === textarea.attr('data-group-id')) {
       textarea.toggleClass('expanded');
-      textarea.next().next("span").toggleClass('expanded');
+      textarea.next().next('span').toggleClass('expanded');
     } else {
       textarea.toggleClass('expanded');
       target.toggleClass('expanded');
@@ -2803,12 +2833,14 @@ shimi.editui = (function () {
   return mod;
 })();
 shimi.fieldsets = (function () {
+  'use strict';
+
   var mod = {};
   var store = shimi.store;
   var utils = shimi.utils();
 
   var fsContainer = function (id) {
-    return $("#container-" + id);
+    return $('#container-' + id);
   };
 
   var dpath = function (source, category) {
@@ -2840,22 +2872,22 @@ shimi.fieldsets = (function () {
       field = $(field);
       var s = store(field);
       var value = getFieldValue(field);
-      var instance = s.f("instance");
+      var instance = s.f('instance');
 
       obj.fields[i] = {
-        id: s.f("field"),
-        name: s.f("name"),
-        label: s.f("label"),
-        head: s.f("head") === "true",
-        reversal: s.f("reversal") === "true",
-        required: s.f("required") === "true",
-        min: dateOrNumber(s.f("subcategory"), s.f("min")),
-        max: dateOrNumber(s.f("subcategory"), s.f("max")),
+        id: s.f('field'),
+        name: s.f('name'),
+        label: s.f('label'),
+        head: s.f('head') === 'true',
+        reversal: s.f('reversal') === 'true',
+        required: s.f('required') === 'true',
+        min: dateOrNumber(s.f('subcategory'), s.f('min')),
+        max: dateOrNumber(s.f('subcategory'), s.f('max')),
         instance: instance,
-        charseq: s.f("charseq"),
-        regex: s.f("regex"),
-        order: s.f("order") * 1,
-        subcategory: s.f("subcategory"),
+        charseq: s.f('charseq'),
+        regex: s.f('regex'),
+        order: s.f('order') * 1,
+        subcategory: s.f('subcategory'),
         value: value
       };
 
@@ -2868,7 +2900,7 @@ shimi.fieldsets = (function () {
   };
 
   var dateOrNumber = function (subcategory, fieldvalue) {
-    if (subcategory === "date") {
+    if (subcategory === 'date') {
       return fieldvalue;
     } else {
       return utils.stringToNumber(fieldvalue);
@@ -2878,10 +2910,10 @@ shimi.fieldsets = (function () {
   // Get the correct value for a boolean that can be null
   var getOpenboolean = function (value) {
     switch (value) {
-    case "true":
+    case 'true':
       value = true;
       break;
-    case "false":
+    case 'false':
       value = false;
       break;
     default:
@@ -2917,7 +2949,7 @@ shimi.fieldsets = (function () {
 
   // Items in select lists are URL encoded
   var getEncoded = function (value) {
-    return window.decodeURIComponent(value.replace(/\+/g, " "));
+    return window.decodeURIComponent(value.replace(/\+/g, ' '));
   };
 
   // Get the value from a field using the subcategory to ensure
@@ -2925,23 +2957,23 @@ shimi.fieldsets = (function () {
   var getFieldValue = function (field) {
     var value;
 
-    switch (store(field).f("subcategory")) {
-    case "boolean":
+    switch (store(field).f('subcategory')) {
+    case 'boolean':
       value = field.is('input:checkbox:checked');
       break;
-    case "openboolean":
+    case 'openboolean':
       value = getOpenboolean(field.val());
       break;
-    case "integer":
-    case "rational":
+    case 'integer':
+    case 'rational':
       value = getNumber(field.val());
       break;
-    case "multiselect":
-    case "docmultiselect":
+    case 'multiselect':
+    case 'docmultiselect':
       value = getMultiple(field.val());
       break;
-    case "select":
-    case "docselect":
+    case 'select':
+    case 'docselect':
       value = getEncoded(field.val());
       break;
     default:
@@ -2952,11 +2984,11 @@ shimi.fieldsets = (function () {
   };
 
   var initFields = function (container, callback, addInstances) {
-    var url = dpath(container, "field");
+    var url = dpath(container, 'field');
     var section = container.children('.fields').last();
     var prependIt = function (data) {
       if (addInstances) {
-        section.attr("id", "last-added");
+        section.attr('id', 'last-added');
       }
       section.prepend(data);
       if (callback) {
@@ -2977,9 +3009,9 @@ shimi.fieldsets = (function () {
 
   var fillMultiFieldsets = function (vfieldset) {
     vfieldset = $(vfieldset);
-    var id = store(vfieldset).fs("fieldset");
+    var id = store(vfieldset).fs('fieldset');
     var container = $('#container-' + id);
-    var url = dpath(vfieldset, "fieldset");
+    var url = dpath(vfieldset, 'fieldset');
 
     container.html('');
 
@@ -3021,19 +3053,19 @@ shimi.fieldsets = (function () {
 
   var setFieldValue = function (field, value, instance) {
     if (field.is('input.boolean')) {
-      field.prop("checked", value);
+      field.prop('checked', value);
     } else if (value && field.is('select.open-boolean')) {
       field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
       value = value.map(function (x) {
-        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
       });
       field.val(value);
     } else if (value && field.is('select.select')) {
-      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
       field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
-      field.val(decodeURIComponent(value.replace(/\+/g, " ")));
+      field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
     } else {
       field.val(value);
     }
@@ -3041,8 +3073,8 @@ shimi.fieldsets = (function () {
   };
 
   mod.initFieldset = function (fieldset, callback, addInstances) {
-    var url = dpath($(fieldset), "fieldset").toString();
-    var id = store($(fieldset)).fs("fieldset");
+    var url = dpath($(fieldset), 'fieldset').toString();
+    var id = store($(fieldset)).fs('fieldset');
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
@@ -3072,12 +3104,12 @@ shimi.fieldsets = (function () {
       var fields;
 
       var fsObj = {
-        id: s.fs("fieldset"),
-        multiple: s.fs("multiple") === "true",
-        collapse: s.fs("collapse") === "true",
-        name: s.fs("name"),
-        label: s.fs("label"),
-        order: s.fs("order") * 1
+        id: s.fs('fieldset'),
+        multiple: s.fs('multiple') === 'true',
+        collapse: s.fs('collapse') === 'true',
+        name: s.fs('name'),
+        label: s.fs('label'),
+        order: s.fs('order') * 1
       };
 
       fields = fsContainer(fsObj.id).children('.fields');
@@ -3104,7 +3136,7 @@ shimi.fieldsets = (function () {
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
-      if (fs.fs("multiple") === "false") {
+      if (fs.fs('multiple') === 'false') {
         mod.initFieldset(fieldset, false);
       }
     });
@@ -3118,7 +3150,7 @@ shimi.fieldsets = (function () {
 
   mod.fillFieldsets = function () {
     $('.fieldset-view').each(function (i, fieldset) {
-      if (store($(fieldset)).fs("multiple") === "true") {
+      if (store($(fieldset)).fs('multiple') === 'true') {
         fillMultiFieldsets(fieldset);
       } else {
         fillNormalFieldsets(fieldset);
@@ -3133,6 +3165,8 @@ shimi.fieldsets = (function () {
   return mod;
 })();
 shimi.indexui = (function () {
+  'use strict';
+
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
@@ -3153,7 +3187,7 @@ shimi.indexui = (function () {
   };
 
   mod.iOpts = function () {
-    var url = "indexes?as=options";
+    var url = 'indexes?as=options';
     var options;
 
     $.getJSON(url, function (data) {
@@ -3166,7 +3200,7 @@ shimi.indexui = (function () {
 
   mod.load = function (target) {
     var id = $(target).attr('href').slice(1);
-    $("#document-view").html("<em>Loading...</em>");
+    $('#document-view').html('<em>Loading...</em>');
     shimi.editui.clear();
     shimi.viewui.get(id);
 
@@ -3176,6 +3210,8 @@ shimi.indexui = (function () {
   return mod;
 })();
 shimi.searchui = (function () {
+  'use strict';
+
   var mod = {};
   var utils = shimi.utils();
   var sets = shimi.sets;
@@ -3214,7 +3250,7 @@ shimi.searchui = (function () {
   var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
 
   var indexVal = function () {
-    var val = $("#index-index-input").val();
+    var val = $('#index-index-input').val();
     if (val.length === 0) {
       return null;
     } else {
@@ -3232,22 +3268,22 @@ shimi.searchui = (function () {
 
   var clearStore = function () {
     var ident = getIdentifier();
-    localStorage.setItem(ident + "_searchIndex", null);
-    localStorage.setItem(ident + "_searchIndexLabel", null);
-    localStorage.setItem(ident + "_searchFields", null);
-    localStorage.setItem(ident + "_searchExclude", null);
-    localStorage.setItem(ident + "_searchInvert", null);
+    localStorage.setItem(ident + '_searchIndex', null);
+    localStorage.setItem(ident + '_searchIndexLabel', null);
+    localStorage.setItem(ident + '_searchFields', null);
+    localStorage.setItem(ident + '_searchExclude', null);
+    localStorage.setItem(ident + '_searchInvert', null);
   };
 
   var clearVals = function () {
     formElems.forEach(function (x) {
       var elem = x();
       switch (elem.attr('type')) {
-      case "hidden":
+      case 'hidden':
         elem.val('');
         break;
-      case "checkbox":
-        elem.prop("checked", false);
+      case 'checkbox':
+        elem.prop('checked', false);
         break;
       }
     });
@@ -3257,10 +3293,10 @@ shimi.searchui = (function () {
     formElems.forEach(function (x) {
       var elem = x();
       switch (elem.attr('type')) {
-      case "hidden":
+      case 'hidden':
         break;
-      case "checkbox":
-        elem.parent("div").hide();
+      case 'checkbox':
+        elem.parent('div').hide();
         break;
       default:
         elem.hide();
@@ -3270,7 +3306,7 @@ shimi.searchui = (function () {
 
   var fieldLabels = function () {
     var ident = getIdentifier();
-    var fieldlabels = JSON.parse(sessionStorage.getItem(ident + "_labels"));
+    var fieldlabels = JSON.parse(sessionStorage.getItem(ident + '_labels'));
     return fieldlabels;
   };
 
@@ -3288,13 +3324,13 @@ shimi.searchui = (function () {
     var ident = getIdentifier();
 
     searchFields().val(jFields);
-    localStorage.setItem(ident + "_searchFields", jFields);
+    localStorage.setItem(ident + '_searchFields', jFields);
 
     var linkLabels = fields.map(function (x) {
-      return searchFieldItem(x, fLabels[x].join(": "));
+      return searchFieldItem(x, fLabels[x].join(': '));
     });
 
-    sfls.html(linkLabels.join(" "));
+    sfls.html(linkLabels.join(' '));
 
     return true;
   };
@@ -3316,7 +3352,7 @@ shimi.searchui = (function () {
     var ident = getIdentifier();
     mod.singleField(fields);
     searchInvert().prop('checked', true);
-    localStorage.setItem(ident + "_searchInvert", true);
+    localStorage.setItem(ident + '_searchInvert', true);
     return mod;
   };
 
@@ -3337,15 +3373,15 @@ shimi.searchui = (function () {
       mod.singleField(fields);
     }
     searchExclude().prop('checked', true);
-    localStorage.setItem(ident + "_searchExclude", true);
+    localStorage.setItem(ident + '_searchExclude', true);
     return mod;
   };
 
   mod.indexOnly = function (index, indexLabel) {
     var ident = getIdentifier();
     mod.allFields();
-    localStorage.setItem(ident + "_searchIndex", index);
-    localStorage.setItem(ident + "_searchIndexLabel", indexLabel);
+    localStorage.setItem(ident + '_searchIndex', index);
+    localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
     searchIndex().val(index);
     searchIndexLabel().html(indexLabel);
     [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
@@ -3358,13 +3394,13 @@ shimi.searchui = (function () {
     var ident = getIdentifier();
     mod.indexOnly(index, indexLabel);
     searchInvert().prop('checked', true);
-    localStorage.setItem(ident + "_searchInvert", true);
+    localStorage.setItem(ident + '_searchInvert', true);
     return mod;
   };
 
   mod.getSearch = function () {
     var query = searchTerm().val();
-    var url = "documents/search?q=" + window.encodeURIComponent(query);
+    var url = 'documents/search?q=' + window.encodeURIComponent(query);
     var field = searchFields().val();
     var exclude = searchExclude().is(':checked');
     var invert = searchInvert().is(':checked');
@@ -3372,17 +3408,17 @@ shimi.searchui = (function () {
     var fieldlabels = fieldLabels();
 
     if (index) {
-      url = url + "&index=" + index;
+      url = url + '&index=' + index;
     } else {
       if (field) {
-        url = url + "&field=" + field;
+        url = url + '&field=' + field;
       }
       if (exclude) {
-        url = url + "&exclude=true";
+        url = url + '&exclude=true';
       }
     }
     if (invert) {
-      url = url + "&invert=true";
+      url = url + '&invert=true';
     }
 
     searchListing().hide();
@@ -3390,7 +3426,7 @@ shimi.searchui = (function () {
     $.get(url, function (searchResults) {
       searchListing().html(searchResults);
       $('.search-result-field-id').each(function (index, item) {
-        var label = fieldlabels[$(item).attr('data-field-field')].join(": ");
+        var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
         var target = $(item).children('a').first();
         target.html(label);
         target.attr('data-search-label', label);
@@ -3398,9 +3434,8 @@ shimi.searchui = (function () {
       if (!invert) {
         $('.search-results th').each(function (index, item) {
           var itemText = $.trim($(item).children('a').html());
-          var re = new RegExp("(" + query + ")", "g");
-          var newText =
-          itemText.replace(re, "<span class='highlight'>$1</span>");
+          var re = new RegExp('(' + query + ')', 'g');
+          var newText = itemText.replace(re, '<span class="highlight">$1</span>');
           $(item).children('a').html(newText);
         });
       }
@@ -3412,19 +3447,19 @@ shimi.searchui = (function () {
 
   mod.removeField = function (t) {
     var ident = getIdentifier();
-    var searchFields = localStorage.getItem(ident + "_searchFields");
+    var searchFields = localStorage.getItem(ident + '_searchFields');
     var newSearchFields;
     var fields = JSON.parse(searchFields);
     var newFields;
-    var id = $(t).attr("data-field-field");
+    var id = $(t).attr('data-field-field');
 
     if (fields !== null) {
       newFields = fields.filter(function (x) {
         return x !== id;
       });
       newSearchFields = JSON.stringify(newFields);
-      localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
-      localStorage.setItem(ident + "_searchIndex", null);
+      localStorage.setItem(ident + '_searchFields', (newFields.length === 0) ? null : newSearchFields);
+      localStorage.setItem(ident + '_searchIndex', null);
       mod.loadSearchVals();
     }
 
@@ -3433,11 +3468,11 @@ shimi.searchui = (function () {
 
   mod.addField = function (t) {
     var ident = getIdentifier();
-    var searchFields = localStorage.getItem(ident + "_searchFields");
+    var searchFields = localStorage.getItem(ident + '_searchFields');
     var newSearchFields;
     var fields = JSON.parse(searchFields);
     var newFields;
-    var id = $(t).attr("data-field-field");
+    var id = $(t).attr('data-field-field');
 
     if (fields === null) {
       fields = [];
@@ -3445,8 +3480,8 @@ shimi.searchui = (function () {
 
     newFields = shimi.sets.union(fields, id);
     newSearchFields = JSON.stringify(newFields);
-    localStorage.setItem(ident + "_searchFields", (newFields.length === 0) ? null : newSearchFields);
-    localStorage.setItem(ident + "_searchIndex", null);
+    localStorage.setItem(ident + '_searchFields', (newFields.length === 0) ? null : newSearchFields);
+    localStorage.setItem(ident + '_searchIndex', null);
     mod.loadSearchVals();
 
     return mod;
@@ -3457,9 +3492,9 @@ shimi.searchui = (function () {
     var ident = getIdentifier();
 
     if (val) {
-      localStorage.setItem(ident + "_searchFields", null);
-      localStorage.setItem(ident + "_searchIndex", val);
-      localStorage.setItem(ident + "_searchIndexLabel", $("option[value=" + val + "]").html());
+      localStorage.setItem(ident + '_searchFields', null);
+      localStorage.setItem(ident + '_searchIndex', val);
+      localStorage.setItem(ident + '_searchIndexLabel', $('option[value=' + val + ']').html());
       mod.loadSearchVals();
     }
 
@@ -3468,8 +3503,8 @@ shimi.searchui = (function () {
 
   mod.toggleInversion = function () {
     var ident = getIdentifier();
-    localStorage.setItem(ident + "_searchInvert", maybeTrue(searchInvert().is(":checked")));
-    localStorage.setItem(ident + "_searchExclude", null);
+    localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
+    localStorage.setItem(ident + '_searchExclude', null);
     mod.loadSearchVals();
 
     return mod;
@@ -3477,8 +3512,8 @@ shimi.searchui = (function () {
 
   mod.toggleExclusion = function () {
     var ident = getIdentifier();
-    localStorage.setItem(ident + "_searchExclude", maybeTrue(searchExclude().is(":checked")));
-    localStorage.getItem(ident + "_searchInvert", null);
+    localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
+    localStorage.getItem(ident + '_searchInvert', null);
     mod.loadSearchVals();
 
     return mod;
@@ -3486,14 +3521,14 @@ shimi.searchui = (function () {
 
   mod.loadSearchVals = function () {
     var ident = getIdentifier();
-    var exclude = localStorage.getItem(ident + "_searchExclude");
-    var invert = localStorage.getItem(ident + "_searchInvert");
-    var index = localStorage.getItem(ident + "_searchIndex");
-    var fieldids = localStorage.getItem(ident + "_searchFields");
+    var exclude = localStorage.getItem(ident + '_searchExclude');
+    var invert = localStorage.getItem(ident + '_searchInvert');
+    var index = localStorage.getItem(ident + '_searchIndex');
+    var fieldids = localStorage.getItem(ident + '_searchFields');
     var fields;
     var indexLabel;
     var params = [exclude, invert, index, fieldids].map(function (x) {
-      return (x === "null" || x === "false" || x === "true") ? JSON.parse(x) : x;
+      return (x === 'null' || x === 'false' || x === 'true') ? JSON.parse(x) : x;
     });
     var allNull = params.every(function (x) {
       return x === null;
@@ -3520,10 +3555,10 @@ shimi.searchui = (function () {
           mod.singleFieldInverse(fields);
         }
       } else if (params[1] === null) {
-        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
+        indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
         mod.indexOnly(index, indexLabel);
       } else if (params[1] === true) {
-        indexLabel = localStorage.getItem(ident + "_searchIndexLabel");
+        indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
         mod.indexInverse(index, indexLabel);
       }
     } catch (e) {
@@ -3537,10 +3572,10 @@ shimi.searchui = (function () {
   mod.toggleSelection = function (t) {
     var target = $(t);
 
-    if (target.is(":checked")) {
-      target.next("label").next("table").addClass("selected-for-save");
+    if (target.is(':checked')) {
+      target.next('label').next('table').addClass('selected-for-save');
     } else {
-      target.next("label").next("table").removeClass("selected-for-save");
+      target.next('label').next('table').removeClass('selected-for-save');
     }
 
     return mod;
@@ -3549,26 +3584,28 @@ shimi.searchui = (function () {
   return mod;
 })();
 shimi.setsui = (function () {
+  'use strict';
+
   var mod = {};
   var sets = shimi.sets;
   var utils = shimi.utils();
   var setA = function () {
-    return $("#document-set-a-input");
+    return $('#document-set-a-input');
   };
   var setB = function () {
-    return $("#document-set-b-input");
+    return $('#document-set-b-input');
   };
   var worksheetsSet = function () {
-    return $("#document-worksheets-set-input");
+    return $('#document-worksheets-set-input');
   };
   var op = function () {
-    return $("#document-set-operation-input");
+    return $('#document-set-operation-input');
   };
   var setListing = function () {
-    return $("#set-listing");
+    return $('#set-listing');
   };
   var sessionKey = function () {
-    return shimi.documents.identifier() + "_sets";
+    return shimi.documents.identifier() + '_sets';
   };
 
   var member = function (arr, x) {
@@ -3636,7 +3673,7 @@ shimi.setsui = (function () {
   var remove = function (setName) {
     removeSet(setName);
     render([]);
-    shimi.dispatch.send("sets-changed");
+    shimi.dispatch.send('sets-changed');
     return mod;
   };
 
@@ -3674,7 +3711,7 @@ shimi.setsui = (function () {
       });
       window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
     } else {
-      window.sessionStorage.settem(sessionKey(), "[]");
+      window.sessionStorage.settem(sessionKey(), '[]');
     }
 
     return mod;
@@ -3696,10 +3733,10 @@ shimi.setsui = (function () {
     var retval = [];
 
     switch (target) {
-    case "search":
+    case 'search':
       retval = selectedSaveResultsToArray();
       break;
-    case "sets":
+    case 'sets':
       retval = selectedElementsToArray();
       break;
     }
@@ -3709,11 +3746,11 @@ shimi.setsui = (function () {
 
   var selectedElementsToArray = function () {
     var retval;
-    var selected = $("input.set-element-selection:checked");
+    var selected = $('input.set-element-selection:checked');
 
     retval = $.map(selected, function (elem) {
-      var anchor = $(elem).parent("td").next("td").find("a").first();
-      var id = anchor.first().attr("href").replace(/^#/, "");
+      var anchor = $(elem).parent('td').next('td').find('a').first();
+      var id = anchor.first().attr('href').replace(/^#/, '');
       var context = anchor.html().trim();
       return [[context, id]];
     });
@@ -3722,11 +3759,11 @@ shimi.setsui = (function () {
 
   var selectedSaveResultsToArray = function () {
     var retval;
-    var selected = $("table.selected-for-save tr");
+    var selected = $('table.selected-for-save tr');
 
     retval = $.map(selected, function (elem) {
-      var id = $(elem).find("th a").first().attr("href").replace(/^#/, "");
-      var context = $(elem).find("td.search-result-context a").first().html().trim();
+      var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
+      var context = $(elem).find('td.search-result-context a').first().html().trim();
       return [[context, id]];
     });
 
@@ -3751,31 +3788,31 @@ shimi.setsui = (function () {
 
   mod.performOp = function () {
     switch (op().val()) {
-    case "view-a":
+    case 'view-a':
       view(setA().val());
       break;
-    case "view-b":
+    case 'view-b':
       view(setB().val());
       break;
-    case "remove-a":
+    case 'remove-a':
       remove(setA().val());
       break;
-    case "remove-b":
+    case 'remove-b':
       remove(setB().val());
       break;
-    case "union":
+    case 'union':
       union(setA().val(), setB().val());
       break;
-    case "intersection":
+    case 'intersection':
       intersection(setA().val(), setB().val());
       break;
-    case "symmetric-difference":
+    case 'symmetric-difference':
       symmetricDifference(setA().val(), setB().val());
       break;
-    case "relative-complement-b-in-a":
+    case 'relative-complement-b-in-a':
       relativeComplement(setA().val(), setB().val());
       break;
-    case "relative-complement-a-in-b":
+    case 'relative-complement-a-in-b':
       relativeComplement(setB().val(), setA().val());
       break;
     default:
@@ -3796,9 +3833,9 @@ shimi.setsui = (function () {
   };
 
   mod.saveSelected = function () {
-    var dialog = $("#new-set-dialog");
-    var name = $("#new-set-input").val();
-    var target = $("#new-set-target-input").val();
+    var dialog = $('#new-set-dialog');
+    var name = $('#new-set-input').val();
+    var target = $('#new-set-target-input').val();
     var selected;
     var newSet;
 
@@ -3807,21 +3844,21 @@ shimi.setsui = (function () {
       selected = selectedToArray(target);
       newSet = [name, selected];
       setSet(newSet);
-      $("#new-set-input").val("");
-      shimi.dispatch.send("sets-changed");
-      shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
+      $('#new-set-input').val('');
+      shimi.dispatch.send('sets-changed');
+      shimi.flash('Success:', 'Set "' + name + '" saved.').highlight();
     } else {
-      shimi.flash("Input invalid:", "You must supply a valid name.").error();
+      shimi.flash('Input invalid:', 'You must supply a valid name.').error();
     }
 
     return mod;
   };
 
   mod.toggleSelectAll = function (target) {
-    if ($(target).is(":checked")) {
-      $("input.set-element-selection").prop("checked", true);
+    if ($(target).is(':checked')) {
+      $('input.set-element-selection').prop('checked', true);
     } else {
-      $("input.set-element-selection").prop("checked", false);
+      $('input.set-element-selection').prop('checked', false);
     }
     return mod;
   };
@@ -3830,15 +3867,17 @@ shimi.setsui = (function () {
 })();
 // View pane UI elements
 shimi.viewui = (function (args) {
+  'use strict';
+
   var mod = {};
   var dv = function () {
-    return $("#document-view");
+    return $('#document-view');
   };
   var dvt = function () {
-    return $("#document-view-tree");
+    return $('#document-view-tree');
   };
   var viewInfo = function () {
-    return $("#document-view-info");
+    return $('#document-view-info');
   };
 
   // Make an object where fieldsets with deletions are identified.
@@ -3894,10 +3933,10 @@ shimi.viewui = (function (args) {
           }
         }
 
-        if (field.subcategory === "textarea") {
+        if (field.subcategory === 'textarea') {
           field.is_textarea = true;
-        } else if (field.value && field.subcategory.match("multi")) {
-          field.value = field.value.join(", ");
+        } else if (field.value && field.subcategory.match('multi')) {
+          field.value = field.value.join(', ');
         }
 
         return true;
@@ -3928,7 +3967,7 @@ shimi.viewui = (function (args) {
 
     function (i, item) {
       var newDate = (new Date($(item).text())).toLocaleString();
-      if (newDate !== "Invalid Date") {
+      if (newDate !== 'Invalid Date') {
         $(item).text(newDate);
       }
     });
@@ -3937,12 +3976,12 @@ shimi.viewui = (function (args) {
   };
 
   mod.get = function (id, rev, callback) {
-    var url = "documents/" + id;
+    var url = 'documents/' + id;
     var htmlTarget = dv();
     var tmpl;
 
     if (rev) {
-      url = url + "/" + rev;
+      url = url + '/' + rev;
       htmlTarget = dvt();
       tmpl = function (docJson) {
         return templates['document-view-tree'].render(docJson, {
@@ -3973,13 +4012,13 @@ shimi.viewui = (function (args) {
       }
 
       if (rev) {
-        $("#document-view-tree").addClass("oldrev");
+        $('#document-view-tree').addClass('oldrev');
       } else {
         var restoreButton = $('#document-restore-button');
         var editButton = $('#document-edit-button');
         var deleteButton = $('#document-delete-button');
 
-        if (shimi.store(restoreButton).d("deleted") === "true") {
+        if (shimi.store(restoreButton).d('deleted') === 'true') {
           editButton.hide();
           deleteButton.hide();
           restoreButton.show();
@@ -3991,7 +4030,7 @@ shimi.viewui = (function (args) {
   };
 
   mod.restore = function (id, rev) {
-    var url = "./documents/" + id + "?rev=" + rev;
+    var url = './documents/' + id + '?rev=' + rev;
     var restoreButton = $('#document-restore-button');
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
@@ -3999,14 +4038,14 @@ shimi.viewui = (function (args) {
     var title;
 
     $.ajax({
-      type: "DELETE",
+      type: 'DELETE',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       complete: function (req, status) {
         if (req.status === 200) {
-          title = "Success";
-          body = "Your document was restored.";
+          title = 'Success';
+          body = 'Your document was restored.';
 
           mod.get(id, null, function () {
             dv().fadeTo('slow', 1);
@@ -4019,7 +4058,7 @@ shimi.viewui = (function (args) {
 
           shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
-          body = "Document was erased and cannot be restored.";
+          body = 'Document was erased and cannot be restored.';
           title = req.statusText;
 
           shimi.flash(title, body).error();
@@ -4031,7 +4070,7 @@ shimi.viewui = (function (args) {
   };
 
   mod.del = function (id, rev) {
-    var url = "./documents/" + id + "?rev=" + rev;
+    var url = './documents/' + id + '?rev=' + rev;
     var restoreButton = $('#document-restore-button');
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
@@ -4039,17 +4078,17 @@ shimi.viewui = (function (args) {
     var title;
 
     $.ajax({
-      type: "DELETE",
+      type: 'DELETE',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       complete: function (req, status) {
         if (req.status === 200) {
-          title = "Success";
-          body = "Your document was deleted.";
+          title = 'Success';
+          body = 'Your document was deleted.';
           var response = JSON.parse(req.responseText);
 
-          shimi.store(restoreButton).put("document-rev", response.rev);
+          shimi.store(restoreButton).put('document-rev', response.rev);
 
           $('#document-delete-button').hide();
           $('#document-edit-button').hide();
@@ -4064,7 +4103,7 @@ shimi.viewui = (function (args) {
 
           shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
-          body = "Document appears to have been deleted already.";
+          body = 'Document appears to have been deleted already.';
           title = req.statusText;
 
           shimi.flash(title, body).error();
@@ -4076,10 +4115,10 @@ shimi.viewui = (function (args) {
   };
 
   mod.confirmIt = function (callback) {
-    if (window.confirm("Are you sure?")) {
+    if (window.confirm('Are you sure?')) {
       var s = shimi.store(viewInfo());
-      var id = s.d("document");
-      var rev = s.d("rev");
+      var id = s.d('document');
+      var rev = s.d('rev');
 
       callback(id, rev);
     }
@@ -4101,8 +4140,8 @@ shimi.viewui = (function (args) {
 
   mod.confirmDelete = function () {
     var s = shimi.store(viewInfo());
-    var id = s.d("document");
-    var rev = s.d("rev");
+    var id = s.d('document');
+    var rev = s.d('rev');
     return mod.confirmIt(function () {
       mod.del(id, rev);
     });
@@ -4110,8 +4149,8 @@ shimi.viewui = (function (args) {
 
   mod.confirmRestore = function () {
     var s = shimi.store(viewInfo());
-    var id = s.d("document");
-    var rev = s.d("rev");
+    var id = s.d('document');
+    var rev = s.d('rev');
     return mod.confirmIt(function () {
       mod.restore(id, rev);
     });
@@ -4125,8 +4164,8 @@ shimi.viewui = (function (args) {
 
   mod.fetchRevision = function (target) {
     var s = shimi.store($(target));
-    var id = s.d("document");
-    var oldrev = s.d("oldrev");
+    var id = s.d('document');
+    var oldrev = s.d('oldrev');
 
     $('.revision-link').removeClass('selected-revision');
     $(target).addClass('selected-revision');
@@ -4139,17 +4178,19 @@ shimi.viewui = (function (args) {
   return mod;
 })();
 shimi.worksheetui = (function () {
+  'use strict';
+
   var mod = {};
   var setsui = shimi.setsui;
 
   var worksheetsSet = function () {
-    return $("#document-worksheets-set-input");
+    return $('#document-worksheets-set-input');
   };
   var worksheetsArea = function () {
-    return $("#worksheet-area");
+    return $('#worksheet-area');
   };
   var worksheetName = function () {
-    return shimi.documents.identifier() + "_worksheet-template";
+    return shimi.documents.identifier() + '_worksheet-template';
   };
 
   mod.selectAllRows = function (select) {
@@ -4164,14 +4205,14 @@ shimi.worksheetui = (function () {
     return mod;
   };
 
-  // Set the proper class for a selected row and unset the "select all"
+  // Set the proper class for a selected row and unset the 'select all'
   mod.rowSelection = function (row, select) {
     if (select) {
       $('#' + row).addClass('selected-row');
-      $("#select-all-worksheet-rows").prop('checked', false);
+      $('#select-all-worksheet-rows').prop('checked', false);
     } else {
       $('#' + row).removeClass('selected-row');
-      $("#select-all-worksheet-rows").prop('checked', false);
+      $('#select-all-worksheet-rows').prop('checked', false);
     }
 
     return mod;
@@ -4225,7 +4266,7 @@ shimi.worksheetui = (function () {
 
   mod.buildTemplate = function () {
     var doctypeInfo = shimi.documents.info();
-    var metaTemp = "{{=<% %>=}}\n" + templates['worksheet'].render(doctypeInfo);
+    var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
     shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
 
     return mod;
@@ -4233,7 +4274,7 @@ shimi.worksheetui = (function () {
 
   mod.fillWorksheet = function () {
     var setName = worksheetsSet().val();
-    var url = "worksheets";
+    var url = 'worksheets';
     var complete = function (_ignore, req) {
       var data = JSON.parse(req.responseText);
       var ws = shimi.globals[worksheetName()].render(data);
@@ -4250,7 +4291,7 @@ shimi.worksheetui = (function () {
 
         shimi.form.send(url, setIds, 'POST', complete);
       } else {
-        shimi.flash("Could not load worksheet", "the current set size is limited to 250 items.").error();
+        shimi.flash('Could not load worksheet', 'the current set size is limited to 250 items.').error();
       }
     }
 
@@ -4260,14 +4301,16 @@ shimi.worksheetui = (function () {
   return mod;
 })();
 shimi.fm = (function () {
+  'use strict';
+
   var mod = {};
 
   var getDirListing = function (path) {
     if (path === undefined) {
-      path = "";
+      path = '';
     }
 
-    $.get("file_manager/list_dirs/" + path, function (data) {
+    $.get('file_manager/list_dirs/' + path, function (data) {
       $('#file-paths').html(data);
     });
   };
@@ -4286,11 +4329,11 @@ shimi.fm = (function () {
         }
       };
 
-      if (obj() && obj().message && obj().status !== "success") {
-        shimi.flash("Error", obj().message).error();
+      if (obj() && obj().message && obj().status !== 'success') {
+        shimi.flash('Error', obj().message).error();
         shimi.fm.refreshListings();
       } else if (obj().message) {
-        shimi.flash("Success", obj().message).highlight();
+        shimi.flash('Success', obj().message).highlight();
         shimi.fm.refreshListings();
       }
     });
@@ -4305,7 +4348,7 @@ shimi.fm = (function () {
   };
 
   mod.rootDir = function () {
-    var path = window.sessionStorage.fmPath = "";
+    var path = window.sessionStorage.fmPath = '';
     mod.refreshListings();
 
     return mod;
@@ -4313,9 +4356,9 @@ shimi.fm = (function () {
 
   mod.upDir = function () {
     var path = window.sessionStorage.fmPath;
-    var newpath = path.split("/");
+    var newpath = path.split('/');
     newpath.pop();
-    newpath = newpath.join("/");
+    newpath = newpath.join('/');
     window.sessionStorage.fmPath = newpath;
 
     mod.refreshListings(newpath);
@@ -4325,10 +4368,10 @@ shimi.fm = (function () {
 
   var getFileListing = function (path) {
     if (path === undefined) {
-      path = "";
+      path = '';
     }
 
-    $.get("file_manager/list_files/" + path, function (data) {
+    $.get('file_manager/list_files/' + path, function (data) {
       $('#file-listing').html(data);
     });
   };
@@ -4336,7 +4379,7 @@ shimi.fm = (function () {
   mod.editFile = function (target) {
     var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
-    var url = "file_manager/" + fileId;
+    var url = 'file_manager/' + fileId;
 
     $.getJSON(url, function (obj) {
       pathEditDialog(obj, path).dialog('open');
@@ -4349,10 +4392,10 @@ shimi.fm = (function () {
     var path = window.sessionStorage.fmPath;
     var fileId = target.attr('data-file-id');
     var fileRev = target.attr('data-file-rev');
-    var url = "file_manager/" + fileId + "?rev=" + fileRev;
+    var url = 'file_manager/' + fileId + '?rev=' + fileRev;
     var complete = function () {
       mod.refreshListings(path);
-      shimi.flash("Success", "File Deleted").highlight();
+      shimi.flash('Success', 'File Deleted').highlight();
     };
 
     shimi.form.send(url, null, 'DELETE', complete, target);
@@ -4364,7 +4407,7 @@ shimi.fm = (function () {
     var pathInput = $('#file-path-input');
 
     if (obj.path) {
-      pathInput.val(obj.path.join("/"));
+      pathInput.val(obj.path.join('/'));
     } else {
       pathInput.val('');
     }
@@ -4373,19 +4416,19 @@ shimi.fm = (function () {
       autoOpen: false,
       modal: true,
       buttons: {
-        "Move": function () {
-          var url = "file_manager/" + obj._id + "?rev=" + obj._rev;
+        'Move': function () {
+          var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
           var complete = function () {
             mod.refreshListings(path);
-            shimi.flash("Success", "File Moved").highlight();
+            shimi.flash('Success', 'File Moved').highlight();
           };
 
-          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split("/");
+          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
           shimi.form.send(url, obj, 'PUT', complete, dialog);
-          $(this).dialog("close");
+          $(this).dialog('close');
         },
-        "Cancel": function () {
-          $(this).dialog("close");
+        'Cancel': function () {
+          $(this).dialog('close');
         }
       }
     });
@@ -4401,13 +4444,15 @@ shimi.fm = (function () {
   return mod;
 })();
 shimi.initIndexBuilderDialog = function (indexDoctype) {
-  var builderOr = $("#builder-or-input");
-  var builderParen = $("#builder-paren-input");
-  var builderNegate = $("#builder-negate-input");
-  var builderOperator = $("#builder-operator-input").inputDisable();
-  var builderArgument = $("#builder-argument-input").inputDisable();
-  var builderFieldset = $("#builder-fieldset-input").inputDisable();
-  var builderField = $("#builder-field-input").inputDisable();
+  'use strict';
+
+  var builderOr = $('#builder-or-input');
+  var builderParen = $('#builder-paren-input');
+  var builderNegate = $('#builder-negate-input');
+  var builderOperator = $('#builder-operator-input').inputDisable();
+  var builderArgument = $('#builder-argument-input').inputDisable();
+  var builderFieldset = $('#builder-fieldset-input').inputDisable();
+  var builderField = $('#builder-field-input').inputDisable();
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
@@ -4480,11 +4525,11 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
     });
   };
 
-  var dialog = $("#index-builder-dialog").dialog({
+  var dialog = $('#index-builder-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Create": function () {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
@@ -4504,37 +4549,37 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
         if (checkResult) {
           if (builderOr.is(':checked')) {
             $.get(condition_url, {
-              "is_or": true
+              'is_or': true
             }, function (data) {
               appendCondition(data);
             });
           } else if (builderParen.val()) {
             $.get(condition_url, {
-              "is_or": false,
-              "parens": builderParen.val(),
-              "negate": false
+              'is_or': false,
+              'parens': builderParen.val(),
+              'negate': false
             }, function (data) {
               appendCondition(data);
             });
           } else {
             $.get(condition_url, {
-              "is_or": false,
-              "parens": false,
-              "negate": builderNegate.is(':checked'),
-              "fieldset": builderFieldset.val(),
-              "field": builderField.val(),
-              "operator": builderOperator.val(),
-              "argument": builderArgument.val()
+              'is_or': false,
+              'parens': false,
+              'negate': builderNegate.is(':checked'),
+              'fieldset': builderFieldset.val(),
+              'field': builderField.val(),
+              'operator': builderOperator.val(),
+              'argument': builderArgument.val()
             }, function (data) {
               appendCondition(data);
             });
           }
 
-          $(this).dialog("close");
+          $(this).dialog('close');
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {
@@ -4553,6 +4598,8 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
   return dialog;
 };
 shimi.ieditui = (function () {
+  'use strict';
+
   var mod = {};
 
   var tableBody = function () {
@@ -4565,16 +4612,16 @@ shimi.ieditui = (function () {
 
   var fixArgumentType = function (argument, subcategory, operator) {
     switch (subcategory) {
-    case "integer":
-    case "rational":
+    case 'integer':
+    case 'rational':
       argument = argument * 1;
       break;
     }
 
     switch (operator) {
-    case "hasExactly":
-    case "hasGreater":
-    case "hasLess":
+    case 'hasExactly':
+    case 'hasGreater':
+    case 'hasLess':
       argument = Math.floor(argument * 1);
       break;
     }
@@ -4587,19 +4634,19 @@ shimi.ieditui = (function () {
 
     function (index, row) {
       row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') === "true";
+      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
       var paren = row.find('td.paren-condition').attr('data-value');
       var condition;
 
       if (is_or) {
         condition = {
-          "is_or": true,
-          "parens": false
+          'is_or': true,
+          'parens': false
         };
       } else if (paren) {
         condition = {
-          "is_or": false,
-          "parens": paren
+          'is_or': false,
+          'parens': paren
         };
       } else {
         var fieldId = row.find('td.field-condition').attr('data-value');
@@ -4607,19 +4654,19 @@ shimi.ieditui = (function () {
         var argument = row.find('td.argument-condition').attr('data-value');
         var fieldDoc = shimi.ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
         var negate =
-        row.find('td.negate-condition').attr('data-value') === "true";
+        row.find('td.negate-condition').attr('data-value') === 'true';
         var operator = row.find('td.operator-condition').attr('data-value');
 
         argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
 
         condition = {
-          "is_or": false,
-          "parens": false,
-          "negate": negate,
-          "fieldset": fieldsetId,
-          "field": fieldId,
-          "operator": operator,
-          "argument": argument
+          'is_or': false,
+          'parens': false,
+          'negate': negate,
+          'fieldset': fieldsetId,
+          'field': fieldId,
+          'operator': operator,
+          'argument': argument
         };
       }
 
@@ -4632,18 +4679,18 @@ shimi.ieditui = (function () {
   var saveIndex = function (buttonData, completeFunction) {
     var indexId = buttonData.attr('data-index-id');
     var indexRev = buttonData.attr('data-index-rev');
-    var url = "indexes/" + indexId + "?rev=" + indexRev;
+    var url = 'indexes/' + indexId + '?rev=' + indexRev;
     var doctype = buttonData.attr('data-index-doctype');
 
     var obj = {
-      "_id": indexId,
-      "category": "index",
-      "doctype": doctype,
-      "show_deleted": buttonData.attr('data-index-show_deleted') === "true",
-      "fields": JSON.parse(buttonData.attr('data-index-fields')),
-      "fields_label": JSON.parse(buttonData.attr('data-index-fields_label')),
-      "name": buttonData.attr('data-index-name'),
-      "conditions": getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+      '_id': indexId,
+      'category': 'index',
+      'doctype': doctype,
+      'show_deleted': buttonData.attr('data-index-show_deleted') === 'true',
+      'fields': JSON.parse(buttonData.attr('data-index-fields')),
+      'fields_label': JSON.parse(buttonData.attr('data-index-fields_label')),
+      'name': buttonData.attr('data-index-name'),
+      'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
     };
 
     if (buttonData.attr('data-index-replace_function')) {
@@ -4658,18 +4705,18 @@ shimi.ieditui = (function () {
   var deleteIndex =
 
   function (indexId, indexRev, completeMessage, completeFunction) {
-    var url = "indexes/" + indexId + "?rev=" + indexRev;
+    var url = 'indexes/' + indexId + '?rev=' + indexRev;
     var title;
     var body;
 
     $.ajax({
-      type: "DELETE",
+      type: 'DELETE',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       complete: function (req, status) {
         if (req.status === 204) {
-          title = "Success";
+          title = 'Success';
           body = completeMessage;
 
           completeFunction();
@@ -4681,7 +4728,7 @@ shimi.ieditui = (function () {
 
           shimi.flash(title, body.message).error();
         } else if (req.status === 404) {
-          body = "Index appears to have been deleted already.";
+          body = 'Index appears to have been deleted already.';
           title = req.statusText;
 
           shimi.flash(title, body).error();
@@ -4694,7 +4741,7 @@ shimi.ieditui = (function () {
 
   mod.init = function (target) {
     var indexId = $(target).attr('data-index-id');
-    var url = "indexes/" + indexId;
+    var url = 'indexes/' + indexId;
     var htmlTarget = $('#index-conditions');
 
     $.get(url, function (indexData) {
@@ -4712,12 +4759,12 @@ shimi.ieditui = (function () {
     if (bData.length !== 0) {
       var completeFunction = function () {
         mod.init(bData);
-        shimi.flash("Success", "Your index has been saved.").highlight();
+        shimi.flash('Success', 'Your index has been saved.').highlight();
       };
 
       saveIndex(bData, completeFunction);
     } else {
-      shimi.flash("Info", "No index has been chosen to save.").highlight();
+      shimi.flash('Info', 'No index has been chosen to save.').highlight();
     }
   };
 
@@ -4725,9 +4772,9 @@ shimi.ieditui = (function () {
     var bData = editingData();
 
     if (bData.length !== 0) {
-      shimi.initReplaceDialog().dialog("open");
+      shimi.initReplaceDialog().dialog('open');
     } else {
-      shimi.flash("Info", "You must choose an index first.").highlight();
+      shimi.flash('Info', 'You must choose an index first.').highlight();
     }
 
     return mod;
@@ -4738,9 +4785,9 @@ shimi.ieditui = (function () {
 
     if (bData.length !== 0) {
       shimi.initIndexBuilderDialog(
-      bData.attr('data-index-doctype')).dialog("open");
+      bData.attr('data-index-doctype')).dialog('open');
     } else {
-      shimi.flash("Info", "You must choose an index first.").highlight();
+      shimi.flash('Info', 'You must choose an index first.').highlight();
     }
 
     return mod;
@@ -4752,7 +4799,7 @@ shimi.ieditui = (function () {
   };
 
   mod.newCond = function () {
-    shimi.initIndexNewDialog().dialog("open");
+    shimi.initIndexNewDialog().dialog('open');
     return mod;
   };
 
@@ -4762,17 +4809,17 @@ shimi.ieditui = (function () {
     if (bData.length !== 0) {
       var indexId = bData.attr('data-index-id');
       var indexRev = bData.attr('data-index-rev');
-      var completeMessage = "Your index has been deleted.";
+      var completeMessage = 'Your index has been deleted.';
       var completeFunction = function () {
         $('#index-conditions').empty();
         shimi.ilistingui.init();
       };
 
-      if (window.confirm("Are you sure?")) {
+      if (window.confirm('Are you sure?')) {
         deleteIndex(indexId, indexRev, completeMessage, completeFunction);
       }
     } else {
-      shimi.flash("Info", "No index has been chosen to delete.").highlight();
+      shimi.flash('Info', 'No index has been chosen to delete.').highlight();
     }
 
     return mod;
@@ -4781,6 +4828,8 @@ shimi.ieditui = (function () {
   return mod;
 })();
 shimi.ihelpers = (function () {
+  'use strict';
+
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
@@ -4799,24 +4848,24 @@ shimi.ihelpers = (function () {
     var options = $('#builder-operator-input');
 
     switch (fieldDoc.subcategory) {
-    case "select":
-    case "docselect":
-    case "text":
-    case "textarea":
-      disableOptions(options, ["member", "true"]);
+    case 'select':
+    case 'docselect':
+    case 'text':
+    case 'textarea':
+      disableOptions(options, ['member', 'true']);
       break;
-    case "integer":
-    case "rational":
-    case "date":
-      disableOptions(options, ["member", "true", "match"]);
+    case 'integer':
+    case 'rational':
+    case 'date':
+      disableOptions(options, ['member', 'true', 'match']);
       break;
-    case "boolean":
-    case "openboolean":
-      disableOptions(options, ["equal", "greater", "less", "member", "match"]);
+    case 'boolean':
+    case 'openboolean':
+      disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
       break;
-    case "multiselect":
-    case "docmultiselect":
-      disableOptions(options, ["equal", "greater", "less", "true", "match"]);
+    case 'multiselect':
+    case 'docmultiselect':
+      disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
       break;
     }
 
@@ -4842,7 +4891,7 @@ shimi.ihelpers = (function () {
       if (fdoc.subcategory === 'date') {
         argumentField.removeAttr('disabled');
         argumentField.datepicker({
-          dateFormat: "yy-mm-dd"
+          dateFormat: 'yy-mm-dd'
         });
       } else {
         argumentField.removeAttr('disabled');
@@ -4858,18 +4907,18 @@ shimi.ihelpers = (function () {
 
     if (fdoc) {
       switch (operatorField.val()) {
-      case "true":
-      case "isDefined":
-      case "blank":
-        argumentField.attr('disabled', 'disabled').val("");
+      case 'true':
+      case 'isDefined':
+      case 'blank':
+        argumentField.attr('disabled', 'disabled').val('');
         break;
-      case "equal":
-      case "member":
-      case "greater":
-      case "less":
-      case "hasExactly":
-      case "hasGreater":
-      case "hasLess":
+      case 'equal':
+      case 'member':
+      case 'greater':
+      case 'less':
+      case 'hasExactly':
+      case 'hasGreater':
+      case 'hasLess':
         dateOrText(argumentField, fdoc);
         break;
       }
@@ -4942,7 +4991,7 @@ shimi.ihelpers = (function () {
     indexFieldset.change(function () {
       var callback2;
 
-      if (typeof indexDoctype !== "string") {
+      if (typeof indexDoctype !== 'string') {
         indexDoctype = indexDoctype.val();
       }
 
@@ -4997,10 +5046,12 @@ shimi.ihelpers = (function () {
   return mod;
 })();
 shimi.ilistingui = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.init = function () {
-    var url = "indexes";
+    var url = 'indexes';
     var target = $('#index-index-listing');
     var listing;
 
@@ -5015,12 +5066,14 @@ shimi.ilistingui = (function () {
   return mod;
 })();
 shimi.ipreviewui = (function () {
+  'use strict';
+
   var mod = {};
   var index = shimi.index;
 
   mod.get = function (startkey, startid, prevkeys, previds) {
     var indexId = $('#index-editing-data').attr('data-index-id');
-    var url = 'indexes/' + indexId + "/view";
+    var url = 'indexes/' + indexId + '/view';
     var target = $('#index-list-view');
     var filterForm = $('#index-filter-form input');
 
@@ -5036,48 +5089,50 @@ shimi.ipreviewui = (function () {
 
   return mod;
 })();
-shimi.initIndexNewDialog = function () {
-  var indexDoctype = $("#index-doctype-input");
-  var indexFieldset = $("#index-fieldset-input").inputDisable();
-  var indexField = $("#index-field-input").inputDisable();
-  var indexName = $("#index-name-input");
-  var indexShowDeleted = $("#index-show_deleted-input");
+shimi.initIndexNewDialog = function() {
+  'use strict';
+
+  var indexDoctype = $('#index-doctype-input');
+  var indexFieldset = $('#index-fieldset-input').inputDisable();
+  var indexField = $('#index-field-input').inputDisable();
+  var indexName = $('#index-name-input');
+  var indexShowDeleted = $('#index-show_deleted-input');
   var evs = shimi.ihelpers.evs;
 
-  var doctypeEvents = function () {
-    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
+  var doctypeEvents = function() {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
       indexFieldset.inputDisable();
       indexField.inputDisable();
 
-      return function () {
+      return function() {
         indexFieldset.inputEnable();
       };
     });
   };
 
-  var fieldsetEvents = function () {
-    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
+  var fieldsetEvents = function() {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
       indexField.inputDisable();
 
-      return function () {
+      return function() {
         indexField.inputEnable();
       };
     });
   };
 
-  var getLabelForVal = function (val) {
+  var getLabelForVal = function(val) {
     return $('#index-new-dialog option[value="' + val + '"]').text();
   };
 
-  var getLabel = function () {
-    return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(":");
+  var getLabel = function() {
+    return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
   };
 
-  var dialog = $("#index-new-dialog").dialog({
+  var dialog = $('#index-new-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Create": function () {
+      'Create': function() {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
@@ -5085,26 +5140,26 @@ shimi.initIndexNewDialog = function () {
 
         if (checkResult) {
           var obj = {
-            "category": "index",
-            "name": indexName.val(),
-            "show_deleted": indexShowDeleted.is(':checked'),
-            "conditions": [],
-            "doctype": indexDoctype.val(),
-            "fields_label": [getLabel()],
-            "fields": [indexField.val()]
+            'category': 'index',
+            'name': indexName.val(),
+            'show_deleted': indexShowDeleted.is(':checked'),
+            'conditions': [],
+            'doctype': indexDoctype.val(),
+            'fields_label': [getLabel()],
+            'fields': [indexField.val()]
           },
-              complete = function (context) {
-              shimi.ilistingui.init();
-              $(context).dialog("close");
-              };
-          shimi.form.send("indexes", obj, 'POST', complete, this);
+          complete = function(context) {
+            shimi.ilistingui.init();
+            $(context).dialog('close');
+          };
+          shimi.form.send('indexes', obj, 'POST', complete, this);
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function() {
+        $(this).dialog('close');
       }
     },
-    close: function () {
+    close: function() {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
       shimi.form.clear($('.input')).removeClass('ui-state-error');
@@ -5116,7 +5171,9 @@ shimi.initIndexNewDialog = function () {
 
   return dialog;
 };
-shimi.initReplaceDialog = function () {
+shimi.initReplaceDialog = function() {
+  'use strict';
+
   var replaceFunction = $('#index-replace_function-input');
   var indexData = $('#index-editing-data');
   var remove = $('#index-remove_function-input');
@@ -5127,11 +5184,11 @@ shimi.initReplaceDialog = function () {
     shimi.form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
-  var dialog = $("#index-replace-dialog").dialog({
+  var dialog = $('#index-replace-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Save": function () {
+      'Save': function() {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
@@ -5146,20 +5203,20 @@ shimi.initReplaceDialog = function () {
 
           if (checkResult) {
             indexData.attr('data-index-replace_function', replaceFunction.val());
-            $('#replace-function-message').text("This index has a replacement function.");
+            $('#replace-function-message').text('This index has a replacement function.');
           }
         } else {
           indexData.removeAttr('data-index-replace_function');
           $('#replace-function-message').empty();
         }
 
-        $(this).dialog("close");
+        $(this).dialog('close');
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function() {
+        $(this).dialog('close');
       }
     },
-    close: function () {
+    close: function() {
       shimi.form.clear(replaceFunction).removeClass('ui-state-error');
     }
   });
@@ -5167,20 +5224,22 @@ shimi.initReplaceDialog = function () {
   return dialog;
 };
 shimi.projectui = (function () {
+  'use strict';
+
   var mod = {};
 
   var deleteProject = function (id) {
-    if (window.confirm("Are you sure? This is permanent.")) {
+    if (window.confirm('Are you sure? This is permanent.')) {
       $.ajax({
-        type: "DELETE",
-        url: "/projects/" + id,
-        dataType: "json",
-        contentType: "application/json",
+        type: 'DELETE',
+        url: '/projects/' + id,
+        dataType: 'json',
+        contentType: 'application/json',
         complete: function (req, status) {
           if (req.status === 204) {
             mod.init();
           } else {
-            window.alert("An error occurred" + req.status);
+            window.alert('An error occurred' + req.status);
           }
         }
       });
@@ -5188,26 +5247,26 @@ shimi.projectui = (function () {
   };
 
   mod.add = function () {
-    var projectName = $("#project-name");
-    var projectDescription = $("#project-description");
-    var tips = $(".validate-tips");
+    var projectName = $('#project-name');
+    var projectDescription = $('#project-description');
+    var tips = $('.validate-tips');
     var allFields = $([]).add(projectName).add(projectDescription);
 
-    var dialog = $("#add-dialog").dialog({
+    var dialog = $('#add-dialog').dialog({
       autoOpen: false,
       modal: true,
       buttons: {
-        "Add project": function () {
+        'Add project': function () {
           allFields.removeClass('ui-state-error');
 
-          var checkResult = shimi.form.checkLength(projectName, "project name", 1, 50, tips);
+          var checkResult = shimi.form.checkLength(projectName, 'project name', 1, 50, tips);
 
           if (checkResult) {
             $.ajax({
-              type: "POST",
-              url: "projects/index",
-              dataType: "json",
-              contentType: "application/json",
+              type: 'POST',
+              url: 'projects/index',
+              dataType: 'json',
+              contentType: 'application/json',
               processData: false,
               data: JSON.stringify({
                 name: projectName.val(),
@@ -5217,15 +5276,15 @@ shimi.projectui = (function () {
                 if (req.status === 201) {
                   mod.init();
                 } else {
-                  window.alert("An error occurred" + req.status);
+                  window.alert('An error occurred' + req.status);
                 }
               }
             });
-            $(this).dialog("close");
+            $(this).dialog('close');
           }
         },
-        "Cancel": function () {
-          $(this).dialog("close");
+        'Cancel': function () {
+          $(this).dialog('close');
         }
       },
       close: function () {
@@ -5237,14 +5296,14 @@ shimi.projectui = (function () {
   };
 
   mod.del = function (target) {
-    var id = $(target).attr("id");
+    var id = $(target).attr('id');
     deleteProject(id);
 
     return mod;
   };
 
   mod.init = function () {
-    var url = "/projects/index";
+    var url = '/projects/index';
 
     $.get(url, function (projects) {
       $('tbody').empty();
@@ -5255,6 +5314,8 @@ shimi.projectui = (function () {
   return mod;
 })();
 $(function () {
+  'use strict';
+
   $('.notification').hide();
 
   $('#loading').hide();

@@ -1,4 +1,6 @@
 function map(doc) {
+  'use strict';
+
   if (doc.category === 'fieldset') {
     emit([doc.doctype, doc._id, 'fieldset', doc.order], [doc.name, doc.label]);
   } else if (doc.category === 'field') {

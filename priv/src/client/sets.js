@@ -1,4 +1,6 @@
 shimi.sets = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.member = function (arr, x) {

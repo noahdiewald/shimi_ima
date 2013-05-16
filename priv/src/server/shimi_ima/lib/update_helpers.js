@@ -1,7 +1,9 @@
 var get_head_values = function(d) {
-  return d["head"].map(function(x) {
+  'use strict';
+
+  return d['head'].map(function(x) {
     var h = d.index[x];
-    if (typeof h[0] === "string") {
+    if (typeof h[0] === 'string') {
       return [JSON.stringify(h[1])];
     } else {
       return h.map(function(y) {
@@ -12,6 +14,8 @@ var get_head_values = function(d) {
 };
 
 var stamp = function(newDoc, doc, req) {
+  'use strict';
+
   var now = (new Date()).toUTCString();
   var message = {
     document_id: newDoc._id,
@@ -23,7 +27,7 @@ var stamp = function(newDoc, doc, req) {
     message.head_ids = newDoc.head;
     message.head_values = get_head_values(newDoc);
   }
-  
+
   if (!doc) {
     if (newDoc._id) {
       newDoc.created_at_ = now;
@@ -51,6 +55,8 @@ var stamp = function(newDoc, doc, req) {
 };
 
 var get_changes = function(newDoc, doc) {
+  'use strict';
+
   // This function is not implemented as efficiently as it could be but
   // I am more concerned with clarity at this point.
   var foldFields;
@@ -62,7 +68,7 @@ var get_changes = function(newDoc, doc) {
     } else {
       foldFields = require('lib/fields').fromFieldsetsFold;
     }
-  
+
     var makeChangeObject = function(field, fieldset) {
       var obj = {
         fieldset: fieldset.id,
@@ -87,11 +93,11 @@ var get_changes = function(newDoc, doc) {
         var val = JSON.stringify(field.value);
         if (acc[field.instance] === undefined) {
           acc[field.instance] = makeChangeObject(field, fieldset);
-          acc[field.instance]["newValue"] = val;
-        } else if (acc[field.instance]["originalValue"] === val) {
+          acc[field.instance]['newValue'] = val;
+        } else if (acc[field.instance]['originalValue'] === val) {
           delete acc[field.instance];
         } else {
-          acc[field.instance]["newValue"] = val;
+          acc[field.instance]['newValue'] = val;
         }
       });
       return acc;
