@@ -23,3 +23,5 @@ scratch\.txt
 node_modules
 .*\.couchapprc
 priv/indexes/
+coverage\.html
+

@@ -151,75 +151,14 @@ var simple_multifieldset_doc = {
   'reverse': []
 };
 
-Object.prototype.testEnv = true;
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
   return x.concat(y);
 };
 
-var identity = function(value) {
-  'use strict';
-
-  return value;
-};
-
-var fromFieldset = function(fieldset, mapfun) {
-  'use strict';
-
-  var map = function(fields) {
-    return fields.map(function(x) {
-      return mapfun(x, fieldset);
-    });
-  };
-
-  if (fieldset.multiple) {
-    return fieldset.multifields.reduce(function(acc, multifield) {
-      return Array.concat(acc, map(multifield.fields));
-    }, []);
-  } else {
-    return map(fieldset.fields);
-  }
-};
-
-var fromFieldsetsMapFold = function(fieldsets, mapfun, foldfun, init) {
-  'use strict';
-
-  if (init === undefined) {
-    init = [];
-  }
-  return fieldsets.reduce(function(acc, fieldset) {
-    return foldfun(acc, fromFieldset(fieldset, mapfun), fieldset);
-  }, init);
-};
-
-var fromFieldsets = function(fieldsets) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, identity, function(acc, fields) {
-    return Array.concat(acc, fields);
-  });
-};
-
-var fromFieldsetsFold = function(fieldsets, foldfun, init) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, identity, foldfun, init);
-};
-
-var fromFieldsetsMap = function(fieldsets, mapfun) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, mapfun, function(acc, fields) {
-    return Array.concat(acc, fields);
-  });
-};
-
-exports.fromFieldsetsMapFold = fromFieldsetsMapFold;
-exports.fromFieldsets = fromFieldsets;
-exports.fromFieldsetsFold = fromFieldsetsFold;
-exports.fromFieldsetsMap = fromFieldsetsMap;
-
-var assert = require('should');
+var fromFieldsets = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsets;
+var fromFieldsetsMap = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsetsMap;
+var fromFieldsetsFold = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsetsFold;
 
 describe('CouchDB shared field functions', function() {
   describe('when extracting fields from a fieldset', function() {

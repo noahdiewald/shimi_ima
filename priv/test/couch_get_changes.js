@@ -5,24 +5,17 @@
 //= fixtures/simple_multifieldset_doc2.js
 //= fixtures/simple_multifieldset_doc3.js
 
-// Avoid having to clutter the global name space and get lint complaints
-Object.prototype.testEnv = true;
-
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
   return x.concat(y);
 };
 
-//= ../src/server/shimi_ima/lib/fields.js
-//= ../src/server/shimi_ima/lib/update_helpers.js
-
-Object.prototype.foldFields = fromFieldsetsFold;
-
 var should = require('should');
+get_changes = require('../../src/server/shimi_ima/lib/update_helpers.js').get_changes;
 
 describe('CouchDB get_changes function', function() {
   describe('When making a single change', function() {
-    var changes = get_changes(simple_doc2, simple_doc);
+    var changes = get_changes(simple_doc2, simple_doc, true);
     it('should record it correctly', function() {
       changes['25250e2ead108a8f60213f2404006a4d'].newValue.should.equal('900');
       changes['25250e2ead108a8f60213f2404006a4d'].originalValue.should.equal('""');
@@ -38,13 +31,13 @@ describe('CouchDB get_changes function', function() {
     });
   });
   describe('When deleting and restoring', function() {
-    var changes = get_changes(simple_doc3, simple_doc2);
+    var changes = get_changes(simple_doc3, simple_doc2, true);
     it('should changes should be null', function() {
       should.strictEqual(changes, null);
     });
   });
   describe('When making multiple changes', function() {
-    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc);
+    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc, true);
     it('should record them correctly', function() {
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue.should.equal('"hand"');
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue.should.equal('"plan"');
@@ -53,21 +46,21 @@ describe('CouchDB get_changes function', function() {
     });
   });
   describe('When removing a multifieldset field', function() {
-    var changes = get_changes(simple_multifieldset_doc3, simple_multifieldset_doc2);
+    var changes = get_changes(simple_multifieldset_doc3, simple_multifieldset_doc2, true);
     it('should have an original but not new value', function() {
       should.not.exist(changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue);
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue.should.equal('"hand"');
     });
   });
   describe('When adding a multifieldset field', function() {
-    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc3);
+    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc3, true);
     it('should have an new but not original value', function() {
       should.not.exist(changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue);
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue.should.equal('"hand"');
     });
   });
   describe('When creating a document', function() {
-    var changes = get_changes(simple_multifieldset_doc2, null);
+    var changes = get_changes(simple_multifieldset_doc2, null, true);
     it('should changes should be null', function() {
       should.strictEqual(changes, null);
     });

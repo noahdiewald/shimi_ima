@@ -1,15 +1,14 @@
 //= fixtures/simple_doc.js
 //= fixtures/simple_multifieldset_doc.js
 
-Object.prototype.testEnv = true;
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
   return x.concat(y);
 };
 
-//= ../src/server/shimi_ima/lib/fields.js
-
-var assert = require('should');
+var fromFieldsets = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsets;
+var fromFieldsetsMap = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsetsMap;
+var fromFieldsetsFold = require('../../src/server/shimi_ima/lib/fields.js').fromFieldsetsFold;
 
 describe('CouchDB shared field functions', function() {
   describe('when extracting fields from a fieldset', function() {
