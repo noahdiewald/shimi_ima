@@ -51,11 +51,14 @@ rest_init(R, S) -> {ok, R, S}.
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R, S);
-        touch -> 
-            {Doctype, R1} = h:doctype(R),
-            {Exist, R2} = h:exists(Doctype, R1, S),
-            {Exist, R2, S};
+        touch -> h:exists_id(R, S);
         index -> h:exists_unless_post(R, S)
+    end.
+    
+allow_missing_post(R, S) ->
+    case proplists:get_value(target, S) of
+        touch -> {false, R, S};
+        _ -> {true, R, S}
     end.
 
 is_authorized(R, S) ->
@@ -106,7 +109,7 @@ json_update(R, S) ->
 % Helpers
 
 do_touch(R, S) ->
-    {[Doctype, Project], R1} = h:g([doctype, project], R),
+    {[Doctype, Project], R1} = h:g([id, project], R),
     document_toucher:start(Doctype, Project, S),
     {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
     {true, R2, S}.

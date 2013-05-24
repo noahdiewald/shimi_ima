@@ -61,9 +61,7 @@ to_html(R, S) ->
     {ok, Html} = render:render(index_tool_dtl, Vals),
     {Html, R3, S}.
 
-resource_exists(R, S) ->
-    {Exist, R2} = h:exists("", R, S),
-    {Exist, R2, S}.
+resource_exists(R, S) -> h:exists(null, R, S).
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).

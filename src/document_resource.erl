@@ -53,9 +53,7 @@ resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R1, S1);
         revision -> h:exists_id(R1, S1);
-        _ -> 
-            {true, R2} = h:exists(Doctype, R1, S),
-            h:exists_unless_post(R2, S)
+        _ -> h:exists_with_deps([Doctype], R1, S)
     end. 
 
 is_authorized(R, S) ->

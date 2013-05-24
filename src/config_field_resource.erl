@@ -48,12 +48,7 @@ rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        index -> 
-            {Doctype, R1} = h:doctype(R),
-            {true, R2} = h:exists(Doctype, R1, S),
-            {Fieldset, R3} = h:fieldset(R2),
-            {true, R4} = h:exists(Fieldset, R3, S),
-            h:exists_unless_post(R4, S);
+        index -> h:exists_with_deps([doctype, fieldset], R, S);
         identifier -> h:exists_id(R, S)
     end. 
 

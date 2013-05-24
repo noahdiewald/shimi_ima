@@ -38,6 +38,7 @@
          exists/3,
          exists_id/2,
          exists_unless_post/2,
+         exists_with_deps/3,
          extract_create_data/2,
          field/1,
          field_data/2,
@@ -160,18 +161,15 @@ doctype_data(R, S) ->
     {[Project, Doctype], R1} = g([project, doctype], R),
     {get(Doctype, Project, S), R1}.
 
--spec exists(string(), req_data(), req_state()) -> {boolean(), req_data()}.
+-spec exists(string()|null|undefined, req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists(Id, R, S) ->
     {Project, R1} = project(R),
-    {couch:exists(Id, Project, S), R1}.
+    {couch:exists(Id, Project, S), R1, S}.
 
 -spec exists_id(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_id(R, S) ->
-    {[Project, Id], R1} = g([project, id], R),
-    case Id of
-        undefined -> {false, R1, S};
-        _ -> {couch:exists(Id, Project, S), R1, S}
-    end.
+    {Id, R1} = id(R),
+    exists(Id, R1, S).
     
 -spec exists_unless_post(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_unless_post(R, S) ->
@@ -179,7 +177,24 @@ exists_unless_post(R, S) ->
         {<<"POST">>, R1} -> {false, R1, S};
         {_, R1} -> {true, R1, S}
     end.
-    
+
+-spec exists_with_deps([atom()|list()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+exists_with_deps([], R, S) ->
+    exists_unless_post(R, S);
+exists_with_deps([Binding|Rest], R, S) when is_atom(Binding), Binding /= undefined ->
+    {Value, R1} = ?MODULE:Binding(R),
+    exists_with_deps([Value|Rest], R1, S);
+exists_with_deps([BValue|_], R, S) when BValue =:= undefined ->
+    {ok, R1} = cowboy_req:reply(404, [], <<>>, R),
+    {halt, R1, S};
+exists_with_deps([BValue|Rest], R, S) when is_list(BValue) ->
+    case exists(BValue, R, S) of
+        {true, R1, S} -> exists_with_deps(Rest, R1, S);
+        _ ->
+            {ok, R1} = cowboy_req:reply(404, [], <<>>, R),
+            {halt, R1, S}
+    end.
+
 -spec extract_create_data(req_data(), req_state()) -> {req_data(), req_state()}.
 extract_create_data(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),

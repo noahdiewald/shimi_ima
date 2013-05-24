@@ -43,13 +43,7 @@ init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 
 rest_init(R, S) -> {ok, R, S}.
 
-resource_exists(R, S) ->
-    {Project, R1} = cowboy_req:binding(project, R),
-    DatabaseUrl = utils:adb() ++ binary_to_list(Project),
-    case ibrowse:send_req(DatabaseUrl, [], head) of
-        {ok, "200", _, _} -> {true, R1, S};
-        {ok, "404", _, _} -> {false, R1, S}
-    end. 
+resource_exists(R, S) -> h:exists(null, R, S).
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
