@@ -9,24 +9,24 @@
 //= fixtures/today_doc.js
 //= toLocaleFormat.js
 
-Object.prototype.testEnv = true;
-
-//= ../src/server/shimi_ima/validate_doc_update.js
-
-var assert = require('should');
+var should = require('should');
+var validate_doc_update = require('../../src/server/shimi_ima/lib/validate_doc_update.js').validate_doc_update;
 
 var roUser = function () {
-  validate(simple_doc, {}, {
+  return validate_doc_update(simple_doc, {}, {
     name: 'charlie',
     roles: ['readonly']
-  });
+  }, true);
 };
 
 var testCase = function (newDoc, saveDoc) {
   var testInstance = function () {
-    return validate(newDoc, saveDoc, {name: 'charlie', roles: []});
+    return validate_doc_update(newDoc, saveDoc, {
+      name: 'charlie',
+      roles: []
+    }, true);
   };
-  
+
   return testInstance;
 };
 

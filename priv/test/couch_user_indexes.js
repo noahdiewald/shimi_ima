@@ -26,26 +26,25 @@ var simple_user_index = {
   'prev_': '8-e3053a73fcf555a8a8b4e5d035678aaa'
 };
 
-Object.prototype.testEnv = true;
+var emit = function () {
+  return false;
+};
 
-var emit = function() {return false};
-
-//= ../src/server/shimi_ima/views/user_indexes/map.js
-
-var assert = require('should');
+var should = require('should');
+var map = require('../../src/server/shimi_ima/views/lib/user_indexes.js').user_indexes;
 
 var mapFunction = function() {
-  var fbody = map(simple_user_index).views.index.map;
-  return new Function('doc', 'var f = '+ fbody + '; return f(doc);');
+  var fbody = map(simple_user_index, emit, true).views.index.map;
+  return new Function('doc', 'var f = '+ fbody + '; return f(doc, true);');
 };
 
 describe('User index view map funtion', function() {
   describe('when encountering a user index', function() {
     it('should return an object with the correct _id', function() {
-      map(simple_user_index)._id.should.equal('_design/' + simple_user_index._id);
+      map(simple_user_index, emit, true)._id.should.equal('_design/' + simple_user_index._id);
     });
     it('should return an object with the correct version', function() {
-      map(simple_user_index).version.should.equal(simple_user_index._rev);
+      map(simple_user_index, emit, true).version.should.equal(simple_user_index._rev);
     });
     it('should return an object with an evaluable map function', function() {
       (function() {

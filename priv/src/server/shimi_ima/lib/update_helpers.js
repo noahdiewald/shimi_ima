@@ -63,8 +63,8 @@ var get_changes = function(newDoc, doc) {
   var changes = {};
 
   if (doc) {
-    if (Object.testEnv) {
-      foldFields = Object.foldFields;
+    if (arguments[2] === true) {
+      foldFields = require('./fields').fromFieldsetsFold;
     } else {
       foldFields = require('lib/fields').fromFieldsetsFold;
     }

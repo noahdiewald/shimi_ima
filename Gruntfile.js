@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-simple-mocha');
+  grunt.loadNpmTasks('grunt-mocha-cov');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-hogan');
 
@@ -18,14 +18,24 @@ module.exports = function(grunt) {
       'priv/test/server/validation.js': 'priv/test/couch_validation.js',
       'priv/test/server/fields.js': 'priv/test/couch_fields.js',
       'priv/test/server/get_changes.js': 'priv/test/couch_get_changes.js',
-      'priv/test/server/user_indexes.js': 'priv/test/user_indexes.js'
+      'priv/test/server/user_indexes.js': 'priv/test/couch_user_indexes.js'
     },
-    simplemocha: {
-      all: {
-        src: 'priv/test/server/*.js',
+    mochacov: {
+      unit: {
         options: {
-          globals: ['should']
+          reporter: 'spec'
         }
+      },
+      coverage: {
+        options: {
+          reporter: 'html-cov',
+          output: 'coverage.html',
+          coverage: true
+        }
+      },
+      options: {
+        ui: 'bdd',
+        files: 'priv/test/server/*.js'
       }
     },
     uglify: {
@@ -90,5 +100,5 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'simplemocha', 'uglify']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'mochacov:coverage', 'uglify']);
 };

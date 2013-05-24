@@ -438,198 +438,17 @@ var simple_multifieldset_doc3 = {
   'reverse': []
 };
 
-// Avoid having to clutter the global name space and get lint complaints
-Object.prototype.testEnv = true;
-
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
   return x.concat(y);
 };
 
-var identity = function(value) {
-  'use strict';
-
-  return value;
-};
-
-var fromFieldset = function(fieldset, mapfun) {
-  'use strict';
-
-  var map = function(fields) {
-    return fields.map(function(x) {
-      return mapfun(x, fieldset);
-    });
-  };
-
-  if (fieldset.multiple) {
-    return fieldset.multifields.reduce(function(acc, multifield) {
-      return Array.concat(acc, map(multifield.fields));
-    }, []);
-  } else {
-    return map(fieldset.fields);
-  }
-};
-
-var fromFieldsetsMapFold = function(fieldsets, mapfun, foldfun, init) {
-  'use strict';
-
-  if (init === undefined) {
-    init = [];
-  }
-  return fieldsets.reduce(function(acc, fieldset) {
-    return foldfun(acc, fromFieldset(fieldset, mapfun), fieldset);
-  }, init);
-};
-
-var fromFieldsets = function(fieldsets) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, identity, function(acc, fields) {
-    return Array.concat(acc, fields);
-  });
-};
-
-var fromFieldsetsFold = function(fieldsets, foldfun, init) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, identity, foldfun, init);
-};
-
-var fromFieldsetsMap = function(fieldsets, mapfun) {
-  'use strict';
-
-  return fromFieldsetsMapFold(fieldsets, mapfun, function(acc, fields) {
-    return Array.concat(acc, fields);
-  });
-};
-
-exports.fromFieldsetsMapFold = fromFieldsetsMapFold;
-exports.fromFieldsets = fromFieldsets;
-exports.fromFieldsetsFold = fromFieldsetsFold;
-exports.fromFieldsetsMap = fromFieldsetsMap;
-var get_head_values = function(d) {
-  'use strict';
-
-  return d['head'].map(function(x) {
-    var h = d.index[x];
-    if (typeof h[0] === 'string') {
-      return [JSON.stringify(h[1])];
-    } else {
-      return h.map(function(y) {
-        return [JSON.stringify(y[1])];
-      });
-    }
-  });
-};
-
-var stamp = function(newDoc, doc, req) {
-  'use strict';
-
-  var now = (new Date()).toUTCString();
-  var message = {
-    document_id: newDoc._id,
-    doctype: newDoc.doctype,
-    changes: newDoc.changes
-  };
-
-  if (newDoc.head) {
-    message.head_ids = newDoc.head;
-    message.head_values = get_head_values(newDoc);
-  }
-
-  if (!doc) {
-    if (newDoc._id) {
-      newDoc.created_at_ = now;
-      newDoc.created_by_ = req.userCtx.name;
-      message.timestamp = newDoc.created_at_;
-      message.user = newDoc.created_by_;
-    } else {
-      newDoc = null;
-      message = 'This application expects the document _id in the JSON body';
-    }
-  } else {
-    newDoc.updated_at_ = now;
-    newDoc.updated_by_ = req.userCtx.name;
-    newDoc.created_at_ = doc.created_at_;
-    newDoc.created_by_ = doc.created_by_;
-    message.timestamp = newDoc.updated_at_;
-    message.user = newDoc.updated_by_;
-    newDoc.prev_ = doc._rev;
-  }
-
-  return {
-    doc: newDoc,
-    message: message
-  };
-};
-
-var get_changes = function(newDoc, doc) {
-  'use strict';
-
-  // This function is not implemented as efficiently as it could be but
-  // I am more concerned with clarity at this point.
-  var foldFields;
-  var changes = {};
-
-  if (doc) {
-    if (Object.testEnv) {
-      foldFields = Object.foldFields;
-    } else {
-      foldFields = require('lib/fields').fromFieldsetsFold;
-    }
-
-    var makeChangeObject = function(field, fieldset) {
-      var obj = {
-        fieldset: fieldset.id,
-        fieldsetLabel: fieldset.label,
-        fieldsetInstance: fieldset.instance ? fieldset.instance : null,
-        field: field.id,
-        fieldLabel: field.label
-      };
-
-      return obj;
-    };
-    var oldInstances = foldFields(doc.fieldsets, function(acc, fields, fieldset) {
-      fields.forEach(function(field) {
-        var obj = makeChangeObject(field, fieldset);
-        obj.originalValue = JSON.stringify(field.value);
-        acc[field.instance] = obj;
-      });
-      return acc;
-    }, {});
-    changes = foldFields(newDoc.fieldsets, function(acc, fields, fieldset) {
-      fields.forEach(function(field) {
-        var val = JSON.stringify(field.value);
-        if (acc[field.instance] === undefined) {
-          acc[field.instance] = makeChangeObject(field, fieldset);
-          acc[field.instance]['newValue'] = val;
-        } else if (acc[field.instance]['originalValue'] === val) {
-          delete acc[field.instance];
-        } else {
-          acc[field.instance]['newValue'] = val;
-        }
-      });
-      return acc;
-    }, oldInstances);
-  }
-
-  if (Object.keys(changes).length === 0) {
-    return null;
-  } else {
-    return changes;
-  }
-};
-
-exports.get_changes = get_changes;
-exports.stamp = stamp;
-
-Object.prototype.foldFields = fromFieldsetsFold;
-
 var should = require('should');
+get_changes = require('../../src/server/shimi_ima/lib/update_helpers.js').get_changes;
 
 describe('CouchDB get_changes function', function() {
   describe('When making a single change', function() {
-    var changes = get_changes(simple_doc2, simple_doc);
+    var changes = get_changes(simple_doc2, simple_doc, true);
     it('should record it correctly', function() {
       changes['25250e2ead108a8f60213f2404006a4d'].newValue.should.equal('900');
       changes['25250e2ead108a8f60213f2404006a4d'].originalValue.should.equal('""');
@@ -645,13 +464,13 @@ describe('CouchDB get_changes function', function() {
     });
   });
   describe('When deleting and restoring', function() {
-    var changes = get_changes(simple_doc3, simple_doc2);
+    var changes = get_changes(simple_doc3, simple_doc2, true);
     it('should changes should be null', function() {
       should.strictEqual(changes, null);
     });
   });
   describe('When making multiple changes', function() {
-    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc);
+    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc, true);
     it('should record them correctly', function() {
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue.should.equal('"hand"');
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue.should.equal('"plan"');
@@ -660,21 +479,21 @@ describe('CouchDB get_changes function', function() {
     });
   });
   describe('When removing a multifieldset field', function() {
-    var changes = get_changes(simple_multifieldset_doc3, simple_multifieldset_doc2);
+    var changes = get_changes(simple_multifieldset_doc3, simple_multifieldset_doc2, true);
     it('should have an original but not new value', function() {
       should.not.exist(changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue);
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue.should.equal('"hand"');
     });
   });
   describe('When adding a multifieldset field', function() {
-    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc3);
+    var changes = get_changes(simple_multifieldset_doc2, simple_multifieldset_doc3, true);
     it('should have an new but not original value', function() {
       should.not.exist(changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].originalValue);
       changes['6cfbfe0501e6c8b947a4c2cc8941b2da'].newValue.should.equal('"hand"');
     });
   });
   describe('When creating a document', function() {
-    var changes = get_changes(simple_multifieldset_doc2, null);
+    var changes = get_changes(simple_multifieldset_doc2, null, true);
     it('should changes should be null', function() {
       should.strictEqual(changes, null);
     });
