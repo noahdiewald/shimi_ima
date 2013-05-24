@@ -29,13 +29,12 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         create_path/2,
          delete_resource/2,
          from_json/2,
          index_html/2,
          is_authorized/2,
          main_html/2,
-         post_is_create/2,
+         resource_exists/2,
          rest_init/2
         ]).
 -export([
@@ -55,7 +54,10 @@ allowed_methods(R, S) ->
         main -> {[<<"HEAD">>, <<"GET">>], R, S};
         identifier -> {[<<"HEAD">>, <<"DELETE">>], R, S}
     end.
-  
+
+resource_exists(R, S) ->
+    h:exists_unless_post(R, S).
+
 content_types_accepted(R, S) ->
     h:accept_json(R, S).
 
@@ -68,13 +70,6 @@ content_types_provided(R, S) ->
   
 delete_resource(R, S) ->
     h:delete_project(R, S).
-  
-post_is_create(R, S) ->
-    {true, R, S}.
-
-create_path(R, S) ->
-    Uuid = list_to_binary("/project-" ++ utils:uuid()),
-    {Uuid, R, [{newid, Uuid}|S]}.
   
 index_html(R, S) ->
     Json = couch:get_dbs(),
@@ -90,7 +85,7 @@ from_json(R, S) ->
     ProjectData = jsn:decode(Body),
     {ok, ProjectId} = project:create(ProjectData, S),
     database_seqs:set_seq(ProjectId, 0),
-    {true, R1, S}.
+    {{true, list_to_binary([$/|ProjectId])}, R1, S}.
 
 % Helpers
 

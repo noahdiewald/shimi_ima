@@ -64,8 +64,8 @@ identifier_exists(Id, R, S) ->
 
 index_exists("metadata", R, S) -> {true, R, S};
 index_exists(Fieldset, R, S) -> 
-    {Exist, R1} = h:exists(Fieldset, R, S),
-    {Exist, R1, S}.
+    {true, R1} = h:exists(Fieldset, R, S),
+    h:exists_unless_post(R1, S).
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).

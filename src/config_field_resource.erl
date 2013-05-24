@@ -30,13 +30,11 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         create_path/2,
          delete_resource/2,
          from_json/2,
          id_html/2,
          index_html/2,
          is_authorized/2,
-         post_is_create/2,
          resource_exists/2,
          rest_init/2
         ]).
@@ -49,19 +47,15 @@ init(_Transport, _R, _S) -> {upgrade, protocol, cowboy_rest}.
 rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
-  case proplists:get_value(target, S) of
-    index -> 
-      {Doctype, R1} = h:doctype(R),
-      {Exist1, R2} = h:exists(Doctype, R1, S),
-      case Exist1 of
-        true -> 
-          {Fieldset, R3} = h:fieldset(R2),
-          {Exist2, R4} = h:exists(Fieldset, R3, S),
-          {Exist2, R4, S};
-        F -> {F, R2, S}
-      end;
-    identifier -> h:exists_id(R, S)
-  end. 
+    case proplists:get_value(target, S) of
+        index -> 
+            {Doctype, R1} = h:doctype(R),
+            {true, R2} = h:exists(Doctype, R1, S),
+            {Fieldset, R3} = h:fieldset(R2),
+            {true, R4} = h:exists(Fieldset, R3, S),
+            h:exists_unless_post(R4, S);
+        identifier -> h:exists_id(R, S)
+    end. 
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -84,20 +78,6 @@ content_types_provided(R, S) ->
 delete_resource(R, S) ->
     h:delete(R, S).
   
-post_is_create(R, S) ->
-  {true, R, S}.
-
-create_path(R, S) ->
-    {ok, Body, R1} = cowboy_req:body(R),
-    Json = jsn:decode(Body),
-    {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
-                      undefined -> 
-                          GenId = list_to_binary(utils:uuid()),
-                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
-                      IdBin -> {IdBin, Json}
-                  end,
-    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
-  
 index_html(R, S) ->
     {[Doctype, Fieldset, Project], R1} = h:g([doctype, fieldset, project], R),
     {ok, Json} = q:field(Doctype, Fieldset, Project, S),
@@ -117,8 +97,8 @@ from_json(R, S) ->
 
 json_create(R, S) ->  
     {{ok, _, _}, R1} = h:update_doctype_version(R, S),
-    Json = proplists:get_value(posted_json, S),
-    h:create(Json, R1, S).
+    {R2, S1} = h:extract_create_data(R1, S),
+    h:create(proplists:get_value(posted_json, S1), R2, S1).
   
 json_update(R, S) ->
     {{ok, _, _}, R1} = h:update_doctype_version(R, S),

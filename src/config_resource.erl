@@ -29,9 +29,8 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
+         do_upgrade/2,
          is_authorized/2, 
-         post_is_create/2,
-         process_post/2,
          resource_exists/2,
          to_html/2,
          rest_init/2
@@ -60,28 +59,20 @@ allowed_methods(R, S) ->
         main -> {[<<"HEAD">>, <<"GET">>], R, S};
         upgrade -> {[<<"HEAD">>, <<"POST">>], R, S}
     end.
-  
-post_is_create(R, S) ->
-    case proplists:get_value(target, S) of
-        upgrade -> {false, R, S};
-        _Else -> {true, R, S}
-    end.
 
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
-        main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S};
-        upgrade -> {[{{<<"*">>, <<"*">>, []}, to_html}], R, S}
+        main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
     end.
   
 content_types_accepted(R, S) ->
-    h:accept_json(R, S).
+    {[{'*', do_upgrade}], R, S}.
 
-process_post(R, S) ->
+do_upgrade(R, S) ->
     {Project, R1} = cowboy_req:binding(project, R),
     DatabaseUrl = utils:adb() ++ binary_to_list(Project),
     spawn_link(project, upgrade, [DatabaseUrl]),
-    {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
-    {halt, R2, S}.
+    {true, R1, S}.
 
 to_html(R, S) ->
     User = proplists:get_value(user, S),

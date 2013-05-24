@@ -46,8 +46,8 @@ resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         index ->
             {Doctype, R1} = h:doctype(R),
-            {Exist, R2} = h:exists(Doctype, R1, S),
-            {Exist, R2, S};
+            {true, R2} = h:exists(Doctype, R1, S),
+            h:exists_unless_post(R2, S);
         identifier -> h:exists_id(R, S)
     end. 
 

@@ -30,11 +30,8 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         create_path/2,
          delete_resource/2,
          is_authorized/2,
-         post_is_create/2,
-         process_post/2,
          resource_exists/2,
          rest_init/2
         ]).
@@ -58,7 +55,7 @@ resource_exists(R, S) ->
             {Doctype, R1} = h:doctype(R),
             {Exist, R2} = h:exists(Doctype, R1, S),
             {Exist, R2, S};
-        index -> {true, R, S}
+        index -> h:exists_unless_post(R, S)
     end.
 
 is_authorized(R, S) ->
@@ -83,24 +80,6 @@ content_types_provided(R, S) ->
   
 delete_resource(R, S) ->
     h:delete(R, S).
-  
-post_is_create(R, S) ->
-    case proplists:get_value(target, S) of
-        touch -> {false, R, S};
-        _Else -> {true, R, S}
-    end.
-
-create_path(R, S) ->
-    {ok, Body, R1} = cowboy_req:body(R),
-    Json = jsn:decode(Body),
-    Id = jsn:get_value(<<"_id">>, Json),
-    {<<"/", Id/binary>>, R1, [{posted_json, Json}|S]}.
-
-process_post(R, S) ->
-    {[Doctype, Project], R1} = h:g([doctype, project], R),
-    document_toucher:start(Doctype, Project, S),
-    {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
-    {halt, R2, S}.
     
 index_html(R, S) ->
     {Project, R1} = h:project(R),
@@ -112,17 +91,25 @@ id_html(R, S) ->
   
 from_json(R, S) ->
     case proplists:get_value(target, S) of
+        touch -> do_touch(R, S);
         index -> json_create(R, S);
         identifier -> json_update(R, S)
     end.
 
 json_create(R, S) ->  
-    i:create(R, S).
+    {R1, S1} = h:extract_create_data(R, S),
+    i:create(R1, S1).
 
 json_update(R, S) ->
     i:update(R, S).
 
 % Helpers
+
+do_touch(R, S) ->
+    {[Doctype, Project], R1} = h:g([doctype, project], R),
+    document_toucher:start(Doctype, Project, S),
+    {ok, R2} = cowboy_req:reply(204, [], <<>>, R1),
+    {true, R2, S}.
 
 validate_authentication(Props, R, S) ->
     ValidRoles = [<<"_admin">>, <<"manager">>],
