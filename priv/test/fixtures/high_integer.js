@@ -1,4 +1,4 @@
-var high_integer = {
+exports.high_integer = {
   'doctype': 'bim',
   'description': '',
   'fieldsets': [{

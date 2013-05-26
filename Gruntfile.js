@@ -16,11 +16,7 @@ module.exports = function(grunt) {
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     rig: {
-      'priv/www/application.js': 'priv/src/client/application.js',
-      'priv/test/server/validation.js': 'priv/test/couch_validation.js',
-      'priv/test/server/fields.js': 'priv/test/couch_fields.js',
-      'priv/test/server/get_changes.js': 'priv/test/couch_get_changes.js',
-      'priv/test/server/user_indexes.js': 'priv/test/couch_user_indexes.js'
+      'priv/www/application.js': 'priv/src/client/application.js'
     },
     casperjs: {
       files: ['priv/test/integration/*.js']

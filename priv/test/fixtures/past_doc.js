@@ -1,4 +1,4 @@
-var past_doc = function (theDate) {
+exports.past_doc = function (theDate) {
   'use strict';
 
   return {

@@ -1,4 +1,4 @@
-var today_doc = function (theDate) {
+exports.today_doc = function (theDate) {
   'use strict';
 
   return {

@@ -1,4 +1,5 @@
 var should = require('chai').should();
+var map = require('../../src/server/shimi_ima/views/lib/user_indexes.js').user_indexes;
 
 var simple_user_index = {
   '_id': '0923ebc77f5e57e0edbe40eed1f282e1',
@@ -31,8 +32,6 @@ var simple_user_index = {
 var emit = function () {
   return false;
 };
-
-var map = require('../../src/server/shimi_ima/views/lib/user_indexes.js').user_indexes;
 
 var mapFunction = function() {
   var fbody = map(simple_user_index, emit, true).views.index.map;

@@ -1,4 +1,4 @@
-var simple_multifieldset_doc3 = {
+exports.simple_multifieldset_doc3 = {
   '_id': '68b6ef8471724e551c7428f8650367df',
   '_rev': '2-3013dd31a27379111586d03d06329bd2',
   'description': 'I\'m real sour on all this.',
