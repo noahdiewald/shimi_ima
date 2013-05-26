@@ -51,7 +51,7 @@ shimi.projectui = (function () {
                 if (req.status === 201) {
                   mod.init();
                 } else {
-                  window.alert('An error occurred' + req.status);
+                  window.alert('An error occurred ' + req.status);
                 }
               }
             });

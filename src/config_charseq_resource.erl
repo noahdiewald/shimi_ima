@@ -29,13 +29,11 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         create_path/2,
          delete_resource/2,
          from_json/2,
          id_html/2,
          index_html/2,
          is_authorized/2,
-         post_is_create/2,
          resource_exists/2,
          rest_init/2
         ]).
@@ -52,7 +50,7 @@ rest_init(R, S) -> {ok, R, S}.
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R, S);
-        _ -> {true, R, S}
+        _ -> h:exists_unless_post(R, S)
     end.
 
 is_authorized(R, S) ->
@@ -75,20 +73,6 @@ content_types_provided(R, S) ->
   
 delete_resource(R, S) ->
     h:delete(R, S).
-
-post_is_create(R, S) ->
-    {true, R, S}.
-
-create_path(R, S) ->
-    {ok, Body, R1} = cowboy_req:body(R),
-    Json = jsn:decode(Body),
-    {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
-                      undefined -> 
-                          GenId = list_to_binary(utils:uuid()),
-                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
-                      IdBin -> {IdBin, Json}
-                  end,
-    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
   
 index_html(R, S) ->
     {Val, R1} = cowboy_req:qs_val(<<"as">>, R),
@@ -121,8 +105,9 @@ from_json(R, S) ->
       identifier -> json_update(R, S)
   end.
 
-json_create(R, S) ->  
-    h:create(proplists:get_value(posted_json, S), R, S).
+json_create(R, S) ->
+    {R1, S1} = h:extract_create_data(R, S),
+    h:create(proplists:get_value(posted_json, S1), R1, S1).
 
 json_update(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),

@@ -29,12 +29,9 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         create_path/2,
          delete_resource/2,
          from_json/2,
          is_authorized/2,
-         post_is_create/2,
-         process_post/2,
          resource_exists/2,
          rest_init/2,
          to_html/2,
@@ -56,9 +53,7 @@ resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R1, S1);
         revision -> h:exists_id(R1, S1);
-        _ -> 
-          {Exist, R2} = h:exists(Doctype, R1, S),
-          {Exist, R2, S1}
+        _ -> h:exists_with_deps([Doctype], R1, S)
     end. 
 
 is_authorized(R, S) ->
@@ -98,26 +93,6 @@ delete_resource(R, S) ->
             json_update(jsn:set_value(<<"deleted_">>, true, Json), R1, S1)
     end.
   
-post_is_create(R, S) ->
-    case proplists:get_value(target, S) of
-        worksheets_get -> {false, R, S};
-        _ -> {true, R, S}
-    end.
-
-process_post(R, S) ->
-    json_ws(R, S).
-
-create_path(R, S) ->
-    {ok, Body, R1} = cowboy_req:body(R),
-    Json = jsn:decode(Body),
-    {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
-                      undefined -> 
-                          GenId = list_to_binary(utils:uuid()),
-                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
-                      IdBin -> {IdBin, Json}
-                  end,
-    {<<"/", Id/binary>>, R1, [{posted_json, Json1}|S]}.
-  
 to_html(R, S) ->
     case proplists:get_value(target, S) of
         edit -> html_edit(R, S);
@@ -134,6 +109,8 @@ to_json(R, S) ->
 
 from_json(R, S) ->
     case proplists:get_value(target, S) of
+        worksheets_get ->
+            json_ws(R, S);
         main -> 
             S1 = [{change_type, created}|S],
             json_create(R, S1);
@@ -146,19 +123,20 @@ from_json(R, S) ->
   
 json_create(R, S) ->
     {[Project, Doctype], R1} = h:g([project, doctype], R),
-    Json = proplists:get_value(posted_json, S),
-    Json1 = document:set_sortkeys(Json, Project, S),
+    {R2, S1} = h:extract_create_data(R1, S),
+    Json = proplists:get_value(posted_json, S1),
+    Json1 = document:set_sortkeys(Json, Project, S1),
     % Normalization assumes a complete record, which would normally
     % contain a revision
     NormJson = jsn:delete_value(<<"_rev">>, document:normalize(doc, Json1)),
-    case couch:create(NormJson, Project, S) of
+    case couch:create(NormJson, Project, S1) of
         {ok, Data} ->
-            spawn(change_log, proplists:get_value(change_type, S), [Data, Doctype, Project, S]),
-            R2 = bump_deps(R1, S),
-            {true, R2, S};
+            spawn(change_log, proplists:get_value(change_type, S1), [Data, Doctype, Project, S1]),
+            R3 = bump_deps(R2, S1),
+            {{true, proplists:get_value(create_path, S1)}, R3, S1};
         {forbidden, Message} ->
-            {ok, R2} = cowboy_req:reply(403, [], Message, R1),
-            {halt, R2, S}
+            {ok, R3} = cowboy_req:reply(403, [], Message, R2),
+            {halt, R3, S1}
     end.
   
 json_update(R, S) ->

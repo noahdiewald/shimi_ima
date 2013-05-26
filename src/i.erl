@@ -51,7 +51,7 @@ create(R, S) ->
             case couch:create(Json, Project, S) of
                 {ok, _} ->
                     {ok, _} = create_design(Json, Project, S),
-                    {true, R1, S};
+                    {{true, proplists:get_value(create_path, S)}, R1, S};
                 {forbidden, Message} ->
                     {ok, R2} = cowboy_req:reply(403, [], Message, R1),
                     {halt, R2, S}

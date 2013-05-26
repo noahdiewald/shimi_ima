@@ -98,11 +98,23 @@ delete(Id, Rev, Project, S) ->
         {ok, "409", _, _} -> {error, conflict}
     end.
 
--spec exists(string(), string(), h:req_state()) -> boolean().
+-spec exists(string()|undefined|null, string()|undefined, h:req_state()) -> boolean().
+exists(_, undefined, _) ->
+    false;
+exists(undefined, _, _) ->
+    false;
+exists(null, Project, S) ->
+    exists(adb(Project));
 exists(Id, Project, S) ->
-    Url = ndb(Project) ++ Id,
-    Headers = proplists:get_value(headers, S, []),
-    case ibrowse:send_req(Url, Headers, head) of
+    PUrl = adb(Project),
+    case exists(PUrl) of
+        true -> exists(PUrl ++ Id);
+        Else -> Else
+    end.
+
+-spec exists(string()) -> boolean().
+exists(Url) ->
+    case ibrowse:send_req(Url, [], head) of
         {ok, "200", _, _} -> true;
         {ok, "404", _, _} -> false
     end.
