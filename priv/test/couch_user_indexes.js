@@ -1,3 +1,5 @@
+var should = require('chai').should();
+
 var simple_user_index = {
   '_id': '0923ebc77f5e57e0edbe40eed1f282e1',
   '_rev': '9-d20eea26efebb4379e5f20efdd4ae9ad',
@@ -30,7 +32,6 @@ var emit = function () {
   return false;
 };
 
-var should = require('should');
 var map = require('../../src/server/shimi_ima/views/lib/user_indexes.js').user_indexes;
 
 var mapFunction = function() {
@@ -49,7 +50,7 @@ describe('User index view map funtion', function() {
     it('should return an object with an evaluable map function', function() {
       (function() {
         mapFunction();
-      }).should.not.throwError();
+      }).should.not.throw();
     });
     describe('when evaluating the returned map function of the simple user index', function() {
       it('should return false when the object is not the right doctype', function() {

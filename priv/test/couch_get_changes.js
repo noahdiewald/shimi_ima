@@ -1,3 +1,5 @@
+var should = require('chai').should();
+
 //= fixtures/simple_doc.js
 //= fixtures/simple_doc2.js
 //= fixtures/simple_doc3.js
@@ -10,7 +12,6 @@ Array.concat = function(x, y) {
   return x.concat(y);
 };
 
-var should = require('should');
 get_changes = require('../../src/server/shimi_ima/lib/update_helpers.js').get_changes;
 
 describe('CouchDB get_changes function', function() {
@@ -27,13 +28,13 @@ describe('CouchDB get_changes function', function() {
       changes['25250e2ead108a8f60213f2404006a4d'].fieldsetLabel.should.equal('Hip');
     });
     it('should have null for the fieldset instance if it doesn\'t exist', function() {
-      should.strictEqual(changes['25250e2ead108a8f60213f2404006a4d'].fieldsetInstance, null);
+      should.equal(changes['25250e2ead108a8f60213f2404006a4d'].fieldsetInstance, null);
     });
   });
   describe('When deleting and restoring', function() {
     var changes = get_changes(simple_doc3, simple_doc2, true);
     it('should changes should be null', function() {
-      should.strictEqual(changes, null);
+      should.equal(changes, null);
     });
   });
   describe('When making multiple changes', function() {
@@ -62,7 +63,7 @@ describe('CouchDB get_changes function', function() {
   describe('When creating a document', function() {
     var changes = get_changes(simple_multifieldset_doc2, null, true);
     it('should changes should be null', function() {
-      should.strictEqual(changes, null);
+      should.equal(changes, null);
     });
   });
 });

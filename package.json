@@ -7,7 +7,7 @@
     "grunt-contrib-jshint": "0.4.3",
     "mocha": "1.9.0",
     "blanket": "1.1.4",
-    "should": "1.2.2",
+    "chai": "1.6.0",
     "less": "1.4.0-b2",
     "hogan.js": "2.0.0",
     "grunt-rigger": "0.4.0",

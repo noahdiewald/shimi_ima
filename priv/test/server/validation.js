@@ -1,3 +1,5 @@
+require('chai').should();
+
 var bad_format_doc = {
   '_id': '25250e2ead108a8f60213f2404007c91',
   '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
@@ -795,7 +797,6 @@ if (!Date.toLocaleFormat) {
   }
 }
 
-var should = require('should');
 var validate_doc_update = require('../../src/server/shimi_ima/lib/validate_doc_update.js').validate_doc_update;
 
 var roUser = function () {
@@ -826,7 +827,7 @@ var manipDate = function(days) {
 describe('CouchDB validation', function () {
   describe('when testing for a valid user', function() {
     it('should block changes by a readonly user', function () {
-      roUser.should.throwError(/is a read only user./);      
+      roUser.should.throw(/is a read only user./);      
     });
   });
   describe('when validating documents created by a user', function() {
@@ -843,39 +844,39 @@ describe('CouchDB validation', function () {
     });
     describe('and dealing with integers', function() {
       it('should reject integers that are above the maximum', function() {
-        testCase(high_integer).should.throwError(/Must be less than or equal to 0/);
+        testCase(high_integer).should.throw(/Must be less than or equal to 0/);
       });
       it('should reject integers that are below the minimum', function() {
-        testCase(lower_integer).should.throwError(/Must be greater than or equal to 0/);
+        testCase(lower_integer).should.throw(/Must be greater than or equal to 0/);
       });
     });
     describe('and dealing with dates', function() {
       it('should reject a bad date format', function() {
-        testCase(bad_format_doc).should.throwError(/date must be in format yyyy-mm-dd/);
+        testCase(bad_format_doc).should.throw(/date must be in format yyyy-mm-dd/);
       });
       it('should reject dates that are below the minimum', function() {
-        testCase(early_doc).should.throwError(/date must be later than 1990-09-23./);
+        testCase(early_doc).should.throw(/date must be later than 1990-09-23./);
       });
       it('should reject dates that are above the maximum', function() {
-        testCase(late_doc).should.throwError(/date must be earlier than or equal to 1990-07-23./);
+        testCase(late_doc).should.throw(/date must be earlier than or equal to 1990-07-23./);
       });
       it('should reject dates that are below the relative minimum, i.e. today', function() {
-        testCase(past_doc(manipDate(-1))).should.throwError(/date must be in the future./);
+        testCase(past_doc(manipDate(-1))).should.throw(/date must be in the future./);
       });
       it('should reject dates that are equal to the relative minimum, i.e. today', function() {
-        testCase(past_doc(manipDate(0))).should.throwError(/date must be in the future./);
+        testCase(past_doc(manipDate(0))).should.throw(/date must be in the future./);
       });
       it('should reject dates that are above the relative maximum, i.e. today', function() {
-        testCase(future_doc(manipDate(1))).should.throwError(/date must be in the past./);
+        testCase(future_doc(manipDate(1))).should.throw(/date must be in the past./);
       });
       it('should accept today\'s date when both the maximum and minimum are today', function() {
         testCase(today_doc(manipDate(0)))().should.equal('ok');
       });
       it('should reject tomorrow\'s date when both the maximum and minimum are today', function() {
-        testCase(today_doc(manipDate(1))).should.throwError(/date must be today./);
+        testCase(today_doc(manipDate(1))).should.throw(/date must be today./);
       });
       it('should reject yesterday\'s date when both the maximum and minimum are today', function() {
-        testCase(today_doc(manipDate(-1))).should.throwError(/date must be today./);
+        testCase(today_doc(manipDate(-1))).should.throw(/date must be today./);
       });
     });
   });

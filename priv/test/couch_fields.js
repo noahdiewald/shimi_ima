@@ -1,3 +1,5 @@
+var should = require('chai').should();
+
 //= fixtures/simple_doc.js
 //= fixtures/simple_multifieldset_doc.js
 

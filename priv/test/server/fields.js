@@ -1,3 +1,5 @@
+require('chai').should();
+
 var simple_doc = {
   '_id': '25250e2ead108a8f60213f2404007c91',
   '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
