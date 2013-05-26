@@ -106,5 +106,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
+  grunt.registerTask('integration', ['less', 'hogan', 'jshint', 'rig', 'casperjs']);
+  grunt.registerTask('coverage', ['jshint', 'rig', 'mochacov:coverage']);
   grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'uglify']);
 };
