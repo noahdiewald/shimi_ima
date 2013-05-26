@@ -1,4 +1,4 @@
-require('chai').should();
+var should = require('chai').should();
 
 var simple_user_index = {
   '_id': '0923ebc77f5e57e0edbe40eed1f282e1',

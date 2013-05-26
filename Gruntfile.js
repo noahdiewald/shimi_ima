@@ -3,6 +3,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-rigger');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  // Note: These tasks require the installation of PhantomJS anc CasperJS
+  grunt.loadNpmTasks('grunt-casperjs');
   grunt.loadNpmTasks('grunt-mocha-cov');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-hogan');
@@ -20,9 +22,13 @@ module.exports = function(grunt) {
       'priv/test/server/get_changes.js': 'priv/test/couch_get_changes.js',
       'priv/test/server/user_indexes.js': 'priv/test/couch_user_indexes.js'
     },
+    casperjs: {
+      files: ['priv/test/integration/*.js']
+    },
     mochacov: {
       unit: {
         options: {
+          files: 'priv/test/server/*.js',
           reporter: 'spec'
         }
       },
@@ -30,12 +36,12 @@ module.exports = function(grunt) {
         options: {
           reporter: 'html-cov',
           output: 'coverage.html',
+          files: 'priv/test/server/*.js',
           coverage: true
         }
       },
       options: {
-        ui: 'bdd',
-        files: 'priv/test/server/*.js'
+        ui: 'bdd'
       }
     },
     uglify: {
@@ -100,5 +106,5 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'mochacov:coverage', 'uglify']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'uglify']);
 };

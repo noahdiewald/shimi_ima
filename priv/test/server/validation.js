@@ -1,4 +1,4 @@
-require('chai').should();
+var should = require('chai').should();
 
 var bad_format_doc = {
   '_id': '25250e2ead108a8f60213f2404007c91',
