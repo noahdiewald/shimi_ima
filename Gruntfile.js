@@ -75,7 +75,6 @@ module.exports = function(grunt) {
         newcap: true,
         noarg: true,
         nonew: true,
-        //plusplus: true,
         quotmark: 'single',
         sub: true,
         strict: true,
@@ -97,7 +96,7 @@ module.exports = function(grunt) {
           templates: true
         }
       },
-      all: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
+      all: ['grunt.js', 'priv/src/**/*.js', 'priv/test/**/*.js']
     }
   });
 

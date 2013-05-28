@@ -9,10 +9,12 @@ var get_changes = require('../../src/server/shimi_ima/lib/update_helpers.js').ge
 
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
+  'use strict';
   return x.concat(y);
 };
 
 describe('CouchDB get_changes function', function() {
+  'use strict';
   describe('When making a single change', function() {
     var changes = get_changes(simple_doc2, simple_doc, true);
     it('should record it correctly', function() {

@@ -7,10 +7,12 @@ var fromFieldsetsFold = require('../../src/server/shimi_ima/lib/fields.js').from
 
 // This is because v8 doesn't have it
 Array.concat = function(x, y) {
+  'use strict';
   return x.concat(y);
 };
 
 describe('CouchDB shared field functions', function() {
+  'use strict';
   describe('when extracting fields from a fieldset', function() {
     it('should have the correct number of fields', function() {
       fromFieldsets(simple_doc.fieldsets).length.should.equal(3);
@@ -26,7 +28,7 @@ describe('CouchDB shared field functions', function() {
       fromFieldsetsMap(simple_multifieldset_doc.fieldsets, getVal).length.should.equal(3);
     });
     it('should return a list of correct values in the order they appear in the document', function() {
-      var simp = fromFieldsetsMap(simple_doc.fieldsets, getVal)
+      var simp = fromFieldsetsMap(simple_doc.fieldsets, getVal);
       simp[0].should.equal('1990-08-23');
       simp[1].should.equal('');
       simp[2].should.equal(false);
