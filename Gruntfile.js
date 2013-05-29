@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       'priv/www/application.js': 'priv/src/client/application.js'
     },
     casperjs: {
-      files: ['priv/test/integration/access.js', 'priv/test/integration/projects.js']
+      files: ['priv/test/integration/projects.js', 'priv/test/integration/access.js']
     },
     mochacov: {
       unit: {
