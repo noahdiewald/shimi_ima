@@ -24,10 +24,10 @@ describe('User index view map funtion', function() {
       map(simple_user_index, emit, true).version.should.equal(simple_user_index._rev);
     });
     it('should return an object with an evaluable map function', function() {
-      /*(function() {
+      var f = function() {
         mapFunction();
-      }).should.not.Throw();*/
-      mapFunction().should.not.Throw();
+      };
+      f.should.not.Throw();
     });
     describe('when evaluating the returned map function of the simple user index', function() {
       it('should return false when the object is not the right doctype', function() {
