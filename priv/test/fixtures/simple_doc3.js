@@ -1,4 +1,4 @@
-var simple_doc3 = {
+exports.simple_doc3 = {
   '_id': '25250e2ead108a8f60213f2404007c91',
   '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
   'doctype': 'bim',

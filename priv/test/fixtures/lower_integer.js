@@ -1,4 +1,4 @@
-var lower_integer = {
+exports.lower_integer = {
   'doctype': 'bim',
   'description': '',
   'fieldsets': [{
