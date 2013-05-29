@@ -1,4 +1,6 @@
 var casper = require('casper').create();
+var deleteProject = require('delete-project').deleteProject;
+var configure = require('configure').configure;
 
 var projectName = (function ()
 {
@@ -135,11 +137,23 @@ casper.then(function ()
   casper.clickLabel('Cancel', 'span');
 });
 
+// The validation message is cleared
+casper.then(function ()
+{
+  'use strict';
+  var validateMessage = casper.fetchText('.validate-tips');
+  var title = 'The validation message is cleared: ';
+
+  casper.echo(title);
+  casper.click('#create-project');
+  casper.test.assertEqual(validateMessage, 'All fields are required.', title + 'the starting validation tip is correct');
+});
+
 // Creating a project: 
 casper.then(function ()
 {
   'use strict';
-  var validateMessage, projectNameValue, newRow;
+  var projectNameValue, newRow;
   var origTotal = totalProjects(casper);
   var title = 'Creating a project: ';
 
@@ -150,44 +164,16 @@ casper.then(function ()
     'project-name': projectName,
     'project-description': 'testing'
   }, false);
-
-  validateMessage = casper.fetchText('.validate-tips');
-
-  //casper.test.assertEqual(validateMessage, 'All fields are required.', title + 'the starting validation tip is correct');
   casper.clickLabel('Add project', 'span');
   casper.waitWhileVisible('#loading', function ()
   {
+    var total = totalProjects(casper);
+    var project = getProjectIdByName(casper, projectName);
     casper.test.assertNotVisible('input#project-name', title + 'the project creation dialog is closed');
-    casper.test.assertEquals(totalProjects(casper), origTotal + 1, title + 'there is one new project');
-    casper.test.assert(getProjectIdByName(casper, projectName) !== false, title + 'the project is the one we created');
-  });
-});
-
-// Deleting a project
-casper.then(function ()
-{
-  'use strict';
-  var title = 'Deleting a project: ';
-  var origTotal = totalProjects(casper);
-
-  casper.echo(title);
-  casper.click('a[href="/projects"]');
-  casper.setFilter('page.confirm', function ()
-  {
-    return true;
-  });
-  // This is unreliable. I don't know why yet.
-  casper.waitFor(function ()
-  {
-    return getProjectIdByName(casper, projectName) !== false;
-  }, function ()
-  {
-    casper.click('#' + getProjectIdByName(casper, projectName));
-  });
-  casper.waitWhileVisible('#loading', function ()
-  {
-    casper.test.assertEquals(totalProjects(casper), origTotal - 1, title + 'there is one less project');
-    casper.test.assertNot(getProjectIdByName(casper, projectName), title + 'the correct project was deleted');
+    casper.test.assertEquals(total, origTotal + 1, title + 'there is one new project');
+    casper.test.assert(project !== false, title + 'the project is the one we created');
+    configure(project, casper);
+    deleteProject(total, project, casper);
   });
 });
 
