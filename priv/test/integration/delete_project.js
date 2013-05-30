@@ -1,14 +1,11 @@
+var s = require('./shared').shared;
+var totalProjects = s.totalProjects;
+
+// This is called from projects.js
 exports.deleteProject = function (total, project, casper)
 {
   'use strict';
-
-  var totalProjects = function (c)
-  {
-    return c.evaluate(function ()
-    {
-      return document.getElementsByTagName('tr').length - 1;
-    });
-  };
+  var deleteSelector = 'a#' + project + '.project-delete-button.link-button';
 
   casper.then(function ()
   {
@@ -20,10 +17,10 @@ exports.deleteProject = function (total, project, casper)
     {
       return true;
     });
-    // This is unreliable. I don't know why yet.
-    casper.waitWhileVisible('#loading', function ()
+    // This is unreliable. I don't know why it times out.
+    casper.waitForSelector(deleteSelector, function ()
     {
-      casper.click('#' + project);
+      casper.click(deleteSelector);
     });
     casper.waitWhileVisible('#loading', function ()
     {

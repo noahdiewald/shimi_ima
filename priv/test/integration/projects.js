@@ -1,68 +1,10 @@
 var casper = require('casper').create();
-var deleteProject = require('delete-project').deleteProject;
+var deleteProject = require('delete_project').deleteProject;
 var configure = require('configure').configure;
-
-var projectName = (function ()
-{
-  'use strict';
-  var text = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (var i = 0; i < 5; i++)
-  {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return 'tester_' + text;
-})();
-
-var totalProjects = function (c)
-{
-  'use strict';
-  return c.evaluate(function ()
-  {
-    return document.getElementsByTagName('tr').length - 1;
-  });
-};
-
-var getProjectIdByName = function (c, name)
-{
-  'use strict';
-  return c.evaluate(function (n)
-  {
-    var elem = [].slice.call(document.getElementsByTagName('td')).filter(function (x)
-    {
-      return x.innerHTML.match(n);
-    })[0];
-
-    if (elem)
-    {
-      var par = elem.parentNode;
-      return par.querySelectorAll('.project-delete-button')[0].id;
-    } else {
-      return false;
-    }
-  }, name);
-};
-
-var getDeleteButton = function (c, name)
-{
-  'use strict';
-  return c.evaluate(function (n)
-  {
-    var elem = [].slice.call(document.getElementsByTagName('td')).filter(function (x)
-    {
-      return x.innerHTML.match(n);
-    })[0];
-
-    if (elem)
-    {
-      return elem.parentNode.querySelectorAll('.project-delete-button')[0];
-    } else {
-      return elem;
-    }
-  }, name);
-};
+var s = require('shared').shared;
+var projectName = s.projectName;
+var totalProjects = s.totalProjects;
+var getProjectIdByName = s.getProjectIdByName;
 
 // Initial page load: 
 casper.start('http://127.0.0.1:8000/projects', function ()
@@ -169,6 +111,7 @@ casper.then(function ()
   {
     var total = totalProjects(casper);
     var project = getProjectIdByName(casper, projectName);
+    casper.echo(title + 'project id is ' + project);
     casper.test.assertNotVisible('input#project-name', title + 'the project creation dialog is closed');
     casper.test.assertEquals(total, origTotal + 1, title + 'there is one new project');
     casper.test.assert(project !== false, title + 'the project is the one we created');
