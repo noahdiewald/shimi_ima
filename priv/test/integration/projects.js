@@ -115,8 +115,8 @@ casper.then(function ()
     casper.test.assertNotVisible('input#project-name', title + 'the project creation dialog is closed');
     casper.test.assertEquals(total, origTotal + 1, title + 'there is one new project');
     casper.test.assert(project !== false, title + 'the project is the one we created');
-    configure(project, casper);
-    deleteProject(total, project, casper);
+    casper = configure(project, casper);
+    casper = deleteProject(total, project, casper);
   });
 });
 

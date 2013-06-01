@@ -18,7 +18,8 @@ exports.deleteProject = function (total, project, casper)
       return true;
     });
     // This is unreliable. I don't know why it times out.
-    casper.waitForSelector(deleteSelector, function ()
+    //casper.waitForSelector(deleteSelector, function ()
+    casper.waitWhileVisible('#loading', function ()
     {
       casper.click(deleteSelector);
     });
@@ -28,4 +29,6 @@ exports.deleteProject = function (total, project, casper)
       //casper.test.assertNot(project, title + 'the correct project was deleted');
     });
   });
+
+  return casper;
 };
