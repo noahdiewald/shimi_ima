@@ -58,7 +58,7 @@ exports.configure = function (project, casper)
       casper.test.assertExists('#fieldsets-FirstDoctype h3', title + 'fieldset h3 exists');
       firstFieldsetId = casper.evaluate(function ()
       {
-        return document.querySelectorAll('#fieldsets-FirstDoctype h3')[0].id.substring(5);
+        return document.querySelector('#fieldsets-FirstDoctype h3').id.substring(5);
       });
       casper.click('#head-' + firstFieldsetId + ' a');
       casper.waitUntilVisible('#' + firstFieldsetId, function ()
@@ -92,7 +92,7 @@ exports.configure = function (project, casper)
       casper.test.assertExists('.field-row', title + 'a new field row exists');
       fieldId = casper.evaluate(function ()
       {
-        return document.querySelectorAll('.field-row')[0].id;
+        return document.querySelector('.field-row').id;
       });
       casper.test.assertExists('#' + fieldId, title + 'field exists');
     });
