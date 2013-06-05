@@ -23,7 +23,7 @@ var stamp = function(newDoc, doc, req) {
     changes: newDoc.changes
   };
 
-  if (newDoc.head) {
+  if (newDoc.head && !newDoc.category) {
     message.head_ids = newDoc.head;
     message.head_values = get_head_values(newDoc);
   }
