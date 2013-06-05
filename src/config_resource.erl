@@ -55,9 +55,10 @@ allowed_methods(R, S) ->
     end.
 
 content_types_provided(R, S) ->
-    case proplists:get_value(target, S) of
-        main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
-    end.
+    {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}.
+%    case proplists:get_value(target, S) of
+%        main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
+%    end.
   
 content_types_accepted(R, S) ->
     {[{'*', do_upgrade}], R, S}.
