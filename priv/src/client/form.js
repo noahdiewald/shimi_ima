@@ -79,7 +79,7 @@ shimi.form = (function () {
 
   // Validation
   mod.updateTips = function (t, tips) {
-    tips.text(t).addClass('ui-state-highlight');
+    tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
     setTimeout(function () {
       tips.removeClass('ui-state-highlight', 1500);
     }, 500);

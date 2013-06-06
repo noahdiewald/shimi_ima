@@ -33,6 +33,7 @@ shimi.projectui = (function () {
       buttons: {
         'Add project': function () {
           allFields.removeClass('ui-state-error');
+          $('.validation-error-message').remove();
 
           var checkResult = shimi.form.checkLength(projectName, 'project name', 1, 50, tips);
 
