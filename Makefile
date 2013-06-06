@@ -1,5 +1,8 @@
 ERL ?= erl
 REBAR ?= ./rebar
+CUC ?= $(HOME)/.gem/ruby/2.0.0/bin/cucumber
+REDIS ?= /usr/bin/redis-server
+RCLIENT ?= /usr/bin/redis-cli
 APP := dictionary_maker
 
 all: build
@@ -21,3 +24,8 @@ depends:
 
 build: depends
 	$(REBAR) compile
+
+cucumber:
+	$(REDIS) > /dev/null &
+	/bin/bash -c 'pushd ./Cukes;$(CUC);popd'
+	echo "shutdown" | $(RCLIENT)
