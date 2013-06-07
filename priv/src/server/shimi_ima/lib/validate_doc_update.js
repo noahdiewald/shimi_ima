@@ -1,6 +1,12 @@
 exports.validate_doc_update = function(newDoc, saveDoc, userCtx, testEnv) {
   'use strict';
 
+  // This is a workaround so that I can easily run unit tests
+  if (testEnv !== true)
+  {
+    testEnv = false;
+  }
+
   // A predicate function to detect blank strings.
   // Warning: this is a bad implementation.
   var isBlank = function(value) {
