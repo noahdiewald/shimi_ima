@@ -103,9 +103,9 @@ exists(_, undefined, _) ->
     false;
 exists(undefined, _, _) ->
     false;
-exists(null, Project, S) ->
+exists(null, Project, _S) ->
     exists(adb(Project));
-exists(Id, Project, S) ->
+exists(Id, Project, _S) ->
     PUrl = adb(Project),
     case exists(PUrl) of
         true -> exists(PUrl ++ Id);
@@ -329,7 +329,11 @@ update(Data, Url, Headers) ->
         {ok, "201", RespHeads, RetData} -> 
             Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
             RetData1 = jsn:decode(RetData),
-            RetData2 = jsn:set_value(<<"document_revision">>, list_to_binary(Rev), RetData1),
+            RetData2 = case Rev of
+                undefined -> <<>>;
+                Rev when is_list(Rev) ->
+                    jsn:set_value(<<"document_revision">>, list_to_binary(Rev), RetData1)
+            end,
             {ok, RetData2};
         {error, req_timedout} -> 
             {error, req_timedout};

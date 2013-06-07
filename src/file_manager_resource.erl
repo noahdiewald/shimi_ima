@@ -81,7 +81,8 @@ content_types_provided(R, S) ->
   
 content_types_accepted(R, S) ->
     case proplists:get_value(target, S) of
-        identifier -> h:accept_json(R, S)
+        identifier -> h:accept_json(R, S);
+        upload -> {[{{<<"multipart">>, <<"form-data">>, '*'}, process_post}], R, S}
     end.
   
 delete_resource(R, S) ->
