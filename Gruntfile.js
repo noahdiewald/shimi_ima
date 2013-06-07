@@ -14,15 +14,12 @@ module.exports = function(grunt) {
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     rig: {
-      'priv/www/application.js': 'priv/src/client/application.js',
-      'priv/test/server/validation.js': 'priv/test/couch_validation.js',
-      'priv/test/server/fields.js': 'priv/test/couch_fields.js',
-      'priv/test/server/get_changes.js': 'priv/test/couch_get_changes.js',
-      'priv/test/server/user_indexes.js': 'priv/test/couch_user_indexes.js'
+      'priv/www/application.js': 'priv/src/client/application.js'
     },
     mochacov: {
       unit: {
         options: {
+          files: 'priv/test/server/*.js',
           reporter: 'spec'
         }
       },
@@ -30,12 +27,12 @@ module.exports = function(grunt) {
         options: {
           reporter: 'html-cov',
           output: 'coverage.html',
+          files: 'priv/test/server/*.js',
           coverage: true
         }
       },
       options: {
-        ui: 'bdd',
-        files: 'priv/test/server/*.js'
+        ui: 'bdd'
       }
     },
     uglify: {
@@ -73,7 +70,6 @@ module.exports = function(grunt) {
         newcap: true,
         noarg: true,
         nonew: true,
-        //plusplus: true,
         quotmark: 'single',
         sub: true,
         strict: true,
@@ -95,10 +91,11 @@ module.exports = function(grunt) {
           templates: true
         }
       },
-      all: ['grunt.js', 'priv/src/**/*.js', 'priv/test/fixtures/*.js']
+      all: ['grunt.js', 'priv/src/**/*.js', 'priv/test/**/*.js']
     }
   });
 
-  // Default task.
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'mochacov:coverage', 'uglify']);
+  grunt.registerTask('coverage', ['jshint', 'rig', 'mochacov:coverage']);
+  grunt.registerTask('test', ['jshint', 'rig', 'mochacov:unit']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'uglify']);
 };

@@ -1,0 +1,21 @@
+exports.headed_field = {
+  'category': 'field',
+  'name': 'title',
+  'label': 'Title',
+  'default': '',
+  'head': true,
+  'reversal': false,
+  'required': true,
+  'order': 10,
+  'allowed': [],
+  'source': '',
+  'min': '',
+  'max': '',
+  'regex': '',
+  'description': '',
+  'charseq': '',
+  'doctype': 'Text',
+  'fieldset': 'caf0017b65fc61bc0e552188aa1433d4',
+  'subcategory': 'text',
+  '_id': 'e302b77dfe88a75e9848a736f5361a3a'
+};

@@ -33,6 +33,7 @@ shimi.projectui = (function () {
       buttons: {
         'Add project': function () {
           allFields.removeClass('ui-state-error');
+          $('.validation-error-message').remove();
 
           var checkResult = shimi.form.checkLength(projectName, 'project name', 1, 50, tips);
 
@@ -51,7 +52,7 @@ shimi.projectui = (function () {
                 if (req.status === 201) {
                   mod.init();
                 } else {
-                  window.alert('An error occurred' + req.status);
+                  window.alert('An error occurred ' + req.status);
                 }
               }
             });

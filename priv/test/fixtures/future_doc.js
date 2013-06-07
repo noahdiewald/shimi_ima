@@ -1,4 +1,4 @@
-var future_doc = function(theDate) {
+exports.future_doc = function(theDate) {
   'use strict';
 
   return {

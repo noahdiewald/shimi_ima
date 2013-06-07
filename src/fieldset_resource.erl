@@ -44,10 +44,7 @@ rest_init(R, S) -> {ok, R, S}.
 
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
-        index ->
-            {Doctype, R1} = h:doctype(R),
-            {Exist, R2} = h:exists(Doctype, R1, S),
-            {Exist, R2, S};
+        index -> h:exists_with_deps([doctype], R, S);
         identifier -> h:exists_id(R, S)
     end. 
 
