@@ -28,23 +28,26 @@ end
   
 When /^I click the delete button$/ do
   lastProjectName = @redis.get('last_project_name')
-  @targ = {:text => lastProjectName}
-  @browser.link(@targ).wait_until_present(5)
-  projectId = @browser.link(@targ).href.split("/")[-2].split("-").last
+  targ = {:text => lastProjectName}
+  @browser.link(targ).wait_until_present(5)
+  projectId = @browser.link(targ).href.split("/")[-2].split("-").last
   deleteButton = @browser.link(:id => projectId)
   deleteButton.click
   @browser.alert.ok
 end
 
 Then /^there is a new project$/ do
-  @browser.link(:text => @projectName).wait_until_present(5)
+  projectName = @redis.get('current_project_name')
+  @browser.link(:text => projectName).wait_until_present(5)
   true
 end
 
 Then /^the target project was deleted$/ do
-  @browser.link(@targ).wait_while_present(5)
+  lastProjectName = @redis.get('last_project_name')
+  targ = {:text => lastProjectName}
+  @browser.link(targ).wait_while_present(5)
   @browser.link(:class => 'project-configure-button').wait_until_present(5)
-  @browser.link(@targ).should_not be_exists
+  @browser.link(targ).should_not be_exists
 end
 
 Then /^the validation text for project name is gone$/ do
