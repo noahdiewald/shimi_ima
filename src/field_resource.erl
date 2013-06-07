@@ -185,7 +185,7 @@ get_allowed_docs(Json, Project, S) ->
 
 get_allowed_files(Json, Project, S) ->
     Path = jsn:get_value(<<"source">>, Json),
-    RawAllowed = attach:get_all_full_path(Path, Project, S),
+    {ok, RawAllowed} = q:full_path(Path, Project, S),
     jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
 validate_authentication(Props, R, S) ->
