@@ -1,5 +1,5 @@
 Given /^I navigate to the projects page$/ do
-  @browser.goto "http://tester:tester@127.0.0.1:8000/projects"
+  @browser.goto "#{@baseURL}/projects"
 end
 
 When /^I click the New Projects button$/ do
