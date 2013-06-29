@@ -174,13 +174,20 @@ get_allowed("file", Json, Project, S) -> get_allowed_files(Json, Project, S);
 get_allowed(_, Json, _, _) -> Json.
 
 get_allowed_docs(Json, Project, S) ->
-    ForeignDoctype = binary_to_list(jsn:get_value(<<"source">>, Json)),
-    {ok, Keys} = q:index(ForeignDoctype, [], Project, S),
     F = fun(X) ->
                 H = list_to_binary(string:join([binary_to_list(Z)||[_,Z]<-jsn:get_value(<<"key">>, X), Z /= <<>>], ", ")),
                 [{<<"key">>, H}, {<<"value">>, H}]
         end,
-    Allowed = lists:map(F, jsn:get_value(<<"rows">>, Keys)),
+    Allowed = 
+        case binary_to_list(jsn:get_value(<<"source">>, Json)) of
+            [] -> [];
+            ForeignDoctype -> 
+                case q:index(ForeignDoctype, [], Project, S) of
+                    {ok, Keys} ->
+                        lists:map(F, jsn:get_value(<<"rows">>, Keys));
+                    _ -> []
+                end
+        end,
     jsn:set_value(<<"allowed">>, Allowed, Json).
 
 get_allowed_files(Json, Project, S) ->
