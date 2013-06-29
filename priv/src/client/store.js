@@ -19,35 +19,35 @@
 
  <pre> 
    <div
-     id="someid"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
+     id='someid'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
      
    <div
-    id="thisid"
-    data-group-id="someid">
+    id='thisid'
+    data-group-id='someid'>
     
-   getValue("fieldset-doctype", $(thisid)) == "did";
+   getValue('fieldset-doctype', $(thisid)) == 'did';
  </pre> 
    
  The following also works:
 
  <pre> 
    <div
-     id="someid2"
-     data-fieldset-fieldset="fsid"
-     data-fieldset-doctype="did"></div>
+     id='someid2'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
    
    <div
-     id="someid"
-     data-group-id="someid2"
-     data-fieldset-fieldset="fsid"></div>
+     id='someid'
+     data-group-id='someid2'
+     data-fieldset-fieldset='fsid'></div>
      
    <div
-    id="thisid"
-    data-group-id="someid"></div>
+    id='thisid'
+    data-group-id='someid'></div>
     
-   getValue("fieldset-doctype", $(thisid)) == "did";
+   getValue('fieldset-doctype', $(thisid)) == 'did';
  </pre> 
    
   @putValue(key, value, elem)@
@@ -65,14 +65,20 @@
 */
 
 var identity = function (x) {
+  'use strict';
+
   return x;
 };
 
 Function.prototype.r = function () {
+  'use strict';
+
   return [this, arguments];
 };
 
 Function.prototype.t = function () {
+  'use strict';
+
   var c = [this, arguments];
   var escape = arguments[arguments.length - 1];
   while (c[0] !== escape) {
@@ -82,10 +88,12 @@ Function.prototype.t = function () {
 };
 
 shimi.store = function (elem) {
+  'use strict';
+
   var mod = {};
 
   mod.get = function (key) {
-    var prelim = elem.attr("data-" + key);
+    var prelim = elem.attr('data-' + key);
 
     if (prelim) {
       return prelim;
@@ -109,7 +117,7 @@ shimi.store = function (elem) {
 
   mod.get64 = function (key) {
     var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/"/g, '')).replace(/(^"|"$)/g, '');
+    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 
@@ -119,15 +127,15 @@ shimi.store = function (elem) {
   };
 
   mod.fs = function (key) {
-    return mod.get("fieldset-" + key);
+    return mod.get('fieldset-' + key);
   };
 
   mod.f = function (key) {
-    return mod.get("field-" + key);
+    return mod.get('field-' + key);
   };
 
   mod.d = function (key) {
-    return mod.get("document-" + key);
+    return mod.get('document-' + key);
   };
 
   return mod;

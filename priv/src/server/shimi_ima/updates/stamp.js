@@ -1,42 +1,13 @@
 function update(doc, req) {
+  'use strict';
+
   var newDoc = JSON.parse(req.body);
-  var now = (new Date()).toUTCString();
-  var message;
+  var stamped;
 
-  if (!doc) {
-    if (newDoc._id) {
-      newDoc.created_at_ = now;
-      newDoc.created_by_ = req.userCtx.name;
-      message = {
-        id: newDoc._id,
-        timestamp: newDoc.created_at_,
-        user: newDoc.created_by_
-      };
-    } else {
-      newDoc = null;
-      message = 'This application expects the document _id in the JSON body';
-    }
-  } else {
-
-    newDoc.updated_at_ = now;
-    newDoc.updated_by_ = req.userCtx.name;
-    newDoc.created_at_ = doc.created_at_;
-
-    if (doc.create_user_) {
-      newDoc.created_by_ = doc.create_user_;
-    } else {
-      newDoc.created_by_ = doc.created_by_;
-    }
-
-    message = {
-      id: newDoc._id,
-      timestamp: newDoc.updated_at_,
-      user: newDoc.updated_by_,
-      changes: newDoc.changes
-    };
-
-    newDoc.prev_ = doc._rev;
+  if (newDoc.fieldsets && !newDoc.category) {
+    newDoc.changes = require('lib/update_helpers').get_changes(newDoc, doc);
   }
+  stamped = require('lib/update_helpers').stamp(newDoc, doc, req);
 
-  return [newDoc, JSON.stringify(message)];
+  return [stamped.doc, JSON.stringify(stamped.message)];
 }

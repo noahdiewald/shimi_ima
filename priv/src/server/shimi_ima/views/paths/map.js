@@ -1,4 +1,6 @@
 function map(doc) {
+  'use strict';
+
   if (doc._attachments) {
     var path = [];
 

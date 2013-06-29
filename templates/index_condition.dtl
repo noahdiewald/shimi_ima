@@ -25,14 +25,14 @@
   {% elif parens == 'exopen' %}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition existential" data-value="exopen">
-    <div title="existential openning parenthesis">∃</td>
+    <div title="existential opening parenthesis">∃</td>
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>
   </td>
   {% else %}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition normal" data-value="open">
-    <div title="normal openning parenthesis"></div>
+    <div title="normal opening parenthesis"></div>
   </td>
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>

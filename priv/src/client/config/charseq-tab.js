@@ -1,8 +1,10 @@
 shimi.charseqTab = (function () {
+  'use strict';
+
   var mod = {};
 
   mod.add = function () {
-    shimi.charseqDialog().dialog("open");
+    shimi.charseqDialog().dialog('open');
     return mod;
   };
 
@@ -13,7 +15,7 @@ shimi.charseqTab = (function () {
     attrs.forEach(function (item) {
       oldobj[item] = shimi.store(target).get64('charseq-' + item);
     });
-    shimi.charseqDialog(oldobj).dialog("open");
+    shimi.charseqDialog(oldobj).dialog('open');
 
     return mod;
   };
@@ -27,7 +29,7 @@ shimi.charseqTab = (function () {
       mod.init();
     };
 
-    if (window.confirm("Are you sure? This is permanent.")) {
+    if (window.confirm('Are you sure? This is permanent.')) {
       shimi.form.send(url, {}, 'DELETE', complete, this);
     }
 
@@ -35,17 +37,17 @@ shimi.charseqTab = (function () {
   };
 
   mod.init = function () {
-    var tabs = $("#charseq-tabs");
-    var heads = $("#charseq-tabs-headings");
-    var url = "config/charseqs";
+    var tabs = $('#charseq-tabs');
+    var heads = $('#charseq-tabs-headings');
+    var url = 'config/charseqs';
 
     tabs.tabs();
 
     $.get(url, function (charseqs) {
       heads.empty();
-      //$("#charseq-tabs-headings + .ui-tabs-panel").remove();
+      //$('#charseq-tabs-headings + .ui-tabs-panel').remove();
       heads.find('.ui-tabs-panel').remove();
-      tabs.tabs("destroy");
+      tabs.tabs('destroy');
       heads.html(charseqs);
 
       tabs.tabs();

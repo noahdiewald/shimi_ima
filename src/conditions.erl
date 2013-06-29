@@ -133,8 +133,6 @@ add_ex(_) ->
     "".
 
 -spec process_arg(string(), binary()) -> string().
-process_arg("matches", Arg) ->
-    "/" ++ convert_binary(Arg) ++ "/";
 process_arg(_, Arg) when is_integer(Arg); is_float(Arg) ->
     convert_number(Arg);
 process_arg(_, Arg) ->

@@ -57,15 +57,11 @@ resource_exists(R, S) ->
 identifier_exists(Id, R, S) ->
     case field:is_meta(Id) of
         true -> {true, R, [{is_meta, list_to_binary(Id)}|S]};
-        _ -> 
-            {Exist, R1} = h:exists(Id, R, S),
-            {Exist, R1, S}
+        _ -> h:exists(Id, R, S)
     end.
 
 index_exists("metadata", R, S) -> {true, R, S};
-index_exists(Fieldset, R, S) -> 
-    {Exist, R1} = h:exists(Fieldset, R, S),
-    {Exist, R1, S}.
+index_exists(Fieldset, R, S) -> h:exists_with_deps([Fieldset, doctype], R, S).
 
 is_authorized(R, S) ->
     proxy_auth:is_authorized(R, [{source_mod, ?MODULE}|S]).
@@ -189,7 +185,7 @@ get_allowed_docs(Json, Project, S) ->
 
 get_allowed_files(Json, Project, S) ->
     Path = jsn:get_value(<<"source">>, Json),
-    RawAllowed = attach:get_all_full_path(Path, Project, S),
+    {ok, RawAllowed} = q:full_path(Path, Project, S),
     jsn:set_value(<<"allowed">>, jsn:get_value(<<"rows">>, RawAllowed), Json).
       
 validate_authentication(Props, R, S) ->

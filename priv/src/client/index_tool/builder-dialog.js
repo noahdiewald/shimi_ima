@@ -1,11 +1,13 @@
 shimi.initIndexBuilderDialog = function (indexDoctype) {
-  var builderOr = $("#builder-or-input");
-  var builderParen = $("#builder-paren-input");
-  var builderNegate = $("#builder-negate-input");
-  var builderOperator = $("#builder-operator-input").inputDisable();
-  var builderArgument = $("#builder-argument-input").inputDisable();
-  var builderFieldset = $("#builder-fieldset-input").inputDisable();
-  var builderField = $("#builder-field-input").inputDisable();
+  'use strict';
+
+  var builderOr = $('#builder-or-input');
+  var builderParen = $('#builder-paren-input');
+  var builderNegate = $('#builder-negate-input');
+  var builderOperator = $('#builder-operator-input').inputDisable();
+  var builderArgument = $('#builder-argument-input').inputDisable();
+  var builderFieldset = $('#builder-fieldset-input').inputDisable();
+  var builderField = $('#builder-field-input').inputDisable();
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
@@ -78,11 +80,11 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
     });
   };
 
-  var dialog = $("#index-builder-dialog").dialog({
+  var dialog = $('#index-builder-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-      "Create": function () {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
@@ -102,37 +104,37 @@ shimi.initIndexBuilderDialog = function (indexDoctype) {
         if (checkResult) {
           if (builderOr.is(':checked')) {
             $.get(condition_url, {
-              "is_or": true
+              'is_or': true
             }, function (data) {
               appendCondition(data);
             });
           } else if (builderParen.val()) {
             $.get(condition_url, {
-              "is_or": false,
-              "parens": builderParen.val(),
-              "negate": false
+              'is_or': false,
+              'parens': builderParen.val(),
+              'negate': false
             }, function (data) {
               appendCondition(data);
             });
           } else {
             $.get(condition_url, {
-              "is_or": false,
-              "parens": false,
-              "negate": builderNegate.is(':checked'),
-              "fieldset": builderFieldset.val(),
-              "field": builderField.val(),
-              "operator": builderOperator.val(),
-              "argument": builderArgument.val()
+              'is_or': false,
+              'parens': false,
+              'negate': builderNegate.is(':checked'),
+              'fieldset': builderFieldset.val(),
+              'field': builderField.val(),
+              'operator': builderOperator.val(),
+              'argument': builderArgument.val()
             }, function (data) {
               appendCondition(data);
             });
           }
 
-          $(this).dialog("close");
+          $(this).dialog('close');
         }
       },
-      "Cancel": function () {
-        $(this).dialog("close");
+      'Cancel': function () {
+        $(this).dialog('close');
       }
     },
     close: function () {

@@ -1,4 +1,6 @@
 shimi.ihelpers = (function () {
+  'use strict';
+
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
@@ -17,24 +19,24 @@ shimi.ihelpers = (function () {
     var options = $('#builder-operator-input');
 
     switch (fieldDoc.subcategory) {
-    case "select":
-    case "docselect":
-    case "text":
-    case "textarea":
-      disableOptions(options, ["member", "true"]);
+    case 'select':
+    case 'docselect':
+    case 'text':
+    case 'textarea':
+      disableOptions(options, ['member', 'true']);
       break;
-    case "integer":
-    case "rational":
-    case "date":
-      disableOptions(options, ["member", "true", "match"]);
+    case 'integer':
+    case 'rational':
+    case 'date':
+      disableOptions(options, ['member', 'true', 'match']);
       break;
-    case "boolean":
-    case "openboolean":
-      disableOptions(options, ["equal", "greater", "less", "member", "match"]);
+    case 'boolean':
+    case 'openboolean':
+      disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
       break;
-    case "multiselect":
-    case "docmultiselect":
-      disableOptions(options, ["equal", "greater", "less", "true", "match"]);
+    case 'multiselect':
+    case 'docmultiselect':
+      disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
       break;
     }
 
@@ -60,7 +62,7 @@ shimi.ihelpers = (function () {
       if (fdoc.subcategory === 'date') {
         argumentField.removeAttr('disabled');
         argumentField.datepicker({
-          dateFormat: "yy-mm-dd"
+          dateFormat: 'yy-mm-dd'
         });
       } else {
         argumentField.removeAttr('disabled');
@@ -76,18 +78,18 @@ shimi.ihelpers = (function () {
 
     if (fdoc) {
       switch (operatorField.val()) {
-      case "true":
-      case "isDefined":
-      case "blank":
-        argumentField.attr('disabled', 'disabled').val("");
+      case 'true':
+      case 'isDefined':
+      case 'blank':
+        argumentField.attr('disabled', 'disabled').val('');
         break;
-      case "equal":
-      case "member":
-      case "greater":
-      case "less":
-      case "hasExactly":
-      case "hasGreater":
-      case "hasLess":
+      case 'equal':
+      case 'member':
+      case 'greater':
+      case 'less':
+      case 'hasExactly':
+      case 'hasGreater':
+      case 'hasLess':
         dateOrText(argumentField, fdoc);
         break;
       }
@@ -160,7 +162,7 @@ shimi.ihelpers = (function () {
     indexFieldset.change(function () {
       var callback2;
 
-      if (typeof indexDoctype !== "string") {
+      if (typeof indexDoctype !== 'string') {
         indexDoctype = indexDoctype.val();
       }
 

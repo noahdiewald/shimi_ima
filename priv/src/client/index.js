@@ -12,6 +12,8 @@
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
 shimi.index = function (args) {
+  'use strict';
+
   var mod = {};
 
   mod.get = function (startkey, startid, prevkeys, previds) {

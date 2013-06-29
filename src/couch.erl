@@ -62,7 +62,7 @@ create(Json, Url=[$h,$t,$t,$p,$:|_], Headers) ->
         {ok, "201", RespHeads, Data} -> 
             Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
             Data1 = jsn:decode(Data),
-            Data2 = jsn:set_value(<<"rev">>, list_to_binary(Rev), Data1),
+            Data2 = jsn:set_value(<<"document_revision">>, list_to_binary(Rev), Data1),
             {ok, Data2};
         {ok, "403", _, Body} ->
             Resp = jsn:decode(Body),
@@ -98,11 +98,23 @@ delete(Id, Rev, Project, S) ->
         {ok, "409", _, _} -> {error, conflict}
     end.
 
--spec exists(string(), string(), h:req_state()) -> boolean().
-exists(Id, Project, S) ->
-    Url = ndb(Project) ++ Id,
-    Headers = proplists:get_value(headers, S, []),
-    case ibrowse:send_req(Url, Headers, head) of
+-spec exists(string()|undefined|null, string()|undefined, h:req_state()) -> boolean().
+exists(_, undefined, _) ->
+    false;
+exists(undefined, _, _) ->
+    false;
+exists(null, Project, _S) ->
+    exists(adb(Project));
+exists(Id, Project, _S) ->
+    PUrl = adb(Project),
+    case exists(PUrl) of
+        true -> exists(PUrl ++ Id);
+        Else -> Else
+    end.
+
+-spec exists(string()) -> boolean().
+exists(Url) ->
+    case ibrowse:send_req(Url, [], head) of
         {ok, "200", _, _} -> true;
         {ok, "404", _, _} -> false
     end.
@@ -317,7 +329,11 @@ update(Data, Url, Headers) ->
         {ok, "201", RespHeads, RetData} -> 
             Rev = proplists:get_value("X-Couch-Update-NewRev", RespHeads),
             RetData1 = jsn:decode(RetData),
-            RetData2 = jsn:set_value(<<"rev">>, list_to_binary(Rev), RetData1),
+            RetData2 = case Rev of
+                undefined -> <<>>;
+                Rev when is_list(Rev) ->
+                    jsn:set_value(<<"document_revision">>, list_to_binary(Rev), RetData1)
+            end,
             {ok, RetData2};
         {error, req_timedout} -> 
             {error, req_timedout};

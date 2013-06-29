@@ -1,24 +1,26 @@
 shimi.setsui = (function () {
+  'use strict';
+
   var mod = {};
   var sets = shimi.sets;
   var utils = shimi.utils();
   var setA = function () {
-    return $("#document-set-a-input");
+    return $('#document-set-a-input');
   };
   var setB = function () {
-    return $("#document-set-b-input");
+    return $('#document-set-b-input');
   };
   var worksheetsSet = function () {
-    return $("#document-worksheets-set-input");
+    return $('#document-worksheets-set-input');
   };
   var op = function () {
-    return $("#document-set-operation-input");
+    return $('#document-set-operation-input');
   };
   var setListing = function () {
-    return $("#set-listing");
+    return $('#set-listing');
   };
   var sessionKey = function () {
-    return shimi.documents.identifier() + "_sets";
+    return shimi.documents.identifier() + '_sets';
   };
 
   var member = function (arr, x) {
@@ -86,7 +88,7 @@ shimi.setsui = (function () {
   var remove = function (setName) {
     removeSet(setName);
     render([]);
-    shimi.dispatch.send("sets-changed");
+    shimi.dispatch.send('sets-changed');
     return mod;
   };
 
@@ -124,7 +126,7 @@ shimi.setsui = (function () {
       });
       window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
     } else {
-      window.sessionStorage.settem(sessionKey(), "[]");
+      window.sessionStorage.settem(sessionKey(), '[]');
     }
 
     return mod;
@@ -146,10 +148,10 @@ shimi.setsui = (function () {
     var retval = [];
 
     switch (target) {
-    case "search":
+    case 'search':
       retval = selectedSaveResultsToArray();
       break;
-    case "sets":
+    case 'sets':
       retval = selectedElementsToArray();
       break;
     }
@@ -159,11 +161,11 @@ shimi.setsui = (function () {
 
   var selectedElementsToArray = function () {
     var retval;
-    var selected = $("input.set-element-selection:checked");
+    var selected = $('input.set-element-selection:checked');
 
     retval = $.map(selected, function (elem) {
-      var anchor = $(elem).parent("td").next("td").find("a").first();
-      var id = anchor.first().attr("href").replace(/^#/, "");
+      var anchor = $(elem).parent('td').next('td').find('a').first();
+      var id = anchor.first().attr('href').replace(/^#/, '');
       var context = anchor.html().trim();
       return [[context, id]];
     });
@@ -172,11 +174,11 @@ shimi.setsui = (function () {
 
   var selectedSaveResultsToArray = function () {
     var retval;
-    var selected = $("table.selected-for-save tr");
+    var selected = $('table.selected-for-save tr');
 
     retval = $.map(selected, function (elem) {
-      var id = $(elem).find("th a").first().attr("href").replace(/^#/, "");
-      var context = $(elem).find("td.search-result-context a").first().html().trim();
+      var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
+      var context = $(elem).find('td.search-result-context a').first().html().trim();
       return [[context, id]];
     });
 
@@ -201,31 +203,31 @@ shimi.setsui = (function () {
 
   mod.performOp = function () {
     switch (op().val()) {
-    case "view-a":
+    case 'view-a':
       view(setA().val());
       break;
-    case "view-b":
+    case 'view-b':
       view(setB().val());
       break;
-    case "remove-a":
+    case 'remove-a':
       remove(setA().val());
       break;
-    case "remove-b":
+    case 'remove-b':
       remove(setB().val());
       break;
-    case "union":
+    case 'union':
       union(setA().val(), setB().val());
       break;
-    case "intersection":
+    case 'intersection':
       intersection(setA().val(), setB().val());
       break;
-    case "symmetric-difference":
+    case 'symmetric-difference':
       symmetricDifference(setA().val(), setB().val());
       break;
-    case "relative-complement-b-in-a":
+    case 'relative-complement-b-in-a':
       relativeComplement(setA().val(), setB().val());
       break;
-    case "relative-complement-a-in-b":
+    case 'relative-complement-a-in-b':
       relativeComplement(setB().val(), setA().val());
       break;
     default:
@@ -246,9 +248,9 @@ shimi.setsui = (function () {
   };
 
   mod.saveSelected = function () {
-    var dialog = $("#new-set-dialog");
-    var name = $("#new-set-input").val();
-    var target = $("#new-set-target-input").val();
+    var dialog = $('#new-set-dialog');
+    var name = $('#new-set-input').val();
+    var target = $('#new-set-target-input').val();
     var selected;
     var newSet;
 
@@ -257,21 +259,21 @@ shimi.setsui = (function () {
       selected = selectedToArray(target);
       newSet = [name, selected];
       setSet(newSet);
-      $("#new-set-input").val("");
-      shimi.dispatch.send("sets-changed");
-      shimi.flash("Success:", "Set '" + name + "' saved.").highlight();
+      $('#new-set-input').val('');
+      shimi.dispatch.send('sets-changed');
+      shimi.flash('Success:', 'Set "' + name + '" saved.').highlight();
     } else {
-      shimi.flash("Input invalid:", "You must supply a valid name.").error();
+      shimi.flash('Input invalid:', 'You must supply a valid name.').error();
     }
 
     return mod;
   };
 
   mod.toggleSelectAll = function (target) {
-    if ($(target).is(":checked")) {
-      $("input.set-element-selection").prop("checked", true);
+    if ($(target).is(':checked')) {
+      $('input.set-element-selection').prop('checked', true);
     } else {
-      $("input.set-element-selection").prop("checked", false);
+      $('input.set-element-selection').prop('checked', false);
     }
     return mod;
   };

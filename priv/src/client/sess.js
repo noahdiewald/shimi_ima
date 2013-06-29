@@ -1,4 +1,6 @@
 shimi.sess = function () {
+  'use strict';
+
   var mod = {};
 
   mod.put = function (doc) {

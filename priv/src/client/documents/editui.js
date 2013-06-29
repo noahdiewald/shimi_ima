@@ -1,5 +1,7 @@
 // Edit pane UI elements
 shimi.editui = (function () {
+  'use strict';
+
   var mod = {};
 
   // Imports
@@ -27,7 +29,7 @@ shimi.editui = (function () {
     invalidTab.addClass('ui-state-error');
     invalid.addClass('ui-state-error');
 
-    flash(title, body.fieldname + " " + body.message).error();
+    flash(title, body.fieldname + ' ' + body.message).error();
 
     return mod;
   };
@@ -40,7 +42,7 @@ shimi.editui = (function () {
       }).join('');
     };
 
-    $("#last-added [data-field-instance]").each(function (index, item) {
+    $('#last-added [data-field-instance]').each(function (index, item) {
       var itemElem = $(item).first();
       var oldInstance = itemElem.attr('data-field-instance');
       var newInstance = oldInstance;
@@ -59,14 +61,14 @@ shimi.editui = (function () {
     });
 
     if (addInstances) {
-      $("#last-added").removeAttr("id");
+      $('#last-added').removeAttr('id');
     }
 
     return mod;
   };
 
   mod.init = function () {
-    var url = "documents/edit";
+    var url = 'documents/edit';
 
     $.get(url, function (documentEditHtml) {
 
@@ -123,7 +125,7 @@ shimi.editui = (function () {
 
       if (thedefault && thedefault !== '') {
         if (field.is('select.multiselect')) {
-          field.val(thedefault.split(","));
+          field.val(thedefault.split(','));
         } else if (field.is('input.boolean')) {
           field.attr('checked', thedefault === true);
         } else {
@@ -149,14 +151,14 @@ shimi.editui = (function () {
     var title;
     var s = store(saveButton());
     var root = $('#edit-document-form');
-    var document = s.d("document");
-    var rev = s.d("rev");
-    var url = "./documents/" + document + "?rev=" + rev;
+    var document = s.d('document');
+    var rev = s.d('rev');
+    var url = './documents/' + document + '?rev=' + rev;
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
+      doctype: s.d('doctype'),
+      description: s.d('description')
     };
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -164,16 +166,16 @@ shimi.editui = (function () {
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     $.ajax({
-      type: "PUT",
+      type: 'PUT',
       url: url,
-      dataType: "json",
-      contentType: "application/json",
+      dataType: 'json',
+      contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
       complete: function (req, status) {
         if (req.status === 204 || req.status === 200) {
-          title = "Success";
-          body = "Your document was saved.";
+          title = 'Success';
+          body = 'Your document was saved.';
           shimi.viewui.get(document);
           shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
@@ -198,8 +200,8 @@ shimi.editui = (function () {
     var skey = $('#first-index-element').attr('data-first-key');
     var sid = $('#first-index-element').attr('data-first-id');
     var obj = {
-      doctype: s.d("doctype"),
-      description: s.d("description")
+      doctype: s.d('doctype'),
+      description: s.d('description')
     };
 
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -207,15 +209,15 @@ shimi.editui = (function () {
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
     var postUrl = $.ajax({
-      type: "POST",
-      dataType: "json",
-      contentType: "application/json",
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
       complete: function (req, status) {
         if (req.status === 201) {
-          var title = "Success";
-          var body = "Your document was created.";
+          var title = 'Success';
+          var body = 'Your document was created.';
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
           saveButton().hide().attr('disabled', 'true');
@@ -253,9 +255,9 @@ shimi.editui = (function () {
   mod.toggleTextarea = function (target) {
     var textarea = $('#' + target.attr('data-group-id'));
 
-    if (target.attr("id") === textarea.attr("data-group-id")) {
+    if (target.attr('id') === textarea.attr('data-group-id')) {
       textarea.toggleClass('expanded');
-      textarea.next().next("span").toggleClass('expanded');
+      textarea.next().next('span').toggleClass('expanded');
     } else {
       textarea.toggleClass('expanded');
       target.toggleClass('expanded');

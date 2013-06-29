@@ -37,6 +37,9 @@
          doctype_data/2,
          exists/3,
          exists_id/2,
+         exists_unless_post/2,
+         exists_with_deps/3,
+         extract_create_data/2,
          field/1,
          field_data/2,
          fieldset/1,
@@ -69,9 +72,7 @@
 -type req_retval() :: {couch_ret(), req_data()}.
 
 -spec accept_json(req_data(), req_state()) -> {[{{binary(), binary(), list()}, from_json}], req_data(), req_state()}.
-accept_json(R, S) ->
-    {[{{<<"application">>, <<"json">>, []}, from_json},
-      {{<<"application">>, <<"json">>, [{<<"charset">>, <<"UTF-8">>}]}, from_json}], R, S}.
+accept_json(R, S) -> {[{{<<"application">>, <<"json">>, '*'}, from_json}], R, S}.
     
 -spec basic_info(string(), string(), req_data(), req_state()) -> {jsn:json_term(), req_data()}.
 basic_info(Title1, Title2, R, S) ->
@@ -99,7 +100,7 @@ create(Json, R, S) ->
     {Project, R1} = project(R),
     case couch:create(Json, Project, S) of
         {ok, _} -> 
-            {true, R1, S};
+            {{true, proplists:get_value(create_path, S)}, R1, S};
         {forbidden, Message} ->
             {ok, R2} = cowboy_req:reply(403, [], Message, R1),
             {halt, R2, S}
@@ -111,7 +112,7 @@ create_attachment(Id, Name, Content, R, S) ->
     case couch:update_raw(Id ++ "/" ++ Name, Content, Project, S) of
         {ok, _} ->
             Msg = <<"File Uploaded">>,
-            Msg1 = jsn:encode([{<<"message">>, Msg}, {<<"status">>, <<"sucess">>}]),
+            Msg1 = jsn:encode([{<<"message">>, Msg}, {<<"status">>, <<"success">>}]),
             {ok, R2} = cowboy_req:reply(200, [], Msg1, R1),
             {halt, R2, S};
         {forbidden, Message} ->
@@ -158,19 +159,51 @@ doctype_data(R, S) ->
     {[Project, Doctype], R1} = g([project, doctype], R),
     {get(Doctype, Project, S), R1}.
 
--spec exists(string(), req_data(), req_state()) -> {boolean(), req_data()}.
+-spec exists(string()|null|undefined, req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists(Id, R, S) ->
     {Project, R1} = project(R),
-    {couch:exists(Id, Project, S), R1}.
+    {couch:exists(Id, Project, S), R1, S}.
 
 -spec exists_id(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_id(R, S) ->
-    {[Project, Id], R1} = g([project, id], R),
-    case Id of
-        undefined -> {false, R1, S};
-        _ -> {couch:exists(Id, Project, S), R1, S}
-    end.
+    {Id, R1} = id(R),
+    exists(Id, R1, S).
     
+-spec exists_unless_post(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+exists_unless_post(R, S) ->
+    case cowboy_req:method(R) of
+        {<<"POST">>, R1} -> {false, R1, S};
+        {_, R1} -> {true, R1, S}
+    end.
+
+-spec exists_with_deps([atom()|list()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
+exists_with_deps([], R, S) ->
+    exists_unless_post(R, S);
+exists_with_deps([Binding|Rest], R, S) when is_atom(Binding), Binding /= undefined ->
+    {Value, R1} = ?MODULE:Binding(R),
+    exists_with_deps([Value|Rest], R1, S);
+exists_with_deps([BValue|_], R, S) when BValue =:= undefined ->
+    {ok, R1} = cowboy_req:reply(404, [], <<>>, R),
+    {halt, R1, S};
+exists_with_deps([BValue|Rest], R, S) when is_list(BValue) ->
+    case exists(BValue, R, S) of
+        {true, R1, S} -> exists_with_deps(Rest, R1, S);
+        _ ->
+            {ok, R1} = cowboy_req:reply(404, [], <<>>, R),
+            {halt, R1, S}
+    end.
+
+-spec extract_create_data(req_data(), req_state()) -> {req_data(), req_state()}.
+extract_create_data(R, S) ->
+    {ok, Body, R1} = cowboy_req:body(R),
+    Json = jsn:decode(Body),
+    {Id, Json1} = case jsn:get_value(<<"_id">>, Json) of
+                      undefined -> 
+                          GenId = list_to_binary(utils:uuid()),
+                          {GenId, jsn:set_value(<<"_id">>, GenId, Json)};
+                      IdBin -> {IdBin, Json}
+                  end,
+    {R1, [{create_path, <<"/", Id/binary>>}, {posted_json, Json1}|S]}.
 
 -spec field(req_data()) -> {string() | undefined, req_data()}.
 field(R) ->

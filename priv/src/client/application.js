@@ -7,7 +7,6 @@
 //= path.js
 //= jquery.hotkeys.js
 //= jquery-ui-input-state.js
-//= compat.js
 //= click-dispatch.js
 //= keystrokes.js
 //= changes.js

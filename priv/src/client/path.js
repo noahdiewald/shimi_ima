@@ -18,23 +18,23 @@
  *
  * <pre> 
  *   <div
- *     id="someid"
- *     data-fieldset-fieldset="fsid"
- *     data-fieldset-doctype="did"></div>
+ *     id='someid'
+ *     data-fieldset-fieldset='fsid'
+ *     data-fieldset-doctype='did'></div>
  *     
  *   <div
- *    id="thisid"
- *    data-group-id="someid">
+ *    id='thisid'
+ *    data-group-id='someid'>
  *     
- *   mypath = path($('#thisid'), "fieldset");
- *   mypath.toString() == "doctypes/did/fieldsets/fsid";
+ *   mypath = path($('#thisid'), 'fieldset');
+ *   mypath.toString() == 'doctypes/did/fieldsets/fsid';
  *   
- *   mypath = path($('#thisid'), "fieldset", "config");
- *   mypath.toString() == "config/doctypes/did/fieldsets/fsid";
+ *   mypath = path($('#thisid'), 'fieldset', 'config');
+ *   mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
  *   
- *   mypath = path($('#thisid'), "fieldset");
+ *   mypath = path($('#thisid'), 'fieldset');
  *   mypath.fieldset = false; // unsets the fielset id
- *   mypath.toString() == "doctypes/did/fieldsets"; // all fieldsets
+ *   mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
  * </pre> 
  *   
  * Note that the category matches the x of data-x in someid. Different
@@ -67,7 +67,7 @@
  *  Example:
  * 
  * <pre> 
- *   mypath = path($('#thisid'), "fieldset");
+ *   mypath = path($('#thisid'), 'fieldset');
  *   mypath.put(object, callback, context);
  *   mypath.post(object, callback, context);
  *   mypath.del(callback, context);
@@ -88,25 +88,27 @@
 */
 
 shimi.path = function (source, category, section) {
+  'use strict';
+
   var mod = {};
   var prefix;
 
   if (category) {
-    prefix = category + "-";
+    prefix = category + '-';
   } else {
-    prefix = "";
+    prefix = '';
   }
 
   if (section) {
-    mod.string = section + "/";
+    mod.string = section + '/';
   } else {
-    mod.string = "";
+    mod.string = '';
   }
 
   mod.category = category;
   mod.origin = source;
-  mod.type = prefix + "path";
-  mod.valid_components = ["doctype", "fieldset", "field"];
+  mod.type = prefix + 'path';
+  mod.valid_components = ['doctype', 'fieldset', 'field'];
   var s = shimi.store(mod.origin);
 
   mod.valid_components.forEach(
@@ -150,12 +152,12 @@ shimi.path = function (source, category, section) {
     mod.valid_components.map(
 
     function (item) {
-      var plural = item + "s";
+      var plural = item + 's';
       var value = mod[item];
       var retval = null;
 
       if (value) {
-        retval = plural + "/" + value;
+        retval = plural + '/' + value;
       } else if (item === mod.category) {
         retval = plural;
       }
@@ -164,11 +166,11 @@ shimi.path = function (source, category, section) {
     }).filter(
 
     function (item) {
-      return (typeof item === "string" && !item.isBlank());
-    }).join("/"));
+      return (typeof item === 'string' && !item.isBlank());
+    }).join('/'));
 
     if (mod.rev) {
-      pathString = pathString.concat("?rev=" + mod.rev);
+      pathString = pathString.concat('?rev=' + mod.rev);
     }
 
     return pathString;

@@ -22,4 +22,7 @@ scratch\.txt
 ^dm\.config$
 node_modules
 .*\.couchapprc
+priv/indexes/
+coverage\.html
+dump.rdb
 

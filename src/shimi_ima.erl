@@ -26,8 +26,10 @@
 -export([start/0, start_link/0, stop/0, stop/1]).
 
 ensure_started(App) ->
+    io:format("Trying ~p~n~n", [App]),
     case application:start(App) of
         ok ->
+            io:format("Started ~p~n~n", [App]),
             ok;
         {error, {already_started, App}} ->
             ok
@@ -38,6 +40,7 @@ ensure_started(App) ->
 start_link() ->
     ensure_started(crypto),
     ensure_started(sasl),
+    ensure_started(asn1),
     ensure_started(public_key),
     ensure_started(ssl),
     ensure_started(ibrowse),
@@ -50,6 +53,7 @@ start_link() ->
 start() ->
     ensure_started(crypto),
     ensure_started(sasl),
+    ensure_started(asn1),
     ensure_started(public_key),
     ensure_started(ssl),
     ensure_started(ibrowse),

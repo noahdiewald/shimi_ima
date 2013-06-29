@@ -1,10 +1,12 @@
 shimi.fieldsets = (function () {
+  'use strict';
+
   var mod = {};
   var store = shimi.store;
   var utils = shimi.utils();
 
   var fsContainer = function (id) {
-    return $("#container-" + id);
+    return $('#container-' + id);
   };
 
   var dpath = function (source, category) {
@@ -36,32 +38,22 @@ shimi.fieldsets = (function () {
       field = $(field);
       var s = store(field);
       var value = getFieldValue(field);
-      var instance = s.f("instance");
-      var changes = shimi.globals.changes;
-
-      if (changes === undefined) {
-        changes = {};
-      } else {
-        if (changes[instance] === undefined) {
-          changes[instance] = {};
-        }
-        changes[instance].newValue = JSON.stringify(value);
-      }
+      var instance = s.f('instance');
 
       obj.fields[i] = {
-        id: s.f("field"),
-        name: s.f("name"),
-        label: s.f("label"),
-        head: s.f("head") === "true",
-        reversal: s.f("reversal") === "true",
-        required: s.f("required") === "true",
-        min: dateOrNumber(s.f("subcategory"), s.f("min")),
-        max: dateOrNumber(s.f("subcategory"), s.f("max")),
+        id: s.f('field'),
+        name: s.f('name'),
+        label: s.f('label'),
+        head: s.f('head') === 'true',
+        reversal: s.f('reversal') === 'true',
+        required: s.f('required') === 'true',
+        min: dateOrNumber(s.f('subcategory'), s.f('min')),
+        max: dateOrNumber(s.f('subcategory'), s.f('max')),
         instance: instance,
-        charseq: s.f("charseq"),
-        regex: s.f("regex"),
-        order: s.f("order") * 1,
-        subcategory: s.f("subcategory"),
+        charseq: s.f('charseq'),
+        regex: s.f('regex'),
+        order: s.f('order') * 1,
+        subcategory: s.f('subcategory'),
         value: value
       };
 
@@ -74,7 +66,7 @@ shimi.fieldsets = (function () {
   };
 
   var dateOrNumber = function (subcategory, fieldvalue) {
-    if (subcategory === "date") {
+    if (subcategory === 'date') {
       return fieldvalue;
     } else {
       return utils.stringToNumber(fieldvalue);
@@ -84,10 +76,10 @@ shimi.fieldsets = (function () {
   // Get the correct value for a boolean that can be null
   var getOpenboolean = function (value) {
     switch (value) {
-    case "true":
+    case 'true':
       value = true;
       break;
-    case "false":
+    case 'false':
       value = false;
       break;
     default:
@@ -123,7 +115,7 @@ shimi.fieldsets = (function () {
 
   // Items in select lists are URL encoded
   var getEncoded = function (value) {
-    return window.decodeURIComponent(value.replace(/\+/g, " "));
+    return window.decodeURIComponent(value.replace(/\+/g, ' '));
   };
 
   // Get the value from a field using the subcategory to ensure
@@ -131,23 +123,23 @@ shimi.fieldsets = (function () {
   var getFieldValue = function (field) {
     var value;
 
-    switch (store(field).f("subcategory")) {
-    case "boolean":
+    switch (store(field).f('subcategory')) {
+    case 'boolean':
       value = field.is('input:checkbox:checked');
       break;
-    case "openboolean":
+    case 'openboolean':
       value = getOpenboolean(field.val());
       break;
-    case "integer":
-    case "rational":
+    case 'integer':
+    case 'rational':
       value = getNumber(field.val());
       break;
-    case "multiselect":
-    case "docmultiselect":
+    case 'multiselect':
+    case 'docmultiselect':
       value = getMultiple(field.val());
       break;
-    case "select":
-    case "docselect":
+    case 'select':
+    case 'docselect':
       value = getEncoded(field.val());
       break;
     default:
@@ -158,11 +150,11 @@ shimi.fieldsets = (function () {
   };
 
   var initFields = function (container, callback, addInstances) {
-    var url = dpath(container, "field");
+    var url = dpath(container, 'field');
     var section = container.children('.fields').last();
     var prependIt = function (data) {
       if (addInstances) {
-        section.attr("id", "last-added");
+        section.attr('id', 'last-added');
       }
       section.prepend(data);
       if (callback) {
@@ -183,9 +175,9 @@ shimi.fieldsets = (function () {
 
   var fillMultiFieldsets = function (vfieldset) {
     vfieldset = $(vfieldset);
-    var id = store(vfieldset).fs("fieldset");
+    var id = store(vfieldset).fs('fieldset');
     var container = $('#container-' + id);
-    var url = dpath(vfieldset, "fieldset");
+    var url = dpath(vfieldset, 'fieldset');
 
     container.html('');
 
@@ -227,41 +219,28 @@ shimi.fieldsets = (function () {
 
   var setFieldValue = function (field, value, instance) {
     if (field.is('input.boolean')) {
-      field.prop("checked", value);
+      field.prop('checked', value);
     } else if (value && field.is('select.open-boolean')) {
       field.val(value.toString());
     } else if (value && field.is('select.multiselect')) {
       value = value.map(function (x) {
-        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
       });
       field.val(value);
     } else if (value && field.is('select.select')) {
-      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, "%2A").replace(/%20/g, "+");
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
       field.val(value);
     } else if (value && (field.is('input.text') || field.is('select.file'))) {
-      field.val(decodeURIComponent(value.replace(/\+/g, " ")));
+      field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
     } else {
       field.val(value);
     }
     field.attr('data-field-instance', instance);
   };
 
-  var processChanges = function (changes) {
-    var processed = {};
-
-    Object.keys(changes).forEach(function (x) {
-      if (changes[x].newValue !== changes[x].originalValue) {
-        processed[x] = changes[x];
-      }
-      return true;
-    });
-
-    return processed;
-  };
-
   mod.initFieldset = function (fieldset, callback, addInstances) {
-    var url = dpath($(fieldset), "fieldset").toString();
-    var id = store($(fieldset)).fs("fieldset");
+    var url = dpath($(fieldset), 'fieldset').toString();
+    var id = store($(fieldset)).fs('fieldset');
     var container = $('#container-' + id);
     var appendIt = function (data) {
       container.append(data);
@@ -291,12 +270,12 @@ shimi.fieldsets = (function () {
       var fields;
 
       var fsObj = {
-        id: s.fs("fieldset"),
-        multiple: s.fs("multiple") === "true",
-        collapse: s.fs("collapse") === "true",
-        name: s.fs("name"),
-        label: s.fs("label"),
-        order: s.fs("order") * 1
+        id: s.fs('fieldset'),
+        multiple: s.fs('multiple') === 'true',
+        collapse: s.fs('collapse') === 'true',
+        name: s.fs('name'),
+        label: s.fs('label'),
+        order: s.fs('order') * 1
       };
 
       fields = fsContainer(fsObj.id).children('.fields');
@@ -313,10 +292,6 @@ shimi.fieldsets = (function () {
         });
       }
 
-      if (shimi.globals.changes !== undefined) {
-        obj.changes = processChanges(shimi.globals.changes);
-      }
-
       obj.fieldsets[i] = fsObj;
     });
 
@@ -327,7 +302,7 @@ shimi.fieldsets = (function () {
     $('fieldset').each(function (i, fieldset) {
       var fs = store($(fieldset));
 
-      if (fs.fs("multiple") === "false") {
+      if (fs.fs('multiple') === 'false') {
         mod.initFieldset(fieldset, false);
       }
     });
@@ -341,7 +316,7 @@ shimi.fieldsets = (function () {
 
   mod.fillFieldsets = function () {
     $('.fieldset-view').each(function (i, fieldset) {
-      if (store($(fieldset)).fs("multiple") === "true") {
+      if (store($(fieldset)).fs('multiple') === 'true') {
         fillMultiFieldsets(fieldset);
       } else {
         fillNormalFieldsets(fieldset);

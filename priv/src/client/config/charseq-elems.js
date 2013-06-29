@@ -26,9 +26,11 @@
 */
 
 shimi.charseqElems = (function () {
+  'use strict';
+
   var mod = {};
 
-  mod.attrs = ["description", "characters", "name", "sort_ignore", "locale", "tailoring", "vowels", "consonants", "ietf_tag", "iso639_tag", "charseq", "rev"];
+  mod.attrs = ['description', 'characters', 'name', 'sort_ignore', 'locale', 'tailoring', 'vowels', 'consonants', 'ietf_tag', 'iso639_tag', 'charseq', 'rev'];
 
   mod.get = function (values) {
     var cObj = {};
@@ -44,19 +46,19 @@ shimi.charseqElems = (function () {
 
     cObj.getCharseqInputVals = function () {
       var valObj = {
-        "category": "charseq",
-        "description": cObj.description.val(),
-        "characters": cObj.parse(cObj.characters.val()),
-        "name": cObj.name.val(),
-        "sort_ignore": cObj.parse(cObj.sort_ignore.val()),
-        "locale": cObj.locale.val(),
-        "tailoring": cObj.tailoring.val(),
-        "vowels": cObj.parse(cObj.vowels.val()),
-        "consonants": cObj.parse(cObj.consonants.val()),
-        "ietf_tag": cObj.ietf_tag.val(),
-        "iso639_tag": cObj.iso639_tag.val(),
-        "_id": (cObj.charseq.val() || undefined),
-        "rev": (cObj.rev.val() || undefined)
+        'category': 'charseq',
+        'description': cObj.description.val(),
+        'characters': cObj.parse(cObj.characters.val()),
+        'name': cObj.name.val(),
+        'sort_ignore': cObj.parse(cObj.sort_ignore.val()),
+        'locale': cObj.locale.val(),
+        'tailoring': cObj.tailoring.val(),
+        'vowels': cObj.parse(cObj.vowels.val()),
+        'consonants': cObj.parse(cObj.consonants.val()),
+        'ietf_tag': cObj.ietf_tag.val(),
+        'iso639_tag': cObj.iso639_tag.val(),
+        '_id': (cObj.charseq.val() || undefined),
+        'rev': (cObj.rev.val() || undefined)
       };
       return valObj;
     };

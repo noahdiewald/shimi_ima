@@ -1,11 +1,15 @@
 shimi.upgradeButton = function (target) {
-  $.post("config/upgrade");
-  window.alert("Upgrade In Progress");
+  'use strict';
+
+  $.post('config/upgrade');
+  window.alert('Upgrade In Progress');
 };
 
 shimi.initTabs = function () {
+  'use strict';
+
   shimi.doctypeTab.init();
-  $("#main-tabs").tabs();
+  $('#main-tabs').tabs();
   shimi.charseqTab.init();
 
   return true;
