@@ -2181,7 +2181,7 @@ shimi.fieldElems = (function () {
       if (subcategory === 'date') {
         return bound;
       } else {
-        return shimi.utils().stringToNumber(fObj.min.val());
+        return shimi.utils().stringToNumber(bound);
       }
     };
 
