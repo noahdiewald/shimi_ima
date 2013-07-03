@@ -33,6 +33,25 @@ Given(/^the (\w+) fieldset is selected in the (\w+) document type$/) do | fields
   @browser.div(:id => 'loading').wait_while_present
 end
 
+When(/^I click the (\w+) fieldset delete button$/) do | field |
+  fieldsetData = JSON.parse(@redis.get(field))
+  @browser.link(:id => "delete-#{fieldsetData['id']}").click
+  @browser.alert.ok
+  @browser.div(:id => 'loading').wait_while_present
+end
+
+When(/^I click the (\w+) field delete button$/) do | field |
+  fieldData = JSON.parse(@redis.get(field))
+  @browser.link(:id => "delete-field-#{fieldData['id']}-button").click
+  @browser.alert.ok
+  @browser.div(:id => 'loading').wait_while_present
+end
+
+When(/^I click the (\w+) Edit Field button$/) do | field |
+  fieldData = JSON.parse(@redis.get(field))
+  @browser.link(:id => "edit-field-#{fieldData['id']}-button").click
+end
+
 When(/^I click the (\w+) Add New Field button$/) do | fieldset |
   fieldsetData = JSON.parse(@redis.get(fieldset))
   @browser.link(:id => "add-field-to-#{fieldsetData['id']}").click
@@ -53,12 +72,12 @@ When(/^I give (\w+) as the field type$/) do | value |
   fieldType.select
 end
 
-When(/^I give (\w+) as the minimum value$/) do | value |
+When(/^I give (.+) as the minimum value$/) do | value |
   fieldMin = @browser.text_field(:id => 'field-min-input')
   fieldMin.set(value) unless value === "skip"
 end
 
-When(/^I give (\w+) as the maximum value$/) do | value |
+When(/^I give (.+) as the maximum value$/) do | value |
   fieldMax = @browser.text_field(:id => 'field-max-input')
   fieldMax.set(value) unless value === "skip"
 end
@@ -187,5 +206,34 @@ Then(/^there is a new (\w+) document type$/) do | name |
 end
 
 Then(/^the (\w+) field exists$/) do | name |
-  @browser.td(:text => name).should be_exists
+  fieldRow = @browser.td(:text => name).parent
+  fieldRow.should be_exists
+  fieldId = fieldRow.attribute_value('data-field-id')
+  fieldData = {
+    id: fieldId,
+    label: fieldRow.attribute_value('data-field-label')
+  }.to_json
+  @redis.set(name, fieldData)
+end
+
+Then(/^the (\w+) field has (.+) for the (\w+) value$/) do | name, value, field_attr |
+  fieldRow = @browser.td(:text => name).parent
+  fieldRow.should be_exists
+  fieldRow.attribute_value("data-field-#{field_attr}").should == value
+  fieldId = fieldRow.attribute_value('data-field-id')
+  fieldData = {
+    id: fieldId,
+    label: fieldRow.attribute_value('data-field-label')
+  }.to_json
+  @redis.set(name, fieldData)
+end
+
+Then(/^the (\w+) field is deleted$/) do | field |
+  fieldData = JSON.parse(@redis.get(field))
+  @browser.link(:id => "delete-field-#{fieldData['id']}-button").should_not be_exists
+end
+
+Then(/^the (.+) fieldset is deleted$/) do | label |
+  fieldsetSectionHeader = @browser.link(:text => label)
+  fieldsetSectionHeader.should_not be_exists
 end

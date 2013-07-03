@@ -39,7 +39,7 @@ mocha:
 mochacov:
 	$(GRUNT) coverage
 
-cucumber:
+runcuc:
 	$(REDIS) > /dev/null &
 	/bin/bash -c 'pushd ./Cukes;$(CUC);popd'
 	echo "shutdown" | $(RCLIENT)
@@ -51,6 +51,8 @@ cleancuc:
 		$(CURL) -X DELETE $(APP_URL)/$$i?rev=$$revision; \
 		$(CURL) -X DELETE $(URL)/project-$$i; \
 	done
+
+cucumber: runcuc cleancuc
 
 fasttest: eunit mocha
 
