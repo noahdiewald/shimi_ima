@@ -27,10 +27,10 @@ Scenario Outline: Creating fieldsets
 
   Examples:
   | name   | label                            | collapse | multiple | order |
-  | movies | This Popscicle's Favorite Movies | true     | true     | 100   |
-  | basic  | Basic Info                       | false    | false    | 10    |
-  | lie    | Lie Told by Popscicle            | true     | false    | 50    |
-  | oops   | Better Delete                    | true     | true     | 666   |
+  | movies | This Popscicle's Favorite Movies | true     | true     |   100 |
+  | basic  | Basic Info                       | false    | false    |    10 |
+  | lie    | Lie Told by Popscicle            | true     | false    |    50 |
+  | oops   | Better Delete                    | true     | true     |   666 |
 
 Scenario Outline: Creating fields
   Given the <fieldset> fieldset is selected in the Popscicle document type
@@ -52,14 +52,14 @@ Scenario Outline: Creating fields
 
   Examples:
   | fieldset | name        | label             | type     | minval | maxval | regex  | default | allowed       | head  | reversal | required | order |
-  | movies   | movie_name  | Movie Name        | text     | skip   | skip   | skip   |skip     | skip          | false | false    | false    | 9     |
-  | movies   | date        | Release Date      | date     | skip   | skip   | skip   | skip    |skip           | false | false    | false    | 27    |
-  | movies   | stars       | Star Rating       | integer  | 1      | 5      | skip   |skip     | skip          | false | false    | false    | 45    |
-  | movies   | description | Movie Description | textarea | skip   | skip   | skip   | skip    | skip          | false | false    | false    | 99    |
-  | basic    | flavor      | Popscicle Flavor  | text     | skip   | skip   | berry$ | skip    | skip          | true  | false    | true     | 5     |
-  | basic    | sticks      | Double or Single? | select   | skip   | skip   | skip   | single  | single,double | false | false    | false    | 34    |
-  | lie      | lie_field         | The Lie           | text     | skip   | skip   | skip   | skip    | skip          | false | true     | false    | 78    |
-  | oops     | not_here         | Not Here          | text     | skip   | skip   | skip   | skip    | skip          | false | true     | false    | 78    |
+  | movies   | movie_name  | Movie Name        | text     | skip   | skip   | skip   | skip    | skip          | false | false    | false    |     9 |
+  | movies   | date        | Release Date      | date     | skip   | skip   | skip   | skip    | skip          | false | false    | false    |    27 |
+  | movies   | stars       | Star Rating       | integer  | 1      | 5      | skip   | skip    | skip          | false | false    | false    |    45 |
+  | movies   | description | Movie Description | textarea | skip   | skip   | skip   | skip    | skip          | false | false    | false    |    99 |
+  | basic    | flavor      | Popscicle Flavor  | text     | skip   | skip   | berry$ | skip    | skip          | true  | false    | true     |     5 |
+  | basic    | sticks      | Double or Single? | select   | skip   | skip   | skip   | single  | single,double | false | false    | false    |    34 |
+  | lie      | lie_field   | The Lie           | text     | skip   | skip   | skip   | skip    | skip          | false | true     | false    |    78 |
+  | oops     | not_here    | Not Here          | text     | skip   | skip   | skip   | skip    | skip          | false | true     | false    |    78 |
 
 Scenario: Deleting a field
   Given the oops fieldset is selected in the Popscicle document type
@@ -72,6 +72,7 @@ Scenario: Deleting a fieldset
   Then the oops fieldset is deleted
 
 Scenario Outline: Editing fields
+  Given there is no open dialog
   Given the <fieldset> fieldset is selected in the Popscicle document type
   When I click the <name> Edit Field button
   And I give <name> as the field name
@@ -90,12 +91,25 @@ Scenario Outline: Editing fields
   Then the <name> field has <changed_value> for the <changed_form_field> value
 
   Examples:
-  | fieldset | name        | label             | type     | minval | maxval | regex  | default | allowed       | head  | reversal | required | order | changed_value | changed_form_field |
-  | movies   | movie_name  | Movie Name        | text     | skip   | skip   | skip   |skip     | skip          | false | false    | false    | 8     | 8 | order |
-  | movies   | date        | Release Date      | date     | 1900-01-01 | skip   | skip   | skip    |skip           | false | false    | false    | 27    | 1900-01-01 | min |
-  | movies   | stars       | Star Rating       | integer  | 1      | 10      | skip   |skip     | skip          | false | false    | false    | 45    | 10 | max |
-  | movies   | description | Movie Description | textarea | skip   | skip   | skip   | skip    | skip          | false | true    | false    | 99    | true | reversal |
-  | basic    | flavor | Flavor  | text     | skip   | skip   | berry$ | skip    | skip          | true  | false    | true     | 5     | Flavor | label |
-  | lie      | lie_field         | The Lie           | textarea     | skip   | skip   | skip   | skip    | skip          | false | true     | false    | 78    | textarea | subcategory |
+  | fieldset | name        | label             | type     | minval     | maxval | regex  | default | allowed | head  | reversal | required | order | changed_value | changed_form_field |
+  | movies   | movie_name  | Movie Name        | text     | skip       | skip   | skip   | skip    | skip    | false | false    | false    |     8 | 8             | order              |
+  | movies   | date        | Release Date      | date     | 1900-01-01 | skip   | skip   | skip    | skip    | false | false    | false    |    27 | 1900-01-01    | min                |
+  | movies   | stars       | Star Rating       | integer  | 1          | 10     | skip   | skip    | skip    | false | false    | false    |    45 | 10            | max                |
+  | movies   | description | Movie Description | textarea | skip       | skip   | skip   | skip    | skip    | false | true     | false    |    99 | true          | reversal           |
+  | basic    | flavor      | Flavor            | text     | skip       | skip   | berry$ | skip    | skip    | true  | false    | true     |     5 | Flavor        | label              |
+  | lie      | lie_field   | The Lie           | textarea | skip       | skip   | skip   | skip    | skip    | false | true     | false    |    78 | textarea      | subcategory        |
 
+Scenario Outline: Editted fields UI presents proper information
+  Given there is no open dialog
+  Given the <fieldset> fieldset is selected in the Popscicle document type
+  When I click the <name> Edit Field button
+  Then the <name> field has <current_value> for the <form_field> value in a <input> displayed
 
+  Examples:
+  | fieldset | name        | current_value | form_field  | input      |
+  | movies   | movie_name  | 8             | order       | text_field |
+  | movies   | date        | 1900-01-01    | min         | text_field |
+  | movies   | stars       | 10            | max         | text_field |
+  | movies   | description | true          | reversal    | checkbox   |
+  | basic    | flavor      | true          | required    | checkbox   |
+  | lie      | lie_field   | textarea      | subcategory | select     |

@@ -1,3 +1,10 @@
+Given(/^there is no open dialog$/) do
+  cancelButton = @browser.span(:text => 'Cancel')
+  if cancelButton.exists?
+    cancelButton.click
+  end
+end
+
 Given(/^I have created a project$/) do
   step "I navigate to the projects page"
   step "I click the New Projects button"
@@ -226,6 +233,16 @@ Then(/^the (\w+) field has (.+) for the (\w+) value$/) do | name, value, field_a
     label: fieldRow.attribute_value('data-field-label')
   }.to_json
   @redis.set(name, fieldData)
+end
+
+Then(/^the (\w+) field has (.+) for the (\w+) value in a (\w+) displayed$/) do | name, value, field_attr, input_type |
+  fieldAttrField = @browser.send(input_type.to_sym, :id => "field-#{field_attr}-input")
+  fieldAttrField.should be_exists
+  if input_type == "checkbox"
+    fieldAttrField.set?.should == (value == "true")
+  else
+    fieldAttrField.value.should == value
+  end
 end
 
 Then(/^the (\w+) field is deleted$/) do | field |

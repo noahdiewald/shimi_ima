@@ -2140,7 +2140,7 @@ shimi.fieldElems = (function () {
         fObj[field].val(source[field]);
         if (fObj[field].is('input[type=checkbox]')) {
           if (source[field] === 'true') {
-            fObj[field].attr('checked', true);
+            fObj[field].prop('checked', true);
           }
         }
       });
