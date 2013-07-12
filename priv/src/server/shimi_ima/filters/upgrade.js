@@ -1,9 +1,13 @@
-function filter(doc, req) {
+function filter(doc, req)
+{
   'use strict';
 
-  if (doc._id === '_design/shimi_ima') {
+  if (doc._id === '_design/shimi_ima')
+  {
     return true;
-  } else {
+  }
+  else
+  {
     return false;
   }
 }

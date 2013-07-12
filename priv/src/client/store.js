@@ -1,57 +1,57 @@
 /*
  WARNING: OUT OF DATE
- 
+
  h1. Data Attribute Key Value Stores
- 
+
  There are two functions provided for getting values from keys
  embedded in HTML elements.
-  
+
   @getValue(key, elem)@
-  
+
   This funtion takes a key that corresponds to the name of the data
   attribute without the data- prefix. It also takes a jQuery
   object. The assumption is that the jQuery object will hold only one
   element but it may work either way. The element is expected to have
   an attribute data-group-id with a value that is the id of the
   element actually holding the data.
- 
+
  Example:
 
- <pre> 
+ <pre>
    <div
      id='someid'
      data-fieldset-fieldset='fsid'
      data-fieldset-doctype='did'></div>
-     
+
    <div
     id='thisid'
     data-group-id='someid'>
-    
+
    getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre> 
-   
+ </pre>
+
  The following also works:
 
- <pre> 
+ <pre>
    <div
      id='someid2'
      data-fieldset-fieldset='fsid'
      data-fieldset-doctype='did'></div>
-   
+
    <div
      id='someid'
      data-group-id='someid2'
      data-fieldset-fieldset='fsid'></div>
-     
+
    <div
     id='thisid'
     data-group-id='someid'></div>
-    
+
    getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre> 
-   
+ </pre>
+
   @putValue(key, value, elem)@
-  
+
   This function will set an attribute at the target with a name
   corresponding to key and a value of value.
 */
@@ -64,48 +64,57 @@
  https://github.com/spencertipping/js-in-ten-minutes
 */
 
-var identity = function (x) {
+var identity = function (x)
+{
   'use strict';
 
   return x;
 };
 
-Function.prototype.r = function () {
+Function.prototype.r = function ()
+{
   'use strict';
 
   return [this, arguments];
 };
 
-Function.prototype.t = function () {
+Function.prototype.t = function ()
+{
   'use strict';
 
   var c = [this, arguments];
   var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape) {
+  while (c[0] !== escape)
+  {
     c = c[0].apply(this, c[1]);
   }
   return escape.apply(this, c[1]);
 };
 
-shimi.store = function (elem) {
+shimi.store = function (elem)
+{
   'use strict';
 
   var mod = {};
 
-  mod.get = function (key) {
+  mod.get = function (key)
+  {
     var prelim = elem.attr('data-' + key);
 
-    if (prelim) {
+    if (prelim)
+    {
       return prelim;
     }
 
-    var getValue1 = function (key, elem, id) {
+    var getValue1 = function (key, elem, id)
+    {
       var gid = elem.attr('data-group-id');
       var store = $('#' + gid);
       var val = store.attr('data-' + key);
       var next = store.attr('data-group-id');
 
-      if (val === undefined && next !== undefined && gid !== next) {
+      if (val === undefined && next !== undefined && gid !== next)
+      {
         return getValue1.r(key, store, id);
       }
 
@@ -115,26 +124,31 @@ shimi.store = function (elem) {
     return getValue1.t(key, elem, identity);
   };
 
-  mod.get64 = function (key) {
+  mod.get64 = function (key)
+  {
     var retval = mod.get(key);
     retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 
-  mod.put = function (key, value) {
+  mod.put = function (key, value)
+  {
     var dataElem = elem.attr('data-group-id');
     $('#' + dataElem).attr('data-' + key, value);
   };
 
-  mod.fs = function (key) {
+  mod.fs = function (key)
+  {
     return mod.get('fieldset-' + key);
   };
 
-  mod.f = function (key) {
+  mod.f = function (key)
+  {
     return mod.get('field-' + key);
   };
 
-  mod.d = function (key) {
+  mod.d = function (key)
+  {
     return mod.get('document-' + key);
   };
 

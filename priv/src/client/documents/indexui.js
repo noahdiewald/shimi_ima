@@ -1,4 +1,5 @@
-shimi.indexui = (function () {
+shimi.indexui = (function ()
+{
   'use strict';
 
   var mod = {};
@@ -6,12 +7,14 @@ shimi.indexui = (function () {
   var flash = shimi.flash;
   var index = shimi.index;
 
-  mod.get = function (startkey, startid, prevkeys, previds) {
+  mod.get = function (startkey, startid, prevkeys, previds)
+  {
     var url = 'documents/index';
     var indexId = $('#index-index-input').val();
     var target = $('#index-listing');
 
-    index({
+    index(
+    {
       url: url,
       indexId: indexId,
       target: target
@@ -20,11 +23,13 @@ shimi.indexui = (function () {
     return mod;
   };
 
-  mod.iOpts = function () {
+  mod.iOpts = function ()
+  {
     var url = 'indexes?as=options';
     var options;
 
-    $.getJSON(url, function (data) {
+    $.getJSON(url, function (data)
+    {
       options = templates['index-options'].render(data);
       $('#index-index-input').html(options);
     });
@@ -32,7 +37,8 @@ shimi.indexui = (function () {
     return mod;
   };
 
-  mod.load = function (target) {
+  mod.load = function (target)
+  {
     var id = $(target).attr('href').slice(1);
     $('#document-view').html('<em>Loading...</em>');
     shimi.editui.clear();

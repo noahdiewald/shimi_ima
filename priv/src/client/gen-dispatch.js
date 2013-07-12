@@ -1,10 +1,13 @@
-shimi.dispatch = (function() {
+shimi.dispatch = (function ()
+{
   'use strict';
 
   var mod = {};
 
-  mod.send = function(message, arg) {
-    switch (message) {
+  mod.send = function (message, arg)
+  {
+    switch (message)
+    {
     case 'bad-session-state':
       shimi.documents.clearSession();
       break;

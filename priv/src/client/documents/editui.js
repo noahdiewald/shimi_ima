@@ -1,5 +1,6 @@
 // Edit pane UI elements
-shimi.editui = (function () {
+shimi.editui = (function ()
+{
   'use strict';
 
   var mod = {};
@@ -9,17 +10,21 @@ shimi.editui = (function () {
   var flash = shimi.flash;
 
   // UI Elements
-  var saveButton = function () {
+  var saveButton = function ()
+  {
     return $('#save-document-button');
   };
-  var createButton = function () {
+  var createButton = function ()
+  {
     return $('#create-document-button');
   };
-  var editButton = function () {
+  var editButton = function ()
+  {
     return $('#document-edit-button');
   };
 
-  var validationError = function (req) {
+  var validationError = function (req)
+  {
     var body = JSON.parse(req.responseText);
     var title = req.statusText;
 
@@ -34,20 +39,25 @@ shimi.editui = (function () {
     return mod;
   };
 
-  var instances = function (addInstances) {
+  var instances = function (addInstances)
+  {
     var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-    var makeInstance = function () {
-      return text.map(function () {
+    var makeInstance = function ()
+    {
+      return text.map(function ()
+      {
         return text[Math.floor(Math.random() * text.length)];
       }).join('');
     };
 
-    $('#last-added [data-field-instance]').each(function (index, item) {
+    $('#last-added [data-field-instance]').each(function (index, item)
+    {
       var itemElem = $(item).first();
       var oldInstance = itemElem.attr('data-field-instance');
       var newInstance = oldInstance;
 
-      if (addInstances) {
+      if (addInstances)
+      {
         newInstance = makeInstance();
       }
 
@@ -60,17 +70,20 @@ shimi.editui = (function () {
       itemElem.next().next('.expander').attr('data-group-id', newInstance);
     });
 
-    if (addInstances) {
+    if (addInstances)
+    {
       $('#last-added').removeAttr('id');
     }
 
     return mod;
   };
 
-  mod.init = function () {
+  mod.init = function ()
+  {
     var url = 'documents/edit';
 
-    $.get(url, function (documentEditHtml) {
+    $.get(url, function (documentEditHtml)
+    {
 
       $('#document-edit').html(documentEditHtml);
       $('#edit-tabs').tabs();
@@ -80,9 +93,11 @@ shimi.editui = (function () {
     return mod;
   };
 
-  mod.selectInput = function () {
+  mod.selectInput = function ()
+  {
     var inputable = 'input, select, textarea';
-    var t = function () {
+    var t = function ()
+    {
       return $('#edit-tabs');
     };
 
@@ -92,16 +107,19 @@ shimi.editui = (function () {
     return mod;
   };
 
-  mod.afterFreshRefresh = function (addInstances) {
+  mod.afterFreshRefresh = function (addInstances)
+  {
     afterRefresh(addInstances);
 
     return mod;
   };
 
-  mod.afterEditRefresh = function () {
+  mod.afterEditRefresh = function ()
+  {
     var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
-    sharedAttrs.forEach(function (elem) {
+    sharedAttrs.forEach(function (elem)
+    {
       saveButton().attr(elem, editButton().attr(elem));
     });
 
@@ -111,27 +129,38 @@ shimi.editui = (function () {
     return mod;
   };
 
-  var afterRefresh = function (addInstances) {
+  var afterRefresh = function (addInstances)
+  {
     shimi.form.initDateFields();
     instances(addInstances);
 
     return mod;
   };
 
-  mod.resetFields = function () {
-    $('.field').each(function (index) {
+  mod.resetFields = function ()
+  {
+    $('.field').each(function (index)
+    {
       var field = $(this);
       var thedefault = field.attr('data-field-default');
 
-      if (thedefault && thedefault !== '') {
-        if (field.is('select.multiselect')) {
+      if (thedefault && thedefault !== '')
+      {
+        if (field.is('select.multiselect'))
+        {
           field.val(thedefault.split(','));
-        } else if (field.is('input.boolean')) {
+        }
+        else if (field.is('input.boolean'))
+        {
           field.attr('checked', thedefault === true);
-        } else {
+        }
+        else
+        {
           field.val(thedefault);
         }
-      } else {
+      }
+      else
+      {
         field.val('');
         field.removeAttr('checked');
       }
@@ -140,9 +169,12 @@ shimi.editui = (function () {
     return mod;
   };
 
-  mod.save = function () {
-    if (saveButton().hasClass('oldrev')) {
-      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
+  mod.save = function ()
+  {
+    if (saveButton().hasClass('oldrev'))
+    {
+      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
+      {
         return false;
       }
     }
@@ -165,25 +197,32 @@ shimi.editui = (function () {
     saveButton().hide();
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
-    $.ajax({
+    $.ajax(
+    {
       type: 'PUT',
       url: url,
       dataType: 'json',
       contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
-      complete: function (req, status) {
-        if (req.status === 204 || req.status === 200) {
+      complete: function (req, status)
+      {
+        if (req.status === 204 || req.status === 200)
+        {
           title = 'Success';
           body = 'Your document was saved.';
           shimi.viewui.get(document);
           shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           saveButton().removeClass('oldrev').show();
-        } else if (req.status === 403) {
+        }
+        else if (req.status === 403)
+        {
           validationError(req);
           saveButton().show();
-        } else if (req.status === 409) {
+        }
+        else if (req.status === 409)
+        {
           body = JSON.parse(req.responseText);
           title = req.statusText;
 
@@ -194,7 +233,8 @@ shimi.editui = (function () {
     });
   };
 
-  mod.create = function () {
+  mod.create = function ()
+  {
     var s = store(createButton());
     var root = $('#edit-document-form');
     var skey = $('#first-index-element').attr('data-first-key');
@@ -208,14 +248,17 @@ shimi.editui = (function () {
     createButton().hide();
     $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
 
-    var postUrl = $.ajax({
+    var postUrl = $.ajax(
+    {
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
       processData: false,
       data: JSON.stringify(obj),
-      complete: function (req, status) {
-        if (req.status === 201) {
+      complete: function (req, status)
+      {
+        if (req.status === 201)
+        {
           var title = 'Success';
           var body = 'Your document was created.';
           var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
@@ -227,7 +270,9 @@ shimi.editui = (function () {
           shimi.indexui.get(skey, sid);
           flash(title, body).highlight();
           createButton().show();
-        } else if (req.status === 403) {
+        }
+        else if (req.status === 403)
+        {
           validationError(req);
           createButton().show();
         }
@@ -235,15 +280,18 @@ shimi.editui = (function () {
     });
   };
 
-  mod.clear = function () {
+  mod.clear = function ()
+  {
     $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
     saveButton().hide().attr('disabled', 'disabled');
     $('.fields').remove();
     shimi.fieldsets.initFieldsets();
   };
 
-  mod.showHelpDialog = function (target) {
-    if (target.is('.label-text')) {
+  mod.showHelpDialog = function (target)
+  {
+    if (target.is('.label-text'))
+    {
       target = target.parent('label').find('.ui-icon-help');
     }
 
@@ -252,13 +300,17 @@ shimi.editui = (function () {
     return mod;
   };
 
-  mod.toggleTextarea = function (target) {
+  mod.toggleTextarea = function (target)
+  {
     var textarea = $('#' + target.attr('data-group-id'));
 
-    if (target.attr('id') === textarea.attr('data-group-id')) {
+    if (target.attr('id') === textarea.attr('data-group-id'))
+    {
       textarea.toggleClass('expanded');
       textarea.next().next('span').toggleClass('expanded');
-    } else {
+    }
+    else
+    {
       textarea.toggleClass('expanded');
       target.toggleClass('expanded');
     }

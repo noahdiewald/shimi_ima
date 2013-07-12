@@ -1,25 +1,30 @@
-shimi.form = (function () {
+shimi.form = (function ()
+{
   'use strict';
 
   var mod = {};
 
-  mod.toggle = function (t) {
+  mod.toggle = function (t)
+  {
     var toggleElem;
     var target = $(t);
 
-    if (target.attr('data-target')) {
+    if (target.attr('data-target'))
+    {
       toggleElem = $('#' + target.attr('data-target'));
       toggleElem.toggle();
     }
     return mod;
   };
 
-  mod.cancelDialog = function (t) {
+  mod.cancelDialog = function (t)
+  {
     var target = $(t);
     var toggleElem;
     var elemId;
 
-    if (target.attr('data-target')) {
+    if (target.attr('data-target'))
+    {
       elemId = '#' + target.attr('data-target');
       toggleElem = $(elemId);
       toggleElem.hide();
@@ -28,15 +33,20 @@ shimi.form = (function () {
     return mod;
   };
 
-  mod.clear = function (inputFields, form) {
-    if (inputFields === undefined) {
+  mod.clear = function (inputFields, form)
+  {
+    if (inputFields === undefined)
+    {
       inputFields = $(form).find('input, select, textarea');
     }
-    inputFields.each(function (index, elem) {
+    inputFields.each(function (index, elem)
+    {
       var inputField = $(elem);
 
-      if (!inputField.attr('data-retain')) {
-        if (inputField.is(':checked')) {
+      if (!inputField.attr('data-retain'))
+      {
+        if (inputField.is(':checked'))
+        {
           inputField.attr('checked', false);
         }
         inputField.val('');
@@ -45,14 +55,17 @@ shimi.form = (function () {
     return inputFields;
   };
 
-  mod.send = function (ajaxUrl, obj, method, completeFun, callContext) {
+  mod.send = function (ajaxUrl, obj, method, completeFun, callContext)
+  {
     var dataObj;
 
-    if (obj) {
+    if (obj)
+    {
       dataObj = JSON.stringify(obj);
     }
 
-    $.ajax({
+    $.ajax(
+    {
       type: method,
       url: ajaxUrl,
       dataType: 'json',
@@ -60,12 +73,18 @@ shimi.form = (function () {
       contentType: 'application/json',
       processData: false,
       data: dataObj,
-      complete: function (req, status) {
-        if (req.status >= 200 && req.status < 300) {
+      complete: function (req, status)
+      {
+        if (req.status >= 200 && req.status < 300)
+        {
           completeFun(this, req);
-        } else if (req.status === 500) {
+        }
+        else if (req.status === 500)
+        {
           shimi.flash('Unknown Server Error', 'Please report that you received ' + 'this message').error();
-        } else if (req.status >= 400) {
+        }
+        else if (req.status >= 400)
+        {
           var body = JSON.parse(req.responseText);
           var title = req.statusText;
 
@@ -78,48 +97,63 @@ shimi.form = (function () {
   };
 
   // Validation
-  mod.updateTips = function (t, tips) {
+  mod.updateTips = function (t, tips)
+  {
     tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-    setTimeout(function () {
+    setTimeout(function ()
+    {
       tips.removeClass('ui-state-highlight', 1500);
     }, 500);
 
     return true;
   };
 
-  mod.checkLength = function (o, n, min, max, tips) {
-    if (o.val().length > max || o.val().length < min) {
+  mod.checkLength = function (o, n, min, max, tips)
+  {
+    if (o.val().length > max || o.val().length < min)
+    {
       o.addClass('ui-state-error');
       mod.updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
       return false;
-    } else {
+    }
+    else
+    {
       return true;
     }
   };
 
-  mod.checkRegexp = function (o, regexp, n, tips) {
-    if (!(regexp.test(o.val()))) {
+  mod.checkRegexp = function (o, regexp, n, tips)
+  {
+    if (!(regexp.test(o.val())))
+    {
       o.addClass('ui-state-error');
       mod.updateTips(n, tips);
       return false;
-    } else {
+    }
+    else
+    {
       return true;
     }
   };
 
   // Date Picker
-  mod.initDateFields = function () {
-    $('.date').datepicker({
+  mod.initDateFields = function ()
+  {
+    $('.date').datepicker(
+    {
       dateFormat: 'yy-mm-dd'
     });
 
     return true;
   };
 
-  mod.fillOptionsFromUrl = function (url, selectElement, callback) {
-    $.get(url, function (options) {
+  mod.fillOptionsFromUrl = function (url, selectElement, callback)
+  {
+    $.get(url, function (options)
+    {
       selectElement.html(options);
-      if (callback) {
+      if (callback)
+      {
         callback();
       }
     });

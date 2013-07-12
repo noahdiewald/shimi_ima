@@ -1,24 +1,29 @@
-shimi.ihelpers = (function () {
+shimi.ihelpers = (function ()
+{
   'use strict';
 
   var mod = {};
   var s = shimi.sess();
   mod.evs = {};
 
-  var disableOptions = function (options, disables) {
+  var disableOptions = function (options, disables)
+  {
     options.children().show();
 
-    disables.forEach(function (item) {
+    disables.forEach(function (item)
+    {
       options.children('option:contains(' + item + ')').hide();
     });
 
     return false;
   };
 
-  var disableOperatorOptions = function (fieldDoc) {
+  var disableOperatorOptions = function (fieldDoc)
+  {
     var options = $('#builder-operator-input');
 
-    switch (fieldDoc.subcategory) {
+    switch (fieldDoc.subcategory)
+    {
     case 'select':
     case 'docselect':
     case 'text':
@@ -43,30 +48,41 @@ shimi.ihelpers = (function () {
     return false;
   };
 
-  mod.alterArg = function (argumentField, operatorField, fieldField, callback) {
-    var fieldDoc = function () {
+  mod.alterArg = function (argumentField, operatorField, fieldField, callback)
+  {
+    var fieldDoc = function ()
+    {
       return s.get(fieldField.val());
     };
 
     callback();
 
-    try {
+    try
+    {
       // Destroy these if initialized already
       argumentField.removeAttr('disabled').datepicker('destroy');
       argumentField.removeAttr('disabled').autocomplete('destroy');
-    } catch (err) {
+    }
+    catch (err)
+    {
       window.console.log(err.message);
     }
 
-    var dateOrText = function (argumentField, fdoc) {
-      if (fdoc.subcategory === 'date') {
+    var dateOrText = function (argumentField, fdoc)
+    {
+      if (fdoc.subcategory === 'date')
+      {
         argumentField.removeAttr('disabled');
-        argumentField.datepicker({
+        argumentField.datepicker(
+        {
           dateFormat: 'yy-mm-dd'
         });
-      } else {
+      }
+      else
+      {
         argumentField.removeAttr('disabled');
-        argumentField.autocomplete({
+        argumentField.autocomplete(
+        {
           source: fdoc.allowed
         });
       }
@@ -76,8 +92,10 @@ shimi.ihelpers = (function () {
 
     var fdoc = fieldDoc();
 
-    if (fdoc) {
-      switch (operatorField.val()) {
+    if (fdoc)
+    {
+      switch (operatorField.val())
+      {
       case 'true':
       case 'isDefined':
       case 'blank':
@@ -99,17 +117,21 @@ shimi.ihelpers = (function () {
     return mod;
   };
 
-  mod.alterOpts = function (fieldDoc, fieldId, callback) {
+  mod.alterOpts = function (fieldDoc, fieldId, callback)
+  {
     disableOperatorOptions(fieldDoc);
     callback();
 
     return mod;
   };
 
-  mod.fOpts = function (url, selectElement, callback) {
-    $.get(url, function (options) {
+  mod.fOpts = function (url, selectElement, callback)
+  {
+    $.get(url, function (options)
+    {
       selectElement.html(options);
-      if (callback) {
+      if (callback)
+      {
         callback();
       }
     });
@@ -117,23 +139,31 @@ shimi.ihelpers = (function () {
     return mod;
   };
 
-  mod.getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
+  mod.getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
+  {
     var fieldDoc = s.get(fieldId);
     var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
 
-    if (fieldDoc) {
-      if (callback) {
+    if (fieldDoc)
+    {
+      if (callback)
+      {
         callback(fieldDoc);
       }
       return fieldDoc;
-    } else {
-      $.ajax({
+    }
+    else
+    {
+      $.ajax(
+      {
         url: url,
         async: false,
         dataType: 'json',
-        success: function (data) {
+        success: function (data)
+        {
           s.put(data);
-          if (callback) {
+          if (callback)
+          {
             callback(s.get(fieldId));
           }
         }
@@ -143,12 +173,15 @@ shimi.ihelpers = (function () {
     }
   };
 
-  mod.evs.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
-    indexDoctype.change(function () {
+  mod.evs.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
+  {
+    indexDoctype.change(function ()
+    {
       var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
       var callback2;
 
-      if (callback) {
+      if (callback)
+      {
         callback2 = callback();
       }
 
@@ -158,18 +191,23 @@ shimi.ihelpers = (function () {
     return false;
   };
 
-  mod.evs.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexFieldset.change(function () {
+  mod.evs.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  {
+    indexFieldset.change(function ()
+    {
       var callback2;
 
-      if (typeof indexDoctype !== 'string') {
+      if (typeof indexDoctype !== 'string')
+      {
         indexDoctype = indexDoctype.val();
       }
 
-      if (indexFieldset.val()) {
+      if (indexFieldset.val())
+      {
         var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
 
-        if (callback) {
+        if (callback)
+        {
           callback2 = callback();
         }
 
@@ -180,18 +218,23 @@ shimi.ihelpers = (function () {
     return mod;
   };
 
-  mod.evs.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexField.change(function () {
+  mod.evs.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  {
+    indexField.change(function ()
+    {
       var fieldId = indexField.val();
       var fieldsetId = indexFieldset.val();
       var callback2;
 
-      if (callback) {
+      if (callback)
+      {
         callback2 = callback();
       }
 
-      if (!(fieldId.isBlank())) {
-        mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
+      if (!(fieldId.isBlank()))
+      {
+        mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
+        {
           shimi.ihelpers.alterOpts(data, fieldId, callback2);
         });
       }
@@ -200,11 +243,14 @@ shimi.ihelpers = (function () {
     return mod;
   };
 
-  mod.evs.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
-    operatorField.change(function () {
+  mod.evs.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
+  {
+    operatorField.change(function ()
+    {
       var callback2;
 
-      if (callback) {
+      if (callback)
+      {
         callback2 = callback();
       }
 

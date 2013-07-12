@@ -1,46 +1,57 @@
-$(document).on('keydown', '#document-worksheets-form', function (e) {
+$(document).on('keydown', '#document-worksheets-form', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     shimi.dispatch.send('worksheet-form-submit');
     return false;
   }
   return true;
 });
 
-$(document).on('keydown', '#document-sets-form', function (e) {
+$(document).on('keydown', '#document-sets-form', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     shimi.dispatch.send('sets-form-submit');
     return false;
   }
   return true;
 });
 
-$('#new-set-form').on('keydown', function (e) {
+$('#new-set-form').on('keydown', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     shimi.dispatch.send('new-set-form-submit');
     return false;
   }
   return true;
 });
 
-$(document).bind('keydown', 'Alt+n', function (e) {
+$(document).bind('keydown', 'Alt+n', function (e)
+{
   'use strict';
 
-  var t = function () {
+  var t = function ()
+  {
     return $('#edit-tabs');
   };
   var totaltabs = t().find('li').length;
   var selected = t().tabs('option', 'active');
 
-  if (selected < totaltabs - 1) {
+  if (selected < totaltabs - 1)
+  {
     t().tabs('option', 'active', selected + 1);
     shimi.dispatch.send('lost-focus');
-  } else {
+  }
+  else
+  {
     t().tabs('option', 'active', 0);
     shimi.dispatch.send('lost-focus');
   }
@@ -48,7 +59,8 @@ $(document).bind('keydown', 'Alt+n', function (e) {
   return false;
 });
 
-$(document).bind('keydown', 'Alt+c', function (e) {
+$(document).bind('keydown', 'Alt+c', function (e)
+{
   'use strict';
 
   var active = $(document.activeElement).attr('id');
@@ -56,19 +68,24 @@ $(document).bind('keydown', 'Alt+c', function (e) {
   return true;
 });
 
-$(document).bind('keydown', 'Alt+p', function (e) {
+$(document).bind('keydown', 'Alt+p', function (e)
+{
   'use strict';
 
-  var t = function () {
+  var t = function ()
+  {
     return $('#edit-tabs');
   };
   var totaltabs = t().find('li').length;
   var selected = t().tabs('option', 'active');
 
-  if (selected !== 0) {
+  if (selected !== 0)
+  {
     t().tabs('option', 'active', selected - 1);
     shimi.dispatch.send('lost-focus');
-  } else {
+  }
+  else
+  {
     t().tabs('option', 'active', totaltabs - 1);
     shimi.dispatch.send('lost-focus');
   }
@@ -77,40 +94,50 @@ $(document).bind('keydown', 'Alt+p', function (e) {
 });
 
 
-$(document).on('keydown', '#edit-command-input', function (e) {
+$(document).on('keydown', '#edit-command-input', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     var command = $('#edit-command-input').val();
     shimi.dispatch.send('submitted-command', command);
   }
   return true;
 });
 
-$(document).on('keydown', '#edit-document-form input', function (e) {
+$(document).on('keydown', '#edit-document-form input', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
-    if ($('#save-document-button').css('display') === 'none') {
+  if (e.which === 13)
+  {
+    if ($('#save-document-button').css('display') === 'none')
+    {
       shimi.editui.create();
-    } else {
+    }
+    else
+    {
       shimi.editui.save();
     }
   }
   return true;
 });
 
-$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e) {
+$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
+{
   'use strict';
 
   shimi.editui.toggleTextarea($(e.target));
   return false;
 });
 
-$(document).on('keypress', '#view-jump-id', function (e) {
+$(document).on('keypress', '#view-jump-id', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     var docid = $('#view-jump-id').val();
     shimi.viewui.get(docid);
     return false;
@@ -118,26 +145,34 @@ $(document).on('keypress', '#view-jump-id', function (e) {
   return true;
 });
 
-$(document).on('keydown', '#document-search-term', function (e) {
+$(document).on('keydown', '#document-search-term', function (e)
+{
   'use strict';
 
-  if (e.which === 13) {
+  if (e.which === 13)
+  {
     shimi.searchui.getSearch();
     return false;
   }
   return true;
 });
 
-$(document).on('keyup', '#index-filter-form input', function (e) {
+$(document).on('keyup', '#index-filter-form input', function (e)
+{
   'use strict';
 
   var getIndexTimer;
   window.clearTimeout(getIndexTimer);
-  getIndexTimer = setTimeout(function () {
-    if (e.which !== 8 && e.which !== 46) {
-      if (document.getElementById('all-document-container')) {
+  getIndexTimer = setTimeout(function ()
+  {
+    if (e.which !== 8 && e.which !== 46)
+    {
+      if (document.getElementById('all-document-container'))
+      {
         shimi.indexui.get();
-      } else {
+      }
+      else
+      {
         shimi.ipreviewui.get();
       }
     }

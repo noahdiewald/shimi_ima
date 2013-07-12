@@ -1,7 +1,8 @@
-var user_indexes = function(doc, emit, testEnv) {
+var user_indexes = function (doc, emit, testEnv)
+{
   'use strict';
 
-/*
+  /*
     The end user is able to define view indexes both explicitly, using
     the index tool, and implicitly, using the configuration interface
     to create new doctypes. These views need to be generated using
@@ -13,29 +14,37 @@ var user_indexes = function(doc, emit, testEnv) {
 
   var retval = false;
 
-  var makeObj = function (fun) {
+  var makeObj = function (fun)
+  {
     return {
       _id: '_design/' + doc._id,
       version: doc._rev,
-      views: {
-        index: {
+      views:
+      {
+        index:
+        {
           map: fun
         }
       }
     };
   };
 
-  if (doc.category === 'index') {
-    var userIndexMap = function (doc) {
-      if (doc.doctype === 'doc.$doctype$' && !(doc.category) && doc.index && doc.deleted_.toString() === 'doc.$show_deleted$') {
+  if (doc.category === 'index')
+  {
+    var userIndexMap = function (doc)
+    {
+      if (doc.doctype === 'doc.$doctype$' && !(doc.category) && doc.index && doc.deleted_.toString() === 'doc.$show_deleted$')
+      {
 
         var display_fields = doc.$fields$;
         var runReplace = false;
 
-        var lookup = function (fieldid) {
+        var lookup = function (fieldid)
+        {
           var retval;
 
-          switch (fieldid) {
+          switch (fieldid)
+          {
           case 'created_by_':
           case 'updated_by_':
           case 'created_at_':
@@ -49,26 +58,37 @@ var user_indexes = function(doc, emit, testEnv) {
           return retval;
         };
 
-        var isArray = function (anArray) {
+        var isArray = function (anArray)
+        {
           return Object.prototype.toString.apply(anArray) === '[object Array]';
         };
 
-        var notBlank = function (val) {
+        var notBlank = function (val)
+        {
           return (val !== undefined && val !== null && val.toString() !== '');
         };
 
-        var runTest = function (fieldid, value, pred, existential) {
+        var runTest = function (fieldid, value, pred, existential)
+        {
           var fieldVal = lookup(fieldid);
           var retval = false;
 
-          if (notBlank(fieldVal)) {
-            if (!isArray(fieldVal[0])) {
+          if (notBlank(fieldVal))
+          {
+            if (!isArray(fieldVal[0]))
+            {
               retval = pred(fieldVal[1], value);
-            } else {
-              if (typeof existential === 'number') {
+            }
+            else
+            {
+              if (typeof existential === 'number')
+              {
                 retval = pred(fieldVal[existential][1], value);
-              } else {
-                retval = fieldVal.some(function (fVal) {
+              }
+              else
+              {
+                retval = fieldVal.some(function (fVal)
+                {
                   return pred(fVal[1], value);
                 });
               }
@@ -78,43 +98,55 @@ var user_indexes = function(doc, emit, testEnv) {
           return retval;
         };
 
-        var runShapeTest = function (fieldid, value, pred) {
+        var runShapeTest = function (fieldid, value, pred)
+        {
           var fieldVal = lookup(fieldid);
           return pred(fieldVal, value);
         };
 
-        var equals = function (fieldid, value, existential) {
-          var pred = function (value1, value2) {
+        var equals = function (fieldid, value, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return value1 === value2;
           };
           return runTest(fieldid, value, pred, existential);
         };
 
-        var greaterThan = function (fieldid, value, existential) {
-          var pred = function (value1, value2) {
+        var greaterThan = function (fieldid, value, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return value1 > value2;
           };
           return runTest(fieldid, value, pred, existential);
         };
 
-        var lessThan = function (fieldid, value, existential) {
-          var pred = function (value1, value2) {
+        var lessThan = function (fieldid, value, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return value1 < value2;
           };
           return runTest(fieldid, value, pred, existential);
         };
 
-        var matches = function (fieldid, value, existential) {
-          var pred = function (value1, value2) {
+        var matches = function (fieldid, value, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return !!value1.match(value2);
           };
           return runTest(fieldid, value, pred, existential);
         };
 
-        var hasExactly = function (fieldid, value) {
-          var pred = function (value1, value2) {
+        var hasExactly = function (fieldid, value)
+        {
+          var pred = function (value1, value2)
+          {
             var retval = false;
-            if (value1) {
+            if (value1)
+            {
               retval = value1.length === value2;
             }
             return retval;
@@ -122,10 +154,13 @@ var user_indexes = function(doc, emit, testEnv) {
           return runShapeTest(fieldid, value, pred);
         };
 
-        var hasGreater = function (fieldid, value) {
-          var pred = function (value1, value2) {
+        var hasGreater = function (fieldid, value)
+        {
+          var pred = function (value1, value2)
+          {
             var retval = false;
-            if (value1) {
+            if (value1)
+            {
               retval = value1.length > value2;
             }
             return retval;
@@ -133,10 +168,13 @@ var user_indexes = function(doc, emit, testEnv) {
           return runShapeTest(fieldid, value, pred);
         };
 
-        var hasLess = function (fieldid, value) {
-          var pred = function (value1, value2) {
+        var hasLess = function (fieldid, value)
+        {
+          var pred = function (value1, value2)
+          {
             var retval = false;
-            if (value1) {
+            if (value1)
+            {
               retval = value1.length < value2;
             }
             return retval;
@@ -144,100 +182,134 @@ var user_indexes = function(doc, emit, testEnv) {
           return runShapeTest(fieldid, value, pred);
         };
 
-        var hasMember = function (fieldid, value, existential) {
-          var pred = function (value1, value2) {
+        var hasMember = function (fieldid, value, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return value1.indexOf(value2) >= 0;
           };
           return runTest(fieldid, value, pred, existential);
         };
 
-        var isDefined = function (fieldid) {
-          var pred = function (value1, value2) {
+        var isDefined = function (fieldid)
+        {
+          var pred = function (value1, value2)
+          {
             return value1 !== value2;
           };
           return runShapeTest(fieldid, undefined, pred);
         };
 
-        var isTrue = function (fieldid, existential) {
+        var isTrue = function (fieldid, existential)
+        {
           return equals(fieldid, true, existential);
         };
 
-        var isBlank = function (fieldid, existential) {
-          var pred = function (value1, value2) {
+        var isBlank = function (fieldid, existential)
+        {
+          var pred = function (value1, value2)
+          {
             return !notBlank(value1);
           };
           return runTest(fieldid, null, pred, existential);
         };
 
-        var existentialTest = function (fieldid, testFun) {
+        var existentialTest = function (fieldid, testFun)
+        {
           var retval = false;
           var fields = lookup(fieldid);
 
-          retval = fields.some(function (v, i) {
+          retval = fields.some(function (v, i)
+          {
             return testFun(i);
           });
 
           return retval;
         };
 
-        var head = function () {
+        var head = function ()
+        {
           var hd = doc.head;
-          return hd.map(function (h) {
+          return hd.map(function (h)
+          {
             var v = lookup(h);
-            if (isArray(v[0])) {
-              if (notBlank(v[0][1])) {
+            if (isArray(v[0]))
+            {
+              if (notBlank(v[0][1]))
+              {
                 return v[0][1] + '...';
-              } else {
+              }
+              else
+              {
                 return '...';
               }
-            } else {
+            }
+            else
+            {
               return v[1];
             }
           }).join(', ');
         };
 
-        var condition = function () {
+        var condition = function ()
+        {
           return (doc.$expression$);
         };
 
-        if (doc.$replace_function_exists$) {
+        if (doc.$replace_function_exists$)
+        {
           runReplace = doc.$replace_function$;
         }
 
-        var format = function (val) {
+        var format = function (val)
+        {
           var retval = '_BLANK_';
 
-          if (isArray(val)) {
-            retval = val.map(function (i) {
+          if (isArray(val))
+          {
+            retval = val.map(function (i)
+            {
               return i.toString();
             }).join(',');
-          } else {
-            if (notBlank(val)) {
+          }
+          else
+          {
+            if (notBlank(val))
+            {
               retval = val.toString();
             }
           }
 
-          if (doc.$replace_function_exists$) {
+          if (doc.$replace_function_exists$)
+          {
             return runReplace(retval);
           }
 
           return retval;
         };
 
-        var emitIf = function (fieldVal) {
-          if (condition()) {
+        var emitIf = function (fieldVal)
+        {
+          if (condition())
+          {
             var formatted = format(fieldVal[1]);
 
-            if (display_fields.lenghth > 1) {
+            if (display_fields.lenghth > 1)
+            {
               emit([
                 ['', formatted]
               ], ['', head()]);
-            } else {
-              if (doc.$replace_function_exists$) {
+            }
+            else
+            {
+              if (doc.$replace_function_exists$)
+              {
                 emit([
                   ['', formatted]
                 ], ['', head()]);
-              } else {
+              }
+              else
+              {
                 emit([
                   [fieldVal[0], formatted]
                 ], ['', head()]);
@@ -246,21 +318,29 @@ var user_indexes = function(doc, emit, testEnv) {
           }
         };
 
-        var emitForField = function (fieldid) {
+        var emitForField = function (fieldid)
+        {
           var fieldVal = lookup(fieldid);
 
-          if (!notBlank(fieldVal)) {
+          if (!notBlank(fieldVal))
+          {
             emitIf(['', '_UNDEFINED_']);
-          } else if (isArray(fieldVal[0])) {
-            fieldVal.forEach(function (item) {
+          }
+          else if (isArray(fieldVal[0]))
+          {
+            fieldVal.forEach(function (item)
+            {
               emitIf(item);
             });
-          } else {
+          }
+          else
+          {
             emitIf(fieldVal);
           }
         };
 
-        display_fields.forEach(function (item) {
+        display_fields.forEach(function (item)
+        {
           emitForField(item);
         });
 
@@ -270,10 +350,14 @@ var user_indexes = function(doc, emit, testEnv) {
       return false;
     };
 
-    var maybe_item = function (item) {
-      if (item) {
+    var maybe_item = function (item)
+    {
+      if (item)
+      {
         return item.toString();
-      } else {
+      }
+      else
+      {
         return 'function () {return false;}';
       }
     };
@@ -294,23 +378,34 @@ var user_indexes = function(doc, emit, testEnv) {
 
     retval = makeObj(fun);
     emit(doc._id, JSON.stringify(retval));
-  } else if (doc.category === 'doctype') {
-    var doctypeMap = function (doc) {
-      var isReversal = function (elem) {
+  }
+  else if (doc.category === 'doctype')
+  {
+    var doctypeMap = function (doc)
+    {
+      var isReversal = function (elem)
+      {
         return elem.reversal === true;
       };
 
-      var isHead = function (elem) {
+      var isHead = function (elem)
+      {
         return elem.head === true;
       };
 
-      var gatherElems = function (acc, obj, filterFun, reversal) {
-        acc = acc.concat(obj.fields.filter(function (elem, index) {
+      var gatherElems = function (acc, obj, filterFun, reversal)
+      {
+        acc = acc.concat(obj.fields.filter(function (elem, index)
+        {
           return (filterFun(elem));
-        }).map(function (elem, index) {
-          if (reversal) {
+        }).map(function (elem, index)
+        {
+          if (reversal)
+          {
             return [elem.value];
-          } else {
+          }
+          else
+          {
             return [elem.sortkey, elem.value];
           }
         }));
@@ -318,12 +413,18 @@ var user_indexes = function(doc, emit, testEnv) {
         return acc;
       };
 
-      var gather = function (acc, filterFun, reversal) {
-        doc.fieldsets.forEach(function (fieldset, index) {
-          if (!fieldset.multiple) {
+      var gather = function (acc, filterFun, reversal)
+      {
+        doc.fieldsets.forEach(function (fieldset, index)
+        {
+          if (!fieldset.multiple)
+          {
             acc = gatherElems(acc, fieldset, filterFun, reversal);
-          } else {
-            fieldset.multifields.forEach(function (multifield, index) {
+          }
+          else
+          {
+            fieldset.multifields.forEach(function (multifield, index)
+            {
               acc = gatherElems(acc, multifield, filterFun, reversal);
             });
           }
@@ -332,11 +433,13 @@ var user_indexes = function(doc, emit, testEnv) {
         return acc;
       };
 
-      if (doc.doctype === '$doctype$' && doc.fieldsets && !doc.deleted_) {
+      if (doc.doctype === '$doctype$' && doc.fieldsets && !doc.deleted_)
+      {
         var heads = gather([], isHead);
         var reversals = gather([], isReversal, true);
 
-        if (heads.length === 0) {
+        if (heads.length === 0)
+        {
           heads = [
             ['', doc._id]
           ];

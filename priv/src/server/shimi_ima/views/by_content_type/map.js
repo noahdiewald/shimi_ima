@@ -1,16 +1,23 @@
-function map(doc) {
+function map(doc)
+{
   'use strict';
 
-  if (doc._attachments) {
-    if (typeof Object.keys !== 'function') {
-      Object.keys = function (o) {
-        if (o !== Object(o)) {
+  if (doc._attachments)
+  {
+    if (typeof Object.keys !== 'function')
+    {
+      Object.keys = function (o)
+      {
+        if (o !== Object(o))
+        {
           throw new TypeError('Object.keys called on non-object');
         }
         var ret = [],
-            p;
-        for (p in o) {
-          if (Object.prototype.hasOwnProperty.call(o, p)) {
+          p;
+        for (p in o)
+        {
+          if (Object.prototype.hasOwnProperty.call(o, p))
+          {
             ret.push(p);
           }
         }
@@ -24,11 +31,13 @@ function map(doc) {
     var content_type = attachment.content_type;
     var size = attachment.length / (1024 * 1024);
 
-    if (doc.path) {
+    if (doc.path)
+    {
       path = doc.path;
     }
 
-    emit(content_type, {
+    emit(content_type,
+    {
       filename: filename,
       path: path,
       size: size.toFixed(3),

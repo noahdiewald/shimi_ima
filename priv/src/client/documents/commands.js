@@ -1,24 +1,31 @@
-shimi.commands = (function () {
+shimi.commands = (function ()
+{
   'use strict';
 
   var mod = {};
-  var commandInput = function () {
+  var commandInput = function ()
+  {
     return document.getElementById('edit-command-input');
   };
-  var commandDialog = function () {
+  var commandDialog = function ()
+  {
     return $('#command-dialog');
   };
-  var setContext = function (elem, context) {
+  var setContext = function (elem, context)
+  {
     return elem.attr('data-last-active', context);
   };
-  var getContext = function (elem) {
+  var getContext = function (elem)
+  {
     return elem.attr('data-last-active');
   };
 
-  mod.execute = function (command) {
+  mod.execute = function (command)
+  {
     var restoreFocus = true;
 
-    switch (command) {
+    switch (command)
+    {
     case 'w':
     case 'clear':
       shimi.editui.clear();
@@ -35,14 +42,16 @@ shimi.commands = (function () {
     case 'd':
     case 'delete':
       $('#document-view').show();
-      if ($('#document-delete-button').css('display') !== 'none') {
+      if ($('#document-delete-button').css('display') !== 'none')
+      {
         $('#document-delete-button').click();
       }
       break;
     case 'e':
     case 'edit':
       $('#document-view').show();
-      if ($('#document-edit-button').css('display') !== 'none') {
+      if ($('#document-edit-button').css('display') !== 'none')
+      {
         $('#document-edit-button').click();
         restoreFocus = false;
       }
@@ -50,17 +59,21 @@ shimi.commands = (function () {
     case 'r':
     case 'restore':
       $('#document-view').show();
-      if ($('#document-restore-button').css('display') !== 'none') {
+      if ($('#document-restore-button').css('display') !== 'none')
+      {
         $('#document-restore-button').click();
       }
       break;
     }
 
-    if (restoreFocus) {
+    if (restoreFocus)
+    {
       var cdialog = commandDialog();
       var context = getContext(cdialog);
       $('#' + context).focus();
-    } else {
+    }
+    else
+    {
       shimi.dispatch.send('lost-focus');
     }
 
@@ -68,7 +81,8 @@ shimi.commands = (function () {
     return mod;
   };
 
-  mod.dialogOpen = function (context) {
+  mod.dialogOpen = function (context)
+  {
     var cinput = commandInput();
     var cdialog = commandDialog();
     cinput.value = '';
@@ -77,7 +91,8 @@ shimi.commands = (function () {
     return mod;
   };
 
-  mod.dialogClose = function () {
+  mod.dialogClose = function ()
+  {
     var cinput = commandInput();
     var cdialog = commandDialog();
     setContext(cdialog, '').hide();
