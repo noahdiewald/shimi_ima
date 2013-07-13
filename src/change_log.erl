@@ -25,25 +25,25 @@
 -author('Noah Diewald <noah@diewald.me>').
 
 -record(change, {
-    id :: binary(),
-    rev :: binary(),
-    category :: change,
-    change_type :: creation|update|deletion|restoration,
-    changes :: jsn:json_term(),
-    doctype :: binary(),
-    document_id :: binary(),
-    document_revision :: binary(),
-    head_ids :: [binary()],
-    head_values :: [binary()],
-    user :: binary(),
-    timestamp :: binary()}).
+          id :: binary(),
+          rev :: binary(),
+          category :: change,
+          change_type :: creation|update|deletion|restoration,
+          changes :: jsn:json_term(),
+          doctype :: binary(),
+          document_id :: binary(),
+          document_revision :: binary(),
+          head_ids :: [binary()],
+          head_values :: [binary()],
+          user :: binary(),
+          timestamp :: binary()}).
 
 -export([
-    created/4,
-    deleted/4,
-    restored/4,
-    updated/4
-    ]).
+         created/4,
+         deleted/4,
+         restored/4,
+         updated/4
+        ]).
 
 created(Data, Doctype, Project, S) ->
     create_change(creation, Data, Doctype, Project, S).
@@ -58,17 +58,17 @@ create_change(CType, Data, Doctype, Project, S) ->
     HeadIds = jsn:get_value(<<"head_ids">>, Data),
     HeadValues = jsn:get_value(<<"head_values">>, Data),
     C = #change{
-        id = Id,
-        category = change,
-        change_type = CType,
-        changes = Changes,
-        document_id = DocId,
-        document_revision = DocRev,
-        head_ids = HeadIds,
-        head_values = HeadValues,
-        user = User,
-        timestamp = Timestamp
-    },
+           id = Id,
+           category = change,
+           change_type = CType,
+           changes = Changes,
+           document_id = DocId,
+           document_revision = DocRev,
+           head_ids = HeadIds,
+           head_values = HeadValues,
+           user = User,
+           timestamp = Timestamp
+          },
     Json = to_json(C),
     {ok, _} = couch:update(binary_to_list(Id), Json, Project, [{admin, true}|S]),
     ok.

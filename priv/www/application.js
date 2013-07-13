@@ -1599,15 +1599,20 @@ shimi.index = function (args)
   'use strict';
 
   var mod = {};
+  if (args.prefix === undefined)
+  {
+    args.prefix = 'index';
+  }
+  var prefix = args.prefix;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
     var url = args.url + '?';
     var indexId = args.indexId;
-    var limitField = $('#index-limit');
+    var limitField = $('#' + prefix + '-limit');
     var limit = limitField.val() * 1;
     var target = args.target;
-    var filterVal = JSON.stringify($('#index-filter').val());
+    var filterVal = JSON.stringify($('#' + prefix + '-filter').val());
     var state = {
       sk: startkey,
       sid: startid,
@@ -1658,17 +1663,17 @@ shimi.index = function (args)
   {
     target.html(req.responseText);
 
-    $('#previous-index-page').click(function ()
+    $('#previous-' + prefix + '-page').click(function ()
     {
       mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
     });
 
-    $('#next-index-page').click(function ()
+    $('#next-' + prefix + '-page').click(function ()
     {
-      var nextkey = $('#next-index-page').attr('data-startkey');
-      var nextid = $('#next-index-page').attr('data-startid');
-      var prevkey = $('#first-index-element').attr('data-first-key');
-      var previd = $('#first-index-element').attr('data-first-id');
+      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
+      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
+      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
+      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
       state.pks.push(prevkey);
       state.pids.push(previd);
 
@@ -1678,13 +1683,13 @@ shimi.index = function (args)
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0)
     {
-      $('#previous-index-page').hide();
+      $('#previous-' + prefix + '-page').hide();
     }
 
     // Disable the next button if we're at the end
-    if ($('#next-index-page').attr('data-last-page'))
+    if ($('#next-' + prefix + '-page').attr('data-last-page'))
     {
-      $('#next-index-page').hide();
+      $('#next-' + prefix + '-page').hide();
     }
 
     return mod;
@@ -2790,6 +2795,31 @@ shimi.fieldsetElems = (function ()
 
   return mod;
 })();
+shimi.changeui = (function ()
+{
+  'use strict';
+
+  var mod = {};
+  var index = shimi.index;
+
+  mod.get = function (startkey, startid, prevkeys, previds)
+  {
+    var prefix = 'changelog';
+    var url = prefix;
+    var target = $('#' + prefix + '-listing');
+
+    index(
+    {
+      prefix: 'changelog',
+      url: url,
+      target: target
+    }).get(startkey, startid, prevkeys, previds);
+
+    return mod;
+  };
+
+  return mod;
+})();
 shimi.commands = (function ()
 {
   'use strict';
@@ -3049,6 +3079,7 @@ shimi.documents = (function ()
     indexForm();
     shimi.editui.init();
     loadHash($(location)[0].hash.split('#')[1]);
+    shimi.changeui.get();
   };
 
   return mod;

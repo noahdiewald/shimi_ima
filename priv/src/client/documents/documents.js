@@ -153,6 +153,7 @@ shimi.documents = (function ()
     indexForm();
     shimi.editui.init();
     loadHash($(location)[0].hash.split('#')[1]);
+    shimi.changeui.get();
   };
 
   return mod;

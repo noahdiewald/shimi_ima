@@ -65,6 +65,7 @@ start(_Type, _StartArgs) ->
              {"/projects/:project/doctypes", doctype_resource, [{target, index}|Opts]},
              {"/projects/:project/doctypes/:doctype", doctype_resource, [{target, identifier}|Opts]},
              {"/projects/:project/doctypes/:doctype/indexes", index_resource, [{target, index}|Opts]},
+             {"/projects/:project/doctypes/:doctype/changelog", changelog_resource, [{target, index}|Opts]},
              {"/projects/:project/doctypes/:doctype/fieldsets", fieldset_resource, [{target, index}|Opts]},
              {"/projects/:project/doctypes/:doctype/fieldsets/:id", fieldset_resource, [{target, identifier}|Opts]},
              {"/projects/:project/doctypes/:doctype/fieldsets/:fieldset/fields", field_resource, [{target, index}|Opts]},

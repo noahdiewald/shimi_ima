@@ -31,6 +31,11 @@
 all_docs(Qs, Keys, Project, S) ->
     couch:get_view_json(Qs, Keys, Project, S).
 
+changelog(QsVals, R, S) ->
+    {Project, R1} = h:project(R),
+    Qs = view:normalize_vq(QsVals),
+    {all_docs(Qs, [], Project, S), R1}.
+    
 charseqs(R, S) ->
     {QsVals, R1} = cowboy_req:qs_vals(R),
     {Project, R2} = h:project(R1),
