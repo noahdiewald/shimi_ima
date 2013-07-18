@@ -22,6 +22,10 @@ shimi.index = function (args)
   }
   var prefix = args.prefix;
 
+  var escapeValue = function (value)
+  {
+    return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
+  };
   mod.get = function (startkey, startid, prevkeys, previds)
   {
     var url = args.url + '?';
@@ -29,7 +33,7 @@ shimi.index = function (args)
     var limitField = $('#' + prefix + '-limit');
     var limit = limitField.val() * 1;
     var target = args.target;
-    var filterVal = JSON.stringify($('#' + prefix + '-filter').val());
+    var filterVal = $('#' + prefix + '-filter').val();
     var state = {
       sk: startkey,
       sid: startid,
@@ -39,7 +43,7 @@ shimi.index = function (args)
 
     if (!state.pks)
     {
-      state.sk = window.btoa(window.unescape(window.encodeURIComponent(filterVal)));
+      state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];
     }
@@ -78,7 +82,31 @@ shimi.index = function (args)
 
   mod.fill = function (req, state, target)
   {
-    target.html(req.responseText);
+    if (prefix === 'changelog')
+    {
+      var respJSON = JSON.parse(req.responseText);
+      var lastrow;
+      var newRows;
+
+      newRows = respJSON.rows.map(function (item, index, thisArray)
+      {
+        item.encoded_key = escapeValue(item.key);
+        return item;
+      });
+
+      lastrow = newRows.pop();
+      respJSON.rows = newRows.slice(0, -1);
+      respJSON.lastrow = lastrow;
+
+      target.html(templates['paged-listing'].render(respJSON,
+      {
+        'listed-element': templates[prefix + '-element']
+      }));
+    }
+    else
+    {
+      target.html(req.responseText);
+    }
 
     $('#previous-' + prefix + '-page').click(function ()
     {
