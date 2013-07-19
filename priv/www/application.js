@@ -1603,18 +1603,28 @@ shimi.index = function (args)
   {
     args.prefix = 'index';
   }
+  if (args.include_docs === undefined)
+  {
+    args.include_docs = false;
+  }
   var prefix = args.prefix;
+  var includeDocs = args.include_docs;
 
   var escapeValue = function (value)
   {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
+
+  var limitField = function ()
+  {
+    return $('#' + prefix + '-limit');
+  };
+
   mod.get = function (startkey, startid, prevkeys, previds)
   {
     var url = args.url + '?';
     var indexId = args.indexId;
-    var limitField = $('#' + prefix + '-limit');
-    var limit = limitField.val() * 1;
+    var limit = limitField().val() * 1;
     var target = args.target;
     var filterVal = $('#' + prefix + '-filter').val();
     var state = {
@@ -1646,7 +1656,7 @@ shimi.index = function (args)
     }
     else
     {
-      limitField.val(25);
+      limitField().val(25);
       url = url + '&limit=26';
     }
 
@@ -1655,21 +1665,37 @@ shimi.index = function (args)
       url = url + '&index=' + indexId;
     }
 
+    if (includeDocs)
+    {
+      url = url + '&include_docs=' + includeDocs;
+    }
+
     shimi.form.send(url, false, 'GET', function (context, req)
     {
-      mod.fill(req, state, target, limit);
+      mod.fill(req, state, target, args.format);
     }, this);
 
     return mod;
   };
 
-  mod.fill = function (req, state, target, limit)
+  mod.fill = function (req, state, target, format)
   {
+    var limit = limitField().val() * 1;
+
     if (prefix === 'changelog')
     {
-      var respJSON = JSON.parse(req.responseText);
+      var respJSON;
       var lastrow;
       var newRows;
+
+      if (format === undefined)
+      {
+        respJSON = JSON.parse(req.responseText);
+      }
+      else
+      {
+        respJSON = format(req.responseText);
+      }
 
       newRows = respJSON.rows.map(function (item, index, thisArray)
       {
@@ -1678,6 +1704,7 @@ shimi.index = function (args)
       });
 
       lastrow = newRows.slice(-1);
+      newRows[0].firstrow = true;
 
       if (newRows.length >= limit)
       {
@@ -2845,10 +2872,30 @@ shimi.changeui = (function ()
     var url = prefix;
     var target = $('#' + prefix + '-listing');
 
+    var format = function (text)
+    {
+      var resp = JSON.parse(text);
+
+      resp.rows.map(function (item)
+      {
+        if (item.doc.changes !== null)
+        {
+          item.doc.changes = Object.keys(item.doc.changes).map(function (key)
+          {
+            return item.doc.changes[key];
+          });
+        }
+      });
+
+      return resp;
+    };
+
     index(
     {
       prefix: 'changelog',
+      include_docs: 'true',
       url: url,
+      format: format,
       target: target
     }).get(startkey, startid, prevkeys, previds);
 

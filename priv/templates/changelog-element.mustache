@@ -1,0 +1,63 @@
+{{#doc}}
+<tr>
+  <th
+    {{#firstrow}}
+      id="first-{{ category }}-element"
+      data-first-id="{{ id }}"
+    {{/firstrow}}>
+    <a
+      href="#{{ document_id }}"
+      class="view-document-link">
+      {{#head_values}}{{ . }}{{/head_values}}
+    </a>
+  </th>
+  <td>
+    {{ change_type }}
+  </td>
+  <td>
+    {{ user }}
+  </td>
+  <td>
+    {{ timestamp }}
+  </td>
+</tr>
+{{#changes}}
+  <tr>
+    <th colspan=4>
+      {{ fieldsetLabel }}: {{ fieldLabel }}
+    </th>
+  </tr>
+  <tr>
+    <td colspan=4>
+      <table>
+        <thead>
+          <tr>
+            <th>
+              Orig. Value
+            </th>
+            <th>
+              New Value
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              {{^originalValue}}
+              <b>added</b>
+              {{/originalValue}}
+              {{ originalValue }}
+            </td>
+            <td>
+              {{^newValue}}
+              <b>removed</b>
+              {{/newValue}}
+              {{ newValue }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+{{/changes}}
+{{/doc}}
