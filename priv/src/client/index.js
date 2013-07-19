@@ -123,16 +123,18 @@ shimi.index = function (args)
       lastrow = newRows.slice(-1);
       newRows[0].firstrow = true;
 
-      if (newRows.length >= limit)
+      if (newRows.length > limit)
       {
         respJSON.rows = newRows.slice(0, -1);
       }
       else
       {
         respJSON.rows = newRows;
+        respJSON.lastpage = true;
       }
 
       respJSON.lastrow = lastrow;
+      respJSON.prefix = prefix;
 
       target.html(templates['paged-listing'].render(respJSON,
       {

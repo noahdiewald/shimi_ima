@@ -15,8 +15,10 @@ This template is to be used with all simple paged listings.
   title="Next Page"
   class="pager-button link-button"
   id="next-{{ prefix }}-page"
-  {{#lastrow}}
+  {{#lastpage}}
     data-last-page="true"
+  {{/lastpage}}
+  {{#lastrow}}
     data-startkey="{{ encoded_key }}"
     data-startid="{{ id }}"
   {{/lastrow}}
