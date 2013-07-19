@@ -1657,13 +1657,13 @@ shimi.index = function (args)
 
     shimi.form.send(url, false, 'GET', function (context, req)
     {
-      mod.fill(req, state, target);
+      mod.fill(req, state, target, limit);
     }, this);
 
     return mod;
   };
 
-  mod.fill = function (req, state, target)
+  mod.fill = function (req, state, target, limit)
   {
     if (prefix === 'changelog')
     {
@@ -1677,8 +1677,17 @@ shimi.index = function (args)
         return item;
       });
 
-      lastrow = newRows.pop();
-      respJSON.rows = newRows.slice(0, -1);
+      lastrow = newRows.slice(-1);
+
+      if (newRows.length >= limit)
+      {
+        respJSON.rows = newRows.slice(0, -1);
+      }
+      else
+      {
+        respJSON.rows = newRows;
+      }
+
       respJSON.lastrow = lastrow;
 
       target.html(templates['paged-listing'].render(respJSON,
