@@ -24,6 +24,7 @@ shimi.index = function (args)
   {
     args.include_docs = false;
   }
+  var format = args.format;
   var prefix = args.prefix;
   var includeDocs = args.include_docs;
 
@@ -89,13 +90,13 @@ shimi.index = function (args)
 
     shimi.form.send(url, false, 'GET', function (context, req)
     {
-      mod.fill(req, state, target, args.format);
+      mod.fill(req, state, target);
     }, this);
 
     return mod;
   };
 
-  mod.fill = function (req, state, target, format)
+  mod.fill = function (req, state, target)
   {
     var limit = limitField().val() * 1;
 
