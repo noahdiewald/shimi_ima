@@ -17,7 +17,7 @@ shimi.changeui = (function ()
 
       resp.rows.map(function (item)
       {
-        if (item.doc.changes !== null)
+        if (item.doc.changes)
         {
           item.doc.changes = Object.keys(item.doc.changes).map(function (key)
           {
@@ -32,7 +32,7 @@ shimi.changeui = (function ()
     index(
     {
       prefix: 'changelog',
-      include_docs: 'true',
+      origin: 'changeui',
       url: url,
       format: format,
       target: target

@@ -73,16 +73,14 @@ json_index(R, S) ->
     Doctype = list_to_binary(proplists:get_value(doctype, S)),
     {QsVals, R1} = cowboy_req:qs_vals(R),
     StartKey = case proplists:get_value(<<"startkey">>, QsVals) of
-                  undefined -> << Doctype/binary, "-a" >>;
-                  <<>> -> << Doctype/binary, "-a" >>;
-                  <<"\"\"">> -> << Doctype/binary, "-a" >>;
+                  undefined -> << Doctype/binary, "-" >>;
+                  <<>> -> << Doctype/binary, "-" >>;
+                  <<"\"\"">> -> << Doctype/binary, "-" >>;
                   Key when is_binary(Key) ->
                       DatePart = re:replace(Key, <<"[^0-9]">>, <<>>, [global,unicode,{return, binary}]),
                       << Doctype/binary, "-", DatePart/binary >>
               end,
-    QsVals2 = [{<<"startkey">>, StartKey},
-               {<<"descending">>, true},
-               {<<"endkey">>, << Doctype/binary, "-0" >>}|QsVals],
+    QsVals2 = [{<<"include_docs">>, true}, {<<"endkey">>, << Doctype/binary, "-a" >>}|jsn:set_value(<<"startkey">>, StartKey, QsVals)],
     {{ok, Json}, R2} = q:changelog(QsVals2, R1, S),
     {jsn:encode(Json), R2, S}.
 

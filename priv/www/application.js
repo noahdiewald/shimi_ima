@@ -1489,28 +1489,6 @@ $(document).on('keydown', '#document-search-term', function (e)
   }
   return true;
 });
-
-$(document).on('keyup', '#index-filter-form input', function (e)
-{
-  'use strict';
-
-  var getIndexTimer;
-  window.clearTimeout(getIndexTimer);
-  getIndexTimer = setTimeout(function ()
-  {
-    if (e.which !== 8 && e.which !== 46)
-    {
-      if (document.getElementById('all-document-container'))
-      {
-        shimi.indexui.get();
-      }
-      else
-      {
-        shimi.ipreviewui.get();
-      }
-    }
-  }, 500);
-});
 $(document).on('change', '#document-search-exclude', function (e)
 {
   'use strict';
@@ -1603,12 +1581,9 @@ shimi.index = function (args)
   {
     args.prefix = 'index';
   }
-  if (args.include_docs === undefined)
-  {
-    args.include_docs = false;
-  }
+  var origin = args.origin;
+  var format = args.format;
   var prefix = args.prefix;
-  var includeDocs = args.include_docs;
 
   var escapeValue = function (value)
   {
@@ -1643,7 +1618,7 @@ shimi.index = function (args)
 
     if (state.sk)
     {
-      url = url + '&startkey=' + window.escape(window.atob(state.sk));
+      url = url + 'startkey=' + window.escape(window.atob(state.sk));
       if (state.sid)
       {
         url = url + '&startkey_docid=' + state.sid;
@@ -1665,20 +1640,15 @@ shimi.index = function (args)
       url = url + '&index=' + indexId;
     }
 
-    if (includeDocs)
-    {
-      url = url + '&include_docs=' + includeDocs;
-    }
-
     shimi.form.send(url, false, 'GET', function (context, req)
     {
-      mod.fill(req, state, target, args.format);
+      mod.fill(req, state, target);
     }, this);
 
     return mod;
   };
 
-  mod.fill = function (req, state, target, format)
+  mod.fill = function (req, state, target)
   {
     var limit = limitField().val() * 1;
 
@@ -1704,7 +1674,11 @@ shimi.index = function (args)
       });
 
       lastrow = newRows.slice(-1);
-      newRows[0].firstrow = true;
+
+      if (newRows[0])
+      {
+        newRows[0].firstrow = true;
+      }
 
       if (newRows.length > limit)
       {
@@ -1757,6 +1731,22 @@ shimi.index = function (args)
     {
       $('#next-' + prefix + '-page').hide();
     }
+
+    var keyupHandler =  function (e)
+    {
+      var getIndexTimer;
+      window.clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function ()
+      {
+        if (e.which !== 8 && e.which !== 46)
+        {
+          shimi[origin].get();
+        }
+      }, 500);
+    };
+
+    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
+    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
 
     return mod;
   };
@@ -2880,7 +2870,7 @@ shimi.changeui = (function ()
 
       resp.rows.map(function (item)
       {
-        if (item.doc.changes !== null)
+        if (item.doc.changes)
         {
           item.doc.changes = Object.keys(item.doc.changes).map(function (key)
           {
@@ -2895,7 +2885,7 @@ shimi.changeui = (function ()
     index(
     {
       prefix: 'changelog',
-      include_docs: 'true',
+      origin: 'changeui',
       url: url,
       format: format,
       target: target
@@ -3914,6 +3904,7 @@ shimi.indexui = (function ()
     index(
     {
       url: url,
+      origin: 'indexui',
       indexId: indexId,
       target: target
     }).get(startkey, startid, prevkeys, previds);
@@ -6239,6 +6230,7 @@ shimi.ipreviewui = (function ()
       index(
       {
         url: url,
+        origin: 'ipreviewui',
         target: target
       }).get(startkey, startid, prevkeys, previds);
     }

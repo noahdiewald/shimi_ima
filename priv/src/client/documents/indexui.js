@@ -16,6 +16,7 @@ shimi.indexui = (function ()
     index(
     {
       url: url,
+      origin: 'indexui',
       indexId: indexId,
       target: target
     }).get(startkey, startid, prevkeys, previds);

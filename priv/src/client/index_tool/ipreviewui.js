@@ -17,6 +17,7 @@ shimi.ipreviewui = (function ()
       index(
       {
         url: url,
+        origin: 'ipreviewui',
         target: target
       }).get(startkey, startid, prevkeys, previds);
     }

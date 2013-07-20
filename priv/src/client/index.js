@@ -20,13 +20,9 @@ shimi.index = function (args)
   {
     args.prefix = 'index';
   }
-  if (args.include_docs === undefined)
-  {
-    args.include_docs = false;
-  }
+  var origin = args.origin;
   var format = args.format;
   var prefix = args.prefix;
-  var includeDocs = args.include_docs;
 
   var escapeValue = function (value)
   {
@@ -61,7 +57,7 @@ shimi.index = function (args)
 
     if (state.sk)
     {
-      url = url + '&startkey=' + window.escape(window.atob(state.sk));
+      url = url + 'startkey=' + window.escape(window.atob(state.sk));
       if (state.sid)
       {
         url = url + '&startkey_docid=' + state.sid;
@@ -81,11 +77,6 @@ shimi.index = function (args)
     if (indexId)
     {
       url = url + '&index=' + indexId;
-    }
-
-    if (includeDocs)
-    {
-      url = url + '&include_docs=' + includeDocs;
     }
 
     shimi.form.send(url, false, 'GET', function (context, req)
@@ -122,7 +113,11 @@ shimi.index = function (args)
       });
 
       lastrow = newRows.slice(-1);
-      newRows[0].firstrow = true;
+
+      if (newRows[0])
+      {
+        newRows[0].firstrow = true;
+      }
 
       if (newRows.length > limit)
       {
@@ -175,6 +170,22 @@ shimi.index = function (args)
     {
       $('#next-' + prefix + '-page').hide();
     }
+
+    var keyupHandler =  function (e)
+    {
+      var getIndexTimer;
+      window.clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function ()
+      {
+        if (e.which !== 8 && e.which !== 46)
+        {
+          shimi[origin].get();
+        }
+      }, 500);
+    };
+
+    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
+    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
 
     return mod;
   };
