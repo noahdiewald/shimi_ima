@@ -1,5 +1,5 @@
 {{#doc}}
-<tr id="{{ id }}">
+<tr class="change-header" id="{{ id }}">
   <th
     {{#firstrow}}
       id="first-{{ category }}-element"
@@ -22,41 +22,20 @@
   </td>
 </tr>
 {{#changes}}
-  <tr>
-    <th colspan=4>
+  <tr class="change-change">
+    <th>
       {{ fieldsetLabel }}: {{ fieldLabel }}
     </th>
-  </tr>
-  <tr>
-    <td colspan=4>
-      <table>
-        <thead>
-          <tr>
-            <th>
-              Orig. Value
-            </th>
-            <th>
-              New Value
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              {{^originalValue}}
-              <b>added</b>
-              {{/originalValue}}
-              {{ originalValue }}
-            </td>
-            <td>
-              {{^newValue}}
-              <b>removed</b>
-              {{/newValue}}
-              {{ newValue }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <td colspan=3>
+      {{^originalValue}}
+      <b>Ø</b>
+      {{/originalValue}}
+      {{ originalValue }}
+      →
+      {{^newValue}}
+      <b>Ø</b>
+      {{/newValue}}
+      {{ newValue }}
     </td>
   </tr>
 {{/changes}}

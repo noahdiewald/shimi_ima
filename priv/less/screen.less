@@ -245,6 +245,26 @@ table {
       width:100%;
     }
   }
+  &#document-changelog {
+    table {
+      width:100%;
+      tr.change-change {
+        th {
+          font-weight: normal;
+          font-style: italic;
+        }
+      }
+      tr.change-header {
+        th, td {
+          vertical-align: middle;
+          background: @level1;
+          a {
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
   &#document-view {
     width:25%;
     table {

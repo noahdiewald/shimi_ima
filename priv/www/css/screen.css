@@ -251,6 +251,22 @@ table td {
 .panel#index-index table {
   width: 100%;
 }
+.panel#document-changelog table {
+  width: 100%;
+}
+.panel#document-changelog table tr.change-change th {
+  font-weight: normal;
+  font-style: italic;
+}
+.panel#document-changelog table tr.change-header th,
+.panel#document-changelog table tr.change-header td {
+  vertical-align: middle;
+  background: #f0a265;
+}
+.panel#document-changelog table tr.change-header th a,
+.panel#document-changelog table tr.change-header td a {
+  font-weight: bold;
+}
 .panel#document-view {
   width: 25%;
 }
