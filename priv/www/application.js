@@ -3744,6 +3744,11 @@ shimi.fieldsets = (function ()
 
   var setFieldValue = function (field, value, instance)
   {
+    if (field.attr('data-field-field') === 'd5331cbb4d62fe3d2899f142d907545b')
+    {
+      window.console.log(value);
+    }
+
     if (field.is('input.boolean'))
     {
       field.prop('checked', value);
@@ -3756,7 +3761,7 @@ shimi.fieldsets = (function ()
     {
       value = value.map(function (x)
       {
-        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
       });
       field.val(value);
     }
@@ -3773,6 +3778,11 @@ shimi.fieldsets = (function ()
     {
       field.val(value);
     }
+    if (field.attr('data-field-field') === 'd5331cbb4d62fe3d2899f142d907545b')
+    {
+      window.console.log(value);
+    }
+
     field.attr('data-field-instance', instance);
   };
 

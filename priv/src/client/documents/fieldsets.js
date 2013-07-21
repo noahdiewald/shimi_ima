@@ -272,13 +272,13 @@ shimi.fieldsets = (function ()
     {
       value = value.map(function (x)
       {
-        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
+        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
       });
       field.val(value);
     }
     else if (value && field.is('select.select'))
     {
-      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
       field.val(value);
     }
     else if (value && (field.is('input.text') || field.is('select.file')))
@@ -289,6 +289,7 @@ shimi.fieldsets = (function ()
     {
       field.val(value);
     }
+
     field.attr('data-field-instance', instance);
   };
 
