@@ -263,7 +263,7 @@ table td {
   vertical-align: middle;
   background: white;
   border-top-color: black;
-  border-bottom-color: black;
+  border-top-width: thick;
 }
 .panel#document-changelog table tr.change-header th a,
 .panel#document-changelog table tr.change-header td a {
