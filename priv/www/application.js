@@ -3744,11 +3744,6 @@ shimi.fieldsets = (function ()
 
   var setFieldValue = function (field, value, instance)
   {
-    if (field.attr('data-field-field') === 'd5331cbb4d62fe3d2899f142d907545b')
-    {
-      window.console.log(value);
-    }
-
     if (field.is('input.boolean'))
     {
       field.prop('checked', value);
@@ -3767,7 +3762,7 @@ shimi.fieldsets = (function ()
     }
     else if (value && field.is('select.select'))
     {
-      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A').replace(/%20/g, '+');
+      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
       field.val(value);
     }
     else if (value && (field.is('input.text') || field.is('select.file')))
@@ -3777,10 +3772,6 @@ shimi.fieldsets = (function ()
     else
     {
       field.val(value);
-    }
-    if (field.attr('data-field-field') === 'd5331cbb4d62fe3d2899f142d907545b')
-    {
-      window.console.log(value);
     }
 
     field.attr('data-field-instance', instance);
