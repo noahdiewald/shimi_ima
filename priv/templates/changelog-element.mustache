@@ -2,8 +2,9 @@
 <tr class="change-header" id="{{ id }}">
   <th
     {{#firstrow}}
-      id="first-{{ category }}-element"
+      id="first-{{ prefix }}-element"
       data-first-id="{{ id }}"
+      data-first-key="{{ encoded_key }}"
     {{/firstrow}}>
     <a
       href="#{{ document_id }}"
