@@ -9,12 +9,32 @@ shimi.indexui = (function ()
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
-    var url = 'documents/index';
-    var indexId = $('#index-index-input').val();
-    var target = $('#index-listing');
+    var prefix = 'index';
+    var url = 'documents/' + prefix;
+    var indexId = $('#index-' + prefix + '-input').val();
+    var target = $('#' + prefix + '-listing');
+
+    var format = function (text)
+    {
+      var resp = JSON.parse(text);
+
+      resp.rows = resp.rows.map(function (item)
+      {
+        item.display_key = item.key.map(function (k)
+        {
+          return k[1];
+        });
+
+        return item;
+      });
+
+      return resp;
+    };
 
     index(
     {
+      prefix: prefix,
+      format: format,
       url: url,
       origin: 'indexui',
       indexId: indexId,

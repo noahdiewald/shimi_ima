@@ -79,6 +79,7 @@ content_types_provided(R, S) ->
         worksheets_get -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         revision -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         _ -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
     end.
   
@@ -97,12 +98,12 @@ to_html(R, S) ->
     case proplists:get_value(target, S) of
         edit -> html_edit(R, S);
         main -> html_documents(R, S);
-        index -> html_index(R, S);
         search -> html_search(R, S)
     end.
     
 to_json(R, S) ->
     case proplists:get_value(target, S) of
+        index -> json_index(R, S);
         identifier -> json_document(R, S);
         revision -> json_revision(R, S)
     end.
@@ -138,7 +139,10 @@ json_create(R, S) ->
             {ok, R3} = cowboy_req:reply(403, [], Message, R2),
             {halt, R3, S1}
     end.
-  
+
+json_index(R, S) ->  
+    i:view(R, S).
+
 json_update(R, S) ->
     {Project, R1} = h:project(R),
     {ok, Body, R2} = cowboy_req:body(R1),
@@ -219,9 +223,6 @@ html_edit(R, S) ->
     Vals = [{<<"fieldsets">>, Fieldsets}|Info],
     {ok, Html} = render:render(document_edit_dtl, Vals),
     {Html, R2, S}.
-
-html_index(R, S) ->
-    i:view(R, S).
 
 html_search(R, S) ->
     {Query, R1} = cowboy_req:qs_val(<<"q">>, R),

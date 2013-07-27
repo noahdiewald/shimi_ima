@@ -1652,56 +1652,49 @@ shimi.index = function (args)
   {
     var limit = limitField().val() * 1;
 
-    if (prefix === 'changelog')
+    var respJSON;
+    var lastrow;
+    var newRows;
+
+    if (format === undefined)
     {
-      var respJSON;
-      var lastrow;
-      var newRows;
-
-      if (format === undefined)
-      {
-        respJSON = JSON.parse(req.responseText);
-      }
-      else
-      {
-        respJSON = format(req.responseText);
-      }
-
-      newRows = respJSON.rows.map(function (item, index, thisArray)
-      {
-        item.encoded_key = escapeValue(item.key);
-        return item;
-      });
-
-      lastrow = newRows.slice(-1);
-
-      if (newRows[0])
-      {
-        newRows[0].firstrow = true;
-      }
-
-      if (newRows.length > limit)
-      {
-        respJSON.rows = newRows.slice(0, -1);
-      }
-      else
-      {
-        respJSON.rows = newRows;
-        respJSON.lastpage = true;
-      }
-
-      respJSON.lastrow = lastrow;
-      respJSON.prefix = prefix;
-
-      target.html(templates['paged-listing'].render(respJSON,
-      {
-        'listed-element': templates[prefix + '-element']
-      }));
+      respJSON = JSON.parse(req.responseText);
     }
     else
     {
-      target.html(req.responseText);
+      respJSON = format(req.responseText);
     }
+
+    newRows = respJSON.rows.map(function (item, index, thisArray)
+    {
+      item.encoded_key = escapeValue(item.key);
+      return item;
+    });
+
+    lastrow = newRows.slice(-1);
+
+    if (newRows[0])
+    {
+      newRows[0].firstrow = true;
+    }
+
+    if (newRows.length > limit)
+    {
+      respJSON.rows = newRows.slice(0, -1);
+    }
+    else
+    {
+      respJSON.rows = newRows;
+      respJSON.lastpage = true;
+    }
+
+    respJSON.lastrow = lastrow;
+    respJSON.prefix = prefix;
+
+    target.html(templates['paged-listing'].render(respJSON,
+    {
+      'listed-element': templates[prefix + '-element']
+    }));
 
     $('#previous-' + prefix + '-page').click(function ()
     {
@@ -1732,7 +1725,7 @@ shimi.index = function (args)
       $('#next-' + prefix + '-page').hide();
     }
 
-    var keyupHandler =  function (e)
+    var keyupHandler = function (e)
     {
       var getIndexTimer;
       window.clearTimeout(getIndexTimer);
@@ -3898,12 +3891,32 @@ shimi.indexui = (function ()
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
-    var url = 'documents/index';
-    var indexId = $('#index-index-input').val();
-    var target = $('#index-listing');
+    var prefix = 'index';
+    var url = 'documents/' + prefix;
+    var indexId = $('#index-' + prefix + '-input').val();
+    var target = $('#' + prefix + '-listing');
+
+    var format = function (text)
+    {
+      var resp = JSON.parse(text);
+
+      resp.rows = resp.rows.map(function (item)
+      {
+        item.display_key = item.key.map(function (k)
+        {
+          return k[1];
+        });
+
+        return item;
+      });
+
+      return resp;
+    };
 
     index(
     {
+      prefix: prefix,
+      format: format,
       url: url,
       origin: 'indexui',
       indexId: indexId,

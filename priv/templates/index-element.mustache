@@ -1,0 +1,24 @@
+<tr class="change-header" id="{{ id }}">
+  <th
+    {{#firstrow}}
+      id="first-{{ prefix }}-element"
+      data-first-id="{{ id }}"
+      data-first-key="{{ encoded_key }}"
+    {{/firstrow}}>
+    <ul class="head-elements">
+      {{#display_key}}
+        <li>
+          <a href="#{{ id }}"
+            class="view-document-link">{{ . }}</a>
+        </li>
+      {{/display_key}}
+    </ul>
+  </th>
+  <td>
+    <ul class="reversal-elements">
+      {{#value}}
+        <li>{{ . }}</li>
+      {{/value}}
+    </ul>
+  </td>
+</tr>

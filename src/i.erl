@@ -30,16 +30,6 @@
     view/2
     ]).
 
-add_encoded_key(Row) ->
-    Key = jsn:get_value(<<"key">>, Row),
-    jsn:set_value(<<"encoded_key">>, jsn:to_base64(Key), Row).
-
-%% @doc Add escaped keys to view output
--spec add_encoded_keys(jsn:json_term()) -> jsn:json_term().
-add_encoded_keys(Json) ->
-    Rows = lists:map(fun add_encoded_key/1, jsn:get_value(<<"rows">>, Json)),
-    jsn:set_value(<<"rows">>, Rows, Json).
-
 -spec create(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 create(R, S) ->
     Json = proplists:get_value(posted_json, S),
@@ -119,44 +109,30 @@ update_design(DocId, Project, S) ->
             couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
     
--spec view(h:req_data(), h:req_state()) -> {iolist(), h:req_data(), h:req_state()} | h:req_data().
+-spec view(h:req_data(), h:req_state()) -> {iodata(), h:req_data(), h:req_state()} | h:req_data().
 view(R, S) ->
     Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
     Item = <<"Index">>,
     Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    {LimitString, R1} = cowboy_req:qs_val(<<"limit">>, R),
-    Limit = list_to_integer(binary_to_list(LimitString)),
-    case get_index(R1, S) of
-        {{ok, Json}, Info, R2} ->
-            Index = add_encoded_keys(Json),
-            Vals = [{<<"limit">>, Limit}|Index] ++ Info,
-            {ok, Html} = render:render(document_index_dtl, Vals),
-            {Html, R2, S};
-        {{error, not_found}, _, R2} ->
+    {[Id, Index, Project, Doctype], R1} = h:g([id, index, project, doctype], R),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
+    Ret = case {Id, Index} of
+              {undefined, undefined} ->
+                  Qs = view:normalize_sortkey_vq(Doctype, QsVals, Project, S),
+                  q:index(Doctype, Qs, Project, S);
+              {IndexId, undefined} -> 
+                  Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
+                  q:index(IndexId, Qs, Project, S);
+              {undefined, IndexId} ->
+                  Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
+                  q:index(IndexId, Qs, Project, S)
+          end,
+    case Ret of
+        {ok, Json} ->
+            {jsn:encode(Json), R2, S};
+        {error, not_found} ->
             {<<"">>, R2, S};
-        {{error, req_timedout}, _, R2} ->
+        {error, req_timedout} ->
             {ok, R3} = cowboy_req:reply(504, [], Message, R2),
             {halt, R3, S}
-    end.
-
--spec get_index(h:req_data(), h:req_state()) -> {couch:ret(), jsn:json_term(), h:req_data()}.
-get_index(R, S) ->
-    {[Id, Index, Project], R1} = h:g([id, index, project], R),
-    {QsVals, R2} = cowboy_req:qs_vals(R1),
-    case {Id, Index} of
-        {undefined, undefined} ->
-            {Doctype, R3} = h:doctype(R2),
-            Qs = view:normalize_sortkey_vq(Doctype, QsVals, Project, S),
-            Ret = q:index(Doctype, Qs, Project, S),
-            {Info, R4} = h:basic_info("", " Index", R3, S),
-            {Ret, Info, R4};
-        {IndexId, undefined} -> 
-            Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
-            Ret = q:index(IndexId, Qs, Project, S),
-            {Ret, [], R2};
-        {undefined, IndexId} ->
-            Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
-            Ret = q:index(IndexId, Qs, Project, S),
-            {Info, R3} = h:basic_info("", " Index", R2, S),
-            {Ret, Info, R3}
     end.
