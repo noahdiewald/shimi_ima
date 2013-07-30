@@ -239,10 +239,12 @@ table td {
   vertical-align: top;
   padding-top: 0;
 }
-.panel#document-index {
+.panel#document-index,
+.panel#index-preview {
   width: 25%;
 }
-.panel#document-index table {
+.panel#document-index table,
+.panel#index-preview table {
   width: 100%;
 }
 .panel#index-index {

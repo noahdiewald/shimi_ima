@@ -3,7 +3,7 @@ shimi.changeui = (function ()
   'use strict';
 
   var mod = {};
-  var index = shimi.index;
+  var pager = shimi.pager;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
@@ -29,7 +29,7 @@ shimi.changeui = (function ()
       return resp;
     };
 
-    index(
+    pager(
     {
       prefix: 'changelog',
       origin: 'changeui',

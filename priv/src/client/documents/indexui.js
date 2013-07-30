@@ -5,7 +5,7 @@ shimi.indexui = (function ()
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
-  var index = shimi.index;
+  var pager = shimi.pager;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
@@ -25,13 +25,17 @@ shimi.indexui = (function ()
           return k[1];
         });
 
+        if (indexId && item.value.length > 0) {
+          item.value = item.value.split(', ');
+        }
+
         return item;
       });
 
       return resp;
     };
 
-    index(
+    pager(
     {
       prefix: prefix,
       format: format,

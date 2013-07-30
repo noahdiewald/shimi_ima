@@ -131,7 +131,7 @@ view(R, S) ->
         {ok, Json} ->
             {jsn:encode(Json), R2, S};
         {error, not_found} ->
-            {<<"">>, R2, S};
+            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R2, S};
         {error, req_timedout} ->
             {ok, R3} = cowboy_req:reply(504, [], Message, R2),
             {halt, R3, S}

@@ -1572,7 +1572,7 @@ shimi.dispatch = (function ()
 // the current key and id are taken from the html when needed to
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
-shimi.index = function (args)
+shimi.pager = function (args)
 {
   'use strict';
 
@@ -2849,7 +2849,7 @@ shimi.changeui = (function ()
   'use strict';
 
   var mod = {};
-  var index = shimi.index;
+  var pager = shimi.pager;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
@@ -2875,7 +2875,7 @@ shimi.changeui = (function ()
       return resp;
     };
 
-    index(
+    pager(
     {
       prefix: 'changelog',
       origin: 'changeui',
@@ -3887,7 +3887,7 @@ shimi.indexui = (function ()
   var mod = {};
   var store = shimi.store;
   var flash = shimi.flash;
-  var index = shimi.index;
+  var pager = shimi.pager;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
@@ -3907,13 +3907,17 @@ shimi.indexui = (function ()
           return k[1];
         });
 
+        if (indexId && item.value.length > 0) {
+          item.value = item.value.split(', ');
+        }
+
         return item;
       });
 
       return resp;
     };
 
-    index(
+    pager(
     {
       prefix: prefix,
       format: format,
@@ -6230,19 +6234,38 @@ shimi.ipreviewui = (function ()
   'use strict';
 
   var mod = {};
-  var index = shimi.index;
+  var pager = shimi.pager;
 
   mod.get = function (startkey, startid, prevkeys, previds)
   {
+    var prefix = 'preview';
     var indexId = $('#index-editing-data').attr('data-index-id');
-    var url = 'indexes/' + indexId + '/view';
-    var target = $('#index-list-view');
-    var filterForm = $('#index-filter-form input');
+    var url = 'indexes/' + indexId + '/preview';
+    var target = $('#' + prefix + '-list-view');
+
+    var format = function (text)
+    {
+      var resp = JSON.parse(text);
+
+      resp.rows = resp.rows.map(function (item)
+      {
+        item.display_key = item.key.map(function (k)
+        {
+          return k[1];
+        });
+
+        return item;
+      });
+
+      return resp;
+    };
 
     if (indexId)
     {
-      index(
+      pager(
       {
+        prefix: prefix,
+        format: format,
         url: url,
         origin: 'ipreviewui',
         target: target

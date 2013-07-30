@@ -298,7 +298,7 @@ var user_indexes = function (doc, emit, testEnv)
             {
               emit([
                 ['', formatted]
-              ], ['', head()]);
+              ], head());
             }
             else
             {
@@ -306,13 +306,13 @@ var user_indexes = function (doc, emit, testEnv)
               {
                 emit([
                   ['', formatted]
-                ], ['', head()]);
+                ], head());
               }
               else
               {
                 emit([
                   [fieldVal[0], formatted]
-                ], ['', head()]);
+                ], head());
               }
             }
           }

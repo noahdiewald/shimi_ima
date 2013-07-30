@@ -11,7 +11,7 @@
 // the current key and id are taken from the html when needed to
 // add to the prevkeys and previds. The startkey may be a user
 // input value so a more reliable startkey and startid are needed.
-shimi.index = function (args)
+shimi.pager = function (args)
 {
   'use strict';
 

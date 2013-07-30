@@ -11,7 +11,7 @@
   <ul>
     <li data-panel="index-index">Indexes</li>
     <li data-panel="index-edit">Edit</li>
-    <li data-panel="index-view">Preview</li>
+    <li data-panel="index-preview">Preview</li>
   </ul>
 </div>
 
@@ -37,16 +37,16 @@
       <div id="index-conditions"></div>
     </div>
     
-    <div class="panel hidden" id="index-view">
+    <div class="panel hidden" id="index-preview">
       <h2 class="header">Preview Index</h2>
 
-      <form id="index-filter-form">
-        <label for="index-filter">Filter</label>
-        <input type="text" name="index-filter" id="index-filter" /><br />
-        <label for="index-limit">Limit</label>
-        <input type="text" name="index-limit" id="index-limit" />
+      <form id="preview-filter-form">
+        <label for="preview-filter">Filter</label>
+        <input type="text" name="preview-filter" id="preview-filter" /><br />
+        <label for="preview-limit">Limit</label>
+        <input type="text" name="preview-limit" id="preview-limit" />
       </form>
-      <div id="index-list-view">
+      <div id="preview-list-view">
       </div>
     </div>
     

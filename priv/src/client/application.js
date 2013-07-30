@@ -11,7 +11,7 @@
 //= keystrokes.js
 //= changes.js
 //= gen-dispatch.js
-//= index.js
+//= pager.js
 //= form.js
 //= sess.js
 //= config
