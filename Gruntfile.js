@@ -19,7 +19,7 @@ module.exports = function(grunt) {
     mochacov: {
       unit: {
         options: {
-          files: 'priv/test/server/*.js',
+          files: ['priv/test/server/*.js', 'priv/test/misc/*.js'],
           reporter: 'spec'
         }
       },
