@@ -1,7 +1,7 @@
 exports.simple_doc = {
   '_id': '25250e2ead108a8f60213f2404007c91',
   '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
-  'doctype': 'bim',
+  'doctype': 'http://example.com/project-db9b2f5a635078bf094b2a95931d0073/bim',
   'description': '',
   'fieldsets': [
     {
