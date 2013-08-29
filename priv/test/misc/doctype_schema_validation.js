@@ -13,13 +13,13 @@ describe('Doctype schemas', function ()
       tv4.validate(simple_doc, simple_schema.schema).should.equal(true);
     });
 
-    it('should be invalid with a bad created_at_ date', function ()
-    {
-      var tmp_simple = JSON.parse(JSON.stringify(simple_doc));
-      tmp_simple.created_at_ = 'bad date';
-
-      tv4.validate(tmp_simple, simple_schema.schema);
-      tv4.error.should.equal(true);
-    });
+//    it('should be invalid with a bad created_at_ date', function ()
+//    {
+//      var tmp_simple = JSON.parse(JSON.stringify(simple_doc));
+//      tmp_simple.created_at_ = 'bad date';
+//
+//      tv4.validate(tmp_simple, simple_schema.schema);
+//      tv4.error.should.equal(true);
+//    });
   });
 });
