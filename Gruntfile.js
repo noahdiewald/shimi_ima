@@ -1,11 +1,11 @@
 module.exports = function(grunt) {
 
-  grunt.loadNpmTasks('grunt-rigger');
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-mocha-cov');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-hogan');
+  grunt.loadNpmTasks('grunt-mocha-cov');
 
   // Project configuration.
   grunt.initConfig({
@@ -13,8 +13,11 @@ module.exports = function(grunt) {
       version: '0.1.0',
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
-    rig: {
-      'priv/www/application.js': 'priv/src/client/application.js'
+    browserify: {
+      client: {
+        src: ['priv/src/client/**/*.js'],
+        dest: 'priv/www/application.js'
+      }
     },
     mochacov: {
       unit: {
@@ -95,7 +98,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('coverage', ['jshint', 'rig', 'mochacov:coverage']);
-  grunt.registerTask('test', ['jshint', 'rig', 'mochacov:unit']);
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'rig', 'mochacov:unit', 'uglify']);
+  grunt.registerTask('coverage', ['jshint', 'mochacov:coverage']);
+  grunt.registerTask('test', ['jshint', 'mochacov:unit']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'mochacov:unit', 'browserify', 'uglify']);
 };

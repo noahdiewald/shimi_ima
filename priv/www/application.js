@@ -1,4 +1,27 @@
+;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var shimi = {};
+
+shimi.utils = require('./utils.js');
+shimi.csv = require('./csv.js');
+shimi.sets = require('./sets.js');
+shimi.flash = require('./flash.js');
+shimi.store = require('./store.js');
+shimi.path = require('./path.js');
+require('./jquery.hotkeys.js');
+require('./jquery-ui-input-state.js');
+require('./click-dispatch.js');
+require('./keystrokes.js');
+require('./changes.js');
+require('./gen-dispatch.js');
+shimi.pager = require('./pager.js');
+shimi.panelToggle = require('./panel-toggle.js');
+shimi.form = require('./form.js');
+shimi.sess = require('./sess.js');
+shimi.config = require('./config/config.js');
+shimi.documents = require('./documents/documents.js');
+shimi.fm = require('./file_manager/fm.js');
+shimi.ilistingui = require('./index_tool/ilistingui.js');
+shimi.projectui = require('./projects/projectui.js');
 
 // A place to temporarily store global objects
 shimi.globals = {};
@@ -32,943 +55,74 @@ Array.prototype.trimAll = function ()
   });
 };
 
-// General UI Stuff
-shimi.panelToggle = (function ()
+$(function ()
 {
   'use strict';
 
-  var mod = {};
+  $('.notification').hide();
 
-  mod.toggler = function (target)
+  $('#loading').hide();
+
+  $(document).ajaxStart(function ()
   {
-    var panel;
-
-    if ($(target).attr('data-panel'))
-    {
-      panel = $('#' + $(target).attr('data-panel'));
-    }
-    else
-    {
-      panel = $(target).closest('.panel');
-    }
-
-    if (panel.css('display') === 'none')
-    {
-      panel.css('display', 'table-cell');
-    }
-    else
-    {
-      panel.css('display', 'none');
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
-shimi.utils = function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  // safer(ish) string to number. The difference is that in this app
-  // I am using '' if the string isn't a valid number.
-  mod.stringToNumber = function (string)
+    $('#loading').show();
+  }).ajaxStop(function ()
   {
-    if (typeof string === 'string' && !isNaN(string) && string !== '')
-    {
-      return string * 1;
-    }
-    else
-    {
-      return '';
-    }
-  };
-
-  // A predicate function to detect blankness
-  mod.isBlank = function (value)
-  {
-    return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
-  };
-
-  mod.validID = function (id)
-  {
-    return !!id.match(/^[a-f0-9]{32}$/);
-  };
-
-  /**
-   *
-   *  Base64 encode / decode
-   *  http://www.webtoolkit.info/
-   *
-   **/
-
-  mod.Base64 = {
-
-    // private property
-    _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-
-    // public method for encoding
-    encode: function (input)
-    {
-      var output = '';
-      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-      var i = 0;
-
-      input = mod.Base64._utf8_encode(input);
-
-      while (i < input.length)
-      {
-
-        chr1 = input.charCodeAt(i++);
-        chr2 = input.charCodeAt(i++);
-        chr3 = input.charCodeAt(i++);
-
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-
-        if (isNaN(chr2))
-        {
-          enc3 = enc4 = 64;
-        }
-        else if (isNaN(chr3))
-        {
-          enc4 = 64;
-        }
-
-        output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-
-      }
-
-      return output;
-    },
-
-    // public method for decoding
-    decode: function (input)
-    {
-      var output = '';
-      var chr1, chr2, chr3;
-      var enc1, enc2, enc3, enc4;
-      var i = 0;
-
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
-
-      while (i < input.length)
-      {
-
-        enc1 = this._keyStr.indexOf(input.charAt(i++));
-        enc2 = this._keyStr.indexOf(input.charAt(i++));
-        enc3 = this._keyStr.indexOf(input.charAt(i++));
-        enc4 = this._keyStr.indexOf(input.charAt(i++));
-
-        chr1 = (enc1 << 2) | (enc2 >> 4);
-        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-        chr3 = ((enc3 & 3) << 6) | enc4;
-
-        output = output + String.fromCharCode(chr1);
-
-        if (enc3 !== 64)
-        {
-          output = output + String.fromCharCode(chr2);
-        }
-        if (enc4 !== 64)
-        {
-          output = output + String.fromCharCode(chr3);
-        }
-
-      }
-
-      output = mod.Base64._utf8_decode(output);
-
-      return output;
-
-    },
-
-    // private method for UTF-8 encoding
-    _utf8_encode: function (string)
-    {
-      string = string.replace(/\r\n/g, '\n');
-      var utftext = '';
-
-      for (var n = 0; n < string.length; n++)
-      {
-
-        var c = string.charCodeAt(n);
-
-        if (c < 128)
-        {
-          utftext += String.fromCharCode(c);
-        }
-        else if ((c > 127) && (c < 2048))
-        {
-          utftext += String.fromCharCode((c >> 6) | 192);
-          utftext += String.fromCharCode((c & 63) | 128);
-        }
-        else
-        {
-          utftext += String.fromCharCode((c >> 12) | 224);
-          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-          utftext += String.fromCharCode((c & 63) | 128);
-        }
-
-      }
-
-      return utftext;
-    },
-
-    // private method for UTF-8 decoding
-    _utf8_decode: function (utftext)
-    {
-      var string = '';
-      var i = 0;
-      var c = 0;
-      var c1 = 0;
-      var c2 = 0;
-      var c3 = 0;
-
-      while (i < utftext.length)
-      {
-
-        c = utftext.charCodeAt(i);
-
-        if (c < 128)
-        {
-          string += String.fromCharCode(c);
-          i++;
-        }
-        else if ((c > 191) && (c < 224))
-        {
-          c2 = utftext.charCodeAt(i + 1);
-          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-          i += 2;
-        }
-        else
-        {
-          c2 = utftext.charCodeAt(i + 1);
-          c3 = utftext.charCodeAt(i + 2);
-          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-          i += 3;
-        }
-
-      }
-
-      return string;
-    }
-
-  };
-
-
-  return mod;
-
-};
-shimi.sets = (function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.arraysToCSV = function (a)
-  {
-    return a.map(function (x)
-    {
-      return x.map(function (y)
-      {
-        return '"' + y.toString().replace(/"/, '""') + '"';
-      }).join(',');
-    }).join('\n');
-  };
-
-  return mod;
-})();
-shimi.sets = (function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.member = function (arr, x)
-  {
-    var memb = arr.some(function (y)
-    {
-      return x === y;
-    });
-    return memb;
-  };
-
-  mod.unique = function (x, mem)
-  {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var uniq = x.reduce(function (acc, curr)
-    {
-      if (mem(acc, curr))
-      {
-        return acc;
-      }
-      else
-      {
-        return acc.concat([curr]);
-      }
-    }, []);
-    return uniq;
-  };
-
-  mod.union = function (xs, ys, mem)
-  {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var uni = mod.unique(xs.concat(ys), mem);
-    return uni;
-  };
-
-  mod.intersection = function (xs, ys, mem)
-  {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var inter = xs.filter(function (x)
-    {
-      return mem(ys, x);
-    });
-    return inter;
-  };
-
-  mod.relativeComplement = function (xs, ys, mem)
-  {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var comp = xs.filter(function (x)
-    {
-      return !mem(ys, x);
-    });
-    return comp;
-  };
-
-  mod.symmetricDifference = function (xs, ys, mem)
-  {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var comp1 = mod.relativeComplement(xs, ys, mem);
-    var comp2 = mod.relativeComplement(ys, xs, mem);
-    var uni = mod.union(comp1, comp2, mem);
-    return uni;
-  };
-
-  return mod;
-})();
-shimi.flash = function (title, body)
-{
-  'use strict';
-
-  var mod = {};
-
-  var f = function (flasher, title, body)
-  {
-    var fadeout = function ()
-    {
-      flasher.fadeOut();
-    };
-    flasher.find('.notification-summary').text(title + ': ');
-    flasher.find('.notification-message').text(body);
-    var timeout = window.setTimeout(fadeout, 7000);
-    flasher.fadeIn();
-    flasher.find('.close').click(function ()
-    {
-      window.clearTimeout(timeout);
-      flasher.hide();
-    });
-  };
-
-  mod.error = function ()
-  {
-    f($('#notifications-main .ui-state-error'), title, body);
-
-    return mod;
-  };
-
-  mod.highlight = function ()
-  {
-    f($('#notifications-main .ui-state-highlight'), title, body);
-
-    return mod;
-  };
-
-  return mod;
-};
-/*
- WARNING: OUT OF DATE
-
- h1. Data Attribute Key Value Stores
-
- There are two functions provided for getting values from keys
- embedded in HTML elements.
-
-  @getValue(key, elem)@
-
-  This funtion takes a key that corresponds to the name of the data
-  attribute without the data- prefix. It also takes a jQuery
-  object. The assumption is that the jQuery object will hold only one
-  element but it may work either way. The element is expected to have
-  an attribute data-group-id with a value that is the id of the
-  element actually holding the data.
-
- Example:
-
- <pre>
-   <div
-     id='someid'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
- The following also works:
-
- <pre>
-   <div
-     id='someid2'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-     id='someid'
-     data-group-id='someid2'
-     data-fieldset-fieldset='fsid'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'></div>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
-  @putValue(key, value, elem)@
-
-  This function will set an attribute at the target with a name
-  corresponding to key and a value of value.
-*/
-
-/*
- Tail call optimization taken from Spencer Tipping's Javascript in Ten
- Minutes.
-
- For more information see:
- https://github.com/spencertipping/js-in-ten-minutes
-*/
-
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-Function.prototype.r = function ()
-{
-  'use strict';
-
-  return [this, arguments];
-};
-
-Function.prototype.t = function ()
-{
-  'use strict';
-
-  var c = [this, arguments];
-  var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape)
-  {
-    c = c[0].apply(this, c[1]);
-  }
-  return escape.apply(this, c[1]);
-};
-
-shimi.store = function (elem)
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.get = function (key)
-  {
-    var prelim = elem.attr('data-' + key);
-
-    if (prelim)
-    {
-      return prelim;
-    }
-
-    var getValue1 = function (key, elem, id)
-    {
-      var gid = elem.attr('data-group-id');
-      var store = $('#' + gid);
-      var val = store.attr('data-' + key);
-      var next = store.attr('data-group-id');
-
-      if (val === undefined && next !== undefined && gid !== next)
-      {
-        return getValue1.r(key, store, id);
-      }
-
-      return id.r(val);
-    };
-
-    return getValue1.t(key, elem, identity);
-  };
-
-  mod.get64 = function (key)
-  {
-    var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
-    return retval;
-  };
-
-  mod.put = function (key, value)
-  {
-    var dataElem = elem.attr('data-group-id');
-    $('#' + dataElem).attr('data-' + key, value);
-  };
-
-  mod.fs = function (key)
-  {
-    return mod.get('fieldset-' + key);
-  };
-
-  mod.f = function (key)
-  {
-    return mod.get('field-' + key);
-  };
-
-  mod.d = function (key)
-  {
-    return mod.get('document-' + key);
-  };
-
-  return mod;
-};
-/*
- * h1. Path helper
- *
- * h2. Creating the object
- *
- * This function returns an object with various helpers for URL
- * path operations. In this application a common pattern in paths is
- * doctypes/<doctypeid>/fieldsets/<fiedsetid>/fields/<fieldid>. The path
- * function below will take a source, which is a jQuery object, such as
- * $('#some-id'), which has an attribute named 'data-group-id' having a
- * value of the id of an element that stores data relevant to the current
- * context as HTML data attributes, in particular the ids of doctypes,
- * fieldsets and/or fields. The category is one of 'field', 'fieldset'
- * or 'doctype'. The section argument is a section of the application,
- * such as 'config' that will be prefixed to the path.
- *
- * Example:
- *
- * <pre>
- *   <div
- *     id='someid'
- *     data-fieldset-fieldset='fsid'
- *     data-fieldset-doctype='did'></div>
- *
- *   <div
- *    id='thisid'
- *    data-group-id='someid'>
- *
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.toString() == 'doctypes/did/fieldsets/fsid';
- *
- *   mypath = path($('#thisid'), 'fieldset', 'config');
- *   mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
- *
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.fieldset = false; // unsets the fielset id
- *   mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
- * </pre>
- *
- * Note that the category matches the x of data-x in someid. Different
- * values may be held for doctype or field in the same element. Sometimes
- * this leads to repetition of information and a better scheme may be
- * forthcoming. The positive side is that information about different
- * paths may be held in the same location.
- *
- * h3. CouchDB Revision Numbers
- *
- * Above, a revision could have been added to someid as 'data-fieldset-rev'.
- *
- * h3. More Information
- *
- * For more information on how data attributes are used in this application,
- * see getValue in the application.js file.
- *
- * h2. Manipulating the object
- *
- * Also note that setting certain path elements to false (or undefined)
- * will exclude their ids from the end result. Setting the element to a
- * different id would cause the path to be altered appropriately. This
- * allows one to cleanly manipulate the paths without performing string
- * manipulation.
- *
- * h2. PUT, POST and DELETE using the object
- *
- * There are also helpers for using the path the work with the resource it points to.
- *
- *  Example:
- *
- * <pre>
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.put(object, callback, context);
- *   mypath.post(object, callback, context);
- *   mypath.del(callback, context);
- * </pre>
- *
- * Object is an Javascript object that can be encoded as JSON, callback
- * will be run on success and context provides information the environment
- * from which the method was called, usually 'this' is supplied. (Context
- * may no longer be an option in the future).
- *
- * The object will be sent to the path that would be returned by the
- * toString method using the method implied by the above method's names.
- *
- * h3. Error handlers
- *
- * Within the context of this application it is assumed that fairly standard
- * things will be done with error responces so they are left alone.
-*/
-
-shimi.path = function (source, category, section)
-{
-  'use strict';
-
-  var mod = {};
-  var prefix;
-
-  if (category)
-  {
-    prefix = category + '-';
-  }
-  else
-  {
-    prefix = '';
-  }
-
-  if (section)
-  {
-    mod.string = section + '/';
-  }
-  else
-  {
-    mod.string = '';
-  }
-
-  mod.category = category;
-  mod.origin = source;
-  mod.type = prefix + 'path';
-  mod.valid_components = ['doctype', 'fieldset', 'field'];
-  var s = shimi.store(mod.origin);
-
-  mod.valid_components.forEach(
-
-  function (item)
-  {
-    mod[item] = (function ()
-    {
-      var value = s.get(prefix + item);
-      return value;
-    })();
+    $('#loading').hide();
   });
 
-  mod.rev = s.get(prefix + 'rev');
+  shimi.form.initDateFields();
 
-  mod.doctype = s.get(prefix + 'doctype');
-
-  mod.send = function (object, method, callback, context)
+  // Config
+  if ($('#configuration').length > 0)
   {
-    shimi.form.send(mod.toString(), object, method, callback, context);
-    return mod;
-  };
-
-  mod.put = function (object, callback, context)
-  {
-    mod.send(object, 'PUT', callback, context);
-    return mod;
-  };
-
-  mod.post = function (object, callback, context)
-  {
-    mod.send(object, 'POST', callback, context);
-    return mod;
-  };
-
-  mod.del = function (callback, context)
-  {
-    mod.send(
-    {}, 'DELETE', callback, context);
-    return mod;
-  };
-
-  mod.toString = function ()
-  {
-    var rev;
-
-    var pathString =
-      mod.string.concat(
-      mod.valid_components.map(
-
-    function (item)
-    {
-      var plural = item + 's';
-      var value = mod[item];
-      var retval = null;
-
-      if (value)
-      {
-        retval = plural + '/' + value;
-      }
-      else if (item === mod.category)
-      {
-        retval = plural;
-      }
-
-      return retval;
-    }).filter(
-
-    function (item)
-    {
-      return (typeof item === 'string' && !item.isBlank());
-    }).join('/'));
-
-    if (mod.rev)
-    {
-      pathString = pathString.concat('?rev=' + mod.rev);
-    }
-
-    return pathString;
-  };
-
-  return mod;
-};
-/*
- * jQuery Hotkeys Plugin
- * Copyright 2010, John Resig
- * Modified by Noah Diewald
- * Dual licensed under the MIT or GPL Version 2 licenses.
- *
- * Based upon the plugin by Tzury Bar Yochay:
- * http://github.com/tzuryby/hotkeys
- *
- * Original idea by:
- * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
- */
-
-(function (jQuery)
-{
-  'use strict';
-
-  jQuery.hotkeys = {
-    version: '0.8',
-
-    specialKeys:
-    {
-      8: 'backspace',
-      9: 'tab',
-      13: 'return',
-      16: 'shift',
-      17: 'ctrl',
-      18: 'alt',
-      19: 'pause',
-      20: 'capslock',
-      27: 'esc',
-      32: 'space',
-      33: 'pageup',
-      34: 'pagedown',
-      35: 'end',
-      36: 'home',
-      37: 'left',
-      38: 'up',
-      39: 'right',
-      40: 'down',
-      45: 'insert',
-      46: 'del',
-      96: '0',
-      97: '1',
-      98: '2',
-      99: '3',
-      100: '4',
-      101: '5',
-      102: '6',
-      103: '7',
-      104: '8',
-      105: '9',
-      106: '*',
-      107: '+',
-      109: '-',
-      110: '.',
-      111: '/',
-      112: 'f1',
-      113: 'f2',
-      114: 'f3',
-      115: 'f4',
-      116: 'f5',
-      117: 'f6',
-      118: 'f7',
-      119: 'f8',
-      120: 'f9',
-      121: 'f10',
-      122: 'f11',
-      123: 'f12',
-      144: 'numlock',
-      145: 'scroll',
-      191: '/',
-      224: 'meta'
-    },
-
-    shiftNums:
-    {
-      '`': '~',
-      '1': '!',
-      '2': '@',
-      '3': '#',
-      '4': '$',
-      '5': '%',
-      '6': '^',
-      '7': '&',
-      '8': '*',
-      '9': '(',
-      '0': ')',
-      '-': '_',
-      '=': '+',
-      ';': ': ',
-      '\'': '"',
-      ',': '<',
-      '.': '>',
-      '/': '?',
-      '\\': '|'
-    }
-  };
-
-  function keyHandler(handleObj)
-  {
-    // Only care when a possible input has been specified
-    if (typeof handleObj.data !== 'string')
-    {
-      return;
-    }
-
-    var origHandler = handleObj.handler,
-      keys = handleObj.data.toLowerCase().split(' ');
-
-    handleObj.handler = function (event)
-    {
-      // Don't fire in text-accepting inputs that we didn't directly bind to
-      // MODIFIED FROM ORIGINAL
-      //if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
-      //      event.target.type === 'text') ) {
-      //	return;
-      //}
-      // Keypress represents characters, not special keys
-      var special = event.type !== 'keypress' && jQuery.hotkeys.specialKeys[event.which],
-        character = String.fromCharCode(event.which).toLowerCase(),
-        key, modif = '',
-        possible = {};
-
-      // check combinations (alt|ctrl|shift+anything)
-      if (event.altKey && special !== 'alt')
-      {
-        modif += 'alt+';
-      }
-
-      if (event.ctrlKey && special !== 'ctrl')
-      {
-        modif += 'ctrl+';
-      }
-
-      // TODO: Need to make sure this works consistently across platforms
-      if (event.metaKey && !event.ctrlKey && special !== 'meta')
-      {
-        modif += 'meta+';
-      }
-
-      if (event.shiftKey && special !== 'shift')
-      {
-        modif += 'shift+';
-      }
-
-      if (special)
-      {
-        possible[modif + special] = true;
-
-      }
-      else
-      {
-        possible[modif + character] = true;
-        possible[modif + jQuery.hotkeys.shiftNums[character]] = true;
-
-        // '$' can be triggered as 'Shift+4' or 'Shift+$' or just '$'
-        if (modif === 'shift+')
-        {
-          possible[jQuery.hotkeys.shiftNums[character]] = true;
-        }
-      }
-
-      for (var i = 0, l = keys.length; i < l; i++)
-      {
-        if (possible[keys[i]])
-        {
-          return origHandler.apply(this, arguments);
-        }
-      }
-    };
+    shimi.initTabs();
+    $('.simple-tabs').tabs();
   }
 
-  jQuery.each(['keydown', 'keyup', 'keypress'], function ()
+  // Documents
+  if ($('#all-document-container').length > 0)
   {
-    jQuery.event.special[this] = {
-      add: keyHandler
-    };
-  });
+    shimi.documents.init();
+  }
 
-})(jQuery);
-/*
- Simple plugin for manipulating input.
-*/
+  // File Manager
+  if ($('#file-upload').length > 0)
+  {
+    shimi.fm.init();
+  }
 
-(function ($)
+  // Index Tool
+  if ($('#all-index-container').length > 0)
+  {
+    shimi.ilistingui.init();
+  }
+
+  // Project
+  if ($('#projects-container').length > 0)
+  {
+    shimi.projectui.init();
+  }
+});
+
+},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./csv.js":15,"./documents/documents.js":18,"./file_manager/fm.js":26,"./flash.js":27,"./form.js":28,"./gen-dispatch.js":29,"./index_tool/ilistingui.js":33,"./jquery-ui-input-state.js":38,"./jquery.hotkeys.js":39,"./keystrokes.js":40,"./pager.js":42,"./panel-toggle.js":43,"./path.js":44,"./projects/projectui.js":45,"./sess.js":46,"./sets.js":47,"./store.js":48,"./utils.js":49}],2:[function(require,module,exports){
+$(document).on('change', '#document-search-exclude', function (e)
 {
   'use strict';
 
-  $.fn.inputDisable = function ()
-  {
-    this.val('');
-    this.attr('disabled', 'disabled');
-    this.addClass('ui-state-disabled');
-    return this;
-  };
+  shimi.searchui.toggleExclusion();
+  return true;
+});
 
-  $.fn.inputEnable = function ()
-  {
-    this.removeAttr('disabled');
-    this.removeClass('ui-state-disabled');
-    return this;
-  };
+$(document).on('change', '#document-search-invert', function (e)
+{
+  'use strict';
 
-})(jQuery);
+  shimi.searchui.toggleInversion();
+  return true;
+});
+
+},{}],3:[function(require,module,exports){
 shimi.dispatcher = function (patterns)
 {
   'use strict';
@@ -1331,618 +485,8 @@ $(function ()
     shimi.dblclickDispatch(e);
   });
 });
-$(document).on('keydown', '#document-worksheets-form', function (e)
-{
-  'use strict';
 
-  if (e.which === 13)
-  {
-    shimi.dispatch.send('worksheet-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$(document).on('keydown', '#document-sets-form', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.dispatch.send('sets-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$('#new-set-form').on('keydown', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.dispatch.send('new-set-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$(document).bind('keydown', 'Alt+n', function (e)
-{
-  'use strict';
-
-  var t = function ()
-  {
-    return $('#edit-tabs');
-  };
-  var totaltabs = t().find('li').length;
-  var selected = t().tabs('option', 'active');
-
-  if (selected < totaltabs - 1)
-  {
-    t().tabs('option', 'active', selected + 1);
-    shimi.dispatch.send('lost-focus');
-  }
-  else
-  {
-    t().tabs('option', 'active', 0);
-    shimi.dispatch.send('lost-focus');
-  }
-
-  return false;
-});
-
-$(document).bind('keydown', 'Alt+c', function (e)
-{
-  'use strict';
-
-  var active = $(document.activeElement).attr('id');
-  shimi.dispatch.send('initiated-command', active);
-  return true;
-});
-
-$(document).bind('keydown', 'Alt+p', function (e)
-{
-  'use strict';
-
-  var t = function ()
-  {
-    return $('#edit-tabs');
-  };
-  var totaltabs = t().find('li').length;
-  var selected = t().tabs('option', 'active');
-
-  if (selected !== 0)
-  {
-    t().tabs('option', 'active', selected - 1);
-    shimi.dispatch.send('lost-focus');
-  }
-  else
-  {
-    t().tabs('option', 'active', totaltabs - 1);
-    shimi.dispatch.send('lost-focus');
-  }
-
-  return false;
-});
-
-
-$(document).on('keydown', '#edit-command-input', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    var command = $('#edit-command-input').val();
-    shimi.dispatch.send('submitted-command', command);
-  }
-  return true;
-});
-
-$(document).on('keydown', '#edit-document-form input', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    if ($('#save-document-button').css('display') === 'none')
-    {
-      shimi.editui.create();
-    }
-    else
-    {
-      shimi.editui.save();
-    }
-  }
-  return true;
-});
-
-$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
-{
-  'use strict';
-
-  shimi.editui.toggleTextarea($(e.target));
-  return false;
-});
-
-$(document).on('keypress', '#view-jump-id', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    var docid = $('#view-jump-id').val();
-    shimi.viewui.get(docid);
-    return false;
-  }
-  return true;
-});
-
-$(document).on('keydown', '#document-search-term', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.searchui.getSearch();
-    return false;
-  }
-  return true;
-});
-$(document).on('change', '#document-search-exclude', function (e)
-{
-  'use strict';
-
-  shimi.searchui.toggleExclusion();
-  return true;
-});
-
-$(document).on('change', '#document-search-invert', function (e)
-{
-  'use strict';
-
-  shimi.searchui.toggleInversion();
-  return true;
-});
-shimi.dispatch = (function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.send = function (message, arg)
-  {
-    switch (message)
-    {
-    case 'bad-session-state':
-      shimi.documents.clearSession();
-      break;
-    case 'doctype-info-ready':
-      shimi.documents.makeLabels();
-      break;
-    case 'labels-ready':
-      shimi.searchui.loadSearchVals();
-      shimi.worksheetui.buildTemplate();
-      break;
-    case 'new-set-form-submit':
-      shimi.setsui.saveSelected();
-      break;
-    case 'sets-changed':
-      shimi.setsui.updateSelection();
-      break;
-    case 'sets-form-submit':
-      shimi.setsui.performOp();
-      break;
-    case 'session-cleared':
-      shimi.documents.setVersion();
-      shimi.documents.loadDoctype();
-      break;
-    case 'worksheet-form-submit':
-      shimi.worksheetui.fillWorksheet();
-      break;
-    case 'initiated-command':
-      shimi.commands.dialogOpen(arg);
-      break;
-    case 'executed-command':
-      shimi.commands.dialogClose();
-      break;
-    case 'submitted-command':
-      shimi.commands.execute(arg);
-      break;
-    case 'lost-focus':
-      shimi.editui.selectInput();
-      break;
-    }
-
-    return false;
-  };
-
-  return mod;
-})();
-// Get the index that is displayed in the index pane.
-// startkey and startid map directly to the same concepts in
-// couchdb view queries. The prevkeys and previds are used to
-// hold information that will allow the user to page backward
-// through the listing. They are arrays of keys and ids corresponding
-// to previous page's startkeys and ids.
-//
-// There are a number of values that this function depends on
-// that are taken from the HTML. These include the value for
-// the limit and the nextkey and nextid for paging forward. Also
-// the current key and id are taken from the html when needed to
-// add to the prevkeys and previds. The startkey may be a user
-// input value so a more reliable startkey and startid are needed.
-shimi.pager = function (args)
-{
-  'use strict';
-
-  var mod = {};
-  if (args.prefix === undefined)
-  {
-    args.prefix = 'index';
-  }
-  var origin = args.origin;
-  var format = args.format;
-  var prefix = args.prefix;
-
-  var escapeValue = function (value)
-  {
-    return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
-  };
-
-  var limitField = function ()
-  {
-    return $('#' + prefix + '-limit');
-  };
-
-  mod.get = function (startkey, startid, prevkeys, previds)
-  {
-    var url = args.url + '?';
-    var indexId = args.indexId;
-    var limit = limitField().val() * 1;
-    var target = args.target;
-    var filterVal = $('#' + prefix + '-filter').val();
-    var state = {
-      sk: startkey,
-      sid: startid,
-      pks: prevkeys,
-      pids: previds
-    };
-
-    if (!state.pks)
-    {
-      state.sk = escapeValue(filterVal);
-      state.pks = [];
-      state.pids = [];
-    }
-
-    if (state.sk)
-    {
-      url = url + 'startkey=' + window.escape(window.atob(state.sk));
-      if (state.sid)
-      {
-        url = url + '&startkey_docid=' + state.sid;
-      }
-    }
-
-    if (limit)
-    {
-      url = url + '&limit=' + (limit + 1);
-    }
-    else
-    {
-      limitField().val(25);
-      url = url + '&limit=26';
-    }
-
-    if (indexId)
-    {
-      url = url + '&index=' + indexId;
-    }
-
-    shimi.form.send(url, false, 'GET', function (context, req)
-    {
-      mod.fill(req, state, target);
-    }, this);
-
-    return mod;
-  };
-
-  mod.fill = function (req, state, target)
-  {
-    var limit = limitField().val() * 1;
-
-    var respJSON;
-    var lastrow;
-    var newRows;
-
-    if (format === undefined)
-    {
-      respJSON = JSON.parse(req.responseText);
-    }
-    else
-    {
-      respJSON = format(req.responseText);
-    }
-
-    newRows = respJSON.rows.map(function (item, index, thisArray)
-    {
-      item.encoded_key = escapeValue(item.key);
-      return item;
-    });
-
-    lastrow = newRows.slice(-1);
-
-    if (newRows[0])
-    {
-      newRows[0].firstrow = true;
-    }
-
-    if (newRows.length > limit)
-    {
-      respJSON.rows = newRows.slice(0, -1);
-    }
-    else
-    {
-      respJSON.rows = newRows;
-      respJSON.lastpage = true;
-    }
-
-    respJSON.lastrow = lastrow;
-    respJSON.prefix = prefix;
-
-    target.html(templates['paged-listing'].render(respJSON,
-    {
-      'listed-element': templates[prefix + '-element']
-    }));
-
-    $('#previous-' + prefix + '-page').click(function ()
-    {
-      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
-    });
-
-    $('#next-' + prefix + '-page').click(function ()
-    {
-      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
-      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
-      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
-      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
-      state.pks.push(prevkey);
-      state.pids.push(previd);
-
-      mod.get(nextkey, nextid, state.pks, state.pids);
-    });
-
-    // Disable the previous button if we're at the beginning
-    if (state.pks.length === 0)
-    {
-      $('#previous-' + prefix + '-page').hide();
-    }
-
-    // Disable the next button if we're at the end
-    if ($('#next-' + prefix + '-page').attr('data-last-page'))
-    {
-      $('#next-' + prefix + '-page').hide();
-    }
-
-    var keyupHandler = function (e)
-    {
-      var getIndexTimer;
-      window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
-          shimi[origin].get();
-        }
-      }, 500);
-    };
-
-    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
-    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
-
-    return mod;
-  };
-
-  return mod;
-};
-shimi.form = (function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.toggle = function (t)
-  {
-    var toggleElem;
-    var target = $(t);
-
-    if (target.attr('data-target'))
-    {
-      toggleElem = $('#' + target.attr('data-target'));
-      toggleElem.toggle();
-    }
-    return mod;
-  };
-
-  mod.cancelDialog = function (t)
-  {
-    var target = $(t);
-    var toggleElem;
-    var elemId;
-
-    if (target.attr('data-target'))
-    {
-      elemId = '#' + target.attr('data-target');
-      toggleElem = $(elemId);
-      toggleElem.hide();
-      mod.clear(undefined, toggleElem.find('form'));
-    }
-    return mod;
-  };
-
-  mod.clear = function (inputFields, form)
-  {
-    if (inputFields === undefined)
-    {
-      inputFields = $(form).find('input, select, textarea');
-    }
-    inputFields.each(function (index, elem)
-    {
-      var inputField = $(elem);
-
-      if (!inputField.attr('data-retain'))
-      {
-        if (inputField.is(':checked'))
-        {
-          inputField.attr('checked', false);
-        }
-        inputField.val('');
-      }
-    });
-    return inputFields;
-  };
-
-  mod.send = function (ajaxUrl, obj, method, completeFun, callContext)
-  {
-    var dataObj;
-
-    if (obj)
-    {
-      dataObj = JSON.stringify(obj);
-    }
-
-    $.ajax(
-    {
-      type: method,
-      url: ajaxUrl,
-      dataType: 'json',
-      context: callContext,
-      contentType: 'application/json',
-      processData: false,
-      data: dataObj,
-      complete: function (req, status)
-      {
-        if (req.status >= 200 && req.status < 300)
-        {
-          completeFun(this, req);
-        }
-        else if (req.status === 500)
-        {
-          shimi.flash('Unknown Server Error', 'Please report that you received ' + 'this message').error();
-        }
-        else if (req.status >= 400)
-        {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
-
-          shimi.flash(title, body.fieldname + ' ' + body.message).error();
-        }
-      }
-    });
-
-    return true;
-  };
-
-  // Validation
-  mod.updateTips = function (t, tips)
-  {
-    tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-    setTimeout(function ()
-    {
-      tips.removeClass('ui-state-highlight', 1500);
-    }, 500);
-
-    return true;
-  };
-
-  mod.checkLength = function (o, n, min, max, tips)
-  {
-    if (o.val().length > max || o.val().length < min)
-    {
-      o.addClass('ui-state-error');
-      mod.updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
-      return false;
-    }
-    else
-    {
-      return true;
-    }
-  };
-
-  mod.checkRegexp = function (o, regexp, n, tips)
-  {
-    if (!(regexp.test(o.val())))
-    {
-      o.addClass('ui-state-error');
-      mod.updateTips(n, tips);
-      return false;
-    }
-    else
-    {
-      return true;
-    }
-  };
-
-  // Date Picker
-  mod.initDateFields = function ()
-  {
-    $('.date').datepicker(
-    {
-      dateFormat: 'yy-mm-dd'
-    });
-
-    return true;
-  };
-
-  mod.fillOptionsFromUrl = function (url, selectElement, callback)
-  {
-    $.get(url, function (options)
-    {
-      selectElement.html(options);
-      if (callback)
-      {
-        callback();
-      }
-    });
-
-    return false;
-  };
-
-  return mod;
-})();
-shimi.sess = function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  mod.put = function (doc)
-  {
-    if (!window.sessionStorage[doc._id])
-    {
-      window.sessionStorage[doc._id] = JSON.stringify(doc);
-    }
-
-    return doc._id;
-  };
-
-  mod.get = function (docId)
-  {
-    var doc = window.sessionStorage[docId];
-
-    if (doc)
-    {
-      return JSON.parse(doc);
-    }
-    else
-    {
-      return null;
-    }
-  };
-
-  return mod;
-};
+},{}],4:[function(require,module,exports){
 // Dialog for manipulating doctypes
 shimi.charseqDialog = function (values)
 {
@@ -1988,6 +532,8 @@ shimi.charseqDialog = function (values)
 
   return dialog;
 };
+
+},{}],5:[function(require,module,exports){
 /*
  * Copyright 2011 University of Wisconsin Madison Board of Regents.
  *
@@ -2091,6 +637,8 @@ shimi.charseqElems = (function ()
 
   return mod;
 })();
+
+},{}],6:[function(require,module,exports){
 shimi.charseqTab = (function ()
 {
   'use strict';
@@ -2161,6 +709,8 @@ shimi.charseqTab = (function ()
 
   return mod;
 })();
+
+},{}],7:[function(require,module,exports){
 shimi.upgradeButton = function (target)
 {
   'use strict';
@@ -2179,6 +729,8 @@ shimi.initTabs = function ()
 
   return true;
 };
+
+},{}],8:[function(require,module,exports){
 // Dialog for manipulating doctypes
 shimi.doctypeDialog = function (url, values)
 {
@@ -2233,6 +785,8 @@ shimi.doctypeDialog = function (url, values)
 
   return dialog;
 };
+
+},{}],9:[function(require,module,exports){
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions.
 shimi.doctypeElems = (function ()
@@ -2284,6 +838,8 @@ shimi.doctypeElems = (function ()
 
   return mod;
 })();
+
+},{}],10:[function(require,module,exports){
 shimi.doctypeTab = (function ()
 {
   'use strict';
@@ -2507,6 +1063,8 @@ shimi.doctypeTab = (function ()
 
   return mod;
 })();
+
+},{}],11:[function(require,module,exports){
 // Dialog for manipulating fields
 shimi.fieldDialog = function (url, values)
 {
@@ -2551,6 +1109,8 @@ shimi.fieldDialog = function (url, values)
 
   return dialog;
 };
+
+},{}],12:[function(require,module,exports){
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions.
 shimi.fieldElems = (function ()
@@ -2733,6 +1293,8 @@ shimi.fieldElems = (function ()
 
   return mod;
 })();
+
+},{}],13:[function(require,module,exports){
 shimi.fieldsetDialog = function (url, values)
 {
   'use strict';
@@ -2779,6 +1341,8 @@ shimi.fieldsetDialog = function (url, values)
 
   return dialog;
 };
+
+},{}],14:[function(require,module,exports){
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions.
 shimi.fieldsetElems = (function ()
@@ -2844,6 +1408,29 @@ shimi.fieldsetElems = (function ()
 
   return mod;
 })();
+
+},{}],15:[function(require,module,exports){
+shimi.sets = (function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  mod.arraysToCSV = function (a)
+  {
+    return a.map(function (x)
+    {
+      return x.map(function (y)
+      {
+        return '"' + y.toString().replace(/"/, '""') + '"';
+      }).join(',');
+    }).join('\n');
+  };
+
+  return mod;
+})();
+
+},{}],16:[function(require,module,exports){
 shimi.changeui = (function ()
 {
   'use strict';
@@ -2889,6 +1476,8 @@ shimi.changeui = (function ()
 
   return mod;
 })();
+
+},{}],17:[function(require,module,exports){
 shimi.commands = (function ()
 {
   'use strict';
@@ -2993,6 +1582,8 @@ shimi.commands = (function ()
 
   return mod;
 })();
+
+},{}],18:[function(require,module,exports){
 // Shared document editing stuff plus initialization.
 shimi.documents = (function ()
 {
@@ -3153,6 +1744,8 @@ shimi.documents = (function ()
 
   return mod;
 })();
+
+},{}],19:[function(require,module,exports){
 // Edit pane UI elements
 shimi.editui = (function ()
 {
@@ -3475,6 +2068,8 @@ shimi.editui = (function ()
 
   return mod;
 })();
+
+},{}],20:[function(require,module,exports){
 shimi.fieldsets = (function ()
 {
   'use strict';
@@ -3880,6 +2475,8 @@ shimi.fieldsets = (function ()
 
   return mod;
 })();
+
+},{}],21:[function(require,module,exports){
 shimi.indexui = (function ()
 {
   'use strict';
@@ -3956,6 +2553,8 @@ shimi.indexui = (function ()
 
   return mod;
 })();
+
+},{}],22:[function(require,module,exports){
 shimi.searchui = (function ()
 {
   'use strict';
@@ -4420,6 +3019,8 @@ shimi.searchui = (function ()
 
   return mod;
 })();
+
+},{}],23:[function(require,module,exports){
 shimi.setsui = (function ()
 {
   'use strict';
@@ -4755,6 +3356,8 @@ shimi.setsui = (function ()
 
   return mod;
 })();
+
+},{}],24:[function(require,module,exports){
 // View pane UI elements
 shimi.viewui = (function (args)
 {
@@ -5141,6 +3744,8 @@ shimi.viewui = (function (args)
 
   return mod;
 })();
+
+},{}],25:[function(require,module,exports){
 shimi.worksheetui = (function ()
 {
   'use strict';
@@ -5294,6 +3899,8 @@ shimi.worksheetui = (function ()
 
   return mod;
 })();
+
+},{}],26:[function(require,module,exports){
 shimi.fm = (function ()
 {
   'use strict';
@@ -5470,6 +4077,273 @@ shimi.fm = (function ()
 
   return mod;
 })();
+
+},{}],27:[function(require,module,exports){
+shimi.flash = function (title, body)
+{
+  'use strict';
+
+  var mod = {};
+
+  var f = function (flasher, title, body)
+  {
+    var fadeout = function ()
+    {
+      flasher.fadeOut();
+    };
+    flasher.find('.notification-summary').text(title + ': ');
+    flasher.find('.notification-message').text(body);
+    var timeout = window.setTimeout(fadeout, 7000);
+    flasher.fadeIn();
+    flasher.find('.close').click(function ()
+    {
+      window.clearTimeout(timeout);
+      flasher.hide();
+    });
+  };
+
+  mod.error = function ()
+  {
+    f($('#notifications-main .ui-state-error'), title, body);
+
+    return mod;
+  };
+
+  mod.highlight = function ()
+  {
+    f($('#notifications-main .ui-state-highlight'), title, body);
+
+    return mod;
+  };
+
+  return mod;
+};
+
+},{}],28:[function(require,module,exports){
+shimi.form = (function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  mod.toggle = function (t)
+  {
+    var toggleElem;
+    var target = $(t);
+
+    if (target.attr('data-target'))
+    {
+      toggleElem = $('#' + target.attr('data-target'));
+      toggleElem.toggle();
+    }
+    return mod;
+  };
+
+  mod.cancelDialog = function (t)
+  {
+    var target = $(t);
+    var toggleElem;
+    var elemId;
+
+    if (target.attr('data-target'))
+    {
+      elemId = '#' + target.attr('data-target');
+      toggleElem = $(elemId);
+      toggleElem.hide();
+      mod.clear(undefined, toggleElem.find('form'));
+    }
+    return mod;
+  };
+
+  mod.clear = function (inputFields, form)
+  {
+    if (inputFields === undefined)
+    {
+      inputFields = $(form).find('input, select, textarea');
+    }
+    inputFields.each(function (index, elem)
+    {
+      var inputField = $(elem);
+
+      if (!inputField.attr('data-retain'))
+      {
+        if (inputField.is(':checked'))
+        {
+          inputField.attr('checked', false);
+        }
+        inputField.val('');
+      }
+    });
+    return inputFields;
+  };
+
+  mod.send = function (ajaxUrl, obj, method, completeFun, callContext)
+  {
+    var dataObj;
+
+    if (obj)
+    {
+      dataObj = JSON.stringify(obj);
+    }
+
+    $.ajax(
+    {
+      type: method,
+      url: ajaxUrl,
+      dataType: 'json',
+      context: callContext,
+      contentType: 'application/json',
+      processData: false,
+      data: dataObj,
+      complete: function (req, status)
+      {
+        if (req.status >= 200 && req.status < 300)
+        {
+          completeFun(this, req);
+        }
+        else if (req.status === 500)
+        {
+          shimi.flash('Unknown Server Error', 'Please report that you received ' + 'this message').error();
+        }
+        else if (req.status >= 400)
+        {
+          var body = JSON.parse(req.responseText);
+          var title = req.statusText;
+
+          shimi.flash(title, body.fieldname + ' ' + body.message).error();
+        }
+      }
+    });
+
+    return true;
+  };
+
+  // Validation
+  mod.updateTips = function (t, tips)
+  {
+    tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
+    setTimeout(function ()
+    {
+      tips.removeClass('ui-state-highlight', 1500);
+    }, 500);
+
+    return true;
+  };
+
+  mod.checkLength = function (o, n, min, max, tips)
+  {
+    if (o.val().length > max || o.val().length < min)
+    {
+      o.addClass('ui-state-error');
+      mod.updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  };
+
+  mod.checkRegexp = function (o, regexp, n, tips)
+  {
+    if (!(regexp.test(o.val())))
+    {
+      o.addClass('ui-state-error');
+      mod.updateTips(n, tips);
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  };
+
+  // Date Picker
+  mod.initDateFields = function ()
+  {
+    $('.date').datepicker(
+    {
+      dateFormat: 'yy-mm-dd'
+    });
+
+    return true;
+  };
+
+  mod.fillOptionsFromUrl = function (url, selectElement, callback)
+  {
+    $.get(url, function (options)
+    {
+      selectElement.html(options);
+      if (callback)
+      {
+        callback();
+      }
+    });
+
+    return false;
+  };
+
+  return mod;
+})();
+
+},{}],29:[function(require,module,exports){
+shimi.dispatch = (function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  mod.send = function (message, arg)
+  {
+    switch (message)
+    {
+    case 'bad-session-state':
+      shimi.documents.clearSession();
+      break;
+    case 'doctype-info-ready':
+      shimi.documents.makeLabels();
+      break;
+    case 'labels-ready':
+      shimi.searchui.loadSearchVals();
+      shimi.worksheetui.buildTemplate();
+      break;
+    case 'new-set-form-submit':
+      shimi.setsui.saveSelected();
+      break;
+    case 'sets-changed':
+      shimi.setsui.updateSelection();
+      break;
+    case 'sets-form-submit':
+      shimi.setsui.performOp();
+      break;
+    case 'session-cleared':
+      shimi.documents.setVersion();
+      shimi.documents.loadDoctype();
+      break;
+    case 'worksheet-form-submit':
+      shimi.worksheetui.fillWorksheet();
+      break;
+    case 'initiated-command':
+      shimi.commands.dialogOpen(arg);
+      break;
+    case 'executed-command':
+      shimi.commands.dialogClose();
+      break;
+    case 'submitted-command':
+      shimi.commands.execute(arg);
+      break;
+    case 'lost-focus':
+      shimi.editui.selectInput();
+      break;
+    }
+
+    return false;
+  };
+
+  return mod;
+})();
+
+},{}],30:[function(require,module,exports){
 shimi.initIndexBuilderDialog = function (indexDoctype)
 {
   'use strict';
@@ -5666,6 +4540,8 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
 
   return dialog;
 };
+
+},{}],31:[function(require,module,exports){
 shimi.ieditui = (function ()
 {
   'use strict';
@@ -5942,6 +4818,8 @@ shimi.ieditui = (function ()
 
   return mod;
 })();
+
+},{}],32:[function(require,module,exports){
 shimi.ihelpers = (function ()
 {
   'use strict';
@@ -6206,6 +5084,8 @@ shimi.ihelpers = (function ()
 
   return mod;
 })();
+
+},{}],33:[function(require,module,exports){
 shimi.ilistingui = (function ()
 {
   'use strict';
@@ -6229,6 +5109,8 @@ shimi.ilistingui = (function ()
 
   return mod;
 })();
+
+},{}],34:[function(require,module,exports){
 shimi.ipreviewui = (function ()
 {
   'use strict';
@@ -6277,6 +5159,8 @@ shimi.ipreviewui = (function ()
 
   return mod;
 })();
+
+},{}],35:[function(require,module,exports){
 shimi.initIndexNewDialog = function ()
 {
   'use strict';
@@ -6375,6 +5259,8 @@ shimi.initIndexNewDialog = function ()
 
   return dialog;
 };
+
+},{}],36:[function(require,module,exports){
 shimi.initReplaceDialog = function ()
 {
   'use strict';
@@ -6443,6 +5329,892 @@ shimi.initReplaceDialog = function ()
 
   return dialog;
 };
+
+},{}],37:[function(require,module,exports){
+var shimi = {};
+
+// A place to temporarily store global objects
+shimi.globals = {};
+
+// functions added to String
+String.prototype.isBlank = function ()
+{
+  'use strict';
+
+  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
+};
+
+String.prototype.trim = function ()
+{
+  'use strict';
+
+  return this.replace(/^\s+/, '').replace(/\s+$/, '');
+};
+
+// functions added to Array
+Array.prototype.trimAll = function ()
+{
+  'use strict';
+
+  return this.map(function (i)
+  {
+    return i.trim();
+  }).filter(function (i)
+  {
+    return !i.match(/^$/);
+  });
+};
+
+},{}],38:[function(require,module,exports){
+/*
+ Simple plugin for manipulating input.
+*/
+
+(function ($)
+{
+  'use strict';
+
+  $.fn.inputDisable = function ()
+  {
+    this.val('');
+    this.attr('disabled', 'disabled');
+    this.addClass('ui-state-disabled');
+    return this;
+  };
+
+  $.fn.inputEnable = function ()
+  {
+    this.removeAttr('disabled');
+    this.removeClass('ui-state-disabled');
+    return this;
+  };
+
+})(jQuery);
+
+},{}],39:[function(require,module,exports){
+/*
+ * jQuery Hotkeys Plugin
+ * Copyright 2010, John Resig
+ * Modified by Noah Diewald
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ *
+ * Based upon the plugin by Tzury Bar Yochay:
+ * http://github.com/tzuryby/hotkeys
+ *
+ * Original idea by:
+ * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
+ */
+
+(function (jQuery)
+{
+  'use strict';
+
+  jQuery.hotkeys = {
+    version: '0.8',
+
+    specialKeys:
+    {
+      8: 'backspace',
+      9: 'tab',
+      13: 'return',
+      16: 'shift',
+      17: 'ctrl',
+      18: 'alt',
+      19: 'pause',
+      20: 'capslock',
+      27: 'esc',
+      32: 'space',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      37: 'left',
+      38: 'up',
+      39: 'right',
+      40: 'down',
+      45: 'insert',
+      46: 'del',
+      96: '0',
+      97: '1',
+      98: '2',
+      99: '3',
+      100: '4',
+      101: '5',
+      102: '6',
+      103: '7',
+      104: '8',
+      105: '9',
+      106: '*',
+      107: '+',
+      109: '-',
+      110: '.',
+      111: '/',
+      112: 'f1',
+      113: 'f2',
+      114: 'f3',
+      115: 'f4',
+      116: 'f5',
+      117: 'f6',
+      118: 'f7',
+      119: 'f8',
+      120: 'f9',
+      121: 'f10',
+      122: 'f11',
+      123: 'f12',
+      144: 'numlock',
+      145: 'scroll',
+      191: '/',
+      224: 'meta'
+    },
+
+    shiftNums:
+    {
+      '`': '~',
+      '1': '!',
+      '2': '@',
+      '3': '#',
+      '4': '$',
+      '5': '%',
+      '6': '^',
+      '7': '&',
+      '8': '*',
+      '9': '(',
+      '0': ')',
+      '-': '_',
+      '=': '+',
+      ';': ': ',
+      '\'': '"',
+      ',': '<',
+      '.': '>',
+      '/': '?',
+      '\\': '|'
+    }
+  };
+
+  function keyHandler(handleObj)
+  {
+    // Only care when a possible input has been specified
+    if (typeof handleObj.data !== 'string')
+    {
+      return;
+    }
+
+    var origHandler = handleObj.handler,
+      keys = handleObj.data.toLowerCase().split(' ');
+
+    handleObj.handler = function (event)
+    {
+      // Don't fire in text-accepting inputs that we didn't directly bind to
+      // MODIFIED FROM ORIGINAL
+      //if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
+      //      event.target.type === 'text') ) {
+      //	return;
+      //}
+      // Keypress represents characters, not special keys
+      var special = event.type !== 'keypress' && jQuery.hotkeys.specialKeys[event.which],
+        character = String.fromCharCode(event.which).toLowerCase(),
+        key, modif = '',
+        possible = {};
+
+      // check combinations (alt|ctrl|shift+anything)
+      if (event.altKey && special !== 'alt')
+      {
+        modif += 'alt+';
+      }
+
+      if (event.ctrlKey && special !== 'ctrl')
+      {
+        modif += 'ctrl+';
+      }
+
+      // TODO: Need to make sure this works consistently across platforms
+      if (event.metaKey && !event.ctrlKey && special !== 'meta')
+      {
+        modif += 'meta+';
+      }
+
+      if (event.shiftKey && special !== 'shift')
+      {
+        modif += 'shift+';
+      }
+
+      if (special)
+      {
+        possible[modif + special] = true;
+
+      }
+      else
+      {
+        possible[modif + character] = true;
+        possible[modif + jQuery.hotkeys.shiftNums[character]] = true;
+
+        // '$' can be triggered as 'Shift+4' or 'Shift+$' or just '$'
+        if (modif === 'shift+')
+        {
+          possible[jQuery.hotkeys.shiftNums[character]] = true;
+        }
+      }
+
+      for (var i = 0, l = keys.length; i < l; i++)
+      {
+        if (possible[keys[i]])
+        {
+          return origHandler.apply(this, arguments);
+        }
+      }
+    };
+  }
+
+  jQuery.each(['keydown', 'keyup', 'keypress'], function ()
+  {
+    jQuery.event.special[this] = {
+      add: keyHandler
+    };
+  });
+
+})(jQuery);
+
+},{}],40:[function(require,module,exports){
+$(document).on('keydown', '#document-worksheets-form', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    shimi.dispatch.send('worksheet-form-submit');
+    return false;
+  }
+  return true;
+});
+
+$(document).on('keydown', '#document-sets-form', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    shimi.dispatch.send('sets-form-submit');
+    return false;
+  }
+  return true;
+});
+
+$('#new-set-form').on('keydown', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    shimi.dispatch.send('new-set-form-submit');
+    return false;
+  }
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+n', function (e)
+{
+  'use strict';
+
+  var t = function ()
+  {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected < totaltabs - 1)
+  {
+    t().tabs('option', 'active', selected + 1);
+    shimi.dispatch.send('lost-focus');
+  }
+  else
+  {
+    t().tabs('option', 'active', 0);
+    shimi.dispatch.send('lost-focus');
+  }
+
+  return false;
+});
+
+$(document).bind('keydown', 'Alt+c', function (e)
+{
+  'use strict';
+
+  var active = $(document.activeElement).attr('id');
+  shimi.dispatch.send('initiated-command', active);
+  return true;
+});
+
+$(document).bind('keydown', 'Alt+p', function (e)
+{
+  'use strict';
+
+  var t = function ()
+  {
+    return $('#edit-tabs');
+  };
+  var totaltabs = t().find('li').length;
+  var selected = t().tabs('option', 'active');
+
+  if (selected !== 0)
+  {
+    t().tabs('option', 'active', selected - 1);
+    shimi.dispatch.send('lost-focus');
+  }
+  else
+  {
+    t().tabs('option', 'active', totaltabs - 1);
+    shimi.dispatch.send('lost-focus');
+  }
+
+  return false;
+});
+
+
+$(document).on('keydown', '#edit-command-input', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    var command = $('#edit-command-input').val();
+    shimi.dispatch.send('submitted-command', command);
+  }
+  return true;
+});
+
+$(document).on('keydown', '#edit-document-form input', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    if ($('#save-document-button').css('display') === 'none')
+    {
+      shimi.editui.create();
+    }
+    else
+    {
+      shimi.editui.save();
+    }
+  }
+  return true;
+});
+
+$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
+{
+  'use strict';
+
+  shimi.editui.toggleTextarea($(e.target));
+  return false;
+});
+
+$(document).on('keypress', '#view-jump-id', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    var docid = $('#view-jump-id').val();
+    shimi.viewui.get(docid);
+    return false;
+  }
+  return true;
+});
+
+$(document).on('keydown', '#document-search-term', function (e)
+{
+  'use strict';
+
+  if (e.which === 13)
+  {
+    shimi.searchui.getSearch();
+    return false;
+  }
+  return true;
+});
+
+},{}],41:[function(require,module,exports){
+$(function ()
+{
+  'use strict';
+
+  $('.notification').hide();
+
+  $('#loading').hide();
+
+  $(document).ajaxStart(function ()
+  {
+    $('#loading').show();
+  }).ajaxStop(function ()
+  {
+    $('#loading').hide();
+  });
+
+  shimi.form.initDateFields();
+
+  // Config
+  if ($('#configuration').length > 0)
+  {
+    shimi.initTabs();
+    $('.simple-tabs').tabs();
+  }
+
+  // Documents
+  if ($('#all-document-container').length > 0)
+  {
+    shimi.documents.init();
+  }
+
+  // File Manager
+  if ($('#file-upload').length > 0)
+  {
+    shimi.fm.init();
+  }
+
+  // Index Tool
+  if ($('#all-index-container').length > 0)
+  {
+    shimi.ilistingui.init();
+  }
+
+  // Project
+  if ($('#projects-container').length > 0)
+  {
+    shimi.projectui.init();
+  }
+});
+
+},{}],42:[function(require,module,exports){
+// Get the index that is displayed in the index pane.
+// startkey and startid map directly to the same concepts in
+// couchdb view queries. The prevkeys and previds are used to
+// hold information that will allow the user to page backward
+// through the listing. They are arrays of keys and ids corresponding
+// to previous page's startkeys and ids.
+//
+// There are a number of values that this function depends on
+// that are taken from the HTML. These include the value for
+// the limit and the nextkey and nextid for paging forward. Also
+// the current key and id are taken from the html when needed to
+// add to the prevkeys and previds. The startkey may be a user
+// input value so a more reliable startkey and startid are needed.
+shimi.pager = function (args)
+{
+  'use strict';
+
+  var mod = {};
+  if (args.prefix === undefined)
+  {
+    args.prefix = 'index';
+  }
+  var origin = args.origin;
+  var format = args.format;
+  var prefix = args.prefix;
+
+  var escapeValue = function (value)
+  {
+    return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
+  };
+
+  var limitField = function ()
+  {
+    return $('#' + prefix + '-limit');
+  };
+
+  mod.get = function (startkey, startid, prevkeys, previds)
+  {
+    var url = args.url + '?';
+    var indexId = args.indexId;
+    var limit = limitField().val() * 1;
+    var target = args.target;
+    var filterVal = $('#' + prefix + '-filter').val();
+    var state = {
+      sk: startkey,
+      sid: startid,
+      pks: prevkeys,
+      pids: previds
+    };
+
+    if (!state.pks)
+    {
+      state.sk = escapeValue(filterVal);
+      state.pks = [];
+      state.pids = [];
+    }
+
+    if (state.sk)
+    {
+      url = url + 'startkey=' + window.escape(window.atob(state.sk));
+      if (state.sid)
+      {
+        url = url + '&startkey_docid=' + state.sid;
+      }
+    }
+
+    if (limit)
+    {
+      url = url + '&limit=' + (limit + 1);
+    }
+    else
+    {
+      limitField().val(25);
+      url = url + '&limit=26';
+    }
+
+    if (indexId)
+    {
+      url = url + '&index=' + indexId;
+    }
+
+    shimi.form.send(url, false, 'GET', function (context, req)
+    {
+      mod.fill(req, state, target);
+    }, this);
+
+    return mod;
+  };
+
+  mod.fill = function (req, state, target)
+  {
+    var limit = limitField().val() * 1;
+
+    var respJSON;
+    var lastrow;
+    var newRows;
+
+    if (format === undefined)
+    {
+      respJSON = JSON.parse(req.responseText);
+    }
+    else
+    {
+      respJSON = format(req.responseText);
+    }
+
+    newRows = respJSON.rows.map(function (item, index, thisArray)
+    {
+      item.encoded_key = escapeValue(item.key);
+      return item;
+    });
+
+    lastrow = newRows.slice(-1);
+
+    if (newRows[0])
+    {
+      newRows[0].firstrow = true;
+    }
+
+    if (newRows.length > limit)
+    {
+      respJSON.rows = newRows.slice(0, -1);
+    }
+    else
+    {
+      respJSON.rows = newRows;
+      respJSON.lastpage = true;
+    }
+
+    respJSON.lastrow = lastrow;
+    respJSON.prefix = prefix;
+
+    target.html(templates['paged-listing'].render(respJSON,
+    {
+      'listed-element': templates[prefix + '-element']
+    }));
+
+    $('#previous-' + prefix + '-page').click(function ()
+    {
+      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    });
+
+    $('#next-' + prefix + '-page').click(function ()
+    {
+      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
+      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
+      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
+      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
+      state.pks.push(prevkey);
+      state.pids.push(previd);
+
+      mod.get(nextkey, nextid, state.pks, state.pids);
+    });
+
+    // Disable the previous button if we're at the beginning
+    if (state.pks.length === 0)
+    {
+      $('#previous-' + prefix + '-page').hide();
+    }
+
+    // Disable the next button if we're at the end
+    if ($('#next-' + prefix + '-page').attr('data-last-page'))
+    {
+      $('#next-' + prefix + '-page').hide();
+    }
+
+    var keyupHandler = function (e)
+    {
+      var getIndexTimer;
+      window.clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function ()
+      {
+        if (e.which !== 8 && e.which !== 46)
+        {
+          shimi[origin].get();
+        }
+      }, 500);
+    };
+
+    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
+    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
+
+    return mod;
+  };
+
+  return mod;
+};
+
+},{}],43:[function(require,module,exports){
+var panelToggle = (function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  mod.toggler = function (target)
+  {
+    var panel;
+
+    if ($(target).attr('data-panel'))
+    {
+      panel = $('#' + $(target).attr('data-panel'));
+    }
+    else
+    {
+      panel = $(target).closest('.panel');
+    }
+
+    if (panel.css('display') === 'none')
+    {
+      panel.css('display', 'table-cell');
+    }
+    else
+    {
+      panel.css('display', 'none');
+    }
+
+    return mod;
+  };
+
+  return mod;
+})();
+
+exports(panelToggle);
+
+},{}],44:[function(require,module,exports){
+/*
+ * h1. Path helper
+ *
+ * h2. Creating the object
+ *
+ * This function returns an object with various helpers for URL
+ * path operations. In this application a common pattern in paths is
+ * doctypes/<doctypeid>/fieldsets/<fiedsetid>/fields/<fieldid>. The path
+ * function below will take a source, which is a jQuery object, such as
+ * $('#some-id'), which has an attribute named 'data-group-id' having a
+ * value of the id of an element that stores data relevant to the current
+ * context as HTML data attributes, in particular the ids of doctypes,
+ * fieldsets and/or fields. The category is one of 'field', 'fieldset'
+ * or 'doctype'. The section argument is a section of the application,
+ * such as 'config' that will be prefixed to the path.
+ *
+ * Example:
+ *
+ * <pre>
+ *   <div
+ *     id='someid'
+ *     data-fieldset-fieldset='fsid'
+ *     data-fieldset-doctype='did'></div>
+ *
+ *   <div
+ *    id='thisid'
+ *    data-group-id='someid'>
+ *
+ *   mypath = path($('#thisid'), 'fieldset');
+ *   mypath.toString() == 'doctypes/did/fieldsets/fsid';
+ *
+ *   mypath = path($('#thisid'), 'fieldset', 'config');
+ *   mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
+ *
+ *   mypath = path($('#thisid'), 'fieldset');
+ *   mypath.fieldset = false; // unsets the fielset id
+ *   mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
+ * </pre>
+ *
+ * Note that the category matches the x of data-x in someid. Different
+ * values may be held for doctype or field in the same element. Sometimes
+ * this leads to repetition of information and a better scheme may be
+ * forthcoming. The positive side is that information about different
+ * paths may be held in the same location.
+ *
+ * h3. CouchDB Revision Numbers
+ *
+ * Above, a revision could have been added to someid as 'data-fieldset-rev'.
+ *
+ * h3. More Information
+ *
+ * For more information on how data attributes are used in this application,
+ * see getValue in the application.js file.
+ *
+ * h2. Manipulating the object
+ *
+ * Also note that setting certain path elements to false (or undefined)
+ * will exclude their ids from the end result. Setting the element to a
+ * different id would cause the path to be altered appropriately. This
+ * allows one to cleanly manipulate the paths without performing string
+ * manipulation.
+ *
+ * h2. PUT, POST and DELETE using the object
+ *
+ * There are also helpers for using the path the work with the resource it points to.
+ *
+ *  Example:
+ *
+ * <pre>
+ *   mypath = path($('#thisid'), 'fieldset');
+ *   mypath.put(object, callback, context);
+ *   mypath.post(object, callback, context);
+ *   mypath.del(callback, context);
+ * </pre>
+ *
+ * Object is an Javascript object that can be encoded as JSON, callback
+ * will be run on success and context provides information the environment
+ * from which the method was called, usually 'this' is supplied. (Context
+ * may no longer be an option in the future).
+ *
+ * The object will be sent to the path that would be returned by the
+ * toString method using the method implied by the above method's names.
+ *
+ * h3. Error handlers
+ *
+ * Within the context of this application it is assumed that fairly standard
+ * things will be done with error responces so they are left alone.
+*/
+
+shimi.path = function (source, category, section)
+{
+  'use strict';
+
+  var mod = {};
+  var prefix;
+
+  if (category)
+  {
+    prefix = category + '-';
+  }
+  else
+  {
+    prefix = '';
+  }
+
+  if (section)
+  {
+    mod.string = section + '/';
+  }
+  else
+  {
+    mod.string = '';
+  }
+
+  mod.category = category;
+  mod.origin = source;
+  mod.type = prefix + 'path';
+  mod.valid_components = ['doctype', 'fieldset', 'field'];
+  var s = shimi.store(mod.origin);
+
+  mod.valid_components.forEach(
+
+  function (item)
+  {
+    mod[item] = (function ()
+    {
+      var value = s.get(prefix + item);
+      return value;
+    })();
+  });
+
+  mod.rev = s.get(prefix + 'rev');
+
+  mod.doctype = s.get(prefix + 'doctype');
+
+  mod.send = function (object, method, callback, context)
+  {
+    shimi.form.send(mod.toString(), object, method, callback, context);
+    return mod;
+  };
+
+  mod.put = function (object, callback, context)
+  {
+    mod.send(object, 'PUT', callback, context);
+    return mod;
+  };
+
+  mod.post = function (object, callback, context)
+  {
+    mod.send(object, 'POST', callback, context);
+    return mod;
+  };
+
+  mod.del = function (callback, context)
+  {
+    mod.send(
+    {}, 'DELETE', callback, context);
+    return mod;
+  };
+
+  mod.toString = function ()
+  {
+    var rev;
+
+    var pathString =
+      mod.string.concat(
+      mod.valid_components.map(
+
+    function (item)
+    {
+      var plural = item + 's';
+      var value = mod[item];
+      var retval = null;
+
+      if (value)
+      {
+        retval = plural + '/' + value;
+      }
+      else if (item === mod.category)
+      {
+        retval = plural;
+      }
+
+      return retval;
+    }).filter(
+
+    function (item)
+    {
+      return (typeof item === 'string' && !item.isBlank());
+    }).join('/'));
+
+    if (mod.rev)
+    {
+      pathString = pathString.concat('?rev=' + mod.rev);
+    }
+
+    return pathString;
+  };
+
+  return mod;
+};
+
+},{}],45:[function(require,module,exports){
 shimi.projectui = (function ()
 {
   'use strict';
@@ -6558,52 +6330,485 @@ shimi.projectui = (function ()
 
   return mod;
 })();
-$(function ()
+
+},{}],46:[function(require,module,exports){
+shimi.sess = function ()
 {
   'use strict';
 
-  $('.notification').hide();
+  var mod = {};
 
-  $('#loading').hide();
-
-  $(document).ajaxStart(function ()
+  mod.put = function (doc)
   {
-    $('#loading').show();
-  }).ajaxStop(function ()
-  {
-    $('#loading').hide();
-  });
+    if (!window.sessionStorage[doc._id])
+    {
+      window.sessionStorage[doc._id] = JSON.stringify(doc);
+    }
 
-  shimi.form.initDateFields();
+    return doc._id;
+  };
 
-  // Config
-  if ($('#configuration').length > 0)
+  mod.get = function (docId)
   {
-    shimi.initTabs();
-    $('.simple-tabs').tabs();
+    var doc = window.sessionStorage[docId];
+
+    if (doc)
+    {
+      return JSON.parse(doc);
+    }
+    else
+    {
+      return null;
+    }
+  };
+
+  return mod;
+};
+
+},{}],47:[function(require,module,exports){
+shimi.sets = (function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  mod.member = function (arr, x)
+  {
+    var memb = arr.some(function (y)
+    {
+      return x === y;
+    });
+    return memb;
+  };
+
+  mod.unique = function (x, mem)
+  {
+    if (!mem)
+    {
+      mem = mod.member;
+    }
+    var uniq = x.reduce(function (acc, curr)
+    {
+      if (mem(acc, curr))
+      {
+        return acc;
+      }
+      else
+      {
+        return acc.concat([curr]);
+      }
+    }, []);
+    return uniq;
+  };
+
+  mod.union = function (xs, ys, mem)
+  {
+    if (!mem)
+    {
+      mem = mod.member;
+    }
+    var uni = mod.unique(xs.concat(ys), mem);
+    return uni;
+  };
+
+  mod.intersection = function (xs, ys, mem)
+  {
+    if (!mem)
+    {
+      mem = mod.member;
+    }
+    var inter = xs.filter(function (x)
+    {
+      return mem(ys, x);
+    });
+    return inter;
+  };
+
+  mod.relativeComplement = function (xs, ys, mem)
+  {
+    if (!mem)
+    {
+      mem = mod.member;
+    }
+    var comp = xs.filter(function (x)
+    {
+      return !mem(ys, x);
+    });
+    return comp;
+  };
+
+  mod.symmetricDifference = function (xs, ys, mem)
+  {
+    if (!mem)
+    {
+      mem = mod.member;
+    }
+    var comp1 = mod.relativeComplement(xs, ys, mem);
+    var comp2 = mod.relativeComplement(ys, xs, mem);
+    var uni = mod.union(comp1, comp2, mem);
+    return uni;
+  };
+
+  return mod;
+})();
+
+},{}],48:[function(require,module,exports){
+/*
+ WARNING: OUT OF DATE
+
+ h1. Data Attribute Key Value Stores
+
+ There are two functions provided for getting values from keys
+ embedded in HTML elements.
+
+  @getValue(key, elem)@
+
+  This funtion takes a key that corresponds to the name of the data
+  attribute without the data- prefix. It also takes a jQuery
+  object. The assumption is that the jQuery object will hold only one
+  element but it may work either way. The element is expected to have
+  an attribute data-group-id with a value that is the id of the
+  element actually holding the data.
+
+ Example:
+
+ <pre>
+   <div
+     id='someid'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
+
+   <div
+    id='thisid'
+    data-group-id='someid'>
+
+   getValue('fieldset-doctype', $(thisid)) == 'did';
+ </pre>
+
+ The following also works:
+
+ <pre>
+   <div
+     id='someid2'
+     data-fieldset-fieldset='fsid'
+     data-fieldset-doctype='did'></div>
+
+   <div
+     id='someid'
+     data-group-id='someid2'
+     data-fieldset-fieldset='fsid'></div>
+
+   <div
+    id='thisid'
+    data-group-id='someid'></div>
+
+   getValue('fieldset-doctype', $(thisid)) == 'did';
+ </pre>
+
+  @putValue(key, value, elem)@
+
+  This function will set an attribute at the target with a name
+  corresponding to key and a value of value.
+*/
+
+/*
+ Tail call optimization taken from Spencer Tipping's Javascript in Ten
+ Minutes.
+
+ For more information see:
+ https://github.com/spencertipping/js-in-ten-minutes
+*/
+
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+Function.prototype.r = function ()
+{
+  'use strict';
+
+  return [this, arguments];
+};
+
+Function.prototype.t = function ()
+{
+  'use strict';
+
+  var c = [this, arguments];
+  var escape = arguments[arguments.length - 1];
+  while (c[0] !== escape)
+  {
+    c = c[0].apply(this, c[1]);
   }
+  return escape.apply(this, c[1]);
+};
 
-  // Documents
-  if ($('#all-document-container').length > 0)
-  {
-    shimi.documents.init();
-  }
+shimi.store = function (elem)
+{
+  'use strict';
 
-  // File Manager
-  if ($('#file-upload').length > 0)
-  {
-    shimi.fm.init();
-  }
+  var mod = {};
 
-  // Index Tool
-  if ($('#all-index-container').length > 0)
+  mod.get = function (key)
   {
-    shimi.ilistingui.init();
-  }
+    var prelim = elem.attr('data-' + key);
 
-  // Project
-  if ($('#projects-container').length > 0)
+    if (prelim)
+    {
+      return prelim;
+    }
+
+    var getValue1 = function (key, elem, id)
+    {
+      var gid = elem.attr('data-group-id');
+      var store = $('#' + gid);
+      var val = store.attr('data-' + key);
+      var next = store.attr('data-group-id');
+
+      if (val === undefined && next !== undefined && gid !== next)
+      {
+        return getValue1.r(key, store, id);
+      }
+
+      return id.r(val);
+    };
+
+    return getValue1.t(key, elem, identity);
+  };
+
+  mod.get64 = function (key)
   {
-    shimi.projectui.init();
-  }
-});
+    var retval = mod.get(key);
+    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    return retval;
+  };
+
+  mod.put = function (key, value)
+  {
+    var dataElem = elem.attr('data-group-id');
+    $('#' + dataElem).attr('data-' + key, value);
+  };
+
+  mod.fs = function (key)
+  {
+    return mod.get('fieldset-' + key);
+  };
+
+  mod.f = function (key)
+  {
+    return mod.get('field-' + key);
+  };
+
+  mod.d = function (key)
+  {
+    return mod.get('document-' + key);
+  };
+
+  return mod;
+};
+
+},{}],49:[function(require,module,exports){
+shimi.utils = function ()
+{
+  'use strict';
+
+  var mod = {};
+
+  // safer(ish) string to number. The difference is that in this app
+  // I am using '' if the string isn't a valid number.
+  mod.stringToNumber = function (string)
+  {
+    if (typeof string === 'string' && !isNaN(string) && string !== '')
+    {
+      return string * 1;
+    }
+    else
+    {
+      return '';
+    }
+  };
+
+  // A predicate function to detect blankness
+  mod.isBlank = function (value)
+  {
+    return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
+  };
+
+  mod.validID = function (id)
+  {
+    return !!id.match(/^[a-f0-9]{32}$/);
+  };
+
+  /**
+   *
+   *  Base64 encode / decode
+   *  http://www.webtoolkit.info/
+   *
+   **/
+
+  mod.Base64 = {
+
+    // private property
+    _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+
+    // public method for encoding
+    encode: function (input)
+    {
+      var output = '';
+      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+      var i = 0;
+
+      input = mod.Base64._utf8_encode(input);
+
+      while (i < input.length)
+      {
+
+        chr1 = input.charCodeAt(i++);
+        chr2 = input.charCodeAt(i++);
+        chr3 = input.charCodeAt(i++);
+
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+
+        if (isNaN(chr2))
+        {
+          enc3 = enc4 = 64;
+        }
+        else if (isNaN(chr3))
+        {
+          enc4 = 64;
+        }
+
+        output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+      }
+
+      return output;
+    },
+
+    // public method for decoding
+    decode: function (input)
+    {
+      var output = '';
+      var chr1, chr2, chr3;
+      var enc1, enc2, enc3, enc4;
+      var i = 0;
+
+      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+      while (i < input.length)
+      {
+
+        enc1 = this._keyStr.indexOf(input.charAt(i++));
+        enc2 = this._keyStr.indexOf(input.charAt(i++));
+        enc3 = this._keyStr.indexOf(input.charAt(i++));
+        enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
+
+        output = output + String.fromCharCode(chr1);
+
+        if (enc3 !== 64)
+        {
+          output = output + String.fromCharCode(chr2);
+        }
+        if (enc4 !== 64)
+        {
+          output = output + String.fromCharCode(chr3);
+        }
+
+      }
+
+      output = mod.Base64._utf8_decode(output);
+
+      return output;
+
+    },
+
+    // private method for UTF-8 encoding
+    _utf8_encode: function (string)
+    {
+      string = string.replace(/\r\n/g, '\n');
+      var utftext = '';
+
+      for (var n = 0; n < string.length; n++)
+      {
+
+        var c = string.charCodeAt(n);
+
+        if (c < 128)
+        {
+          utftext += String.fromCharCode(c);
+        }
+        else if ((c > 127) && (c < 2048))
+        {
+          utftext += String.fromCharCode((c >> 6) | 192);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+        else
+        {
+          utftext += String.fromCharCode((c >> 12) | 224);
+          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+
+      }
+
+      return utftext;
+    },
+
+    // private method for UTF-8 decoding
+    _utf8_decode: function (utftext)
+    {
+      var string = '';
+      var i = 0;
+      var c = 0;
+      var c1 = 0;
+      var c2 = 0;
+      var c3 = 0;
+
+      while (i < utftext.length)
+      {
+
+        c = utftext.charCodeAt(i);
+
+        if (c < 128)
+        {
+          string += String.fromCharCode(c);
+          i++;
+        }
+        else if ((c > 191) && (c < 224))
+        {
+          c2 = utftext.charCodeAt(i + 1);
+          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+          i += 2;
+        }
+        else
+        {
+          c2 = utftext.charCodeAt(i + 1);
+          c3 = utftext.charCodeAt(i + 2);
+          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+          i += 3;
+        }
+
+      }
+
+      return string;
+    }
+
+  };
+
+
+  return mod;
+
+};
+
+},{}]},{},[1,3,4,2,5,8,6,7,11,9,13,14,12,15,10,16,17,19,21,22,20,23,24,25,26,27,29,28,30,31,32,33,34,35,36,18,37,39,38,40,41,42,43,44,45,46,48,49,47])
+;

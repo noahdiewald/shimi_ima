@@ -1,4 +1,4 @@
-shimi.flash = function (title, body)
+var flash = function (title, body)
 {
   'use strict';
 
@@ -37,3 +37,5 @@ shimi.flash = function (title, body)
 
   return mod;
 };
+
+exports('flash');
