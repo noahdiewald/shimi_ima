@@ -4,7 +4,7 @@ priv/log/
 .eunit/
 .*\.dump
 scrap
-jsdoc/.*
+jsdocs/.*
 doc/.*\.html
 doc/erlang.png
 doc/.*\.css
