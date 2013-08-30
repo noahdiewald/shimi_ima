@@ -1,3 +1,5 @@
+require('../jquery-ui-input-state.js');
+
 shimi.initIndexNewDialog = function ()
 {
   'use strict';

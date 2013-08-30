@@ -1,4 +1,15 @@
-shimi.dispatcher = function (patterns)
+// # Dispatcher for clicks and double clicks
+//
+// *Implicit depends:* DOM, JQuery
+//
+// See [`click-dispatch.js`](./click-dispatch.html) and
+// [`dblclick-dispatch.js`](./dblclick-dispatch.html).
+
+// # Exported Functions
+
+// This is a combinator for matching JQuery selector patterns to the
+// target of a click event.
+var dispatcher = function (patterns)
 {
   'use strict';
 
@@ -18,3 +29,5 @@ shimi.dispatcher = function (patterns)
 
   return d;
 };
+
+exports(dispatcher);

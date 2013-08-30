@@ -1,39 +1,47 @@
+// # The Client Code Entry Point
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// This is the entry point for the client side code. This is where
+// basic initializations take place and helper functions are added to
+// JavaScript Objects. The 'onload' code is here.
+
+// ## Variable Definitions
+
+// A place to temporarily store global objects. Sometimes this is more
+// convenient than using other types of client side storage. It is used
+// rarely and explicitly using this object.
 var shimi = {};
-
-shimi.utils = require('./utils.js');
-shimi.csv = require('./csv.js');
-shimi.sets = require('./sets.js');
-shimi.flash = require('./flash.js');
-shimi.store = require('./store.js');
-shimi.path = require('./path.js');
-require('./jquery.hotkeys.js');
-require('./jquery-ui-input-state.js');
-require('./click-dispatch.js');
-require('./dblclick-dispatch.js');
-require('./keystrokes.js');
-require('./changes.js');
-require('./gen-dispatch.js');
-shimi.pager = require('./pager.js');
-shimi.panelToggle = require('./panel-toggle.js');
-shimi.form = require('./form.js');
-shimi.sess = require('./sess.js');
-shimi.config = require('./config/config.js');
-shimi.documents = require('./documents/documents.js');
-shimi.fm = require('./file_manager/fm.js');
-shimi.ilistingui = require('./index_tool/ilistingui.js');
-shimi.projectui = require('./projects/projectui.js');
-
-// A place to temporarily store global objects
 shimi.globals = {};
 
-// functions added to String
+require('./jquery-ui-input-state.js');
+
+var clickDispatch = require('./click-dispatch.js').clickDispatch;
+var dblclickDispatch = require('./dblclick-dispatch.js').dblclickDispatch;
+var changes = require('./changes.js').changes;
+var keystrokes = require('./keystrokes.js').keystrokes;
+var form = require('./form.js');
+
+// These are the basic sub-application entry points.
+documents = require('./documents/documents.js');
+fm = require('./file_manager/fm.js');
+ilistingui = require('./index_tool/ilistingui.js');
+projectui = require('./projects/projectui.js');
+config = require('./config/config.js');
+
+// ## Extensions to String and Array Objects
+
+// ### Functions added to String
+
+// This is a poorly implement `isBlank` predicate.
 String.prototype.isBlank = function ()
 {
   'use strict';
 
-  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
+  return ((/^\s*$/).test(this) && !(/\S/).test(this));
 };
 
+// Remove white space at the beginning and end of string.
 String.prototype.trim = function ()
 {
   'use strict';
@@ -41,7 +49,9 @@ String.prototype.trim = function ()
   return this.replace(/^\s+/, '').replace(/\s+$/, '');
 };
 
-// functions added to Array
+// ### Functions added to Array
+
+// Remove white space on all strings in array.
 Array.prototype.trimAll = function ()
 {
   'use strict';
@@ -55,23 +65,38 @@ Array.prototype.trimAll = function ()
   });
 };
 
+// ## On Load
+
+// Using the JQuery function for running code after the page loads.
 $(function ()
 {
   'use strict';
 
+  // All clicks handled centraly
   $('body').click(function (e)
   {
-    shimi.clickDispatch(e);
+    clickDispatch(e);
   });
+
+  // All double clicks handled centraly
   $('body').dblclick(function (e)
   {
-    shimi.dblclickDispatch(e);
+    dblclickDispatch(e);
   });
 
+  // Other event handling
+  keystrokes();
+  changes();
+
+  // Hide notification boxes.
+  // TODO: move to stylesheets
   $('.notification').hide();
 
+  // Hide ajax loading indicator.
+  // TODO: move to stylesheets
   $('#loading').hide();
 
+  // Show and hide the AJAX loading indicator.
   $(document).ajaxStart(function ()
   {
     $('#loading').show();
@@ -80,36 +105,41 @@ $(function ()
     $('#loading').hide();
   });
 
-  shimi.form.initDateFields();
+  // Initialize any data fields, which use JQueryUI.
+  form.initDateFields();
 
-  // Config
+  // ### Determine the sub-application.
+  //
+  // TODO: With the CommonJS module system there should be a better way
+  // of sharing code between these sub-applications.
+
+  // Detect if this is the configuration sub-application
   if ($('#configuration').length > 0)
   {
-    shimi.initTabs();
-    $('.simple-tabs').tabs();
+    config.init();
   }
 
-  // Documents
+  // Detect if this is the document editing sub-application
   if ($('#all-document-container').length > 0)
   {
-    shimi.documents.init();
+    documents.init();
   }
 
-  // File Manager
+  // Detect if this is the file manager sub-application
   if ($('#file-upload').length > 0)
   {
-    shimi.fm.init();
+    fm.init();
   }
 
-  // Index Tool
+  // Detect if this is the index tool sub-application
   if ($('#all-index-container').length > 0)
   {
-    shimi.ilistingui.init();
+    ilistingui.init();
   }
 
-  // Project
+  // Detect if this is the project creation sub-application
   if ($('#projects-container').length > 0)
   {
-    shimi.projectui.init();
+    projectui.init();
   }
 });
