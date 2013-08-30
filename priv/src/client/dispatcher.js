@@ -7,8 +7,7 @@
 
 // # Exported Functions
 
-// This is a combinator for matching JQuery selector patterns to the
-// target of a click event.
+// Match the target to a pattern and run its action.
 var dispatcher = function (patterns)
 {
   'use strict';
