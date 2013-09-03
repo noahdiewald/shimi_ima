@@ -33,8 +33,6 @@ var pager = function (args)
   {
     args.prefix = 'index';
   }
-  // Generally the name of the calling module.
-  var origin = args.origin;
   // Special formatting or template code.
   var format = args.format;
   var prefix = args.prefix;
@@ -189,22 +187,6 @@ var pager = function (args)
     {
       $('#next-' + prefix + '-page').hide();
     }
-
-    var keyupHandler = function (e)
-    {
-      var getIndexTimer;
-      window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
-          shimi[origin].get();
-        }
-      }, 500);
-    };
-
-    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
-    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
 
     return mod;
   };

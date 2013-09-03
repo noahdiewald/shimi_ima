@@ -12,6 +12,9 @@
 
 var hotkeys = require('./jquery.hotkeys.js');
 var sender = require('./sender.js');
+var ipreviewui = require('index_tool/ipreviewui.js');
+var indexui = require('./documents/indexui.js');
+var changeui = require('./documents/changeui.js');
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
 var searchui = require('./documents/searchui.js');
@@ -21,10 +24,29 @@ var searchui = require('./documents/searchui.js');
 // All this does is register a bunch of event handlers.
 var keystrokes = function ()
 {
+  'use strict';
+
+  [ipreviewui, indexui, changeui].forEach(function (mod)
+  {
+    var keyupHandler = function (e)
+    {
+      var getIndexTimer;
+      window.clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function ()
+      {
+        if (e.which !== 8 && e.which !== 46)
+        {
+          mod.get();
+        }
+      }, 500);
+    };
+
+    document.getElementById(mod.prefix() + '-filter').onkeyup = keyupHandler;
+    document.getElementById(mod.prefix() + '-limit').onkeyup = keyupHandler;
+  });
+
   $(document).on('keydown', '#document-worksheets-form', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       sender('worksheet-form-submit');
@@ -35,8 +57,6 @@ var keystrokes = function ()
 
   $(document).on('keydown', '#document-sets-form', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       sender('sets-form-submit');
@@ -47,8 +67,6 @@ var keystrokes = function ()
 
   $('#new-set-form').on('keydown', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       sender('new-set-form-submit');
@@ -59,8 +77,6 @@ var keystrokes = function ()
 
   $(document).bind('keydown', 'Alt+n', function (e)
   {
-    'use strict';
-
     var t = function ()
     {
       return $('#edit-tabs');
@@ -84,8 +100,6 @@ var keystrokes = function ()
 
   $(document).bind('keydown', 'Alt+c', function (e)
   {
-    'use strict';
-
     var active = $(document.activeElement).attr('id');
     sender('initiated-command', active);
     return true;
@@ -93,8 +107,6 @@ var keystrokes = function ()
 
   $(document).bind('keydown', 'Alt+p', function (e)
   {
-    'use strict';
-
     var t = function ()
     {
       return $('#edit-tabs');
@@ -119,8 +131,6 @@ var keystrokes = function ()
 
   $(document).on('keydown', '#edit-command-input', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       var command = $('#edit-command-input').val();
@@ -131,8 +141,6 @@ var keystrokes = function ()
 
   $(document).on('keydown', '#edit-document-form input', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       if ($('#save-document-button').css('display') === 'none')
@@ -149,16 +157,12 @@ var keystrokes = function ()
 
   $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
   {
-    'use strict';
-
     editui.toggleTextarea($(e.target));
     return false;
   });
 
   $(document).on('keypress', '#view-jump-id', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       var docid = $('#view-jump-id').val();
@@ -170,8 +174,6 @@ var keystrokes = function ()
 
   $(document).on('keydown', '#document-search-term', function (e)
   {
-    'use strict';
-
     if (e.which === 13)
     {
       searchui.getSearch();
