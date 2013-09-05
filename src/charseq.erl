@@ -167,4 +167,4 @@ apply_patterns([], Value) ->
 apply_patterns(_, <<>>) ->
     <<>>;
 apply_patterns([P|Rest], Value) ->
-    apply_patterns(Rest, re:replace(Value, P, <<>>, [unicode])).
+    apply_patterns(Rest, re:replace(Value, P, <<>>, [unicode, global])).
