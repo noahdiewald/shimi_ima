@@ -1,8 +1,20 @@
+// # Charseq manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var charseqElems = require('./charseq-elems.js');
+var charseqTab = require('./charseq-tab.js');
+var form = require('../form.js');
+
+// Exported functions
+
 // Dialog for manipulating doctypes
-shimi.charseqDialog = function (values)
+var charseqDialog = function (values)
 {
   'use strict';
-  var f = shimi.charseqElems.get(values);
+  var f = charseqElems.get(values);
 
   var dialog = $('#charseq-dialog').dialog(
   {
@@ -18,7 +30,7 @@ shimi.charseqDialog = function (values)
         var method = 'POST';
         var complete = function (context)
         {
-          shimi.charseqTab.init();
+          charseqTab.init();
           $(context).dialog('close');
         };
 
@@ -28,7 +40,7 @@ shimi.charseqDialog = function (values)
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
 
-        shimi.form.send(url, obj, method, complete, this);
+        form.send(url, obj, method, complete, this);
       },
       'Cancel': function ()
       {
@@ -43,3 +55,5 @@ shimi.charseqDialog = function (values)
 
   return dialog;
 };
+
+exports(charseqDialog);
