@@ -64,7 +64,7 @@
 // There are also helpers for using the path the work with the resource
 // it points to.
 //
-//  #### Example:
+// #### Example:
 //
 //     mypath = path($('#thisid'), 'fieldset');
 //     mypath.put(object, callback, context);
