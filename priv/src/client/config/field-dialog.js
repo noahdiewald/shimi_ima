@@ -4,7 +4,7 @@
 
 // Variable Definitions
 
-var fieldElems = require('./field-elems.js');
+var fieldElems = require('./field-elems.js').fieldElems;
 var doctypeTab = require('./doctype-tab.js');
 
 // Exported functions

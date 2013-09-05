@@ -4,7 +4,7 @@
 
 // Variable Definitions
 
-var charseqElems = require('./charseq-elems.js');
+var charseqElems = require('./charseq-elems.js').charseqElems;
 var charseqTab = require('./charseq-tab.js');
 var form = require('../form.js');
 

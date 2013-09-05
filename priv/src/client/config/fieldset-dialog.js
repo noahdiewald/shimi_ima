@@ -4,7 +4,7 @@
 
 // Variable Definitions
 
-var fieldsetElems = require('./fieldset-elems.js');
+var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
 var doctypeTab = require('./doctype-tab.js');
 
 // Exported functions

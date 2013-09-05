@@ -4,7 +4,7 @@
 
 // Variable Definitions
 
-var doctypeElems = require('./doctype-elems.js');
+var doctypeElems = require('./doctype-elems.js').doctypeElems;
 var doctypeTab = require('./doctype-tab.js');
 
 // Exported functions
