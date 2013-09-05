@@ -1,5 +1,7 @@
 // # Path helper
 //
+// *Implicit depends:* DOM, JQuery
+//
 // This function returns an object with various helpers for URL
 // path operations. In this application a common pattern in paths is
 // `doctypes/<doctypeid>/fieldsets/<fiedsetid>/fields/<fieldid>`. The
