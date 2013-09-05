@@ -1,6 +1,17 @@
+// # Working with elements of a field manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+var utils = require('../utils.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions.
-shimi.fieldElems = (function ()
+var fieldElems = (function ()
 {
   'use strict';
 
@@ -86,7 +97,7 @@ shimi.fieldElems = (function ()
 
     fObj.clear = function ()
     {
-      shimi.form.clear($('#field-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
@@ -99,7 +110,7 @@ shimi.fieldElems = (function ()
       }
       else
       {
-        return shimi.utils().stringToNumber(bound);
+        return utils.stringToNumber(bound);
       }
     };
 
@@ -180,3 +191,5 @@ shimi.fieldElems = (function ()
 
   return mod;
 })();
+
+exports(fieldElems);
