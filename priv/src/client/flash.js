@@ -2,9 +2,7 @@
 //
 // *Implicit depends:* DOM, JQuery
 //
-// This is the entry point for the client side code. This is where
-// basic initializations take place and helper functions are added to
-// JavaScript Objects. The 'onload' code is here.
+// Helpers to display notifications.
 
 // ## Internal Functions
 
