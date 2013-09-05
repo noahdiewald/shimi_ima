@@ -1,48 +1,69 @@
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
 var sender = function (message, arg)
 {
   switch (message)
   {
   case 'bad-session-state':
-    shimi.documents.clearSession();
+    documents.clearSession();
     break;
   case 'doctype-info-ready':
-    shimi.documents.makeLabels();
+    documents.makeLabels();
     break;
   case 'labels-ready':
-    shimi.searchui.loadSearchVals();
-    shimi.worksheetui.buildTemplate();
+    searchui.loadSearchVals();
+    worksheetui.buildTemplate();
     break;
   case 'new-set-form-submit':
-    shimi.setsui.saveSelected();
+    setsui.saveSelected();
     break;
   case 'sets-changed':
-    shimi.setsui.updateSelection();
+    setsui.updateSelection();
     break;
   case 'sets-form-submit':
-    shimi.setsui.performOp();
+    setsui.performOp();
     break;
   case 'session-cleared':
-    shimi.documents.setVersion();
-    shimi.documents.loadDoctype();
+    documents.setVersion();
+    documents.loadDoctype();
     break;
   case 'worksheet-form-submit':
-    shimi.worksheetui.fillWorksheet();
+    worksheetui.fillWorksheet();
     break;
   case 'initiated-command':
-    shimi.commands.dialogOpen(arg);
+    commands.dialogOpen(arg);
     break;
   case 'executed-command':
-    shimi.commands.dialogClose();
+    commands.dialogClose();
     break;
   case 'submitted-command':
-    shimi.commands.execute(arg);
+    commands.execute(arg);
     break;
   case 'lost-focus':
-    shimi.editui.selectInput();
+    editui.selectInput();
     break;
   }
 
   return false;
 };
 
-exports('send');
+exports('sender');
