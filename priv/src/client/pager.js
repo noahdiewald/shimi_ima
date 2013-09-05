@@ -21,6 +21,8 @@
 
 var form = require('./form.js');
 
+// Exported functions
+
 // Initialize the pager with an args object.
 var pager = function (args)
 {
