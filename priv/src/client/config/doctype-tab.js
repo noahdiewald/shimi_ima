@@ -1,4 +1,22 @@
-shimi.doctypeTab = (function ()
+// # Doctype tab initialization
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var doctypeDialog = require('./doctype-dialog.js').doctypeDialog;
+var doctypeElems = require('./doctype-elems.js').doctypeElems;
+var fieldDialog = require('./field-dialog.js').fieldDialog;
+var fieldElems = require('./field-elems.js').fieldElems;
+var fieldsetDialog = require('./fieldset-dialog.js').fieldsetDialog;
+var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
+var store = require('../store.js').store;
+var path = require('../store.js').path;
+
+// Exported functions
+
+// Object containing initialization and other functions.
+var doctypeTab = (function ()
 {
   'use strict';
 
@@ -6,7 +24,7 @@ shimi.doctypeTab = (function ()
 
   var cpath = function (source, category)
   {
-    return shimi.path(source, category, 'config');
+    return path(source, category, 'config');
   };
 
   // Populate the listing of fields
@@ -64,7 +82,7 @@ shimi.doctypeTab = (function ()
       var loadFun = function (event, ui)
       {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
-        var fieldsetsPath = shimi.path(source, 'fieldset', 'config');
+        var fieldsetsPath = path(source, 'fieldset', 'config');
         mod.initFieldsets(fieldsetsPath);
       };
 
@@ -83,7 +101,7 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'field');
     var oldobj = {};
-    var attrs = shimi.fieldElems.attrs;
+    var attrs = fieldElems.attrs;
     var charseqUrl = 'config/charseqs?as=options';
 
     $.get(charseqUrl, function (charseqs)
@@ -91,9 +109,9 @@ shimi.doctypeTab = (function ()
       $('#field-charseq-input').html(charseqs);
       attrs.forEach(function (item)
       {
-        oldobj[item] = shimi.store(target).get('field-' + item);
+        oldobj[item] = store(target).get('field-' + item);
       });
-      shimi.fieldDialog(url, oldobj).dialog('open');
+      fieldDialog(url, oldobj).dialog('open');
     });
   };
 
@@ -125,7 +143,7 @@ shimi.doctypeTab = (function ()
     $.get(charseqUrl, function (charseqs)
     {
       $('#field-charseq-input').html(charseqs);
-      shimi.fieldDialog(url,
+      fieldDialog(url,
       {
         fieldset: url.fieldset,
         doctype: url.doctype
@@ -138,14 +156,14 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'fieldset');
     var oldobj = {};
-    var attrs = shimi.fieldsetElems.attrs;
+    var attrs = fieldsetElems.attrs;
 
     attrs.forEach(function (item)
     {
-      oldobj[item] = shimi.store(target).get('fieldset-' + item);
+      oldobj[item] = store(target).get('fieldset-' + item);
     });
 
-    shimi.fieldsetDialog(url, oldobj).dialog('open');
+    fieldsetDialog(url, oldobj).dialog('open');
   };
 
   // Button that opens a dialog for deleting a fieldset
@@ -170,7 +188,7 @@ shimi.doctypeTab = (function ()
   mod.addFieldset = function (target)
   {
     var url = cpath(target, 'fieldset');
-    shimi.fieldsetDialog(url,
+    fieldsetDialog(url,
     {
       doctype: url.doctype
     }).dialog('open');
@@ -180,18 +198,18 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'doctype');
     var oldobj = {};
-    var attrs = shimi.doctypeElems.attrs;
+    var attrs = doctypeElems.attrs;
 
     attrs.forEach(function (item)
     {
-      oldobj[item] = shimi.store(target).get('doctype-' + item);
+      oldobj[item] = store(target).get('doctype-' + item);
     });
-    shimi.doctypeDialog(url, oldobj).dialog('open');
+    doctypeDialog(url, oldobj).dialog('open');
   };
 
   mod.touchDoctype = function (target)
   {
-    var docid = shimi.store(target).get('doctype-doctype');
+    var docid = store(target).get('doctype-doctype');
     $.post('config/doctypes/' + docid + '/touch');
     window.alert('Touch In Progress');
   };
@@ -215,7 +233,7 @@ shimi.doctypeTab = (function ()
   mod.addDoctype = function (target)
   {
     var url = cpath(target, 'doctype');
-    shimi.doctypeDialog(url,
+    doctypeDialog(url,
     {}).dialog('open');
   };
 
