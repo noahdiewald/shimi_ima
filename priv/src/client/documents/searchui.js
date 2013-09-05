@@ -7,7 +7,7 @@
 // Variable Definitions
 
 var utils = require('../utils.js');
-var sets = require('../sets.js').sets;
+var sets = require('../sets.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
 var localStorage = window.localStorage;
