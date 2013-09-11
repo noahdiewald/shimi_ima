@@ -1,4 +1,4 @@
-// # The worksheet user interface
+// # The file manager sub-application user interface
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
 //
