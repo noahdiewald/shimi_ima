@@ -1,23 +1,25 @@
-shimi.ilistingui = (function ()
+// # Index listing.
+//
+// *Implicit depends:* DOM, JQuery, Hogan, templates
+//
+// Displays a listing of user created indexes.
+
+// Exported functions
+
+// Initialize the listing of user created indexes.
+var init = function ()
 {
-  'use strict';
+  var url = 'indexes';
+  var target = $('#index-index-listing');
+  var listing;
 
-  var mod = {};
-
-  mod.init = function ()
+  $.getJSON(url, function (data)
   {
-    var url = 'indexes';
-    var target = $('#index-index-listing');
-    var listing;
+    listing = templates['index-listing'].render(data);
+    target.html(listing);
+  });
 
-    $.getJSON(url, function (data)
-    {
-      listing = templates['index-listing'].render(data);
-      target.html(listing);
-    });
+  return true;
+};
 
-    return mod;
-  };
-
-  return mod;
-})();
+exports(init);
