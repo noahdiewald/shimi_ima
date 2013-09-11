@@ -30,7 +30,7 @@ var initIndexBuilderDialog = function (indexDoctype)
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = ihelpers.evs;
+  var evs = ihelpers.evs();
 
   $('.ui-helper-reset div').show();
 
