@@ -5,6 +5,7 @@
 // Loads sample of the user index based on user suplied values.
 
 // Variable Definitions
+
 var pager = require('../pager.js').pager;
 
 // Exported Functions
