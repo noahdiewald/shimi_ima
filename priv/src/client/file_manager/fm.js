@@ -1,4 +1,4 @@
-// # The file manager sub-application user interface
+// # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
 //

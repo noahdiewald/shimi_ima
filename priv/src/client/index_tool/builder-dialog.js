@@ -10,7 +10,7 @@ require('../jquery-ui-input-state.js');
 
 // Variable Definitions
 
-var ihelpers = require('./ihelpers');
+var ihelpers = require('./ihelpers.js');
 var form = require('../form.js');
 
 // Exported functions
