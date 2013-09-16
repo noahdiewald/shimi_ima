@@ -1,10 +1,11 @@
 ERL ?= erl
 REBAR ?= ./rebar
 CURL ?= /usr/bin/curl
-CUC ?= $(HOME)/.gem/ruby/2.0.0/bin/cucumber
+CUC ?= /usr/bin/cucumber
 REDIS ?= /usr/bin/redis-server
 RCLIENT ?= /usr/bin/redis-cli
 GRUNT ?= /usr/bin/grunt
+NPM ?= /usr/bin/npm
 URL ?= http://tester:tester@127.0.0.1:5984
 APP_URL ?= $(URL)/shimi_ima
 ALL_URL ?= $(APP_URL)/_all_docs?include_docs=true
@@ -27,8 +28,16 @@ depends:
 		$(REBAR) update-deps; \
 	fi
 
+jdepends:
+	$(NPM) install
+
 build: depends
 	$(REBAR) compile
+
+jbuild: jdepends
+	$(GRUNT)
+
+all: build jbuild
 
 eunit:
 	$(REBAR) eunit skip_deps=true
