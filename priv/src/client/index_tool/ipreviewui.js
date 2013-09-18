@@ -13,6 +13,8 @@ var pager = require('../pager.js').pager;
 // Called by a keystroke event handler when user changes form values.
 var get = function ()
 {
+  'use strict';
+
   var prefix = 'preview';
   var indexId = $('#index-editing-data').attr('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
@@ -43,7 +45,7 @@ var get = function ()
       format: format,
       url: url,
       target: target
-    }).get(startkey, startid, prevkeys, previds);
+    }).get();//.get(startkey, startid, prevkeys, previds);
   }
 
   return true;

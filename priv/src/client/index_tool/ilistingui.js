@@ -9,6 +9,8 @@
 // Initialize the listing of user created indexes.
 var init = function ()
 {
+  'use strict';
+
   var url = 'indexes';
   var target = $('#index-index-listing');
   var listing;

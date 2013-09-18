@@ -6,6 +6,8 @@
 // I am using '' if the string isn't a valid number.
 var stringToNumber = function (string)
 {
+  'use strict';
+
   if (typeof string === 'string' && !isNaN(string) && string !== '')
   {
     return string * 1;
@@ -19,6 +21,8 @@ var stringToNumber = function (string)
 // A predicate function to detect blankness of various object types.
 var isBlank = function (value)
 {
+  'use strict';
+
   return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
 };
 
@@ -26,24 +30,27 @@ var isBlank = function (value)
 // limited to hexidecimal digits.
 var validID = function (id)
 {
+  'use strict';
+
   return !!id.match(/^[a-f0-9]{32}$/);
 };
 
 // Base64 encode / decode
 // Taken from <http://www.webtoolkit.info/>
 var Base64 = {
-
   // private property
   _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
 
   // public method for encoding
   encode: function (input)
   {
+    'use strict';
+
     var output = '';
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
 
-    input = mod.Base64._utf8_encode(input);
+    input = Base64._utf8_encode(input);
 
     while (i < input.length)
     {
@@ -76,6 +83,8 @@ var Base64 = {
   // public method for decoding
   decode: function (input)
   {
+    'use strict';
+
     var output = '';
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
@@ -108,7 +117,7 @@ var Base64 = {
 
     }
 
-    output = mod.Base64._utf8_decode(output);
+    output = Base64._utf8_decode(output);
 
     return output;
 
@@ -117,6 +126,8 @@ var Base64 = {
   // private method for UTF-8 encoding
   _utf8_encode: function (string)
   {
+    'use strict';
+
     string = string.replace(/\r\n/g, '\n');
     var utftext = '';
 
@@ -149,6 +160,8 @@ var Base64 = {
   // private method for UTF-8 decoding
   _utf8_decode: function (utftext)
   {
+    'use strict';
+
     var string = '';
     var i = 0;
     var c = 0;

@@ -6,6 +6,8 @@
 // attribute, toggle the panel's visibility.
 var panelToggler = function (target)
 {
+  'use strict';
+
   var panel;
 
   if ($(target).attr('data-panel'))

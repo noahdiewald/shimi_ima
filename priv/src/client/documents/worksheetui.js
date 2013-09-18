@@ -9,7 +9,7 @@
 
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
-var sets = require('../form.js');
+var form = require('../form.js');
 var flash = require('../flash.js');
 
 // Internal functions
@@ -17,18 +17,24 @@ var flash = require('../flash.js');
 // User interface element
 var worksheetsSet = function ()
 {
+  'use strict';
+
   return $('#document-worksheets-set-input');
 };
 
 // User interface element
 var worksheetsArea = function ()
 {
+  'use strict';
+
   return $('#worksheet-area');
 };
 
 // Name for the worksheet template.
 var worksheetName = function ()
 {
+  'use strict';
+
   return documents.identifier() + '_worksheet-template';
 };
 
@@ -37,6 +43,8 @@ var worksheetName = function ()
 // Select all the visible rows.
 var selectAllRows = function (select)
 {
+  'use strict';
+
   if (select)
   {
     $('#worksheet-table tbody tr').addClass('selected-row');
@@ -54,6 +62,8 @@ var selectAllRows = function (select)
 // Set the proper class for a selected row and unset the 'select all'
 var rowSelection = function (row, select)
 {
+  'use strict';
+
   if (select)
   {
     $('#' + row).addClass('selected-row');
@@ -71,6 +81,8 @@ var rowSelection = function (row, select)
 // Select a column.
 var columnSelection = function (column, select)
 {
+  'use strict';
+
   if (select)
   {
     $('.field-column.' + column).addClass('selected-column');
@@ -86,6 +98,8 @@ var columnSelection = function (column, select)
 // Show vertical headers for fields and fieldsets.
 var showHandles = function ()
 {
+  'use strict';
+
   $('#worksheet-table .handle-column.fieldset').show();
 
   return true;
@@ -94,6 +108,8 @@ var showHandles = function ()
 // Hide vertical headers for fields and fieldsets.
 var hideHandles = function ()
 {
+  'use strict';
+
   $('#worksheet-table .handle-column.fieldset').hide();
 
   return true;
@@ -102,6 +118,8 @@ var hideHandles = function ()
 // Show the fieldset handle.
 var showFieldset = function (fsid)
 {
+  'use strict';
+
   $('#worksheet-table .handle-column.field.' + fsid).show();
 
   return true;
@@ -110,6 +128,8 @@ var showFieldset = function (fsid)
 // Hide the fieldset handle.
 var hideFieldset = function (fsid)
 {
+  'use strict';
+
   $('#worksheet-table .handle-column.field.' + fsid).hide();
 
   return true;
@@ -118,6 +138,8 @@ var hideFieldset = function (fsid)
 // Show a field.
 var showField = function (fid)
 {
+  'use strict';
+
   $('.field-column.' + fid).show();
 
   return true;
@@ -126,6 +148,8 @@ var showField = function (fid)
 // Hide a field.
 var hideField = function (fid)
 {
+  'use strict';
+
   $('.field-column.' + fid).hide();
 
   return true;
@@ -135,6 +159,8 @@ var hideField = function (fid)
 // template. Activate the second layer.
 var buildTemplate = function ()
 {
+  'use strict';
+
   var doctypeInfo = documents.info();
   var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
   shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
@@ -145,6 +171,8 @@ var buildTemplate = function ()
 // Render the worksheet.
 var fillWorksheet = function ()
 {
+  'use strict';
+
   var setName = worksheetsSet().val();
   var url = 'worksheets';
   var complete = function (_ignore, req)

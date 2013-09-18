@@ -10,67 +10,88 @@ var utils = require('../utils.js');
 var sets = require('../sets.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
-var localStorage = window.localStorage;
+var multipleFields;
+var loadSearchVals;
 
 // Internal functions
 
 // User interface element
 var searchIndex = function ()
 {
+  'use strict';
+
   return $('#document-search-index');
 };
 
 // User interface element
 var searchIndexLabel = function ()
 {
+  'use strict';
+
   return $('#search-index-label');
 };
 
 // User interface element
 var searchTerm = function ()
 {
+  'use strict';
+
   return $('#document-search-term');
 };
 
 // User interface element
 var searchFields = function ()
 {
+  'use strict';
+
   return $('#document-search-field');
 };
 
 // User interface element
 var searchFieldsLabel = function ()
 {
+  'use strict';
+
   return $('#search-field-label');
 };
 
 // User interface element
 var searchExclude = function ()
 {
+  'use strict';
+
   return $('#document-search-exclude');
 };
 
 // User interface element
 var searchInvert = function ()
 {
+  'use strict';
+
   return $('#document-search-invert');
 };
 
 // User interface element
 var searchAll = function ()
 {
+  'use strict';
+
   return $('#search-all-fields-switch');
 };
 
 // User interface element
 var searchListing = function ()
 {
+  'use strict';
+
   return $('#search-listing');
 };
 
 // User interface element
 var getIdentifier = function ()
 {
+  'use strict';
+
   return documents.identifier();
 };
 
@@ -81,6 +102,8 @@ var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel,
 // where the index id specified.
 var indexVal = function ()
 {
+  'use strict';
+
   var val = $('#index-index-input').val();
   if (val.length === 0)
   {
@@ -95,6 +118,8 @@ var indexVal = function ()
 // Used for values that must either be true or null.
 var maybeTrue = function (bool)
 {
+  'use strict';
+
   if (bool)
   {
     return true;
@@ -108,6 +133,8 @@ var maybeTrue = function (bool)
 // Clear all search information that is stored in local storage.
 var clearStore = function ()
 {
+  'use strict';
+
   var ident = getIdentifier();
   localStorage.setItem(ident + '_searchIndex', null);
   localStorage.setItem(ident + '_searchIndexLabel', null);
@@ -119,6 +146,8 @@ var clearStore = function ()
 // Clear the search form.
 var clearVals = function ()
 {
+  'use strict';
+
   formElems.forEach(function (x)
   {
     var elem = x();
@@ -137,6 +166,8 @@ var clearVals = function ()
 // Hide all the form elements.
 var hideElems = function ()
 {
+  'use strict';
+
   formElems.forEach(function (x)
   {
     var elem = x();
@@ -156,6 +187,8 @@ var hideElems = function ()
 // Get the field labels from session storage.
 var fieldLabels = function ()
 {
+  'use strict';
+
   var ident = getIdentifier();
   var fieldlabels = JSON.parse(sessionStorage.getItem(ident + '_labels'));
   return fieldlabels;
@@ -164,6 +197,8 @@ var fieldLabels = function ()
 // Render the search field item template using given values.
 var searchFieldItem = function (field, fieldLabel)
 {
+  'use strict';
+
   return templates['search-field-item'].render(
   {
     fieldLabel: fieldLabel,
@@ -174,6 +209,8 @@ var searchFieldItem = function (field, fieldLabel)
 // Set the fields to search.
 var setFields = function (fields)
 {
+  'use strict';
+
   var fLabels = fieldLabels();
   var jFields = JSON.stringify(fields);
   var sfls = searchFieldsLabel();
@@ -197,6 +234,8 @@ var setFields = function (fields)
 // Put the form in a state where all fields will be searched.
 var allFields = function ()
 {
+  'use strict';
+
   clearStore();
   hideElems();
   clearVals();
@@ -206,6 +245,8 @@ var allFields = function ()
 // Put the form in a state where one field will be searched.
 var singleField = function (fields)
 {
+  'use strict';
+
   multipleFields(fields);
   searchInvert().parent().show();
   return true;
@@ -215,6 +256,8 @@ var singleField = function (fields)
 // inverse search.
 var singleFieldInverse = function (fields)
 {
+  'use strict';
+
   var ident = getIdentifier();
   singleField(fields);
   searchInvert().prop('checked', true);
@@ -223,8 +266,10 @@ var singleFieldInverse = function (fields)
 };
 
 // Put the form in a state where multiple fields will be searched.
-var multipleFields = function (fields)
+multipleFields = function (fields)
 {
+  'use strict';
+
   allFields();
   setFields(fields);
   [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x)
@@ -237,6 +282,8 @@ var multipleFields = function (fields)
 // Put the form in a state where fields will be excluded from search.
 var excludedFields = function (fields)
 {
+  'use strict';
+
   var ident = getIdentifier();
   if (fields.length > 1)
   {
@@ -254,6 +301,8 @@ var excludedFields = function (fields)
 // Put the form in a state where a user created index will be searched.
 var indexOnly = function (index, indexLabel)
 {
+  'use strict';
+
   var ident = getIdentifier();
   allFields();
   localStorage.setItem(ident + '_searchIndex', index);
@@ -271,6 +320,8 @@ var indexOnly = function (index, indexLabel)
 // perform an inverse search.
 var indexInverse = function (index, indexLabel)
 {
+  'use strict';
+
   var ident = getIdentifier();
   indexOnly(index, indexLabel);
   searchInvert().prop('checked', true);
@@ -281,6 +332,8 @@ var indexInverse = function (index, indexLabel)
 // Perform the search.
 var getSearch = function ()
 {
+  'use strict';
+
   var query = searchTerm().val();
   var url = 'documents/search?q=' + window.encodeURIComponent(query);
   var field = searchFields().val();
@@ -341,6 +394,8 @@ var getSearch = function ()
 // exclusive search.)
 var removeField = function (t)
 {
+  'use strict';
+
   var ident = getIdentifier();
   var searchFields = localStorage.getItem(ident + '_searchFields');
   var newSearchFields;
@@ -367,6 +422,8 @@ var removeField = function (t)
 // exclusive search.)
 var addField = function (t)
 {
+  'use strict';
+
   var ident = getIdentifier();
   var searchFields = localStorage.getItem(ident + '_searchFields');
   var newSearchFields;
@@ -391,6 +448,8 @@ var addField = function (t)
 // Add a user created index to be searched.
 var addIndex = function ()
 {
+  'use strict';
+
   var val = indexVal();
   var ident = getIdentifier();
 
@@ -408,6 +467,8 @@ var addIndex = function ()
 // Toggle the inverse search setting.
 var toggleInversion = function ()
 {
+  'use strict';
+
   var ident = getIdentifier();
   localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
   localStorage.setItem(ident + '_searchExclude', null);
@@ -419,6 +480,8 @@ var toggleInversion = function ()
 // Toggle the exclusive search setting.
 var toggleExclusion = function ()
 {
+  'use strict';
+
   var ident = getIdentifier();
   localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
   localStorage.getItem(ident + '_searchInvert', null);
@@ -430,8 +493,10 @@ var toggleExclusion = function ()
 // The functions that alter the search form above store the values in
 // local storage. This interprets those values and puts the search form
 // in a consistent state.
-var loadSearchVals = function ()
+loadSearchVals = function ()
 {
+  'use strict';
+
   var ident = getIdentifier();
   var exclude = localStorage.getItem(ident + '_searchExclude');
   var invert = localStorage.getItem(ident + '_searchInvert');
@@ -506,6 +571,8 @@ var loadSearchVals = function ()
 // Toggle selection of result to save to set.
 var toggleSelection = function (t)
 {
+  'use strict';
+
   var target = $(t);
 
   if (target.is(':checked'))

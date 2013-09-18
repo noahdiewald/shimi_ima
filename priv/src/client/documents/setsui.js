@@ -11,48 +11,69 @@ var flash = require('../flash.js');
 var sets = require('../sets.js');
 var utils = require('../utils.js');
 var documents = require('./documents.js');
+var removeSet;
+var setSets;
+var selectedElementsToArray;
+var selectedSaveResultsToArray;
+var render;
+var getSets;
+var getSet;
 
 // Internal functions
 
 // User interface element
 var setA = function ()
 {
+  'use strict';
+
   return $('#document-set-a-input');
 };
 
 // User interface element
 var setB = function ()
 {
+  'use strict';
+
   return $('#document-set-b-input');
 };
 
 // User interface element
 var worksheetsSet = function ()
 {
+  'use strict';
+
   return $('#document-worksheets-set-input');
 };
 
 // User interface element
 var op = function ()
 {
+  'use strict';
+
   return $('#document-set-operation-input');
 };
 
 // User interface element
 var setListing = function ()
 {
+  'use strict';
+
   return $('#set-listing');
 };
 
 // User interface element
 var sessionKey = function ()
 {
+  'use strict';
+
   return documents.identifier() + '_sets';
 };
 
 // Custom member function to use with [sets.js](./sets.html).
 var member = function (arr, x)
 {
+  'use strict';
+
   return arr.some(function (y)
   {
     return x[0] === y[0] && x[1] === y[1];
@@ -62,6 +83,8 @@ var member = function (arr, x)
 // Ensure that the set is correct.
 var processSet = function (set)
 {
+  'use strict';
+
   var name = set[0];
   var arr = sets.unique(set[1], member);
   var procSet = [name, arr];
@@ -71,8 +94,10 @@ var processSet = function (set)
 // Perform the union of the sets specified by the user interface.
 var union = function (setNameA, setNameB)
 {
-  var setElemsA = mod.getSet(setNameA)[1];
-  var setElemsB = mod.getSet(setNameB)[1];
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
   var newSet = sets.union(setElemsA, setElemsB, member);
   render(newSet);
   return true;
@@ -81,38 +106,48 @@ var union = function (setNameA, setNameB)
 // Perform the intersection of the sets specified by the user interface.
 var intersection = function (setNameA, setNameB)
 {
-  var setElemsA = mod.getSet(setNameA)[1];
-  var setElemsB = mod.getSet(setNameB)[1];
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
   var newSet = sets.intersection(setElemsA, setElemsB, member);
   render(newSet);
-  return mod;
+  return true;
 };
 
 // Perform the relative complement of the sets specified by the user
 // interface.
 var relativeComplement = function (setName1, setName2)
 {
-  var setElems1 = mod.getSet(setName1)[1];
-  var setElems2 = mod.getSet(setName2)[1];
+  'use strict';
+
+  var setElems1 = getSet(setName1)[1];
+  var setElems2 = getSet(setName2)[1];
   var newSet = sets.relativeComplement(setElems1, setElems2, member);
   render(newSet);
-  return mod;
+
+  return true;
 };
 
 // Perform the symmetric difference of the sets specified by the user
 // interface.
 var symmetricDifference = function (setNameA, setNameB)
 {
-  var setElemsA = mod.getSet(setNameA)[1];
-  var setElemsB = mod.getSet(setNameB)[1];
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
   var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
   render(newSet);
-  return mod;
+
+  return true;
 };
 
 // Get the sets saved in session storage
-var getSets = function ()
+getSets = function ()
 {
+  'use strict';
+
   var curr = window.sessionStorage.getItem(sessionKey());
   var retval = [];
 
@@ -127,23 +162,31 @@ var getSets = function ()
 // View a set.
 var view = function (setName)
 {
-  var elems = mod.getSet(setName)[1];
+  'use strict';
+
+  var elems = getSet(setName)[1];
   render(elems);
-  return mod;
+
+  return true;
 };
 
 // Remove a set.
 var remove = function (setName)
 {
+  'use strict';
+
   removeSet(setName);
   render([]);
   sender('sets-changed');
-  return mod;
+
+  return true;
 };
 
 // Perform set removal.
-var removeSet = function (setName)
+removeSet = function (setName)
 {
+  'use strict';
+
   var nnew;
   var curr = getSets();
   nnew = curr.filter(function (x)
@@ -151,12 +194,15 @@ var removeSet = function (setName)
     return x[0] !== setName;
   });
   setSets(nnew);
-  return mod;
+
+  return true;
 };
 
 // Retrieve the set names.
 var getSetNames = function ()
 {
+  'use strict';
+
   var curr = getSets();
   return curr.map(function (x)
   {
@@ -165,8 +211,10 @@ var getSetNames = function ()
 };
 
 // Save sets to session storage.
-var setSets = function (nnew)
+setSets = function (nnew)
 {
+  'use strict';
+
   var procSets;
   if (Array.isArray(nnew))
   {
@@ -187,6 +235,8 @@ var setSets = function (nnew)
 // Save a set to session storage.
 var setSet = function (nnew)
 {
+  'use strict';
+
   if (Array.isArray(nnew) && nnew.length === 2)
   {
     var curr = getSets();
@@ -203,6 +253,8 @@ var setSet = function (nnew)
 // Convert selected search results or a selected elements to an array.
 var selectedToArray = function (target)
 {
+  'use strict';
+
   var retval = [];
 
   switch (target)
@@ -219,8 +271,10 @@ var selectedToArray = function (target)
 };
 
 // Convert selected elements to an array.
-var selectedElementsToArray = function ()
+selectedElementsToArray = function ()
 {
+  'use strict';
+
   var retval;
   var selected = $('input.set-element-selection:checked');
 
@@ -235,8 +289,10 @@ var selectedElementsToArray = function ()
 };
 
 // Convert selected search results to an array.
-var selectedSaveResultsToArray = function ()
+selectedSaveResultsToArray = function ()
 {
+  'use strict';
+
   var retval;
   var selected = $('table.selected-for-save tr');
 
@@ -251,8 +307,10 @@ var selectedSaveResultsToArray = function ()
 };
 
 // Render the set for display.
-var render = function (setElems)
+render = function (setElems)
 {
+  'use strict';
+
   var total = setElems.length;
   var elems = setElems.map(function (x)
   {
@@ -275,6 +333,8 @@ var render = function (setElems)
 // Retrieve a set.
 var getSet = function (setName)
 {
+  'use strict';
+
   var retval;
   var curr = getSets();
   retval = curr.filter(function (x)
@@ -287,6 +347,8 @@ var getSet = function (setName)
 // Perform a set operation.
 var performOp = function ()
 {
+  'use strict';
+
   switch (op().val())
   {
   case 'view-a':
@@ -325,6 +387,8 @@ var performOp = function ()
 // Update the selection of sets to choose from.
 var updateSelection = function ()
 {
+  'use strict';
+
   var currNames = getSetNames();
   var newOptions = templates['set-options'].render(
   {
@@ -333,12 +397,15 @@ var updateSelection = function ()
   setA().html(newOptions);
   setB().html(newOptions);
   worksheetsSet().html(newOptions);
-  return mod;
+
+  return true;
 };
 
 // Save select items as a set.
 var saveSelected = function ()
 {
+  'use strict';
+
   var dialog = $('#new-set-dialog');
   var name = $('#new-set-input').val();
   var target = $('#new-set-target-input').val();
@@ -366,6 +433,8 @@ var saveSelected = function ()
 // Toggle the selection of all elements.
 var toggleSelectAll = function (target)
 {
+  'use strict';
+
   if ($(target).is(':checked'))
   {
     $('input.set-element-selection').prop('checked', true);

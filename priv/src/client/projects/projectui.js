@@ -7,13 +7,14 @@
 // Variable Definitions
 
 var form = require('../form.js');
+var init;
 
 // Internal functions
 
 // Delete the project with the given ID.
 var deleteProject = function (id)
 {
-  'user strict';
+  'use strict';
 
   if (window.confirm('Are you sure? This is permanent.'))
   {
@@ -27,7 +28,7 @@ var deleteProject = function (id)
       {
         if (req.status === 204)
         {
-          mod.init();
+          init();
         }
         else
         {
@@ -43,7 +44,7 @@ var deleteProject = function (id)
 // Add a project.
 var add = function ()
 {
-  'user strict';
+  'use strict';
 
   var projectName = $('#project-name');
   var projectDescription = $('#project-description');
@@ -81,7 +82,7 @@ var add = function ()
             {
               if (req.status === 201)
               {
-                mod.init();
+                init();
               }
               else
               {
@@ -109,18 +110,18 @@ var add = function ()
 // Add a project.
 var del = function (target)
 {
-  'user strict';
+  'use strict';
 
   var id = $(target).attr('id');
   deleteProject(id);
 
-  return mod;
+  return true;
 };
 
 // Initialize the interface.
-var init = function ()
+init = function ()
 {
-  'user strict';
+  'use strict';
 
   var url = '/projects/index';
 

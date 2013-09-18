@@ -19,24 +19,32 @@ var fieldsets = require('./fieldsets.js');
 // User interface element
 var dv = function ()
 {
+  'use strict';
+
   return $('#document-view');
 };
 
 // User interface element
 var dvt = function ()
 {
+  'use strict';
+
   return $('#document-view-tree');
 };
 
 // User interface element
 var viewInfo = function ()
 {
+  'use strict';
+
   return $('#document-view-info');
 };
 
 // Make an object where fieldsets with deletions are identified.
 var getDeletions = function (changes)
 {
+  'use strict';
+
   return Object.keys(changes).reduce(function (acc, x)
   {
     // If it was changed and there is no new value, it was deleted.
@@ -57,6 +65,8 @@ var getDeletions = function (changes)
 // Process the document from the server.
 var processIncoming = function (docJson, rev)
 {
+  'use strict';
+
   var withDeletions = {};
 
   if (docJson.changes)
@@ -147,6 +157,8 @@ var processIncoming = function (docJson, rev)
 // to the current time zone.
 var formatTimestamps = function ()
 {
+  'use strict';
+
   $('.timestamp').each(
 
   function (i, item)
@@ -164,6 +176,8 @@ var formatTimestamps = function ()
 // Get the document.
 var get = function (id, rev, callback)
 {
+  'use strict';
+
   var url = 'documents/' + id;
   var htmlTarget = dv();
   var tmpl;
@@ -233,6 +247,8 @@ var get = function (id, rev, callback)
 // Restore the state of a document to that of an earlier revision.
 var restore = function (id, rev)
 {
+  'use strict';
+
   var url = './documents/' + id + '?rev=' + rev;
   var restoreButton = $('#document-restore-button');
   var skey = $('#first-index-element').attr('data-first-key');
@@ -283,6 +299,8 @@ var restore = function (id, rev)
 // Delete the document.
 var del = function (id, rev)
 {
+  'use strict';
+
   var url = './documents/' + id + '?rev=' + rev;
   var restoreButton = $('#document-restore-button');
   var skey = $('#first-index-element').attr('data-first-key');
@@ -337,6 +355,8 @@ var del = function (id, rev)
 // Confirm an action.
 var confirmIt = function (callback)
 {
+  'use strict';
+
   if (window.confirm('Are you sure?'))
   {
     var s = store(viewInfo());
@@ -352,6 +372,8 @@ var confirmIt = function (callback)
 // Move the document to the editor.
 var edit = function ()
 {
+  'use strict';
+
   editui.resetFields();
   if ($('#document-view-tree').hasClass('oldrev'))
   {
@@ -369,6 +391,8 @@ var edit = function ()
 // Ask for confirmation on deletion.
 var confirmDelete = function ()
 {
+  'use strict';
+
   var s = store(viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
@@ -381,6 +405,8 @@ var confirmDelete = function ()
 // Ask for confirmation on restoration.
 var confirmRestore = function ()
 {
+  'use strict';
+
   var s = store(viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
@@ -393,6 +419,8 @@ var confirmRestore = function ()
 // Expand and collapse elements of the view tree.
 var collapseToggle = function (target)
 {
+  'use strict';
+
   $(target).parent('li').toggleClass('collapsed');
 
   return true;
@@ -401,6 +429,8 @@ var collapseToggle = function (target)
 // Get a previous revision.
 var fetchRevision = function (target)
 {
+  'use strict';
+
   var s = store($(target));
   var id = s.d('document');
   var oldrev = s.d('oldrev');

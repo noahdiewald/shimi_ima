@@ -1,39 +1,48 @@
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// # The Client Code Entry Point
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// This is the entry point for the client side code. This is where
+// basic initializations take place and helper functions are added to
+// JavaScript Objects. The 'onload' code is here.
+
+// ## Variable Definitions
+
+// A place to temporarily store global objects. Sometimes this is more
+// convenient than using other types of client side storage. It is used
+// rarely and explicitly using this object.
 var shimi = {};
-
-shimi.utils = require('./utils.js');
-shimi.csv = require('./csv.js');
-shimi.sets = require('./sets.js');
-shimi.flash = require('./flash.js');
-shimi.store = require('./store.js');
-shimi.path = require('./path.js');
-require('./jquery.hotkeys.js');
-require('./jquery-ui-input-state.js');
-require('./click-dispatch.js');
-require('./keystrokes.js');
-require('./changes.js');
-require('./gen-dispatch.js');
-shimi.pager = require('./pager.js');
-shimi.panelToggle = require('./panel-toggle.js');
-shimi.form = require('./form.js');
-shimi.sess = require('./sess.js');
-shimi.config = require('./config/config.js');
-shimi.documents = require('./documents/documents.js');
-shimi.fm = require('./file_manager/fm.js');
-shimi.ilistingui = require('./index_tool/ilistingui.js');
-shimi.projectui = require('./projects/projectui.js');
-
-// A place to temporarily store global objects
 shimi.globals = {};
 
-// functions added to String
+require('./jquery-ui-input-state.js');
+
+var clickDispatch = require('./click-dispatch.js').clickDispatch;
+var dblclickDispatch = require('./dblclick-dispatch.js').dblclickDispatch;
+var changes = require('./changes.js').changes;
+var keystrokes = require('./keystrokes.js').keystrokes;
+var form = require('./form.js');
+
+// These are the basic sub-application entry points.
+var documents = require('./documents/documents.js');
+var fm = require('./file_manager/fm.js');
+var ilistingui = require('./index_tool/ilistingui.js');
+var projectui = require('./projects/projectui.js');
+var config = require('./config/config.js');
+
+// ## Extensions to String and Array Objects
+
+// ### Functions added to String
+
+// This is a poorly implement `isBlank` predicate.
 String.prototype.isBlank = function ()
 {
   'use strict';
 
-  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
+  return ((/^\s*$/).test(this) && !(/\S/).test(this));
 };
 
+// Remove white space at the beginning and end of string.
 String.prototype.trim = function ()
 {
   'use strict';
@@ -41,7 +50,9 @@ String.prototype.trim = function ()
   return this.replace(/^\s+/, '').replace(/\s+$/, '');
 };
 
-// functions added to Array
+// ### Functions added to Array
+
+// Remove white space on all strings in array.
 Array.prototype.trimAll = function ()
 {
   'use strict';
@@ -55,14 +66,38 @@ Array.prototype.trimAll = function ()
   });
 };
 
+// ## On Load
+
+// Using the JQuery function for running code after the page loads.
 $(function ()
 {
   'use strict';
 
+  // All clicks handled centraly
+  $('body').click(function (e)
+  {
+    clickDispatch(e);
+  });
+
+  // All double clicks handled centraly
+  $('body').dblclick(function (e)
+  {
+    dblclickDispatch(e);
+  });
+
+  // Other event handling
+  keystrokes();
+  changes();
+
+  // Hide notification boxes.
+  // TODO: move to stylesheets
   $('.notification').hide();
 
+  // Hide ajax loading indicator.
+  // TODO: move to stylesheets
   $('#loading').hide();
 
+  // Show and hide the AJAX loading indicator.
   $(document).ajaxStart(function ()
   {
     $('#loading').show();
@@ -71,146 +106,125 @@ $(function ()
     $('#loading').hide();
   });
 
-  shimi.form.initDateFields();
+  // Initialize any data fields, which use JQueryUI.
+  form.initDateFields();
 
-  // Config
+  // ### Determine the sub-application.
+  //
+  // TODO: With the CommonJS module system there should be a better way
+  // of sharing code between these sub-applications.
+
+  // Detect if this is the configuration sub-application
   if ($('#configuration').length > 0)
   {
-    shimi.initTabs();
-    $('.simple-tabs').tabs();
+    config.init();
   }
 
-  // Documents
+  // Detect if this is the document editing sub-application
   if ($('#all-document-container').length > 0)
   {
-    shimi.documents.init();
+    documents.init();
   }
 
-  // File Manager
+  // Detect if this is the file manager sub-application
   if ($('#file-upload').length > 0)
   {
-    shimi.fm.init();
+    fm.init();
   }
 
-  // Index Tool
+  // Detect if this is the index tool sub-application
   if ($('#all-index-container').length > 0)
   {
-    shimi.ilistingui.init();
+    ilistingui.init();
   }
 
-  // Project
+  // Detect if this is the project creation sub-application
   if ($('#projects-container').length > 0)
   {
-    shimi.projectui.init();
+    projectui.init();
   }
 });
 
-},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./csv.js":15,"./documents/documents.js":18,"./file_manager/fm.js":26,"./flash.js":27,"./form.js":28,"./gen-dispatch.js":29,"./index_tool/ilistingui.js":33,"./jquery-ui-input-state.js":38,"./jquery.hotkeys.js":39,"./keystrokes.js":40,"./pager.js":42,"./panel-toggle.js":43,"./path.js":44,"./projects/projectui.js":45,"./sess.js":46,"./sets.js":47,"./store.js":48,"./utils.js":49}],2:[function(require,module,exports){
-$(document).on('change', '#document-search-exclude', function (e)
+},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./dblclick-dispatch.js":15,"./documents/documents.js":19,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ilistingui.js":33,"./jquery-ui-input-state.js":37,"./keystrokes.js":39,"./projects/projectui.js":43}],2:[function(require,module,exports){
+// # Change Event Handling
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Like [`click-dispatch.js`](./click-dispatch.html) I would like
+// to centralize the 'change' events. This is a start and a bit of
+// an experiment. It uses the JQuery `on()` function, which was not
+// available when I first began programming this application.
+
+// ## Variable Definitions
+
+var searchui = require('./documents/searchui.js');
+
+// ## Exported Functions
+
+// Run to add event listeners to `document`.
+var changes = function ()
 {
   'use strict';
 
-  shimi.searchui.toggleExclusion();
-  return true;
-});
+  // ### Search UI Change Events
 
-$(document).on('change', '#document-search-invert', function (e)
-{
-  'use strict';
-
-  shimi.searchui.toggleInversion();
-  return true;
-});
-
-},{}],3:[function(require,module,exports){
-shimi.dispatcher = function (patterns)
-{
-  'use strict';
-
-  var d = function (e)
+  $(document).on('change', '#document-search-exclude', function (e)
   {
-    var target = $(e.target);
-
-    Object.keys(patterns).forEach(function (pattern)
-    {
-      if (target.is(pattern))
-      {
-        var action = patterns[pattern];
-        action(target);
-      }
-    });
-  };
-
-  return d;
-};
-
-shimi.dblclickDispatch = function (e)
-{
-  'use strict';
-
-  var searchui = shimi.searchui;
-  var worksheetui = shimi.worksheetui;
-
-  var action = shimi.dispatcher(
-  {
-    '.search-result-field-id a': function (t)
-    {
-      searchui.addField($(t).parent('h5'));
-    },
-    '.field-view b': function (t)
-    {
-      searchui.addField($(t).parent('li'));
-    },
-    '.field-container label span': function (t)
-    {
-      searchui.addField($(t).parent('label').parent('div'));
-    },
-    '#index-index-input-label': function ()
-    {
-      searchui.addIndex();
-    },
-    '.panel > h2': function (t)
-    {
-      shimi.panelToggle.toggler(t);
-    },
-    '#toggle-handles': function (t)
-    {
-      worksheetui.hideHandles();
-    },
-    '.fieldset-handle': function (t)
-    {
-      worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
-    },
-    '.field-handle': function (t)
-    {
-      worksheetui.hideField($(t).attr('data-field-field'));
-    }
+    searchui.toggleExclusion();
+    return true;
   });
 
-  action(e);
+  $(document).on('change', '#document-search-invert', function (e)
+  {
+    searchui.toggleInversion();
+    return true;
+  });
 };
 
-shimi.clickDispatch = function (e)
+exports(changes);
+
+},{"./documents/searchui.js":23}],3:[function(require,module,exports){
+// # Dispatching click events
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// Almost all click events that are handled by the system are listed
+// here. With [sender.js](./sender.html) and other dispatchers,
+// the hope is to centralize effects and interdependencies. At some
+// point I may use a more sophisticated approach.
+
+// ## Variable Definitions
+
+var sender = require('./sender.js').sender;
+var dispatcher = require('./dispatcher.js').dispatcher;
+var panelToggler = require('./panel-toggle.js').panelToggler;
+var doctypeTab = require('./config/doctype-tab.js');
+var charseqTab = require('./config/charseq-tab');
+var editui = require('./documents/editui.js');
+var viewui = require('./documents/viewui.js');
+var indexui = require('./documents/indexui.js');
+var setsui = require('./documents/setsui.js');
+var searchui = require('./documents/searchui.js');
+var worksheetui = require('./documents/worksheetui.js');
+var fieldsets = require('./documents/fieldsets.js');
+var ieditui = require('./index_tool/ieditui.js');
+var form = require('./form.js');
+var projectui = require('./projects/projectui.js');
+var fm = require('./file_manager/fm.js');
+var config = require('./config/config.js');
+
+// ## Exported Functions
+
+// Given a click event, determine what action to take based on the
+// click target.
+var clickDispatch = function (e)
 {
   'use strict';
 
-  var doctypeTab = shimi.doctypeTab;
-  var charseqTab = shimi.charseqTab;
-  var editui = shimi.editui;
-  var viewui = shimi.viewui;
-  var indexui = shimi.indexui;
-  var setsui = shimi.setsui;
-  var searchui = shimi.searchui;
-  var worksheetui = shimi.worksheetui;
-  var fieldsets = shimi.fieldsets;
-  var ieditui = shimi.ieditui;
-  var form = shimi.form;
-  var projectui = shimi.projectui;
-  var fm = shimi.fm;
-
-  var action = shimi.dispatcher(
+  var action = dispatcher(
   {
-    // Config
+    // ### Config
+
     '.edit-field-button': function (t)
     {
       doctypeTab.editField(t);
@@ -265,10 +279,11 @@ shimi.clickDispatch = function (e)
     },
     '#maintenance-upgrade-button': function (t)
     {
-      shimi.upgradeButton(t);
+      config.upgradeButton(t);
     },
 
-    // Documents
+    // ### Documents
+
     '.add-button': function (t)
     {
       fieldsets.initFieldset(t, false, true);
@@ -341,7 +356,7 @@ shimi.clickDispatch = function (e)
     },
     '#new-set-save-button': function ()
     {
-      shimi.dispatch.send('new-set-form-submit');
+      sender('new-set-form-submit');
     },
     '#select-all-set-elements': function (t)
     {
@@ -392,7 +407,8 @@ shimi.clickDispatch = function (e)
       worksheetui.hideField($(t).attr('data-field-field'));
     },
 
-    // Index Tool
+    // ### Index Tool
+
     '#new-index-button': function (t)
     {
       ieditui.newCond();
@@ -422,7 +438,8 @@ shimi.clickDispatch = function (e)
       ieditui.init(t);
     },
 
-    // Project
+    // ### Project
+
     '#create-project': function ()
     {
       projectui.add().dialog('open');
@@ -432,7 +449,8 @@ shimi.clickDispatch = function (e)
       projectui.del(t);
     },
 
-    // File Manager
+    // ### File Manager
+
     '#up-dir': function ()
     {
       fm.upDir();
@@ -454,7 +472,8 @@ shimi.clickDispatch = function (e)
       fm.editFile(t);
     },
 
-    // General
+    // ### General
+
     '.toggler': function (t)
     {
       form.toggle(t);
@@ -465,33 +484,33 @@ shimi.clickDispatch = function (e)
     },
     '#panel-toggle li': function (t)
     {
-      shimi.panelToggle.toggler(t);
+      panelToggler(t);
     }
-    //'.remove-button': function(t) {$(t).parent().remove();}
   });
 
   action(e);
 };
 
-$(function ()
-{
-  'use strict';
-  $('body').click(function (e)
-  {
-    shimi.clickDispatch(e);
-  });
-  $('body').dblclick(function (e)
-  {
-    shimi.dblclickDispatch(e);
-  });
-});
+exports(clickDispatch);
 
-},{}],4:[function(require,module,exports){
+},{"./config/charseq-tab":6,"./config/config.js":7,"./config/doctype-tab.js":10,"./dispatcher.js":16,"./documents/editui.js":20,"./documents/fieldsets.js":21,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/viewui.js":25,"./documents/worksheetui.js":26,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ieditui.js":31,"./panel-toggle.js":41,"./projects/projectui.js":43,"./sender.js":44}],4:[function(require,module,exports){
+// # Charseq manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var charseqElems = require('./charseq-elems.js').charseqElems;
+var charseqTab = require('./charseq-tab.js').charseqTab;
+var form = require('../form.js');
+
+// Exported functions
+
 // Dialog for manipulating doctypes
-shimi.charseqDialog = function (values)
+var charseqDialog = function (values)
 {
   'use strict';
-  var f = shimi.charseqElems.get(values);
+  var f = charseqElems.get(values);
 
   var dialog = $('#charseq-dialog').dialog(
   {
@@ -507,7 +526,7 @@ shimi.charseqDialog = function (values)
         var method = 'POST';
         var complete = function (context)
         {
-          shimi.charseqTab.init();
+          charseqTab.init();
           $(context).dialog('close');
         };
 
@@ -517,7 +536,7 @@ shimi.charseqDialog = function (values)
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
 
-        shimi.form.send(url, obj, method, complete, this);
+        form.send(url, obj, method, complete, this);
       },
       'Cancel': function ()
       {
@@ -533,35 +552,25 @@ shimi.charseqDialog = function (values)
   return dialog;
 };
 
-},{}],5:[function(require,module,exports){
-/*
- * Copyright 2011 University of Wisconsin Madison Board of Regents.
- *
- * This file is part of dictionary_maker.
- *
- * dictionary_maker is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * dictionary_maker is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
- *
- * Author Noah Diewald <noah@diewald.me>
- *
- * About this file
- *
- * A charaseq is a collection of information used in definining properies
- * of a script, including some phonological information and information
- * used for collation of items written in the script.
- */
+exports(charseqDialog);
 
-shimi.charseqElems = (function ()
+},{"../form.js":29,"./charseq-elems.js":5,"./charseq-tab.js":6}],5:[function(require,module,exports){
+// # Working with elements of a charseq manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+//
+// A charaseq is a collection of information used in definining properies
+// of a script, including some phonological information and information
+// used for collation of items written in the script.
+
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
+// Return object for working with charseq elements
+var charseqElems = (function ()
 {
   'use strict';
 
@@ -618,7 +627,7 @@ shimi.charseqElems = (function ()
 
     cObj.clear = function ()
     {
-      shimi.form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
 
@@ -638,8 +647,24 @@ shimi.charseqElems = (function ()
   return mod;
 })();
 
-},{}],6:[function(require,module,exports){
-shimi.charseqTab = (function ()
+exports(charseqElems);
+
+},{"../form.js":29}],6:[function(require,module,exports){
+// # Charseq tab initialization
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var charseqDialog = require('./charseq-dialog.js').charseqDialog;
+var charseqElems = require('./charseq-elems.js').charseqElems;
+var store = require('../store.js').store;
+var form = require('../form.js');
+
+// Exported functions
+
+// Object containing initialization and other functions.
+var charseqTab = (function ()
 {
   'use strict';
 
@@ -647,27 +672,27 @@ shimi.charseqTab = (function ()
 
   mod.add = function ()
   {
-    shimi.charseqDialog().dialog('open');
+    charseqDialog().dialog('open');
     return mod;
   };
 
   mod.edit = function (target)
   {
     var oldobj = {};
-    var attrs = shimi.charseqElems.attrs;
+    var attrs = charseqElems.attrs;
 
     attrs.forEach(function (item)
     {
-      oldobj[item] = shimi.store(target).get64('charseq-' + item);
+      oldobj[item] = store(target).get64('charseq-' + item);
     });
-    shimi.charseqDialog(oldobj).dialog('open');
+    charseqDialog(oldobj).dialog('open');
 
     return mod;
   };
 
   mod.del = function (target)
   {
-    var s = shimi.store(target);
+    var s = store(target);
     var id = s.get('charseq-charseq');
     var rev = s.get('charseq-rev');
     var url = 'config/charseqs/' + id + '?rev=' + rev;
@@ -678,7 +703,7 @@ shimi.charseqTab = (function ()
 
     if (window.confirm('Are you sure? This is permanent.'))
     {
-      shimi.form.send(url,
+      form.send(url,
       {}, 'DELETE', complete, this);
     }
 
@@ -710,8 +735,31 @@ shimi.charseqTab = (function ()
   return mod;
 })();
 
-},{}],7:[function(require,module,exports){
-shimi.upgradeButton = function (target)
+exports(charseqTab);
+
+},{"../form.js":29,"../store.js":47,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
+// # Config Sub-App Init
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Initialization of the sub-application used to configure the system and
+// define doctypes. It also includes code for the upgrade button element,
+// for very little reason.
+
+// ## Variable Definitions
+
+var doctypeTab = require('./doctype-tab.js').doctypeTab;
+var charseqTab = require('./charseq-tab.js').charseqTab;
+
+// ## Exported Functions
+
+// When the upgrade button is pressed in the configuration UI, this
+// will carry out the necessary action. It will make an empty `POST`
+// to the upgrade path and alert the user that this was done.
+//
+// TODO: This is basically here until the upgrad functionality is fleshed
+// out and gets its own module.
+var upgradeButton = function ()
 {
   'use strict';
 
@@ -719,24 +767,40 @@ shimi.upgradeButton = function (target)
   window.alert('Upgrade In Progress');
 };
 
-shimi.initTabs = function ()
+// Run initialization code for the configuration sub-application.
+var init = function ()
 {
   'use strict';
 
-  shimi.doctypeTab.init();
+  doctypeTab.init();
   $('#main-tabs').tabs();
-  shimi.charseqTab.init();
+  charseqTab.init();
+  $('.simple-tabs').tabs();
 
   return true;
 };
 
-},{}],8:[function(require,module,exports){
+exports(upgradeButton);
+exports(init);
+
+},{"./charseq-tab.js":6,"./doctype-tab.js":10}],8:[function(require,module,exports){
+// # Doctype manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var doctypeElems = require('./doctype-elems.js').doctypeElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
 // Dialog for manipulating doctypes
-shimi.doctypeDialog = function (url, values)
+var doctypeDialog = function (url, values)
 {
   'use strict';
 
-  var f = shimi.doctypeElems.get(values);
+  var f = doctypeElems.get(values);
 
   if (values.rev && !values.rev.isBlank())
   {
@@ -758,7 +822,7 @@ shimi.doctypeDialog = function (url, values)
         var obj = f.getDoctypeInputVals();
         var complete = function (context)
         {
-          shimi.doctypeTab.init();
+          doctypeTab.init();
           $(context).dialog('close');
         };
 
@@ -786,10 +850,22 @@ shimi.doctypeDialog = function (url, values)
   return dialog;
 };
 
-},{}],9:[function(require,module,exports){
+exports(doctypeDialog);
+
+},{"./doctype-elems.js":9,"./doctype-tab.js":10}],9:[function(require,module,exports){
+// # Working with elements of a doctype manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions.
-shimi.doctypeElems = (function ()
+var doctypeElems = (function ()
 {
   'use strict';
 
@@ -822,7 +898,7 @@ shimi.doctypeElems = (function ()
 
     fObj.clear = function ()
     {
-      shimi.form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
@@ -839,8 +915,28 @@ shimi.doctypeElems = (function ()
   return mod;
 })();
 
-},{}],10:[function(require,module,exports){
-shimi.doctypeTab = (function ()
+exports(doctypeElems);
+
+},{"../form.js":29}],10:[function(require,module,exports){
+// # Doctype tab initialization
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var doctypeDialog = require('./doctype-dialog.js').doctypeDialog;
+var doctypeElems = require('./doctype-elems.js').doctypeElems;
+var fieldDialog = require('./field-dialog.js').fieldDialog;
+var fieldElems = require('./field-elems.js').fieldElems;
+var fieldsetDialog = require('./fieldset-dialog.js').fieldsetDialog;
+var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
+var store = require('../store.js').store;
+var path = require('../store.js').path;
+
+// Exported functions
+
+// Object containing initialization and other functions.
+var doctypeTab = (function ()
 {
   'use strict';
 
@@ -848,7 +944,7 @@ shimi.doctypeTab = (function ()
 
   var cpath = function (source, category)
   {
-    return shimi.path(source, category, 'config');
+    return path(source, category, 'config');
   };
 
   // Populate the listing of fields
@@ -906,7 +1002,7 @@ shimi.doctypeTab = (function ()
       var loadFun = function (event, ui)
       {
         var source = $(ui.panel).children('div[data-fieldset-doctype]');
-        var fieldsetsPath = shimi.path(source, 'fieldset', 'config');
+        var fieldsetsPath = path(source, 'fieldset', 'config');
         mod.initFieldsets(fieldsetsPath);
       };
 
@@ -925,7 +1021,7 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'field');
     var oldobj = {};
-    var attrs = shimi.fieldElems.attrs;
+    var attrs = fieldElems.attrs;
     var charseqUrl = 'config/charseqs?as=options';
 
     $.get(charseqUrl, function (charseqs)
@@ -933,9 +1029,9 @@ shimi.doctypeTab = (function ()
       $('#field-charseq-input').html(charseqs);
       attrs.forEach(function (item)
       {
-        oldobj[item] = shimi.store(target).get('field-' + item);
+        oldobj[item] = store(target).get('field-' + item);
       });
-      shimi.fieldDialog(url, oldobj).dialog('open');
+      fieldDialog(url, oldobj).dialog('open');
     });
   };
 
@@ -967,7 +1063,7 @@ shimi.doctypeTab = (function ()
     $.get(charseqUrl, function (charseqs)
     {
       $('#field-charseq-input').html(charseqs);
-      shimi.fieldDialog(url,
+      fieldDialog(url,
       {
         fieldset: url.fieldset,
         doctype: url.doctype
@@ -980,14 +1076,14 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'fieldset');
     var oldobj = {};
-    var attrs = shimi.fieldsetElems.attrs;
+    var attrs = fieldsetElems.attrs;
 
     attrs.forEach(function (item)
     {
-      oldobj[item] = shimi.store(target).get('fieldset-' + item);
+      oldobj[item] = store(target).get('fieldset-' + item);
     });
 
-    shimi.fieldsetDialog(url, oldobj).dialog('open');
+    fieldsetDialog(url, oldobj).dialog('open');
   };
 
   // Button that opens a dialog for deleting a fieldset
@@ -1012,7 +1108,7 @@ shimi.doctypeTab = (function ()
   mod.addFieldset = function (target)
   {
     var url = cpath(target, 'fieldset');
-    shimi.fieldsetDialog(url,
+    fieldsetDialog(url,
     {
       doctype: url.doctype
     }).dialog('open');
@@ -1022,18 +1118,18 @@ shimi.doctypeTab = (function ()
   {
     var url = cpath(target, 'doctype');
     var oldobj = {};
-    var attrs = shimi.doctypeElems.attrs;
+    var attrs = doctypeElems.attrs;
 
     attrs.forEach(function (item)
     {
-      oldobj[item] = shimi.store(target).get('doctype-' + item);
+      oldobj[item] = store(target).get('doctype-' + item);
     });
-    shimi.doctypeDialog(url, oldobj).dialog('open');
+    doctypeDialog(url, oldobj).dialog('open');
   };
 
   mod.touchDoctype = function (target)
   {
-    var docid = shimi.store(target).get('doctype-doctype');
+    var docid = store(target).get('doctype-doctype');
     $.post('config/doctypes/' + docid + '/touch');
     window.alert('Touch In Progress');
   };
@@ -1057,20 +1153,31 @@ shimi.doctypeTab = (function ()
   mod.addDoctype = function (target)
   {
     var url = cpath(target, 'doctype');
-    shimi.doctypeDialog(url,
+    doctypeDialog(url,
     {}).dialog('open');
   };
 
   return mod;
 })();
 
-},{}],11:[function(require,module,exports){
+},{"../store.js":47,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
+// # Field manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var fieldElems = require('./field-elems.js').fieldElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
 // Dialog for manipulating fields
-shimi.fieldDialog = function (url, values)
+var fieldDialog = function (url, values)
 {
   'use strict';
 
-  var f = shimi.fieldElems.get(values);
+  var f = fieldElems.get(values);
 
   var dialog = $('#field-dialog').dialog(
   {
@@ -1083,7 +1190,7 @@ shimi.fieldDialog = function (url, values)
         var obj = f.clearDisabled().getFieldInputVals();
         var complete = function (context)
         {
-          shimi.doctypeTab.initFields(url);
+          doctypeTab.initFields(url);
           $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank())
@@ -1110,10 +1217,23 @@ shimi.fieldDialog = function (url, values)
   return dialog;
 };
 
-},{}],12:[function(require,module,exports){
+exports(fieldDialog);
+
+},{"./doctype-tab.js":10,"./field-elems.js":12}],12:[function(require,module,exports){
+// # Working with elements of a field manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+var utils = require('../utils.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions.
-shimi.fieldElems = (function ()
+var fieldElems = (function ()
 {
   'use strict';
 
@@ -1199,7 +1319,7 @@ shimi.fieldElems = (function ()
 
     fObj.clear = function ()
     {
-      shimi.form.clear($('#field-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
@@ -1212,7 +1332,7 @@ shimi.fieldElems = (function ()
       }
       else
       {
-        return shimi.utils().stringToNumber(bound);
+        return utils.stringToNumber(bound);
       }
     };
 
@@ -1294,12 +1414,26 @@ shimi.fieldElems = (function ()
   return mod;
 })();
 
-},{}],13:[function(require,module,exports){
-shimi.fieldsetDialog = function (url, values)
+exports(fieldElems);
+
+},{"../form.js":29,"../utils.js":48}],13:[function(require,module,exports){
+// # Fieldset manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
+// Dialog for manipulating fieldsets
+var fieldsetDialog = function (url, values)
 {
   'use strict';
 
-  var f = shimi.fieldsetElems.get(values);
+  var f = fieldsetElems.get(values);
 
   var dialog = $('#fieldset-dialog').dialog(
   {
@@ -1315,7 +1449,7 @@ shimi.fieldsetDialog = function (url, values)
           url.fieldset = false;
           url.rev = false;
 
-          shimi.doctypeTab.initFieldsets(url);
+          doctypeTab.initFieldsets(url);
           $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank())
@@ -1342,10 +1476,22 @@ shimi.fieldsetDialog = function (url, values)
   return dialog;
 };
 
-},{}],14:[function(require,module,exports){
+exports(fieldsetDialog);
+
+},{"./doctype-tab.js":10,"./fieldset-elems.js":14}],14:[function(require,module,exports){
+// # Working with elements of a fieldset manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions.
-shimi.fieldsetElems = (function ()
+var fieldsetElems = (function ()
 {
   'use strict';
 
@@ -1392,7 +1538,7 @@ shimi.fieldsetElems = (function ()
 
     fObj.clear = function ()
     {
-      shimi.form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
@@ -1409,2942 +1555,3788 @@ shimi.fieldsetElems = (function ()
   return mod;
 })();
 
-},{}],15:[function(require,module,exports){
-shimi.sets = (function ()
+exports(fieldsetElems);
+
+},{"../form.js":29}],15:[function(require,module,exports){
+// # Dispatching double click events
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// Almost all double click events that are handled by the system are
+// listed here. With [sender.js](./sender.html) and other dispatchers,
+// the hope is to centralize effects and interdependencies. At some
+// point I may use a more sophisticated approach.
+
+// ## Variable Definitions
+
+var dispatcher = require('./dispatcher.js').dispatcher;
+var panelToggler = require('./panel-toggle.js').panelToggler;
+var searchui = require('./documents/searchui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// ## Exported Functions
+
+// Given a click event, determine what action to take based on the
+// click target.
+var dblclickDispatch = function (e)
 {
   'use strict';
 
-  var mod = {};
-
-  mod.arraysToCSV = function (a)
+  var action = dispatcher(
   {
-    return a.map(function (x)
+    '.search-result-field-id a': function (t)
     {
-      return x.map(function (y)
-      {
-        return '"' + y.toString().replace(/"/, '""') + '"';
-      }).join(',');
-    }).join('\n');
-  };
+      searchui.addField($(t).parent('h5'));
+    },
+    '.field-view b': function (t)
+    {
+      searchui.addField($(t).parent('li'));
+    },
+    '.field-container label span': function (t)
+    {
+      searchui.addField($(t).parent('label').parent('div'));
+    },
+    '#index-index-input-label': function ()
+    {
+      searchui.addIndex();
+    },
+    '.panel > h2': function (t)
+    {
+      panelToggler(t);
+    },
+    '#toggle-handles': function (t)
+    {
+      worksheetui.hideHandles();
+    },
+    '.fieldset-handle': function (t)
+    {
+      worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
+    },
+    '.field-handle': function (t)
+    {
+      worksheetui.hideField($(t).attr('data-field-field'));
+    }
+  });
 
-  return mod;
-})();
+  action(e);
+};
 
-},{}],16:[function(require,module,exports){
-shimi.changeui = (function ()
+exports(dblclickDispatch);
+
+},{"./dispatcher.js":16,"./documents/searchui.js":23,"./documents/worksheetui.js":26,"./panel-toggle.js":41}],16:[function(require,module,exports){
+// # Dispatcher for clicks and double clicks
+//
+// *Implicit depends:* DOM, JQuery
+//
+// See [`click-dispatch.js`](./click-dispatch.html) and
+// [`dblclick-dispatch.js`](./dblclick-dispatch.html).
+
+// # Exported Functions
+
+// Match the target to a pattern and run its action.
+var dispatcher = function (patterns)
 {
   'use strict';
 
-  var mod = {};
-  var pager = shimi.pager;
-
-  mod.get = function (startkey, startid, prevkeys, previds)
+  var d = function (e)
   {
-    var prefix = 'changelog';
-    var url = prefix;
-    var target = $('#' + prefix + '-listing');
+    var target = $(e.target);
 
-    var format = function (text)
+    Object.keys(patterns).forEach(function (pattern)
     {
-      var resp = JSON.parse(text);
-
-      resp.rows.map(function (item)
+      if (target.is(pattern))
       {
-        if (item.doc.changes)
-        {
-          item.doc.changes = Object.keys(item.doc.changes).map(function (key)
-          {
-            return item.doc.changes[key];
-          });
-        }
-      });
-
-      return resp;
-    };
-
-    pager(
-    {
-      prefix: 'changelog',
-      origin: 'changeui',
-      url: url,
-      format: format,
-      target: target
-    }).get(startkey, startid, prevkeys, previds);
-
-    return mod;
+        var action = patterns[pattern];
+        action(target);
+      }
+    });
   };
 
-  return mod;
-})();
+  return d;
+};
 
+exports(dispatcher);
 },{}],17:[function(require,module,exports){
-shimi.commands = (function ()
+// # Paging For Changes Listing
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Loads changes based on user suplied values.
+
+// Variable Definitions
+
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
 {
   'use strict';
 
-  var mod = {};
-  var commandInput = function ()
-  {
-    return document.getElementById('edit-command-input');
-  };
-  var commandDialog = function ()
-  {
-    return $('#command-dialog');
-  };
-  var setContext = function (elem, context)
-  {
-    return elem.attr('data-last-active', context);
-  };
-  var getContext = function (elem)
-  {
-    return elem.attr('data-last-active');
-  };
+  var prefix = 'changelog';
+  var url = prefix;
+  var target = $('#' + prefix + '-listing');
 
-  mod.execute = function (command)
+  var format = function (text)
   {
-    var restoreFocus = true;
+    var resp = JSON.parse(text);
 
-    switch (command)
+    resp.rows.map(function (item)
     {
-    case 'w':
-    case 'clear':
-      shimi.editui.clear();
-      break;
-    case 'c':
-    case 'create':
-      shimi.editui.create();
+      if (item.doc.changes)
+      {
+        item.doc.changes = Object.keys(item.doc.changes).map(function (key)
+        {
+          return item.doc.changes[key];
+        });
+      }
+    });
+
+    return resp;
+  };
+
+  pager(
+  {
+    prefix: 'changelog',
+    url: url,
+    format: format,
+    target: target
+  }).get();
+
+  return true;
+};
+
+exports(get);
+
+},{"../pager.js":40}],18:[function(require,module,exports){
+// # Keyboard shortcuts
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Handles the input area and command execution. Keyboard events are
+// handled in [keystrokes.js](./keystrokes.html).
+
+// Variable Definitions
+
+var editui = require('./editui.js');
+var sender = require('../sender.js').sender;
+
+// Internal functions
+
+var commandInput = function ()
+{
+  'use strict';
+
+  return document.getElementById('edit-command-input');
+};
+
+var commandDialog = function ()
+{
+  'use strict';
+
+  return $('#command-dialog');
+};
+
+var setContext = function (elem, context)
+{
+  'use strict';
+
+  return elem.attr('data-last-active', context);
+};
+
+var getContext = function (elem)
+{
+  'use strict';
+
+  return elem.attr('data-last-active');
+};
+
+// Exported functions
+
+// Lookup the command and perform an action.
+var execute = function (command)
+{
+  'use strict';
+
+  var restoreFocus = true;
+
+  switch (command)
+  {
+  case 'w':
+  case 'clear':
+    editui.clear();
+    break;
+  case 'c':
+  case 'create':
+    editui.create();
+    restoreFocus = false;
+    break;
+  case 's':
+  case 'save':
+    editui.save();
+    break;
+  case 'd':
+  case 'delete':
+    $('#document-view').show();
+    if ($('#document-delete-button').css('display') !== 'none')
+    {
+      $('#document-delete-button').click();
+    }
+    break;
+  case 'e':
+  case 'edit':
+    $('#document-view').show();
+    if ($('#document-edit-button').css('display') !== 'none')
+    {
+      $('#document-edit-button').click();
       restoreFocus = false;
-      break;
-    case 's':
-    case 'save':
-      shimi.editui.save();
-      break;
-    case 'd':
-    case 'delete':
-      $('#document-view').show();
-      if ($('#document-delete-button').css('display') !== 'none')
-      {
-        $('#document-delete-button').click();
-      }
-      break;
-    case 'e':
-    case 'edit':
-      $('#document-view').show();
-      if ($('#document-edit-button').css('display') !== 'none')
-      {
-        $('#document-edit-button').click();
-        restoreFocus = false;
-      }
-      break;
-    case 'r':
-    case 'restore':
-      $('#document-view').show();
-      if ($('#document-restore-button').css('display') !== 'none')
-      {
-        $('#document-restore-button').click();
-      }
-      break;
     }
-
-    if (restoreFocus)
+    break;
+  case 'r':
+  case 'restore':
+    $('#document-view').show();
+    if ($('#document-restore-button').css('display') !== 'none')
     {
-      var cdialog = commandDialog();
-      var context = getContext(cdialog);
-      $('#' + context).focus();
+      $('#document-restore-button').click();
     }
-    else
-    {
-      shimi.dispatch.send('lost-focus');
-    }
+    break;
+  }
 
-    shimi.dispatch.send('executed-command');
-    return mod;
-  };
-
-  mod.dialogOpen = function (context)
+  if (restoreFocus)
   {
-    var cinput = commandInput();
     var cdialog = commandDialog();
-    cinput.value = '';
-    setContext(cdialog, context).show();
-    cinput.focus();
-    return mod;
-  };
-
-  mod.dialogClose = function ()
+    var context = getContext(cdialog);
+    $('#' + context).focus();
+  }
+  else
   {
-    var cinput = commandInput();
-    var cdialog = commandDialog();
-    setContext(cdialog, '').hide();
-    cinput.value = '';
-    return mod;
-  };
+    sender('lost-focus');
+  }
 
-  return mod;
-})();
+  sender('executed-command');
+  return true;
+};
 
-},{}],18:[function(require,module,exports){
+// Open the command dialog
+var dialogOpen = function (context)
+{
+  'use strict';
+
+  var cinput = commandInput();
+  var cdialog = commandDialog();
+  cinput.value = '';
+  setContext(cdialog, context).show();
+  cinput.focus();
+  return true;
+};
+
+// Close the command dialog
+var dialogClose = function ()
+{
+  'use strict';
+
+  var cinput = commandInput();
+  var cdialog = commandDialog();
+  setContext(cdialog, '').hide();
+  cinput.value = '';
+  return true;
+};
+
+exports(execute);
+exports(dialogOpen);
+exports(dialogClose);
+
+},{"../sender.js":44,"./editui.js":20}],19:[function(require,module,exports){
+// # Documents sub-application
+//
+// *Implicit depends:* DOM, JQuery
+//
 // Shared document editing stuff plus initialization.
-shimi.documents = (function ()
+
+// Variable Definitions
+
+var setsui = require('./setsui.js');
+var editui = require('./editui.js');
+var viewui = require('./viewui.js');
+var indexui = require('./indexui.js');
+var changeui = require('./changeui.js');
+var sender = require('../sender.js').sender;
+var store = require('../store.js').store;
+var identifier;
+
+// Internal functions
+
+// In practice this is the select listing of the user created indexes
+// which is triggering the change event.
+//
+// *TODO* put this with other change handlers.
+var indexForm = function ()
 {
   'use strict';
 
-  var mod = {};
-
-  var indexForm = function ()
+  $('#index-filter-form select').change(function ()
   {
-    $('#index-filter-form select').change(function ()
+    indexui.get();
+  });
+
+  return true;
+};
+
+// If there is a hash at the end of the URL with a document ID specified,
+// this will pass the information on the correct funciont in `viewui`.
+var loadHash = function (urlHash)
+{
+  'use strict';
+
+  if (urlHash)
+  {
+    viewui.get(urlHash);
+  }
+
+  return true;
+};
+
+var allDocContainer = function ()
+{
+  'use strict';
+
+  return $('#all-document-container');
+};
+
+// Key used in retrieving cached information from session storage.
+var versionKey = function ()
+{
+  'use strict';
+
+  return identifier() + '_version';
+};
+
+// Key used in retrieving cached information from session storage.
+var infoKey = function ()
+{
+  'use strict';
+
+  return identifier() + '_info';
+};
+
+// Key used in retrieving cached information from session storage.
+var labelsKey = function ()
+{
+  'use strict';
+
+  return identifier() + '_labels';
+};
+
+// Store the doctype info in the session store.
+var storeDoctype = function (doctype)
+{
+  'use strict';
+
+  sessionStorage.setItem(infoKey(), doctype);
+  sender('doctype-info-ready');
+
+  return true;
+};
+
+// Exported functions
+
+// Get the stored doctype version.
+var getVersion = function ()
+{
+  'use strict';
+
+  return sessionStorage.getItem(versionKey());
+};
+
+// Get the most recent doctype version, which is placed in a `data`
+// attribute that is updated on page reloads.
+var getCurrentVersion = function ()
+{
+  'use strict';
+
+  return store(allDocContainer()).d('version');
+};
+
+// Check if the stored doctype version matches the version found in the
+// `data` attribute.
+var isCurrentVersionStored = function ()
+{
+  'use strict';
+
+  return (getVersion() && getVersion() === getCurrentVersion());
+};
+
+// Reset the doctype version
+var setVersion = function ()
+{
+  'use strict';
+
+  sessionStorage.setItem(versionKey(), getCurrentVersion());
+  sender('version-set');
+
+  return true;
+};
+
+// Clear the session storage
+var clearSession = function ()
+{
+  'use strict';
+
+  sessionStorage.clear();
+  sender('session-cleared');
+
+  return true;
+};
+
+// Check if the doctype version stored is current and report the current
+// state based on the result.
+var checkVersion = function ()
+{
+  'use strict';
+
+  if (isCurrentVersionStored())
+  {
+    sender('labels-ready');
+  }
+  else
+  {
+    sender('bad-session-state');
+  }
+
+  return true;
+};
+
+// Get the doctype name
+var dname = function ()
+{
+  'use strict';
+
+  return store($('#all-document-container')).d('doctype');
+};
+
+// Get the project id
+var project = function ()
+{
+  'use strict';
+
+  return store($('#container')).get('project-id');
+};
+
+// Identifier is a combination of the project and doctype name.
+identifier = function ()
+{
+  'use strict';
+
+  return project() + '_' + dname();
+};
+
+// Get information about doctype.
+var info = function ()
+{
+  'use strict';
+
+  return JSON.parse(sessionStorage.getItem(infoKey()));
+};
+
+// Load the doctype document stored on the server.
+var loadDoctype = function ()
+{
+  'use strict';
+
+  $.getJSON('./', function (data)
+  {
+    storeDoctype(JSON.stringify(data));
+  });
+
+  return true;
+};
+
+// Process the field and fieldset info to create a field label to field
+// id index.
+var makeLabels = function ()
+{
+  'use strict';
+
+  var info = info();
+  var labels = {};
+
+  info.fieldsets.forEach(function (fieldset)
+  {
+    fieldset.fields.forEach(function (field)
     {
-      shimi.indexui.get();
+      labels[field._id] = [fieldset.label, field.label];
     });
+  });
 
-    return mod;
-  };
-  var loadHash = function (urlHash)
+  sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
+  sender('labels-ready');
+
+  return true;
+};
+
+// Initialize the documents sub-application.
+var init = function ()
+{
+  'use strict';
+
+  $('form').on('submit', function ()
   {
-    if (urlHash)
-    {
-      shimi.viewui.get(urlHash);
-    }
+    return false;
+  });
+  checkVersion();
+  setsui.updateSelection();
+  indexui.iOpts();
+  indexui.get();
+  indexForm();
+  editui.init();
+  loadHash($(location)[0].hash.split('#')[1]);
+  changeui.get();
+};
 
-    return mod;
-  };
-  var allDocContainer = function ()
-  {
-    return $('#all-document-container');
-  };
-  var versionKey = function ()
-  {
-    return mod.identifier() + '_version';
-  };
-  var infoKey = function ()
-  {
-    return mod.identifier() + '_info';
-  };
-  var labelsKey = function ()
-  {
-    return mod.identifier() + '_labels';
-  };
-  var storeDoctype = function (doctype)
-  {
-    sessionStorage.setItem(infoKey(), doctype);
-    shimi.dispatch.send('doctype-info-ready');
+exports(getVersion);
+exports(getCurrentVersion);
+exports(isCurrentVersionStored);
+exports(setVersion);
+exports(clearSession);
+exports(checkVersion);
+exports(dname);
+exports(project);
+exports(identifier);
+exports(info);
+exports(loadDoctype);
+exports(makeLabels);
+exports(init);
 
-    return mod;
-  };
-
-  mod.getVersion = function ()
-  {
-    return sessionStorage.getItem(versionKey());
-  };
-
-  mod.getCurrentVersion = function ()
-  {
-    return shimi.store(allDocContainer()).d('version');
-  };
-
-  mod.isCurrentVersionStored = function ()
-  {
-    return (mod.getVersion() && mod.getVersion() === mod.getCurrentVersion());
-  };
-
-  mod.setVersion = function ()
-  {
-    sessionStorage.setItem(versionKey(), mod.getCurrentVersion());
-    shimi.dispatch.send('version-set');
-
-    return mod;
-  };
-
-  mod.clearSession = function ()
-  {
-    sessionStorage.clear();
-    shimi.dispatch.send('session-cleared');
-
-    return mod;
-  };
-
-  mod.checkVersion = function ()
-  {
-    if (mod.isCurrentVersionStored())
-    {
-      shimi.dispatch.send('labels-ready');
-    }
-    else
-    {
-      shimi.dispatch.send('bad-session-state');
-    }
-
-    return mod;
-  };
-
-  mod.name = function ()
-  {
-    return shimi.store($('#all-document-container')).d('doctype');
-  };
-
-  mod.project = function ()
-  {
-    return shimi.store($('#container')).get('project-id');
-  };
-
-  mod.identifier = function ()
-  {
-    return mod.project() + '_' + mod.name();
-  };
-
-  mod.info = function ()
-  {
-    return JSON.parse(sessionStorage.getItem(infoKey()));
-  };
-
-  mod.loadDoctype = function ()
-  {
-    $.getJSON('./', function (data)
-    {
-      storeDoctype(JSON.stringify(data));
-    });
-
-    return mod;
-  };
-
-  mod.makeLabels = function ()
-  {
-    var info = mod.info();
-    var labels = {};
-
-    info.fieldsets.forEach(function (fieldset)
-    {
-      fieldset.fields.forEach(function (field)
-      {
-        labels[field._id] = [fieldset.label, field.label];
-      });
-    });
-
-    sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-    shimi.dispatch.send('labels-ready');
-
-    return mod;
-  };
-
-  mod.init = function ()
-  {
-    $('form').on('submit', function ()
-    {
-      return false;
-    });
-    mod.checkVersion();
-    shimi.setsui.updateSelection();
-    shimi.indexui.iOpts().get();
-    indexForm();
-    shimi.editui.init();
-    loadHash($(location)[0].hash.split('#')[1]);
-    shimi.changeui.get();
-  };
-
-  return mod;
-})();
-
-},{}],19:[function(require,module,exports){
+},{"../sender.js":44,"../store.js":47,"./changeui.js":17,"./editui.js":20,"./indexui.js":22,"./setsui.js":24,"./viewui.js":25}],20:[function(require,module,exports){
+// # Documents sub-application
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
 // Edit pane UI elements
-shimi.editui = (function ()
+
+// Variable Definitions
+
+var store = require('../store.js').store;
+var form = require('../form.js');
+var flash = require('../flash.js');
+var fieldsets = require('./fieldsets.js');
+var viewui = require('./viewui.js');
+var indexui = require('./indexui.js');
+var afterRefresh;
+
+// Internal functions
+
+// UI Element
+var saveButton = function ()
 {
   'use strict';
 
-  var mod = {};
+  return $('#save-document-button');
+};
 
-  // Imports
-  var store = shimi.store;
-  var flash = shimi.flash;
+// UI Element
+var createButton = function ()
+{
+  'use strict';
 
-  // UI Elements
-  var saveButton = function ()
+  return $('#create-document-button');
+};
+
+// UI Element
+var editButton = function ()
+{
+  'use strict';
+
+  return $('#document-edit-button');
+};
+
+
+// Display validation error properly.
+var validationError = function (req)
+{
+  'use strict';
+
+  var body = JSON.parse(req.responseText);
+  var title = req.statusText;
+
+  var invalid = $('[data-field-instance=' + body.instance + ']');
+  var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+
+  invalidTab.addClass('ui-state-error');
+  invalid.addClass('ui-state-error');
+
+  flash.error(title, body.fieldname + ' ' + body.message);
+
+  return true;
+};
+
+// Fields need to have instances. This should ensure they have them.
+var instances = function (addInstances)
+{
+  'use strict';
+
+  var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+  var makeInstance = function ()
   {
-    return $('#save-document-button');
-  };
-  var createButton = function ()
-  {
-    return $('#create-document-button');
-  };
-  var editButton = function ()
-  {
-    return $('#document-edit-button');
-  };
-
-  var validationError = function (req)
-  {
-    var body = JSON.parse(req.responseText);
-    var title = req.statusText;
-
-    var invalid = $('[data-field-instance=' + body.instance + ']');
-    var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
-
-    invalidTab.addClass('ui-state-error');
-    invalid.addClass('ui-state-error');
-
-    flash(title, body.fieldname + ' ' + body.message).error();
-
-    return mod;
-  };
-
-  var instances = function (addInstances)
-  {
-    var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-    var makeInstance = function ()
+    return text.map(function ()
     {
-      return text.map(function ()
-      {
-        return text[Math.floor(Math.random() * text.length)];
-      }).join('');
-    };
+      return text[Math.floor(Math.random() * text.length)];
+    }).join('');
+  };
 
-    $('#last-added [data-field-instance]').each(function (index, item)
-    {
-      var itemElem = $(item).first();
-      var oldInstance = itemElem.attr('data-field-instance');
-      var newInstance = oldInstance;
-
-      if (addInstances)
-      {
-        newInstance = makeInstance();
-      }
-
-      itemElem.attr('data-group-id', newInstance);
-      // TODO: This is a little redundant
-      itemElem.attr('id', newInstance);
-      itemElem.attr('data-field-instance', newInstance);
-      // Differences in Firefox and Chrome
-      itemElem.next('.expander').attr('data-group-id', newInstance);
-      itemElem.next().next('.expander').attr('data-group-id', newInstance);
-    });
+  $('#last-added [data-field-instance]').each(function (index, item)
+  {
+    var itemElem = $(item).first();
+    var oldInstance = itemElem.attr('data-field-instance');
+    var newInstance = oldInstance;
 
     if (addInstances)
     {
-      $('#last-added').removeAttr('id');
+      newInstance = makeInstance();
     }
 
-    return mod;
-  };
+    itemElem.attr('data-group-id', newInstance);
+    // TODO: This is a little redundant
+    itemElem.attr('id', newInstance);
+    itemElem.attr('data-field-instance', newInstance);
+    // Differences in Firefox and Chrome
+    itemElem.next('.expander').attr('data-group-id', newInstance);
+    itemElem.next().next('.expander').attr('data-group-id', newInstance);
+  });
 
-  mod.init = function ()
+  if (addInstances)
   {
-    var url = 'documents/edit';
+    $('#last-added').removeAttr('id');
+  }
 
-    $.get(url, function (documentEditHtml)
-    {
+  return true;
+};
 
-      $('#document-edit').html(documentEditHtml);
-      $('#edit-tabs').tabs();
-      shimi.fieldsets.initFieldsets();
-    });
+// Exported functions
 
-    return mod;
-  };
-
-  mod.selectInput = function ()
-  {
-    var inputable = 'input, select, textarea';
-    var t = function ()
-    {
-      return $('#edit-tabs');
-    };
-
-    var cur = t().find('.ui-tabs-active a').attr('href');
-    $(cur).find(inputable).first().focus();
-
-    return mod;
-  };
-
-  mod.afterFreshRefresh = function (addInstances)
-  {
-    afterRefresh(addInstances);
-
-    return mod;
-  };
-
-  mod.afterEditRefresh = function ()
-  {
-    var sharedAttrs = ['data-document-id', 'data-document-rev'];
-
-    sharedAttrs.forEach(function (elem)
-    {
-      saveButton().attr(elem, editButton().attr(elem));
-    });
-
-    saveButton().show();
-    afterRefresh();
-
-    return mod;
-  };
-
-  var afterRefresh = function (addInstances)
-  {
-    shimi.form.initDateFields();
-    instances(addInstances);
-
-    return mod;
-  };
-
-  mod.resetFields = function ()
-  {
-    $('.field').each(function (index)
-    {
-      var field = $(this);
-      var thedefault = field.attr('data-field-default');
-
-      if (thedefault && thedefault !== '')
-      {
-        if (field.is('select.multiselect'))
-        {
-          field.val(thedefault.split(','));
-        }
-        else if (field.is('input.boolean'))
-        {
-          field.attr('checked', thedefault === true);
-        }
-        else
-        {
-          field.val(thedefault);
-        }
-      }
-      else
-      {
-        field.val('');
-        field.removeAttr('checked');
-      }
-    });
-
-    return mod;
-  };
-
-  mod.save = function ()
-  {
-    if (saveButton().hasClass('oldrev'))
-    {
-      if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
-      {
-        return false;
-      }
-    }
-
-    var body;
-    var title;
-    var s = store(saveButton());
-    var root = $('#edit-document-form');
-    var document = s.d('document');
-    var rev = s.d('rev');
-    var url = './documents/' + document + '?rev=' + rev;
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var obj = {
-      doctype: s.d('doctype'),
-      description: s.d('description')
-    };
-
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().hide();
-    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
-
-    $.ajax(
-    {
-      type: 'PUT',
-      url: url,
-      dataType: 'json',
-      contentType: 'application/json',
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function (req, status)
-      {
-        if (req.status === 204 || req.status === 200)
-        {
-          title = 'Success';
-          body = 'Your document was saved.';
-          shimi.viewui.get(document);
-          shimi.indexui.get(skey, sid);
-          flash(title, body).highlight();
-          saveButton().removeClass('oldrev').show();
-        }
-        else if (req.status === 403)
-        {
-          validationError(req);
-          saveButton().show();
-        }
-        else if (req.status === 409)
-        {
-          body = JSON.parse(req.responseText);
-          title = req.statusText;
-
-          flash(title, body.message).error();
-          saveButton().hide();
-        }
-      }
-    });
-  };
-
-  mod.create = function ()
-  {
-    var s = store(createButton());
-    var root = $('#edit-document-form');
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var obj = {
-      doctype: s.d('doctype'),
-      description: s.d('description')
-    };
-
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    createButton().hide();
-    $.extend(obj, shimi.fieldsets.fieldsetsToObject(root));
-
-    var postUrl = $.ajax(
-    {
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      processData: false,
-      data: JSON.stringify(obj),
-      complete: function (req, status)
-      {
-        if (req.status === 201)
-        {
-          var title = 'Success';
-          var body = 'Your document was created.';
-          var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-
-          saveButton().hide().attr('disabled', 'true');
-          $('.fields').remove();
-          shimi.fieldsets.initFieldsets();
-          shimi.viewui.get(documentId);
-          shimi.indexui.get(skey, sid);
-          flash(title, body).highlight();
-          createButton().show();
-        }
-        else if (req.status === 403)
-        {
-          validationError(req);
-          createButton().show();
-        }
-      }
-    });
-  };
-
-  mod.clear = function ()
-  {
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    saveButton().hide().attr('disabled', 'disabled');
-    $('.fields').remove();
-    shimi.fieldsets.initFieldsets();
-  };
-
-  mod.showHelpDialog = function (target)
-  {
-    if (target.is('.label-text'))
-    {
-      target = target.parent('label').find('.ui-icon-help');
-    }
-
-    $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
-
-    return mod;
-  };
-
-  mod.toggleTextarea = function (target)
-  {
-    var textarea = $('#' + target.attr('data-group-id'));
-
-    if (target.attr('id') === textarea.attr('data-group-id'))
-    {
-      textarea.toggleClass('expanded');
-      textarea.next().next('span').toggleClass('expanded');
-    }
-    else
-    {
-      textarea.toggleClass('expanded');
-      target.toggleClass('expanded');
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],20:[function(require,module,exports){
-shimi.fieldsets = (function ()
+// Initialize the editing pane.
+var init = function ()
 {
   'use strict';
 
-  var mod = {};
-  var store = shimi.store;
-  var utils = shimi.utils();
+  var url = 'documents/edit';
 
-  var fsContainer = function (id)
+  $.get(url, function (documentEditHtml)
   {
-    return $('#container-' + id);
+
+    $('#document-edit').html(documentEditHtml);
+    $('#edit-tabs').tabs();
+    fieldsets.initFieldsets();
+  });
+
+  return true;
+};
+
+// Focus on the first focusable input element in an active tab.
+var selectInput = function ()
+{
+  'use strict';
+
+  var inputable = 'input, select, textarea';
+  var t = function ()
+  {
+    return $('#edit-tabs');
   };
 
-  var dpath = function (source, category)
+  var cur = t().find('.ui-tabs-active a').attr('href');
+  $(cur).find(inputable).first().focus();
+
+  return true;
+};
+
+// Used as a variation of `afterRefresh` where a boolean is provided
+// to specify if new instances identifiers should be created and
+// set. Basically this is for a completely fresh refresh, when the form
+// is in the state such that a document can be created but no information
+// is available to do an update.
+var afterFreshRefresh = function (addInstances)
+{
+  'use strict';
+
+  afterRefresh(addInstances);
+
+  return true;
+};
+
+// Run after the edit button in the view UI is clicked.
+var afterEditRefresh = function ()
+{
+  'use strict';
+
+  var sharedAttrs = ['data-document-id', 'data-document-rev'];
+
+  sharedAttrs.forEach(function (elem)
   {
-    var url = shimi.path(source, category);
-    url.doctype = false;
-    return url;
-  };
+    saveButton().attr(elem, editButton().attr(elem));
+  });
 
-  var ifStoredElse = function (key, success, otherwise)
+  saveButton().show();
+  afterRefresh();
+
+  return true;
+};
+
+// Essentially initialization of the form. If `addInstances` is true,
+// new instance identifiers will be created for a blank form.
+afterRefresh = function (addInstances)
+{
+  'use strict';
+
+  form.initDateFields();
+  instances(addInstances);
+
+  return true;
+};
+
+// Reset field values to defaults.
+var resetFields = function ()
+{
+  'use strict';
+
+  $('.field').each(function (index)
   {
-    var item = null;
+    var field = $(this);
+    var thedefault = field.attr('data-field-default');
 
-    item = sessionStorage.getItem(key);
-
-    if (item)
+    if (thedefault && thedefault !== '')
     {
-      success(item);
+      if (field.is('select.multiselect'))
+      {
+        field.val(thedefault.split(','));
+      }
+      else if (field.is('input.boolean'))
+      {
+        field.attr('checked', thedefault === true);
+      }
+      else
+      {
+        field.val(thedefault);
+      }
     }
     else
     {
-      $.get(key, otherwise);
+      field.val('');
+      field.removeAttr('checked');
     }
+  });
+
+  return true;
+};
+
+// To be run if the user chooses to save the form contents. This is an
+// update, not creation.
+var save = function ()
+{
+  'use strict';
+
+  if (saveButton().hasClass('oldrev'))
+  {
+    if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
+    {
+      return false;
+    }
+  }
+
+  var body;
+  var title;
+  var s = store(saveButton());
+  var root = $('#edit-document-form');
+  var document = s.d('document');
+  var rev = s.d('rev');
+  var url = './documents/' + document + '?rev=' + rev;
+  var skey = $('#first-index-element').attr('data-first-key');
+  var sid = $('#first-index-element').attr('data-first-id');
+  var obj = {
+    doctype: s.d('doctype'),
+    description: s.d('description')
   };
 
-  // Convert field values to an object that can be converted to JSON
-  var fieldsToObject = function (fields, index)
+  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  saveButton().hide();
+  $.extend(obj, fieldsets.fieldsetsToObject(root));
+
+  $.ajax(
   {
-    fields = fields.children('.field-container').children('.field');
-    var obj = {
-      fields: []
+    type: 'PUT',
+    url: url,
+    dataType: 'json',
+    contentType: 'application/json',
+    processData: false,
+    data: JSON.stringify(obj),
+    complete: function (req, status)
+    {
+      if (req.status === 204 || req.status === 200)
+      {
+        title = 'Success';
+        body = 'Your document was saved.';
+        viewui.get(document);
+        indexui.get(skey, sid);
+        flash.highlight(title, body);
+        saveButton().removeClass('oldrev').show();
+      }
+      else if (req.status === 403)
+      {
+        validationError(req);
+        saveButton().show();
+      }
+      else if (req.status === 409)
+      {
+        body = JSON.parse(req.responseText);
+        title = req.statusText;
+
+        flash.error(title, body.message);
+        saveButton().hide();
+      }
+    }
+  });
+};
+
+// To be run if creating a new document.
+var create = function ()
+{
+  'use strict';
+
+  var s = store(createButton());
+  var root = $('#edit-document-form');
+  var skey = $('#first-index-element').attr('data-first-key');
+  var sid = $('#first-index-element').attr('data-first-id');
+  var obj = {
+    doctype: s.d('doctype'),
+    description: s.d('description')
+  };
+
+  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  createButton().hide();
+  $.extend(obj, fieldsets.fieldsetsToObject(root));
+
+  var postUrl = $.ajax(
+  {
+    type: 'POST',
+    dataType: 'json',
+    contentType: 'application/json',
+    processData: false,
+    data: JSON.stringify(obj),
+    complete: function (req, status)
+    {
+      if (req.status === 201)
+      {
+        var title = 'Success';
+        var body = 'Your document was created.';
+        var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
+
+        saveButton().hide().attr('disabled', 'true');
+        $('.fields').remove();
+        fieldsets.initFieldsets();
+        viewui.get(documentId);
+        indexui.get(skey, sid);
+        flash.highlight(title, body);
+        createButton().show();
+      }
+      else if (req.status === 403)
+      {
+        validationError(req);
+        createButton().show();
+      }
+    }
+  });
+};
+
+// Clear the form.
+var clear = function ()
+{
+  'use strict';
+
+  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  saveButton().hide().attr('disabled', 'disabled');
+  $('.fields').remove();
+  fieldsets.initFieldsets();
+};
+
+// Display a help dialog for a form field.
+var showHelpDialog = function (target)
+{
+  'use strict';
+
+  if (target.is('.label-text'))
+  {
+    target = target.parent('label').find('.ui-icon-help');
+  }
+
+  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+
+  return true;
+};
+
+// Contract and expand textarea elements.
+var toggleTextarea = function (target)
+{
+  'use strict';
+
+  var textarea = $('#' + target.attr('data-group-id'));
+
+  if (target.attr('id') === textarea.attr('data-group-id'))
+  {
+    textarea.toggleClass('expanded');
+    textarea.next().next('span').toggleClass('expanded');
+  }
+  else
+  {
+    textarea.toggleClass('expanded');
+    target.toggleClass('expanded');
+  }
+
+  return true;
+};
+
+exports(init);
+exports(selectInput);
+exports(afterFreshRefresh);
+exports(afterEditRefresh);
+exports(afterRefresh);
+exports(resetFields);
+exports(save);
+exports(create);
+exports(clear);
+exports(toggleTextarea);
+
+},{"../flash.js":28,"../form.js":29,"../store.js":47,"./fieldsets.js":21,"./indexui.js":22,"./viewui.js":25}],21:[function(require,module,exports){
+// # Fieldsets (and fields)
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Dealing with fields and fieldsets.
+
+// Variable Definitions
+
+var path = require('../path.js').path;
+var store = require('../store.js').store;
+var utils = require('../utils.js');
+var editui = require('./editui.js');
+var dateOrNumber;
+var getEncoded;
+var getFieldValue;
+var fillFields;
+var setFieldValue;
+var initFieldset;
+
+// Internal functions
+
+// Get the container for a fieldset with `id`.
+var fsContainer = function (id)
+{
+  'use strict';
+
+  return $('#container-' + id);
+};
+
+// Get the doctype path.
+var dpath = function (source, category)
+{
+  'use strict';
+
+  var url = path(source, category);
+  url.doctype = false;
+  return url;
+};
+
+// If the item referred to by `key` is in session storage perform the
+// `success` action with the stored items as the argument, otherwise,
+// get the item from the server and perform the `otherwise` action with
+// the retrieved item as an argument.
+var ifStoredElse = function (key, success, otherwise)
+{
+  'use strict';
+
+  var item = null;
+
+  item = sessionStorage.getItem(key);
+
+  if (item)
+  {
+    success(item);
+  }
+  else
+  {
+    $.get(key, otherwise);
+  }
+};
+
+// Convert field values to an object that can be converted to JSON
+var fieldsToObject = function (fields, index)
+{
+  'use strict';
+
+  fields = fields.children('.field-container').children('.field');
+  var obj = {
+    fields: []
+  };
+
+  fields.each(function (i, field)
+  {
+    field = $(field);
+    var s = store(field);
+    var value = getFieldValue(field);
+    var instance = s.f('instance');
+
+    obj.fields[i] = {
+      id: s.f('field'),
+      name: s.f('name'),
+      label: s.f('label'),
+      head: s.f('head') === 'true',
+      reversal: s.f('reversal') === 'true',
+      required: s.f('required') === 'true',
+      min: dateOrNumber(s.f('subcategory'), s.f('min')),
+      max: dateOrNumber(s.f('subcategory'), s.f('max')),
+      instance: instance,
+      charseq: s.f('charseq'),
+      regex: s.f('regex'),
+      order: s.f('order') * 1,
+      subcategory: s.f('subcategory'),
+      value: value
     };
 
-    fields.each(function (i, field)
+    if (index >= 0)
     {
-      field = $(field);
-      var s = store(field);
-      var value = getFieldValue(field);
-      var instance = s.f('instance');
+      obj.fields[i].index = index;
+    }
+  });
 
-      obj.fields[i] = {
-        id: s.f('field'),
-        name: s.f('name'),
-        label: s.f('label'),
-        head: s.f('head') === 'true',
-        reversal: s.f('reversal') === 'true',
-        required: s.f('required') === 'true',
-        min: dateOrNumber(s.f('subcategory'), s.f('min')),
-        max: dateOrNumber(s.f('subcategory'), s.f('max')),
-        instance: instance,
-        charseq: s.f('charseq'),
-        regex: s.f('regex'),
-        order: s.f('order') * 1,
-        subcategory: s.f('subcategory'),
-        value: value
-      };
+  return obj;
+};
 
-      if (index >= 0)
-      {
-        obj.fields[i].index = index;
-      }
+// `min` and `max` are either dates or numbers. Provide the correct
+// value or the correct type depending on the subcategory of the field.
+dateOrNumber = function (subcategory, fieldvalue)
+{
+  'use strict';
+
+  if (subcategory === 'date')
+  {
+    return fieldvalue;
+  }
+  else
+  {
+    return utils.stringToNumber(fieldvalue);
+  }
+};
+
+// Get the correct value for a boolean that can be null
+var getOpenboolean = function (value)
+{
+  'use strict';
+
+  switch (value)
+  {
+  case 'true':
+    value = true;
+    break;
+  case 'false':
+    value = false;
+    break;
+  default:
+    value = null;
+  }
+
+  return value;
+};
+
+// Get a number from a string. Blanks are returned as an empty string.
+var getNumber = function (value)
+{
+  'use strict';
+
+  if (utils.isBlank(value))
+  {
+    value = '';
+  }
+  else if (!isNaN(value))
+  {
+    value = value * 1;
+  }
+
+  return value;
+};
+
+// Items in multiple select lists are URL encoded
+var getMultiple = function (value)
+{
+  'use strict';
+
+  if (value)
+  {
+    value = value.map(function (v)
+    {
+      return getEncoded(v);
     });
+  }
+  else
+  {
+    value = null;
+  }
 
-    return obj;
+  return value;
+};
+
+// Items in select lists are URL encoded
+getEncoded = function (value)
+{
+  'use strict';
+
+  return window.decodeURIComponent(value.replace(/\+/g, ' '));
+};
+
+// Get the value from a field using the subcategory to ensure
+// that the value has the correct type and is properly formatted.
+getFieldValue = function (field)
+{
+  'use strict';
+
+  var value;
+
+  switch (store(field).f('subcategory'))
+  {
+  case 'boolean':
+    value = field.is('input:checkbox:checked');
+    break;
+  case 'openboolean':
+    value = getOpenboolean(field.val());
+    break;
+  case 'integer':
+  case 'rational':
+    value = getNumber(field.val());
+    break;
+  case 'multiselect':
+  case 'docmultiselect':
+    value = getMultiple(field.val());
+    break;
+  case 'select':
+  case 'docselect':
+    value = getEncoded(field.val());
+    break;
+  default:
+    value = field.val();
+  }
+
+  return value;
+};
+
+// Basic initialization of fields.
+var initFields = function (container, callback, addInstances)
+{
+  'use strict';
+
+  var url = dpath(container, 'field');
+  var section = container.children('.fields').last();
+  var prependIt = function (data)
+  {
+    if (addInstances)
+    {
+      section.attr('id', 'last-added');
+    }
+    section.prepend(data);
+    if (callback)
+    {
+      callback(section);
+    }
+
+    editui.afterFreshRefresh(addInstances);
+  };
+  var storeIt = function (data)
+  {
+    sessionStorage.setItem(url, data);
+    prependIt(data);
   };
 
-  var dateOrNumber = function (subcategory, fieldvalue)
+  ifStoredElse(url.toString(), prependIt, storeIt);
+
+  return true;
+};
+
+// Initialize and fill multifieldsets.
+var fillMultiFieldsets = function (vfieldset)
+{
+  'use strict';
+
+  vfieldset = $(vfieldset);
+  var id = store(vfieldset).fs('fieldset');
+  var container = $('#container-' + id);
+  var url = dpath(vfieldset, 'fieldset');
+
+  container.html('');
+
+  vfieldset.find('.multifield').each(function (i, multifield)
   {
-    if (subcategory === 'date')
+    initFieldset(container, function (fieldset)
     {
-      return fieldvalue;
-    }
-    else
-    {
-      return utils.stringToNumber(fieldvalue);
-    }
-  };
+      fillFields($(multifield), fieldset);
+    });
+  });
+};
 
-  // Get the correct value for a boolean that can be null
-  var getOpenboolean = function (value)
+// Initialize and fill normal fieldsets.
+var fillNormalFieldsets = function (vfieldset)
+{
+  'use strict';
+
+  fillFields($(vfieldset));
+};
+
+// Fill the fields with values taken from the view pane.
+fillFields = function (container, context)
+{
+  'use strict';
+
+  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
+  $('#save-document-button').show();
+
+  container.find('.field-view').each(function (i, field)
   {
-    switch (value)
-    {
-    case 'true':
-      value = true;
-      break;
-    case 'false':
-      value = false;
-      break;
-    default:
-      value = null;
-    }
-
-    return value;
-  };
-
-  // Get a number from a string. Blanks are returned as an empty string.
-  var getNumber = function (value)
-  {
-    if (utils.isBlank(value))
-    {
-      value = '';
-    }
-    else if (!isNaN(value))
-    {
-      value = value * 1;
-    }
-
-    return value;
-  };
-
-  // Items in multiple select lists are URL encoded
-  var getMultiple = function (value)
-  {
-    if (value)
-    {
-      value = value.map(function (v)
-      {
-        return getEncoded(v);
-      });
-    }
-    else
-    {
-      value = null;
-    }
-
-    return value;
-  };
-
-  // Items in select lists are URL encoded
-  var getEncoded = function (value)
-  {
-    return window.decodeURIComponent(value.replace(/\+/g, ' '));
-  };
-
-  // Get the value from a field using the subcategory to ensure
-  // that the value has the correct type and is properly formatted.
-  var getFieldValue = function (field)
-  {
+    var valueJson = $(field).attr('data-field-value');
+    var id = $(field).attr('data-field-field');
+    var instance = $(field).attr('data-field-instance');
     var value;
 
-    switch (store(field).f('subcategory'))
+    if (valueJson)
     {
-    case 'boolean':
-      value = field.is('input:checkbox:checked');
+      value = JSON.parse(valueJson);
+    }
+
+    if (!context)
+    {
+      context = $('body');
+    }
+
+    // TODO: There is still a mismatch in template systems and
+    // conventions that means that I cannot simply set the values
+    // directly. There are different rules for escaping, etc.
+    setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
+  });
+};
+
+// Properly set the value of the field.
+setFieldValue = function (field, value, instance)
+{
+  'use strict';
+
+  if (field.is('input.boolean'))
+  {
+    field.prop('checked', value);
+  }
+  else if (value && field.is('select.open-boolean'))
+  {
+    field.val(value.toString());
+  }
+  else if (value && field.is('select.multiselect'))
+  {
+    value = value.map(function (x)
+    {
+      return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
+    });
+    field.val(value);
+  }
+  else if (value && field.is('select.select'))
+  {
+    value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
+    field.val(value);
+  }
+  else if (value && (field.is('input.text') || field.is('select.file')))
+  {
+    field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
+  }
+  else
+  {
+    field.val(value);
+  }
+
+  field.attr('data-field-instance', instance);
+};
+
+// Exported functions
+
+// Initialize a fieldset.
+initFieldset = function (fieldset, callback, addInstances)
+{
+  'use strict';
+
+  var url = dpath($(fieldset), 'fieldset').toString();
+  var id = store($(fieldset)).fs('fieldset');
+  var container = $('#container-' + id);
+  var appendIt = function (data)
+  {
+    container.append(data);
+    initFields(container, callback, addInstances);
+  };
+  var storeIt = function (data)
+  {
+    sessionStorage.setItem(url, data);
+    appendIt(data);
+  };
+
+  ifStoredElse(url.toString(), appendIt, storeIt);
+
+  return false;
+};
+
+// Before submitting the form, the form data is converted into an object
+// that can be serialized to JSON. This begins with the fieldsets.
+var fieldsetsToObject = function (root)
+{
+  'use strict';
+
+  var obj = {
+    fieldsets: []
+  };
+
+  root.find('fieldset').each(function (i, fieldset)
+  {
+    fieldset = $(fieldset);
+    var s = store(fieldset);
+
+    var fields;
+
+    var fsObj = {
+      id: s.fs('fieldset'),
+      multiple: s.fs('multiple') === 'true',
+      collapse: s.fs('collapse') === 'true',
+      name: s.fs('name'),
+      label: s.fs('label'),
+      order: s.fs('order') * 1
+    };
+
+    fields = fsContainer(fsObj.id).children('.fields');
+
+    if (!fsObj.multiple)
+    {
+      $.extend(fsObj, fieldsToObject(fields.first()));
+    }
+    else
+    {
+      fsObj.multifields = [];
+
+      fields.each(function (j, field)
+      {
+        field = $(field);
+
+        fsObj.multifields[j] = fieldsToObject(field, j);
+      });
+    }
+
+    obj.fieldsets[i] = fsObj;
+  });
+
+  return obj;
+};
+
+// Initialize fieldsets
+var initFieldsets = function ()
+{
+  'use strict';
+
+  $('fieldset').each(function (i, fieldset)
+  {
+    var fs = store($(fieldset));
+
+    if (fs.fs('multiple') === 'false')
+    {
+      initFieldset(fieldset, false);
+    }
+  });
+
+  return true;
+};
+
+// Remove a multifieldset. This is done after the remove button is
+// pressed.
+var removeFieldset = function (target)
+{
+  'use strict';
+
+  target.parent().remove();
+};
+
+// Fill the fieldset with values from the view pane.
+var fillFieldsets = function ()
+{
+  'use strict';
+
+  $('.fieldset-view').each(function (i, fieldset)
+  {
+    if (store($(fieldset)).fs('multiple') === 'true')
+    {
+      fillMultiFieldsets(fieldset);
+    }
+    else
+    {
+      fillNormalFieldsets(fieldset);
+    }
+  });
+
+  editui.afterEditRefresh();
+
+  return true;
+};
+
+exports(initFieldset);
+exports(fieldsetsToObject);
+exports(initFieldsets);
+exports(removeFieldset);
+
+},{"../path.js":42,"../store.js":47,"../utils.js":48,"./editui.js":20}],22:[function(require,module,exports){
+// # Paging For Index Listing
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Loads index based on user suplied values. It also loads some other
+// preliminary data, such as the listing of user created indexes. The
+// `load()` function performs some initialization.
+
+// Variable Definitions
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
+{
+  'use strict';
+
+  var prefix = 'index';
+  var url = 'documents/' + prefix;
+  var indexId = $('#index-' + prefix + '-input').val();
+  var target = $('#' + prefix + '-listing');
+
+  var format = function (text)
+  {
+    var resp = JSON.parse(text);
+
+    resp.rows = resp.rows.map(function (item)
+    {
+      item.display_key = item.key.map(function (k)
+      {
+        return k[1];
+      });
+
+      if (indexId && item.value.length > 0)
+      {
+        item.value = item.value.split(', ');
+      }
+
+      return item;
+    });
+
+    return resp;
+  };
+
+  pager(
+  {
+    prefix: prefix,
+    format: format,
+    url: url,
+    indexId: indexId,
+    target: target
+  }).get();
+
+  return true;
+};
+
+// Loads the listing of user created indexes.
+var iOpts = function ()
+{
+  'use strict';
+
+  var url = 'indexes?as=options';
+  var options;
+
+  $.getJSON(url, function (data)
+  {
+    options = templates['index-options'].render(data);
+    $('#index-index-input').html(options);
+  });
+
+  return true;
+};
+
+// This is the entry point that loads the data for this section of
+// the application.
+var load = function (target)
+{
+  'use strict';
+
+  var id = $(target).attr('href').slice(1);
+  $('#document-view').html('<em>Loading...</em>');
+  shimi.editui.clear();
+  shimi.viewui.get(id);
+
+  return true;
+};
+
+exports(get);
+exports(iOpts);
+exports(load);
+
+},{"../pager.js":40}],23:[function(require,module,exports){
+// # The search user interface
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Handles the search user interface.
+
+// Variable Definitions
+
+var utils = require('../utils.js');
+var sets = require('../sets.js');
+var setsui = require('./setsui.js');
+var documents = require('./documents.js');
+var multipleFields;
+var loadSearchVals;
+
+// Internal functions
+
+// User interface element
+var searchIndex = function ()
+{
+  'use strict';
+
+  return $('#document-search-index');
+};
+
+// User interface element
+var searchIndexLabel = function ()
+{
+  'use strict';
+
+  return $('#search-index-label');
+};
+
+// User interface element
+var searchTerm = function ()
+{
+  'use strict';
+
+  return $('#document-search-term');
+};
+
+// User interface element
+var searchFields = function ()
+{
+  'use strict';
+
+  return $('#document-search-field');
+};
+
+// User interface element
+var searchFieldsLabel = function ()
+{
+  'use strict';
+
+  return $('#search-field-label');
+};
+
+// User interface element
+var searchExclude = function ()
+{
+  'use strict';
+
+  return $('#document-search-exclude');
+};
+
+// User interface element
+var searchInvert = function ()
+{
+  'use strict';
+
+  return $('#document-search-invert');
+};
+
+// User interface element
+var searchAll = function ()
+{
+  'use strict';
+
+  return $('#search-all-fields-switch');
+};
+
+// User interface element
+var searchListing = function ()
+{
+  'use strict';
+
+  return $('#search-listing');
+};
+
+// User interface element
+var getIdentifier = function ()
+{
+  'use strict';
+
+  return documents.identifier();
+};
+
+// All the form elements.
+var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
+
+// If searching a user created index, the value of the hidden input
+// where the index id specified.
+var indexVal = function ()
+{
+  'use strict';
+
+  var val = $('#index-index-input').val();
+  if (val.length === 0)
+  {
+    return null;
+  }
+  else
+  {
+    return val;
+  }
+};
+
+// Used for values that must either be true or null.
+var maybeTrue = function (bool)
+{
+  'use strict';
+
+  if (bool)
+  {
+    return true;
+  }
+  else
+  {
+    return null;
+  }
+};
+
+// Clear all search information that is stored in local storage.
+var clearStore = function ()
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  localStorage.setItem(ident + '_searchIndex', null);
+  localStorage.setItem(ident + '_searchIndexLabel', null);
+  localStorage.setItem(ident + '_searchFields', null);
+  localStorage.setItem(ident + '_searchExclude', null);
+  localStorage.setItem(ident + '_searchInvert', null);
+};
+
+// Clear the search form.
+var clearVals = function ()
+{
+  'use strict';
+
+  formElems.forEach(function (x)
+  {
+    var elem = x();
+    switch (elem.attr('type'))
+    {
+    case 'hidden':
+      elem.val('');
       break;
-    case 'openboolean':
-      value = getOpenboolean(field.val());
+    case 'checkbox':
+      elem.prop('checked', false);
       break;
-    case 'integer':
-    case 'rational':
-      value = getNumber(field.val());
+    }
+  });
+};
+
+// Hide all the form elements.
+var hideElems = function ()
+{
+  'use strict';
+
+  formElems.forEach(function (x)
+  {
+    var elem = x();
+    switch (elem.attr('type'))
+    {
+    case 'hidden':
       break;
-    case 'multiselect':
-    case 'docmultiselect':
-      value = getMultiple(field.val());
-      break;
-    case 'select':
-    case 'docselect':
-      value = getEncoded(field.val());
+    case 'checkbox':
+      elem.parent('div').hide();
       break;
     default:
-      value = field.val();
+      elem.hide();
     }
+  });
+};
 
-    return value;
-  };
-
-  var initFields = function (container, callback, addInstances)
-  {
-    var url = dpath(container, 'field');
-    var section = container.children('.fields').last();
-    var prependIt = function (data)
-    {
-      if (addInstances)
-      {
-        section.attr('id', 'last-added');
-      }
-      section.prepend(data);
-      if (callback)
-      {
-        callback(section);
-      }
-
-      shimi.editui.afterFreshRefresh(addInstances);
-    };
-    var storeIt = function (data)
-    {
-      sessionStorage.setItem(url, data);
-      prependIt(data);
-    };
-
-    ifStoredElse(url.toString(), prependIt, storeIt);
-
-    return true;
-  };
-
-  var fillMultiFieldsets = function (vfieldset)
-  {
-    vfieldset = $(vfieldset);
-    var id = store(vfieldset).fs('fieldset');
-    var container = $('#container-' + id);
-    var url = dpath(vfieldset, 'fieldset');
-
-    container.html('');
-
-    vfieldset.find('.multifield').each(function (i, multifield)
-    {
-      mod.initFieldset(container, function (fieldset)
-      {
-        fillFields($(multifield), fieldset);
-      });
-    });
-  };
-
-  var fillNormalFieldsets = function (vfieldset)
-  {
-    fillFields($(vfieldset));
-  };
-
-  var fillFields = function (container, context)
-  {
-    $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-    $('#save-document-button').show();
-
-    container.find('.field-view').each(function (i, field)
-    {
-      var valueJson = $(field).attr('data-field-value');
-      var id = $(field).attr('data-field-field');
-      var instance = $(field).attr('data-field-instance');
-      var value;
-
-      if (valueJson)
-      {
-        value = JSON.parse(valueJson);
-      }
-
-      if (!context)
-      {
-        context = $('body');
-      }
-
-      // TODO: There is still a mismatch in template systems and
-      // conventions that means that I cannot simply set the values
-      // directly. There are different rules for escaping, etc.
-      setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
-    });
-  };
-
-  var setFieldValue = function (field, value, instance)
-  {
-    if (field.is('input.boolean'))
-    {
-      field.prop('checked', value);
-    }
-    else if (value && field.is('select.open-boolean'))
-    {
-      field.val(value.toString());
-    }
-    else if (value && field.is('select.multiselect'))
-    {
-      value = value.map(function (x)
-      {
-        return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
-      });
-      field.val(value);
-    }
-    else if (value && field.is('select.select'))
-    {
-      value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
-      field.val(value);
-    }
-    else if (value && (field.is('input.text') || field.is('select.file')))
-    {
-      field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
-    }
-    else
-    {
-      field.val(value);
-    }
-
-    field.attr('data-field-instance', instance);
-  };
-
-  mod.initFieldset = function (fieldset, callback, addInstances)
-  {
-    var url = dpath($(fieldset), 'fieldset').toString();
-    var id = store($(fieldset)).fs('fieldset');
-    var container = $('#container-' + id);
-    var appendIt = function (data)
-    {
-      container.append(data);
-      initFields(container, callback, addInstances);
-    };
-    var storeIt = function (data)
-    {
-      sessionStorage.setItem(url, data);
-      appendIt(data);
-    };
-
-    ifStoredElse(url.toString(), appendIt, storeIt);
-
-    return false;
-  };
-
-  // Before submitting the form, the form data is converted into an object
-  // that can be serialized to JSON. This begins with the fieldsets.
-  mod.fieldsetsToObject = function (root)
-  {
-    var obj = {
-      fieldsets: []
-    };
-
-    root.find('fieldset').each(function (i, fieldset)
-    {
-      fieldset = $(fieldset);
-      var s = store(fieldset);
-
-      var fields;
-
-      var fsObj = {
-        id: s.fs('fieldset'),
-        multiple: s.fs('multiple') === 'true',
-        collapse: s.fs('collapse') === 'true',
-        name: s.fs('name'),
-        label: s.fs('label'),
-        order: s.fs('order') * 1
-      };
-
-      fields = fsContainer(fsObj.id).children('.fields');
-
-      if (!fsObj.multiple)
-      {
-        $.extend(fsObj, fieldsToObject(fields.first()));
-      }
-      else
-      {
-        fsObj.multifields = [];
-
-        fields.each(function (j, field)
-        {
-          field = $(field);
-
-          fsObj.multifields[j] = fieldsToObject(field, j);
-        });
-      }
-
-      obj.fieldsets[i] = fsObj;
-    });
-
-    return obj;
-  };
-
-  mod.initFieldsets = function ()
-  {
-    $('fieldset').each(function (i, fieldset)
-    {
-      var fs = store($(fieldset));
-
-      if (fs.fs('multiple') === 'false')
-      {
-        mod.initFieldset(fieldset, false);
-      }
-    });
-
-    return mod;
-  };
-
-  mod.removeFieldset = function (target)
-  {
-    target.parent().remove();
-  };
-
-  mod.fillFieldsets = function ()
-  {
-    $('.fieldset-view').each(function (i, fieldset)
-    {
-      if (store($(fieldset)).fs('multiple') === 'true')
-      {
-        fillMultiFieldsets(fieldset);
-      }
-      else
-      {
-        fillNormalFieldsets(fieldset);
-      }
-    });
-
-    shimi.editui.afterEditRefresh();
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],21:[function(require,module,exports){
-shimi.indexui = (function ()
+// Get the field labels from session storage.
+var fieldLabels = function ()
 {
   'use strict';
 
-  var mod = {};
-  var store = shimi.store;
-  var flash = shimi.flash;
-  var pager = shimi.pager;
+  var ident = getIdentifier();
+  var fieldlabels = JSON.parse(sessionStorage.getItem(ident + '_labels'));
+  return fieldlabels;
+};
 
-  mod.get = function (startkey, startid, prevkeys, previds)
-  {
-    var prefix = 'index';
-    var url = 'documents/' + prefix;
-    var indexId = $('#index-' + prefix + '-input').val();
-    var target = $('#' + prefix + '-listing');
-
-    var format = function (text)
-    {
-      var resp = JSON.parse(text);
-
-      resp.rows = resp.rows.map(function (item)
-      {
-        item.display_key = item.key.map(function (k)
-        {
-          return k[1];
-        });
-
-        if (indexId && item.value.length > 0) {
-          item.value = item.value.split(', ');
-        }
-
-        return item;
-      });
-
-      return resp;
-    };
-
-    pager(
-    {
-      prefix: prefix,
-      format: format,
-      url: url,
-      origin: 'indexui',
-      indexId: indexId,
-      target: target
-    }).get(startkey, startid, prevkeys, previds);
-
-    return mod;
-  };
-
-  mod.iOpts = function ()
-  {
-    var url = 'indexes?as=options';
-    var options;
-
-    $.getJSON(url, function (data)
-    {
-      options = templates['index-options'].render(data);
-      $('#index-index-input').html(options);
-    });
-
-    return mod;
-  };
-
-  mod.load = function (target)
-  {
-    var id = $(target).attr('href').slice(1);
-    $('#document-view').html('<em>Loading...</em>');
-    shimi.editui.clear();
-    shimi.viewui.get(id);
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],22:[function(require,module,exports){
-shimi.searchui = (function ()
+// Render the search field item template using given values.
+var searchFieldItem = function (field, fieldLabel)
 {
   'use strict';
 
-  var mod = {};
-  var utils = shimi.utils();
-  var sets = shimi.sets;
-  var setsui = shimi.setsui;
-  var localStorage = window.localStorage;
-  var searchIndex = function ()
+  return templates['search-field-item'].render(
   {
-    return $('#document-search-index');
-  };
-  var searchIndexLabel = function ()
-  {
-    return $('#search-index-label');
-  };
-  var searchTerm = function ()
-  {
-    return $('#document-search-term');
-  };
-  var searchFields = function ()
-  {
-    return $('#document-search-field');
-  };
-  var searchFieldsLabel = function ()
-  {
-    return $('#search-field-label');
-  };
-  var searchExclude = function ()
-  {
-    return $('#document-search-exclude');
-  };
-  var searchInvert = function ()
-  {
-    return $('#document-search-invert');
-  };
-  var searchAll = function ()
-  {
-    return $('#search-all-fields-switch');
-  };
-  var searchListing = function ()
-  {
-    return $('#search-listing');
-  };
-  var getIdentifier = function ()
-  {
-    return shimi.documents.identifier();
-  };
-  var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel, searchExclude, searchInvert, searchAll];
+    fieldLabel: fieldLabel,
+    field: field
+  });
+};
 
-  var indexVal = function ()
-  {
-    var val = $('#index-index-input').val();
-    if (val.length === 0)
-    {
-      return null;
-    }
-    else
-    {
-      return val;
-    }
-  };
+// Set the fields to search.
+var setFields = function (fields)
+{
+  'use strict';
 
-  var maybeTrue = function (bool)
-  {
-    if (bool)
-    {
-      return true;
-    }
-    else
-    {
-      return null;
-    }
-  };
+  var fLabels = fieldLabels();
+  var jFields = JSON.stringify(fields);
+  var sfls = searchFieldsLabel();
+  var ident = getIdentifier();
 
-  var clearStore = function ()
-  {
-    var ident = getIdentifier();
-    localStorage.setItem(ident + '_searchIndex', null);
-    localStorage.setItem(ident + '_searchIndexLabel', null);
-    localStorage.setItem(ident + '_searchFields', null);
-    localStorage.setItem(ident + '_searchExclude', null);
-    localStorage.setItem(ident + '_searchInvert', null);
-  };
+  searchFields().val(jFields);
+  localStorage.setItem(ident + '_searchFields', jFields);
 
-  var clearVals = function ()
+  var linkLabels = fields.map(function (x)
   {
-    formElems.forEach(function (x)
+    return searchFieldItem(x, fLabels[x].join(': '));
+  });
+
+  sfls.html(linkLabels.join(' '));
+
+  return true;
+};
+
+// Exported functions
+
+// Put the form in a state where all fields will be searched.
+var allFields = function ()
+{
+  'use strict';
+
+  clearStore();
+  hideElems();
+  clearVals();
+  return true;
+};
+
+// Put the form in a state where one field will be searched.
+var singleField = function (fields)
+{
+  'use strict';
+
+  multipleFields(fields);
+  searchInvert().parent().show();
+  return true;
+};
+
+// Put the form in a state where one field will be used to perform an
+// inverse search.
+var singleFieldInverse = function (fields)
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  singleField(fields);
+  searchInvert().prop('checked', true);
+  localStorage.setItem(ident + '_searchInvert', true);
+  return true;
+};
+
+// Put the form in a state where multiple fields will be searched.
+multipleFields = function (fields)
+{
+  'use strict';
+
+  allFields();
+  setFields(fields);
+  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x)
+  {
+    x.show();
+  });
+  return true;
+};
+
+// Put the form in a state where fields will be excluded from search.
+var excludedFields = function (fields)
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  if (fields.length > 1)
+  {
+    multipleFields(fields);
+  }
+  else
+  {
+    singleField(fields);
+  }
+  searchExclude().prop('checked', true);
+  localStorage.setItem(ident + '_searchExclude', true);
+  return true;
+};
+
+// Put the form in a state where a user created index will be searched.
+var indexOnly = function (index, indexLabel)
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  allFields();
+  localStorage.setItem(ident + '_searchIndex', index);
+  localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
+  searchIndex().val(index);
+  searchIndexLabel().html(indexLabel);
+  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x)
+  {
+    x.show();
+  });
+  return true;
+};
+
+// Put the form in a state where a user created index will be used to
+// perform an inverse search.
+var indexInverse = function (index, indexLabel)
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  indexOnly(index, indexLabel);
+  searchInvert().prop('checked', true);
+  localStorage.setItem(ident + '_searchInvert', true);
+  return true;
+};
+
+// Perform the search.
+var getSearch = function ()
+{
+  'use strict';
+
+  var query = searchTerm().val();
+  var url = 'documents/search?q=' + window.encodeURIComponent(query);
+  var field = searchFields().val();
+  var exclude = searchExclude().is(':checked');
+  var invert = searchInvert().is(':checked');
+  var index = searchIndex().val();
+  var fieldlabels = fieldLabels();
+
+  if (index)
+  {
+    url = url + '&index=' + index;
+  }
+  else
+  {
+    if (field)
     {
-      var elem = x();
-      switch (elem.attr('type'))
+      url = url + '&field=' + field;
+    }
+    if (exclude)
+    {
+      url = url + '&exclude=true';
+    }
+  }
+  if (invert)
+  {
+    url = url + '&invert=true';
+  }
+
+  searchListing().hide();
+
+  $.get(url, function (searchResults)
+  {
+    searchListing().html(searchResults);
+    $('.search-result-field-id').each(function (index, item)
+    {
+      var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
+      var target = $(item).children('a').first();
+      target.html(label);
+      target.attr('data-search-label', label);
+    });
+    if (!invert)
+    {
+      $('.search-results th').each(function (index, item)
       {
-      case 'hidden':
-        elem.val('');
-        break;
-      case 'checkbox':
-        elem.prop('checked', false);
-        break;
-      }
-    });
-  };
-
-  var hideElems = function ()
-  {
-    formElems.forEach(function (x)
-    {
-      var elem = x();
-      switch (elem.attr('type'))
-      {
-      case 'hidden':
-        break;
-      case 'checkbox':
-        elem.parent('div').hide();
-        break;
-      default:
-        elem.hide();
-      }
-    });
-  };
-
-  var fieldLabels = function ()
-  {
-    var ident = getIdentifier();
-    var fieldlabels = JSON.parse(sessionStorage.getItem(ident + '_labels'));
-    return fieldlabels;
-  };
-
-  var searchFieldItem = function (field, fieldLabel)
-  {
-    return templates['search-field-item'].render(
-    {
-      fieldLabel: fieldLabel,
-      field: field
-    });
-  };
-
-  var setFields = function (fields)
-  {
-    var fLabels = fieldLabels();
-    var jFields = JSON.stringify(fields);
-    var sfls = searchFieldsLabel();
-    var ident = getIdentifier();
-
-    searchFields().val(jFields);
-    localStorage.setItem(ident + '_searchFields', jFields);
-
-    var linkLabels = fields.map(function (x)
-    {
-      return searchFieldItem(x, fLabels[x].join(': '));
-    });
-
-    sfls.html(linkLabels.join(' '));
-
-    return true;
-  };
-
-  mod.allFields = function ()
-  {
-    clearStore();
-    hideElems();
-    clearVals();
-    return mod;
-  };
-
-  mod.singleField = function (fields)
-  {
-    mod.multipleFields(fields);
-    searchInvert().parent().show();
-    return mod;
-  };
-
-  mod.singleFieldInverse = function (fields)
-  {
-    var ident = getIdentifier();
-    mod.singleField(fields);
-    searchInvert().prop('checked', true);
-    localStorage.setItem(ident + '_searchInvert', true);
-    return mod;
-  };
-
-  mod.multipleFields = function (fields)
-  {
-    mod.allFields();
-    setFields(fields);
-    [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x)
-    {
-      x.show();
-    });
-    return mod;
-  };
-
-  mod.excludedFields = function (fields)
-  {
-    var ident = getIdentifier();
-    if (fields.length > 1)
-    {
-      mod.multipleFields(fields);
-    }
-    else
-    {
-      mod.singleField(fields);
-    }
-    searchExclude().prop('checked', true);
-    localStorage.setItem(ident + '_searchExclude', true);
-    return mod;
-  };
-
-  mod.indexOnly = function (index, indexLabel)
-  {
-    var ident = getIdentifier();
-    mod.allFields();
-    localStorage.setItem(ident + '_searchIndex', index);
-    localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
-    searchIndex().val(index);
-    searchIndexLabel().html(indexLabel);
-    [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x)
-    {
-      x.show();
-    });
-    return mod;
-  };
-
-  mod.indexInverse = function (index, indexLabel)
-  {
-    var ident = getIdentifier();
-    mod.indexOnly(index, indexLabel);
-    searchInvert().prop('checked', true);
-    localStorage.setItem(ident + '_searchInvert', true);
-    return mod;
-  };
-
-  mod.getSearch = function ()
-  {
-    var query = searchTerm().val();
-    var url = 'documents/search?q=' + window.encodeURIComponent(query);
-    var field = searchFields().val();
-    var exclude = searchExclude().is(':checked');
-    var invert = searchInvert().is(':checked');
-    var index = searchIndex().val();
-    var fieldlabels = fieldLabels();
-
-    if (index)
-    {
-      url = url + '&index=' + index;
-    }
-    else
-    {
-      if (field)
-      {
-        url = url + '&field=' + field;
-      }
-      if (exclude)
-      {
-        url = url + '&exclude=true';
-      }
-    }
-    if (invert)
-    {
-      url = url + '&invert=true';
-    }
-
-    searchListing().hide();
-
-    $.get(url, function (searchResults)
-    {
-      searchListing().html(searchResults);
-      $('.search-result-field-id').each(function (index, item)
-      {
-        var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
-        var target = $(item).children('a').first();
-        target.html(label);
-        target.attr('data-search-label', label);
+        var itemText = $.trim($(item).children('a').html());
+        var re = new RegExp('(' + query + ')', 'g');
+        var newText = itemText.replace(re, '<span class="highlight">$1</span>');
+        $(item).children('a').html(newText);
       });
-      if (!invert)
-      {
-        $('.search-results th').each(function (index, item)
-        {
-          var itemText = $.trim($(item).children('a').html());
-          var re = new RegExp('(' + query + ')', 'g');
-          var newText = itemText.replace(re, '<span class="highlight">$1</span>');
-          $(item).children('a').html(newText);
-        });
-      }
-      searchListing().show();
+    }
+    searchListing().show();
+  });
+
+  return true;
+};
+
+// Remove a field from those that will be searched (or excluded in an
+// exclusive search.)
+var removeField = function (t)
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  var searchFields = localStorage.getItem(ident + '_searchFields');
+  var newSearchFields;
+  var fields = JSON.parse(searchFields);
+  var newFields;
+  var id = $(t).attr('data-field-field');
+
+  if (fields !== null)
+  {
+    newFields = fields.filter(function (x)
+    {
+      return x !== id;
     });
-
-    return mod;
-  };
-
-  mod.removeField = function (t)
-  {
-    var ident = getIdentifier();
-    var searchFields = localStorage.getItem(ident + '_searchFields');
-    var newSearchFields;
-    var fields = JSON.parse(searchFields);
-    var newFields;
-    var id = $(t).attr('data-field-field');
-
-    if (fields !== null)
-    {
-      newFields = fields.filter(function (x)
-      {
-        return x !== id;
-      });
-      newSearchFields = JSON.stringify(newFields);
-      localStorage.setItem(ident + '_searchFields', (newFields.length === 0) ? null : newSearchFields);
-      localStorage.setItem(ident + '_searchIndex', null);
-      mod.loadSearchVals();
-    }
-
-    return mod;
-  };
-
-  mod.addField = function (t)
-  {
-    var ident = getIdentifier();
-    var searchFields = localStorage.getItem(ident + '_searchFields');
-    var newSearchFields;
-    var fields = JSON.parse(searchFields);
-    var newFields;
-    var id = $(t).attr('data-field-field');
-
-    if (fields === null)
-    {
-      fields = [];
-    }
-
-    newFields = shimi.sets.union(fields, id);
     newSearchFields = JSON.stringify(newFields);
     localStorage.setItem(ident + '_searchFields', (newFields.length === 0) ? null : newSearchFields);
     localStorage.setItem(ident + '_searchIndex', null);
-    mod.loadSearchVals();
+    loadSearchVals();
+  }
 
-    return mod;
-  };
+  return true;
+};
 
-  mod.addIndex = function ()
-  {
-    var val = indexVal();
-    var ident = getIdentifier();
-
-    if (val)
-    {
-      localStorage.setItem(ident + '_searchFields', null);
-      localStorage.setItem(ident + '_searchIndex', val);
-      localStorage.setItem(ident + '_searchIndexLabel', $('option[value=' + val + ']').html());
-      mod.loadSearchVals();
-    }
-
-    return mod;
-  };
-
-  mod.toggleInversion = function ()
-  {
-    var ident = getIdentifier();
-    localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
-    localStorage.setItem(ident + '_searchExclude', null);
-    mod.loadSearchVals();
-
-    return mod;
-  };
-
-  mod.toggleExclusion = function ()
-  {
-    var ident = getIdentifier();
-    localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
-    localStorage.getItem(ident + '_searchInvert', null);
-    mod.loadSearchVals();
-
-    return mod;
-  };
-
-  mod.loadSearchVals = function ()
-  {
-    var ident = getIdentifier();
-    var exclude = localStorage.getItem(ident + '_searchExclude');
-    var invert = localStorage.getItem(ident + '_searchInvert');
-    var index = localStorage.getItem(ident + '_searchIndex');
-    var fieldids = localStorage.getItem(ident + '_searchFields');
-    var fields;
-    var indexLabel;
-    var params = [exclude, invert, index, fieldids].map(function (x)
-    {
-      return (x === 'null' || x === 'false' || x === 'true') ? JSON.parse(x) : x;
-    });
-    var allNull = params.every(function (x)
-    {
-      return x === null;
-    });
-
-    try
-    {
-      if (allNull)
-      {
-        mod.allFields();
-      }
-      else if (params[0] === true)
-      {
-        fields = JSON.parse(fieldids);
-        mod.excludedFields(fields);
-      }
-      else if (params[1] === null && params[3] !== null)
-      {
-        fields = JSON.parse(fieldids);
-        if (fields.length > 1)
-        {
-          mod.multipleFields(fields);
-        }
-        else
-        {
-          mod.singleField(fields);
-        }
-      }
-      else if (params[3] !== null)
-      {
-        fields = JSON.parse(fieldids);
-        if (fields.length > 1)
-        {
-          mod.multipleFields(fields);
-        }
-        else
-        {
-          mod.singleFieldInverse(fields);
-        }
-      }
-      else if (params[1] === null)
-      {
-        indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
-        mod.indexOnly(index, indexLabel);
-      }
-      else if (params[1] === true)
-      {
-        indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
-        mod.indexInverse(index, indexLabel);
-      }
-    }
-    catch (e)
-    {
-      window.console.log(e);
-      mod.allFields();
-    }
-
-    return mod;
-  };
-
-  mod.toggleSelection = function (t)
-  {
-    var target = $(t);
-
-    if (target.is(':checked'))
-    {
-      target.next('label').next('table').addClass('selected-for-save');
-    }
-    else
-    {
-      target.next('label').next('table').removeClass('selected-for-save');
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],23:[function(require,module,exports){
-shimi.setsui = (function ()
+// Add a field to those that will be searched (or excluded in an
+// exclusive search.)
+var addField = function (t)
 {
   'use strict';
 
-  var mod = {};
-  var sets = shimi.sets;
-  var utils = shimi.utils();
-  var setA = function ()
+  var ident = getIdentifier();
+  var searchFields = localStorage.getItem(ident + '_searchFields');
+  var newSearchFields;
+  var fields = JSON.parse(searchFields);
+  var newFields;
+  var id = $(t).attr('data-field-field');
+
+  if (fields === null)
   {
-    return $('#document-set-a-input');
-  };
-  var setB = function ()
-  {
-    return $('#document-set-b-input');
-  };
-  var worksheetsSet = function ()
-  {
-    return $('#document-worksheets-set-input');
-  };
-  var op = function ()
-  {
-    return $('#document-set-operation-input');
-  };
-  var setListing = function ()
-  {
-    return $('#set-listing');
-  };
-  var sessionKey = function ()
-  {
-    return shimi.documents.identifier() + '_sets';
-  };
+    fields = [];
+  }
 
-  var member = function (arr, x)
-  {
-    return arr.some(function (y)
-    {
-      return x[0] === y[0] && x[1] === y[1];
-    });
-  };
+  newFields = sets.union(fields, id);
+  newSearchFields = JSON.stringify(newFields);
+  localStorage.setItem(ident + '_searchFields', (newFields.length === 0) ? null : newSearchFields);
+  localStorage.setItem(ident + '_searchIndex', null);
+  loadSearchVals();
 
-  var processSet = function (set)
-  {
-    var name = set[0];
-    var arr = sets.unique(set[1], member);
-    var procSet = [name, arr];
-    return procSet;
-  };
+  return true;
+};
 
-  var union = function (setNameA, setNameB)
-  {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.union(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var intersection = function (setNameA, setNameB)
-  {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.intersection(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var relativeComplement = function (setName1, setName2)
-  {
-    var setElems1 = mod.getSet(setName1)[1];
-    var setElems2 = mod.getSet(setName2)[1];
-    var newSet = sets.relativeComplement(setElems1, setElems2, member);
-    render(newSet);
-    return mod;
-  };
-
-  var symmetricDifference = function (setNameA, setNameB)
-  {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var getSets = function ()
-  {
-    var curr = window.sessionStorage.getItem(sessionKey());
-    var retval = [];
-
-    if (curr !== null)
-    {
-      retval = JSON.parse(curr);
-    }
-
-    return retval;
-  };
-
-  var view = function (setName)
-  {
-    var elems = mod.getSet(setName)[1];
-    render(elems);
-    return mod;
-  };
-
-  var remove = function (setName)
-  {
-    removeSet(setName);
-    render([]);
-    shimi.dispatch.send('sets-changed');
-    return mod;
-  };
-
-  mod.getSet = function (setName)
-  {
-    var retval;
-    var curr = getSets();
-    retval = curr.filter(function (x)
-    {
-      return x[0] === setName;
-    })[0];
-    return retval;
-  };
-
-  var removeSet = function (setName)
-  {
-    var nnew;
-    var curr = getSets();
-    nnew = curr.filter(function (x)
-    {
-      return x[0] !== setName;
-    });
-    setSets(nnew);
-    return mod;
-  };
-
-  var getSetNames = function ()
-  {
-    var curr = getSets();
-    return curr.map(function (x)
-    {
-      return x[0];
-    });
-  };
-
-  var setSets = function (nnew)
-  {
-    var procSets;
-    if (Array.isArray(nnew))
-    {
-      procSets = nnew.map(function (x)
-      {
-        return processSet(x);
-      });
-      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
-    }
-    else
-    {
-      window.sessionStorage.settem(sessionKey(), '[]');
-    }
-
-    return mod;
-  };
-
-  var setSet = function (nnew)
-  {
-    if (Array.isArray(nnew) && nnew.length === 2)
-    {
-      var curr = getSets();
-      var newName = nnew[0];
-      var filtered = curr.filter(function (x)
-      {
-        return x[0] !== newName;
-      });
-      setSets(filtered.concat([nnew]));
-    }
-    return mod;
-  };
-
-  var selectedToArray = function (target)
-  {
-    var retval = [];
-
-    switch (target)
-    {
-    case 'search':
-      retval = selectedSaveResultsToArray();
-      break;
-    case 'sets':
-      retval = selectedElementsToArray();
-      break;
-    }
-
-    return retval;
-  };
-
-  var selectedElementsToArray = function ()
-  {
-    var retval;
-    var selected = $('input.set-element-selection:checked');
-
-    retval = $.map(selected, function (elem)
-    {
-      var anchor = $(elem).parent('td').next('td').find('a').first();
-      var id = anchor.first().attr('href').replace(/^#/, '');
-      var context = anchor.html().trim();
-      return [[context, id]];
-    });
-    return retval;
-  };
-
-  var selectedSaveResultsToArray = function ()
-  {
-    var retval;
-    var selected = $('table.selected-for-save tr');
-
-    retval = $.map(selected, function (elem)
-    {
-      var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
-      var context = $(elem).find('td.search-result-context a').first().html().trim();
-      return [[context, id]];
-    });
-
-    return retval;
-  };
-
-  var render = function (setElems)
-  {
-    var total = setElems.length;
-    var elems = setElems.map(function (x)
-    {
-      return {
-        id: x[1],
-        context: x[0]
-      };
-    });
-    var listing = templates['set-listing'].render(
-    {
-      elements: elems,
-      total: total
-    });
-    setListing().html(listing);
-    return mod;
-  };
-
-  mod.performOp = function ()
-  {
-    switch (op().val())
-    {
-    case 'view-a':
-      view(setA().val());
-      break;
-    case 'view-b':
-      view(setB().val());
-      break;
-    case 'remove-a':
-      remove(setA().val());
-      break;
-    case 'remove-b':
-      remove(setB().val());
-      break;
-    case 'union':
-      union(setA().val(), setB().val());
-      break;
-    case 'intersection':
-      intersection(setA().val(), setB().val());
-      break;
-    case 'symmetric-difference':
-      symmetricDifference(setA().val(), setB().val());
-      break;
-    case 'relative-complement-b-in-a':
-      relativeComplement(setA().val(), setB().val());
-      break;
-    case 'relative-complement-a-in-b':
-      relativeComplement(setB().val(), setA().val());
-      break;
-    default:
-      break;
-    }
-    return mod;
-  };
-
-  mod.updateSelection = function ()
-  {
-    var currNames = getSetNames();
-    var newOptions = templates['set-options'].render(
-    {
-      names: currNames
-    });
-    setA().html(newOptions);
-    setB().html(newOptions);
-    worksheetsSet().html(newOptions);
-    return mod;
-  };
-
-  mod.saveSelected = function ()
-  {
-    var dialog = $('#new-set-dialog');
-    var name = $('#new-set-input').val();
-    var target = $('#new-set-target-input').val();
-    var selected;
-    var newSet;
-
-    if (!utils.isBlank(name))
-    {
-      dialog.hide();
-      selected = selectedToArray(target);
-      newSet = [name, selected];
-      setSet(newSet);
-      $('#new-set-input').val('');
-      shimi.dispatch.send('sets-changed');
-      shimi.flash('Success:', 'Set "' + name + '" saved.').highlight();
-    }
-    else
-    {
-      shimi.flash('Input invalid:', 'You must supply a valid name.').error();
-    }
-
-    return mod;
-  };
-
-  mod.toggleSelectAll = function (target)
-  {
-    if ($(target).is(':checked'))
-    {
-      $('input.set-element-selection').prop('checked', true);
-    }
-    else
-    {
-      $('input.set-element-selection').prop('checked', false);
-    }
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],24:[function(require,module,exports){
-// View pane UI elements
-shimi.viewui = (function (args)
+// Add a user created index to be searched.
+var addIndex = function ()
 {
   'use strict';
 
-  var mod = {};
-  var dv = function ()
-  {
-    return $('#document-view');
-  };
-  var dvt = function ()
-  {
-    return $('#document-view-tree');
-  };
-  var viewInfo = function ()
-  {
-    return $('#document-view-info');
-  };
+  var val = indexVal();
+  var ident = getIdentifier();
 
-  // Make an object where fieldsets with deletions are identified.
-  var getDeletions = function (changes)
+  if (val)
   {
-    return Object.keys(changes).reduce(function (acc, x)
+    localStorage.setItem(ident + '_searchFields', null);
+    localStorage.setItem(ident + '_searchIndex', val);
+    localStorage.setItem(ident + '_searchIndexLabel', $('option[value=' + val + ']').html());
+    loadSearchVals();
+  }
+
+  return true;
+};
+
+// Toggle the inverse search setting.
+var toggleInversion = function ()
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
+  localStorage.setItem(ident + '_searchExclude', null);
+  loadSearchVals();
+
+  return true;
+};
+
+// Toggle the exclusive search setting.
+var toggleExclusion = function ()
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
+  localStorage.getItem(ident + '_searchInvert', null);
+  loadSearchVals();
+
+  return true;
+};
+
+// The functions that alter the search form above store the values in
+// local storage. This interprets those values and puts the search form
+// in a consistent state.
+loadSearchVals = function ()
+{
+  'use strict';
+
+  var ident = getIdentifier();
+  var exclude = localStorage.getItem(ident + '_searchExclude');
+  var invert = localStorage.getItem(ident + '_searchInvert');
+  var index = localStorage.getItem(ident + '_searchIndex');
+  var fieldids = localStorage.getItem(ident + '_searchFields');
+  var fields;
+  var indexLabel;
+  var params = [exclude, invert, index, fieldids].map(function (x)
+  {
+    return (x === 'null' || x === 'false' || x === 'true') ? JSON.parse(x) : x;
+  });
+  var allNull = params.every(function (x)
+  {
+    return x === null;
+  });
+
+  try
+  {
+    if (allNull)
     {
-      // If it was changed and there is no new value, it was deleted.
-      if (changes[x].newValue === undefined)
-      {
-        if (acc[changes[x].fieldset] === undefined)
-        {
-          acc[changes[x].fieldset] = {};
-        }
-        acc[changes[x].fieldset][x] = changes[x];
-      }
-
-      return acc;
-    },
-    {});
-  };
-
-  var processIncoming = function (docJson, rev)
-  {
-    var withDeletions = {};
-
-    if (docJson.changes)
-    {
-      withDeletions = getDeletions(docJson.changes);
+      allFields();
     }
-
-    docJson.fieldsets.forEach(function (fset)
+    else if (params[0] === true)
     {
-      var fsetId = fset.id;
-
-      if (withDeletions[fsetId] !== undefined)
+      fields = JSON.parse(fieldids);
+      excludedFields(fields);
+    }
+    else if (params[1] === null && params[3] !== null)
+    {
+      fields = JSON.parse(fieldids);
+      if (fields.length > 1)
       {
-        fset.removal = true;
-        fset.altered = true;
-      }
-
-      var fieldFunc = function (field)
-      {
-        var changes = {};
-        var change;
-
-        if (docJson.changes)
-        {
-          changes = docJson.changes;
-        }
-        change = changes[field.instance];
-
-        field.json_value = JSON.stringify(field.value);
-
-        if (change !== undefined)
-        {
-          field.changed = true;
-          fset.altered = true;
-
-          if (change.originalValue === undefined)
-          {
-            fset.addition = true;
-            field.newfield = true;
-          }
-          else
-          {
-            field.originalValue = JSON.parse(change.originalValue);
-          }
-        }
-
-        if (field.subcategory === 'textarea')
-        {
-          field.is_textarea = true;
-        }
-        else if (field.value && field.subcategory.match('multi'))
-        {
-          field.value = field.value.join(', ');
-        }
-
-        return true;
-      };
-
-      if (fset.multiple)
-      {
-        fset.multifields.forEach(function (mfs)
-        {
-          mfs.fields.forEach(function (field)
-          {
-            fieldFunc(field);
-            return true;
-          });
-        });
+        multipleFields(fields);
       }
       else
       {
-        fset.fields.forEach(function (field)
+        singleField(fields);
+      }
+    }
+    else if (params[3] !== null)
+    {
+      fields = JSON.parse(fieldids);
+      if (fields.length > 1)
+      {
+        multipleFields(fields);
+      }
+      else
+      {
+        singleFieldInverse(fields);
+      }
+    }
+    else if (params[1] === null)
+    {
+      indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
+      indexOnly(index, indexLabel);
+    }
+    else if (params[1] === true)
+    {
+      indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
+      indexInverse(index, indexLabel);
+    }
+  }
+  catch (e)
+  {
+    window.console.log(e);
+    allFields();
+  }
+
+  return true;
+};
+
+// Toggle selection of result to save to set.
+var toggleSelection = function (t)
+{
+  'use strict';
+
+  var target = $(t);
+
+  if (target.is(':checked'))
+  {
+    target.next('label').next('table').addClass('selected-for-save');
+  }
+  else
+  {
+    target.next('label').next('table').removeClass('selected-for-save');
+  }
+
+  return true;
+};
+
+exports(allFields);
+exports(singleField);
+exports(singleFieldInverse);
+exports(multipleFields);
+exports(excludedFields);
+exports(indexOnly);
+exports(indexInverse);
+exports(getSearch);
+exports(removeField);
+exports(addField);
+exports(addIndex);
+exports(toggleInversion);
+exports(toggleExclusion);
+exports(loadSearchVals);
+exports(toggleSelection);
+
+},{"../sets.js":46,"../utils.js":48,"./documents.js":19,"./setsui.js":24}],24:[function(require,module,exports){
+// # The sets user interface
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Handles the sets user interface.
+
+// Variable Definitions
+
+var sender = require('../sender.js').sender;
+var flash = require('../flash.js');
+var sets = require('../sets.js');
+var utils = require('../utils.js');
+var documents = require('./documents.js');
+var removeSet;
+var setSets;
+var selectedElementsToArray;
+var selectedSaveResultsToArray;
+var render;
+var getSets;
+var getSet;
+
+// Internal functions
+
+// User interface element
+var setA = function ()
+{
+  'use strict';
+
+  return $('#document-set-a-input');
+};
+
+// User interface element
+var setB = function ()
+{
+  'use strict';
+
+  return $('#document-set-b-input');
+};
+
+// User interface element
+var worksheetsSet = function ()
+{
+  'use strict';
+
+  return $('#document-worksheets-set-input');
+};
+
+// User interface element
+var op = function ()
+{
+  'use strict';
+
+  return $('#document-set-operation-input');
+};
+
+// User interface element
+var setListing = function ()
+{
+  'use strict';
+
+  return $('#set-listing');
+};
+
+// User interface element
+var sessionKey = function ()
+{
+  'use strict';
+
+  return documents.identifier() + '_sets';
+};
+
+// Custom member function to use with [sets.js](./sets.html).
+var member = function (arr, x)
+{
+  'use strict';
+
+  return arr.some(function (y)
+  {
+    return x[0] === y[0] && x[1] === y[1];
+  });
+};
+
+// Ensure that the set is correct.
+var processSet = function (set)
+{
+  'use strict';
+
+  var name = set[0];
+  var arr = sets.unique(set[1], member);
+  var procSet = [name, arr];
+  return procSet;
+};
+
+// Perform the union of the sets specified by the user interface.
+var union = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.union(setElemsA, setElemsB, member);
+  render(newSet);
+  return true;
+};
+
+// Perform the intersection of the sets specified by the user interface.
+var intersection = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.intersection(setElemsA, setElemsB, member);
+  render(newSet);
+  return true;
+};
+
+// Perform the relative complement of the sets specified by the user
+// interface.
+var relativeComplement = function (setName1, setName2)
+{
+  'use strict';
+
+  var setElems1 = getSet(setName1)[1];
+  var setElems2 = getSet(setName2)[1];
+  var newSet = sets.relativeComplement(setElems1, setElems2, member);
+  render(newSet);
+
+  return true;
+};
+
+// Perform the symmetric difference of the sets specified by the user
+// interface.
+var symmetricDifference = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
+  render(newSet);
+
+  return true;
+};
+
+// Get the sets saved in session storage
+getSets = function ()
+{
+  'use strict';
+
+  var curr = window.sessionStorage.getItem(sessionKey());
+  var retval = [];
+
+  if (curr !== null)
+  {
+    retval = JSON.parse(curr);
+  }
+
+  return retval;
+};
+
+// View a set.
+var view = function (setName)
+{
+  'use strict';
+
+  var elems = getSet(setName)[1];
+  render(elems);
+
+  return true;
+};
+
+// Remove a set.
+var remove = function (setName)
+{
+  'use strict';
+
+  removeSet(setName);
+  render([]);
+  sender('sets-changed');
+
+  return true;
+};
+
+// Perform set removal.
+removeSet = function (setName)
+{
+  'use strict';
+
+  var nnew;
+  var curr = getSets();
+  nnew = curr.filter(function (x)
+  {
+    return x[0] !== setName;
+  });
+  setSets(nnew);
+
+  return true;
+};
+
+// Retrieve the set names.
+var getSetNames = function ()
+{
+  'use strict';
+
+  var curr = getSets();
+  return curr.map(function (x)
+  {
+    return x[0];
+  });
+};
+
+// Save sets to session storage.
+setSets = function (nnew)
+{
+  'use strict';
+
+  var procSets;
+  if (Array.isArray(nnew))
+  {
+    procSets = nnew.map(function (x)
+    {
+      return processSet(x);
+    });
+    window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
+  }
+  else
+  {
+    window.sessionStorage.settem(sessionKey(), '[]');
+  }
+
+  return true;
+};
+
+// Save a set to session storage.
+var setSet = function (nnew)
+{
+  'use strict';
+
+  if (Array.isArray(nnew) && nnew.length === 2)
+  {
+    var curr = getSets();
+    var newName = nnew[0];
+    var filtered = curr.filter(function (x)
+    {
+      return x[0] !== newName;
+    });
+    setSets(filtered.concat([nnew]));
+  }
+  return true;
+};
+
+// Convert selected search results or a selected elements to an array.
+var selectedToArray = function (target)
+{
+  'use strict';
+
+  var retval = [];
+
+  switch (target)
+  {
+  case 'search':
+    retval = selectedSaveResultsToArray();
+    break;
+  case 'sets':
+    retval = selectedElementsToArray();
+    break;
+  }
+
+  return retval;
+};
+
+// Convert selected elements to an array.
+selectedElementsToArray = function ()
+{
+  'use strict';
+
+  var retval;
+  var selected = $('input.set-element-selection:checked');
+
+  retval = $.map(selected, function (elem)
+  {
+    var anchor = $(elem).parent('td').next('td').find('a').first();
+    var id = anchor.first().attr('href').replace(/^#/, '');
+    var context = anchor.html().trim();
+    return [[context, id]];
+  });
+  return retval;
+};
+
+// Convert selected search results to an array.
+selectedSaveResultsToArray = function ()
+{
+  'use strict';
+
+  var retval;
+  var selected = $('table.selected-for-save tr');
+
+  retval = $.map(selected, function (elem)
+  {
+    var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
+    var context = $(elem).find('td.search-result-context a').first().html().trim();
+    return [[context, id]];
+  });
+
+  return retval;
+};
+
+// Render the set for display.
+render = function (setElems)
+{
+  'use strict';
+
+  var total = setElems.length;
+  var elems = setElems.map(function (x)
+  {
+    return {
+      id: x[1],
+      context: x[0]
+    };
+  });
+  var listing = templates['set-listing'].render(
+  {
+    elements: elems,
+    total: total
+  });
+  setListing().html(listing);
+  return true;
+};
+
+// Exported functions
+
+// Retrieve a set.
+var getSet = function (setName)
+{
+  'use strict';
+
+  var retval;
+  var curr = getSets();
+  retval = curr.filter(function (x)
+  {
+    return x[0] === setName;
+  })[0];
+  return retval;
+};
+
+// Perform a set operation.
+var performOp = function ()
+{
+  'use strict';
+
+  switch (op().val())
+  {
+  case 'view-a':
+    view(setA().val());
+    break;
+  case 'view-b':
+    view(setB().val());
+    break;
+  case 'remove-a':
+    remove(setA().val());
+    break;
+  case 'remove-b':
+    remove(setB().val());
+    break;
+  case 'union':
+    union(setA().val(), setB().val());
+    break;
+  case 'intersection':
+    intersection(setA().val(), setB().val());
+    break;
+  case 'symmetric-difference':
+    symmetricDifference(setA().val(), setB().val());
+    break;
+  case 'relative-complement-b-in-a':
+    relativeComplement(setA().val(), setB().val());
+    break;
+  case 'relative-complement-a-in-b':
+    relativeComplement(setB().val(), setA().val());
+    break;
+  default:
+    break;
+  }
+  return true;
+};
+
+// Update the selection of sets to choose from.
+var updateSelection = function ()
+{
+  'use strict';
+
+  var currNames = getSetNames();
+  var newOptions = templates['set-options'].render(
+  {
+    names: currNames
+  });
+  setA().html(newOptions);
+  setB().html(newOptions);
+  worksheetsSet().html(newOptions);
+
+  return true;
+};
+
+// Save select items as a set.
+var saveSelected = function ()
+{
+  'use strict';
+
+  var dialog = $('#new-set-dialog');
+  var name = $('#new-set-input').val();
+  var target = $('#new-set-target-input').val();
+  var selected;
+  var newSet;
+
+  if (!utils.isBlank(name))
+  {
+    dialog.hide();
+    selected = selectedToArray(target);
+    newSet = [name, selected];
+    setSet(newSet);
+    $('#new-set-input').val('');
+    sender('sets-changed');
+    flash.highlight('Success:', 'Set "' + name + '" saved.');
+  }
+  else
+  {
+    flash.error('Input invalid:', 'You must supply a valid name.');
+  }
+
+  return true;
+};
+
+// Toggle the selection of all elements.
+var toggleSelectAll = function (target)
+{
+  'use strict';
+
+  if ($(target).is(':checked'))
+  {
+    $('input.set-element-selection').prop('checked', true);
+  }
+  else
+  {
+    $('input.set-element-selection').prop('checked', false);
+  }
+  return true;
+};
+
+exports(getSet);
+exports(performOp);
+exports(updateSelection);
+exports(saveSelected);
+exports(toggleSelectAll);
+
+},{"../flash.js":28,"../sender.js":44,"../sets.js":46,"../utils.js":48,"./documents.js":19}],25:[function(require,module,exports){
+// # The view user interface
+//
+// *Implicit depends:* DOM, JQuery, Hogan, templates
+//
+// View pane UI elements.
+//
+// *TODO* I may be exporting more than needed.
+
+// Variable Definitions
+
+var store = require('../store.js').store;
+var indexui = require('./indexui.js');
+var flash = require('../flash.js');
+var editui = require('./editui.js');
+var fieldsets = require('./fieldsets.js');
+
+// Internal functions
+
+// User interface element
+var dv = function ()
+{
+  'use strict';
+
+  return $('#document-view');
+};
+
+// User interface element
+var dvt = function ()
+{
+  'use strict';
+
+  return $('#document-view-tree');
+};
+
+// User interface element
+var viewInfo = function ()
+{
+  'use strict';
+
+  return $('#document-view-info');
+};
+
+// Make an object where fieldsets with deletions are identified.
+var getDeletions = function (changes)
+{
+  'use strict';
+
+  return Object.keys(changes).reduce(function (acc, x)
+  {
+    // If it was changed and there is no new value, it was deleted.
+    if (changes[x].newValue === undefined)
+    {
+      if (acc[changes[x].fieldset] === undefined)
+      {
+        acc[changes[x].fieldset] = {};
+      }
+      acc[changes[x].fieldset][x] = changes[x];
+    }
+
+    return acc;
+  },
+  {});
+};
+
+// Process the document from the server.
+var processIncoming = function (docJson, rev)
+{
+  'use strict';
+
+  var withDeletions = {};
+
+  if (docJson.changes)
+  {
+    withDeletions = getDeletions(docJson.changes);
+  }
+
+  docJson.fieldsets.forEach(function (fset)
+  {
+    var fsetId = fset.id;
+
+    if (withDeletions[fsetId] !== undefined)
+    {
+      fset.removal = true;
+      fset.altered = true;
+    }
+
+    var fieldFunc = function (field)
+    {
+      var changes = {};
+      var change;
+
+      if (docJson.changes)
+      {
+        changes = docJson.changes;
+      }
+      change = changes[field.instance];
+
+      field.json_value = JSON.stringify(field.value);
+
+      if (change !== undefined)
+      {
+        field.changed = true;
+        fset.altered = true;
+
+        if (change.originalValue === undefined)
+        {
+          fset.addition = true;
+          field.newfield = true;
+        }
+        else
+        {
+          field.originalValue = JSON.parse(change.originalValue);
+        }
+      }
+
+      if (field.subcategory === 'textarea')
+      {
+        field.is_textarea = true;
+      }
+      else if (field.value && field.subcategory.match('multi'))
+      {
+        field.value = field.value.join(', ');
+      }
+
+      return true;
+    };
+
+    if (fset.multiple)
+    {
+      fset.multifields.forEach(function (mfs)
+      {
+        mfs.fields.forEach(function (field)
         {
           fieldFunc(field);
           return true;
         });
-      }
-
-      return true;
-    });
+      });
+    }
+    else
+    {
+      fset.fields.forEach(function (field)
+      {
+        fieldFunc(field);
+        return true;
+      });
+    }
 
     return true;
-  };
+  });
 
-  mod.formatTimestamps = function ()
+  return true;
+};
+
+// Exported functions
+
+// Format the 'update at' and 'created at' timestamps and localize them
+// to the current time zone.
+var formatTimestamps = function ()
+{
+  'use strict';
+
+  $('.timestamp').each(
+
+  function (i, item)
   {
-    $('.timestamp').each(
-
-    function (i, item)
+    var newDate = (new Date($(item).text())).toLocaleString();
+    if (newDate !== 'Invalid Date')
     {
-      var newDate = (new Date($(item).text())).toLocaleString();
-      if (newDate !== 'Invalid Date')
-      {
-        $(item).text(newDate);
-      }
-    });
+      $(item).text(newDate);
+    }
+  });
 
-    return mod;
-  };
+  return true;
+};
 
-  mod.get = function (id, rev, callback)
+// Get the document.
+var get = function (id, rev, callback)
+{
+  'use strict';
+
+  var url = 'documents/' + id;
+  var htmlTarget = dv();
+  var tmpl;
+
+  if (rev)
   {
-    var url = 'documents/' + id;
-    var htmlTarget = dv();
-    var tmpl;
+    url = url + '/' + rev;
+    htmlTarget = dvt();
+    tmpl = function (docJson)
+    {
+      return templates['document-view-tree'].render(docJson,
+      {
+        'document-view-field': templates['document-view-field']
+      });
+    };
+  }
+  else
+  {
+    tmpl = function (docJson)
+    {
+      return templates['document-view'].render(docJson,
+      {
+        'document-view-tree': templates['document-view-tree'],
+        'document-view-field': templates['document-view-field']
+      });
+    };
+
+  }
+
+  $.getJSON(url, function (docJson)
+  {
+    var documentHtml;
+
+    processIncoming(docJson, rev);
+    documentHtml = tmpl(docJson);
+    htmlTarget.html(documentHtml);
+    window.location.hash = id;
+    formatTimestamps();
+    dv().fadeTo('slow', 1);
+    if (callback)
+    {
+      callback();
+    }
 
     if (rev)
     {
-      url = url + '/' + rev;
-      htmlTarget = dvt();
-      tmpl = function (docJson)
-      {
-        return templates['document-view-tree'].render(docJson,
-        {
-          'document-view-field': templates['document-view-field']
-        });
-      };
+      $('#document-view-tree').addClass('oldrev');
     }
     else
     {
-      tmpl = function (docJson)
+      var restoreButton = $('#document-restore-button');
+      var editButton = $('#document-edit-button');
+      var deleteButton = $('#document-delete-button');
+
+      if (store(restoreButton).d('deleted') === 'true')
       {
-        return templates['document-view'].render(docJson,
-        {
-          'document-view-tree': templates['document-view-tree'],
-          'document-view-field': templates['document-view-field']
-        });
-      };
-
-    }
-
-    $.getJSON(url, function (docJson)
-    {
-      var documentHtml;
-
-      processIncoming(docJson, rev);
-      documentHtml = tmpl(docJson);
-      htmlTarget.html(documentHtml);
-      window.location.hash = id;
-      mod.formatTimestamps();
-      dv().fadeTo('slow', 1);
-      if (callback)
-      {
-        callback();
-      }
-
-      if (rev)
-      {
-        $('#document-view-tree').addClass('oldrev');
-      }
-      else
-      {
-        var restoreButton = $('#document-restore-button');
-        var editButton = $('#document-edit-button');
-        var deleteButton = $('#document-delete-button');
-
-        if (shimi.store(restoreButton).d('deleted') === 'true')
-        {
-          editButton.hide();
-          deleteButton.hide();
-          restoreButton.show();
-        }
-      }
-    });
-
-    return mod;
-  };
-
-  mod.restore = function (id, rev)
-  {
-    var url = './documents/' + id + '?rev=' + rev;
-    var restoreButton = $('#document-restore-button');
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var body;
-    var title;
-
-    $.ajax(
-    {
-      type: 'DELETE',
-      url: url,
-      dataType: 'json',
-      contentType: 'application/json',
-      complete: function (req, status)
-      {
-        if (req.status === 200)
-        {
-          title = 'Success';
-          body = 'Your document was restored.';
-
-          mod.get(id, null, function ()
-          {
-            dv().fadeTo('slow', 1);
-            shimi.indexui.get(skey, sid);
-          });
-          shimi.flash(title, body).highlight();
-        }
-        else if (req.status === 409)
-        {
-          body = JSON.parse(req.responseText);
-          title = req.statusText;
-
-          shimi.flash(title, body.message).error();
-        }
-        else if (req.status === 404)
-        {
-          body = 'Document was erased and cannot be restored.';
-          title = req.statusText;
-
-          shimi.flash(title, body).error();
-        }
-      }
-    });
-
-    return mod;
-  };
-
-  mod.del = function (id, rev)
-  {
-    var url = './documents/' + id + '?rev=' + rev;
-    var restoreButton = $('#document-restore-button');
-    var skey = $('#first-index-element').attr('data-first-key');
-    var sid = $('#first-index-element').attr('data-first-id');
-    var body;
-    var title;
-
-    $.ajax(
-    {
-      type: 'DELETE',
-      url: url,
-      dataType: 'json',
-      contentType: 'application/json',
-      complete: function (req, status)
-      {
-        if (req.status === 200)
-        {
-          title = 'Success';
-          body = 'Your document was deleted.';
-          var response = JSON.parse(req.responseText);
-
-          shimi.store(restoreButton).put('document-rev', response.rev);
-
-          $('#document-delete-button').hide();
-          $('#document-edit-button').hide();
-          restoreButton.show();
-          dv().fadeTo('slow', 0.5);
-
-          shimi.indexui.get(skey, sid);
-          shimi.flash(title, body).highlight();
-        }
-        else if (req.status === 409)
-        {
-          body = JSON.parse(req.responseText);
-          title = req.statusText;
-
-          shimi.flash(title, body.message).error();
-        }
-        else if (req.status === 404)
-        {
-          body = 'Document appears to have been deleted already.';
-          title = req.statusText;
-
-          shimi.flash(title, body).error();
-        }
-      }
-    });
-
-    return mod;
-  };
-
-  mod.confirmIt = function (callback)
-  {
-    if (window.confirm('Are you sure?'))
-    {
-      var s = shimi.store(viewInfo());
-      var id = s.d('document');
-      var rev = s.d('rev');
-
-      callback(id, rev);
-    }
-
-    return mod;
-  };
-
-  mod.edit = function ()
-  {
-    shimi.editui.resetFields();
-    if ($('#document-view-tree').hasClass('oldrev'))
-    {
-      $('#save-document-button').addClass('oldrev');
-    }
-    else
-    {
-      $('#save-document-button').removeClass('oldrev');
-    }
-    shimi.fieldsets.fillFieldsets();
-
-    return mod;
-  };
-
-  mod.confirmDelete = function ()
-  {
-    var s = shimi.store(viewInfo());
-    var id = s.d('document');
-    var rev = s.d('rev');
-    return mod.confirmIt(function ()
-    {
-      mod.del(id, rev);
-    });
-  };
-
-  mod.confirmRestore = function ()
-  {
-    var s = shimi.store(viewInfo());
-    var id = s.d('document');
-    var rev = s.d('rev');
-    return mod.confirmIt(function ()
-    {
-      mod.restore(id, rev);
-    });
-  };
-
-  mod.collapseToggle = function (target)
-  {
-    $(target).parent('li').toggleClass('collapsed');
-
-    return mod;
-  };
-
-  mod.fetchRevision = function (target)
-  {
-    var s = shimi.store($(target));
-    var id = s.d('document');
-    var oldrev = s.d('oldrev');
-
-    $('.revision-link').removeClass('selected-revision');
-    $(target).addClass('selected-revision');
-
-    mod.get(id, oldrev);
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],25:[function(require,module,exports){
-shimi.worksheetui = (function ()
-{
-  'use strict';
-
-  var mod = {};
-  var setsui = shimi.setsui;
-
-  var worksheetsSet = function ()
-  {
-    return $('#document-worksheets-set-input');
-  };
-  var worksheetsArea = function ()
-  {
-    return $('#worksheet-area');
-  };
-  var worksheetName = function ()
-  {
-    return shimi.documents.identifier() + '_worksheet-template';
-  };
-
-  mod.selectAllRows = function (select)
-  {
-    if (select)
-    {
-      $('#worksheet-table tbody tr').addClass('selected-row');
-      $('#worksheet-table tbody tr input').prop('checked', true);
-    }
-    else
-    {
-      $('#worksheet-table tbody tr').removeClass('selected-row');
-      $('#worksheet-table tbody tr input:checked').prop('checked', false);
-    }
-
-    return mod;
-  };
-
-  // Set the proper class for a selected row and unset the 'select all'
-  mod.rowSelection = function (row, select)
-  {
-    if (select)
-    {
-      $('#' + row).addClass('selected-row');
-      $('#select-all-worksheet-rows').prop('checked', false);
-    }
-    else
-    {
-      $('#' + row).removeClass('selected-row');
-      $('#select-all-worksheet-rows').prop('checked', false);
-    }
-
-    return mod;
-  };
-
-  mod.columnSelection = function (column, select)
-  {
-    if (select)
-    {
-      $('.field-column.' + column).addClass('selected-column');
-    }
-    else
-    {
-      $('.field-column.' + column).removeClass('selected-column');
-    }
-
-    return mod;
-  };
-
-  mod.showHandles = function ()
-  {
-    $('#worksheet-table .handle-column.fieldset').show();
-
-    return mod;
-  };
-
-  mod.hideHandles = function ()
-  {
-    $('#worksheet-table .handle-column.fieldset').hide();
-
-    return mod;
-  };
-
-  mod.showFieldset = function (fsid)
-  {
-    $('#worksheet-table .handle-column.field.' + fsid).show();
-
-    return mod;
-  };
-
-  mod.hideFieldset = function (fsid)
-  {
-    $('#worksheet-table .handle-column.field.' + fsid).hide();
-
-    return mod;
-  };
-
-  mod.showField = function (fid)
-  {
-    $('.field-column.' + fid).show();
-
-    return mod;
-  };
-
-  mod.hideField = function (fid)
-  {
-    $('.field-column.' + fid).hide();
-
-    return mod;
-  };
-
-  mod.buildTemplate = function ()
-  {
-    var doctypeInfo = shimi.documents.info();
-    var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
-    shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
-
-    return mod;
-  };
-
-  mod.fillWorksheet = function ()
-  {
-    var setName = worksheetsSet().val();
-    var url = 'worksheets';
-    var complete = function (_ignore, req)
-    {
-      var data = JSON.parse(req.responseText);
-      var ws = shimi.globals[worksheetName()].render(data);
-      worksheetsArea().html(ws);
-    };
-
-    if (!setName.isBlank())
-    {
-      var thisSet = setsui.getSet(setName)[1];
-
-      if (thisSet.lenght <= 250)
-      {
-        var setIds = thisSet.map(function (x)
-        {
-          return x[1];
-        });
-
-        shimi.form.send(url, setIds, 'POST', complete);
-      }
-      else
-      {
-        shimi.flash('Could not load worksheet', 'the current set size is limited to 250 items.').error();
+        editButton.hide();
+        deleteButton.hide();
+        restoreButton.show();
       }
     }
+  });
 
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],26:[function(require,module,exports){
-shimi.fm = (function ()
-{
-  'use strict';
-
-  var mod = {};
-
-  var getDirListing = function (path)
-  {
-    if (path === undefined)
-    {
-      path = '';
-    }
-
-    $.get('file_manager/list_dirs/' + path, function (data)
-    {
-      $('#file-paths').html(data);
-    });
-  };
-
-  mod.init = function ()
-  {
-    shimi.fm.refreshListings();
-    $('#file-upload-target').load(function ()
-    {
-      var encoded = $('#file-upload-target').contents().find('body pre').html();
-      var obj = function ()
-      {
-        if (encoded && encoded.length > 0)
-        {
-          return JSON.parse(encoded);
-        }
-        else
-        {
-          return {
-            message: false
-          };
-        }
-      };
-
-      if (obj() && obj().message && obj().status !== 'success')
-      {
-        shimi.flash('Error', obj().message).error();
-        shimi.fm.refreshListings();
-      }
-      else if (obj().message)
-      {
-        shimi.flash('Success', obj().message).highlight();
-        shimi.fm.refreshListings();
-      }
-    });
-  };
-
-  mod.goDir = function (target)
-  {
-    var newpath = $(target).attr('data-path');
-    window.sessionStorage.fmPath = newpath;
-    mod.refreshListings(newpath);
-
-    return mod;
-  };
-
-  mod.rootDir = function ()
-  {
-    var path = window.sessionStorage.fmPath = '';
-    mod.refreshListings();
-
-    return mod;
-  };
-
-  mod.upDir = function ()
-  {
-    var path = window.sessionStorage.fmPath;
-    var newpath = path.split('/');
-    newpath.pop();
-    newpath = newpath.join('/');
-    window.sessionStorage.fmPath = newpath;
-
-    mod.refreshListings(newpath);
-
-    return mod;
-  };
-
-  var getFileListing = function (path)
-  {
-    if (path === undefined)
-    {
-      path = '';
-    }
-
-    $.get('file_manager/list_files/' + path, function (data)
-    {
-      $('#file-listing').html(data);
-    });
-  };
-
-  mod.editFile = function (target)
-  {
-    var path = window.sessionStorage.fmPath;
-    var fileId = target.attr('data-file-id');
-    var url = 'file_manager/' + fileId;
-
-    $.getJSON(url, function (obj)
-    {
-      pathEditDialog(obj, path).dialog('open');
-    });
-
-    return mod;
-  };
-
-  mod.deleteFile = function (target)
-  {
-    var path = window.sessionStorage.fmPath;
-    var fileId = target.attr('data-file-id');
-    var fileRev = target.attr('data-file-rev');
-    var url = 'file_manager/' + fileId + '?rev=' + fileRev;
-    var complete = function ()
-    {
-      mod.refreshListings(path);
-      shimi.flash('Success', 'File Deleted').highlight();
-    };
-
-    shimi.form.send(url, null, 'DELETE', complete, target);
-
-    return mod;
-  };
-
-  var pathEditDialog = function (obj, path)
-  {
-    var pathInput = $('#file-path-input');
-
-    if (obj.path)
-    {
-      pathInput.val(obj.path.join('/'));
-    }
-    else
-    {
-      pathInput.val('');
-    }
-
-    var dialog = $('#edit-path-dialog').dialog(
-    {
-      autoOpen: false,
-      modal: true,
-      buttons:
-      {
-        'Move': function ()
-        {
-          var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
-          var complete = function ()
-          {
-            mod.refreshListings(path);
-            shimi.flash('Success', 'File Moved').highlight();
-          };
-
-          obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
-          shimi.form.send(url, obj, 'PUT', complete, dialog);
-          $(this).dialog('close');
-        },
-        'Cancel': function ()
-        {
-          $(this).dialog('close');
-        }
-      }
-    });
-
-    return dialog;
-  };
-
-  mod.refreshListings = function (path)
-  {
-    getDirListing(path);
-    getFileListing(path);
-  };
-
-  return mod;
-})();
-
-},{}],27:[function(require,module,exports){
-shimi.flash = function (title, body)
-{
-  'use strict';
-
-  var mod = {};
-
-  var f = function (flasher, title, body)
-  {
-    var fadeout = function ()
-    {
-      flasher.fadeOut();
-    };
-    flasher.find('.notification-summary').text(title + ': ');
-    flasher.find('.notification-message').text(body);
-    var timeout = window.setTimeout(fadeout, 7000);
-    flasher.fadeIn();
-    flasher.find('.close').click(function ()
-    {
-      window.clearTimeout(timeout);
-      flasher.hide();
-    });
-  };
-
-  mod.error = function ()
-  {
-    f($('#notifications-main .ui-state-error'), title, body);
-
-    return mod;
-  };
-
-  mod.highlight = function ()
-  {
-    f($('#notifications-main .ui-state-highlight'), title, body);
-
-    return mod;
-  };
-
-  return mod;
+  return true;
 };
 
-},{}],28:[function(require,module,exports){
-shimi.form = (function ()
+// Restore the state of a document to that of an earlier revision.
+var restore = function (id, rev)
 {
   'use strict';
 
-  var mod = {};
+  var url = './documents/' + id + '?rev=' + rev;
+  var restoreButton = $('#document-restore-button');
+  var skey = $('#first-index-element').attr('data-first-key');
+  var sid = $('#first-index-element').attr('data-first-id');
+  var body;
+  var title;
 
-  mod.toggle = function (t)
+  $.ajax(
   {
-    var toggleElem;
-    var target = $(t);
-
-    if (target.attr('data-target'))
+    type: 'DELETE',
+    url: url,
+    dataType: 'json',
+    contentType: 'application/json',
+    complete: function (req, status)
     {
-      toggleElem = $('#' + target.attr('data-target'));
-      toggleElem.toggle();
-    }
-    return mod;
-  };
-
-  mod.cancelDialog = function (t)
-  {
-    var target = $(t);
-    var toggleElem;
-    var elemId;
-
-    if (target.attr('data-target'))
-    {
-      elemId = '#' + target.attr('data-target');
-      toggleElem = $(elemId);
-      toggleElem.hide();
-      mod.clear(undefined, toggleElem.find('form'));
-    }
-    return mod;
-  };
-
-  mod.clear = function (inputFields, form)
-  {
-    if (inputFields === undefined)
-    {
-      inputFields = $(form).find('input, select, textarea');
-    }
-    inputFields.each(function (index, elem)
-    {
-      var inputField = $(elem);
-
-      if (!inputField.attr('data-retain'))
+      if (req.status === 200)
       {
-        if (inputField.is(':checked'))
+        title = 'Success';
+        body = 'Your document was restored.';
+
+        get(id, null, function ()
         {
-          inputField.attr('checked', false);
-        }
-        inputField.val('');
+          dv().fadeTo('slow', 1);
+          indexui.get(skey, sid);
+        });
+        flash.highlight(title, body);
       }
-    });
-    return inputFields;
-  };
-
-  mod.send = function (ajaxUrl, obj, method, completeFun, callContext)
-  {
-    var dataObj;
-
-    if (obj)
-    {
-      dataObj = JSON.stringify(obj);
-    }
-
-    $.ajax(
-    {
-      type: method,
-      url: ajaxUrl,
-      dataType: 'json',
-      context: callContext,
-      contentType: 'application/json',
-      processData: false,
-      data: dataObj,
-      complete: function (req, status)
+      else if (req.status === 409)
       {
-        if (req.status >= 200 && req.status < 300)
-        {
-          completeFun(this, req);
-        }
-        else if (req.status === 500)
-        {
-          shimi.flash('Unknown Server Error', 'Please report that you received ' + 'this message').error();
-        }
-        else if (req.status >= 400)
-        {
-          var body = JSON.parse(req.responseText);
-          var title = req.statusText;
+        body = JSON.parse(req.responseText);
+        title = req.statusText;
 
-          shimi.flash(title, body.fieldname + ' ' + body.message).error();
-        }
+        flash.error(title, body.message);
       }
-    });
+      else if (req.status === 404)
+      {
+        body = 'Document was erased and cannot be restored.';
+        title = req.statusText;
 
-    return true;
+        flash.error(title, body);
+      }
+    }
+  });
+
+  return true;
+};
+
+// Delete the document.
+var del = function (id, rev)
+{
+  'use strict';
+
+  var url = './documents/' + id + '?rev=' + rev;
+  var restoreButton = $('#document-restore-button');
+  var skey = $('#first-index-element').attr('data-first-key');
+  var sid = $('#first-index-element').attr('data-first-id');
+  var body;
+  var title;
+
+  $.ajax(
+  {
+    type: 'DELETE',
+    url: url,
+    dataType: 'json',
+    contentType: 'application/json',
+    complete: function (req, status)
+    {
+      if (req.status === 200)
+      {
+        title = 'Success';
+        body = 'Your document was deleted.';
+        var response = JSON.parse(req.responseText);
+
+        store(restoreButton).put('document-rev', response.rev);
+
+        $('#document-delete-button').hide();
+        $('#document-edit-button').hide();
+        restoreButton.show();
+        dv().fadeTo('slow', 0.5);
+
+        indexui.get(skey, sid);
+        flash.highlight(title, body);
+      }
+      else if (req.status === 409)
+      {
+        body = JSON.parse(req.responseText);
+        title = req.statusText;
+
+        flash.error(title, body.message);
+      }
+      else if (req.status === 404)
+      {
+        body = 'Document appears to have been deleted already.';
+        title = req.statusText;
+
+        flash.error(title, body);
+      }
+    }
+  });
+
+  return true;
+};
+
+// Confirm an action.
+var confirmIt = function (callback)
+{
+  'use strict';
+
+  if (window.confirm('Are you sure?'))
+  {
+    var s = store(viewInfo());
+    var id = s.d('document');
+    var rev = s.d('rev');
+
+    callback(id, rev);
+  }
+
+  return true;
+};
+
+// Move the document to the editor.
+var edit = function ()
+{
+  'use strict';
+
+  editui.resetFields();
+  if ($('#document-view-tree').hasClass('oldrev'))
+  {
+    $('#save-document-button').addClass('oldrev');
+  }
+  else
+  {
+    $('#save-document-button').removeClass('oldrev');
+  }
+  fieldsets.fillFieldsets();
+
+  return true;
+};
+
+// Ask for confirmation on deletion.
+var confirmDelete = function ()
+{
+  'use strict';
+
+  var s = store(viewInfo());
+  var id = s.d('document');
+  var rev = s.d('rev');
+  return confirmIt(function ()
+  {
+    del(id, rev);
+  });
+};
+
+// Ask for confirmation on restoration.
+var confirmRestore = function ()
+{
+  'use strict';
+
+  var s = store(viewInfo());
+  var id = s.d('document');
+  var rev = s.d('rev');
+  return confirmIt(function ()
+  {
+    restore(id, rev);
+  });
+};
+
+// Expand and collapse elements of the view tree.
+var collapseToggle = function (target)
+{
+  'use strict';
+
+  $(target).parent('li').toggleClass('collapsed');
+
+  return true;
+};
+
+// Get a previous revision.
+var fetchRevision = function (target)
+{
+  'use strict';
+
+  var s = store($(target));
+  var id = s.d('document');
+  var oldrev = s.d('oldrev');
+
+  $('.revision-link').removeClass('selected-revision');
+  $(target).addClass('selected-revision');
+
+  get(id, oldrev);
+
+  return true;
+};
+
+exports(formatTimestamps);
+exports(get);
+exports(restore);
+exports(del);
+exports(confirmIt);
+exports(edit);
+exports(confirmDelete);
+exports(confirmRestore);
+exports(collapseToggle);
+exports(fetchRevision);
+
+},{"../flash.js":28,"../store.js":47,"./editui.js":20,"./fieldsets.js":21,"./indexui.js":22}],26:[function(require,module,exports){
+// # The worksheet user interface
+//
+// *Implicit depends:* DOM, JQuery, Hogan, templates, shimi.globals
+// ([application.js](./application.html))
+//
+// Worksheet pane UI elements.
+
+// Variable Definitions
+
+var setsui = require('./setsui.js');
+var documents = require('./documents.js');
+var form = require('../form.js');
+var flash = require('../flash.js');
+
+// Internal functions
+
+// User interface element
+var worksheetsSet = function ()
+{
+  'use strict';
+
+  return $('#document-worksheets-set-input');
+};
+
+// User interface element
+var worksheetsArea = function ()
+{
+  'use strict';
+
+  return $('#worksheet-area');
+};
+
+// Name for the worksheet template.
+var worksheetName = function ()
+{
+  'use strict';
+
+  return documents.identifier() + '_worksheet-template';
+};
+
+// Exported functions
+
+// Select all the visible rows.
+var selectAllRows = function (select)
+{
+  'use strict';
+
+  if (select)
+  {
+    $('#worksheet-table tbody tr').addClass('selected-row');
+    $('#worksheet-table tbody tr input').prop('checked', true);
+  }
+  else
+  {
+    $('#worksheet-table tbody tr').removeClass('selected-row');
+    $('#worksheet-table tbody tr input:checked').prop('checked', false);
+  }
+
+  return true;
+};
+
+// Set the proper class for a selected row and unset the 'select all'
+var rowSelection = function (row, select)
+{
+  'use strict';
+
+  if (select)
+  {
+    $('#' + row).addClass('selected-row');
+    $('#select-all-worksheet-rows').prop('checked', false);
+  }
+  else
+  {
+    $('#' + row).removeClass('selected-row');
+    $('#select-all-worksheet-rows').prop('checked', false);
+  }
+
+  return true;
+};
+
+// Select a column.
+var columnSelection = function (column, select)
+{
+  'use strict';
+
+  if (select)
+  {
+    $('.field-column.' + column).addClass('selected-column');
+  }
+  else
+  {
+    $('.field-column.' + column).removeClass('selected-column');
+  }
+
+  return true;
+};
+
+// Show vertical headers for fields and fieldsets.
+var showHandles = function ()
+{
+  'use strict';
+
+  $('#worksheet-table .handle-column.fieldset').show();
+
+  return true;
+};
+
+// Hide vertical headers for fields and fieldsets.
+var hideHandles = function ()
+{
+  'use strict';
+
+  $('#worksheet-table .handle-column.fieldset').hide();
+
+  return true;
+};
+
+// Show the fieldset handle.
+var showFieldset = function (fsid)
+{
+  'use strict';
+
+  $('#worksheet-table .handle-column.field.' + fsid).show();
+
+  return true;
+};
+
+// Hide the fieldset handle.
+var hideFieldset = function (fsid)
+{
+  'use strict';
+
+  $('#worksheet-table .handle-column.field.' + fsid).hide();
+
+  return true;
+};
+
+// Show a field.
+var showField = function (fid)
+{
+  'use strict';
+
+  $('.field-column.' + fid).show();
+
+  return true;
+};
+
+// Hide a field.
+var hideField = function (fid)
+{
+  'use strict';
+
+  $('.field-column.' + fid).hide();
+
+  return true;
+};
+
+// There are two layers of templating information in the
+// template. Activate the second layer.
+var buildTemplate = function ()
+{
+  'use strict';
+
+  var doctypeInfo = documents.info();
+  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
+  shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
+
+  return true;
+};
+
+// Render the worksheet.
+var fillWorksheet = function ()
+{
+  'use strict';
+
+  var setName = worksheetsSet().val();
+  var url = 'worksheets';
+  var complete = function (_ignore, req)
+  {
+    var data = JSON.parse(req.responseText);
+    var ws = shimi.globals[worksheetName()].render(data);
+    worksheetsArea().html(ws);
   };
 
-  // Validation
-  mod.updateTips = function (t, tips)
+  if (!setName.isBlank())
   {
-    tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-    setTimeout(function ()
-    {
-      tips.removeClass('ui-state-highlight', 1500);
-    }, 500);
+    var thisSet = setsui.getSet(setName)[1];
 
-    return true;
-  };
-
-  mod.checkLength = function (o, n, min, max, tips)
-  {
-    if (o.val().length > max || o.val().length < min)
+    if (thisSet.lenght <= 250)
     {
-      o.addClass('ui-state-error');
-      mod.updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
-      return false;
+      var setIds = thisSet.map(function (x)
+      {
+        return x[1];
+      });
+
+      form.send(url, setIds, 'POST', complete);
     }
     else
     {
-      return true;
+      flash.error('Could not load worksheet', 'the current set size is limited to 250 items.');
     }
-  };
+  }
 
-  mod.checkRegexp = function (o, regexp, n, tips)
+  return true;
+};
+
+exports(selectAllRows);
+exports(rowSelection);
+exports(columnSelection);
+exports(showHandles);
+exports(hideHandles);
+exports(showFieldset);
+exports(hideFieldset);
+exports(showField);
+exports(hideField);
+exports(buildTemplate);
+exports(fillWorksheet);
+
+},{"../flash.js":28,"../form.js":29,"./documents.js":19,"./setsui.js":24}],27:[function(require,module,exports){
+// # The file manager
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Interface for working with CouchDB attachments within documents that
+// exist only for the pupose of holding the attachment. A mock-file
+// system path is given to these saved documents and may be used to
+// retrieve them instead of the ID.
+
+// Variable Definitions
+
+var form = require('../form.js');
+var flash = require('../flash.js');
+var refreshListings;
+
+// Internal functions
+
+// Get information subdirectories within a path. As an example
+// '/home/chuck/'.
+var getDirListing = function (path)
+{
+  'use strict';
+
+  if (path === undefined)
   {
-    if (!(regexp.test(o.val())))
-    {
-      o.addClass('ui-state-error');
-      mod.updateTips(n, tips);
-      return false;
-    }
-    else
-    {
-      return true;
-    }
-  };
+    path = '';
+  }
 
-  // Date Picker
-  mod.initDateFields = function ()
+  $.get('file_manager/list_dirs/' + path, function (data)
   {
-    $('.date').datepicker(
-    {
-      dateFormat: 'yy-mm-dd'
-    });
+    $('#file-paths').html(data);
+  });
+};
 
-    return true;
-  };
+// Get the document information for documents with a certain path.
+var getFileListing = function (path)
+{
+  'use strict';
 
-  mod.fillOptionsFromUrl = function (url, selectElement, callback)
+  if (path === undefined)
   {
-    $.get(url, function (options)
+    path = '';
+  }
+
+  $.get('file_manager/list_files/' + path, function (data)
+  {
+    $('#file-listing').html(data);
+  });
+};
+
+// Open a dialog for editing a file path.
+var pathEditDialog = function (obj, path)
+{
+  'use strict';
+
+  var pathInput = $('#file-path-input');
+
+  if (obj.path)
+  {
+    pathInput.val(obj.path.join('/'));
+  }
+  else
+  {
+    pathInput.val('');
+  }
+
+  var dialog = $('#edit-path-dialog').dialog(
+  {
+    autoOpen: false,
+    modal: true,
+    buttons:
     {
-      selectElement.html(options);
-      if (callback)
+      'Move': function ()
       {
-        callback();
-      }
-    });
+        var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
+        var complete = function ()
+        {
+          refreshListings(path);
+          flash.highlight('Success', 'File Moved');
+        };
 
-    return false;
+        obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
+        form.send(url, obj, 'PUT', complete, dialog);
+        $(this).dialog('close');
+      },
+      'Cancel': function ()
+      {
+        $(this).dialog('close');
+      }
+    }
+  });
+
+  return dialog;
+};
+
+// Exported functions
+
+// Initialize the sub-application.
+var init = function ()
+{
+  'use strict';
+
+  refreshListings();
+  $('#file-upload-target').load(function ()
+  {
+    var encoded = $('#file-upload-target').contents().find('body pre').html();
+    var obj = function ()
+    {
+      if (encoded && encoded.length > 0)
+      {
+        return JSON.parse(encoded);
+      }
+      else
+      {
+        return {
+          message: false
+        };
+      }
+    };
+
+    if (obj() && obj().message && obj().status !== 'success')
+    {
+      flash.error('Error', obj().message);
+      refreshListings();
+    }
+    else if (obj().message)
+    {
+      flash.highlight('Success', obj().message);
+      refreshListings();
+    }
+  });
+};
+
+// Handle the mouse click action that initiates going to a directory.
+var goDir = function (target)
+{
+  'use strict';
+
+  var newpath = $(target).attr('data-path');
+  window.sessionStorage.fmPath = newpath;
+  refreshListings(newpath);
+
+  return true;
+};
+
+// Return to the root directory.
+var rootDir = function ()
+{
+  'use strict';
+
+  var path = window.sessionStorage.fmPath = '';
+  refreshListings();
+
+  return true;
+};
+
+// Move up a directory.
+var upDir = function ()
+{
+  'use strict';
+
+  var path = window.sessionStorage.fmPath;
+  var newpath = path.split('/');
+  newpath.pop();
+  newpath = newpath.join('/');
+  window.sessionStorage.fmPath = newpath;
+
+  refreshListings(newpath);
+
+  return true;
+};
+
+// Handle the mouse click action that initiates editing a file by opening
+// a dialog to edit its path.
+var editFile = function (target)
+{
+  'use strict';
+
+  var path = window.sessionStorage.fmPath;
+  var fileId = target.attr('data-file-id');
+  var url = 'file_manager/' + fileId;
+
+  $.getJSON(url, function (obj)
+  {
+    pathEditDialog(obj, path).dialog('open');
+  });
+
+  return true;
+};
+
+// Handle the mouse click action that initiates deleting a file.
+var deleteFile = function (target)
+{
+  'use strict';
+
+  var path = window.sessionStorage.fmPath;
+  var fileId = target.attr('data-file-id');
+  var fileRev = target.attr('data-file-rev');
+  var url = 'file_manager/' + fileId + '?rev=' + fileRev;
+  var complete = function ()
+  {
+    refreshListings(path);
+    flash.highlight('Success', 'File Deleted');
   };
 
-  return mod;
-})();
+  form.send(url, null, 'DELETE', complete, target);
+
+  return true;
+};
+
+// Refresh the file listing using the given path.
+refreshListings = function (path)
+{
+  'use strict';
+
+  getDirListing(path);
+  getFileListing(path);
+};
+
+exports(init);
+exports(goDir);
+exports(rootDir);
+exports(upDir);
+exports(editFile);
+exports(deleteFile);
+exports(refreshListings);
+
+},{"../flash.js":28,"../form.js":29}],28:[function(require,module,exports){
+// # Brief Notification Messages
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Helpers to display notifications.
+
+// ## Internal Functions
+
+// Helper function that handles the displaying and fading of the flashed
+// notification.
+var f = function (flasher, title, body)
+{
+  'use strict';
+
+  var fadeout = function ()
+  {
+    flasher.fadeOut();
+  };
+  flasher.find('.notification-summary').text(title + ': ');
+  flasher.find('.notification-message').text(body);
+  var timeout = window.setTimeout(fadeout, 7000);
+  flasher.fadeIn();
+  flasher.find('.close').click(function ()
+  {
+    window.clearTimeout(timeout);
+    flasher.hide();
+  });
+};
+
+// # Exported Functions
+
+// Display an error.
+var error = function (title, body)
+{
+  'use strict';
+
+  f($('#notifications-main .ui-state-error'), title, body);
+
+  return true;
+};
+
+// Display a notification.
+var highlight = function (title, body)
+{
+  'use strict';
+
+  f($('#notifications-main .ui-state-highlight'), title, body);
+
+  return true;
+};
+
+exports(error);
+exports(highlight);
 
 },{}],29:[function(require,module,exports){
-shimi.dispatch = (function ()
+// # HTML Form Helpers
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// The are slightly specialized toward form elements using JQueryUI in
+// some way.
+
+// ## Variable Definitions
+
+var flash = require('./flash.js');
+var clear;
+
+// ## Exported Functions
+
+// Generic element toggler. The idea being that a clicked or otherwise
+// 'stimulated' element has a `data-target` attribute with a value the
+// ID of an element to be toggled.
+var toggle = function (t)
 {
   'use strict';
 
-  var mod = {};
+  var toggleElem;
+  var target = $(t);
 
-  mod.send = function (message, arg)
+  if (target.attr('data-target'))
   {
-    switch (message)
+    toggleElem = $('#' + target.attr('data-target'));
+    toggleElem.toggle();
+  }
+
+  return true;
+};
+
+// Generic dialog canceling code
+var cancelDialog = function (t)
+{
+  'use strict';
+
+  var target = $(t);
+  var toggleElem;
+  var elemId;
+
+  if (target.attr('data-target'))
+  {
+    elemId = '#' + target.attr('data-target');
+    toggleElem = $(elemId);
+    toggleElem.hide();
+    clear(undefined, toggleElem.find('form'));
+  }
+
+  return true;
+};
+
+// Generic dialog form clearing code
+clear = function (inputFields, form)
+{
+  'use strict';
+
+  if (inputFields === undefined)
+  {
+    inputFields = $(form).find('input, select, textarea');
+  }
+  inputFields.each(function (index, elem)
+  {
+    var inputField = $(elem);
+
+    if (!inputField.attr('data-retain'))
     {
-    case 'bad-session-state':
-      shimi.documents.clearSession();
-      break;
-    case 'doctype-info-ready':
-      shimi.documents.makeLabels();
-      break;
-    case 'labels-ready':
-      shimi.searchui.loadSearchVals();
-      shimi.worksheetui.buildTemplate();
-      break;
-    case 'new-set-form-submit':
-      shimi.setsui.saveSelected();
-      break;
-    case 'sets-changed':
-      shimi.setsui.updateSelection();
-      break;
-    case 'sets-form-submit':
-      shimi.setsui.performOp();
-      break;
-    case 'session-cleared':
-      shimi.documents.setVersion();
-      shimi.documents.loadDoctype();
-      break;
-    case 'worksheet-form-submit':
-      shimi.worksheetui.fillWorksheet();
-      break;
-    case 'initiated-command':
-      shimi.commands.dialogOpen(arg);
-      break;
-    case 'executed-command':
-      shimi.commands.dialogClose();
-      break;
-    case 'submitted-command':
-      shimi.commands.execute(arg);
-      break;
-    case 'lost-focus':
-      shimi.editui.selectInput();
-      break;
+      if (inputField.is(':checked'))
+      {
+        inputField.attr('checked', false);
+      }
+      inputField.val('');
     }
+  });
+  return inputFields;
+};
 
+// Perform an Ajax action with a URL, object to be translated to JSON,
+// an HTTP method, a function to be run on completion and the calling
+// context.
+var send = function (ajaxUrl, obj, method, completeFun, callContext)
+{
+  'use strict';
+
+  var dataObj;
+
+  if (obj)
+  {
+    dataObj = JSON.stringify(obj);
+  }
+
+  $.ajax(
+  {
+    type: method,
+    url: ajaxUrl,
+    dataType: 'json',
+    context: callContext,
+    contentType: 'application/json',
+    processData: false,
+    data: dataObj,
+    complete: function (req, status)
+    {
+      if (req.status >= 200 && req.status < 300)
+      {
+        completeFun(this, req);
+      }
+      else if (req.status === 500)
+      {
+        flash.error('Unknown Server Error', 'Please report that you received ' + 'this message');
+      }
+      else if (req.status >= 400)
+      {
+        var body = JSON.parse(req.responseText);
+        var title = req.statusText;
+
+        flash.error(title, body.fieldname + ' ' + body.message);
+      }
+    }
+  });
+
+  return true;
+};
+
+// ### Validation
+
+// Show a brief validation message.
+var updateTips = function (t, tips)
+{
+  'use strict';
+
+  tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
+  setTimeout(function ()
+  {
+    tips.removeClass('ui-state-highlight', 1500);
+  }, 500);
+
+  return true;
+};
+
+// Client side validation of string length.
+var checkLength = function (o, n, min, max, tips)
+{
+  'use strict';
+
+  if (o.val().length > max || o.val().length < min)
+  {
+    o.addClass('ui-state-error');
+    updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
     return false;
-  };
+  }
+  else
+  {
+    return true;
+  }
+};
 
-  return mod;
-})();
+// Client side validation using a regex match.
+var checkRegexp = function (o, regexp, n, tips)
+{
+  'use strict';
 
-},{}],30:[function(require,module,exports){
-shimi.initIndexBuilderDialog = function (indexDoctype)
+  if (!(regexp.test(o.val())))
+  {
+    o.addClass('ui-state-error');
+    updateTips(n, tips);
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+};
+
+// ### Form element manipulation
+
+// Init JqueryUI datepicker widgets
+var initDateFields = function ()
+{
+  'use strict';
+
+  $('.date').datepicker(
+  {
+    dateFormat: 'yy-mm-dd'
+  });
+
+  return true;
+};
+
+// Fill select options from a URL using Ajax
+var fillOptionsFromUrl = function (url, selectElement, callback)
+{
+  'use strict';
+
+  $.get(url, function (options)
+  {
+    selectElement.html(options);
+    if (callback)
+    {
+      callback();
+    }
+  });
+
+  return false;
+};
+
+exports(toggle);
+exports(cancelDialog);
+exports(clear);
+exports(send);
+exports(updateTips);
+exports(checkLength);
+exports(checkRegexp);
+exports(initDateFields);
+exports(fillOptionsFromUrl);
+
+},{"./flash.js":28}],30:[function(require,module,exports){
+// # Builder dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for adding conditions to user created indexes.
+
+// TODO I would rather avoid having this as a JQuery plugin.
+
+require('../jquery-ui-input-state.js');
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for adding a condition to an index.
+var initIndexBuilderDialog = function (indexDoctype)
 {
   'use strict';
 
@@ -4358,7 +5350,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = shimi.ihelpers.evs;
+  var evs = ihelpers.evs();
 
   $('.ui-helper-reset div').show();
 
@@ -4371,7 +5363,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
     return false;
   };
 
-  shimi.ihelpers.fOpts(fieldset_url, builderFieldset, function ()
+  ihelpers.fOpts(fieldset_url, builderFieldset, function ()
   {
     builderFieldset.inputEnable();
   });
@@ -4530,7 +5522,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
       builderFieldset.unbind('change');
       builderField.unbind('change');
       builderOperator.unbind('change');
-      shimi.form.clear($('.input')).removeClass('ui-state-error');
+      form.clear($('.input')).removeClass('ui-state-error');
     }
   });
 
@@ -4541,461 +5533,553 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
   return dialog;
 };
 
-},{}],31:[function(require,module,exports){
-shimi.ieditui = (function ()
+exports(initIndexBuilderDialog);
+
+},{"../form.js":29,"../jquery-ui-input-state.js":37,"./ihelpers.js":32}],31:[function(require,module,exports){
+// # The file manager
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Interface for manipulating index conditions.
+
+// Variable Definitions
+
+var initIndexNewDialog = require('./new-dialog.js').initIndexNewDialog;
+var initIndexBuilderDialog = require('./builder-dialog.js').initIndexBuilderDialog;
+var initReplaceDialog = require('./replace-dialog.js').initReplaceDialog;
+var ilistingui = require('./ilistingui.js');
+var ipreviewui = require('./ipreviewui.js');
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+var flash = require('../flash.js');
+
+// Internal functions
+
+// User interface element
+var tableBody = function ()
 {
   'use strict';
 
-  var mod = {};
+  return $('#index-conditions-listing tbody');
+};
 
-  var tableBody = function ()
-  {
-    return $('#index-conditions-listing tbody');
-  };
+// User interface element
+var editingData = function ()
+{
+  'use strict';
 
-  var editingData = function ()
-  {
-    return $('#index-editing-data');
-  };
+  return $('#index-editing-data');
+};
 
-  var fixArgumentType = function (argument, subcategory, operator)
+// Make sure the arguments are of the correct type.
+var fixArgumentType = function (argument, subcategory, operator)
+{
+  'use strict';
+
+  switch (subcategory)
   {
-    switch (subcategory)
+  case 'integer':
+  case 'rational':
+    argument = argument * 1;
+    break;
+  }
+
+  switch (operator)
+  {
+  case 'hasExactly':
+  case 'hasGreater':
+  case 'hasLess':
+    argument = Math.floor(argument * 1);
+    break;
+  }
+
+  return argument;
+};
+
+// Use data in `data` attributes of HTML elements to produce an array
+// of conditions.
+var getIndexConditions = function (doctypeId, rows)
+{
+  'use strict';
+
+  var conditions = rows.map(
+
+  function (index, row)
+  {
+    row = $(row);
+    var is_or = row.find('td.or-condition').attr('data-value') === 'true';
+    var paren = row.find('td.paren-condition').attr('data-value');
+    var condition;
+
+    if (is_or)
     {
-    case 'integer':
-    case 'rational':
-      argument = argument * 1;
-      break;
+      condition = {
+        'is_or': true,
+        'parens': false
+      };
+    }
+    else if (paren)
+    {
+      condition = {
+        'is_or': false,
+        'parens': paren
+      };
+    }
+    else
+    {
+      var fieldId = row.find('td.field-condition').attr('data-value');
+      var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+      var argument = row.find('td.argument-condition').attr('data-value');
+      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+      var negate =
+        row.find('td.negate-condition').attr('data-value') === 'true';
+      var operator = row.find('td.operator-condition').attr('data-value');
+
+      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+
+      condition = {
+        'is_or': false,
+        'parens': false,
+        'negate': negate,
+        'fieldset': fieldsetId,
+        'field': fieldId,
+        'operator': operator,
+        'argument': argument
+      };
     }
 
-    switch (operator)
+    return condition;
+  }).toArray();
+
+  return conditions;
+};
+
+// Initiate the save action.
+var saveIndex = function (buttonData, completeFunction)
+{
+  'use strict';
+
+  var indexId = buttonData.attr('data-index-id');
+  var indexRev = buttonData.attr('data-index-rev');
+  var url = 'indexes/' + indexId + '?rev=' + indexRev;
+  var doctype = buttonData.attr('data-index-doctype');
+
+  var obj = {
+    '_id': indexId,
+    'category': 'index',
+    'doctype': doctype,
+    'show_deleted': buttonData.attr('data-index-show_deleted') === 'true',
+    'fields': JSON.parse(buttonData.attr('data-index-fields')),
+    'fields_label': JSON.parse(buttonData.attr('data-index-fields_label')),
+    'name': buttonData.attr('data-index-name'),
+    'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+  };
+
+  if (buttonData.attr('data-index-replace_function'))
+  {
+    obj.replace_function = buttonData.attr('data-index-replace_function');
+  }
+
+  form.send(url, obj, 'PUT', completeFunction, this);
+
+  return false;
+};
+
+// Initiate the delete action.
+var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction)
+{
+  'use strict';
+
+  var url = 'indexes/' + indexId + '?rev=' + indexRev;
+  var title;
+  var body;
+
+  $.ajax(
+  {
+    type: 'DELETE',
+    url: url,
+    dataType: 'json',
+    contentType: 'application/json',
+    complete: function (req, status)
     {
+      if (req.status === 204)
+      {
+        title = 'Success';
+        body = completeMessage;
+
+        completeFunction();
+
+        flash.highlight(title, body);
+      }
+      else if (req.status === 409)
+      {
+        body = JSON.parse(req.responseText);
+        title = req.statusText;
+
+        flash.error(title, body.message);
+      }
+      else if (req.status === 404)
+      {
+        body = 'Index appears to have been deleted already.';
+        title = req.statusText;
+
+        flash.error(title, body);
+      }
+    }
+  });
+
+  return false;
+};
+
+// Exported functions
+
+// Initialize the index editing user interface.
+var init = function (target)
+{
+  'use strict';
+
+  var indexId = $(target).attr('data-index-id');
+  var url = 'indexes/' + indexId;
+  var htmlTarget = $('#index-conditions');
+
+  $.get(url, function (indexData)
+  {
+    htmlTarget.html(indexData);
+    tableBody().sortable();
+    ipreviewui.get();
+  });
+
+  return false;
+};
+
+// Save the index.
+var save = function ()
+{
+  'use strict';
+
+  var bData = editingData();
+
+  if (bData.length !== 0)
+  {
+    var completeFunction = function ()
+    {
+      init(bData);
+      flash.highlight('Success', 'Your index has been saved.');
+    };
+
+    saveIndex(bData, completeFunction);
+  }
+  else
+  {
+    flash.highlight('Info', 'No index has been chosen to save.');
+  }
+};
+
+// Open the replace dialog, which allows the user to enter a function
+// that will replace the normal output of the index.
+var replace = function ()
+{
+  'use strict';
+
+  var bData = editingData();
+
+  if (bData.length !== 0)
+  {
+    initReplaceDialog.dialog('open');
+  }
+  else
+  {
+    flash.highlight('Info', 'You must choose an index first.');
+  }
+
+  return true;
+};
+
+// Add a condition using the index builder dialog.
+var addCond = function ()
+{
+  'use strict';
+
+  var bData = editingData();
+
+  if (bData.length !== 0)
+  {
+    initIndexBuilderDialog(bData.attr('data-index-doctype')).dialog('open');
+  }
+  else
+  {
+    flash.highlight('Info', 'You must choose an index first.');
+  }
+
+  return true;
+};
+
+// Handle the mouse click initiate action of removing a condition.
+var remCond = function (target)
+{
+  'use strict';
+
+  $(target).closest('tr').remove();
+  return true;
+};
+
+// Open the new index dialog.
+var newCond = function ()
+{
+  'use strict';
+
+  initIndexNewDialog().dialog('open');
+  return true;
+};
+
+// Delete the current index.
+var del = function ()
+{
+  'use strict';
+
+  var bData = editingData();
+
+  if (bData.length !== 0)
+  {
+    var indexId = bData.attr('data-index-id');
+    var indexRev = bData.attr('data-index-rev');
+    var completeMessage = 'Your index has been deleted.';
+    var completeFunction = function ()
+    {
+      $('#index-conditions').empty();
+      ilistingui.init();
+    };
+
+    if (window.confirm('Are you sure?'))
+    {
+      deleteIndex(indexId, indexRev, completeMessage, completeFunction);
+    }
+  }
+  else
+  {
+    flash.highlight('Info', 'No index has been chosen to delete.');
+  }
+
+  return true;
+};
+
+exports(init);
+exports(save);
+exports(replace);
+exports(addCond);
+exports(remCond);
+exports(newCond);
+exports(del);
+
+},{"../flash.js":28,"../form.js":29,"./builder-dialog.js":30,"./ihelpers.js":32,"./ilistingui.js":33,"./ipreviewui.js":34,"./new-dialog.js":35,"./replace-dialog.js":36}],32:[function(require,module,exports){
+// # Index tool helpers.
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Shared functions used by a number of index tool modules.
+
+// Variable Definitions
+
+var s = require('../sess.js');
+
+// Internal functions
+
+// Disable certain options match `disables`.
+var disableOptions = function (options, disables)
+{
+  'use strict';
+
+  options.children().show();
+
+  disables.forEach(function (item)
+  {
+    options.children('option:contains(' + item + ')').hide();
+  });
+
+  return false;
+};
+
+// Disable the operator options.
+var disableOperatorOptions = function (fieldDoc)
+{
+  'use strict';
+
+  var options = $('#builder-operator-input');
+
+  switch (fieldDoc.subcategory)
+  {
+  case 'select':
+  case 'docselect':
+  case 'text':
+  case 'textarea':
+    disableOptions(options, ['member', 'true']);
+    break;
+  case 'integer':
+  case 'rational':
+  case 'date':
+    disableOptions(options, ['member', 'true', 'match']);
+    break;
+  case 'boolean':
+  case 'openboolean':
+    disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
+    break;
+  case 'multiselect':
+  case 'docmultiselect':
+    disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
+    break;
+  }
+
+  return false;
+};
+
+// Exported functions
+
+// Handles an input field that presents different behavior depending on
+// the values of previously filled in fields.
+var alterArg = function (argumentField, operatorField, fieldField, callback)
+{
+  'use strict';
+
+  var fieldDoc = function ()
+  {
+    return s.get(fieldField.val());
+  };
+
+  callback();
+
+  try
+  {
+    // Destroy these if initialized already
+    argumentField.removeAttr('disabled').datepicker('destroy');
+    argumentField.removeAttr('disabled').autocomplete('destroy');
+  }
+  catch (err)
+  {
+    window.console.log(err.message);
+  }
+
+  var dateOrText = function (argumentField, fdoc)
+  {
+    if (fdoc.subcategory === 'date')
+    {
+      argumentField.removeAttr('disabled');
+      argumentField.datepicker(
+      {
+        dateFormat: 'yy-mm-dd'
+      });
+    }
+    else
+    {
+      argumentField.removeAttr('disabled');
+      argumentField.autocomplete(
+      {
+        source: fdoc.allowed
+      });
+    }
+
+    return true;
+  };
+
+  var fdoc = fieldDoc();
+
+  if (fdoc)
+  {
+    switch (operatorField.val())
+    {
+    case 'true':
+    case 'isDefined':
+    case 'blank':
+      argumentField.attr('disabled', 'disabled').val('');
+      break;
+    case 'equal':
+    case 'member':
+    case 'greater':
+    case 'less':
     case 'hasExactly':
     case 'hasGreater':
     case 'hasLess':
-      argument = Math.floor(argument * 1);
+      dateOrText(argumentField, fdoc);
       break;
     }
 
-    return argument;
-  };
+  }
 
-  var getIndexConditions = function (doctypeId, rows)
-  {
-    var conditions = rows.map(
+  return true;
+};
 
-    function (index, row)
-    {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
-      var paren = row.find('td.paren-condition').attr('data-value');
-      var condition;
-
-      if (is_or)
-      {
-        condition = {
-          'is_or': true,
-          'parens': false
-        };
-      }
-      else if (paren)
-      {
-        condition = {
-          'is_or': false,
-          'parens': paren
-        };
-      }
-      else
-      {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = shimi.ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate =
-          row.find('td.negate-condition').attr('data-value') === 'true';
-        var operator = row.find('td.operator-condition').attr('data-value');
-
-        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
-
-        condition = {
-          'is_or': false,
-          'parens': false,
-          'negate': negate,
-          'fieldset': fieldsetId,
-          'field': fieldId,
-          'operator': operator,
-          'argument': argument
-        };
-      }
-
-      return condition;
-    }).toArray();
-
-    return conditions;
-  };
-
-  var saveIndex = function (buttonData, completeFunction)
-  {
-    var indexId = buttonData.attr('data-index-id');
-    var indexRev = buttonData.attr('data-index-rev');
-    var url = 'indexes/' + indexId + '?rev=' + indexRev;
-    var doctype = buttonData.attr('data-index-doctype');
-
-    var obj = {
-      '_id': indexId,
-      'category': 'index',
-      'doctype': doctype,
-      'show_deleted': buttonData.attr('data-index-show_deleted') === 'true',
-      'fields': JSON.parse(buttonData.attr('data-index-fields')),
-      'fields_label': JSON.parse(buttonData.attr('data-index-fields_label')),
-      'name': buttonData.attr('data-index-name'),
-      'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
-    };
-
-    if (buttonData.attr('data-index-replace_function'))
-    {
-      obj.replace_function = buttonData.attr('data-index-replace_function');
-    }
-
-    shimi.form.send(url, obj, 'PUT', completeFunction, this);
-
-    return false;
-  };
-
-  var deleteIndex =
-
-  function (indexId, indexRev, completeMessage, completeFunction)
-  {
-    var url = 'indexes/' + indexId + '?rev=' + indexRev;
-    var title;
-    var body;
-
-    $.ajax(
-    {
-      type: 'DELETE',
-      url: url,
-      dataType: 'json',
-      contentType: 'application/json',
-      complete: function (req, status)
-      {
-        if (req.status === 204)
-        {
-          title = 'Success';
-          body = completeMessage;
-
-          completeFunction();
-
-          shimi.flash(title, body).highlight();
-        }
-        else if (req.status === 409)
-        {
-          body = JSON.parse(req.responseText);
-          title = req.statusText;
-
-          shimi.flash(title, body.message).error();
-        }
-        else if (req.status === 404)
-        {
-          body = 'Index appears to have been deleted already.';
-          title = req.statusText;
-
-          shimi.flash(title, body).error();
-        }
-      }
-    });
-
-    return false;
-  };
-
-  mod.init = function (target)
-  {
-    var indexId = $(target).attr('data-index-id');
-    var url = 'indexes/' + indexId;
-    var htmlTarget = $('#index-conditions');
-
-    $.get(url, function (indexData)
-    {
-      htmlTarget.html(indexData);
-      tableBody().sortable();
-      shimi.ipreviewui.get();
-    });
-
-    return false;
-  };
-
-  mod.save = function ()
-  {
-    var bData = editingData();
-
-    if (bData.length !== 0)
-    {
-      var completeFunction = function ()
-      {
-        mod.init(bData);
-        shimi.flash('Success', 'Your index has been saved.').highlight();
-      };
-
-      saveIndex(bData, completeFunction);
-    }
-    else
-    {
-      shimi.flash('Info', 'No index has been chosen to save.').highlight();
-    }
-  };
-
-  mod.replace = function ()
-  {
-    var bData = editingData();
-
-    if (bData.length !== 0)
-    {
-      shimi.initReplaceDialog().dialog('open');
-    }
-    else
-    {
-      shimi.flash('Info', 'You must choose an index first.').highlight();
-    }
-
-    return mod;
-  };
-
-  mod.addCond = function ()
-  {
-    var bData = editingData();
-
-    if (bData.length !== 0)
-    {
-      shimi.initIndexBuilderDialog(
-        bData.attr('data-index-doctype')).dialog('open');
-    }
-    else
-    {
-      shimi.flash('Info', 'You must choose an index first.').highlight();
-    }
-
-    return mod;
-  };
-
-  mod.remCond = function (target)
-  {
-    $(target).closest('tr').remove();
-    return mod;
-  };
-
-  mod.newCond = function ()
-  {
-    shimi.initIndexNewDialog().dialog('open');
-    return mod;
-  };
-
-  mod.del = function ()
-  {
-    var bData = editingData();
-
-    if (bData.length !== 0)
-    {
-      var indexId = bData.attr('data-index-id');
-      var indexRev = bData.attr('data-index-rev');
-      var completeMessage = 'Your index has been deleted.';
-      var completeFunction = function ()
-      {
-        $('#index-conditions').empty();
-        shimi.ilistingui.init();
-      };
-
-      if (window.confirm('Are you sure?'))
-      {
-        deleteIndex(indexId, indexRev, completeMessage, completeFunction);
-      }
-    }
-    else
-    {
-      shimi.flash('Info', 'No index has been chosen to delete.').highlight();
-    }
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-},{}],32:[function(require,module,exports){
-shimi.ihelpers = (function ()
+// Certain operator options only exist for certain types of fields.
+var alterOpts = function (fieldDoc, fieldId, callback)
 {
   'use strict';
 
-  var mod = {};
-  var s = shimi.sess();
-  mod.evs = {};
+  disableOperatorOptions(fieldDoc);
+  callback();
 
-  var disableOptions = function (options, disables)
+  return true;
+};
+
+// Get the fields that the user may choose from.
+var fOpts = function (url, selectElement, callback)
+{
+  'use strict';
+
+  $.get(url, function (options)
   {
-    options.children().show();
-
-    disables.forEach(function (item)
+    selectElement.html(options);
+    if (callback)
     {
-      options.children('option:contains(' + item + ')').hide();
-    });
+      callback();
+    }
+  });
 
-    return false;
-  };
+  return true;
+};
 
-  var disableOperatorOptions = function (fieldDoc)
+// Get the document holding the field information.
+var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
+{
+  'use strict';
+
+  var fieldDoc = s.get(fieldId);
+  var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
+
+  if (fieldDoc)
   {
-    var options = $('#builder-operator-input');
-
-    switch (fieldDoc.subcategory)
+    if (callback)
     {
-    case 'select':
-    case 'docselect':
-    case 'text':
-    case 'textarea':
-      disableOptions(options, ['member', 'true']);
-      break;
-    case 'integer':
-    case 'rational':
-    case 'date':
-      disableOptions(options, ['member', 'true', 'match']);
-      break;
-    case 'boolean':
-    case 'openboolean':
-      disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
-      break;
-    case 'multiselect':
-    case 'docmultiselect':
-      disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
-      break;
+      callback(fieldDoc);
     }
-
-    return false;
-  };
-
-  mod.alterArg = function (argumentField, operatorField, fieldField, callback)
+    return fieldDoc;
+  }
+  else
   {
-    var fieldDoc = function ()
+    $.ajax(
     {
-      return s.get(fieldField.val());
-    };
-
-    callback();
-
-    try
-    {
-      // Destroy these if initialized already
-      argumentField.removeAttr('disabled').datepicker('destroy');
-      argumentField.removeAttr('disabled').autocomplete('destroy');
-    }
-    catch (err)
-    {
-      window.console.log(err.message);
-    }
-
-    var dateOrText = function (argumentField, fdoc)
-    {
-      if (fdoc.subcategory === 'date')
+      url: url,
+      async: false,
+      dataType: 'json',
+      success: function (data)
       {
-        argumentField.removeAttr('disabled');
-        argumentField.datepicker(
+        s.put(data);
+        if (callback)
         {
-          dateFormat: 'yy-mm-dd'
-        });
-      }
-      else
-      {
-        argumentField.removeAttr('disabled');
-        argumentField.autocomplete(
-        {
-          source: fdoc.allowed
-        });
-      }
-
-      return mod;
-    };
-
-    var fdoc = fieldDoc();
-
-    if (fdoc)
-    {
-      switch (operatorField.val())
-      {
-      case 'true':
-      case 'isDefined':
-      case 'blank':
-        argumentField.attr('disabled', 'disabled').val('');
-        break;
-      case 'equal':
-      case 'member':
-      case 'greater':
-      case 'less':
-      case 'hasExactly':
-      case 'hasGreater':
-      case 'hasLess':
-        dateOrText(argumentField, fdoc);
-        break;
-      }
-
-    }
-
-    return mod;
-  };
-
-  mod.alterOpts = function (fieldDoc, fieldId, callback)
-  {
-    disableOperatorOptions(fieldDoc);
-    callback();
-
-    return mod;
-  };
-
-  mod.fOpts = function (url, selectElement, callback)
-  {
-    $.get(url, function (options)
-    {
-      selectElement.html(options);
-      if (callback)
-      {
-        callback();
-      }
-    });
-
-    return mod;
-  };
-
-  mod.getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
-  {
-    var fieldDoc = s.get(fieldId);
-    var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
-
-    if (fieldDoc)
-    {
-      if (callback)
-      {
-        callback(fieldDoc);
-      }
-      return fieldDoc;
-    }
-    else
-    {
-      $.ajax(
-      {
-        url: url,
-        async: false,
-        dataType: 'json',
-        success: function (data)
-        {
-          s.put(data);
-          if (callback)
-          {
-            callback(s.get(fieldId));
-          }
+          callback(s.get(fieldId));
         }
-      });
+      }
+    });
 
-      return s.get(fieldId);
-    }
-  };
+    return s.get(fieldId);
+  }
+};
 
-  mod.evs.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
+// Return an object containing methods for working with common events.
+var evs = function ()
+{
+  'use strict';
+
+  var mod;
+
+  mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
   {
     indexDoctype.change(function ()
     {
@@ -5007,13 +6091,13 @@ shimi.ihelpers = (function ()
         callback2 = callback();
       }
 
-      mod.fOpts(url, indexFieldset, callback2);
+      fOpts(url, indexFieldset, callback2);
     });
 
     return false;
   };
 
-  mod.evs.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
   {
     indexFieldset.change(function ()
     {
@@ -5033,14 +6117,14 @@ shimi.ihelpers = (function ()
           callback2 = callback();
         }
 
-        mod.fOpts(url, indexField, callback2);
+        fOpts(url, indexField, callback2);
       }
     });
 
     return mod;
   };
 
-  mod.evs.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
   {
     indexField.change(function ()
     {
@@ -5055,9 +6139,9 @@ shimi.ihelpers = (function ()
 
       if (!(fieldId.isBlank()))
       {
-        mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
+        getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
         {
-          shimi.ihelpers.alterOpts(data, fieldId, callback2);
+          alterOpts(data, fieldId, callback2);
         });
       }
     });
@@ -5065,7 +6149,7 @@ shimi.ihelpers = (function ()
     return mod;
   };
 
-  mod.evs.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
+  mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
   {
     operatorField.change(function ()
     {
@@ -5076,92 +6160,125 @@ shimi.ihelpers = (function ()
         callback2 = callback();
       }
 
-      mod.alterArg(argumentField, operatorField, fieldField, callback2);
+      alterArg(argumentField, operatorField, fieldField, callback2);
     });
 
     return mod;
   };
+};
 
-  return mod;
-})();
+exports(alterArg);
+exports(alterOpts);
+exports(fOpts);
+exports(getFieldDoc);
+exports(evs);
 
-},{}],33:[function(require,module,exports){
-shimi.ilistingui = (function ()
+},{"../sess.js":45}],33:[function(require,module,exports){
+// # Index listing.
+//
+// *Implicit depends:* DOM, JQuery, Hogan, templates
+//
+// Displays a listing of user created indexes.
+
+// Exported functions
+
+// Initialize the listing of user created indexes.
+var init = function ()
 {
   'use strict';
 
-  var mod = {};
+  var url = 'indexes';
+  var target = $('#index-index-listing');
+  var listing;
 
-  mod.init = function ()
+  $.getJSON(url, function (data)
   {
-    var url = 'indexes';
-    var target = $('#index-index-listing');
-    var listing;
+    listing = templates['index-listing'].render(data);
+    target.html(listing);
+  });
 
-    $.getJSON(url, function (data)
-    {
-      listing = templates['index-listing'].render(data);
-      target.html(listing);
-    });
+  return true;
+};
 
-    return mod;
-  };
-
-  return mod;
-})();
+exports(init);
 
 },{}],34:[function(require,module,exports){
-shimi.ipreviewui = (function ()
+// # Paging For Index Listing
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Loads sample of the user index based on user suplied values.
+
+// Variable Definitions
+
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
 {
   'use strict';
 
-  var mod = {};
-  var pager = shimi.pager;
+  var prefix = 'preview';
+  var indexId = $('#index-editing-data').attr('data-index-id');
+  var url = 'indexes/' + indexId + '/preview';
+  var target = $('#' + prefix + '-list-view');
 
-  mod.get = function (startkey, startid, prevkeys, previds)
+  var format = function (text)
   {
-    var prefix = 'preview';
-    var indexId = $('#index-editing-data').attr('data-index-id');
-    var url = 'indexes/' + indexId + '/preview';
-    var target = $('#' + prefix + '-list-view');
+    var resp = JSON.parse(text);
 
-    var format = function (text)
+    resp.rows = resp.rows.map(function (item)
     {
-      var resp = JSON.parse(text);
-
-      resp.rows = resp.rows.map(function (item)
+      item.display_key = item.key.map(function (k)
       {
-        item.display_key = item.key.map(function (k)
-        {
-          return k[1];
-        });
-
-        return item;
+        return k[1];
       });
 
-      return resp;
-    };
+      return item;
+    });
 
-    if (indexId)
-    {
-      pager(
-      {
-        prefix: prefix,
-        format: format,
-        url: url,
-        origin: 'ipreviewui',
-        target: target
-      }).get(startkey, startid, prevkeys, previds);
-    }
-
-    return mod;
+    return resp;
   };
 
-  return mod;
-})();
+  if (indexId)
+  {
+    pager(
+    {
+      prefix: prefix,
+      format: format,
+      url: url,
+      target: target
+    }).get();//.get(startkey, startid, prevkeys, previds);
+  }
 
-},{}],35:[function(require,module,exports){
-shimi.initIndexNewDialog = function ()
+  return true;
+};
+
+exports(get);
+
+},{"../pager.js":40}],35:[function(require,module,exports){
+// # New dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for adding a new user created index.
+
+// TODO I would rather avoid having this as a JQuery plugin.
+
+require('../jquery-ui-input-state.js');
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var ilistingui = require('./ilistingui.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for adding a new index.
+var initIndexNewDialog = function ()
 {
   'use strict';
 
@@ -5170,7 +6287,7 @@ shimi.initIndexNewDialog = function ()
   var indexField = $('#index-field-input').inputDisable();
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
-  var evs = shimi.ihelpers.evs;
+  var evs = ihelpers.evs();
 
   var doctypeEvents = function ()
   {
@@ -5235,10 +6352,10 @@ shimi.initIndexNewDialog = function ()
           },
             complete = function (context)
             {
-              shimi.ilistingui.init();
+              ilistingui.init();
               $(context).dialog('close');
             };
-          shimi.form.send('indexes', obj, 'POST', complete, this);
+          form.send('indexes', obj, 'POST', complete, this);
         }
       },
       'Cancel': function ()
@@ -5250,7 +6367,7 @@ shimi.initIndexNewDialog = function ()
     {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
-      shimi.form.clear($('.input')).removeClass('ui-state-error');
+      form.clear($('.input')).removeClass('ui-state-error');
     }
   });
 
@@ -5260,8 +6377,26 @@ shimi.initIndexNewDialog = function ()
   return dialog;
 };
 
-},{}],36:[function(require,module,exports){
-shimi.initReplaceDialog = function ()
+exports(initIndexNewDialog);
+
+},{"../form.js":29,"../jquery-ui-input-state.js":37,"./ihelpers.js":32,"./ilistingui.js":33}],36:[function(require,module,exports){
+// # Replace dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for providing a function to replace the normal output of
+// an index.
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for providing a function to replace the normal output of
+// an index.
+var initReplaceDialog = function ()
 {
   'use strict';
 
@@ -5275,7 +6410,7 @@ shimi.initReplaceDialog = function ()
   }
   else
   {
-    shimi.form.clear(replaceFunction).removeClass('ui-state-error');
+    form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
   var dialog = $('#index-replace-dialog').dialog(
@@ -5323,49 +6458,16 @@ shimi.initReplaceDialog = function ()
     },
     close: function ()
     {
-      shimi.form.clear(replaceFunction).removeClass('ui-state-error');
+      form.clear(replaceFunction).removeClass('ui-state-error');
     }
   });
 
   return dialog;
 };
 
-},{}],37:[function(require,module,exports){
-var shimi = {};
+exports(initReplaceDialog);
 
-// A place to temporarily store global objects
-shimi.globals = {};
-
-// functions added to String
-String.prototype.isBlank = function ()
-{
-  'use strict';
-
-  return ((/^\s*$/).test(this) && !(/\S/).test(this) && (this !== null));
-};
-
-String.prototype.trim = function ()
-{
-  'use strict';
-
-  return this.replace(/^\s+/, '').replace(/\s+$/, '');
-};
-
-// functions added to Array
-Array.prototype.trimAll = function ()
-{
-  'use strict';
-
-  return this.map(function (i)
-  {
-    return i.trim();
-  }).filter(function (i)
-  {
-    return !i.match(/^$/);
-  });
-};
-
-},{}],38:[function(require,module,exports){
+},{"../form.js":29,"./ihelpers.js":32}],37:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -5391,7 +6493,7 @@ Array.prototype.trimAll = function ()
 
 })(jQuery);
 
-},{}],39:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -5574,260 +6676,265 @@ Array.prototype.trimAll = function ()
 
 })(jQuery);
 
-},{}],40:[function(require,module,exports){
-$(document).on('keydown', '#document-worksheets-form', function (e)
+},{}],39:[function(require,module,exports){
+// # Change Event Handling
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// Like [`click-dispatch.js`](./click-dispatch.html) I would like
+// to centralize the keystroke events. This is a start and a bit of
+// an experiment. It uses the JQuery `on()` function, which was not
+// available when I first began programming this application. It also
+// uses the JQuery hotkeys plugin, which I'd like to remove at some point.
+
+// ## Variable Definitions
+
+var hotkeys = require('./jquery.hotkeys.js');
+var sender = require('./sender.js');
+var ipreviewui = require('./index_tool/ipreviewui.js');
+var indexui = require('./documents/indexui.js');
+var changeui = require('./documents/changeui.js');
+var editui = require('./documents/editui.js');
+var viewui = require('./documents/viewui.js');
+var searchui = require('./documents/searchui.js');
+
+// # Exported Functions
+
+// All this does is register a bunch of event handlers.
+var keystrokes = function ()
 {
   'use strict';
 
-  if (e.which === 13)
+  [ipreviewui, indexui, changeui].forEach(function (mod)
   {
-    shimi.dispatch.send('worksheet-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$(document).on('keydown', '#document-sets-form', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.dispatch.send('sets-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$('#new-set-form').on('keydown', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.dispatch.send('new-set-form-submit');
-    return false;
-  }
-  return true;
-});
-
-$(document).bind('keydown', 'Alt+n', function (e)
-{
-  'use strict';
-
-  var t = function ()
-  {
-    return $('#edit-tabs');
-  };
-  var totaltabs = t().find('li').length;
-  var selected = t().tabs('option', 'active');
-
-  if (selected < totaltabs - 1)
-  {
-    t().tabs('option', 'active', selected + 1);
-    shimi.dispatch.send('lost-focus');
-  }
-  else
-  {
-    t().tabs('option', 'active', 0);
-    shimi.dispatch.send('lost-focus');
-  }
-
-  return false;
-});
-
-$(document).bind('keydown', 'Alt+c', function (e)
-{
-  'use strict';
-
-  var active = $(document.activeElement).attr('id');
-  shimi.dispatch.send('initiated-command', active);
-  return true;
-});
-
-$(document).bind('keydown', 'Alt+p', function (e)
-{
-  'use strict';
-
-  var t = function ()
-  {
-    return $('#edit-tabs');
-  };
-  var totaltabs = t().find('li').length;
-  var selected = t().tabs('option', 'active');
-
-  if (selected !== 0)
-  {
-    t().tabs('option', 'active', selected - 1);
-    shimi.dispatch.send('lost-focus');
-  }
-  else
-  {
-    t().tabs('option', 'active', totaltabs - 1);
-    shimi.dispatch.send('lost-focus');
-  }
-
-  return false;
-});
-
-
-$(document).on('keydown', '#edit-command-input', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    var command = $('#edit-command-input').val();
-    shimi.dispatch.send('submitted-command', command);
-  }
-  return true;
-});
-
-$(document).on('keydown', '#edit-document-form input', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    if ($('#save-document-button').css('display') === 'none')
+    var keyupHandler = function (e)
     {
-      shimi.editui.create();
+      var getIndexTimer;
+      window.clearTimeout(getIndexTimer);
+      getIndexTimer = setTimeout(function ()
+      {
+        if (e.which !== 8 && e.which !== 46)
+        {
+          mod.get();
+        }
+      }, 500);
+    };
+
+    document.getElementById(mod.prefix() + '-filter').onkeyup = keyupHandler;
+    document.getElementById(mod.prefix() + '-limit').onkeyup = keyupHandler;
+  });
+
+  $(document).on('keydown', '#document-worksheets-form', function (e)
+  {
+    if (e.which === 13)
+    {
+      sender('worksheet-form-submit');
+      return false;
+    }
+    return true;
+  });
+
+  $(document).on('keydown', '#document-sets-form', function (e)
+  {
+    if (e.which === 13)
+    {
+      sender('sets-form-submit');
+      return false;
+    }
+    return true;
+  });
+
+  $('#new-set-form').on('keydown', function (e)
+  {
+    if (e.which === 13)
+    {
+      sender('new-set-form-submit');
+      return false;
+    }
+    return true;
+  });
+
+  $(document).bind('keydown', 'Alt+n', function (e)
+  {
+    var t = function ()
+    {
+      return $('#edit-tabs');
+    };
+    var totaltabs = t().find('li').length;
+    var selected = t().tabs('option', 'active');
+
+    if (selected < totaltabs - 1)
+    {
+      t().tabs('option', 'active', selected + 1);
+      sender('lost-focus');
     }
     else
     {
-      shimi.editui.save();
+      t().tabs('option', 'active', 0);
+      sender('lost-focus');
     }
-  }
-  return true;
-});
 
-$(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
-{
-  'use strict';
-
-  shimi.editui.toggleTextarea($(e.target));
-  return false;
-});
-
-$(document).on('keypress', '#view-jump-id', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    var docid = $('#view-jump-id').val();
-    shimi.viewui.get(docid);
     return false;
-  }
-  return true;
-});
-
-$(document).on('keydown', '#document-search-term', function (e)
-{
-  'use strict';
-
-  if (e.which === 13)
-  {
-    shimi.searchui.getSearch();
-    return false;
-  }
-  return true;
-});
-
-},{}],41:[function(require,module,exports){
-$(function ()
-{
-  'use strict';
-
-  $('.notification').hide();
-
-  $('#loading').hide();
-
-  $(document).ajaxStart(function ()
-  {
-    $('#loading').show();
-  }).ajaxStop(function ()
-  {
-    $('#loading').hide();
   });
 
-  shimi.form.initDateFields();
-
-  // Config
-  if ($('#configuration').length > 0)
+  $(document).bind('keydown', 'Alt+c', function (e)
   {
-    shimi.initTabs();
-    $('.simple-tabs').tabs();
-  }
+    var active = $(document.activeElement).attr('id');
+    sender('initiated-command', active);
+    return true;
+  });
 
-  // Documents
-  if ($('#all-document-container').length > 0)
+  $(document).bind('keydown', 'Alt+p', function (e)
   {
-    shimi.documents.init();
-  }
+    var t = function ()
+    {
+      return $('#edit-tabs');
+    };
+    var totaltabs = t().find('li').length;
+    var selected = t().tabs('option', 'active');
 
-  // File Manager
-  if ($('#file-upload').length > 0)
+    if (selected !== 0)
+    {
+      t().tabs('option', 'active', selected - 1);
+      sender('lost-focus');
+    }
+    else
+    {
+      t().tabs('option', 'active', totaltabs - 1);
+      sender('lost-focus');
+    }
+
+    return false;
+  });
+
+
+  $(document).on('keydown', '#edit-command-input', function (e)
   {
-    shimi.fm.init();
-  }
+    if (e.which === 13)
+    {
+      var command = $('#edit-command-input').val();
+      sender('submitted-command', command);
+    }
+    return true;
+  });
 
-  // Index Tool
-  if ($('#all-index-container').length > 0)
+  $(document).on('keydown', '#edit-document-form input', function (e)
   {
-    shimi.ilistingui.init();
-  }
+    if (e.which === 13)
+    {
+      if ($('#save-document-button').css('display') === 'none')
+      {
+        editui.create();
+      }
+      else
+      {
+        editui.save();
+      }
+    }
+    return true;
+  });
 
-  // Project
-  if ($('#projects-container').length > 0)
+  $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
   {
-    shimi.projectui.init();
-  }
-});
+    editui.toggleTextarea($(e.target));
+    return false;
+  });
 
-},{}],42:[function(require,module,exports){
-// Get the index that is displayed in the index pane.
-// startkey and startid map directly to the same concepts in
-// couchdb view queries. The prevkeys and previds are used to
-// hold information that will allow the user to page backward
-// through the listing. They are arrays of keys and ids corresponding
-// to previous page's startkeys and ids.
+  $(document).on('keypress', '#view-jump-id', function (e)
+  {
+    if (e.which === 13)
+    {
+      var docid = $('#view-jump-id').val();
+      viewui.get(docid);
+      return false;
+    }
+    return true;
+  });
+
+  $(document).on('keydown', '#document-search-term', function (e)
+  {
+    if (e.which === 13)
+    {
+      searchui.getSearch();
+      return false;
+    }
+    return true;
+  });
+
+  return true;
+};
+
+exports(keystrokes);
+
+},{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":34,"./jquery.hotkeys.js":38,"./sender.js":44}],40:[function(require,module,exports){
+// # Paging List-like Info
 //
-// There are a number of values that this function depends on
-// that are taken from the HTML. These include the value for
-// the limit and the nextkey and nextid for paging forward. Also
-// the current key and id are taken from the html when needed to
-// add to the prevkeys and previds. The startkey may be a user
-// input value so a more reliable startkey and startid are needed.
-shimi.pager = function (args)
+// *Implicit depends:* DOM, JQuery
+//
+// This is basically semi-generic paging code.
+//
+// Get the index that is displayed in the index pane.  startkey and
+// startid map directly to the same concepts in couchdb view queries. The
+// prevkeys and previds are used to hold information that will allow
+// the user to page backward through the listing. They are arrays of
+// keys and ids corresponding to previous page's startkeys and ids.
+//
+// There are a number of values that this function depends on that
+// are taken from the HTML. These include the value for the limit and
+// the nextkey and nextid for paging forward. Also the current key and
+// id are taken from the html when needed to add to the prevkeys and
+// previds. The startkey may be a user input value so a more reliable
+// startkey and startid are needed.
+
+// Variable Definitions
+
+var form = require('./form.js');
+
+// Exported functions
+
+// Initialize the pager with an args object.
+var pager = function (args)
 {
   'use strict';
 
   var mod = {};
+  // If the 'prefix' used to automatically determine certain element
+  // ID's is not set, set it to 'index'.
   if (args.prefix === undefined)
   {
     args.prefix = 'index';
   }
-  var origin = args.origin;
+  // Special formatting or template code.
   var format = args.format;
   var prefix = args.prefix;
 
+  // Escape a value and base64 encode it.
   var escapeValue = function (value)
   {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
 
+  // The number of elements to display is given here. Note how `prefix`
+  // is used.
   var limitField = function ()
   {
     return $('#' + prefix + '-limit');
   };
 
+  // Get the first or next page. There won't be `prevkeys` or `previds`
+  // if it is the first page. These accumulate during paging so that it
+  // is possible to go backwards.
   mod.get = function (startkey, startid, prevkeys, previds)
   {
+    // The URL given as one of the original args.
     var url = args.url + '?';
+    // This would be a custom index ID.
     var indexId = args.indexId;
+    // The given limit.
     var limit = limitField().val() * 1;
+    // Where the next page will be displayed.
     var target = args.target;
+    // The filter is used to constrain the values listed.
     var filterVal = $('#' + prefix + '-filter').val();
     var state = {
       sk: startkey,
@@ -5867,7 +6974,7 @@ shimi.pager = function (args)
       url = url + '&index=' + indexId;
     }
 
-    shimi.form.send(url, false, 'GET', function (context, req)
+    form.send(url, false, 'GET', function (context, req)
     {
       mod.fill(req, state, target);
     }, this);
@@ -5952,156 +7059,143 @@ shimi.pager = function (args)
       $('#next-' + prefix + '-page').hide();
     }
 
-    var keyupHandler = function (e)
-    {
-      var getIndexTimer;
-      window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
-          shimi[origin].get();
-        }
-      }, 500);
-    };
-
-    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
-    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
-
     return mod;
   };
 
   return mod;
 };
 
-},{}],43:[function(require,module,exports){
-var panelToggle = (function ()
+},{"./form.js":29}],41:[function(require,module,exports){
+// # Panel Toggler
+//
+// Interface elements called panels can be visible or hidden.
+
+// Given an element that points to a panel id with a `data-panel`
+// attribute, toggle the panel's visibility.
+var panelToggler = function (target)
 {
   'use strict';
 
-  var mod = {};
+  var panel;
 
-  mod.toggler = function (target)
+  if ($(target).attr('data-panel'))
   {
-    var panel;
+    panel = $('#' + $(target).attr('data-panel'));
+  }
+  else
+  {
+    panel = $(target).closest('.panel');
+  }
 
-    if ($(target).attr('data-panel'))
-    {
-      panel = $('#' + $(target).attr('data-panel'));
-    }
-    else
-    {
-      panel = $(target).closest('.panel');
-    }
+  if (panel.css('display') === 'none')
+  {
+    panel.css('display', 'table-cell');
+  }
+  else
+  {
+    panel.css('display', 'none');
+  }
 
-    if (panel.css('display') === 'none')
-    {
-      panel.css('display', 'table-cell');
-    }
-    else
-    {
-      panel.css('display', 'none');
-    }
+  return target;
+};
 
-    return mod;
-  };
+exports(panelToggler);
 
-  return mod;
-})();
+},{}],42:[function(require,module,exports){
+// # Path helper
+//
+// *Implicit depends:* DOM, JQuery
+//
+// This function returns an object with various helpers for URL
+// path operations. In this application a common pattern in paths is
+// `doctypes/<doctypeid>/fieldsets/<fiedsetid>/fields/<fieldid>`. The
+// path function below will take a source, which is a jQuery object,
+// such as `$('#some-id')`, which has an attribute named `data-group-id`
+// having a value of the id of an element that stores data relevant to
+// the current context as HTML data attributes, in particular the ids of
+// doctypes, fieldsets and/or fields. The category is one of 'field',
+// 'fieldset' or 'doctype'. The section argument is a section of the
+// application, such as 'config' that will be prefixed to the path.
+//
+// #### Example HTML:
+//
+//     <div
+//       id='someid'
+//       data-fieldset-fieldset='fsid'
+//       data-fieldset-doctype='did'></div>
+//
+//     <div
+//      id='thisid'
+//      data-group-id='someid'>
+//
+// #### Example usage:
+//
+//     mypath = path($('#thisid'), 'fieldset');
+//     mypath.toString() == 'doctypes/did/fieldsets/fsid';
+//
+//     mypath = path($('#thisid'), 'fieldset', 'config');
+//     mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
+//
+//     mypath = path($('#thisid'), 'fieldset');
+//     mypath.fieldset = false; // unsets the fielset id
+//     mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
+//
+// Note that the category matches the x of `data-x` in `someid`. Different
+// values may be held for doctype or field in the same element. Sometimes
+// this leads to repetition of information and a better scheme may be
+// forthcoming. The positive side is that information about different
+// paths may be held in the same location.
+//
+// ### CouchDB Revision Numbers
+//
+// Above, a revision could have been added to someid as `data-fieldset-rev`.
+//
+// #### More Information
+//
+// For more information on how data attributes are used in this application,
+// see [store.js](./store.html).
+//
+// ## Manipulating the object
+//
+// Also note that setting certain path elements to false (or undefined)
+// will exclude their ids from the end result. Setting the element to a
+// different id would cause the path to be altered appropriately. This
+// allows one to cleanly manipulate the paths without performing string
+// manipulation.
+//
+// ## PUT, POST and DELETE using the object
+//
+// There are also helpers for using the path the work with the resource
+// it points to.
+//
+// #### Example:
+//
+//     mypath = path($('#thisid'), 'fieldset');
+//     mypath.put(object, callback, context);
+//     mypath.post(object, callback, context);
+//     mypath.del(callback, context);
+//
+// Object is an Javascript object that can be encoded as JSON, callback
+// will be run on success and context provides information the environment
+// from which the method was called, usually `this` is supplied.
+//
+// The object will be sent to the path that would be returned by the
+// toString method using the method implied by the above method's names.
+//
+// ### Error handlers
+//
+// Within the context of this application it is assumed that fairly
+// standard things will be done with error responces so they are left
+// alone.
 
-exports(panelToggle);
+// Variable Definitions
 
-},{}],44:[function(require,module,exports){
-/*
- * h1. Path helper
- *
- * h2. Creating the object
- *
- * This function returns an object with various helpers for URL
- * path operations. In this application a common pattern in paths is
- * doctypes/<doctypeid>/fieldsets/<fiedsetid>/fields/<fieldid>. The path
- * function below will take a source, which is a jQuery object, such as
- * $('#some-id'), which has an attribute named 'data-group-id' having a
- * value of the id of an element that stores data relevant to the current
- * context as HTML data attributes, in particular the ids of doctypes,
- * fieldsets and/or fields. The category is one of 'field', 'fieldset'
- * or 'doctype'. The section argument is a section of the application,
- * such as 'config' that will be prefixed to the path.
- *
- * Example:
- *
- * <pre>
- *   <div
- *     id='someid'
- *     data-fieldset-fieldset='fsid'
- *     data-fieldset-doctype='did'></div>
- *
- *   <div
- *    id='thisid'
- *    data-group-id='someid'>
- *
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.toString() == 'doctypes/did/fieldsets/fsid';
- *
- *   mypath = path($('#thisid'), 'fieldset', 'config');
- *   mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
- *
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.fieldset = false; // unsets the fielset id
- *   mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
- * </pre>
- *
- * Note that the category matches the x of data-x in someid. Different
- * values may be held for doctype or field in the same element. Sometimes
- * this leads to repetition of information and a better scheme may be
- * forthcoming. The positive side is that information about different
- * paths may be held in the same location.
- *
- * h3. CouchDB Revision Numbers
- *
- * Above, a revision could have been added to someid as 'data-fieldset-rev'.
- *
- * h3. More Information
- *
- * For more information on how data attributes are used in this application,
- * see getValue in the application.js file.
- *
- * h2. Manipulating the object
- *
- * Also note that setting certain path elements to false (or undefined)
- * will exclude their ids from the end result. Setting the element to a
- * different id would cause the path to be altered appropriately. This
- * allows one to cleanly manipulate the paths without performing string
- * manipulation.
- *
- * h2. PUT, POST and DELETE using the object
- *
- * There are also helpers for using the path the work with the resource it points to.
- *
- *  Example:
- *
- * <pre>
- *   mypath = path($('#thisid'), 'fieldset');
- *   mypath.put(object, callback, context);
- *   mypath.post(object, callback, context);
- *   mypath.del(callback, context);
- * </pre>
- *
- * Object is an Javascript object that can be encoded as JSON, callback
- * will be run on success and context provides information the environment
- * from which the method was called, usually 'this' is supplied. (Context
- * may no longer be an option in the future).
- *
- * The object will be sent to the path that would be returned by the
- * toString method using the method implied by the above method's names.
- *
- * h3. Error handlers
- *
- * Within the context of this application it is assumed that fairly standard
- * things will be done with error responces so they are left alone.
-*/
+var store = require('./store.js').store;
 
-shimi.path = function (source, category, section)
+// Exported functions
+
+// Object initialization
+var path = function (source, category, section)
 {
   'use strict';
 
@@ -6130,11 +7224,9 @@ shimi.path = function (source, category, section)
   mod.origin = source;
   mod.type = prefix + 'path';
   mod.valid_components = ['doctype', 'fieldset', 'field'];
-  var s = shimi.store(mod.origin);
+  var s = store(mod.origin);
 
-  mod.valid_components.forEach(
-
-  function (item)
+  mod.valid_components.forEach(function (item)
   {
     mod[item] = (function ()
     {
@@ -6214,311 +7306,385 @@ shimi.path = function (source, category, section)
   return mod;
 };
 
-},{}],45:[function(require,module,exports){
-shimi.projectui = (function ()
+exports('./path');
+
+},{"./store.js":47}],43:[function(require,module,exports){
+// # The project manager
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Interface for working with projects.
+
+// Variable Definitions
+
+var form = require('../form.js');
+var init;
+
+// Internal functions
+
+// Delete the project with the given ID.
+var deleteProject = function (id)
 {
   'use strict';
 
-  var mod = {};
-
-  var deleteProject = function (id)
+  if (window.confirm('Are you sure? This is permanent.'))
   {
-    if (window.confirm('Are you sure? This is permanent.'))
+    $.ajax(
     {
-      $.ajax(
+      type: 'DELETE',
+      url: '/projects/' + id,
+      dataType: 'json',
+      contentType: 'application/json',
+      complete: function (req, status)
       {
-        type: 'DELETE',
-        url: '/projects/' + id,
-        dataType: 'json',
-        contentType: 'application/json',
-        complete: function (req, status)
+        if (req.status === 204)
         {
-          if (req.status === 204)
-          {
-            mod.init();
-          }
-          else
-          {
-            window.alert('An error occurred' + req.status);
-          }
+          init();
         }
-      });
-    }
-  };
+        else
+        {
+          window.alert('An error occurred' + req.status);
+        }
+      }
+    });
+  }
+};
 
-  mod.add = function ()
+// Exported functions
+
+// Add a project.
+var add = function ()
+{
+  'use strict';
+
+  var projectName = $('#project-name');
+  var projectDescription = $('#project-description');
+  var tips = $('.validate-tips');
+  var allFields = $([]).add(projectName).add(projectDescription);
+
+  var dialog = $('#add-dialog').dialog(
   {
-    var projectName = $('#project-name');
-    var projectDescription = $('#project-description');
-    var tips = $('.validate-tips');
-    var allFields = $([]).add(projectName).add(projectDescription);
-
-    var dialog = $('#add-dialog').dialog(
+    autoOpen: false,
+    modal: true,
+    buttons:
     {
-      autoOpen: false,
-      modal: true,
-      buttons:
+      'Add project': function ()
       {
-        'Add project': function ()
+        allFields.removeClass('ui-state-error');
+        $('.validation-error-message').remove();
+
+        var checkResult = form.checkLength(projectName, 'project name', 1, 50, tips);
+
+        if (checkResult)
         {
-          allFields.removeClass('ui-state-error');
-          $('.validation-error-message').remove();
-
-          var checkResult = shimi.form.checkLength(projectName, 'project name', 1, 50, tips);
-
-          if (checkResult)
+          $.ajax(
           {
-            $.ajax(
+            type: 'POST',
+            url: 'projects/index',
+            dataType: 'json',
+            contentType: 'application/json',
+            processData: false,
+            data: JSON.stringify(
             {
-              type: 'POST',
-              url: 'projects/index',
-              dataType: 'json',
-              contentType: 'application/json',
-              processData: false,
-              data: JSON.stringify(
+              name: projectName.val(),
+              description: projectDescription.val()
+            }),
+            complete: function (req, status)
+            {
+              if (req.status === 201)
               {
-                name: projectName.val(),
-                description: projectDescription.val()
-              }),
-              complete: function (req, status)
-              {
-                if (req.status === 201)
-                {
-                  mod.init();
-                }
-                else
-                {
-                  window.alert('An error occurred ' + req.status);
-                }
+                init();
               }
-            });
-            $(this).dialog('close');
-          }
-        },
-        'Cancel': function ()
-        {
+              else
+              {
+                window.alert('An error occurred ' + req.status);
+              }
+            }
+          });
           $(this).dialog('close');
         }
       },
-      close: function ()
+      'Cancel': function ()
       {
-        allFields.val('').removeClass('ui-state-error');
+        $(this).dialog('close');
       }
-    });
-
-    return dialog;
-  };
-
-  mod.del = function (target)
-  {
-    var id = $(target).attr('id');
-    deleteProject(id);
-
-    return mod;
-  };
-
-  mod.init = function ()
-  {
-    var url = '/projects/index';
-
-    $.get(url, function (projects)
+    },
+    close: function ()
     {
-      $('tbody').empty();
-      $('tbody').html(projects);
-    });
-  };
+      allFields.val('').removeClass('ui-state-error');
+    }
+  });
 
-  return mod;
-})();
+  return dialog;
+};
 
-},{}],46:[function(require,module,exports){
-shimi.sess = function ()
+// Add a project.
+var del = function (target)
 {
   'use strict';
 
-  var mod = {};
+  var id = $(target).attr('id');
+  deleteProject(id);
 
-  mod.put = function (doc)
+  return true;
+};
+
+// Initialize the interface.
+init = function ()
+{
+  'use strict';
+
+  var url = '/projects/index';
+
+  $.get(url, function (projects)
   {
-    if (!window.sessionStorage[doc._id])
-    {
-      window.sessionStorage[doc._id] = JSON.stringify(doc);
-    }
+    $('tbody').empty();
+    $('tbody').html(projects);
+  });
+};
 
-    return doc._id;
-  };
+exports(add);
+exports(del);
+exports(init);
 
-  mod.get = function (docId)
+},{"../form.js":29}],44:[function(require,module,exports){
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg)
+{
+  'use strict';
+
+  switch (message)
   {
-    var doc = window.sessionStorage[docId];
+  case 'bad-session-state':
+    documents.clearSession();
+    break;
+  case 'doctype-info-ready':
+    documents.makeLabels();
+    break;
+  case 'labels-ready':
+    searchui.loadSearchVals();
+    worksheetui.buildTemplate();
+    break;
+  case 'new-set-form-submit':
+    setsui.saveSelected();
+    break;
+  case 'sets-changed':
+    setsui.updateSelection();
+    break;
+  case 'sets-form-submit':
+    setsui.performOp();
+    break;
+  case 'session-cleared':
+    documents.setVersion();
+    documents.loadDoctype();
+    break;
+  case 'worksheet-form-submit':
+    worksheetui.fillWorksheet();
+    break;
+  case 'initiated-command':
+    commands.dialogOpen(arg);
+    break;
+  case 'executed-command':
+    commands.dialogClose();
+    break;
+  case 'submitted-command':
+    commands.execute(arg);
+    break;
+  case 'lost-focus':
+    editui.selectInput();
+    break;
+  }
 
-    if (doc)
+  return false;
+};
+
+exports('sender');
+},{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],45:[function(require,module,exports){
+// # Session storage helpers
+//
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
+
+// Exported functions
+
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
+{
+  'use strict';
+
+  if (!window.sessionStorage[doc._id])
+  {
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
+  }
+
+  return doc._id;
+};
+
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
+{
+  'use strict';
+
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
+  {
+    return JSON.parse(doc);
+  }
+  else
+  {
+    return null;
+  }
+};
+
+exports(put);
+exports(get);
+
+},{}],46:[function(require,module,exports){
+// # Set operations
+//
+// The 'set' is a one dimensional Array by default but by replacing the
+// `member` function, other types of Arrays may be used.
+
+// Exported functions
+
+// Determine membership of item in the set.
+var member = function (arr, x)
+{
+  'use strict';
+
+  var memb = arr.some(function (y)
+  {
+    return x === y;
+  });
+  return memb;
+};
+
+// Rebuild the array so that all values are unique. This is kind of a
+// 'clean up' function used to work around the differences between arrays
+// and sets.
+var unique = function (x, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uniq = x.reduce(function (acc, curr)
+  {
+    if (mem(acc, curr))
     {
-      return JSON.parse(doc);
+      return acc;
     }
     else
     {
-      return null;
+      return acc.concat([curr]);
     }
-  };
-
-  return mod;
+  }, []);
+  return uniq;
 };
 
-},{}],47:[function(require,module,exports){
-shimi.sets = (function ()
+// Return the union of two sets.
+var union = function (xs, ys, mem)
 {
   'use strict';
 
-  var mod = {};
-
-  mod.member = function (arr, x)
+  if (!mem)
   {
-    var memb = arr.some(function (y)
-    {
-      return x === y;
-    });
-    return memb;
-  };
+    mem = member;
+  }
+  var uni = unique(xs.concat(ys), mem);
+  return uni;
+};
 
-  mod.unique = function (x, mem)
+// Return the intersection of two sets.
+var intersection = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
   {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var uniq = x.reduce(function (acc, curr)
-    {
-      if (mem(acc, curr))
-      {
-        return acc;
-      }
-      else
-      {
-        return acc.concat([curr]);
-      }
-    }, []);
-    return uniq;
-  };
-
-  mod.union = function (xs, ys, mem)
+    mem = member;
+  }
+  var inter = xs.filter(function (x)
   {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var uni = mod.unique(xs.concat(ys), mem);
-    return uni;
-  };
+    return mem(ys, x);
+  });
+  return inter;
+};
 
-  mod.intersection = function (xs, ys, mem)
+// Return the relative complement of two sets.
+var relativeComplement = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
   {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var inter = xs.filter(function (x)
-    {
-      return mem(ys, x);
-    });
-    return inter;
-  };
-
-  mod.relativeComplement = function (xs, ys, mem)
+    mem = member;
+  }
+  var comp = xs.filter(function (x)
   {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var comp = xs.filter(function (x)
-    {
-      return !mem(ys, x);
-    });
-    return comp;
-  };
+    return !mem(ys, x);
+  });
+  return comp;
+};
 
-  mod.symmetricDifference = function (xs, ys, mem)
+// Return the symmetric difference of two sets.
+var symmetricDifference = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
   {
-    if (!mem)
-    {
-      mem = mod.member;
-    }
-    var comp1 = mod.relativeComplement(xs, ys, mem);
-    var comp2 = mod.relativeComplement(ys, xs, mem);
-    var uni = mod.union(comp1, comp2, mem);
-    return uni;
-  };
+    mem = member;
+  }
+  var comp1 = relativeComplement(xs, ys, mem);
+  var comp2 = relativeComplement(ys, xs, mem);
+  var uni = union(comp1, comp2, mem);
+  return uni;
+};
 
-  return mod;
-})();
+exports(member);
+exports(unique);
+exports(union);
+exports(intersection);
+exports(relativeComplement);
+exports(symmetricDifference);
 
-},{}],48:[function(require,module,exports){
-/*
- WARNING: OUT OF DATE
+},{}],47:[function(require,module,exports){
+// # Data Attribute Storage and Retrieval Helpers
+//
+// It is likely that this mechanism will be replaced with a superior
+// mechanism for storing data on the client about documents.
 
- h1. Data Attribute Key Value Stores
+// ## Internal functions
 
- There are two functions provided for getting values from keys
- embedded in HTML elements.
-
-  @getValue(key, elem)@
-
-  This funtion takes a key that corresponds to the name of the data
-  attribute without the data- prefix. It also takes a jQuery
-  object. The assumption is that the jQuery object will hold only one
-  element but it may work either way. The element is expected to have
-  an attribute data-group-id with a value that is the id of the
-  element actually holding the data.
-
- Example:
-
- <pre>
-   <div
-     id='someid'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
- The following also works:
-
- <pre>
-   <div
-     id='someid2'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-     id='someid'
-     data-group-id='someid2'
-     data-fieldset-fieldset='fsid'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'></div>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
-  @putValue(key, value, elem)@
-
-  This function will set an attribute at the target with a name
-  corresponding to key and a value of value.
-*/
-
-/*
- Tail call optimization taken from Spencer Tipping's Javascript in Ten
- Minutes.
-
- For more information see:
- https://github.com/spencertipping/js-in-ten-minutes
-*/
-
+// Identity function for tail recursion
 var identity = function (x)
 {
   'use strict';
@@ -6526,6 +7692,7 @@ var identity = function (x)
   return x;
 };
 
+// Part of the tail call optimization code
 Function.prototype.r = function ()
 {
   'use strict';
@@ -6533,6 +7700,11 @@ Function.prototype.r = function ()
   return [this, arguments];
 };
 
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
 Function.prototype.t = function ()
 {
   'use strict';
@@ -6546,12 +7718,58 @@ Function.prototype.t = function ()
   return escape.apply(this, c[1]);
 };
 
-shimi.store = function (elem)
+// ## External functions
+
+// Takes a JQuery element and returns an object with helper methods for
+// getting and putting custom data attribute values.
+var store = function (elem)
 {
   'use strict';
 
   var mod = {};
 
+  // This funtion takes a key that corresponds to the name of the data
+  // attribute without the `data-` prefix. The element is expected to have
+  // an attribute data-group-id with a value that is the id of the
+  // element actually holding the data.
+  //
+  // ### Examples
+  //
+  // Given the following HTML:
+  //
+  //     <div
+  //       id='someid'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     store($('#thisid')).get('fieldset-doctype') == 'did';
+  //
+  // This HTML contains a level of indirection and demonstrates the use
+  // of the `data-group-id`:
+  // 
+  //     <div
+  //       id='someid2'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //  
+  //     <div
+  //       id='someid'
+  //       data-group-id='someid2'
+  //       data-fieldset-fieldset='fsid'></div>
+  //  
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'></div>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //  
+  //     store($('#thisid')).get('fieldset-doctype') == 'did';
   mod.get = function (key)
   {
     var prelim = elem.attr('data-' + key);
@@ -6579,6 +7797,7 @@ shimi.store = function (elem)
     return getValue1.t(key, elem, identity);
   };
 
+  // Like 'get' but will decode base64 encoded values.
   mod.get64 = function (key)
   {
     var retval = mod.get(key);
@@ -6586,22 +7805,27 @@ shimi.store = function (elem)
     return retval;
   };
 
+  //  This function will set an attribute at the target with a name
+  //  corresponding to key and a value of value.
   mod.put = function (key, value)
   {
     var dataElem = elem.attr('data-group-id');
     $('#' + dataElem).attr('data-' + key, value);
   };
 
+  //  Helper function for attributes that begin with `data-fieldset`.
   mod.fs = function (key)
   {
     return mod.get('fieldset-' + key);
   };
 
+  //  Helper function for attributes that begin with `data-field`.
   mod.f = function (key)
   {
     return mod.get('field-' + key);
   };
 
+  //  Helper function for attributes that begin with `data-document`.
   mod.d = function (key)
   {
     return mod.get('document-' + key);
@@ -6610,205 +7834,216 @@ shimi.store = function (elem)
   return mod;
 };
 
-},{}],49:[function(require,module,exports){
-shimi.utils = function ()
+exports(store);
+
+
+},{}],48:[function(require,module,exports){
+// # Misc
+
+// Exported functions
+
+// safer(ish) string to number. The difference is that in this app
+// I am using '' if the string isn't a valid number.
+var stringToNumber = function (string)
 {
   'use strict';
 
-  var mod = {};
-
-  // safer(ish) string to number. The difference is that in this app
-  // I am using '' if the string isn't a valid number.
-  mod.stringToNumber = function (string)
+  if (typeof string === 'string' && !isNaN(string) && string !== '')
   {
-    if (typeof string === 'string' && !isNaN(string) && string !== '')
-    {
-      return string * 1;
-    }
-    else
-    {
-      return '';
-    }
-  };
-
-  // A predicate function to detect blankness
-  mod.isBlank = function (value)
+    return string * 1;
+  }
+  else
   {
-    return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
-  };
+    return '';
+  }
+};
 
-  mod.validID = function (id)
+// A predicate function to detect blankness of various object types.
+var isBlank = function (value)
+{
+  'use strict';
+
+  return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
+};
+
+// A predicate to test if the input is a string containing 32 characters
+// limited to hexidecimal digits.
+var validID = function (id)
+{
+  'use strict';
+
+  return !!id.match(/^[a-f0-9]{32}$/);
+};
+
+// Base64 encode / decode
+// Taken from <http://www.webtoolkit.info/>
+var Base64 = {
+  // private property
+  _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+
+  // public method for encoding
+  encode: function (input)
   {
-    return !!id.match(/^[a-f0-9]{32}$/);
-  };
+    'use strict';
 
-  /**
-   *
-   *  Base64 encode / decode
-   *  http://www.webtoolkit.info/
-   *
-   **/
+    var output = '';
+    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+    var i = 0;
 
-  mod.Base64 = {
+    input = Base64._utf8_encode(input);
 
-    // private property
-    _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-
-    // public method for encoding
-    encode: function (input)
+    while (i < input.length)
     {
-      var output = '';
-      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-      var i = 0;
 
-      input = mod.Base64._utf8_encode(input);
+      chr1 = input.charCodeAt(i++);
+      chr2 = input.charCodeAt(i++);
+      chr3 = input.charCodeAt(i++);
 
-      while (i < input.length)
+      enc1 = chr1 >> 2;
+      enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+      enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+      enc4 = chr3 & 63;
+
+      if (isNaN(chr2))
       {
-
-        chr1 = input.charCodeAt(i++);
-        chr2 = input.charCodeAt(i++);
-        chr3 = input.charCodeAt(i++);
-
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-
-        if (isNaN(chr2))
-        {
-          enc3 = enc4 = 64;
-        }
-        else if (isNaN(chr3))
-        {
-          enc4 = 64;
-        }
-
-        output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-
+        enc3 = enc4 = 64;
+      }
+      else if (isNaN(chr3))
+      {
+        enc4 = 64;
       }
 
-      return output;
-    },
+      output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
 
-    // public method for decoding
-    decode: function (input)
-    {
-      var output = '';
-      var chr1, chr2, chr3;
-      var enc1, enc2, enc3, enc4;
-      var i = 0;
-
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
-
-      while (i < input.length)
-      {
-
-        enc1 = this._keyStr.indexOf(input.charAt(i++));
-        enc2 = this._keyStr.indexOf(input.charAt(i++));
-        enc3 = this._keyStr.indexOf(input.charAt(i++));
-        enc4 = this._keyStr.indexOf(input.charAt(i++));
-
-        chr1 = (enc1 << 2) | (enc2 >> 4);
-        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-        chr3 = ((enc3 & 3) << 6) | enc4;
-
-        output = output + String.fromCharCode(chr1);
-
-        if (enc3 !== 64)
-        {
-          output = output + String.fromCharCode(chr2);
-        }
-        if (enc4 !== 64)
-        {
-          output = output + String.fromCharCode(chr3);
-        }
-
-      }
-
-      output = mod.Base64._utf8_decode(output);
-
-      return output;
-
-    },
-
-    // private method for UTF-8 encoding
-    _utf8_encode: function (string)
-    {
-      string = string.replace(/\r\n/g, '\n');
-      var utftext = '';
-
-      for (var n = 0; n < string.length; n++)
-      {
-
-        var c = string.charCodeAt(n);
-
-        if (c < 128)
-        {
-          utftext += String.fromCharCode(c);
-        }
-        else if ((c > 127) && (c < 2048))
-        {
-          utftext += String.fromCharCode((c >> 6) | 192);
-          utftext += String.fromCharCode((c & 63) | 128);
-        }
-        else
-        {
-          utftext += String.fromCharCode((c >> 12) | 224);
-          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-          utftext += String.fromCharCode((c & 63) | 128);
-        }
-
-      }
-
-      return utftext;
-    },
-
-    // private method for UTF-8 decoding
-    _utf8_decode: function (utftext)
-    {
-      var string = '';
-      var i = 0;
-      var c = 0;
-      var c1 = 0;
-      var c2 = 0;
-      var c3 = 0;
-
-      while (i < utftext.length)
-      {
-
-        c = utftext.charCodeAt(i);
-
-        if (c < 128)
-        {
-          string += String.fromCharCode(c);
-          i++;
-        }
-        else if ((c > 191) && (c < 224))
-        {
-          c2 = utftext.charCodeAt(i + 1);
-          string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-          i += 2;
-        }
-        else
-        {
-          c2 = utftext.charCodeAt(i + 1);
-          c3 = utftext.charCodeAt(i + 2);
-          string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-          i += 3;
-        }
-
-      }
-
-      return string;
     }
 
-  };
+    return output;
+  },
 
+  // public method for decoding
+  decode: function (input)
+  {
+    'use strict';
 
-  return mod;
+    var output = '';
+    var chr1, chr2, chr3;
+    var enc1, enc2, enc3, enc4;
+    var i = 0;
+
+    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+    while (i < input.length)
+    {
+
+      enc1 = this._keyStr.indexOf(input.charAt(i++));
+      enc2 = this._keyStr.indexOf(input.charAt(i++));
+      enc3 = this._keyStr.indexOf(input.charAt(i++));
+      enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+      chr1 = (enc1 << 2) | (enc2 >> 4);
+      chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+      chr3 = ((enc3 & 3) << 6) | enc4;
+
+      output = output + String.fromCharCode(chr1);
+
+      if (enc3 !== 64)
+      {
+        output = output + String.fromCharCode(chr2);
+      }
+      if (enc4 !== 64)
+      {
+        output = output + String.fromCharCode(chr3);
+      }
+
+    }
+
+    output = Base64._utf8_decode(output);
+
+    return output;
+
+  },
+
+  // private method for UTF-8 encoding
+  _utf8_encode: function (string)
+  {
+    'use strict';
+
+    string = string.replace(/\r\n/g, '\n');
+    var utftext = '';
+
+    for (var n = 0; n < string.length; n++)
+    {
+
+      var c = string.charCodeAt(n);
+
+      if (c < 128)
+      {
+        utftext += String.fromCharCode(c);
+      }
+      else if ((c > 127) && (c < 2048))
+      {
+        utftext += String.fromCharCode((c >> 6) | 192);
+        utftext += String.fromCharCode((c & 63) | 128);
+      }
+      else
+      {
+        utftext += String.fromCharCode((c >> 12) | 224);
+        utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+        utftext += String.fromCharCode((c & 63) | 128);
+      }
+
+    }
+
+    return utftext;
+  },
+
+  // private method for UTF-8 decoding
+  _utf8_decode: function (utftext)
+  {
+    'use strict';
+
+    var string = '';
+    var i = 0;
+    var c = 0;
+    var c1 = 0;
+    var c2 = 0;
+    var c3 = 0;
+
+    while (i < utftext.length)
+    {
+
+      c = utftext.charCodeAt(i);
+
+      if (c < 128)
+      {
+        string += String.fromCharCode(c);
+        i++;
+      }
+      else if ((c > 191) && (c < 224))
+      {
+        c2 = utftext.charCodeAt(i + 1);
+        string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+        i += 2;
+      }
+      else
+      {
+        c2 = utftext.charCodeAt(i + 1);
+        c3 = utftext.charCodeAt(i + 2);
+        string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+        i += 3;
+      }
+
+    }
+
+    return string;
+  }
 
 };
 
-},{}]},{},[1,3,4,2,5,8,6,7,11,9,13,14,12,15,10,16,17,19,21,22,20,23,24,25,26,27,29,28,30,31,32,33,34,35,36,18,37,39,38,40,41,42,43,44,45,46,48,49,47])
+exports(stringToNumber);
+exports(isBlank);
+exports(validID);
+exports(Base64);
+
+},{}]},{},[1,3,5,6,9,8,7,10,11,12,13,15,14,16,17,18,20,21,22,23,19,4,26,2,29,28,25,27,31,32,33,34,36,37,35,38,39,40,41,42,43,44,45,46,47,48,30,24])
 ;

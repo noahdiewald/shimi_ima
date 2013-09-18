@@ -13,6 +13,7 @@ var indexui = require('./indexui.js');
 var changeui = require('./changeui.js');
 var sender = require('../sender.js').sender;
 var store = require('../store.js').store;
+var identifier;
 
 // Internal functions
 
@@ -22,6 +23,8 @@ var store = require('../store.js').store;
 // *TODO* put this with other change handlers.
 var indexForm = function ()
 {
+  'use strict';
+
   $('#index-filter-form select').change(function ()
   {
     indexui.get();
@@ -34,6 +37,8 @@ var indexForm = function ()
 // this will pass the information on the correct funciont in `viewui`.
 var loadHash = function (urlHash)
 {
+  'use strict';
+
   if (urlHash)
   {
     viewui.get(urlHash);
@@ -44,30 +49,40 @@ var loadHash = function (urlHash)
 
 var allDocContainer = function ()
 {
+  'use strict';
+
   return $('#all-document-container');
 };
 
 // Key used in retrieving cached information from session storage.
 var versionKey = function ()
 {
+  'use strict';
+
   return identifier() + '_version';
 };
 
 // Key used in retrieving cached information from session storage.
 var infoKey = function ()
 {
+  'use strict';
+
   return identifier() + '_info';
 };
 
 // Key used in retrieving cached information from session storage.
 var labelsKey = function ()
 {
+  'use strict';
+
   return identifier() + '_labels';
 };
 
 // Store the doctype info in the session store.
 var storeDoctype = function (doctype)
 {
+  'use strict';
+
   sessionStorage.setItem(infoKey(), doctype);
   sender('doctype-info-ready');
 
@@ -79,6 +94,8 @@ var storeDoctype = function (doctype)
 // Get the stored doctype version.
 var getVersion = function ()
 {
+  'use strict';
+
   return sessionStorage.getItem(versionKey());
 };
 
@@ -86,6 +103,8 @@ var getVersion = function ()
 // attribute that is updated on page reloads.
 var getCurrentVersion = function ()
 {
+  'use strict';
+
   return store(allDocContainer()).d('version');
 };
 
@@ -93,12 +112,16 @@ var getCurrentVersion = function ()
 // `data` attribute.
 var isCurrentVersionStored = function ()
 {
+  'use strict';
+
   return (getVersion() && getVersion() === getCurrentVersion());
 };
 
 // Reset the doctype version
 var setVersion = function ()
 {
+  'use strict';
+
   sessionStorage.setItem(versionKey(), getCurrentVersion());
   sender('version-set');
 
@@ -108,6 +131,8 @@ var setVersion = function ()
 // Clear the session storage
 var clearSession = function ()
 {
+  'use strict';
+
   sessionStorage.clear();
   sender('session-cleared');
 
@@ -118,6 +143,8 @@ var clearSession = function ()
 // state based on the result.
 var checkVersion = function ()
 {
+  'use strict';
+
   if (isCurrentVersionStored())
   {
     sender('labels-ready');
@@ -131,32 +158,42 @@ var checkVersion = function ()
 };
 
 // Get the doctype name
-var name = function ()
+var dname = function ()
 {
+  'use strict';
+
   return store($('#all-document-container')).d('doctype');
 };
 
 // Get the project id
 var project = function ()
 {
+  'use strict';
+
   return store($('#container')).get('project-id');
 };
 
 // Identifier is a combination of the project and doctype name.
-var identifier = function ()
+identifier = function ()
 {
-  return project() + '_' + name();
+  'use strict';
+
+  return project() + '_' + dname();
 };
 
 // Get information about doctype.
 var info = function ()
 {
+  'use strict';
+
   return JSON.parse(sessionStorage.getItem(infoKey()));
 };
 
 // Load the doctype document stored on the server.
 var loadDoctype = function ()
 {
+  'use strict';
+
   $.getJSON('./', function (data)
   {
     storeDoctype(JSON.stringify(data));
@@ -169,6 +206,8 @@ var loadDoctype = function ()
 // id index.
 var makeLabels = function ()
 {
+  'use strict';
+
   var info = info();
   var labels = {};
 
@@ -189,6 +228,8 @@ var makeLabels = function ()
 // Initialize the documents sub-application.
 var init = function ()
 {
+  'use strict';
+
   $('form').on('submit', function ()
   {
     return false;
@@ -209,7 +250,7 @@ exports(isCurrentVersionStored);
 exports(setVersion);
 exports(clearSession);
 exports(checkVersion);
-exports(name);
+exports(dname);
 exports(project);
 exports(identifier);
 exports(info);

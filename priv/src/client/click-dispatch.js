@@ -9,7 +9,7 @@
 
 // ## Variable Definitions
 
-var dispatch = require('./sender.js').sender;
+var sender = require('./sender.js').sender;
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var doctypeTab = require('./config/doctype-tab.js');

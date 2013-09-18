@@ -11,6 +11,7 @@
 
 var form = require('../form.js');
 var flash = require('../flash.js');
+var refreshListings;
 
 // Internal functions
 
@@ -208,9 +209,10 @@ var deleteFile = function (target)
 };
 
 // Refresh the file listing using the given path.
-var refreshListings = function (path)
+refreshListings = function (path)
 {
   'use strict';
+
   getDirListing(path);
   getFileListing(path);
 };

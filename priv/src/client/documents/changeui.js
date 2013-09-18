@@ -45,7 +45,7 @@ var get = function ()
     target: target
   }).get();
 
-  return mod;
+  return true;
 };
 
 exports(get);

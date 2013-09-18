@@ -23,11 +23,11 @@ var keystrokes = require('./keystrokes.js').keystrokes;
 var form = require('./form.js');
 
 // These are the basic sub-application entry points.
-documents = require('./documents/documents.js');
-fm = require('./file_manager/fm.js');
-ilistingui = require('./index_tool/ilistingui.js');
-projectui = require('./projects/projectui.js');
-config = require('./config/config.js');
+var documents = require('./documents/documents.js');
+var fm = require('./file_manager/fm.js');
+var ilistingui = require('./index_tool/ilistingui.js');
+var projectui = require('./projects/projectui.js');
+var config = require('./config/config.js');
 
 // ## Extensions to String and Array Objects
 

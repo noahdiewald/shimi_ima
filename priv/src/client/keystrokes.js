@@ -12,7 +12,7 @@
 
 var hotkeys = require('./jquery.hotkeys.js');
 var sender = require('./sender.js');
-var ipreviewui = require('index_tool/ipreviewui.js');
+var ipreviewui = require('./index_tool/ipreviewui.js');
 var indexui = require('./documents/indexui.js');
 var changeui = require('./documents/changeui.js');
 var editui = require('./documents/editui.js');

@@ -12,24 +12,31 @@ var flash = require('../flash.js');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
+var afterRefresh;
 
 // Internal functions
 
 // UI Element
 var saveButton = function ()
 {
+  'use strict';
+
   return $('#save-document-button');
 };
 
 // UI Element
 var createButton = function ()
 {
+  'use strict';
+
   return $('#create-document-button');
 };
 
 // UI Element
 var editButton = function ()
 {
+  'use strict';
+
   return $('#document-edit-button');
 };
 
@@ -37,6 +44,8 @@ var editButton = function ()
 // Display validation error properly.
 var validationError = function (req)
 {
+  'use strict';
+
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
 
@@ -54,6 +63,8 @@ var validationError = function (req)
 // Fields need to have instances. This should ensure they have them.
 var instances = function (addInstances)
 {
+  'use strict';
+
   var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
   var makeInstance = function ()
   {
@@ -96,6 +107,8 @@ var instances = function (addInstances)
 // Initialize the editing pane.
 var init = function ()
 {
+  'use strict';
+
   var url = 'documents/edit';
 
   $.get(url, function (documentEditHtml)
@@ -112,6 +125,8 @@ var init = function ()
 // Focus on the first focusable input element in an active tab.
 var selectInput = function ()
 {
+  'use strict';
+
   var inputable = 'input, select, textarea';
   var t = function ()
   {
@@ -131,6 +146,8 @@ var selectInput = function ()
 // is available to do an update.
 var afterFreshRefresh = function (addInstances)
 {
+  'use strict';
+
   afterRefresh(addInstances);
 
   return true;
@@ -139,6 +156,8 @@ var afterFreshRefresh = function (addInstances)
 // Run after the edit button in the view UI is clicked.
 var afterEditRefresh = function ()
 {
+  'use strict';
+
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem)
@@ -154,8 +173,10 @@ var afterEditRefresh = function ()
 
 // Essentially initialization of the form. If `addInstances` is true,
 // new instance identifiers will be created for a blank form.
-var afterRefresh = function (addInstances)
+afterRefresh = function (addInstances)
 {
+  'use strict';
+
   form.initDateFields();
   instances(addInstances);
 
@@ -165,6 +186,8 @@ var afterRefresh = function (addInstances)
 // Reset field values to defaults.
 var resetFields = function ()
 {
+  'use strict';
+
   $('.field').each(function (index)
   {
     var field = $(this);
@@ -199,6 +222,8 @@ var resetFields = function ()
 // update, not creation.
 var save = function ()
 {
+  'use strict';
+
   if (saveButton().hasClass('oldrev'))
   {
     if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
@@ -264,6 +289,8 @@ var save = function ()
 // To be run if creating a new document.
 var create = function ()
 {
+  'use strict';
+
   var s = store(createButton());
   var root = $('#edit-document-form');
   var skey = $('#first-index-element').attr('data-first-key');
@@ -312,6 +339,8 @@ var create = function ()
 // Clear the form.
 var clear = function ()
 {
+  'use strict';
+
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
   saveButton().hide().attr('disabled', 'disabled');
   $('.fields').remove();
@@ -321,6 +350,8 @@ var clear = function ()
 // Display a help dialog for a form field.
 var showHelpDialog = function (target)
 {
+  'use strict';
+
   if (target.is('.label-text'))
   {
     target = target.parent('label').find('.ui-icon-help');
@@ -334,6 +365,8 @@ var showHelpDialog = function (target)
 // Contract and expand textarea elements.
 var toggleTextarea = function (target)
 {
+  'use strict';
+
   var textarea = $('#' + target.attr('data-group-id'));
 
   if (target.attr('id') === textarea.attr('data-group-id'))

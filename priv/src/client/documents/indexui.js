@@ -58,6 +58,8 @@ var get = function ()
 // Loads the listing of user created indexes.
 var iOpts = function ()
 {
+  'use strict';
+
   var url = 'indexes?as=options';
   var options;
 
@@ -74,6 +76,8 @@ var iOpts = function ()
 // the application.
 var load = function (target)
 {
+  'use strict';
+
   var id = $(target).attr('href').slice(1);
   $('#document-view').html('<em>Loading...</em>');
   shimi.editui.clear();

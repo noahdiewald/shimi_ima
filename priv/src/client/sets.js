@@ -8,6 +8,8 @@
 // Determine membership of item in the set.
 var member = function (arr, x)
 {
+  'use strict';
+
   var memb = arr.some(function (y)
   {
     return x === y;
@@ -20,6 +22,8 @@ var member = function (arr, x)
 // and sets.
 var unique = function (x, mem)
 {
+  'use strict';
+
   if (!mem)
   {
     mem = member;
@@ -41,6 +45,8 @@ var unique = function (x, mem)
 // Return the union of two sets.
 var union = function (xs, ys, mem)
 {
+  'use strict';
+
   if (!mem)
   {
     mem = member;
@@ -52,6 +58,8 @@ var union = function (xs, ys, mem)
 // Return the intersection of two sets.
 var intersection = function (xs, ys, mem)
 {
+  'use strict';
+
   if (!mem)
   {
     mem = member;
@@ -66,6 +74,8 @@ var intersection = function (xs, ys, mem)
 // Return the relative complement of two sets.
 var relativeComplement = function (xs, ys, mem)
 {
+  'use strict';
+
   if (!mem)
   {
     mem = member;
@@ -80,6 +90,8 @@ var relativeComplement = function (xs, ys, mem)
 // Return the symmetric difference of two sets.
 var symmetricDifference = function (xs, ys, mem)
 {
+  'use strict';
+
   if (!mem)
   {
     mem = member;

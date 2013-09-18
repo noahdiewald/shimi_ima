@@ -6,11 +6,11 @@
 
 // Variable Definitions
 
-var initIndexNewDialog = require('./initIndexNewDialog.js').initIndexNewDialog;
-var initIndexBuilderDialog = require('./initIndexBuilderDialog.js').initIndexBuilderDialog;
-var initReplaceDialog = require('./initReplaceDialog.js').initReplaceDialog;
+var initIndexNewDialog = require('./new-dialog.js').initIndexNewDialog;
+var initIndexBuilderDialog = require('./builder-dialog.js').initIndexBuilderDialog;
+var initReplaceDialog = require('./replace-dialog.js').initReplaceDialog;
 var ilistingui = require('./ilistingui.js');
-var ipreview = require('./ipreview.js');
+var ipreviewui = require('./ipreviewui.js');
 var ihelpers = require('./ihelpers.js');
 var form = require('../form.js');
 var flash = require('../flash.js');
@@ -217,6 +217,8 @@ var init = function (target)
 // Save the index.
 var save = function ()
 {
+  'use strict';
+
   var bData = editingData();
 
   if (bData.length !== 0)
@@ -286,6 +288,8 @@ var remCond = function (target)
 // Open the new index dialog.
 var newCond = function ()
 {
+  'use strict';
+
   initIndexNewDialog().dialog('open');
   return true;
 };

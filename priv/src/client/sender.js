@@ -21,6 +21,8 @@ var worksheetui = require('./documents/worksheetui.js');
 // result in a paticular state.
 var sender = function (message, arg)
 {
+  'use strict';
+
   switch (message)
   {
   case 'bad-session-state':
