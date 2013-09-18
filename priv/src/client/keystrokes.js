@@ -41,8 +41,17 @@ var keystrokes = function ()
       }, 500);
     };
 
-    document.getElementById(mod.prefix() + '-filter').onkeyup = keyupHandler;
-    document.getElementById(mod.prefix() + '-limit').onkeyup = keyupHandler;
+    document.addEventListener('keyup', function(e)
+    {
+      if (e.target.id === mod.prefix() + '-filter')
+      {
+        keyupHandler(e);
+      }
+      else if (e.target.id === mod.prefix() + '-limit')
+      {
+        keyupHandler(e);
+      }
+    });
   });
 
   $(document).on('keydown', '#document-worksheets-form', function (e)

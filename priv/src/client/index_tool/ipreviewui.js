@@ -10,12 +10,21 @@ var pager = require('../pager.js').pager;
 
 // Exported Functions
 
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
+{
+  'use strict';
+
+  return 'preview';
+};
+
 // Called by a keystroke event handler when user changes form values.
 var get = function ()
 {
   'use strict';
 
-  var prefix = 'preview';
+  var prefix = prefix();
   var indexId = $('#index-editing-data').attr('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
   var target = $('#' + prefix + '-list-view');
@@ -51,4 +60,5 @@ var get = function ()
   return true;
 };
 
+exports.prefix = prefix;
 exports.get = get;

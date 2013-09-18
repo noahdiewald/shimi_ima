@@ -1671,12 +1671,21 @@ var pager = require('../pager.js').pager;
 
 // Exported Functions
 
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
+{
+  'use strict';
+
+  return 'changelog';
+};
+
 // Called by a keystroke event handler when user changes form values.
 var get = function ()
 {
   'use strict';
 
-  var prefix = 'changelog';
+  var prefix = prefix();
   var url = prefix;
   var target = $('#' + prefix + '-listing');
 
@@ -1709,6 +1718,7 @@ var get = function ()
   return true;
 };
 
+exports.prefix = prefix;
 exports.get = get;
 
 },{"../pager.js":40}],18:[function(require,module,exports){
@@ -3003,12 +3013,21 @@ var pager = require('../pager.js').pager;
 
 // Exported Functions
 
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
+{
+  'use strict';
+
+  return 'index';
+};
+
 // Called by a keystroke event handler when user changes form values.
 var get = function ()
 {
   'use strict';
 
-  var prefix = 'index';
+  var prefix = prefix();
   var url = 'documents/' + prefix;
   var indexId = $('#index-' + prefix + '-input').val();
   var target = $('#' + prefix + '-listing');
@@ -3078,6 +3097,7 @@ var load = function (target)
   return true;
 };
 
+exports.prefix = prefix;
 exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
@@ -6217,12 +6237,21 @@ var pager = require('../pager.js').pager;
 
 // Exported Functions
 
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
+{
+  'use strict';
+
+  return 'preview';
+};
+
 // Called by a keystroke event handler when user changes form values.
 var get = function ()
 {
   'use strict';
 
-  var prefix = 'preview';
+  var prefix = prefix();
   var indexId = $('#index-editing-data').attr('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
   var target = $('#' + prefix + '-list-view');
@@ -6258,6 +6287,7 @@ var get = function ()
   return true;
 };
 
+exports.prefix = prefix;
 exports.get = get;
 
 },{"../pager.js":40}],35:[function(require,module,exports){
@@ -6722,8 +6752,17 @@ var keystrokes = function ()
       }, 500);
     };
 
-    document.getElementById(mod.prefix() + '-filter').onkeyup = keyupHandler;
-    document.getElementById(mod.prefix() + '-limit').onkeyup = keyupHandler;
+    document.addEventListener('keyup', function(e)
+    {
+      if (e.target.id === mod.prefix() + '-filter')
+      {
+        keyupHandler(e);
+      }
+      else if (e.target.id === mod.prefix() + '-limit')
+      {
+        keyupHandler(e);
+      }
+    });
   });
 
   $(document).on('keydown', '#document-worksheets-form', function (e)
