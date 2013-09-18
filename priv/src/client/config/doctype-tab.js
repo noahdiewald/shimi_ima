@@ -11,7 +11,7 @@ var fieldElems = require('./field-elems.js').fieldElems;
 var fieldsetDialog = require('./fieldset-dialog.js').fieldsetDialog;
 var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
 var store = require('../store.js').store;
-var path = require('../store.js').path;
+var path = require('../path.js').path;
 
 // Exported functions
 

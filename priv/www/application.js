@@ -933,7 +933,7 @@ var fieldElems = require('./field-elems.js').fieldElems;
 var fieldsetDialog = require('./fieldset-dialog.js').fieldsetDialog;
 var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
 var store = require('../store.js').store;
-var path = require('../store.js').path;
+var path = require('../path.js').path;
 
 // Exported functions
 
@@ -1164,7 +1164,7 @@ var doctypeTab = (function ()
 
 exports.doctypeTab = doctypeTab;
 
-},{"../store.js":47,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
+},{"../path.js":42,"../store.js":47,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
