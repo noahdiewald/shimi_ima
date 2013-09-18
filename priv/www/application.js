@@ -1162,6 +1162,8 @@ var doctypeTab = (function ()
   return mod;
 })();
 
+exports.doctypeTab = doctypeTab;
+
 },{"../store.js":47,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
 // # Field manipulation dialog
 //
