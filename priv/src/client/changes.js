@@ -33,4 +33,4 @@ var changes = function ()
   });
 };
 
-exports(changes);
+exports.changes = changes;

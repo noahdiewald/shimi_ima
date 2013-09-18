@@ -15,6 +15,8 @@
 var shimi = {};
 shimi.globals = {};
 
+var exports = module.exports;
+
 require('./jquery-ui-input-state.js');
 
 var clickDispatch = require('./click-dispatch.js').clickDispatch;
@@ -181,7 +183,7 @@ var changes = function ()
   });
 };
 
-exports(changes);
+exports.changes = changes;
 
 },{"./documents/searchui.js":23}],3:[function(require,module,exports){
 // # Dispatching click events
@@ -491,7 +493,7 @@ var clickDispatch = function (e)
   action(e);
 };
 
-exports(clickDispatch);
+exports.clickDispatch = clickDispatch;
 
 },{"./config/charseq-tab":6,"./config/config.js":7,"./config/doctype-tab.js":10,"./dispatcher.js":16,"./documents/editui.js":20,"./documents/fieldsets.js":21,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/viewui.js":25,"./documents/worksheetui.js":26,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ieditui.js":31,"./panel-toggle.js":41,"./projects/projectui.js":43,"./sender.js":44}],4:[function(require,module,exports){
 // # Charseq manipulation dialog
@@ -552,7 +554,7 @@ var charseqDialog = function (values)
   return dialog;
 };
 
-exports(charseqDialog);
+exports.charseqDialog = charseqDialog;
 
 },{"../form.js":29,"./charseq-elems.js":5,"./charseq-tab.js":6}],5:[function(require,module,exports){
 // # Working with elements of a charseq manipulation HTML form
@@ -647,7 +649,7 @@ var charseqElems = (function ()
   return mod;
 })();
 
-exports(charseqElems);
+exports.charseqElems = charseqElems;
 
 },{"../form.js":29}],6:[function(require,module,exports){
 // # Charseq tab initialization
@@ -735,7 +737,7 @@ var charseqTab = (function ()
   return mod;
 })();
 
-exports(charseqTab);
+exports.charseqTab = charseqTab;
 
 },{"../form.js":29,"../store.js":47,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
 // # Config Sub-App Init
@@ -780,8 +782,8 @@ var init = function ()
   return true;
 };
 
-exports(upgradeButton);
-exports(init);
+exports.upgradeButton = upgradeButton;
+exports.init = init;
 
 },{"./charseq-tab.js":6,"./doctype-tab.js":10}],8:[function(require,module,exports){
 // # Doctype manipulation dialog
@@ -850,7 +852,7 @@ var doctypeDialog = function (url, values)
   return dialog;
 };
 
-exports(doctypeDialog);
+exports.doctypeDialog = doctypeDialog;
 
 },{"./doctype-elems.js":9,"./doctype-tab.js":10}],9:[function(require,module,exports){
 // # Working with elements of a doctype manipulation HTML form
@@ -915,7 +917,7 @@ var doctypeElems = (function ()
   return mod;
 })();
 
-exports(doctypeElems);
+exports.doctypeElems = doctypeElems;
 
 },{"../form.js":29}],10:[function(require,module,exports){
 // # Doctype tab initialization
@@ -1217,7 +1219,7 @@ var fieldDialog = function (url, values)
   return dialog;
 };
 
-exports(fieldDialog);
+exports.fieldDialog = fieldDialog;
 
 },{"./doctype-tab.js":10,"./field-elems.js":12}],12:[function(require,module,exports){
 // # Working with elements of a field manipulation HTML form
@@ -1414,7 +1416,7 @@ var fieldElems = (function ()
   return mod;
 })();
 
-exports(fieldElems);
+exports.fieldElems = fieldElems;
 
 },{"../form.js":29,"../utils.js":48}],13:[function(require,module,exports){
 // # Fieldset manipulation dialog
@@ -1476,7 +1478,7 @@ var fieldsetDialog = function (url, values)
   return dialog;
 };
 
-exports(fieldsetDialog);
+exports.fieldsetDialog = fieldsetDialog;
 
 },{"./doctype-tab.js":10,"./fieldset-elems.js":14}],14:[function(require,module,exports){
 // # Working with elements of a fieldset manipulation HTML form
@@ -1555,7 +1557,7 @@ var fieldsetElems = (function ()
   return mod;
 })();
 
-exports(fieldsetElems);
+exports.fieldsetElems = fieldsetElems;
 
 },{"../form.js":29}],15:[function(require,module,exports){
 // # Dispatching double click events
@@ -1621,7 +1623,7 @@ var dblclickDispatch = function (e)
   action(e);
 };
 
-exports(dblclickDispatch);
+exports.dblclickDispatch = dblclickDispatch;
 
 },{"./dispatcher.js":16,"./documents/searchui.js":23,"./documents/worksheetui.js":26,"./panel-toggle.js":41}],16:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
@@ -1655,7 +1657,7 @@ var dispatcher = function (patterns)
   return d;
 };
 
-exports(dispatcher);
+exports.dispatcher = dispatcher;
 },{}],17:[function(require,module,exports){
 // # Paging For Changes Listing
 //
@@ -1707,7 +1709,7 @@ var get = function ()
   return true;
 };
 
-exports(get);
+exports.get = get;
 
 },{"../pager.js":40}],18:[function(require,module,exports){
 // # Keyboard shortcuts
@@ -1843,9 +1845,9 @@ var dialogClose = function ()
   return true;
 };
 
-exports(execute);
-exports(dialogOpen);
-exports(dialogClose);
+exports.execute = execute;
+exports.dialogOpen = dialogOpen;
+exports.dialogClose = dialogClose;
 
 },{"../sender.js":44,"./editui.js":20}],19:[function(require,module,exports){
 // # Documents sub-application
@@ -2094,19 +2096,19 @@ var init = function ()
   changeui.get();
 };
 
-exports(getVersion);
-exports(getCurrentVersion);
-exports(isCurrentVersionStored);
-exports(setVersion);
-exports(clearSession);
-exports(checkVersion);
-exports(dname);
-exports(project);
-exports(identifier);
-exports(info);
-exports(loadDoctype);
-exports(makeLabels);
-exports(init);
+exports.getVersion = getVersion;
+exports.getCurrentVersion = getCurrentVersion;
+exports.isCurrentVersionStored = isCurrentVersionStored;
+exports.setVersion = setVersion;
+exports.clearSession = clearSession;
+exports.checkVersion = checkVersion;
+exports.dname = dname;
+exports.project = project;
+exports.identifier = identifier;
+exports.info = info;
+exports.loadDoctype = loadDoctype;
+exports.makeLabels = makeLabels;
+exports.init = init;
 
 },{"../sender.js":44,"../store.js":47,"./changeui.js":17,"./editui.js":20,"./indexui.js":22,"./setsui.js":24,"./viewui.js":25}],20:[function(require,module,exports){
 // # Documents sub-application
@@ -2494,16 +2496,16 @@ var toggleTextarea = function (target)
   return true;
 };
 
-exports(init);
-exports(selectInput);
-exports(afterFreshRefresh);
-exports(afterEditRefresh);
-exports(afterRefresh);
-exports(resetFields);
-exports(save);
-exports(create);
-exports(clear);
-exports(toggleTextarea);
+exports.init = init;
+exports.selectInput = selectInput;
+exports.afterFreshRefresh = afterFreshRefresh;
+exports.afterEditRefresh = afterEditRefresh;
+exports.afterRefresh = afterRefresh;
+exports.resetFields = resetFields;
+exports.save = save;
+exports.create = create;
+exports.clear = clear;
+exports.toggleTextarea = toggleTextarea;
 
 },{"../flash.js":28,"../form.js":29,"../store.js":47,"./fieldsets.js":21,"./indexui.js":22,"./viewui.js":25}],21:[function(require,module,exports){
 // # Fieldsets (and fields)
@@ -2982,10 +2984,10 @@ var fillFieldsets = function ()
   return true;
 };
 
-exports(initFieldset);
-exports(fieldsetsToObject);
-exports(initFieldsets);
-exports(removeFieldset);
+exports.initFieldset = initFieldset;
+exports.fieldsetsToObject = fieldsetsToObject;
+exports.initFieldsets = initFieldsets;
+exports.removeFieldset = removeFieldset;
 
 },{"../path.js":42,"../store.js":47,"../utils.js":48,"./editui.js":20}],22:[function(require,module,exports){
 // # Paging For Index Listing
@@ -3076,9 +3078,9 @@ var load = function (target)
   return true;
 };
 
-exports(get);
-exports(iOpts);
-exports(load);
+exports.get = get;
+exports.iOpts = iOpts;
+exports.load = load;
 
 },{"../pager.js":40}],23:[function(require,module,exports){
 // # The search user interface
@@ -3670,21 +3672,21 @@ var toggleSelection = function (t)
   return true;
 };
 
-exports(allFields);
-exports(singleField);
-exports(singleFieldInverse);
-exports(multipleFields);
-exports(excludedFields);
-exports(indexOnly);
-exports(indexInverse);
-exports(getSearch);
-exports(removeField);
-exports(addField);
-exports(addIndex);
-exports(toggleInversion);
-exports(toggleExclusion);
-exports(loadSearchVals);
-exports(toggleSelection);
+exports.allFields = allFields;
+exports.singleField = singleField;
+exports.singleFieldInverse = singleFieldInverse;
+exports.multipleFields = multipleFields;
+exports.excludedFields = excludedFields;
+exports.indexOnly = indexOnly;
+exports.indexInverse = indexInverse;
+exports.getSearch = getSearch;
+exports.removeField = removeField;
+exports.addField = addField;
+exports.addIndex = addIndex;
+exports.toggleInversion = toggleInversion;
+exports.toggleExclusion = toggleExclusion;
+exports.loadSearchVals = loadSearchVals;
+exports.toggleSelection = toggleSelection;
 
 },{"../sets.js":46,"../utils.js":48,"./documents.js":19,"./setsui.js":24}],24:[function(require,module,exports){
 // # The sets user interface
@@ -4135,11 +4137,11 @@ var toggleSelectAll = function (target)
   return true;
 };
 
-exports(getSet);
-exports(performOp);
-exports(updateSelection);
-exports(saveSelected);
-exports(toggleSelectAll);
+exports.getSet = getSet;
+exports.performOp = performOp;
+exports.updateSelection = updateSelection;
+exports.saveSelected = saveSelected;
+exports.toggleSelectAll = toggleSelectAll;
 
 },{"../flash.js":28,"../sender.js":44,"../sets.js":46,"../utils.js":48,"./documents.js":19}],25:[function(require,module,exports){
 // # The view user interface
@@ -4587,16 +4589,16 @@ var fetchRevision = function (target)
   return true;
 };
 
-exports(formatTimestamps);
-exports(get);
-exports(restore);
-exports(del);
-exports(confirmIt);
-exports(edit);
-exports(confirmDelete);
-exports(confirmRestore);
-exports(collapseToggle);
-exports(fetchRevision);
+exports.formatTimestamps = formatTimestamps;
+exports.get = get;
+exports.restore = restore;
+exports.del = del;
+exports.confirmIt = confirmIt;
+exports.edit = edit;
+exports.confirmDelete = confirmDelete;
+exports.confirmRestore = confirmRestore;
+exports.collapseToggle = collapseToggle;
+exports.fetchRevision = fetchRevision;
 
 },{"../flash.js":28,"../store.js":47,"./editui.js":20,"./fieldsets.js":21,"./indexui.js":22}],26:[function(require,module,exports){
 // # The worksheet user interface
@@ -4805,17 +4807,17 @@ var fillWorksheet = function ()
   return true;
 };
 
-exports(selectAllRows);
-exports(rowSelection);
-exports(columnSelection);
-exports(showHandles);
-exports(hideHandles);
-exports(showFieldset);
-exports(hideFieldset);
-exports(showField);
-exports(hideField);
-exports(buildTemplate);
-exports(fillWorksheet);
+exports.selectAllRows = selectAllRows;
+exports.rowSelection = rowSelection;
+exports.columnSelection = columnSelection;
+exports.showHandles = showHandles;
+exports.hideHandles = hideHandles;
+exports.showFieldset = showFieldset;
+exports.hideFieldset = hideFieldset;
+exports.showField = showField;
+exports.hideField = hideField;
+exports.buildTemplate = buildTemplate;
+exports.fillWorksheet = fillWorksheet;
 
 },{"../flash.js":28,"../form.js":29,"./documents.js":19,"./setsui.js":24}],27:[function(require,module,exports){
 // # The file manager
@@ -5037,13 +5039,13 @@ refreshListings = function (path)
   getFileListing(path);
 };
 
-exports(init);
-exports(goDir);
-exports(rootDir);
-exports(upDir);
-exports(editFile);
-exports(deleteFile);
-exports(refreshListings);
+exports.init = init;
+exports.goDir = goDir;
+exports.rootDir = rootDir;
+exports.upDir = upDir;
+exports.editFile = editFile;
+exports.deleteFile = deleteFile;
+exports.refreshListings = refreshListings;
 
 },{"../flash.js":28,"../form.js":29}],28:[function(require,module,exports){
 // # Brief Notification Messages
@@ -5097,8 +5099,8 @@ var highlight = function (title, body)
   return true;
 };
 
-exports(error);
-exports(highlight);
+exports.error = error;
+exports.highlight = highlight;
 
 },{}],29:[function(require,module,exports){
 // # HTML Form Helpers
@@ -5307,15 +5309,15 @@ var fillOptionsFromUrl = function (url, selectElement, callback)
   return false;
 };
 
-exports(toggle);
-exports(cancelDialog);
-exports(clear);
-exports(send);
-exports(updateTips);
-exports(checkLength);
-exports(checkRegexp);
-exports(initDateFields);
-exports(fillOptionsFromUrl);
+exports.toggle = toggle;
+exports.cancelDialog = cancelDialog;
+exports.clear = clear;
+exports.send = send;
+exports.updateTips = updateTips;
+exports.checkLength = checkLength;
+exports.checkRegexp = checkRegexp;
+exports.initDateFields = initDateFields;
+exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
 },{"./flash.js":28}],30:[function(require,module,exports){
 // # Builder dialog
@@ -5533,7 +5535,7 @@ var initIndexBuilderDialog = function (indexDoctype)
   return dialog;
 };
 
-exports(initIndexBuilderDialog);
+exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
 },{"../form.js":29,"../jquery-ui-input-state.js":37,"./ihelpers.js":32}],31:[function(require,module,exports){
 // # The file manager
@@ -5863,13 +5865,13 @@ var del = function ()
   return true;
 };
 
-exports(init);
-exports(save);
-exports(replace);
-exports(addCond);
-exports(remCond);
-exports(newCond);
-exports(del);
+exports.init = init;
+exports.save = save;
+exports.replace = replace;
+exports.addCond = addCond;
+exports.remCond = remCond;
+exports.newCond = newCond;
+exports.del = del;
 
 },{"../flash.js":28,"../form.js":29,"./builder-dialog.js":30,"./ihelpers.js":32,"./ilistingui.js":33,"./ipreviewui.js":34,"./new-dialog.js":35,"./replace-dialog.js":36}],32:[function(require,module,exports){
 // # Index tool helpers.
@@ -6167,11 +6169,11 @@ var evs = function ()
   };
 };
 
-exports(alterArg);
-exports(alterOpts);
-exports(fOpts);
-exports(getFieldDoc);
-exports(evs);
+exports.alterArg = alterArg;
+exports.alterOpts = alterOpts;
+exports.fOpts = fOpts;
+exports.getFieldDoc = getFieldDoc;
+exports.evs = evs;
 
 },{"../sess.js":45}],33:[function(require,module,exports){
 // # Index listing.
@@ -6200,7 +6202,7 @@ var init = function ()
   return true;
 };
 
-exports(init);
+exports.init = init;
 
 },{}],34:[function(require,module,exports){
 // # Paging For Index Listing
@@ -6256,7 +6258,7 @@ var get = function ()
   return true;
 };
 
-exports(get);
+exports.get = get;
 
 },{"../pager.js":40}],35:[function(require,module,exports){
 // # New dialog
@@ -6377,7 +6379,7 @@ var initIndexNewDialog = function ()
   return dialog;
 };
 
-exports(initIndexNewDialog);
+exports.initIndexNewDialog = initIndexNewDialog;
 
 },{"../form.js":29,"../jquery-ui-input-state.js":37,"./ihelpers.js":32,"./ilistingui.js":33}],36:[function(require,module,exports){
 // # Replace dialog
@@ -6465,7 +6467,7 @@ var initReplaceDialog = function ()
   return dialog;
 };
 
-exports(initReplaceDialog);
+exports.initReplaceDialog = initReplaceDialog;
 
 },{"../form.js":29,"./ihelpers.js":32}],37:[function(require,module,exports){
 /*
@@ -6864,7 +6866,7 @@ var keystrokes = function ()
   return true;
 };
 
-exports(keystrokes);
+exports.keystrokes = keystrokes;
 
 },{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":34,"./jquery.hotkeys.js":38,"./sender.js":44}],40:[function(require,module,exports){
 // # Paging List-like Info
@@ -7065,6 +7067,8 @@ var pager = function (args)
   return mod;
 };
 
+exports.pager = pager;
+
 },{"./form.js":29}],41:[function(require,module,exports){
 // # Panel Toggler
 //
@@ -7099,7 +7103,7 @@ var panelToggler = function (target)
   return target;
 };
 
-exports(panelToggler);
+exports.panelToggler = panelToggler;
 
 },{}],42:[function(require,module,exports){
 // # Path helper
@@ -7306,7 +7310,7 @@ var path = function (source, category, section)
   return mod;
 };
 
-exports('./path');
+exports.path = path;
 
 },{"./store.js":47}],43:[function(require,module,exports){
 // # The project manager
@@ -7443,9 +7447,9 @@ init = function ()
   });
 };
 
-exports(add);
-exports(del);
-exports(init);
+exports.add = add;
+exports.del = del;
+exports.init = init;
 
 },{"../form.js":29}],44:[function(require,module,exports){
 // # Take actions depending on reported state.
@@ -7518,7 +7522,7 @@ var sender = function (message, arg)
   return false;
 };
 
-exports('sender');
+exports.sender = sender;
 },{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],45:[function(require,module,exports){
 // # Session storage helpers
 //
@@ -7561,8 +7565,8 @@ var get = function (docId)
   }
 };
 
-exports(put);
-exports(get);
+exports.put = put;
+exports.get = get;
 
 },{}],46:[function(require,module,exports){
 // # Set operations
@@ -7669,20 +7673,18 @@ var symmetricDifference = function (xs, ys, mem)
   return uni;
 };
 
-exports(member);
-exports(unique);
-exports(union);
-exports(intersection);
-exports(relativeComplement);
-exports(symmetricDifference);
+exports.member = member;
+exports.unique = unique;
+exports.union = union;
+exports.intersection = intersection;
+exports.relativeComplement = relativeComplement;
+exports.symmetricDifference = symmetricDifference;
 
 },{}],47:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // It is likely that this mechanism will be replaced with a superior
 // mechanism for storing data on the client about documents.
-
-window.alert(typeof exports);
 
 // ## Internal functions
 
@@ -7836,8 +7838,7 @@ var store = function (elem)
   return mod;
 };
 
-exports(store);
-
+exports.store = store;
 
 },{}],48:[function(require,module,exports){
 // # Misc
@@ -8042,10 +8043,10 @@ var Base64 = {
 
 };
 
-exports(stringToNumber);
-exports(isBlank);
-exports(validID);
-exports(Base64);
+exports.stringToNumber = stringToNumber;
+exports.isBlank = isBlank;
+exports.validID = validID;
+exports.Base64 = Base64;
 
 },{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48])
 ;
