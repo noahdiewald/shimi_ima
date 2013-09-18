@@ -239,3 +239,5 @@ var doctypeTab = (function ()
 
   return mod;
 })();
+
+exports.doctypeTab = doctypeTab;
