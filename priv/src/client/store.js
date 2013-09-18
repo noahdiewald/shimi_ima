@@ -1,7 +1,13 @@
 // # Data Attribute Storage and Retrieval Helpers
 //
+// *Implicit depends:* DOM, JQuery
+//
 // It is likely that this mechanism will be replaced with a superior
 // mechanism for storing data on the client about documents.
+
+// ## Variables
+
+var utils = require('./utils.js');
 
 // ## Internal functions
 
@@ -122,7 +128,7 @@ var store = function (elem)
   mod.get64 = function (key)
   {
     var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 

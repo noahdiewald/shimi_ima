@@ -793,7 +793,7 @@ exports.init = init;
 // Variable Definitions
 
 var doctypeElems = require('./doctype-elems.js').doctypeElems;
-var doctypeTab = require('./doctype-tab.js');
+var doctypeTab = require('./doctype-tab.js').doctypeTab;
 
 // Exported functions
 
@@ -3012,6 +3012,8 @@ exports.removeFieldset = removeFieldset;
 
 // Variable Definitions
 var pager = require('../pager.js').pager;
+var viewui = require('./viewui.js');
+var editui = require('./editui.js');
 
 // Exported Functions
 
@@ -3093,8 +3095,8 @@ var load = function (target)
 
   var id = $(target).attr('href').slice(1);
   $('#document-view').html('<em>Loading...</em>');
-  shimi.editui.clear();
-  shimi.viewui.get(id);
+  editui.clear();
+  viewui.get(id);
 
   return true;
 };
@@ -3104,7 +3106,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":40}],23:[function(require,module,exports){
+},{"../pager.js":40,"./editui.js":20,"./viewui.js":25}],23:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -7236,6 +7238,7 @@ exports.panelToggler = panelToggler;
 // Variable Definitions
 
 var store = require('./store.js').store;
+var form = require('./form.js');
 
 // Exported functions
 
@@ -7286,7 +7289,7 @@ var path = function (source, category, section)
 
   mod.send = function (object, method, callback, context)
   {
-    shimi.form.send(mod.toString(), object, method, callback, context);
+    form.send(mod.toString(), object, method, callback, context);
     return mod;
   };
 
@@ -7353,7 +7356,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./store.js":47}],43:[function(require,module,exports){
+},{"./form.js":29,"./store.js":47}],43:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -7724,8 +7727,14 @@ exports.symmetricDifference = symmetricDifference;
 },{}],47:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
+// *Implicit depends:* DOM, JQuery
+//
 // It is likely that this mechanism will be replaced with a superior
 // mechanism for storing data on the client about documents.
+
+// ## Variables
+
+var utils = require('./utils.js');
 
 // ## Internal functions
 
@@ -7846,7 +7855,7 @@ var store = function (elem)
   mod.get64 = function (key)
   {
     var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 
@@ -7881,7 +7890,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{}],48:[function(require,module,exports){
+},{"./utils.js":48}],48:[function(require,module,exports){
 // # Misc
 
 // Exported functions

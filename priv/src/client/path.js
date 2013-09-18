@@ -87,6 +87,7 @@
 // Variable Definitions
 
 var store = require('./store.js').store;
+var form = require('./form.js');
 
 // Exported functions
 
@@ -137,7 +138,7 @@ var path = function (source, category, section)
 
   mod.send = function (object, method, callback, context)
   {
-    shimi.form.send(mod.toString(), object, method, callback, context);
+    form.send(mod.toString(), object, method, callback, context);
     return mod;
   };
 

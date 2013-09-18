@@ -8,6 +8,8 @@
 
 // Variable Definitions
 var pager = require('../pager.js').pager;
+var viewui = require('./viewui.js');
+var editui = require('./editui.js');
 
 // Exported Functions
 
@@ -89,8 +91,8 @@ var load = function (target)
 
   var id = $(target).attr('href').slice(1);
   $('#document-view').html('<em>Loading...</em>');
-  shimi.editui.clear();
-  shimi.viewui.get(id);
+  editui.clear();
+  viewui.get(id);
 
   return true;
 };
