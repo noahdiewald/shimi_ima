@@ -68,4 +68,4 @@ var sender = function (message, arg)
   return false;
 };
 
-exports('sender');
+exports.sender = sender;

@@ -86,6 +86,6 @@ var load = function (target)
   return true;
 };
 
-exports(get);
-exports(iOpts);
-exports(load);
+exports.get = get;
+exports.iOpts = iOpts;
+exports.load = load;

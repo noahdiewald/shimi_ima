@@ -200,7 +200,7 @@ var Base64 = {
 
 };
 
-exports(stringToNumber);
-exports(isBlank);
-exports(validID);
-exports(Base64);
+exports.stringToNumber = stringToNumber;
+exports.isBlank = isBlank;
+exports.validID = validID;
+exports.Base64 = Base64;

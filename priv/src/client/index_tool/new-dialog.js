@@ -116,4 +116,4 @@ var initIndexNewDialog = function ()
   return dialog;
 };
 
-exports(initIndexNewDialog);
+exports.initIndexNewDialog = initIndexNewDialog;

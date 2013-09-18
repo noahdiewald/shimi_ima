@@ -474,7 +474,7 @@ var fillFieldsets = function ()
   return true;
 };
 
-exports(initFieldset);
-exports(fieldsetsToObject);
-exports(initFieldsets);
-exports(removeFieldset);
+exports.initFieldset = initFieldset;
+exports.fieldsetsToObject = fieldsetsToObject;
+exports.initFieldsets = initFieldsets;
+exports.removeFieldset = removeFieldset;

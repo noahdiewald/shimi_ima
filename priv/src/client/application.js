@@ -14,6 +14,8 @@
 var shimi = {};
 shimi.globals = {};
 
+var exports = module.exports;
+
 require('./jquery-ui-input-state.js');
 
 var clickDispatch = require('./click-dispatch.js').clickDispatch;

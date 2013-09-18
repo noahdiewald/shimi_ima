@@ -213,4 +213,4 @@ var initIndexBuilderDialog = function (indexDoctype)
   return dialog;
 };
 
-exports(initIndexBuilderDialog);
+exports.initIndexBuilderDialog = initIndexBuilderDialog;

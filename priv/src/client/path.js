@@ -202,4 +202,4 @@ var path = function (source, category, section)
   return mod;
 };
 
-exports('./path');
+exports.path = path;

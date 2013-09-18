@@ -31,4 +31,4 @@ var panelToggler = function (target)
   return target;
 };
 
-exports(panelToggler);
+exports.panelToggler = panelToggler;

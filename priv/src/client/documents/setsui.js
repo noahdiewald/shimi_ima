@@ -446,8 +446,8 @@ var toggleSelectAll = function (target)
   return true;
 };
 
-exports(getSet);
-exports(performOp);
-exports(updateSelection);
-exports(saveSelected);
-exports(toggleSelectAll);
+exports.getSet = getSet;
+exports.performOp = performOp;
+exports.updateSelection = updateSelection;
+exports.saveSelected = saveSelected;
+exports.toggleSelectAll = toggleSelectAll;

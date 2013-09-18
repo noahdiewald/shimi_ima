@@ -7682,6 +7682,8 @@ exports(symmetricDifference);
 // It is likely that this mechanism will be replaced with a superior
 // mechanism for storing data on the client about documents.
 
+window.alert(typeof exports);
+
 // ## Internal functions
 
 // Identity function for tail recursion
@@ -7752,23 +7754,23 @@ var store = function (elem)
   //
   // This HTML contains a level of indirection and demonstrates the use
   // of the `data-group-id`:
-  // 
+  //
   //     <div
   //       id='someid2'
   //       data-fieldset-fieldset='fsid'
   //       data-fieldset-doctype='did'></div>
-  //  
+  //
   //     <div
   //       id='someid'
   //       data-group-id='someid2'
   //       data-fieldset-fieldset='fsid'></div>
-  //  
+  //
   //     <div
   //      id='thisid'
   //      data-group-id='someid'></div>
   //
   // The `data-fieldset-doctype` may be retrieved like this:
-  //  
+  //
   //     store($('#thisid')).get('fieldset-doctype') == 'did';
   mod.get = function (key)
   {
@@ -8045,5 +8047,5 @@ exports(isBlank);
 exports(validID);
 exports(Base64);
 
-},{}]},{},[1,3,5,6,9,8,7,10,11,12,13,15,14,16,17,18,20,21,22,23,19,4,26,2,29,28,25,27,31,32,33,34,36,37,35,38,39,40,41,42,43,44,45,46,47,48,30,24])
+},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48])
 ;

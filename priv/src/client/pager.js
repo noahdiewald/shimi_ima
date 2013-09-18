@@ -195,3 +195,5 @@ var pager = function (args)
 
   return mod;
 };
+
+exports.pager = pager;

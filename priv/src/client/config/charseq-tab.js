@@ -83,4 +83,4 @@ var charseqTab = (function ()
   return mod;
 })();
 
-exports(charseqTab);
+exports.charseqTab = charseqTab;

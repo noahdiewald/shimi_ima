@@ -325,10 +325,10 @@ var del = function ()
   return true;
 };
 
-exports(init);
-exports(save);
-exports(replace);
-exports(addCond);
-exports(remCond);
-exports(newCond);
-exports(del);
+exports.init = init;
+exports.save = save;
+exports.replace = replace;
+exports.addCond = addCond;
+exports.remCond = remCond;
+exports.newCond = newCond;
+exports.del = del;

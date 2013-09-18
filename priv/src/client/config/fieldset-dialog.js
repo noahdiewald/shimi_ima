@@ -57,4 +57,4 @@ var fieldsetDialog = function (url, values)
   return dialog;
 };
 
-exports(fieldsetDialog);
+exports.fieldsetDialog = fieldsetDialog;

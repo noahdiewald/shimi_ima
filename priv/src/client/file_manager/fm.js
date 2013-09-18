@@ -217,10 +217,10 @@ refreshListings = function (path)
   getFileListing(path);
 };
 
-exports(init);
-exports(goDir);
-exports(rootDir);
-exports(upDir);
-exports(editFile);
-exports(deleteFile);
-exports(refreshListings);
+exports.init = init;
+exports.goDir = goDir;
+exports.rootDir = rootDir;
+exports.upDir = upDir;
+exports.editFile = editFile;
+exports.deleteFile = deleteFile;
+exports.refreshListings = refreshListings;

@@ -54,4 +54,4 @@ var fieldDialog = function (url, values)
   return dialog;
 };
 
-exports(fieldDialog);
+exports.fieldDialog = fieldDialog;

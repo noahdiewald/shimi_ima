@@ -305,4 +305,4 @@ var clickDispatch = function (e)
   action(e);
 };
 
-exports(clickDispatch);
+exports.clickDispatch = clickDispatch;

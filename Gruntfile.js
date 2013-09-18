@@ -96,6 +96,7 @@ module.exports = function(grunt) {
           Hogan: true,
           it: true,
           jQuery: true,
+          module: true,
           require: true,
           send: true,
           shimi: true,

@@ -61,4 +61,4 @@ var dblclickDispatch = function (e)
   action(e);
 };
 
-exports(dblclickDispatch);
+exports.dblclickDispatch = dblclickDispatch;

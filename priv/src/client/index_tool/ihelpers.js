@@ -293,8 +293,8 @@ var evs = function ()
   };
 };
 
-exports(alterArg);
-exports(alterOpts);
-exports(fOpts);
-exports(getFieldDoc);
-exports(evs);
+exports.alterArg = alterArg;
+exports.alterOpts = alterOpts;
+exports.fOpts = fOpts;
+exports.getFieldDoc = getFieldDoc;
+exports.evs = evs;

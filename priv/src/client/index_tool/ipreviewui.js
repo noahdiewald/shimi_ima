@@ -51,4 +51,4 @@ var get = function ()
   return true;
 };
 
-exports(get);
+exports.get = get;

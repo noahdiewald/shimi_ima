@@ -56,4 +56,4 @@ var charseqDialog = function (values)
   return dialog;
 };
 
-exports(charseqDialog);
+exports.charseqDialog = charseqDialog;

@@ -49,5 +49,5 @@ var highlight = function (title, body)
   return true;
 };
 
-exports(error);
-exports(highlight);
+exports.error = error;
+exports.highlight = highlight;

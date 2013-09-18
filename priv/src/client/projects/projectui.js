@@ -132,6 +132,6 @@ init = function ()
   });
 };
 
-exports(add);
-exports(del);
-exports(init);
+exports.add = add;
+exports.del = del;
+exports.init = init;

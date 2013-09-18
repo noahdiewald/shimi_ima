@@ -443,13 +443,13 @@ var fetchRevision = function (target)
   return true;
 };
 
-exports(formatTimestamps);
-exports(get);
-exports(restore);
-exports(del);
-exports(confirmIt);
-exports(edit);
-exports(confirmDelete);
-exports(confirmRestore);
-exports(collapseToggle);
-exports(fetchRevision);
+exports.formatTimestamps = formatTimestamps;
+exports.get = get;
+exports.restore = restore;
+exports.del = del;
+exports.confirmIt = confirmIt;
+exports.edit = edit;
+exports.confirmDelete = confirmDelete;
+exports.confirmRestore = confirmRestore;
+exports.collapseToggle = collapseToggle;
+exports.fetchRevision = fetchRevision;

@@ -90,4 +90,4 @@ var charseqElems = (function ()
   return mod;
 })();
 
-exports(charseqElems);
+exports.charseqElems = charseqElems;

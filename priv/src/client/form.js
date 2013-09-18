@@ -204,12 +204,12 @@ var fillOptionsFromUrl = function (url, selectElement, callback)
   return false;
 };
 
-exports(toggle);
-exports(cancelDialog);
-exports(clear);
-exports(send);
-exports(updateTips);
-exports(checkLength);
-exports(checkRegexp);
-exports(initDateFields);
-exports(fillOptionsFromUrl);
+exports.toggle = toggle;
+exports.cancelDialog = cancelDialog;
+exports.clear = clear;
+exports.send = send;
+exports.updateTips = updateTips;
+exports.checkLength = checkLength;
+exports.checkRegexp = checkRegexp;
+exports.initDateFields = initDateFields;
+exports.fillOptionsFromUrl = fillOptionsFromUrl;

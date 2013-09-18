@@ -204,14 +204,14 @@ var fillWorksheet = function ()
   return true;
 };
 
-exports(selectAllRows);
-exports(rowSelection);
-exports(columnSelection);
-exports(showHandles);
-exports(hideHandles);
-exports(showFieldset);
-exports(hideFieldset);
-exports(showField);
-exports(hideField);
-exports(buildTemplate);
-exports(fillWorksheet);
+exports.selectAllRows = selectAllRows;
+exports.rowSelection = rowSelection;
+exports.columnSelection = columnSelection;
+exports.showHandles = showHandles;
+exports.hideHandles = hideHandles;
+exports.showFieldset = showFieldset;
+exports.hideFieldset = hideFieldset;
+exports.showField = showField;
+exports.hideField = hideField;
+exports.buildTemplate = buildTemplate;
+exports.fillWorksheet = fillWorksheet;

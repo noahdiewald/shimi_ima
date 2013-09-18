@@ -383,13 +383,13 @@ var toggleTextarea = function (target)
   return true;
 };
 
-exports(init);
-exports(selectInput);
-exports(afterFreshRefresh);
-exports(afterEditRefresh);
-exports(afterRefresh);
-exports(resetFields);
-exports(save);
-exports(create);
-exports(clear);
-exports(toggleTextarea);
+exports.init = init;
+exports.selectInput = selectInput;
+exports.afterFreshRefresh = afterFreshRefresh;
+exports.afterEditRefresh = afterEditRefresh;
+exports.afterRefresh = afterRefresh;
+exports.resetFields = resetFields;
+exports.save = save;
+exports.create = create;
+exports.clear = clear;
+exports.toggleTextarea = toggleTextarea;

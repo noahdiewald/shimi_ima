@@ -102,9 +102,9 @@ var symmetricDifference = function (xs, ys, mem)
   return uni;
 };
 
-exports(member);
-exports(unique);
-exports(union);
-exports(intersection);
-exports(relativeComplement);
-exports(symmetricDifference);
+exports.member = member;
+exports.unique = unique;
+exports.union = union;
+exports.intersection = intersection;
+exports.relativeComplement = relativeComplement;
+exports.symmetricDifference = symmetricDifference;

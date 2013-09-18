@@ -39,5 +39,5 @@ var get = function (docId)
   }
 };
 
-exports(put);
-exports(get);
+exports.put = put;
+exports.get = get;

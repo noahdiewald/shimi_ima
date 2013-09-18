@@ -60,4 +60,4 @@ var doctypeElems = (function ()
   return mod;
 })();
 
-exports(doctypeElems);
+exports.doctypeElems = doctypeElems;

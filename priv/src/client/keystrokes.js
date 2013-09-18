@@ -185,4 +185,4 @@ var keystrokes = function ()
   return true;
 };
 
-exports(keystrokes);
+exports.keystrokes = keystrokes;

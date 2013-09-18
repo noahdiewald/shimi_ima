@@ -131,6 +131,6 @@ var dialogClose = function ()
   return true;
 };
 
-exports(execute);
-exports(dialogOpen);
-exports(dialogClose);
+exports.execute = execute;
+exports.dialogOpen = dialogOpen;
+exports.dialogClose = dialogClose;

@@ -83,4 +83,4 @@ var initReplaceDialog = function ()
   return dialog;
 };
 
-exports(initReplaceDialog);
+exports.initReplaceDialog = initReplaceDialog;

@@ -29,4 +29,4 @@ var dispatcher = function (patterns)
   return d;
 };
 
-exports(dispatcher);
+exports.dispatcher = dispatcher;

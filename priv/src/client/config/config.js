@@ -40,5 +40,5 @@ var init = function ()
   return true;
 };
 
-exports(upgradeButton);
-exports(init);
+exports.upgradeButton = upgradeButton;
+exports.init = init;

@@ -73,23 +73,23 @@ var store = function (elem)
   //
   // This HTML contains a level of indirection and demonstrates the use
   // of the `data-group-id`:
-  // 
+  //
   //     <div
   //       id='someid2'
   //       data-fieldset-fieldset='fsid'
   //       data-fieldset-doctype='did'></div>
-  //  
+  //
   //     <div
   //       id='someid'
   //       data-group-id='someid2'
   //       data-fieldset-fieldset='fsid'></div>
-  //  
+  //
   //     <div
   //      id='thisid'
   //      data-group-id='someid'></div>
   //
   // The `data-fieldset-doctype` may be retrieved like this:
-  //  
+  //
   //     store($('#thisid')).get('fieldset-doctype') == 'did';
   mod.get = function (key)
   {
@@ -155,5 +155,4 @@ var store = function (elem)
   return mod;
 };
 
-exports(store);
-
+exports.store = store;

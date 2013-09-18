@@ -24,4 +24,4 @@ var init = function ()
   return true;
 };
 
-exports(init);
+exports.init = init;

@@ -74,4 +74,4 @@ var fieldsetElems = (function ()
   return mod;
 })();
 
-exports(fieldsetElems);
+exports.fieldsetElems = fieldsetElems;

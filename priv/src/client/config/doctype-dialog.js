@@ -64,4 +64,4 @@ var doctypeDialog = function (url, values)
   return dialog;
 };
 
-exports(doctypeDialog);
+exports.doctypeDialog = doctypeDialog;
