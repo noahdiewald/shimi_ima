@@ -478,3 +478,4 @@ exports.initFieldset = initFieldset;
 exports.fieldsetsToObject = fieldsetsToObject;
 exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
+exports.fillFieldsets = fillFieldsets;
