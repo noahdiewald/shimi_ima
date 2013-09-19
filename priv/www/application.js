@@ -200,7 +200,7 @@ exports.changes = changes;
 var sender = require('./sender.js').sender;
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
-var doctypeTab = require('./config/doctype-tab.js').doctypeTab;
+var doctypeTab = require('./config/doctype-tab.js');
 var charseqTab = require('./config/charseq-tab').charseqTab;
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
@@ -750,7 +750,7 @@ exports.charseqTab = charseqTab;
 
 // ## Variable Definitions
 
-var doctypeTab = require('./doctype-tab.js').doctypeTab;
+var doctypeTab = require('./doctype-tab.js');
 var charseqTab = require('./charseq-tab.js').charseqTab;
 
 // ## Exported Functions
@@ -793,7 +793,7 @@ exports.init = init;
 // Variable Definitions
 
 var doctypeElems = require('./doctype-elems.js').doctypeElems;
-var doctypeTab = require('./doctype-tab.js').doctypeTab;
+var doctypeTab = require('./doctype-tab.js');
 
 // Exported functions
 
@@ -935,234 +935,269 @@ var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
 var store = require('../store.js').store;
 var path = require('../path.js').path;
 
-// Exported functions
+// Internal functions
 
-// Object containing initialization and other functions.
-var doctypeTab = (function ()
+var cpath = function (source, category)
 {
   'use strict';
 
-  var mod = {};
+  return path(source, category, 'config');
+};
 
-  var cpath = function (source, category)
+// Exported functions
+
+// Populate the listing of fields
+var initFields = function (path)
+{
+  'use strict';
+
+  path.field = false;
+
+  $.get(path.toString(), function (fields)
   {
-    return path(source, category, 'config');
-  };
+    var fieldContainer = $('#fields-' + path.fieldset);
+    fieldContainer.empty();
+    fieldContainer.html(fields);
+  });
 
-  // Populate the listing of fields
-  mod.initFields = function (path)
+  return true;
+};
+
+// Populate the listing of fieldsets
+var initFieldsets = function (url)
+{
+  'use strict';
+
+  $.get(url.toString(), function (fieldsets)
   {
-    path.field = false;
+    var fieldsetContainer = $('#fieldsets-' + url.doctype);
 
-    $.get(path.toString(), function (fields)
+    fieldsetContainer.empty();
+    fieldsetContainer.accordion();
+    fieldsetContainer.accordion('destroy');
+    fieldsetContainer.html(fieldsets);
+
+    fieldsetContainer.accordion(
     {
-      var fieldContainer = $('#fields-' + path.fieldset);
-      fieldContainer.empty();
-      fieldContainer.html(fields);
+      autoHeight: false,
+      collapsible: true,
+      active: false
     });
+  });
+};
 
-    return mod;
-  };
+// populate the tabs listing the doctypes
+var init = function ()
+{
+  'use strict';
 
-  // Populate the listing of fieldsets
-  mod.initFieldsets = function (url)
+  var url = 'config/doctypes';
+
+  $('#doctype-tabs').tabs();
+
+  $.get(url, function (doctypes)
   {
-    $.get(url.toString(), function (fieldsets)
+    var fieldsetDoctype = $('#fieldset-doctype-input');
+
+    $('#doctype-tabs-headings').empty();
+    $('#doctype-tabs-headings + .ui-tabs-panel').remove();
+    $('#doctype-tabs').tabs('destroy');
+    $('#doctype-tabs-headings').html(doctypes);
+
+    var loadFun = function (event, ui)
     {
-      var fieldsetContainer = $('#fieldsets-' + url.doctype);
-
-      fieldsetContainer.empty();
-      fieldsetContainer.accordion();
-      fieldsetContainer.accordion('destroy');
-      fieldsetContainer.html(fieldsets);
-
-      fieldsetContainer.accordion(
-      {
-        autoHeight: false,
-        collapsible: true,
-        active: false
-      });
-    });
-  };
-
-  // populate the tabs listing the doctypes
-  mod.init = function ()
-  {
-    var url = 'config/doctypes';
-
-    $('#doctype-tabs').tabs();
-
-    $.get(url, function (doctypes)
-    {
-      var fieldsetDoctype = $('#fieldset-doctype-input');
-
-      $('#doctype-tabs-headings').empty();
-      $('#doctype-tabs-headings + .ui-tabs-panel').remove();
-      $('#doctype-tabs').tabs('destroy');
-      $('#doctype-tabs-headings').html(doctypes);
-
-      var loadFun = function (event, ui)
-      {
-        var source = $(ui.panel).children('div[data-fieldset-doctype]');
-        var fieldsetsPath = path(source, 'fieldset', 'config');
-        mod.initFieldsets(fieldsetsPath);
-      };
-
-      $('#doctype-tabs').tabs(
-      {
-        load: function (e, ui)
-        {
-          loadFun(e, ui);
-        }
-      });
-    });
-  };
-
-  // Button that opens a dialog for editing a field
-  mod.editField = function (target)
-  {
-    var url = cpath(target, 'field');
-    var oldobj = {};
-    var attrs = fieldElems.attrs;
-    var charseqUrl = 'config/charseqs?as=options';
-
-    $.get(charseqUrl, function (charseqs)
-    {
-      $('#field-charseq-input').html(charseqs);
-      attrs.forEach(function (item)
-      {
-        oldobj[item] = store(target).get('field-' + item);
-      });
-      fieldDialog(url, oldobj).dialog('open');
-    });
-  };
-
-  // Button that opens a dialog for deleting a field
-  mod.deleteField = function (target)
-  {
-    var answer = window.confirm('Are you sure? This is permanent.');
-
-    if (answer)
-    {
-      var url = cpath(target, 'field');
-      var complete = function ()
-      {
-        url.field = false;
-        url.rev = false;
-
-        mod.initFields(url);
-      };
-      url.del(complete, this);
-    }
-  };
-
-  // Button that opens a dialog for adding a field
-  mod.addField = function (target)
-  {
-    var url = cpath(target, 'field');
-    var charseqUrl = 'config/charseqs?as=options';
-
-    $.get(charseqUrl, function (charseqs)
-    {
-      $('#field-charseq-input').html(charseqs);
-      fieldDialog(url,
-      {
-        fieldset: url.fieldset,
-        doctype: url.doctype
-      }).dialog('open');
-    });
-  };
-
-  // Button that opens a dialog for editing a fieldset
-  mod.editFieldset = function (target)
-  {
-    var url = cpath(target, 'fieldset');
-    var oldobj = {};
-    var attrs = fieldsetElems.attrs;
-
-    attrs.forEach(function (item)
-    {
-      oldobj[item] = store(target).get('fieldset-' + item);
-    });
-
-    fieldsetDialog(url, oldobj).dialog('open');
-  };
-
-  // Button that opens a dialog for deleting a fieldset
-  mod.deleteFieldset = function (target)
-  {
-    var url = cpath(target, 'fieldset');
-
-    var complete = function ()
-    {
-      url.fieldset = false;
-      url.rev = false;
-      mod.initFieldsets(url);
+      var source = $(ui.panel).children('div[data-fieldset-doctype]');
+      var fieldsetsPath = path(source, 'fieldset', 'config');
+      initFieldsets(fieldsetsPath);
     };
 
-    if (window.confirm('Are you sure? This is permanent.'))
+    $('#doctype-tabs').tabs(
     {
-      url.del(complete, this);
-    }
-  };
+      load: function (e, ui)
+      {
+        loadFun(e, ui);
+      }
+    });
+  });
+};
 
-  // Button that opens a dialog for adding a fieldset
-  mod.addFieldset = function (target)
+// Button that opens a dialog for editing a field
+var editField = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'field');
+  var oldobj = {};
+  var attrs = fieldElems.attrs;
+  var charseqUrl = 'config/charseqs?as=options';
+
+  $.get(charseqUrl, function (charseqs)
   {
-    var url = cpath(target, 'fieldset');
-    fieldsetDialog(url,
+    $('#field-charseq-input').html(charseqs);
+    attrs.forEach(function (item)
     {
+      oldobj[item] = store(target).get('field-' + item);
+    });
+    fieldDialog(url, oldobj).dialog('open');
+  });
+};
+
+// Button that opens a dialog for deleting a field
+var deleteField = function (target)
+{
+  'use strict';
+
+  var answer = window.confirm('Are you sure? This is permanent.');
+
+  if (answer)
+  {
+    var url = cpath(target, 'field');
+    var complete = function ()
+    {
+      url.field = false;
+      url.rev = false;
+
+      initFields(url);
+    };
+    url.del(complete, this);
+  }
+};
+
+// Button that opens a dialog for adding a field
+var addField = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'field');
+  var charseqUrl = 'config/charseqs?as=options';
+
+  $.get(charseqUrl, function (charseqs)
+  {
+    $('#field-charseq-input').html(charseqs);
+    fieldDialog(url,
+    {
+      fieldset: url.fieldset,
       doctype: url.doctype
     }).dialog('open');
-  };
+  });
+};
 
-  mod.editDoctype = function (target)
+// Button that opens a dialog for editing a fieldset
+var editFieldset = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'fieldset');
+  var oldobj = {};
+  var attrs = fieldsetElems.attrs;
+
+  attrs.forEach(function (item)
   {
-    var url = cpath(target, 'doctype');
-    var oldobj = {};
-    var attrs = doctypeElems.attrs;
+    oldobj[item] = store(target).get('fieldset-' + item);
+  });
 
-    attrs.forEach(function (item)
-    {
-      oldobj[item] = store(target).get('doctype-' + item);
-    });
-    doctypeDialog(url, oldobj).dialog('open');
-  };
+  fieldsetDialog(url, oldobj).dialog('open');
+};
 
-  mod.touchDoctype = function (target)
+// Button that opens a dialog for deleting a fieldset
+var deleteFieldset = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'fieldset');
+
+  var complete = function ()
   {
-    var docid = store(target).get('doctype-doctype');
-    $.post('config/doctypes/' + docid + '/touch');
-    window.alert('Touch In Progress');
+    url.fieldset = false;
+    url.rev = false;
+    initFieldsets(url);
   };
 
-  mod.deleteDoctype = function (target)
+  if (window.confirm('Are you sure? This is permanent.'))
   {
-    var url = cpath(target, 'doctype');
-    var complete = function ()
-    {
-      url.doctype = false;
-      url.rev = false;
-      mod.init();
-    };
+    url.del(complete, this);
+  }
+};
 
-    if (window.confirm('Are you sure? This is permanent.'))
-    {
-      url.del(complete, this);
-    }
-  };
+// Button that opens a dialog for adding a fieldset.
+var addFieldset = function (target)
+{
+  'use strict';
 
-  mod.addDoctype = function (target)
+  var url = cpath(target, 'fieldset');
+  fieldsetDialog(url,
   {
-    var url = cpath(target, 'doctype');
-    doctypeDialog(url,
-    {}).dialog('open');
+    doctype: url.doctype
+  }).dialog('open');
+};
+
+// Button that opens a dialog for editing a doctype.
+var editDoctype = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'doctype');
+  var oldobj = {};
+  var attrs = doctypeElems.attrs;
+
+  attrs.forEach(function (item)
+  {
+    oldobj[item] = store(target).get('doctype-' + item);
+  });
+  doctypeDialog(url, oldobj).dialog('open');
+};
+
+// Button for initiating the touch operation.
+var touchDoctype = function (target)
+{
+  'use strict';
+
+  var docid = store(target).get('doctype-doctype');
+  $.post('config/doctypes/' + docid + '/touch');
+  window.alert('Touch In Progress');
+};
+
+// Button for deleting a doctype.
+var deleteDoctype = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'doctype');
+  var complete = function ()
+  {
+    url.doctype = false;
+    url.rev = false;
+    init();
   };
 
-  return mod;
-})();
+  if (window.confirm('Are you sure? This is permanent.'))
+  {
+    url.del(complete, this);
+  }
+};
 
-exports.doctypeTab = doctypeTab;
+// Button for adding a doctype.
+var addDoctype = function (target)
+{
+  'use strict';
+
+  var url = cpath(target, 'doctype');
+  doctypeDialog(url, {}).dialog('open');
+};
+
+exports.initFields = initFields;
+exports.initFieldsets = initFieldsets;
+exports.init = init;
+exports.editField = editField;
+exports.deleteField = deleteField;
+exports.addField = addField;
+exports.editFieldset = editFieldset;
+exports.deleteFieldset = deleteFieldset;
+exports.addFieldset = addFieldset;
+exports.editDoctype = editDoctype;
+exports.touchDoctype = touchDoctype;
+exports.deleteDoctype = deleteDoctype;
+exports.addDoctype = addDoctype;
 
 },{"../path.js":42,"../store.js":47,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
 // # Field manipulation dialog
@@ -7563,10 +7598,16 @@ var sender = function (message, arg)
     break;
   }
 
-  return false;
+  return true;
 };
 
-exports.sender = sender;
+exports.sender = function ()
+{
+  'use strict';
+
+  window.alert('wtf');
+};
+
 },{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],45:[function(require,module,exports){
 // # Session storage helpers
 //
@@ -8098,5 +8139,5 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48])
+},{}]},{},[1,3,4,5,2,6,7,8,9,11,10,12,13,14,15,16,18,19,17,20,23,21,22,24,25,26,28,27,30,29,31,33,34,32,35,36,37,38,39,40,41,42,44,43,45,46,47,48])
 ;

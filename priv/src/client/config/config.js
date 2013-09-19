@@ -8,7 +8,7 @@
 
 // ## Variable Definitions
 
-var doctypeTab = require('./doctype-tab.js').doctypeTab;
+var doctypeTab = require('./doctype-tab.js');
 var charseqTab = require('./charseq-tab.js').charseqTab;
 
 // ## Exported Functions
