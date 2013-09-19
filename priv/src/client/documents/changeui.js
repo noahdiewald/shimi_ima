@@ -1,45 +1,60 @@
-shimi.changeui = (function ()
+// # Paging For Changes Listing
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Loads changes based on user suplied values.
+
+// Variable Definitions
+
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
 {
   'use strict';
 
-  var mod = {};
-  var pager = shimi.pager;
+  return 'changelog';
+};
 
-  mod.get = function (startkey, startid, prevkeys, previds)
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
+{
+  'use strict';
+
+  var url = prefix();
+  var target = $('#' + prefix() + '-listing');
+
+  var format = function (text)
   {
-    var prefix = 'changelog';
-    var url = prefix;
-    var target = $('#' + prefix + '-listing');
+    var resp = JSON.parse(text);
 
-    var format = function (text)
+    resp.rows.map(function (item)
     {
-      var resp = JSON.parse(text);
-
-      resp.rows.map(function (item)
+      if (item.doc.changes)
       {
-        if (item.doc.changes)
+        item.doc.changes = Object.keys(item.doc.changes).map(function (key)
         {
-          item.doc.changes = Object.keys(item.doc.changes).map(function (key)
-          {
-            return item.doc.changes[key];
-          });
-        }
-      });
+          return item.doc.changes[key];
+        });
+      }
+    });
 
-      return resp;
-    };
-
-    pager(
-    {
-      prefix: 'changelog',
-      origin: 'changeui',
-      url: url,
-      format: format,
-      target: target
-    }).get(startkey, startid, prevkeys, previds);
-
-    return mod;
+    return resp;
   };
 
-  return mod;
-})();
+  pager(
+  {
+    prefix: prefix(),
+    url: url,
+    format: format,
+    target: target
+  }).get();
+
+  return true;
+};
+
+exports.prefix = prefix;
+exports.get = get;

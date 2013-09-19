@@ -1,4 +1,23 @@
-shimi.initIndexBuilderDialog = function (indexDoctype)
+// # Builder dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for adding conditions to user created indexes.
+
+// TODO I would rather avoid having this as a JQuery plugin.
+
+require('../jquery-ui-input-state.js');
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+var evs = require('./ievents.js');
+
+// Exported functions
+
+// The dialog for adding a condition to an index.
+var initIndexBuilderDialog = function (indexDoctype)
 {
   'use strict';
 
@@ -12,7 +31,6 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = shimi.ihelpers.evs;
 
   $('.ui-helper-reset div').show();
 
@@ -25,7 +43,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
     return false;
   };
 
-  shimi.ihelpers.fOpts(fieldset_url, builderFieldset, function ()
+  ihelpers.fOpts(fieldset_url, builderFieldset, function ()
   {
     builderFieldset.inputEnable();
   });
@@ -184,7 +202,7 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
       builderFieldset.unbind('change');
       builderField.unbind('change');
       builderOperator.unbind('change');
-      shimi.form.clear($('.input')).removeClass('ui-state-error');
+      form.clear($('.input')).removeClass('ui-state-error');
     }
   });
 
@@ -194,3 +212,5 @@ shimi.initIndexBuilderDialog = function (indexDoctype)
 
   return dialog;
 };
+
+exports.initIndexBuilderDialog = initIndexBuilderDialog;

@@ -1,335 +1,453 @@
-shimi.setsui = (function ()
+// # The sets user interface
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Handles the sets user interface.
+
+// Variable Definitions
+
+var S = require('../sender.js');
+var flash = require('../flash.js');
+var sets = require('../sets.js');
+var utils = require('../utils.js');
+var documents = require('./documents.js');
+var removeSet;
+var setSets;
+var selectedElementsToArray;
+var selectedSaveResultsToArray;
+var render;
+var getSets;
+var getSet;
+
+// Internal functions
+
+// User interface element
+var setA = function ()
 {
   'use strict';
 
-  var mod = {};
-  var sets = shimi.sets;
-  var utils = shimi.utils();
-  var setA = function ()
-  {
-    return $('#document-set-a-input');
-  };
-  var setB = function ()
-  {
-    return $('#document-set-b-input');
-  };
-  var worksheetsSet = function ()
-  {
-    return $('#document-worksheets-set-input');
-  };
-  var op = function ()
-  {
-    return $('#document-set-operation-input');
-  };
-  var setListing = function ()
-  {
-    return $('#set-listing');
-  };
-  var sessionKey = function ()
-  {
-    return shimi.documents.identifier() + '_sets';
-  };
+  return $('#document-set-a-input');
+};
 
-  var member = function (arr, x)
+// User interface element
+var setB = function ()
+{
+  'use strict';
+
+  return $('#document-set-b-input');
+};
+
+// User interface element
+var worksheetsSet = function ()
+{
+  'use strict';
+
+  return $('#document-worksheets-set-input');
+};
+
+// User interface element
+var op = function ()
+{
+  'use strict';
+
+  return $('#document-set-operation-input');
+};
+
+// User interface element
+var setListing = function ()
+{
+  'use strict';
+
+  return $('#set-listing');
+};
+
+// User interface element
+var sessionKey = function ()
+{
+  'use strict';
+
+  return documents.identifier() + '_sets';
+};
+
+// Custom member function to use with [sets.js](./sets.html).
+var member = function (arr, x)
+{
+  'use strict';
+
+  return arr.some(function (y)
   {
-    return arr.some(function (y)
+    return x[0] === y[0] && x[1] === y[1];
+  });
+};
+
+// Ensure that the set is correct.
+var processSet = function (set)
+{
+  'use strict';
+
+  var name = set[0];
+  var arr = sets.unique(set[1], member);
+  var procSet = [name, arr];
+  return procSet;
+};
+
+// Perform the union of the sets specified by the user interface.
+var union = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.union(setElemsA, setElemsB, member);
+  render(newSet);
+  return true;
+};
+
+// Perform the intersection of the sets specified by the user interface.
+var intersection = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.intersection(setElemsA, setElemsB, member);
+  render(newSet);
+  return true;
+};
+
+// Perform the relative complement of the sets specified by the user
+// interface.
+var relativeComplement = function (setName1, setName2)
+{
+  'use strict';
+
+  var setElems1 = getSet(setName1)[1];
+  var setElems2 = getSet(setName2)[1];
+  var newSet = sets.relativeComplement(setElems1, setElems2, member);
+  render(newSet);
+
+  return true;
+};
+
+// Perform the symmetric difference of the sets specified by the user
+// interface.
+var symmetricDifference = function (setNameA, setNameB)
+{
+  'use strict';
+
+  var setElemsA = getSet(setNameA)[1];
+  var setElemsB = getSet(setNameB)[1];
+  var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
+  render(newSet);
+
+  return true;
+};
+
+// Get the sets saved in session storage
+getSets = function ()
+{
+  'use strict';
+
+  var curr = window.sessionStorage.getItem(sessionKey());
+  var retval = [];
+
+  if (curr !== null)
+  {
+    retval = JSON.parse(curr);
+  }
+
+  return retval;
+};
+
+// View a set.
+var view = function (setName)
+{
+  'use strict';
+
+  var elems = getSet(setName)[1];
+  render(elems);
+
+  return true;
+};
+
+// Remove a set.
+var remove = function (setName)
+{
+  'use strict';
+
+  removeSet(setName);
+  render([]);
+  S.sender('sets-changed');
+
+  return true;
+};
+
+// Perform set removal.
+removeSet = function (setName)
+{
+  'use strict';
+
+  var nnew;
+  var curr = getSets();
+  nnew = curr.filter(function (x)
+  {
+    return x[0] !== setName;
+  });
+  setSets(nnew);
+
+  return true;
+};
+
+// Retrieve the set names.
+var getSetNames = function ()
+{
+  'use strict';
+
+  var curr = getSets();
+  return curr.map(function (x)
+  {
+    return x[0];
+  });
+};
+
+// Save sets to session storage.
+setSets = function (nnew)
+{
+  'use strict';
+
+  var procSets;
+  if (Array.isArray(nnew))
+  {
+    procSets = nnew.map(function (x)
     {
-      return x[0] === y[0] && x[1] === y[1];
+      return processSet(x);
     });
-  };
-
-  var processSet = function (set)
+    window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
+  }
+  else
   {
-    var name = set[0];
-    var arr = sets.unique(set[1], member);
-    var procSet = [name, arr];
-    return procSet;
-  };
+    window.sessionStorage.settem(sessionKey(), '[]');
+  }
 
-  var union = function (setNameA, setNameB)
+  return true;
+};
+
+// Save a set to session storage.
+var setSet = function (nnew)
+{
+  'use strict';
+
+  if (Array.isArray(nnew) && nnew.length === 2)
   {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.union(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var intersection = function (setNameA, setNameB)
-  {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.intersection(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var relativeComplement = function (setName1, setName2)
-  {
-    var setElems1 = mod.getSet(setName1)[1];
-    var setElems2 = mod.getSet(setName2)[1];
-    var newSet = sets.relativeComplement(setElems1, setElems2, member);
-    render(newSet);
-    return mod;
-  };
-
-  var symmetricDifference = function (setNameA, setNameB)
-  {
-    var setElemsA = mod.getSet(setNameA)[1];
-    var setElemsB = mod.getSet(setNameB)[1];
-    var newSet = sets.symmetricDifference(setElemsA, setElemsB, member);
-    render(newSet);
-    return mod;
-  };
-
-  var getSets = function ()
-  {
-    var curr = window.sessionStorage.getItem(sessionKey());
-    var retval = [];
-
-    if (curr !== null)
-    {
-      retval = JSON.parse(curr);
-    }
-
-    return retval;
-  };
-
-  var view = function (setName)
-  {
-    var elems = mod.getSet(setName)[1];
-    render(elems);
-    return mod;
-  };
-
-  var remove = function (setName)
-  {
-    removeSet(setName);
-    render([]);
-    shimi.dispatch.send('sets-changed');
-    return mod;
-  };
-
-  mod.getSet = function (setName)
-  {
-    var retval;
     var curr = getSets();
-    retval = curr.filter(function (x)
+    var newName = nnew[0];
+    var filtered = curr.filter(function (x)
     {
-      return x[0] === setName;
-    })[0];
-    return retval;
-  };
-
-  var removeSet = function (setName)
-  {
-    var nnew;
-    var curr = getSets();
-    nnew = curr.filter(function (x)
-    {
-      return x[0] !== setName;
+      return x[0] !== newName;
     });
-    setSets(nnew);
-    return mod;
-  };
+    setSets(filtered.concat([nnew]));
+  }
+  return true;
+};
 
-  var getSetNames = function ()
+// Convert selected search results or a selected elements to an array.
+var selectedToArray = function (target)
+{
+  'use strict';
+
+  var retval = [];
+
+  switch (target)
   {
-    var curr = getSets();
-    return curr.map(function (x)
-    {
-      return x[0];
-    });
-  };
+  case 'search':
+    retval = selectedSaveResultsToArray();
+    break;
+  case 'sets':
+    retval = selectedElementsToArray();
+    break;
+  }
 
-  var setSets = function (nnew)
+  return retval;
+};
+
+// Convert selected elements to an array.
+selectedElementsToArray = function ()
+{
+  'use strict';
+
+  var retval;
+  var selected = $('input.set-element-selection:checked');
+
+  retval = $.map(selected, function (elem)
   {
-    var procSets;
-    if (Array.isArray(nnew))
-    {
-      procSets = nnew.map(function (x)
-      {
-        return processSet(x);
-      });
-      window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
-    }
-    else
-    {
-      window.sessionStorage.settem(sessionKey(), '[]');
-    }
+    var anchor = $(elem).parent('td').next('td').find('a').first();
+    var id = anchor.first().attr('href').replace(/^#/, '');
+    var context = anchor.html().trim();
+    return [[context, id]];
+  });
+  return retval;
+};
 
-    return mod;
-  };
+// Convert selected search results to an array.
+selectedSaveResultsToArray = function ()
+{
+  'use strict';
 
-  var setSet = function (nnew)
+  var retval;
+  var selected = $('table.selected-for-save tr');
+
+  retval = $.map(selected, function (elem)
   {
-    if (Array.isArray(nnew) && nnew.length === 2)
-    {
-      var curr = getSets();
-      var newName = nnew[0];
-      var filtered = curr.filter(function (x)
-      {
-        return x[0] !== newName;
-      });
-      setSets(filtered.concat([nnew]));
-    }
-    return mod;
-  };
+    var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
+    var context = $(elem).find('td.search-result-context a').first().html().trim();
+    return [[context, id]];
+  });
 
-  var selectedToArray = function (target)
+  return retval;
+};
+
+// Render the set for display.
+render = function (setElems)
+{
+  'use strict';
+
+  var total = setElems.length;
+  var elems = setElems.map(function (x)
   {
-    var retval = [];
-
-    switch (target)
-    {
-    case 'search':
-      retval = selectedSaveResultsToArray();
-      break;
-    case 'sets':
-      retval = selectedElementsToArray();
-      break;
-    }
-
-    return retval;
-  };
-
-  var selectedElementsToArray = function ()
+    return {
+      id: x[1],
+      context: x[0]
+    };
+  });
+  var listing = templates['set-listing'].render(
   {
-    var retval;
-    var selected = $('input.set-element-selection:checked');
+    elements: elems,
+    total: total
+  });
+  setListing().html(listing);
+  return true;
+};
 
-    retval = $.map(selected, function (elem)
-    {
-      var anchor = $(elem).parent('td').next('td').find('a').first();
-      var id = anchor.first().attr('href').replace(/^#/, '');
-      var context = anchor.html().trim();
-      return [[context, id]];
-    });
-    return retval;
-  };
+// Exported functions
 
-  var selectedSaveResultsToArray = function ()
+// Retrieve a set.
+var getSet = function (setName)
+{
+  'use strict';
+
+  var retval;
+  var curr = getSets();
+  retval = curr.filter(function (x)
   {
-    var retval;
-    var selected = $('table.selected-for-save tr');
+    return x[0] === setName;
+  })[0];
+  return retval;
+};
 
-    retval = $.map(selected, function (elem)
-    {
-      var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
-      var context = $(elem).find('td.search-result-context a').first().html().trim();
-      return [[context, id]];
-    });
+// Perform a set operation.
+var performOp = function ()
+{
+  'use strict';
 
-    return retval;
-  };
-
-  var render = function (setElems)
+  switch (op().val())
   {
-    var total = setElems.length;
-    var elems = setElems.map(function (x)
-    {
-      return {
-        id: x[1],
-        context: x[0]
-      };
-    });
-    var listing = templates['set-listing'].render(
-    {
-      elements: elems,
-      total: total
-    });
-    setListing().html(listing);
-    return mod;
-  };
+  case 'view-a':
+    view(setA().val());
+    break;
+  case 'view-b':
+    view(setB().val());
+    break;
+  case 'remove-a':
+    remove(setA().val());
+    break;
+  case 'remove-b':
+    remove(setB().val());
+    break;
+  case 'union':
+    union(setA().val(), setB().val());
+    break;
+  case 'intersection':
+    intersection(setA().val(), setB().val());
+    break;
+  case 'symmetric-difference':
+    symmetricDifference(setA().val(), setB().val());
+    break;
+  case 'relative-complement-b-in-a':
+    relativeComplement(setA().val(), setB().val());
+    break;
+  case 'relative-complement-a-in-b':
+    relativeComplement(setB().val(), setA().val());
+    break;
+  default:
+    break;
+  }
+  return true;
+};
 
-  mod.performOp = function ()
+// Update the selection of sets to choose from.
+var updateSelection = function ()
+{
+  'use strict';
+
+  var currNames = getSetNames();
+  var newOptions = templates['set-options'].render(
   {
-    switch (op().val())
-    {
-    case 'view-a':
-      view(setA().val());
-      break;
-    case 'view-b':
-      view(setB().val());
-      break;
-    case 'remove-a':
-      remove(setA().val());
-      break;
-    case 'remove-b':
-      remove(setB().val());
-      break;
-    case 'union':
-      union(setA().val(), setB().val());
-      break;
-    case 'intersection':
-      intersection(setA().val(), setB().val());
-      break;
-    case 'symmetric-difference':
-      symmetricDifference(setA().val(), setB().val());
-      break;
-    case 'relative-complement-b-in-a':
-      relativeComplement(setA().val(), setB().val());
-      break;
-    case 'relative-complement-a-in-b':
-      relativeComplement(setB().val(), setA().val());
-      break;
-    default:
-      break;
-    }
-    return mod;
-  };
+    names: currNames
+  });
+  setA().html(newOptions);
+  setB().html(newOptions);
+  worksheetsSet().html(newOptions);
 
-  mod.updateSelection = function ()
+  return true;
+};
+
+// Save select items as a set.
+var saveSelected = function ()
+{
+  'use strict';
+
+  var dialog = $('#new-set-dialog');
+  var name = $('#new-set-input').val();
+  var target = $('#new-set-target-input').val();
+  var selected;
+  var newSet;
+
+  if (!utils.isBlank(name))
   {
-    var currNames = getSetNames();
-    var newOptions = templates['set-options'].render(
-    {
-      names: currNames
-    });
-    setA().html(newOptions);
-    setB().html(newOptions);
-    worksheetsSet().html(newOptions);
-    return mod;
-  };
-
-  mod.saveSelected = function ()
+    dialog.hide();
+    selected = selectedToArray(target);
+    newSet = [name, selected];
+    setSet(newSet);
+    $('#new-set-input').val('');
+    S.sender('sets-changed');
+    flash.highlight('Success:', 'Set "' + name + '" saved.');
+  }
+  else
   {
-    var dialog = $('#new-set-dialog');
-    var name = $('#new-set-input').val();
-    var target = $('#new-set-target-input').val();
-    var selected;
-    var newSet;
+    flash.error('Input invalid:', 'You must supply a valid name.');
+  }
 
-    if (!utils.isBlank(name))
-    {
-      dialog.hide();
-      selected = selectedToArray(target);
-      newSet = [name, selected];
-      setSet(newSet);
-      $('#new-set-input').val('');
-      shimi.dispatch.send('sets-changed');
-      shimi.flash('Success:', 'Set "' + name + '" saved.').highlight();
-    }
-    else
-    {
-      shimi.flash('Input invalid:', 'You must supply a valid name.').error();
-    }
+  return true;
+};
 
-    return mod;
-  };
+// Toggle the selection of all elements.
+var toggleSelectAll = function (target)
+{
+  'use strict';
 
-  mod.toggleSelectAll = function (target)
+  if ($(target).is(':checked'))
   {
-    if ($(target).is(':checked'))
-    {
-      $('input.set-element-selection').prop('checked', true);
-    }
-    else
-    {
-      $('input.set-element-selection').prop('checked', false);
-    }
-    return mod;
-  };
+    $('input.set-element-selection').prop('checked', true);
+  }
+  else
+  {
+    $('input.set-element-selection').prop('checked', false);
+  }
+  return true;
+};
 
-  return mod;
-})();
+exports.getSet = getSet;
+exports.performOp = performOp;
+exports.updateSelection = updateSelection;
+exports.saveSelected = saveSelected;
+exports.toggleSelectAll = toggleSelectAll;

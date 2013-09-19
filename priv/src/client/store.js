@@ -1,69 +1,17 @@
-/*
- WARNING: OUT OF DATE
+// # Data Attribute Storage and Retrieval Helpers
+//
+// *Implicit depends:* DOM, JQuery
+//
+// It is likely that this mechanism will be replaced with a superior
+// mechanism for storing data on the client about documents.
 
- h1. Data Attribute Key Value Stores
+// ## Variables
 
- There are two functions provided for getting values from keys
- embedded in HTML elements.
+var utils = require('./utils.js');
 
-  @getValue(key, elem)@
+// ## Internal functions
 
-  This funtion takes a key that corresponds to the name of the data
-  attribute without the data- prefix. It also takes a jQuery
-  object. The assumption is that the jQuery object will hold only one
-  element but it may work either way. The element is expected to have
-  an attribute data-group-id with a value that is the id of the
-  element actually holding the data.
-
- Example:
-
- <pre>
-   <div
-     id='someid'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
- The following also works:
-
- <pre>
-   <div
-     id='someid2'
-     data-fieldset-fieldset='fsid'
-     data-fieldset-doctype='did'></div>
-
-   <div
-     id='someid'
-     data-group-id='someid2'
-     data-fieldset-fieldset='fsid'></div>
-
-   <div
-    id='thisid'
-    data-group-id='someid'></div>
-
-   getValue('fieldset-doctype', $(thisid)) == 'did';
- </pre>
-
-  @putValue(key, value, elem)@
-
-  This function will set an attribute at the target with a name
-  corresponding to key and a value of value.
-*/
-
-/*
- Tail call optimization taken from Spencer Tipping's Javascript in Ten
- Minutes.
-
- For more information see:
- https://github.com/spencertipping/js-in-ten-minutes
-*/
-
+// Identity function for tail recursion
 var identity = function (x)
 {
   'use strict';
@@ -71,6 +19,7 @@ var identity = function (x)
   return x;
 };
 
+// Part of the tail call optimization code
 Function.prototype.r = function ()
 {
   'use strict';
@@ -78,6 +27,11 @@ Function.prototype.r = function ()
   return [this, arguments];
 };
 
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
 Function.prototype.t = function ()
 {
   'use strict';
@@ -91,12 +45,58 @@ Function.prototype.t = function ()
   return escape.apply(this, c[1]);
 };
 
-shimi.store = function (elem)
+// ## External functions
+
+// Takes a JQuery element and returns an object with helper methods for
+// getting and putting custom data attribute values.
+var store = function (elem)
 {
   'use strict';
 
   var mod = {};
 
+  // This funtion takes a key that corresponds to the name of the data
+  // attribute without the `data-` prefix. The element is expected to have
+  // an attribute data-group-id with a value that is the id of the
+  // element actually holding the data.
+  //
+  // ### Examples
+  //
+  // Given the following HTML:
+  //
+  //     <div
+  //       id='someid'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     store($('#thisid')).get('fieldset-doctype') == 'did';
+  //
+  // This HTML contains a level of indirection and demonstrates the use
+  // of the `data-group-id`:
+  //
+  //     <div
+  //       id='someid2'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //       id='someid'
+  //       data-group-id='someid2'
+  //       data-fieldset-fieldset='fsid'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'></div>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     store($('#thisid')).get('fieldset-doctype') == 'did';
   mod.get = function (key)
   {
     var prelim = elem.attr('data-' + key);
@@ -124,29 +124,35 @@ shimi.store = function (elem)
     return getValue1.t(key, elem, identity);
   };
 
+  // Like 'get' but will decode base64 encoded values.
   mod.get64 = function (key)
   {
     var retval = mod.get(key);
-    retval = shimi.utils().Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
   };
 
+  //  This function will set an attribute at the target with a name
+  //  corresponding to key and a value of value.
   mod.put = function (key, value)
   {
     var dataElem = elem.attr('data-group-id');
     $('#' + dataElem).attr('data-' + key, value);
   };
 
+  //  Helper function for attributes that begin with `data-fieldset`.
   mod.fs = function (key)
   {
     return mod.get('fieldset-' + key);
   };
 
+  //  Helper function for attributes that begin with `data-field`.
   mod.f = function (key)
   {
     return mod.get('field-' + key);
   };
 
+  //  Helper function for attributes that begin with `data-document`.
   mod.d = function (key)
   {
     return mod.get('document-' + key);
@@ -154,3 +160,5 @@ shimi.store = function (elem)
 
   return mod;
 };
+
+exports.store = store;

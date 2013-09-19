@@ -1,45 +1,71 @@
-// Get the index that is displayed in the index pane.
-// startkey and startid map directly to the same concepts in
-// couchdb view queries. The prevkeys and previds are used to
-// hold information that will allow the user to page backward
-// through the listing. They are arrays of keys and ids corresponding
-// to previous page's startkeys and ids.
+// # Paging List-like Info
 //
-// There are a number of values that this function depends on
-// that are taken from the HTML. These include the value for
-// the limit and the nextkey and nextid for paging forward. Also
-// the current key and id are taken from the html when needed to
-// add to the prevkeys and previds. The startkey may be a user
-// input value so a more reliable startkey and startid are needed.
-shimi.pager = function (args)
+// *Implicit depends:* DOM, JQuery
+//
+// This is basically semi-generic paging code.
+//
+// Get the index that is displayed in the index pane.  startkey and
+// startid map directly to the same concepts in couchdb view queries. The
+// prevkeys and previds are used to hold information that will allow
+// the user to page backward through the listing. They are arrays of
+// keys and ids corresponding to previous page's startkeys and ids.
+//
+// There are a number of values that this function depends on that
+// are taken from the HTML. These include the value for the limit and
+// the nextkey and nextid for paging forward. Also the current key and
+// id are taken from the html when needed to add to the prevkeys and
+// previds. The startkey may be a user input value so a more reliable
+// startkey and startid are needed.
+
+// Variable Definitions
+
+var form = require('./form.js');
+
+// Exported functions
+
+// Initialize the pager with an args object.
+var pager = function (args)
 {
   'use strict';
 
   var mod = {};
+  // If the 'prefix' used to automatically determine certain element
+  // ID's is not set, set it to 'index'.
   if (args.prefix === undefined)
   {
     args.prefix = 'index';
   }
-  var origin = args.origin;
+  // Special formatting or template code.
   var format = args.format;
   var prefix = args.prefix;
 
+  // Escape a value and base64 encode it.
   var escapeValue = function (value)
   {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
 
+  // The number of elements to display is given here. Note how `prefix`
+  // is used.
   var limitField = function ()
   {
     return $('#' + prefix + '-limit');
   };
 
+  // Get the first or next page. There won't be `prevkeys` or `previds`
+  // if it is the first page. These accumulate during paging so that it
+  // is possible to go backwards.
   mod.get = function (startkey, startid, prevkeys, previds)
   {
+    // The URL given as one of the original args.
     var url = args.url + '?';
+    // This would be a custom index ID.
     var indexId = args.indexId;
+    // The given limit.
     var limit = limitField().val() * 1;
+    // Where the next page will be displayed.
     var target = args.target;
+    // The filter is used to constrain the values listed.
     var filterVal = $('#' + prefix + '-filter').val();
     var state = {
       sk: startkey,
@@ -79,7 +105,7 @@ shimi.pager = function (args)
       url = url + '&index=' + indexId;
     }
 
-    shimi.form.send(url, false, 'GET', function (context, req)
+    form.send(url, false, 'GET', function (context, req)
     {
       mod.fill(req, state, target);
     }, this);
@@ -164,24 +190,10 @@ shimi.pager = function (args)
       $('#next-' + prefix + '-page').hide();
     }
 
-    var keyupHandler = function (e)
-    {
-      var getIndexTimer;
-      window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
-          shimi[origin].get();
-        }
-      }, 500);
-    };
-
-    document.getElementById(prefix + '-filter').onkeyup = keyupHandler;
-    document.getElementById(prefix + '-limit').onkeyup = keyupHandler;
-
     return mod;
   };
 
   return mod;
 };
+
+exports.pager = pager;

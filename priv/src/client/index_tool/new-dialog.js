@@ -1,4 +1,24 @@
-shimi.initIndexNewDialog = function ()
+// # New dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for adding a new user created index.
+
+// TODO I would rather avoid having this as a JQuery plugin.
+
+require('../jquery-ui-input-state.js');
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var ilistingui = require('./ilistingui.js');
+var form = require('../form.js');
+var evs = require('./ievents.js');
+
+// Exported functions
+
+// The dialog for adding a new index.
+var initIndexNewDialog = function ()
 {
   'use strict';
 
@@ -7,7 +27,6 @@ shimi.initIndexNewDialog = function ()
   var indexField = $('#index-field-input').inputDisable();
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
-  var evs = shimi.ihelpers.evs;
 
   var doctypeEvents = function ()
   {
@@ -72,10 +91,10 @@ shimi.initIndexNewDialog = function ()
           },
             complete = function (context)
             {
-              shimi.ilistingui.init();
+              ilistingui.init();
               $(context).dialog('close');
             };
-          shimi.form.send('indexes', obj, 'POST', complete, this);
+          form.send('indexes', obj, 'POST', complete, this);
         }
       },
       'Cancel': function ()
@@ -87,7 +106,7 @@ shimi.initIndexNewDialog = function ()
     {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
-      shimi.form.clear($('.input')).removeClass('ui-state-error');
+      form.clear($('.input')).removeClass('ui-state-error');
     }
   });
 
@@ -96,3 +115,5 @@ shimi.initIndexNewDialog = function ()
 
   return dialog;
 };
+
+exports.initIndexNewDialog = initIndexNewDialog;

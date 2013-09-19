@@ -1,9 +1,20 @@
+// # Field manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var fieldElems = require('./field-elems.js').fieldElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
 // Dialog for manipulating fields
-shimi.fieldDialog = function (url, values)
+var fieldDialog = function (url, values)
 {
   'use strict';
 
-  var f = shimi.fieldElems.get(values);
+  var f = fieldElems.get(values);
 
   var dialog = $('#field-dialog').dialog(
   {
@@ -16,7 +27,7 @@ shimi.fieldDialog = function (url, values)
         var obj = f.clearDisabled().getFieldInputVals();
         var complete = function (context)
         {
-          shimi.doctypeTab.initFields(url);
+          doctypeTab.initFields(url);
           $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank())
@@ -42,3 +53,5 @@ shimi.fieldDialog = function (url, values)
 
   return dialog;
 };
+
+exports.fieldDialog = fieldDialog;

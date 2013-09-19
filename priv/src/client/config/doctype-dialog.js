@@ -1,9 +1,20 @@
+// # Doctype manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var doctypeElems = require('./doctype-elems.js').doctypeElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
 // Dialog for manipulating doctypes
-shimi.doctypeDialog = function (url, values)
+var doctypeDialog = function (url, values)
 {
   'use strict';
 
-  var f = shimi.doctypeElems.get(values);
+  var f = doctypeElems.get(values);
 
   if (values.rev && !values.rev.isBlank())
   {
@@ -25,7 +36,7 @@ shimi.doctypeDialog = function (url, values)
         var obj = f.getDoctypeInputVals();
         var complete = function (context)
         {
-          shimi.doctypeTab.init();
+          doctypeTab.init();
           $(context).dialog('close');
         };
 
@@ -52,3 +63,5 @@ shimi.doctypeDialog = function (url, values)
 
   return dialog;
 };
+
+exports.doctypeDialog = doctypeDialog;

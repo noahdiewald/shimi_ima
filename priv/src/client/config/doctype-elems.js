@@ -1,6 +1,16 @@
+// # Working with elements of a doctype manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions.
-shimi.doctypeElems = (function ()
+var doctypeElems = (function ()
 {
   'use strict';
 
@@ -33,7 +43,7 @@ shimi.doctypeElems = (function ()
 
     fObj.clear = function ()
     {
-      shimi.form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
@@ -49,3 +59,5 @@ shimi.doctypeElems = (function ()
 
   return mod;
 })();
+
+exports.doctypeElems = doctypeElems;

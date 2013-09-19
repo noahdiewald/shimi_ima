@@ -1,4 +1,20 @@
-shimi.initReplaceDialog = function ()
+// # Replace dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for providing a function to replace the normal output of
+// an index.
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for providing a function to replace the normal output of
+// an index.
+var initReplaceDialog = function ()
 {
   'use strict';
 
@@ -12,7 +28,7 @@ shimi.initReplaceDialog = function ()
   }
   else
   {
-    shimi.form.clear(replaceFunction).removeClass('ui-state-error');
+    form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
   var dialog = $('#index-replace-dialog').dialog(
@@ -60,9 +76,11 @@ shimi.initReplaceDialog = function ()
     },
     close: function ()
     {
-      shimi.form.clear(replaceFunction).removeClass('ui-state-error');
+      form.clear(replaceFunction).removeClass('ui-state-error');
     }
   });
 
   return dialog;
 };
+
+exports.initReplaceDialog = initReplaceDialog;

@@ -1,76 +1,102 @@
-shimi.indexui = (function ()
+// # Paging For Index Listing
+//
+// *Implicit depends:* DOM, JQuery
+//
+// Loads index based on user suplied values. It also loads some other
+// preliminary data, such as the listing of user created indexes. The
+// `load()` function performs some initialization.
+
+// Variable Definitions
+var pager = require('../pager.js').pager;
+var viewui = require('./viewui.js');
+var editui = require('./editui.js');
+
+// Exported Functions
+
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
 {
   'use strict';
 
-  var mod = {};
-  var store = shimi.store;
-  var flash = shimi.flash;
-  var pager = shimi.pager;
+  return 'index';
+};
 
-  mod.get = function (startkey, startid, prevkeys, previds)
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
+{
+  'use strict';
+
+  var url = 'documents/' + prefix();
+  var indexId = $('#index-' + prefix() + '-input').val();
+  var target = $('#' + prefix() + '-listing');
+
+  var format = function (text)
   {
-    var prefix = 'index';
-    var url = 'documents/' + prefix;
-    var indexId = $('#index-' + prefix + '-input').val();
-    var target = $('#' + prefix + '-listing');
+    var resp = JSON.parse(text);
 
-    var format = function (text)
+    resp.rows = resp.rows.map(function (item)
     {
-      var resp = JSON.parse(text);
-
-      resp.rows = resp.rows.map(function (item)
+      item.display_key = item.key.map(function (k)
       {
-        item.display_key = item.key.map(function (k)
-        {
-          return k[1];
-        });
-
-        if (indexId && item.value.length > 0) {
-          item.value = item.value.split(', ');
-        }
-
-        return item;
+        return k[1];
       });
 
-      return resp;
-    };
+      if (indexId && item.value.length > 0)
+      {
+        item.value = item.value.split(', ');
+      }
 
-    pager(
-    {
-      prefix: prefix,
-      format: format,
-      url: url,
-      origin: 'indexui',
-      indexId: indexId,
-      target: target
-    }).get(startkey, startid, prevkeys, previds);
-
-    return mod;
-  };
-
-  mod.iOpts = function ()
-  {
-    var url = 'indexes?as=options';
-    var options;
-
-    $.getJSON(url, function (data)
-    {
-      options = templates['index-options'].render(data);
-      $('#index-index-input').html(options);
+      return item;
     });
 
-    return mod;
+    return resp;
   };
 
-  mod.load = function (target)
+  pager(
   {
-    var id = $(target).attr('href').slice(1);
-    $('#document-view').html('<em>Loading...</em>');
-    shimi.editui.clear();
-    shimi.viewui.get(id);
+    prefix: prefix(),
+    format: format,
+    url: url,
+    indexId: indexId,
+    target: target
+  }).get();
 
-    return mod;
-  };
+  return true;
+};
 
-  return mod;
-})();
+// Loads the listing of user created indexes.
+var iOpts = function ()
+{
+  'use strict';
+
+  var url = 'indexes?as=options';
+  var options;
+
+  $.getJSON(url, function (data)
+  {
+    options = templates['index-options'].render(data);
+    $('#index-index-input').html(options);
+  });
+
+  return true;
+};
+
+// This is the entry point that loads the data for this section of
+// the application.
+var load = function (target)
+{
+  'use strict';
+
+  var id = $(target).attr('href').slice(1);
+  $('#document-view').html('<em>Loading...</em>');
+  editui.clear();
+  viewui.get(id);
+
+  return true;
+};
+
+exports.prefix = prefix;
+exports.get = get;
+exports.iOpts = iOpts;
+exports.load = load;

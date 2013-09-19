@@ -1,179 +1,211 @@
-shimi.ihelpers = (function ()
+// # Index tool helpers.
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Shared functions used by a number of index tool modules.
+
+// Variable Definitions
+
+var s = require('../sess.js');
+
+// Internal functions
+
+// Disable certain options match `disables`.
+var disableOptions = function (options, disables)
+{
+  'use strict';
+
+  options.children().show();
+
+  disables.forEach(function (item)
+  {
+    options.children('option:contains(' + item + ')').hide();
+  });
+
+  return false;
+};
+
+// Disable the operator options.
+var disableOperatorOptions = function (fieldDoc)
+{
+  'use strict';
+
+  var options = $('#builder-operator-input');
+
+  switch (fieldDoc.subcategory)
+  {
+  case 'select':
+  case 'docselect':
+  case 'text':
+  case 'textarea':
+    disableOptions(options, ['member', 'true']);
+    break;
+  case 'integer':
+  case 'rational':
+  case 'date':
+    disableOptions(options, ['member', 'true', 'match']);
+    break;
+  case 'boolean':
+  case 'openboolean':
+    disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
+    break;
+  case 'multiselect':
+  case 'docmultiselect':
+    disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
+    break;
+  }
+
+  return false;
+};
+
+// Exported functions
+
+// Handles an input field that presents different behavior depending on
+// the values of previously filled in fields.
+var alterArg = function (argumentField, operatorField, fieldField, callback)
+{
+  'use strict';
+
+  var fieldDoc = function ()
+  {
+    return s.get(fieldField.val());
+  };
+
+  callback();
+
+  try
+  {
+    // Destroy these if initialized already
+    argumentField.removeAttr('disabled').datepicker('destroy');
+    argumentField.removeAttr('disabled').autocomplete('destroy');
+  }
+  catch (err)
+  {
+    window.console.log(err.message);
+  }
+
+  var dateOrText = function (argumentField, fdoc)
+  {
+    if (fdoc.subcategory === 'date')
+    {
+      argumentField.removeAttr('disabled');
+      argumentField.datepicker(
+      {
+        dateFormat: 'yy-mm-dd'
+      });
+    }
+    else
+    {
+      argumentField.removeAttr('disabled');
+      argumentField.autocomplete(
+      {
+        source: fdoc.allowed
+      });
+    }
+
+    return true;
+  };
+
+  var fdoc = fieldDoc();
+
+  if (fdoc)
+  {
+    switch (operatorField.val())
+    {
+    case 'true':
+    case 'isDefined':
+    case 'blank':
+      argumentField.attr('disabled', 'disabled').val('');
+      break;
+    case 'equal':
+    case 'member':
+    case 'greater':
+    case 'less':
+    case 'hasExactly':
+    case 'hasGreater':
+    case 'hasLess':
+      dateOrText(argumentField, fdoc);
+      break;
+    }
+
+  }
+
+  return true;
+};
+
+// Certain operator options only exist for certain types of fields.
+var alterOpts = function (fieldDoc, fieldId, callback)
+{
+  'use strict';
+
+  disableOperatorOptions(fieldDoc);
+  callback();
+
+  return true;
+};
+
+// Get the fields that the user may choose from.
+var fOpts = function (url, selectElement, callback)
+{
+  'use strict';
+
+  $.get(url, function (options)
+  {
+    selectElement.html(options);
+    if (callback)
+    {
+      callback();
+    }
+  });
+
+  return true;
+};
+
+// Get the document holding the field information.
+var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
+{
+  'use strict';
+
+  var fieldDoc = s.get(fieldId);
+  var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
+
+  if (fieldDoc)
+  {
+    if (callback)
+    {
+      callback(fieldDoc);
+    }
+    return fieldDoc;
+  }
+  else
+  {
+    $.ajax(
+    {
+      url: url,
+      async: false,
+      dataType: 'json',
+      success: function (data)
+      {
+        s.put(data);
+        if (callback)
+        {
+          callback(s.get(fieldId));
+        }
+      }
+    });
+
+    return s.get(fieldId);
+  }
+};
+
+// Return an object containing methods for working with common events.
+var evs = function ()
 {
   'use strict';
 
   var mod = {};
-  var s = shimi.sess();
-  mod.evs = {};
 
-  var disableOptions = function (options, disables)
-  {
-    options.children().show();
-
-    disables.forEach(function (item)
-    {
-      options.children('option:contains(' + item + ')').hide();
-    });
-
-    return false;
-  };
-
-  var disableOperatorOptions = function (fieldDoc)
-  {
-    var options = $('#builder-operator-input');
-
-    switch (fieldDoc.subcategory)
-    {
-    case 'select':
-    case 'docselect':
-    case 'text':
-    case 'textarea':
-      disableOptions(options, ['member', 'true']);
-      break;
-    case 'integer':
-    case 'rational':
-    case 'date':
-      disableOptions(options, ['member', 'true', 'match']);
-      break;
-    case 'boolean':
-    case 'openboolean':
-      disableOptions(options, ['equal', 'greater', 'less', 'member', 'match']);
-      break;
-    case 'multiselect':
-    case 'docmultiselect':
-      disableOptions(options, ['equal', 'greater', 'less', 'true', 'match']);
-      break;
-    }
-
-    return false;
-  };
-
-  mod.alterArg = function (argumentField, operatorField, fieldField, callback)
-  {
-    var fieldDoc = function ()
-    {
-      return s.get(fieldField.val());
-    };
-
-    callback();
-
-    try
-    {
-      // Destroy these if initialized already
-      argumentField.removeAttr('disabled').datepicker('destroy');
-      argumentField.removeAttr('disabled').autocomplete('destroy');
-    }
-    catch (err)
-    {
-      window.console.log(err.message);
-    }
-
-    var dateOrText = function (argumentField, fdoc)
-    {
-      if (fdoc.subcategory === 'date')
-      {
-        argumentField.removeAttr('disabled');
-        argumentField.datepicker(
-        {
-          dateFormat: 'yy-mm-dd'
-        });
-      }
-      else
-      {
-        argumentField.removeAttr('disabled');
-        argumentField.autocomplete(
-        {
-          source: fdoc.allowed
-        });
-      }
-
-      return mod;
-    };
-
-    var fdoc = fieldDoc();
-
-    if (fdoc)
-    {
-      switch (operatorField.val())
-      {
-      case 'true':
-      case 'isDefined':
-      case 'blank':
-        argumentField.attr('disabled', 'disabled').val('');
-        break;
-      case 'equal':
-      case 'member':
-      case 'greater':
-      case 'less':
-      case 'hasExactly':
-      case 'hasGreater':
-      case 'hasLess':
-        dateOrText(argumentField, fdoc);
-        break;
-      }
-
-    }
-
-    return mod;
-  };
-
-  mod.alterOpts = function (fieldDoc, fieldId, callback)
-  {
-    disableOperatorOptions(fieldDoc);
-    callback();
-
-    return mod;
-  };
-
-  mod.fOpts = function (url, selectElement, callback)
-  {
-    $.get(url, function (options)
-    {
-      selectElement.html(options);
-      if (callback)
-      {
-        callback();
-      }
-    });
-
-    return mod;
-  };
-
-  mod.getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
-  {
-    var fieldDoc = s.get(fieldId);
-    var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
-
-    if (fieldDoc)
-    {
-      if (callback)
-      {
-        callback(fieldDoc);
-      }
-      return fieldDoc;
-    }
-    else
-    {
-      $.ajax(
-      {
-        url: url,
-        async: false,
-        dataType: 'json',
-        success: function (data)
-        {
-          s.put(data);
-          if (callback)
-          {
-            callback(s.get(fieldId));
-          }
-        }
-      });
-
-      return s.get(fieldId);
-    }
-  };
-
-  mod.evs.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
+  mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
   {
     indexDoctype.change(function ()
     {
@@ -185,13 +217,13 @@ shimi.ihelpers = (function ()
         callback2 = callback();
       }
 
-      mod.fOpts(url, indexFieldset, callback2);
+      fOpts(url, indexFieldset, callback2);
     });
 
     return false;
   };
 
-  mod.evs.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
   {
     indexFieldset.change(function ()
     {
@@ -211,14 +243,14 @@ shimi.ihelpers = (function ()
           callback2 = callback();
         }
 
-        mod.fOpts(url, indexField, callback2);
+        fOpts(url, indexField, callback2);
       }
     });
 
     return mod;
   };
 
-  mod.evs.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
+  mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
   {
     indexField.change(function ()
     {
@@ -233,9 +265,9 @@ shimi.ihelpers = (function ()
 
       if (!(fieldId.isBlank()))
       {
-        mod.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
+        getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
         {
-          shimi.ihelpers.alterOpts(data, fieldId, callback2);
+          alterOpts(data, fieldId, callback2);
         });
       }
     });
@@ -243,7 +275,7 @@ shimi.ihelpers = (function ()
     return mod;
   };
 
-  mod.evs.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
+  mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
   {
     operatorField.change(function ()
     {
@@ -254,11 +286,15 @@ shimi.ihelpers = (function ()
         callback2 = callback();
       }
 
-      mod.alterArg(argumentField, operatorField, fieldField, callback2);
+      alterArg(argumentField, operatorField, fieldField, callback2);
     });
 
     return mod;
   };
+};
 
-  return mod;
-})();
+exports.alterArg = alterArg;
+exports.alterOpts = alterOpts;
+exports.fOpts = fOpts;
+exports.getFieldDoc = getFieldDoc;
+exports.evs = evs;
