@@ -8,12 +8,6 @@
 
 // ## Variable Definitions
 
-// A place to temporarily store global objects. Sometimes this is more
-// convenient than using other types of client side storage. It is used
-// rarely and explicitly using this object.
-var shimi = {};
-shimi.globals = {};
-
 var exports = module.exports;
 
 require('./jquery-ui-input-state.js');
