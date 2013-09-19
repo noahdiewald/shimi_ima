@@ -13,6 +13,7 @@ require('../jquery-ui-input-state.js');
 var ihelpers = require('./ihelpers.js');
 var ilistingui = require('./ilistingui.js');
 var form = require('../form.js');
+var evs = require('./ievents.js');
 
 // Exported functions
 
@@ -26,7 +27,6 @@ var initIndexNewDialog = function ()
   var indexField = $('#index-field-input').inputDisable();
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
-  var evs = ihelpers.evs();
 
   var doctypeEvents = function ()
   {

@@ -12,6 +12,7 @@ require('../jquery-ui-input-state.js');
 
 var ihelpers = require('./ihelpers.js');
 var form = require('../form.js');
+var evs = require('./ievents.js');
 
 // Exported functions
 
@@ -30,7 +31,6 @@ var initIndexBuilderDialog = function (indexDoctype)
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = ihelpers.evs();
 
   $('.ui-helper-reset div').show();
 

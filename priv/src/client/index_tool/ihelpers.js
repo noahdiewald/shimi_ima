@@ -203,7 +203,7 @@ var evs = function ()
 {
   'use strict';
 
-  var mod;
+  var mod = {};
 
   mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
   {

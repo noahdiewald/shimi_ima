@@ -24,10 +24,9 @@ var get = function ()
 {
   'use strict';
 
-  var prefix = prefix();
   var indexId = $('#index-editing-data').attr('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
-  var target = $('#' + prefix + '-list-view');
+  var target = $('#' + prefix() + '-list-view');
 
   var format = function (text)
   {
@@ -50,11 +49,11 @@ var get = function ()
   {
     pager(
     {
-      prefix: prefix,
+      prefix: prefix(),
       format: format,
       url: url,
       target: target
-    }).get();//.get(startkey, startid, prevkeys, previds);
+    }).get();
   }
 
   return true;

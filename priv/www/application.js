@@ -159,7 +159,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./dblclick-dispatch.js":15,"./documents/documents.js":19,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ilistingui.js":34,"./jquery-ui-input-state.js":38,"./keystrokes.js":40,"./projects/projectui.js":44}],2:[function(require,module,exports){
+},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./dblclick-dispatch.js":15,"./documents/documents.js":19,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ilistingui.js":35,"./jquery-ui-input-state.js":39,"./keystrokes.js":41,"./projects/projectui.js":45}],2:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -507,7 +507,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":6,"./config/config.js":7,"./config/doctype-tab.js":10,"./dispatcher.js":16,"./documents/editui.js":20,"./documents/fieldsets.js":21,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/viewui.js":25,"./documents/worksheetui.js":26,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ieditui.js":32,"./panel-toggle.js":42,"./projects/projectui.js":44,"./sender.js":45}],4:[function(require,module,exports){
+},{"./config/charseq-tab":6,"./config/config.js":7,"./config/doctype-tab.js":10,"./dispatcher.js":16,"./documents/editui.js":20,"./documents/fieldsets.js":21,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/viewui.js":25,"./documents/worksheetui.js":26,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ieditui.js":32,"./panel-toggle.js":43,"./projects/projectui.js":45,"./sender.js":46}],4:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -751,7 +751,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../form.js":29,"../store.js":48,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
+},{"../form.js":29,"../store.js":49,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -1211,7 +1211,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":43,"../store.js":48,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
+},{"../path.js":44,"../store.js":49,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1467,7 +1467,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":29,"../utils.js":49}],13:[function(require,module,exports){
+},{"../form.js":29,"../utils.js":50}],13:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1674,7 +1674,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":16,"./documents/searchui.js":23,"./documents/worksheetui.js":26,"./panel-toggle.js":42}],16:[function(require,module,exports){
+},{"./dispatcher.js":16,"./documents/searchui.js":23,"./documents/worksheetui.js":26,"./panel-toggle.js":43}],16:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -1769,7 +1769,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":41}],18:[function(require,module,exports){
+},{"../pager.js":42}],18:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -1907,7 +1907,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":45,"./editui.js":20}],19:[function(require,module,exports){
+},{"../sender.js":46,"./editui.js":20}],19:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -2179,7 +2179,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":45,"../store.js":48,"./changeui.js":17,"./editui.js":20,"./indexui.js":22,"./setsui.js":24,"./viewui.js":25}],20:[function(require,module,exports){
+},{"../sender.js":46,"../store.js":49,"./changeui.js":17,"./editui.js":20,"./indexui.js":22,"./setsui.js":24,"./viewui.js":25}],20:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -2576,7 +2576,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":28,"../form.js":29,"../store.js":48,"./fieldsets.js":21,"./indexui.js":22,"./viewui.js":25}],21:[function(require,module,exports){
+},{"../flash.js":28,"../form.js":29,"../store.js":49,"./fieldsets.js":21,"./indexui.js":22,"./viewui.js":25}],21:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -3059,7 +3059,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":43,"../store.js":48,"../utils.js":49,"./editui.js":20}],22:[function(require,module,exports){
+},{"../path.js":44,"../store.js":49,"../utils.js":50,"./editui.js":20}],22:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JQuery
@@ -3163,7 +3163,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":41,"./editui.js":20,"./viewui.js":25}],23:[function(require,module,exports){
+},{"../pager.js":42,"./editui.js":20,"./viewui.js":25}],23:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -3769,7 +3769,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":47,"../utils.js":49,"./documents.js":19,"./setsui.js":24}],24:[function(require,module,exports){
+},{"../sets.js":48,"../utils.js":50,"./documents.js":19,"./setsui.js":24}],24:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4224,7 +4224,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":28,"../sender.js":45,"../sets.js":47,"../utils.js":49,"./documents.js":19}],25:[function(require,module,exports){
+},{"../flash.js":28,"../sender.js":46,"../sets.js":48,"../utils.js":50,"./documents.js":19}],25:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery, Hogan, templates
@@ -4681,7 +4681,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":28,"../store.js":48,"./editui.js":20,"./fieldsets.js":21,"./indexui.js":22}],26:[function(require,module,exports){
+},{"../flash.js":28,"../store.js":49,"./editui.js":20,"./fieldsets.js":21,"./indexui.js":22}],26:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, Hogan, templates, globals
@@ -5428,6 +5428,7 @@ require('../jquery-ui-input-state.js');
 
 var ihelpers = require('./ihelpers.js');
 var form = require('../form.js');
+var evs = require('./ievents.js');
 
 // Exported functions
 
@@ -5446,7 +5447,6 @@ var initIndexBuilderDialog = function (indexDoctype)
   var notBlank = [builderOperator, builderFieldset, builderField];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
-  var evs = ihelpers.evs();
 
   $('.ui-helper-reset div').show();
 
@@ -5631,7 +5631,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":29,"../jquery-ui-input-state.js":38,"./ihelpers.js":33}],32:[function(require,module,exports){
+},{"../form.js":29,"../jquery-ui-input-state.js":39,"./ievents.js":33,"./ihelpers.js":34}],32:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5967,7 +5967,126 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":28,"../form.js":29,"./builder-dialog.js":31,"./ihelpers.js":33,"./ilistingui.js":34,"./ipreviewui.js":35,"./new-dialog.js":36,"./replace-dialog.js":37}],33:[function(require,module,exports){
+},{"../flash.js":28,"../form.js":29,"./builder-dialog.js":31,"./ihelpers.js":34,"./ilistingui.js":35,"./ipreviewui.js":36,"./new-dialog.js":37,"./replace-dialog.js":38}],33:[function(require,module,exports){
+// # Dialog Events
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// These are change events triggered in the dialogs.
+
+// Variable Definitions
+
+var h = require('./ihelpers.js');
+
+//
+// Exported Functions
+//
+
+// Set change events for doctype field
+var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
+{
+  'use strict';
+
+  indexDoctype.change(function ()
+  {
+    var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
+    var callback2;
+
+    if (callback)
+    {
+      callback2 = callback();
+    }
+
+    h.fOpts(url, indexFieldset, callback2);
+  });
+
+  return false;
+};
+
+// Set change events for index field
+var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
+{
+  'use strict';
+
+  indexFieldset.change(function ()
+  {
+    var callback2;
+
+    if (typeof indexDoctype !== 'string')
+    {
+      indexDoctype = indexDoctype.val();
+    }
+
+    if (indexFieldset.val())
+    {
+      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+
+      if (callback)
+      {
+        callback2 = callback();
+      }
+
+      h.fOpts(url, indexField, callback2);
+    }
+  });
+
+  return true;
+};
+
+// Set change events for field
+var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
+{
+  'use strict';
+
+  indexField.change(function ()
+  {
+    var fieldId = indexField.val();
+    var fieldsetId = indexFieldset.val();
+    var callback2;
+
+    if (callback)
+    {
+      callback2 = callback();
+    }
+
+    if (!(fieldId.isBlank()))
+    {
+      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
+      {
+        h.alterOpts(data, fieldId, callback2);
+      });
+    }
+  });
+
+  return true;
+};
+
+// Set change events for the operator field.
+var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
+{
+  'use strict';
+
+  operatorField.change(function ()
+  {
+    var callback2;
+
+    if (callback)
+    {
+      callback2 = callback();
+    }
+
+    h.alterArg(argumentField, operatorField, fieldField, callback2);
+  });
+
+  return true;
+};
+
+exports.setIndexOperatorEvents = setIndexOperatorEvents;
+exports.setIndexFieldEvents = setIndexFieldEvents;
+exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
+exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
+
+},{"./ihelpers.js":34}],34:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6173,7 +6292,7 @@ var evs = function ()
 {
   'use strict';
 
-  var mod;
+  var mod = {};
 
   mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
   {
@@ -6269,7 +6388,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":46}],34:[function(require,module,exports){
+},{"../sess.js":47}],35:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery, Hogan, templates
@@ -6298,7 +6417,7 @@ var init = function ()
 
 exports.init = init;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JQuery
@@ -6325,10 +6444,9 @@ var get = function ()
 {
   'use strict';
 
-  var prefix = prefix();
   var indexId = $('#index-editing-data').attr('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
-  var target = $('#' + prefix + '-list-view');
+  var target = $('#' + prefix() + '-list-view');
 
   var format = function (text)
   {
@@ -6351,11 +6469,11 @@ var get = function ()
   {
     pager(
     {
-      prefix: prefix,
+      prefix: prefix(),
       format: format,
       url: url,
       target: target
-    }).get();//.get(startkey, startid, prevkeys, previds);
+    }).get();
   }
 
   return true;
@@ -6364,7 +6482,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":41}],36:[function(require,module,exports){
+},{"../pager.js":42}],37:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6380,6 +6498,7 @@ require('../jquery-ui-input-state.js');
 var ihelpers = require('./ihelpers.js');
 var ilistingui = require('./ilistingui.js');
 var form = require('../form.js');
+var evs = require('./ievents.js');
 
 // Exported functions
 
@@ -6393,7 +6512,6 @@ var initIndexNewDialog = function ()
   var indexField = $('#index-field-input').inputDisable();
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
-  var evs = ihelpers.evs();
 
   var doctypeEvents = function ()
   {
@@ -6485,7 +6603,7 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":29,"../jquery-ui-input-state.js":38,"./ihelpers.js":33,"./ilistingui.js":34}],37:[function(require,module,exports){
+},{"../form.js":29,"../jquery-ui-input-state.js":39,"./ievents.js":33,"./ihelpers.js":34,"./ilistingui.js":35}],38:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6573,7 +6691,7 @@ var initReplaceDialog = function ()
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":29,"./ihelpers.js":33}],38:[function(require,module,exports){
+},{"../form.js":29,"./ihelpers.js":34}],39:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -6599,7 +6717,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -6782,7 +6900,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -6981,7 +7099,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":35,"./jquery.hotkeys.js":39,"./sender.js":45}],41:[function(require,module,exports){
+},{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":36,"./jquery.hotkeys.js":40,"./sender.js":46}],42:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JQuery
@@ -7182,7 +7300,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":29}],42:[function(require,module,exports){
+},{"./form.js":29}],43:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -7218,7 +7336,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -7426,7 +7544,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":29,"./store.js":48}],44:[function(require,module,exports){
+},{"./form.js":29,"./store.js":49}],45:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -7565,7 +7683,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":29}],45:[function(require,module,exports){
+},{"../form.js":29}],46:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially and experiment in attempting to perform actions
@@ -7640,7 +7758,7 @@ var sender = function (message, arg)
 
 exports.sender = sender;
 
-},{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],46:[function(require,module,exports){
+},{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],47:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -7685,7 +7803,7 @@ var get = function (docId)
 exports.put = put;
 exports.get = get;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -7797,7 +7915,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM, JQuery
@@ -7963,7 +8081,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./utils.js":49}],49:[function(require,module,exports){
+},{"./utils.js":50}],50:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -8171,5 +8289,5 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49])
+},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50])
 ;
