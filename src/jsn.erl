@@ -40,7 +40,6 @@
 -define(IS_WHITESPACE(C),
         (C =:= $\s orelse C =:= $\t orelse C =:= $\r orelse C =:= $\n)).
 
-%% @type iolist() = [char() | binary() | iolist()]
 %% @type json_string() = atom | binary()
 %% @type json_number() = integer() | float()
 %% @type json_array() = [json_term()]
@@ -75,7 +74,7 @@ encoder(Options) ->
 encode(Any) ->
     json_encode(Any, #encoder{}).
     
-%% @spec encode(json_term()) -> [char()]
+%% @spec encode_to_list(json_term()) -> [char()]
 %% @doc Encode the given as JSON to a normal list.
 encode_to_list(Any) ->
     binary_to_list(iolist_to_binary(json_encode(Any, #encoder{}))).

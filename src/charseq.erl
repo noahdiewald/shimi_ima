@@ -36,7 +36,7 @@
 -include_lib("include/types.hrl").
 
 %% @doc Get a sortkey for a string.
--spec get_sortkey({charseq(), binary()}) -> binary().
+-spec get_sortkey(charseq(), binary()) -> binary().
 get_sortkey(Charseq, Value) ->
     get_sortkey_helper(Charseq, Value).
 
