@@ -27,10 +27,9 @@ var get = function ()
 {
   'use strict';
 
-  var prefix = prefix();
-  var url = 'documents/' + prefix;
-  var indexId = $('#index-' + prefix + '-input').val();
-  var target = $('#' + prefix + '-listing');
+  var url = 'documents/' + prefix();
+  var indexId = $('#index-' + prefix() + '-input').val();
+  var target = $('#' + prefix() + '-listing');
 
   var format = function (text)
   {
@@ -56,7 +55,7 @@ var get = function ()
 
   pager(
   {
-    prefix: prefix,
+    prefix: prefix(),
     format: format,
     url: url,
     indexId: indexId,

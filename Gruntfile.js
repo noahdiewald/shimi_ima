@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-docco');
   grunt.loadNpmTasks('grunt-hogan');
   grunt.loadNpmTasks('grunt-mocha-cov');
@@ -11,12 +12,18 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     meta: {
-      version: '0.1.0',
-      banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
+        version: '0.1.0',
+        banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
     },
     browserify: {
       client: {
         src: ['priv/src/client/**/*.js'],
+        dest: 'priv/www/application.tmp.js'
+      }
+    },
+    concat: {
+      dist: {
+        src: ['priv/src/client/globals.js', '<%= browserify.client.dest %>'],
         dest: 'priv/www/application.js'
       }
     },
@@ -48,9 +55,12 @@ module.exports = function(grunt) {
       }
     },
     uglify: {
+      options: {
+        banner: '<%= meta.banner %>'
+      },
       all: {
         files: {
-          'priv/www/application.min.js': 'priv/www/application.js',
+          'priv/www/application.min.js': '<%= concat.dist.dest %>',
           'priv/www/templates.min.js': 'priv/www/templates.js'
         }
       }
@@ -93,13 +103,13 @@ module.exports = function(grunt) {
           emit: true,
           exports: true,
           getRow: true,
+          globals: true,
           Hogan: true,
           it: true,
           jQuery: true,
           module: true,
           require: true,
           send: true,
-          shimi: true,
           start: true,
           templates: true
         }
@@ -110,5 +120,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('coverage', ['jshint', 'mochacov:coverage']);
   grunt.registerTask('test', ['jshint', 'mochacov:unit']);
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'mochacov:unit', 'browserify', 'uglify']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
 };

@@ -1,6 +1,6 @@
 // # The worksheet user interface
 //
-// *Implicit depends:* DOM, JQuery, Hogan, templates, shimi.globals
+// *Implicit depends:* DOM, JQuery, Hogan, templates, globals
 // ([application.js](./application.html))
 //
 // Worksheet pane UI elements.
@@ -163,7 +163,7 @@ var buildTemplate = function ()
 
   var doctypeInfo = documents.info();
   var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
-  shimi.globals[worksheetName()] = Hogan.compile(metaTemp);
+  globals[worksheetName()] = Hogan.compile(metaTemp);
 
   return true;
 };
@@ -178,7 +178,7 @@ var fillWorksheet = function ()
   var complete = function (_ignore, req)
   {
     var data = JSON.parse(req.responseText);
-    var ws = shimi.globals[worksheetName()].render(data);
+    var ws = globals[worksheetName()].render(data);
     worksheetsArea().html(ws);
   };
 
