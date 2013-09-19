@@ -1734,9 +1734,8 @@ var get = function ()
 {
   'use strict';
 
-  var prefix = prefix();
-  var url = prefix;
-  var target = $('#' + prefix + '-listing');
+  var url = prefix();
+  var target = $('#' + prefix() + '-listing');
 
   var format = function (text)
   {
@@ -1758,7 +1757,7 @@ var get = function ()
 
   pager(
   {
-    prefix: 'changelog',
+    prefix: prefix(),
     url: url,
     format: format,
     target: target
@@ -3047,6 +3046,7 @@ exports.initFieldset = initFieldset;
 exports.fieldsetsToObject = fieldsetsToObject;
 exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
+exports.fillFieldsets = fillFieldsets;
 
 },{"../path.js":43,"../store.js":48,"../utils.js":49,"./editui.js":20}],22:[function(require,module,exports){
 // # Paging For Index Listing
@@ -8160,5 +8160,5 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}]},{},[1,4,5,3,2,6,7,9,10,11,8,12,14,15,13,16,17,18,19,21,20,22,24,25,23,26,27,28,30,29,31,32,33,34,35,36,37,38,39,41,42,43,40,45,44,46,47,48,49])
+},{}]},{},[1,2,4,5,6,7,8,9,10,3,11,12,13,15,16,14,18,17,19,21,20,22,24,25,23,26,27,29,30,28,31,32,33,34,36,38,37,35,39,40,42,43,41,44,45,46,48,47,49])
 ;
