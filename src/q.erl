@@ -19,7 +19,7 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% couch:get_view_json/5
+%%% @doc This is mostly abstractions to calls to couch:get_view_json/5
 
 -module(q).
 -author('Noah Diewald <noah@diewald.me>').
