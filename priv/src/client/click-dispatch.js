@@ -9,7 +9,7 @@
 
 // ## Variable Definitions
 
-var sender = require('./sender.js').sender;
+var S = require('./sender.js');
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var doctypeTab = require('./config/doctype-tab.js');
@@ -170,7 +170,7 @@ var clickDispatch = function (e)
     },
     '#new-set-save-button': function ()
     {
-      sender('new-set-form-submit');
+      S.sender('new-set-form-submit');
     },
     '#select-all-set-elements': function (t)
     {

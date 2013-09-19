@@ -197,7 +197,7 @@ exports.changes = changes;
 
 // ## Variable Definitions
 
-var sender = require('./sender.js').sender;
+var S = require('./sender.js');
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var doctypeTab = require('./config/doctype-tab.js');
@@ -358,7 +358,7 @@ var clickDispatch = function (e)
     },
     '#new-set-save-button': function ()
     {
-      sender('new-set-form-submit');
+      S.sender('new-set-form-submit');
     },
     '#select-all-set-elements': function (t)
     {
@@ -1769,7 +1769,7 @@ exports.get = get;
 // Variable Definitions
 
 var editui = require('./editui.js');
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 
 // Internal functions
 
@@ -1860,10 +1860,10 @@ var execute = function (command)
   }
   else
   {
-    sender('lost-focus');
+    S.sender('lost-focus');
   }
 
-  sender('executed-command');
+  S.sender('executed-command');
   return true;
 };
 
@@ -1910,7 +1910,7 @@ var editui = require('./editui.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
 var changeui = require('./changeui.js');
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 var store = require('../store.js').store;
 var identifier;
 
@@ -1983,7 +1983,7 @@ var storeDoctype = function (doctype)
   'use strict';
 
   sessionStorage.setItem(infoKey(), doctype);
-  sender('doctype-info-ready');
+  S.sender('doctype-info-ready');
 
   return true;
 };
@@ -2022,7 +2022,7 @@ var setVersion = function ()
   'use strict';
 
   sessionStorage.setItem(versionKey(), getCurrentVersion());
-  sender('version-set');
+  S.sender('version-set');
 
   return true;
 };
@@ -2033,7 +2033,7 @@ var clearSession = function ()
   'use strict';
 
   sessionStorage.clear();
-  sender('session-cleared');
+  S.sender('session-cleared');
 
   return true;
 };
@@ -2046,11 +2046,11 @@ var checkVersion = function ()
 
   if (isCurrentVersionStored())
   {
-    sender('labels-ready');
+    S.sender('labels-ready');
   }
   else
   {
-    sender('bad-session-state');
+    S.sender('bad-session-state');
   }
 
   return true;
@@ -2119,7 +2119,7 @@ var makeLabels = function ()
   });
 
   sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-  sender('labels-ready');
+  S.sender('labels-ready');
 
   return true;
 };
@@ -3756,7 +3756,7 @@ exports.toggleSelection = toggleSelection;
 
 // Variable Definitions
 
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 var flash = require('../flash.js');
 var sets = require('../sets.js');
 var utils = require('../utils.js');
@@ -3927,7 +3927,7 @@ var remove = function (setName)
 
   removeSet(setName);
   render([]);
-  sender('sets-changed');
+  S.sender('sets-changed');
 
   return true;
 };
@@ -4169,7 +4169,7 @@ var saveSelected = function ()
     newSet = [name, selected];
     setSet(newSet);
     $('#new-set-input').val('');
-    sender('sets-changed');
+    S.sender('sets-changed');
     flash.highlight('Success:', 'Set "' + name + '" saved.');
   }
   else
@@ -6761,7 +6761,7 @@ exports.initReplaceDialog = initReplaceDialog;
 // ## Variable Definitions
 
 var hotkeys = require('./jquery.hotkeys.js');
-var sender = require('./sender.js');
+var S = require('./sender.js');
 var ipreviewui = require('./index_tool/ipreviewui.js');
 var indexui = require('./documents/indexui.js');
 var changeui = require('./documents/changeui.js');
@@ -6808,7 +6808,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('worksheet-form-submit');
+      S.sender('worksheet-form-submit');
       return false;
     }
     return true;
@@ -6818,7 +6818,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('sets-form-submit');
+      S.sender('sets-form-submit');
       return false;
     }
     return true;
@@ -6828,7 +6828,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('new-set-form-submit');
+      S.sender('new-set-form-submit');
       return false;
     }
     return true;
@@ -6846,12 +6846,12 @@ var keystrokes = function ()
     if (selected < totaltabs - 1)
     {
       t().tabs('option', 'active', selected + 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
     else
     {
       t().tabs('option', 'active', 0);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
 
     return false;
@@ -6860,7 +6860,7 @@ var keystrokes = function ()
   $(document).bind('keydown', 'Alt+c', function (e)
   {
     var active = $(document.activeElement).attr('id');
-    sender('initiated-command', active);
+    S.sender('initiated-command', active);
     return true;
   });
 
@@ -6876,12 +6876,12 @@ var keystrokes = function ()
     if (selected !== 0)
     {
       t().tabs('option', 'active', selected - 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
     else
     {
       t().tabs('option', 'active', totaltabs - 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
 
     return false;
@@ -6893,7 +6893,7 @@ var keystrokes = function ()
     if (e.which === 13)
     {
       var command = $('#edit-command-input').val();
-      sender('submitted-command', command);
+      S.sender('submitted-command', command);
     }
     return true;
   });
@@ -7556,57 +7556,54 @@ var sender = function (message, arg)
 {
   'use strict';
 
+  var retval;
+
   switch (message)
   {
   case 'bad-session-state':
-    documents.clearSession();
+    retval = documents.clearSession();
     break;
   case 'doctype-info-ready':
-    documents.makeLabels();
+    retval = documents.makeLabels();
     break;
   case 'labels-ready':
-    searchui.loadSearchVals();
+    retval = searchui.loadSearchVals();
     worksheetui.buildTemplate();
     break;
   case 'new-set-form-submit':
-    setsui.saveSelected();
+    retval = setsui.saveSelected();
     break;
   case 'sets-changed':
-    setsui.updateSelection();
+    retval = setsui.updateSelection();
     break;
   case 'sets-form-submit':
-    setsui.performOp();
+    retval = setsui.performOp();
     break;
   case 'session-cleared':
     documents.setVersion();
-    documents.loadDoctype();
+    retval = documents.loadDoctype();
     break;
   case 'worksheet-form-submit':
-    worksheetui.fillWorksheet();
+    retval = worksheetui.fillWorksheet();
     break;
   case 'initiated-command':
-    commands.dialogOpen(arg);
+    retval = commands.dialogOpen(arg);
     break;
   case 'executed-command':
-    commands.dialogClose();
+    retval = commands.dialogClose();
     break;
   case 'submitted-command':
-    commands.execute(arg);
+    retval = commands.execute(arg);
     break;
   case 'lost-focus':
-    editui.selectInput();
+    retval = editui.selectInput();
     break;
   }
 
-  return true;
+  return retval;
 };
 
-exports.sender = function ()
-{
-  'use strict';
-
-  window.alert('wtf');
-};
+exports.sender = sender;
 
 },{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],45:[function(require,module,exports){
 // # Session storage helpers
@@ -8139,5 +8136,5 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}]},{},[1,3,4,5,2,6,7,8,9,11,10,12,13,14,15,16,18,19,17,20,23,21,22,24,25,26,28,27,30,29,31,33,34,32,35,36,37,38,39,40,41,42,44,43,45,46,47,48])
+},{}]},{},[1,2,3,5,6,7,4,8,9,10,12,11,14,15,13,16,17,18,19,20,21,22,23,24,25,27,29,28,30,31,32,33,34,35,36,37,38,39,40,41,26,42,43,45,46,47,48,44])
 ;

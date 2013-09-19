@@ -6,7 +6,7 @@
 
 // Variable Definitions
 
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 var flash = require('../flash.js');
 var sets = require('../sets.js');
 var utils = require('../utils.js');
@@ -177,7 +177,7 @@ var remove = function (setName)
 
   removeSet(setName);
   render([]);
-  sender('sets-changed');
+  S.sender('sets-changed');
 
   return true;
 };
@@ -419,7 +419,7 @@ var saveSelected = function ()
     newSet = [name, selected];
     setSet(newSet);
     $('#new-set-input').val('');
-    sender('sets-changed');
+    S.sender('sets-changed');
     flash.highlight('Success:', 'Set "' + name + '" saved.');
   }
   else

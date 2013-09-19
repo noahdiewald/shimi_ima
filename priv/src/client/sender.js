@@ -23,49 +23,51 @@ var sender = function (message, arg)
 {
   'use strict';
 
+  var retval;
+
   switch (message)
   {
   case 'bad-session-state':
-    documents.clearSession();
+    retval = documents.clearSession();
     break;
   case 'doctype-info-ready':
-    documents.makeLabels();
+    retval = documents.makeLabels();
     break;
   case 'labels-ready':
-    searchui.loadSearchVals();
+    retval = searchui.loadSearchVals();
     worksheetui.buildTemplate();
     break;
   case 'new-set-form-submit':
-    setsui.saveSelected();
+    retval = setsui.saveSelected();
     break;
   case 'sets-changed':
-    setsui.updateSelection();
+    retval = setsui.updateSelection();
     break;
   case 'sets-form-submit':
-    setsui.performOp();
+    retval = setsui.performOp();
     break;
   case 'session-cleared':
     documents.setVersion();
-    documents.loadDoctype();
+    retval = documents.loadDoctype();
     break;
   case 'worksheet-form-submit':
-    worksheetui.fillWorksheet();
+    retval = worksheetui.fillWorksheet();
     break;
   case 'initiated-command':
-    commands.dialogOpen(arg);
+    retval = commands.dialogOpen(arg);
     break;
   case 'executed-command':
-    commands.dialogClose();
+    retval = commands.dialogClose();
     break;
   case 'submitted-command':
-    commands.execute(arg);
+    retval = commands.execute(arg);
     break;
   case 'lost-focus':
-    editui.selectInput();
+    retval = editui.selectInput();
     break;
   }
 
-  return false;
+  return retval;
 };
 
 exports.sender = sender;

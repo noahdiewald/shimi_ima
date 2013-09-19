@@ -8,7 +8,7 @@
 // Variable Definitions
 
 var editui = require('./editui.js');
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 
 // Internal functions
 
@@ -99,10 +99,10 @@ var execute = function (command)
   }
   else
   {
-    sender('lost-focus');
+    S.sender('lost-focus');
   }
 
-  sender('executed-command');
+  S.sender('executed-command');
   return true;
 };
 

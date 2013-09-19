@@ -11,7 +11,7 @@
 // ## Variable Definitions
 
 var hotkeys = require('./jquery.hotkeys.js');
-var sender = require('./sender.js');
+var S = require('./sender.js');
 var ipreviewui = require('./index_tool/ipreviewui.js');
 var indexui = require('./documents/indexui.js');
 var changeui = require('./documents/changeui.js');
@@ -58,7 +58,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('worksheet-form-submit');
+      S.sender('worksheet-form-submit');
       return false;
     }
     return true;
@@ -68,7 +68,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('sets-form-submit');
+      S.sender('sets-form-submit');
       return false;
     }
     return true;
@@ -78,7 +78,7 @@ var keystrokes = function ()
   {
     if (e.which === 13)
     {
-      sender('new-set-form-submit');
+      S.sender('new-set-form-submit');
       return false;
     }
     return true;
@@ -96,12 +96,12 @@ var keystrokes = function ()
     if (selected < totaltabs - 1)
     {
       t().tabs('option', 'active', selected + 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
     else
     {
       t().tabs('option', 'active', 0);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
 
     return false;
@@ -110,7 +110,7 @@ var keystrokes = function ()
   $(document).bind('keydown', 'Alt+c', function (e)
   {
     var active = $(document.activeElement).attr('id');
-    sender('initiated-command', active);
+    S.sender('initiated-command', active);
     return true;
   });
 
@@ -126,12 +126,12 @@ var keystrokes = function ()
     if (selected !== 0)
     {
       t().tabs('option', 'active', selected - 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
     else
     {
       t().tabs('option', 'active', totaltabs - 1);
-      sender('lost-focus');
+      S.sender('lost-focus');
     }
 
     return false;
@@ -143,7 +143,7 @@ var keystrokes = function ()
     if (e.which === 13)
     {
       var command = $('#edit-command-input').val();
-      sender('submitted-command', command);
+      S.sender('submitted-command', command);
     }
     return true;
   });

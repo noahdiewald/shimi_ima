@@ -11,7 +11,7 @@ var editui = require('./editui.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
 var changeui = require('./changeui.js');
-var sender = require('../sender.js').sender;
+var S = require('../sender.js');
 var store = require('../store.js').store;
 var identifier;
 
@@ -84,7 +84,7 @@ var storeDoctype = function (doctype)
   'use strict';
 
   sessionStorage.setItem(infoKey(), doctype);
-  sender('doctype-info-ready');
+  S.sender('doctype-info-ready');
 
   return true;
 };
@@ -123,7 +123,7 @@ var setVersion = function ()
   'use strict';
 
   sessionStorage.setItem(versionKey(), getCurrentVersion());
-  sender('version-set');
+  S.sender('version-set');
 
   return true;
 };
@@ -134,7 +134,7 @@ var clearSession = function ()
   'use strict';
 
   sessionStorage.clear();
-  sender('session-cleared');
+  S.sender('session-cleared');
 
   return true;
 };
@@ -147,11 +147,11 @@ var checkVersion = function ()
 
   if (isCurrentVersionStored())
   {
-    sender('labels-ready');
+    S.sender('labels-ready');
   }
   else
   {
-    sender('bad-session-state');
+    S.sender('bad-session-state');
   }
 
   return true;
@@ -220,7 +220,7 @@ var makeLabels = function ()
   });
 
   sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-  sender('labels-ready');
+  S.sender('labels-ready');
 
   return true;
 };
