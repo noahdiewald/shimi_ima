@@ -4870,7 +4870,7 @@ var fillWorksheet = function ()
   {
     var thisSet = setsui.getSet(setName)[1];
 
-    if (thisSet.lenght <= 250)
+    if (thisSet.length <= 250)
     {
       var setIds = thisSet.map(function (x)
       {
