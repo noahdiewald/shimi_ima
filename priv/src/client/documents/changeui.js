@@ -24,9 +24,8 @@ var get = function ()
 {
   'use strict';
 
-  var prefix = prefix();
-  var url = prefix;
-  var target = $('#' + prefix + '-listing');
+  var url = prefix();
+  var target = $('#' + prefix() + '-listing');
 
   var format = function (text)
   {
@@ -48,7 +47,7 @@ var get = function ()
 
   pager(
   {
-    prefix: 'changelog',
+    prefix: prefix(),
     url: url,
     format: format,
     target: target
