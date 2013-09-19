@@ -47,6 +47,7 @@ var loadHash = function (urlHash)
   return true;
 };
 
+// A user interface element.
 var allDocContainer = function ()
 {
   'use strict';
@@ -84,12 +85,9 @@ var storeDoctype = function (doctype)
   'use strict';
 
   sessionStorage.setItem(infoKey(), doctype);
-  S.sender('doctype-info-ready');
 
-  return true;
+  return S.sender('doctype-info-ready');
 };
-
-// Exported functions
 
 // Get the stored doctype version.
 var getVersion = function ()
@@ -117,6 +115,20 @@ var isCurrentVersionStored = function ()
   return (getVersion() && getVersion() === getCurrentVersion());
 };
 
+var isInfoStored = function ()
+{
+  'use strict';
+
+  return sessionStorage.getItem(infoKey()) !== null;
+};
+
+var isLabelsStored = function ()
+{
+  'use strict';
+
+  return sessionStorage.getItem(labelsKey()) !== null;
+};
+
 // Reset the doctype version
 var setVersion = function ()
 {
@@ -128,33 +140,24 @@ var setVersion = function ()
   return true;
 };
 
-// Clear the session storage
-var clearSession = function ()
+// Check the session state to ensure it is up to date and fully
+// loaded.
+var checkState = function ()
 {
   'use strict';
 
-  sessionStorage.clear();
-  S.sender('session-cleared');
+  var retval;
 
-  return true;
-};
-
-// Check if the doctype version stored is current and report the current
-// state based on the result.
-var checkVersion = function ()
-{
-  'use strict';
-
-  if (isCurrentVersionStored())
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored())
   {
-    S.sender('labels-ready');
+    retval = S.sender('labels-ready');
   }
   else
   {
-    S.sender('bad-session-state');
+    retval = S.sender('bad-session-state');
   }
 
-  return true;
+  return retval;
 };
 
 // Get the doctype name
@@ -171,6 +174,21 @@ var project = function ()
   'use strict';
 
   return store($('#container')).get('project-id');
+};
+
+//
+// Exported functions
+//
+
+// Clear the session storage
+var clearSession = function ()
+{
+  'use strict';
+
+  sessionStorage.clear();
+  S.sender('session-cleared');
+
+  return true;
 };
 
 // Identifier is a combination of the project and doctype name.
@@ -208,10 +226,10 @@ var makeLabels = function ()
 {
   'use strict';
 
-  var info = info();
+  var info1 = info();
   var labels = {};
 
-  info.fieldsets.forEach(function (fieldset)
+  info1.fieldsets.forEach(function (fieldset)
   {
     fieldset.fields.forEach(function (field)
     {
@@ -220,9 +238,8 @@ var makeLabels = function ()
   });
 
   sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-  S.sender('labels-ready');
 
-  return true;
+  return S.sender('labels-ready');
 };
 
 // Initialize the documents sub-application.
@@ -234,7 +251,7 @@ var init = function ()
   {
     return false;
   });
-  checkVersion();
+  checkState();
   setsui.updateSelection();
   indexui.iOpts();
   indexui.get();
@@ -244,14 +261,8 @@ var init = function ()
   changeui.get();
 };
 
-exports.getVersion = getVersion;
-exports.getCurrentVersion = getCurrentVersion;
-exports.isCurrentVersionStored = isCurrentVersionStored;
 exports.setVersion = setVersion;
 exports.clearSession = clearSession;
-exports.checkVersion = checkVersion;
-exports.dname = dname;
-exports.project = project;
 exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;
