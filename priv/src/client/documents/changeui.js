@@ -1,6 +1,6 @@
 // # Paging For Changes Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads changes based on user suplied values.
 
@@ -25,7 +25,7 @@ var get = function ()
   'use strict';
 
   var url = prefix();
-  var target = $('#' + prefix() + '-listing');
+  var target = document.getElementById(prefix() + '-listing');
 
   var format = function (text)
   {

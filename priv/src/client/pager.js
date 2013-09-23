@@ -1,6 +1,6 @@
 // # Paging List-like Info
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // This is basically semi-generic paging code.
 //
@@ -49,7 +49,7 @@ var pager = function (args)
   // is used.
   var limitField = function ()
   {
-    return $('#' + prefix + '-limit');
+    return document.getElementById(prefix + '-limit');
   };
 
   // Get the first or next page. There won't be `prevkeys` or `previds`
@@ -62,11 +62,11 @@ var pager = function (args)
     // This would be a custom index ID.
     var indexId = args.indexId;
     // The given limit.
-    var limit = limitField().val() * 1;
+    var limit = limitField().value * 1;
     // Where the next page will be displayed.
     var target = args.target;
     // The filter is used to constrain the values listed.
-    var filterVal = $('#' + prefix + '-filter').val();
+    var filterVal = document.getElementById(prefix + '-filter').value;
     var state = {
       sk: startkey,
       sid: startid,
@@ -96,7 +96,7 @@ var pager = function (args)
     }
     else
     {
-      limitField().val(25);
+      limitField().value = 25;
       url = url + '&limit=26';
     }
 
@@ -115,11 +115,38 @@ var pager = function (args)
 
   mod.fill = function (req, state, target)
   {
-    var limit = limitField().val() * 1;
-
+    var limit = limitField().value * 1;
     var respJSON;
     var lastrow;
     var newRows;
+
+    var prevElem = function ()
+    {
+      return document.getElementById('previous-' + prefix + '-page');
+    };
+
+    var nextElem = function ()
+    {
+      return document.getElementById('next-' + prefix + '-page');
+    };
+
+    var prevHandler = function ()
+    {
+      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    };
+
+    var nextHandler = function ()
+    {
+      var firstElem = document.getElementById('first-' + prefix + '-element');
+      var nextkey = nextElem().getAttribute('data-startkey');
+      var nextid = nextElem().getAttribute('data-startid');
+      var prevkey = firstElem.getAttribute('data-first-key');
+      var previd = firstElem.getAttribute('data-first-id');
+      state.pks.push(prevkey);
+      state.pids.push(previd);
+
+      mod.get(nextkey, nextid, state.pks, state.pids);
+    };
 
     if (format === undefined)
     {
@@ -156,38 +183,24 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.html(templates['paged-listing'].render(respJSON,
+    target.innerHTML = templates['paged-listing'].render(respJSON,
     {
       'listed-element': templates[prefix + '-element']
-    }));
-
-    $('#previous-' + prefix + '-page').click(function ()
-    {
-      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
     });
 
-    $('#next-' + prefix + '-page').click(function ()
-    {
-      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
-      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
-      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
-      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
-      state.pks.push(prevkey);
-      state.pids.push(previd);
-
-      mod.get(nextkey, nextid, state.pks, state.pids);
-    });
+    nextElem().onclick = nextHandler;
+    prevElem().onclick = prevHandler;
 
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0)
     {
-      $('#previous-' + prefix + '-page').hide();
+      prevElem().classList.add('hidden');
     }
 
     // Disable the next button if we're at the end
-    if ($('#next-' + prefix + '-page').attr('data-last-page'))
+    if (nextElem().getAttribute('data-last-page'))
     {
-      $('#next-' + prefix + '-page').hide();
+      nextElem().classList.add('hidden');
     }
 
     return mod;

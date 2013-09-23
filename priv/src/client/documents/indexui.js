@@ -1,6 +1,6 @@
 // # Paging For Index Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON, JQuery
 //
 // Loads index based on user suplied values. It also loads some other
 // preliminary data, such as the listing of user created indexes. The
@@ -28,8 +28,8 @@ var get = function ()
   'use strict';
 
   var url = 'documents/' + prefix();
-  var indexId = $('#index-' + prefix() + '-input').val();
-  var target = $('#' + prefix() + '-listing');
+  var indexId = document.getElementById('index-' + prefix() + '-input').value;
+  var target = document.getElementById(prefix() + '-listing');
 
   var format = function (text)
   {

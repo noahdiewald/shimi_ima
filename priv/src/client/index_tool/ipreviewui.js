@@ -1,6 +1,6 @@
 // # Paging For Index Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads sample of the user index based on user suplied values.
 
@@ -24,9 +24,9 @@ var get = function ()
 {
   'use strict';
 
-  var indexId = $('#index-editing-data').attr('data-index-id');
+  var indexId = document.getElementById('index-editing-data').getAttribute('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
-  var target = $('#' + prefix() + '-list-view');
+  var target = document.getElementById(prefix() + '-list-view');
 
   var format = function (text)
   {

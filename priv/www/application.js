@@ -21,12 +21,6 @@ var globals = {};
 
 // ## Variable Definitions
 
-// A place to temporarily store global objects. Sometimes this is more
-// convenient than using other types of client side storage. It is used
-// rarely and explicitly using this object.
-var shimi = {};
-shimi.globals = {};
-
 var exports = module.exports;
 
 require('./jquery-ui-input-state.js');
@@ -1710,7 +1704,7 @@ exports.dispatcher = dispatcher;
 },{}],17:[function(require,module,exports){
 // # Paging For Changes Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads changes based on user suplied values.
 
@@ -1735,7 +1729,7 @@ var get = function ()
   'use strict';
 
   var url = prefix();
-  var target = $('#' + prefix() + '-listing');
+  var target = document.getElementById(prefix() + '-listing');
 
   var format = function (text)
   {
@@ -3062,7 +3056,7 @@ exports.fillFieldsets = fillFieldsets;
 },{"../path.js":44,"../store.js":49,"../utils.js":50,"./editui.js":20}],22:[function(require,module,exports){
 // # Paging For Index Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON, JQuery
 //
 // Loads index based on user suplied values. It also loads some other
 // preliminary data, such as the listing of user created indexes. The
@@ -3090,8 +3084,8 @@ var get = function ()
   'use strict';
 
   var url = 'documents/' + prefix();
-  var indexId = $('#index-' + prefix() + '-input').val();
-  var target = $('#' + prefix() + '-listing');
+  var indexId = document.getElementById('index-' + prefix() + '-input').value;
+  var target = document.getElementById(prefix() + '-listing');
 
   var format = function (text)
   {
@@ -6420,7 +6414,7 @@ exports.init = init;
 },{}],36:[function(require,module,exports){
 // # Paging For Index Listing
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads sample of the user index based on user suplied values.
 
@@ -6444,9 +6438,9 @@ var get = function ()
 {
   'use strict';
 
-  var indexId = $('#index-editing-data').attr('data-index-id');
+  var indexId = document.getElementById('index-editing-data').getAttribute('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
-  var target = $('#' + prefix() + '-list-view');
+  var target = document.getElementById(prefix() + '-list-view');
 
   var format = function (text)
   {
@@ -7102,7 +7096,7 @@ exports.keystrokes = keystrokes;
 },{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":36,"./jquery.hotkeys.js":40,"./sender.js":46}],42:[function(require,module,exports){
 // # Paging List-like Info
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JQuery, JSON
 //
 // This is basically semi-generic paging code.
 //
@@ -7151,7 +7145,7 @@ var pager = function (args)
   // is used.
   var limitField = function ()
   {
-    return $('#' + prefix + '-limit');
+    return document.getElementById(prefix + '-limit');
   };
 
   // Get the first or next page. There won't be `prevkeys` or `previds`
@@ -7164,11 +7158,11 @@ var pager = function (args)
     // This would be a custom index ID.
     var indexId = args.indexId;
     // The given limit.
-    var limit = limitField().val() * 1;
+    var limit = limitField().value * 1;
     // Where the next page will be displayed.
     var target = args.target;
     // The filter is used to constrain the values listed.
-    var filterVal = $('#' + prefix + '-filter').val();
+    var filterVal = document.getElementById(prefix + '-filter').value;
     var state = {
       sk: startkey,
       sid: startid,
@@ -7198,7 +7192,7 @@ var pager = function (args)
     }
     else
     {
-      limitField().val(25);
+      limitField().value = 25;
       url = url + '&limit=26';
     }
 
@@ -7217,11 +7211,38 @@ var pager = function (args)
 
   mod.fill = function (req, state, target)
   {
-    var limit = limitField().val() * 1;
-
+    var limit = limitField().value * 1;
     var respJSON;
     var lastrow;
     var newRows;
+
+    var prevElem = function ()
+    {
+      return document.getElementById('previous-' + prefix + '-page');
+    };
+
+    var nextElem = function ()
+    {
+      return document.getElementById('next-' + prefix + '-page');
+    };
+
+    var prevHandler = function ()
+    {
+      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    };
+
+    var nextHandler = function ()
+    {
+      var firstElem = document.getElementById('first-' + prefix + '-element');
+      var nextkey = nextElem().getAttribute('data-startkey');
+      var nextid = nextElem().getAttribute('data-startid');
+      var prevkey = firstElem.getAttribute('data-first-key');
+      var previd = firstElem.getAttribute('data-first-id');
+      state.pks.push(prevkey);
+      state.pids.push(previd);
+
+      mod.get(nextkey, nextid, state.pks, state.pids);
+    };
 
     if (format === undefined)
     {
@@ -7258,38 +7279,24 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.html(templates['paged-listing'].render(respJSON,
+    target.innerHTML = templates['paged-listing'].render(respJSON,
     {
       'listed-element': templates[prefix + '-element']
-    }));
-
-    $('#previous-' + prefix + '-page').click(function ()
-    {
-      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
     });
 
-    $('#next-' + prefix + '-page').click(function ()
-    {
-      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
-      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
-      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
-      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
-      state.pks.push(prevkey);
-      state.pids.push(previd);
-
-      mod.get(nextkey, nextid, state.pks, state.pids);
-    });
+    nextElem().onclick = nextHandler;
+    prevElem().onclick = prevHandler;
 
     // Disable the previous button if we're at the beginning
     if (state.pks.length === 0)
     {
-      $('#previous-' + prefix + '-page').hide();
+      prevElem().classList.add('hidden');
     }
 
     // Disable the next button if we're at the end
-    if ($('#next-' + prefix + '-page').attr('data-last-page'))
+    if (nextElem().getAttribute('data-last-page'))
     {
-      $('#next-' + prefix + '-page').hide();
+      nextElem().classList.add('hidden');
     }
 
     return mod;
