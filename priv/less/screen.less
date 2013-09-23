@@ -171,9 +171,6 @@ select, input, textarea, fieldset {
   border-color:@widgetborder;
   margin:1px;
 }
-.accordion-head {
-  padding-left:25px;
-}
 #notifications-main {
   top:0;
   right:0;
@@ -203,7 +200,7 @@ ul.head-elements {
   display:table;
   width:100%;
 }
-#all-document-container, #all-index-container {
+#container > div {
   background:@bgcolor;
   display:table-row;
 }
@@ -233,21 +230,17 @@ table {
   display:table-cell;
   vertical-align:top;
   padding-top:0;
+  table {
+    width:100%;
+  }
   &#document-index, &#index-preview {
     width:25%;
-    table {
-      width:100%;
-    }
   }
   &#index-index {
     width:10%;
-    table {
-      width:100%;
-    }
   }
   &#document-changelog {
     table {
-      width:100%;
       tr.change-change {
         th {
           font-weight: normal;
@@ -269,9 +262,6 @@ table {
   }
   &#document-view {
     width:25%;
-    table {
-      width:100%;
-    }
     ul {
       padding-left:1em;
       line-height:120%;
@@ -301,9 +291,6 @@ table {
     }
   }
   &#document-edit, &#index-edit {
-    table {
-      width:100%;
-    }
     width:50%;
   }
   &#document-worksheets {
@@ -386,7 +373,7 @@ table {
 span.retain-white {
   white-space:pre-wrap;
 }
-#all-document-container h2, #all-index-container h2 {
+#container h2 {
   margin-top:0;
   font-size:1em;
   padding-left:0.5em;

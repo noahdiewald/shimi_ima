@@ -175,9 +175,6 @@ fieldset {
   border-color: #cccccc;
   margin: 1px;
 }
-.accordion-head {
-  padding-left: 25px;
-}
 #notifications-main {
   top: 0;
   right: 0;
@@ -207,8 +204,7 @@ ul.head-elements li:first-child:before {
   display: table;
   width: 100%;
 }
-#all-document-container,
-#all-index-container {
+#container > div {
   background: #ffffff;
   display: table-row;
 }
@@ -239,22 +235,15 @@ table td {
   vertical-align: top;
   padding-top: 0;
 }
+.panel table {
+  width: 100%;
+}
 .panel#document-index,
 .panel#index-preview {
   width: 25%;
 }
-.panel#document-index table,
-.panel#index-preview table {
-  width: 100%;
-}
 .panel#index-index {
   width: 10%;
-}
-.panel#index-index table {
-  width: 100%;
-}
-.panel#document-changelog table {
-  width: 100%;
 }
 .panel#document-changelog table tr.change-change th {
   font-weight: normal;
@@ -273,9 +262,6 @@ table td {
 }
 .panel#document-view {
   width: 25%;
-}
-.panel#document-view table {
-  width: 100%;
 }
 .panel#document-view ul {
   padding-left: 1em;
@@ -304,10 +290,6 @@ table td {
 .panel#document-edit,
 .panel#index-edit {
   width: 50%;
-}
-.panel#document-edit table,
-.panel#index-edit table {
-  width: 100%;
 }
 .panel#document-worksheets #worksheet-area {
   width: 100%;
@@ -383,8 +365,7 @@ table td {
 span.retain-white {
   white-space: pre-wrap;
 }
-#all-document-container h2,
-#all-index-container h2 {
+#container h2 {
   margin-top: 0;
   font-size: 1em;
   padding-left: 0.5em;

@@ -7,23 +7,47 @@
 <em>{{ project_info.description }}</em>
 {% endblock %}
 
-{% block dialogs %}
-{% include 'config_doctype_dialog.dtl' %}
-{% include 'config_fieldset_dialog.dtl' %}
-{% include 'config_field_dialog.dtl' %}
-{% include 'config_charseq_dialog.dtl' %}
-{% endblock %}
-    
 {% block main_content %}
-<div id="configuration" class="hidden"></div>
-<div id="main-tabs">
-  <ul>
-    <li><a href="#doctypes">Document Types</a></li>
-    <li><a href="#charseqs">Character Sequences</a></li>
-    <li><a href="#maintenance">Maintenance</a></li>
-  </ul>
-{% include 'config_doctype_tab.dtl' %}
-{% include 'config_charseq_tab.dtl' %}
-{% include 'config_maintenance_tab.dtl' %}
-</div>
+<section id="main-content">
+  <div id="panel-toggle">
+    <ul>
+      <li data-panel="config-doctypes">Doctypes</li>
+      <li data-panel="config-charseqs">Character Sequences</li>
+      <li data-panel="config-maintenance">Maintenance</li>
+      <li data-panel="config-edit">Edit</li>
+    </ul>
+  </div>
+  <div id="container">
+    <div id="all-config-container">
+      <div id="config-doctypes" class="hidden panel">
+        <h2 class="header">Doctypes Index</h2>
+        <form id="doctype-filter-form">
+          <label for="doctype-filter">Filter</label>
+          <input id="doctype-filter" type="text" name="doctype-filter"></input>
+          <br></br>
+          <label for="doctype-limit" type="text" name="doctype-limit">Limit</label>
+          <input id="doctype-limit" type="text" name="doctype-limit"></input>
+        </form>
+        <div id="doctype-listing"></div>
+      </div>
+      <div id="config-charseqs" class="hidden panel">
+        <h2 class="header">Character Sequences Index</h2>
+        <form id="charseq-filter-form">
+          <label for="charseq-filter">Filter</label>
+          <input id="charseq-filter" type="text" name="charseq-filter"></input>
+          <br></br>
+          <label for="charseq-limit" type="text" name="charseq-limit">Limit</label>
+          <input id="charseq-limit" type="text" name="charseq-limit"></input>
+        </form>
+        <div id="charseq-listing"></div>
+      </div>
+      <div id="config-maintenance" class="hidden panel">
+        <h2 class="header">Project Maintenance</h2>
+      </div>
+      <div id="config-edit" class="panel">
+        <h2 class="header">Editor</h2>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
