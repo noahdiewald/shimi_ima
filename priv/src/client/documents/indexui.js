@@ -1,4 +1,4 @@
-// # Paging For Index Listing
+// # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
 //
@@ -6,13 +6,14 @@
 // preliminary data, such as the listing of user created indexes. The
 // `load()` function performs some initialization.
 
-// Variable Definitions
+// ## Variable Definitions
+
 var templates = require('templates.js');
 var pager = require('../pager.js').pager;
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 
-// Exported Functions
+// ## Exported Functions
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
@@ -85,6 +86,8 @@ var iOpts = function ()
 
 // This is the entry point that loads the data for this section of
 // the application.
+//
+// TODO: Move to documents.js
 var load = function (target)
 {
   'use strict';

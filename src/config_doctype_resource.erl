@@ -37,8 +37,7 @@
         ]).
 -export([
          from_json/2,
-         id_html/2,
-         index_html/2,
+         to_json/2,
          validate_authentication/3
         ]).
 
@@ -53,12 +52,6 @@ resource_exists(R, S) ->
         identifier -> h:exists_id(R, S);
         touch -> h:exists_id(R, S);
         index -> h:exists_unless_post(R, S)
-    end.
-    
-allow_missing_post(R, S) ->
-    case proplists:get_value(target, S) of
-        touch -> {false, R, S};
-        _ -> {true, R, S}
     end.
 
 is_authorized(R, S) ->
@@ -76,21 +69,19 @@ content_types_accepted(R, S) ->
 
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {[{{<<"text">>, <<"html">>, []}, index_html}], R, S};
+        index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         touch -> {[{{<<"*">>, <<"*">>, []}, index_html}], R, S};
-        identifier -> {[{{<<"text">>, <<"html">>, []}, id_html}], R, S}
+        identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
   
 delete_resource(R, S) ->
     h:delete(R, S).
-    
-index_html(R, S) ->
-    {Project, R1} = h:project(R),
-    {ok, Json} = q:doctypes(true, Project, S),
-    {render:renderings(Json, config_doctype_list_elements_dtl), R1, S}.
-  
-id_html(R, S) ->
-    h:id_html(config_doctype_dtl,  R, S).
+
+to_json(R, S) ->
+    case proplists:get_value(target, S) of
+        index -> json_index(R, S);
+        identifier -> json_doctype(R, S)
+    end.
   
 from_json(R, S) ->
     case proplists:get_value(target, S) of
@@ -102,6 +93,28 @@ from_json(R, S) ->
 json_create(R, S) ->  
     {R1, S1} = h:extract_create_data(R, S),
     i:create(R1, S1).
+  
+json_doctype(R, S) ->
+    {[Project, Doctype], R1} = h:g([project, doctype], R),
+    S1 = [{project, Project}, {doctype, Doctype}|S],
+    {{ok, DocData}, R2} = h:doctype_data(R1, S1),
+    {jsn:encode(document:normalize(DocData, S1)), R2, S1}.
+
+json_index(R, S) ->  
+    Msg = <<"listing building. Please wait 5 to 10 minutes and try again.">>,
+    Item = <<"Doctype">>,
+    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
+    {Project, R1} = h:project(R),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
+    case q:doctypes(QsVals, Project, S) of
+        {ok, Json} ->
+            {jsn:encode(Json), R2, S};
+        {error, not_found} ->
+            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R2, S};
+        {error, req_timedout} ->
+            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
+            {halt, R3, S}
+    end.
 
 json_update(R, S) ->
     i:update(R, S).

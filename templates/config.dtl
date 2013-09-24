@@ -21,25 +21,25 @@
     <div id="all-config-container">
       <div id="config-doctypes" class="hidden panel">
         <h2 class="header">Doctypes Listing</h2>
-        <form id="doctype-filter-form">
-          <label for="doctype-filter">Filter</label>
-          <input id="doctype-filter" type="text" name="doctype-filter"></input>
+        <form id="doctypes-filter-form">
+          <label for="doctypes-filter">Filter</label>
+          <input id="doctypes-filter" type="text" name="doctypes-filter"></input>
           <br></br>
-          <label for="doctype-limit" type="text" name="doctype-limit">Limit</label>
-          <input id="doctype-limit" type="text" name="doctype-limit"></input>
+          <label for="doctypes-limit" type="text" name="doctypes-limit">Limit</label>
+          <input id="doctypes-limit" type="text" name="doctypes-limit"></input>
         </form>
-        <div id="doctype-listing"></div>
+        <div id="doctypes-listing"></div>
       </div>
       <div id="config-charseqs" class="hidden panel">
         <h2 class="header">Charseqs Listing</h2>
-        <form id="charseq-filter-form">
-          <label for="charseq-filter">Filter</label>
-          <input id="charseq-filter" type="text" name="charseq-filter"></input>
+        <form id="charseqs-filter-form">
+          <label for="charseqs-filter">Filter</label>
+          <input id="charseqs-filter" type="text" name="charseqs-filter"></input>
           <br></br>
-          <label for="charseq-limit" type="text" name="charseq-limit">Limit</label>
-          <input id="charseq-limit" type="text" name="charseq-limit"></input>
+          <label for="charseqs-limit" type="text" name="charseqs-limit">Limit</label>
+          <input id="charseqs-limit" type="text" name="charseqs-limit"></input>
         </form>
-        <div id="charseq-listing"></div>
+        <div id="charseqs-listing"></div>
       </div>
       <div id="config-maintenance" class="hidden panel">
         <h2 class="header">Project Maintenance</h2>

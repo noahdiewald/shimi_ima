@@ -1,6 +1,6 @@
 // # Config Sub-App Init
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Initialization of the sub-application used to configure the system and
 // define doctypes. It also includes code for the upgrade button element,
@@ -8,9 +8,9 @@
 
 // ## Variable Definitions
 
-//var doctypeui = require('./doctypeui.js');
+var doctypeui = require('./doctypeui.js');
 var maintenanceui = require('./maintenanceui.js');
-//var charsequi = require('./charsequi.js');
+var charsequi = require('./charsequi.js');
 
 // ## Exported Functions
 
@@ -19,6 +19,8 @@ var init = function ()
 {
   'use strict';
 
+  doctypeui.init();
+  charsequi.init();
   maintenanceui.init();
 
   return 'config-initialized';

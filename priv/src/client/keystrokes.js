@@ -18,6 +18,8 @@ var changeui = require('./documents/changeui.js');
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
 var searchui = require('./documents/searchui.js');
+var charsequi = require('./config/charsequi.js');
+var doctypeui = require('./config/doctypeui.js');
 
 // # Exported Functions
 
@@ -26,7 +28,7 @@ var keystrokes = function ()
 {
   'use strict';
 
-  [ipreviewui, indexui, changeui].forEach(function (mod)
+  [ipreviewui, indexui, changeui, doctypeui, charsequi].forEach(function (mod)
   {
     var keyupHandler = function (e)
     {

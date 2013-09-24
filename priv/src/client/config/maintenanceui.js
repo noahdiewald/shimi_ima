@@ -1,6 +1,6 @@
 // # Maintenance User Interface
 // 
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // This handles UI elements that are used for maintaining a project.
 

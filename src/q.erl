@@ -36,20 +36,15 @@ changelog(QsVals, R, S) ->
     Qs = view:normalize_vq(QsVals),
     {all_docs(Qs, [], Project, S), R1}.
     
-charseqs(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_vals(R),
-    {Project, R2} = h:project(R1),
+charseqs(QsVals, Project, S) ->
     Qs = view:normalize_vq(QsVals),
-    {couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S), R2}.
+    couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S).
 
 dirs(QsVals, Project, S) ->
     VQ = view:from_list(QsVals),
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "paths", Qs, Project, S).
 
-doctypes(true, Project, S) ->
-    Qs = view:to_string(#vq{include_docs = true}),
-    couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S);
 doctypes(QsVals, Project, S) ->
     Qs = view:normalize_vq(QsVals),
     couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S).
