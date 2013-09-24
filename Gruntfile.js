@@ -13,12 +13,17 @@ module.exports = function(grunt) {
   grunt.initConfig({
     meta: {
         version: '0.1.0',
-        banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */'
+        banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */\n\n'
     },
     browserify: {
       client: {
         src: ['priv/src/client/**/*.js'],
-        dest: 'priv/www/application.tmp.js'
+        dest: 'priv/www/application.tmp.js',
+        options: {
+          alias: ['priv/vendor/hogan.js:hogan.js',
+                  'priv/vendor/Bacon.js:Bacon.js',
+                  'priv/templates/compiled/templates.js:templates.js']
+        }
       }
     },
     concat: {
@@ -60,8 +65,7 @@ module.exports = function(grunt) {
       },
       all: {
         files: {
-          'priv/www/application.min.js': '<%= concat.dist.dest %>',
-          'priv/www/templates.min.js': 'priv/www/templates.js'
+          'priv/www/application.min.js': '<%= concat.dist.dest %>'
         }
       }
     },
@@ -75,8 +79,9 @@ module.exports = function(grunt) {
     hogan: {
       all: {
         templates: "priv/templates/*.mustache",
-        output: "priv/www/templates.js",
-        binderName: "hulk"
+        output: "priv/templates/compiled/templates.js",
+        binderName: "nodejs",
+        exposeTemplates: true
       }
     },
     jshint: {

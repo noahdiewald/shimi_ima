@@ -6,6 +6,7 @@
 
 // Variable Definitions
 
+var templates = require('templates.js');
 var S = require('../sender.js');
 var flash = require('../flash.js');
 var sets = require('../sets.js');
@@ -319,7 +320,7 @@ render = function (setElems)
       context: x[0]
     };
   });
-  var listing = templates['set-listing'].render(
+  var listing = templates['set-listing'](
   {
     elements: elems,
     total: total
@@ -390,7 +391,7 @@ var updateSelection = function ()
   'use strict';
 
   var currNames = getSetNames();
-  var newOptions = templates['set-options'].render(
+  var newOptions = templates['set-options'](
   {
     names: currNames
   });

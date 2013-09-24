@@ -6,6 +6,7 @@
 
 // Variable Definitions
 
+var templates = require('templates.js');
 var utils = require('../utils.js');
 var sets = require('../sets.js');
 var setsui = require('./setsui.js');
@@ -199,7 +200,7 @@ var searchFieldItem = function (field, fieldLabel)
 {
   'use strict';
 
-  return templates['search-field-item'].render(
+  return templates['search-field-item'](
   {
     fieldLabel: fieldLabel,
     field: field

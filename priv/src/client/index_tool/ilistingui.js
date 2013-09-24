@@ -1,8 +1,12 @@
 // # Index listing.
 //
-// *Implicit depends:* DOM, JQuery, Hogan, templates
+// *Implicit depends:* DOM, JQuery
 //
 // Displays a listing of user created indexes.
+
+// Variable Definitions
+
+var templates = require('templates.js');
 
 // Exported functions
 
@@ -17,7 +21,7 @@ var init = function ()
 
   $.getJSON(url, function (data)
   {
-    listing = templates['index-listing'].render(data);
+    listing = templates['index-listing'](data);
     target.html(listing);
   });
 

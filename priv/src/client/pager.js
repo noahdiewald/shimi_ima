@@ -19,6 +19,7 @@
 
 // Variable Definitions
 
+var templates = require('templates.js');
 var form = require('./form.js');
 
 // Exported functions
@@ -183,9 +184,9 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.innerHTML = templates['paged-listing'].render(respJSON,
+    target.innerHTML = templates['paged-listing'](respJSON,
     {
-      'listed-element': templates[prefix + '-element']
+      'listed-element': templates.templates[prefix + '-element']
     });
 
     nextElem().onclick = nextHandler;

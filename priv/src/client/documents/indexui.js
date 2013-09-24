@@ -7,6 +7,7 @@
 // `load()` function performs some initialization.
 
 // Variable Definitions
+var templates = require('templates.js');
 var pager = require('../pager.js').pager;
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
@@ -75,7 +76,7 @@ var iOpts = function ()
 
   $.getJSON(url, function (data)
   {
-    options = templates['index-options'].render(data);
+    options = templates['index-options'](data);
     $('#index-index-input').html(options);
   });
 

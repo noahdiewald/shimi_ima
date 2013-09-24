@@ -1,12 +1,14 @@
 // # The worksheet user interface
 //
-// *Implicit depends:* DOM, JQuery, Hogan, templates, globals
+// *Implicit depends:* DOM, JQuery, globals
 // ([application.js](./application.html))
 //
 // Worksheet pane UI elements.
 
 // Variable Definitions
 
+var Hogan = require('hogan.js');
+var templates = require('templates.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
 var form = require('../form.js');
@@ -162,7 +164,7 @@ var buildTemplate = function ()
   'use strict';
 
   var doctypeInfo = documents.info();
-  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
+  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
   globals[worksheetName()] = Hogan.compile(metaTemp);
 
   return true;

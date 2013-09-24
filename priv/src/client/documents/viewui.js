@@ -1,6 +1,6 @@
 // # The view user interface
 //
-// *Implicit depends:* DOM, JQuery, Hogan, templates
+// *Implicit depends:* DOM, JQuery
 //
 // View pane UI elements.
 //
@@ -8,6 +8,7 @@
 
 // Variable Definitions
 
+var templates = require('templates.js');
 var store = require('../store.js').store;
 var indexui = require('./indexui.js');
 var flash = require('../flash.js');
@@ -188,21 +189,14 @@ var get = function (id, rev, callback)
     htmlTarget = dvt();
     tmpl = function (docJson)
     {
-      return templates['document-view-tree'].render(docJson,
-      {
-        'document-view-field': templates['document-view-field']
-      });
+      return templates['document-view-tree'](docJson);
     };
   }
   else
   {
     tmpl = function (docJson)
     {
-      return templates['document-view'].render(docJson,
-      {
-        'document-view-tree': templates['document-view-tree'],
-        'document-view-field': templates['document-view-field']
-      });
+      return templates['document-view'](docJson);
     };
 
   }
