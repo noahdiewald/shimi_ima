@@ -12,7 +12,7 @@
   <div id="panel-toggle">
     <ul>
       <li data-panel="config-doctypes">Doctypes</li>
-      <li data-panel="config-charseqs">Character Sequences</li>
+      <li data-panel="config-charseqs">Charseqs</li>
       <li data-panel="config-maintenance">Maintenance</li>
       <li data-panel="config-edit">Edit</li>
     </ul>
@@ -20,7 +20,7 @@
   <div id="container">
     <div id="all-config-container">
       <div id="config-doctypes" class="hidden panel">
-        <h2 class="header">Doctypes Index</h2>
+        <h2 class="header">Doctypes Listing</h2>
         <form id="doctype-filter-form">
           <label for="doctype-filter">Filter</label>
           <input id="doctype-filter" type="text" name="doctype-filter"></input>
@@ -31,7 +31,7 @@
         <div id="doctype-listing"></div>
       </div>
       <div id="config-charseqs" class="hidden panel">
-        <h2 class="header">Character Sequences Index</h2>
+        <h2 class="header">Charseqs Listing</h2>
         <form id="charseq-filter-form">
           <label for="charseq-filter">Filter</label>
           <input id="charseq-filter" type="text" name="charseq-filter"></input>
