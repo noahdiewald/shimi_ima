@@ -12,8 +12,6 @@
 var S = require('./sender.js');
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
-var doctypeTab = require('./config/doctype-tab.js');
-var charseqTab = require('./config/charseq-tab').charseqTab;
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
 var indexui = require('./documents/indexui.js');
@@ -25,7 +23,9 @@ var ieditui = require('./index_tool/ieditui.js');
 var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
-var config = require('./config/config.js');
+var maintenanceui = require('./config/maintenanceui.js');
+var doctypeTab = require('./config/doctype-tab.js');
+var charseqTab = require('./config/charseq-tab').charseqTab;
 
 // ## Exported Functions
 
@@ -93,7 +93,7 @@ var clickDispatch = function (e)
     },
     '#maintenance-upgrade-button': function (t)
     {
-      config.upgradeButton(t);
+      maintenanceui.upgradeButton(t);
     },
 
     // ### Documents

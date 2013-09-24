@@ -123,7 +123,7 @@ $(function ()
   // of sharing code between these sub-applications.
 
   // Detect if this is the configuration sub-application
-  if ($('#configuration').length > 0)
+  if ($('#all-config-container').length > 0)
   {
     config.init();
   }
@@ -153,7 +153,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./dblclick-dispatch.js":15,"./documents/documents.js":19,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ilistingui.js":35,"./jquery-ui-input-state.js":39,"./keystrokes.js":41,"./projects/projectui.js":45}],2:[function(require,module,exports){
+},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":7,"./dblclick-dispatch.js":16,"./documents/documents.js":20,"./file_manager/fm.js":28,"./form.js":30,"./index_tool/ilistingui.js":36,"./jquery-ui-input-state.js":40,"./keystrokes.js":42,"./projects/projectui.js":46}],2:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -191,7 +191,7 @@ var changes = function ()
 
 exports.changes = changes;
 
-},{"./documents/searchui.js":23}],3:[function(require,module,exports){
+},{"./documents/searchui.js":24}],3:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -206,8 +206,6 @@ exports.changes = changes;
 var S = require('./sender.js');
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
-var doctypeTab = require('./config/doctype-tab.js');
-var charseqTab = require('./config/charseq-tab').charseqTab;
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
 var indexui = require('./documents/indexui.js');
@@ -219,7 +217,9 @@ var ieditui = require('./index_tool/ieditui.js');
 var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
-var config = require('./config/config.js');
+var maintenanceui = require('./config/maintenanceui.js');
+var doctypeTab = require('./config/doctype-tab.js');
+var charseqTab = require('./config/charseq-tab').charseqTab;
 
 // ## Exported Functions
 
@@ -287,7 +287,7 @@ var clickDispatch = function (e)
     },
     '#maintenance-upgrade-button': function (t)
     {
-      config.upgradeButton(t);
+      maintenanceui.upgradeButton(t);
     },
 
     // ### Documents
@@ -501,7 +501,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":6,"./config/config.js":7,"./config/doctype-tab.js":10,"./dispatcher.js":16,"./documents/editui.js":20,"./documents/fieldsets.js":21,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/viewui.js":25,"./documents/worksheetui.js":26,"./file_manager/fm.js":27,"./form.js":29,"./index_tool/ieditui.js":32,"./panel-toggle.js":43,"./projects/projectui.js":45,"./sender.js":50}],4:[function(require,module,exports){
+},{"./config/charseq-tab":6,"./config/doctype-tab.js":10,"./config/maintenanceui.js":15,"./dispatcher.js":17,"./documents/editui.js":21,"./documents/fieldsets.js":22,"./documents/indexui.js":23,"./documents/searchui.js":24,"./documents/setsui.js":25,"./documents/viewui.js":26,"./documents/worksheetui.js":27,"./file_manager/fm.js":28,"./form.js":30,"./index_tool/ieditui.js":33,"./panel-toggle.js":44,"./projects/projectui.js":46,"./sender.js":51}],4:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -562,7 +562,7 @@ var charseqDialog = function (values)
 
 exports.charseqDialog = charseqDialog;
 
-},{"../form.js":29,"./charseq-elems.js":5,"./charseq-tab.js":6}],5:[function(require,module,exports){
+},{"../form.js":30,"./charseq-elems.js":5,"./charseq-tab.js":6}],5:[function(require,module,exports){
 // # Working with elements of a charseq manipulation HTML form
 //
 // *Implicit depends:* DOM, JQuery
@@ -657,7 +657,7 @@ var charseqElems = (function ()
 
 exports.charseqElems = charseqElems;
 
-},{"../form.js":29}],6:[function(require,module,exports){
+},{"../form.js":30}],6:[function(require,module,exports){
 // # Charseq tab initialization
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -745,7 +745,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../form.js":29,"../store.js":52,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
+},{"../form.js":30,"../store.js":53,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -756,42 +756,25 @@ exports.charseqTab = charseqTab;
 
 // ## Variable Definitions
 
-var doctypeTab = require('./doctype-tab.js');
-var charseqTab = require('./charseq-tab.js').charseqTab;
+//var doctypeui = require('./doctypeui.js');
+var maintenanceui = require('./maintenanceui.js');
+//var charsequi = require('./charsequi.js');
 
 // ## Exported Functions
-
-// When the upgrade button is pressed in the configuration UI, this
-// will carry out the necessary action. It will make an empty `POST`
-// to the upgrade path and alert the user that this was done.
-//
-// TODO: This is basically here until the upgrad functionality is fleshed
-// out and gets its own module.
-var upgradeButton = function ()
-{
-  'use strict';
-
-  $.post('config/upgrade');
-  window.alert('Upgrade In Progress');
-};
 
 // Run initialization code for the configuration sub-application.
 var init = function ()
 {
   'use strict';
 
-  doctypeTab.init();
-  $('#main-tabs').tabs();
-  charseqTab.init();
-  $('.simple-tabs').tabs();
+  maintenanceui.init();
 
-  return true;
+  return 'config-initialized';
 };
 
-exports.upgradeButton = upgradeButton;
 exports.init = init;
 
-},{"./charseq-tab.js":6,"./doctype-tab.js":10}],8:[function(require,module,exports){
+},{"./maintenanceui.js":15}],8:[function(require,module,exports){
 // # Doctype manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -925,7 +908,7 @@ var doctypeElems = (function ()
 
 exports.doctypeElems = doctypeElems;
 
-},{"../form.js":29}],10:[function(require,module,exports){
+},{"../form.js":30}],10:[function(require,module,exports){
 // # Doctype tab initialization
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1205,7 +1188,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":44,"../store.js":52,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
+},{"../path.js":45,"../store.js":53,"./doctype-dialog.js":8,"./doctype-elems.js":9,"./field-dialog.js":11,"./field-elems.js":12,"./fieldset-dialog.js":13,"./fieldset-elems.js":14}],11:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1461,7 +1444,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":29,"../utils.js":53}],13:[function(require,module,exports){
+},{"../form.js":30,"../utils.js":54}],13:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1602,7 +1585,51 @@ var fieldsetElems = (function ()
 
 exports.fieldsetElems = fieldsetElems;
 
-},{"../form.js":29}],15:[function(require,module,exports){
+},{"../form.js":30}],15:[function(require,module,exports){
+// # Maintenance User Interface
+// 
+// *Implicit depends:* DOM, JQuery
+//
+// This handles UI elements that are used for maintaining a project.
+
+// ## Variable Definitions
+
+var templates = require('templates.js');
+var form = require('../form.js');
+var flash = require('../flash.js');
+
+// ## Exported Functions
+
+// When the upgrade button is pressed in the configuration UI, this
+// will carry out the necessary action. It will make an empty `POST`
+// to the upgrade path and alert the user that this was done.
+var upgradeButton = function ()
+{
+  'use strict';
+
+  form.send('config/upgrade', 'null', 'POST', function ()
+  {
+    flash.highlight('Task Started', 'Upgrade Project');
+  });
+
+  return 'upgrade-initiated';
+};
+
+// Initialize and display the interface.
+var init = function ()
+{
+  'use strict';
+
+  var renderedHTML = templates['config-maintenance']();
+  document.getElementById('config-maintenance').insertAdjacentHTML('beforeend', renderedHTML);
+
+  return 'maintenanceui-initialized';
+};
+
+exports.init = init;
+exports.upgradeButton = upgradeButton;
+
+},{"../flash.js":29,"../form.js":30,"templates.js":"e8H8MT"}],16:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1668,7 +1695,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":16,"./documents/searchui.js":23,"./documents/worksheetui.js":26,"./panel-toggle.js":43}],16:[function(require,module,exports){
+},{"./dispatcher.js":17,"./documents/searchui.js":24,"./documents/worksheetui.js":27,"./panel-toggle.js":44}],17:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -1701,7 +1728,7 @@ var dispatcher = function (patterns)
 };
 
 exports.dispatcher = dispatcher;
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // # Paging For Changes Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -1763,7 +1790,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":42}],18:[function(require,module,exports){
+},{"../pager.js":43}],19:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -1901,14 +1928,14 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":50,"./editui.js":20}],19:[function(require,module,exports){
+},{"../sender.js":51,"./editui.js":21}],20:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
 //
 // Shared document editing stuff plus initialization.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var setsui = require('./setsui.js');
 var editui = require('./editui.js');
@@ -1919,7 +1946,7 @@ var S = require('../sender.js');
 var store = require('../store.js').store;
 var identifier;
 
-// Internal functions
+// ## Internal functions
 
 // In practice this is the select listing of the user created indexes
 // which is triggering the change event.
@@ -2080,9 +2107,7 @@ var project = function ()
   return store($('#container')).get('project-id');
 };
 
-//
-// Exported functions
-//
+// ## Exported functions
 
 // Clear the session storage
 var clearSession = function ()
@@ -2173,7 +2198,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":50,"../store.js":52,"./changeui.js":17,"./editui.js":20,"./indexui.js":22,"./setsui.js":24,"./viewui.js":25}],20:[function(require,module,exports){
+},{"../sender.js":51,"../store.js":53,"./changeui.js":18,"./editui.js":21,"./indexui.js":23,"./setsui.js":25,"./viewui.js":26}],21:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -2570,7 +2595,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":28,"../form.js":29,"../store.js":52,"./fieldsets.js":21,"./indexui.js":22,"./viewui.js":25}],21:[function(require,module,exports){
+},{"../flash.js":29,"../form.js":30,"../store.js":53,"./fieldsets.js":22,"./indexui.js":23,"./viewui.js":26}],22:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -3053,7 +3078,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":44,"../store.js":52,"../utils.js":53,"./editui.js":20}],22:[function(require,module,exports){
+},{"../path.js":45,"../store.js":53,"../utils.js":54,"./editui.js":21}],23:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -3158,7 +3183,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":42,"./editui.js":20,"./viewui.js":25,"templates.js":"e8H8MT"}],23:[function(require,module,exports){
+},{"../pager.js":43,"./editui.js":21,"./viewui.js":26,"templates.js":"e8H8MT"}],24:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -3765,7 +3790,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":46,"../utils.js":53,"./documents.js":19,"./setsui.js":24,"templates.js":"e8H8MT"}],24:[function(require,module,exports){
+},{"../sets.js":52,"../utils.js":54,"./documents.js":20,"./setsui.js":25,"templates.js":"e8H8MT"}],25:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4221,7 +4246,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":28,"../sender.js":50,"../sets.js":46,"../utils.js":53,"./documents.js":19,"templates.js":"e8H8MT"}],25:[function(require,module,exports){
+},{"../flash.js":29,"../sender.js":51,"../sets.js":52,"../utils.js":54,"./documents.js":20,"templates.js":"e8H8MT"}],26:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4672,7 +4697,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":28,"../store.js":52,"./editui.js":20,"./fieldsets.js":21,"./indexui.js":22,"templates.js":"e8H8MT"}],26:[function(require,module,exports){
+},{"../flash.js":29,"../store.js":53,"./editui.js":21,"./fieldsets.js":22,"./indexui.js":23,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -4893,7 +4918,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"../flash.js":28,"../form.js":29,"./documents.js":19,"./setsui.js":24,"hogan.js":"nLm5Ax","templates.js":"e8H8MT"}],27:[function(require,module,exports){
+},{"../flash.js":29,"../form.js":30,"./documents.js":20,"./setsui.js":25,"hogan.js":"nLm5Ax","templates.js":"e8H8MT"}],28:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5121,7 +5146,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"../flash.js":28,"../form.js":29}],28:[function(require,module,exports){
+},{"../flash.js":29,"../form.js":30}],29:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -5176,7 +5201,7 @@ var highlight = function (title, body)
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -5393,7 +5418,7 @@ exports.checkRegexp = checkRegexp;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"./flash.js":28}],30:[function(require,module,exports){
+},{"./flash.js":29}],31:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -5406,7 +5431,7 @@ exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
 var globals = {};
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5624,7 +5649,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":29,"../jquery-ui-input-state.js":39,"./ievents.js":33,"./ihelpers.js":34}],32:[function(require,module,exports){
+},{"../form.js":30,"../jquery-ui-input-state.js":40,"./ievents.js":34,"./ihelpers.js":35}],33:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5960,7 +5985,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":28,"../form.js":29,"./builder-dialog.js":31,"./ihelpers.js":34,"./ilistingui.js":35,"./ipreviewui.js":36,"./new-dialog.js":37,"./replace-dialog.js":38}],33:[function(require,module,exports){
+},{"../flash.js":29,"../form.js":30,"./builder-dialog.js":32,"./ihelpers.js":35,"./ilistingui.js":36,"./ipreviewui.js":37,"./new-dialog.js":38,"./replace-dialog.js":39}],34:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6079,7 +6104,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":34}],34:[function(require,module,exports){
+},{"./ihelpers.js":35}],35:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6381,7 +6406,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":51}],35:[function(require,module,exports){
+},{"../sess.js":47}],36:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -6414,7 +6439,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"e8H8MT"}],36:[function(require,module,exports){
+},{"templates.js":"e8H8MT"}],37:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -6479,7 +6504,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":42}],37:[function(require,module,exports){
+},{"../pager.js":43}],38:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6600,7 +6625,7 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":29,"../jquery-ui-input-state.js":39,"./ievents.js":33,"./ihelpers.js":34,"./ilistingui.js":35}],38:[function(require,module,exports){
+},{"../form.js":30,"../jquery-ui-input-state.js":40,"./ievents.js":34,"./ihelpers.js":35,"./ilistingui.js":36}],39:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6688,7 +6713,7 @@ var initReplaceDialog = function ()
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":29,"./ihelpers.js":34}],39:[function(require,module,exports){
+},{"../form.js":30,"./ihelpers.js":35}],40:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -6714,7 +6739,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -6897,7 +6922,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -7096,7 +7121,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./documents/changeui.js":17,"./documents/editui.js":20,"./documents/indexui.js":22,"./documents/searchui.js":23,"./documents/viewui.js":25,"./index_tool/ipreviewui.js":36,"./jquery.hotkeys.js":40,"./sender.js":50}],42:[function(require,module,exports){
+},{"./documents/changeui.js":18,"./documents/editui.js":21,"./documents/indexui.js":23,"./documents/searchui.js":24,"./documents/viewui.js":26,"./index_tool/ipreviewui.js":37,"./jquery.hotkeys.js":41,"./sender.js":51}],43:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -7311,7 +7336,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":29,"templates.js":"e8H8MT"}],43:[function(require,module,exports){
+},{"./form.js":30,"templates.js":"e8H8MT"}],44:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -7347,7 +7372,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -7555,7 +7580,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":29,"./store.js":52}],45:[function(require,module,exports){
+},{"./form.js":30,"./store.js":53}],46:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -7694,7 +7719,133 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":29}],46:[function(require,module,exports){
+},{"../form.js":30}],47:[function(require,module,exports){
+// # Session storage helpers
+//
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
+
+// Exported functions
+
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
+{
+  'use strict';
+
+  if (!window.sessionStorage[doc._id])
+  {
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
+  }
+
+  return doc._id;
+};
+
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
+{
+  'use strict';
+
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
+  {
+    return JSON.parse(doc);
+  }
+  else
+  {
+    return null;
+  }
+};
+
+exports.put = put;
+exports.get = get;
+
+},{}],"hogan.js":[function(require,module,exports){
+module.exports=require('nLm5Ax');
+},{}],"Bacon.js":[function(require,module,exports){
+module.exports=require('EMvo/m');
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],51:[function(require,module,exports){
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg)
+{
+  'use strict';
+
+  var retval;
+
+  switch (message)
+  {
+  case 'bad-session-state':
+    retval = documents.clearSession();
+    break;
+  case 'doctype-info-ready':
+    retval = documents.makeLabels();
+    break;
+  case 'labels-ready':
+    retval = searchui.loadSearchVals();
+    worksheetui.buildTemplate();
+    break;
+  case 'new-set-form-submit':
+    retval = setsui.saveSelected();
+    break;
+  case 'sets-changed':
+    retval = setsui.updateSelection();
+    break;
+  case 'sets-form-submit':
+    retval = setsui.performOp();
+    break;
+  case 'session-cleared':
+    documents.setVersion();
+    retval = documents.loadDoctype();
+    break;
+  case 'worksheet-form-submit':
+    retval = worksheetui.fillWorksheet();
+    break;
+  case 'initiated-command':
+    retval = commands.dialogOpen(arg);
+    break;
+  case 'executed-command':
+    retval = commands.dialogClose();
+    break;
+  case 'submitted-command':
+    retval = commands.execute(arg);
+    break;
+  case 'lost-focus':
+    retval = editui.selectInput();
+    break;
+  }
+
+  return retval;
+};
+
+exports.sender = sender;
+
+},{"./documents/commands.js":19,"./documents/documents.js":20,"./documents/editui.js":21,"./documents/searchui.js":24,"./documents/setsui.js":25,"./documents/worksheetui.js":27}],52:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -7806,133 +7957,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],"hogan.js":[function(require,module,exports){
-module.exports=require('nLm5Ax');
-},{}],"Bacon.js":[function(require,module,exports){
-module.exports=require('EMvo/m');
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],50:[function(require,module,exports){
-// # Take actions depending on reported state.
-//
-// This is essentially and experiment in attempting to perform actions
-// based on the state of the application. It is an idea that I'm still
-// working on but the idea is to avoid having functions directly call
-// other functions to initiate new actions but to instead simply report
-// their state and have some central authority decide what to do next.
-
-// Variable Definitions
-
-var commands = require('./documents/commands.js');
-var documents = require('./documents/documents.js');
-var editui = require('./documents/editui.js');
-var searchui = require('./documents/searchui.js');
-var setsui = require('./documents/setsui.js');
-var worksheetui = require('./documents/worksheetui.js');
-
-// Exported functions
-
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg)
-{
-  'use strict';
-
-  var retval;
-
-  switch (message)
-  {
-  case 'bad-session-state':
-    retval = documents.clearSession();
-    break;
-  case 'doctype-info-ready':
-    retval = documents.makeLabels();
-    break;
-  case 'labels-ready':
-    retval = searchui.loadSearchVals();
-    worksheetui.buildTemplate();
-    break;
-  case 'new-set-form-submit':
-    retval = setsui.saveSelected();
-    break;
-  case 'sets-changed':
-    retval = setsui.updateSelection();
-    break;
-  case 'sets-form-submit':
-    retval = setsui.performOp();
-    break;
-  case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
-    break;
-  case 'worksheet-form-submit':
-    retval = worksheetui.fillWorksheet();
-    break;
-  case 'initiated-command':
-    retval = commands.dialogOpen(arg);
-    break;
-  case 'executed-command':
-    retval = commands.dialogClose();
-    break;
-  case 'submitted-command':
-    retval = commands.execute(arg);
-    break;
-  case 'lost-focus':
-    retval = editui.selectInput();
-    break;
-  }
-
-  return retval;
-};
-
-exports.sender = sender;
-
-},{"./documents/commands.js":18,"./documents/documents.js":19,"./documents/editui.js":20,"./documents/searchui.js":23,"./documents/setsui.js":24,"./documents/worksheetui.js":26}],51:[function(require,module,exports){
-// # Session storage helpers
-//
-// *Implicit depends:* DOM
-//
-// This is primarily used to store and retrieve items with a structure
-// similar to a CouchDB document.
-
-// Exported functions
-
-// If the item is not already in the session storage, convert it to JSON
-// and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
-{
-  'use strict';
-
-  if (!window.sessionStorage[doc._id])
-  {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-
-  return doc._id;
-};
-
-// Retrieve the document, which is stored as JSON, by its `_id` and
-// return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
-{
-  'use strict';
-
-  var doc = window.sessionStorage[docId];
-
-  if (doc)
-  {
-    return JSON.parse(doc);
-  }
-  else
-  {
-    return null;
-  }
-};
-
-exports.put = put;
-exports.get = get;
-
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM, JQuery
@@ -8098,7 +8123,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./utils.js":53}],53:[function(require,module,exports){
+},{"./utils.js":54}],54:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -8310,6 +8335,7 @@ exports.Base64 = Base64;
 var Hogan = require('hogan.js');
 var t = {
   'changelog-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a");_.b("\n" + i);_.b("      href=\"#");_.b(_.v(_.f("document_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      class=\"view-document-link\">");_.b("\n" + i);_.b("      ");if(_.s(_.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.d(".",c,p,0)));});c.pop();}_.b("\n" + i);_.b("    </a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("change_type",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("user",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("timestamp",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n" + i);if(_.s(_.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <tr class=\"change-change\">");_.b("\n" + i);_.b("    <th>");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("fieldsetLabel",c,p,0)));_.b(": ");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("\n" + i);_.b("    </th>");_.b("\n" + i);_.b("    <td colspan=3>");_.b("\n" + i);if(!_.s(_.f("originalValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\n" + i);_.b("      →");_.b("\n" + i);if(!_.s(_.f("newValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("newValue",c,p,0)));_.b("\n" + i);_.b("    </td>");_.b("\n" + i);_.b("  </tr>");_.b("\n");});c.pop();}});c.pop();}return _.fl();;}),
+  'config-maintenance' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div id=\"maintenance\">");_.b("\n" + i);_.b("  <h3>Upgrade Project</h3>");_.b("\n" + i);_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Clicking the button below will initiate an upgrade of the project");_.b("\n" + i);_.b("    core design document to the latest version available on your");_.b("\n" + i);_.b("    system.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Be aware that this may cause significant slowness on your system");_.b("\n" + i);_.b("    while view indexes are rebuilt.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("\n" + i);_.b("  <a id=\"maintenance-upgrade-button\" class=\"maintenance-upgrade-button link-button\">Upgrade</a>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
   'document-view-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li ");_.b("\n" + i);_.b("  class=\"field-view ");_.b("\n" + i);_.b("    ");if(_.s(_.f("changed",c,p,1),c,p,0,42,49,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("  data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("instance",c,p,1),c,p,0,108,150,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b("  data-field-value=\"");_.b(_.v(_.f("json_value",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("changed",c,p,1),c,p,0,235,343,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("newfield",c,p,1),c,p,1,0,0,"")){_.b("<span class=\"small-control view-field-change\" title=\"");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\">→</span>");};});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("is_textarea",c,p,1),c,p,0,375,426,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <span class=\"retain-white\">");_.b(_.v(_.f("value",c,p,0)));_.b("</span>");_.b("\n");});c.pop();}if(!_.s(_.f("is_textarea",c,p,1),c,p,1,0,0,"")){_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n");};_.b("</li>");_.b("\n");return _.fl();;}),
   'document-view-tree' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("previous_revision",c,p,1),c,p,0,22,76,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"revision-message\">Previous Revision</div>");_.b("\n");});c.pop();}_.b("\n" + i);if(_.s(_.f("deleted_",c,p,1),c,p,0,113,163,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"deleted-message\"><b>Deleted</b></div>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<ul>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,197,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <li");_.b("\n" + i);_.b("    class=\"fieldset-view");_.b("\n" + i);_.b("      ");if(_.s(_.f("collapse",c,p,1),c,p,0,248,257,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapsed");});c.pop();}_.b("\n" + i);_.b("      ");if(_.s(_.f("altered",c,p,1),c,p,0,289,296,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("    data-fieldset-fieldset=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("addition",c,p,1),c,p,0,414,468,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset added\" class=\"addition\">+</span>");});c.pop();}if(_.s(_.f("removal",c,p,1),c,p,0,493,548,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset removed\" class=\"removal\">−</span>");});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,579,818,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <ol>");_.b("\n" + i);if(_.s(_.f("multifields",c,p,1),c,p,0,613,785,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <ul class=\"multifield\">");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,684,737,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"              "));});c.pop();}_.b("          </ul>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("      </ol>");_.b("\n");});c.pop();}if(!_.s(_.f("multiple",c,p,1),c,p,1,0,0,"")){_.b("      <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,880,925,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"          "));});c.pop();}_.b("      </ul>");_.b("\n");};_.b("  </li>");_.b("\n");});c.pop();}_.b("</ul>");_.b("\n" + i);_.b("\n" + i);_.b("<div class=\"timestamps\">");_.b("\n" + i);_.b("  <dl>");_.b("\n" + i);_.b("    <dt>Created At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("created_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Created By</dt><dd>");_.b(_.v(_.f("created_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("updated_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated By</dt><dd>");_.b(_.v(_.f("updated_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>ID</dt><dd>");_.b(_.v(_.f("_id",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("  </dl>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
   'document-view' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doctype_info",c,p,1),c,p,0,17,197,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <h2 class=\"header\">");_.b(_.v(_.f("_id",c,p,0)));_.b(" View</h2>");_.b("\n" + i);_.b("\n" + i);_.b("  <form id=\"view-jump\">");_.b("\n" + i);_.b("    <label for=\"view-jump-id\">Id</label>");_.b("\n" + i);_.b("    <input type=\"text\" id=\"view-jump-id\" name=\"view-jump-id\">");_.b("\n" + i);_.b("  </form>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<div id=\"document-view-info\"");_.b("\n" + i);_.b("     data-document-deleted=\"");_.b(_.v(_.f("deleted_",c,p,0)));_.b("\"");_.b("\n" + i);_.b("     data-document-document=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("     data-document-rev=\"");_.b(_.v(_.f("_rev",c,p,0)));_.b("\"></div>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-restore-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button hidden\">Restore</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-edit-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Edit</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-delete-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Delete</a>");_.b("\n" + i);_.b("\n" + i);_.b("<nav id=\"history\">");_.b("\n" + i);if(_.s(_.f("revs_info",c,p,1),c,p,0,726,1001,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("status",c,p,1),c,p,0,742,985,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("         class=\"revision-link\"");_.b("\n" + i);_.b("         data-group-id=\"document-view-info\"");_.b("\n" + i);if(_.s(_.f("first",c,p,1),c,p,0,864,910,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("         id=\"current-revision-link\"");_.b("\n");});c.pop();}_.b("         data-document-oldrev=\"");_.b(_.v(_.f("rev",c,p,0)));_.b("\">");_.b(_.v(_.f("count",c,p,0)));_.b("</a>");_.b("\n");});c.pop();}});c.pop();}_.b("</nav>");_.b("\n" + i);_.b("\n" + i);_.b("<div id=\"document-view-tree\">");_.b("\n" + i);_.b(_.rp("document-view-tree",c,p,"  "));_.b("</div>");_.b("\n");return _.fl();;}),
@@ -8332,6 +8358,7 @@ r = function(n) {
 module.exports = {
   templates : t,
   'changelog-element' : r('changelog-element'),
+  'config-maintenance' : r('config-maintenance'),
   'document-view-field' : r('document-view-field'),
   'document-view-tree' : r('document-view-tree'),
   'document-view' : r('document-view'),
@@ -11359,5 +11386,5 @@ var Hogan = {};
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
 
-},{}]},{},[1,4,5,6,7,3,2,8,9,10,13,11,12,15,14,16,17,18,19,20,21,22,23,24,25,26,27,29,30,28,31,32,33,35,34,36,37,38,39,40,41,43,42,44,50,51,46,45,52,53])
+},{}]},{},[1,4,5,6,2,7,3,8,10,9,11,12,13,14,15,17,16,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,46,45,44,51,47,52,54,53])
 ;

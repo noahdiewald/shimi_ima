@@ -110,7 +110,7 @@ $(function ()
   // of sharing code between these sub-applications.
 
   // Detect if this is the configuration sub-application
-  if ($('#configuration').length > 0)
+  if ($('#all-config-container').length > 0)
   {
     config.init();
   }

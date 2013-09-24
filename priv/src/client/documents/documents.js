@@ -4,7 +4,7 @@
 //
 // Shared document editing stuff plus initialization.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var setsui = require('./setsui.js');
 var editui = require('./editui.js');
@@ -15,7 +15,7 @@ var S = require('../sender.js');
 var store = require('../store.js').store;
 var identifier;
 
-// Internal functions
+// ## Internal functions
 
 // In practice this is the select listing of the user created indexes
 // which is triggering the change event.
@@ -176,9 +176,7 @@ var project = function ()
   return store($('#container')).get('project-id');
 };
 
-//
-// Exported functions
-//
+// ## Exported functions
 
 // Clear the session storage
 var clearSession = function ()
