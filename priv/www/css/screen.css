@@ -234,13 +234,10 @@ table td {
   display: table-cell;
   vertical-align: top;
   padding-top: 0;
+  width: 25%;
 }
 .panel table {
   width: 100%;
-}
-.panel#document-index,
-.panel#index-preview {
-  width: 25%;
 }
 .panel#index-index {
   width: 10%;
@@ -259,9 +256,6 @@ table td {
 .panel#document-changelog table tr.change-header th a,
 .panel#document-changelog table tr.change-header td a {
   font-weight: bold;
-}
-.panel#document-view {
-  width: 25%;
 }
 .panel#document-view ul {
   padding-left: 1em;
@@ -288,7 +282,8 @@ table td {
   display: none;
 }
 .panel#document-edit,
-.panel#index-edit {
+.panel#index-edit,
+.panel#config-edit {
   width: 50%;
 }
 .panel#document-worksheets #worksheet-area {

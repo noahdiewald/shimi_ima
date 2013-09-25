@@ -43,7 +43,9 @@ module.exports = function(grunt) {
     mochacov: {
       unit: {
         options: {
-          files: ['priv/test/server/*.js', 'priv/test/misc/*.js'],
+          files: ['priv/test/server/*.js',
+                  'priv/test/misc/*.js',
+                  'priv/test/client/*.js'],
           reporter: 'spec'
         }
       },
@@ -51,7 +53,8 @@ module.exports = function(grunt) {
         options: {
           reporter: 'html-cov',
           output: 'coverage.html',
-          files: 'priv/test/server/*.js',
+          files: ['priv/test/server/*.js',
+                  'priv/test/client/*.js'],
           coverage: true
         }
       },
