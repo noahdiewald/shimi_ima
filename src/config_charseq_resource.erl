@@ -94,20 +94,7 @@ json_create(R, S) ->
     h:create(proplists:get_value(posted_json, S1), R1, S1).
 
 json_index(R, S) ->
-    Msg = <<"listing building. Please wait 5 to 10 minutes and try again.">>,
-    Item = <<"Doctype">>,
-    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    {QsVals, R1} = cowboy_req:qs_vals(R),
-    {Project, R2} = h:project(R1),
-    case q:charseqs(QsVals, Project, S) of
-        {ok, Json} ->
-            {jsn:encode(Json), R2, S};
-        {error, not_found} ->
-            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R2, S};
-        {error, req_timedout} ->
-            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
-            {halt, R3, S}
-    end.
+    i:view(charseqs, R, S).
 
 json_update(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),

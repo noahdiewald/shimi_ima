@@ -100,21 +100,8 @@ json_doctype(R, S) ->
     {{ok, DocData}, R2} = h:doctype_data(R1, S1),
     {jsn:encode(document:normalize(DocData, S1)), R2, S1}.
 
-json_index(R, S) ->  
-    Msg = <<"listing building. Please wait 5 to 10 minutes and try again.">>,
-    Item = <<"Doctype">>,
-    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
-    {Project, R1} = h:project(R),
-    {QsVals, R2} = cowboy_req:qs_vals(R1),
-    case q:doctypes(QsVals, Project, S) of
-        {ok, Json} ->
-            {jsn:encode(Json), R2, S};
-        {error, not_found} ->
-            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R2, S};
-        {error, req_timedout} ->
-            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
-            {halt, R3, S}
-    end.
+json_index(R, S) ->
+    i:view(doctypes, R, S).
 
 json_update(R, S) ->
     i:update(R, S).

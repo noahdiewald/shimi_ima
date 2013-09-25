@@ -68,8 +68,8 @@ to_json(R, S) ->
     end.
   
 % Helpers
-  
-json_index(R, S) ->
+
+get_qs_vals(R, S) ->
     Doctype = list_to_binary(proplists:get_value(doctype, S)),
     DSize = byte_size(Doctype),
     {QsVals, R1} = cowboy_req:qs_vals(R),
@@ -83,9 +83,13 @@ json_index(R, S) ->
                        DatePart = re:replace(Key, <<"[^0-9]">>, <<>>, [global,unicode,{return, binary}]),
                        << Doctype/binary, "-", DatePart/binary >>
                end,
-    QsVals2 = [{<<"include_docs">>, true}, {<<"endkey">>, << Doctype/binary, "-a">>}|jsn:set_value(<<"startkey">>, StartKey, QsVals)],
-    {{ok, Json}, R2} = q:changelog(QsVals2, R1, S),
-    {jsn:encode(Json), R2, S}.
+    {[{<<"include_docs">>, true}, {<<"endkey">>, << Doctype/binary, "-a">>}|jsn:set_value(<<"startkey">>, StartKey, QsVals)], R1}.
+    
+json_index(R, S) ->
+    {Project, R1} = h:project(R),
+    {QsVals, R2} = get_qs_vals(R1, S),
+    Ret = q:changelog(QsVals, Project, S),
+    i:view_ret(changelog, Ret, R2, S).
 
 json_change(R, S) ->
     {<<>>, R, S}.
