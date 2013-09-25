@@ -19,7 +19,7 @@
   </div>
   <div id="container">
     <div id="all-config-container">
-      <div id="config-doctypes" class="hidden panel">
+      <div id="config-doctypes" class="panel">
         <h2 class="header">Doctypes Listing</h2>
         <form id="doctypes-filter-form">
           <label for="doctypes-filter">Filter</label>
@@ -30,7 +30,7 @@
         </form>
         <div id="doctypes-listing"></div>
       </div>
-      <div id="config-charseqs" class="hidden panel">
+      <div id="config-charseqs" class="panel">
         <h2 class="header">Charseqs Listing</h2>
         <form id="charseqs-filter-form">
           <label for="charseqs-filter">Filter</label>
