@@ -71,9 +71,17 @@
 -type couch_ret() :: couch:ret().
 -type req_retval() :: {couch_ret(), req_data()}.
 
+%% @doc Used by resources to remove some boilerplate.
 -spec accept_json(req_data(), req_state()) -> {[{{binary(), binary(), list()}, from_json}], req_data(), req_state()}.
 accept_json(R, S) -> {[{{<<"application">>, <<"json">>, '*'}, from_json}], R, S}.
-    
+
+%% @doc There is often some basic contextual information that is
+%% needed by the client application after it makes a request. This
+%% function will return this information. There are title arguments
+%% used to send back information about how a page should be titled as
+%% well.
+%%
+%% TODO: Remove the title stuff.
 -spec basic_info(string(), string(), req_data(), req_state()) -> {jsn:json_term(), req_data()}.
 basic_info(Title1, Title2, R, S) ->
     {{ok, ProjectData}, R1} = project_data(R, S),
@@ -84,17 +92,21 @@ basic_info(Title1, Title2, R, S) ->
       {<<"doctype_info">>, DoctypeData},
       {<<"title">>, list_to_binary(Title1 ++ Doctype ++ Title2)},
       {<<"user">>, proplists:get_value(user, S)}], R3}.
-    
+
+%% @doc Return the value of the 'charseq' binding.
 -spec charseq(req_data()) -> {string(), req_data()}.
 charseq(R) ->
     {CharseqBin, R1} = cowboy_req:binding(charseq, R),
     {list_or_undefined(CharseqBin), R1}.
 
+%% @doc Retrieve the charseq item from the database using the value of
+%% the 'charseq' binding.
 -spec charseq_data(req_data(), req_state()) -> req_retval().
 charseq_data(R, S) ->
     {[Charseq, Project], R1} = g([charseq, project], R),
     {get(Charseq, Project, S), R1}.
 
+%% @doc Create a database item.
 -spec create(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | req_data().
 create(Json, R, S) ->
     {Project, R1} = project(R),
@@ -106,6 +118,7 @@ create(Json, R, S) ->
             {halt, R2, S}
     end.
 
+%% @doc Add an attachment to a database item.
 -spec create_attachment(string(), string(), binary(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 create_attachment(Id, Name, Content, R, S) ->
     {Project, R1} = project(R),
@@ -120,6 +133,7 @@ create_attachment(Id, Name, Content, R, S) ->
             {halt, R2, S}
     end.
 
+%% @doc Delete a database item.
 -spec delete(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 delete(R, S) ->
     {[Project, Rev, Id], R1} = g([project, rev, id], R),
@@ -133,6 +147,7 @@ delete(R, S) ->
             {halt, R2, S}
     end.
 
+%% @doc Delete a project aka a database.
 -spec delete_project(req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 delete_project(R, S) ->
     {Id, R1} = id(R),
@@ -148,27 +163,34 @@ delete_project(R, S) ->
             {ok, R2} = cowboy_req:reply(409, [], Msg1, R1),
             {halt, R2, S}
     end.
-    
+
+%% @doc Return the value of the 'doctype' binding.
 -spec doctype(req_data()) -> string().
 doctype(R) ->
     {DoctypeBin, R1} = cowboy_req:binding(doctype, R),
     {list_or_undefined(DoctypeBin), R1}.
 
+%% @doc Retrieve a doctype item from the database using the 'doctype'
+%% binding.
 -spec doctype_data(req_data(), req_state()) -> req_retval().
 doctype_data(R, S) ->
     {[Project, Doctype], R1} = g([project, doctype], R),
     {get(Doctype, Project, S), R1}.
 
+%% @doc Check for the existence of a database item.
 -spec exists(string()|null|undefined, req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists(Id, R, S) ->
     {Project, R1} = project(R),
     {couch:exists(Id, Project, S), R1, S}.
 
+%% @doc Check for the existence of the database item specified by the
+%% 'id' binding.
 -spec exists_id(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_id(R, S) ->
     {Id, R1} = id(R),
     exists(Id, R1, S).
-    
+
+%% @doc If the request is a POST, return false, otherwise return true.
 -spec exists_unless_post(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_unless_post(R, S) ->
     case cowboy_req:method(R) of
@@ -176,6 +198,11 @@ exists_unless_post(R, S) ->
         {_, R1} -> {true, R1, S}
     end.
 
+%% @doc Used to report a 404 when an item's dependencies do not exist
+%% in the database.
+%%
+%% TODO: This should be removed and a better return value than 404
+%% used.
 -spec exists_with_deps([atom()|list()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 exists_with_deps([], R, S) ->
     exists_unless_post(R, S);
@@ -193,6 +220,8 @@ exists_with_deps([BValue|Rest], R, S) when is_list(BValue) ->
             {halt, R1, S}
     end.
 
+%% @doc Extract JSON from the request body and create a new database
+%% item from it.
 -spec extract_create_data(req_data(), req_state()) -> {req_data(), req_state()}.
 extract_create_data(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),
@@ -205,6 +234,8 @@ extract_create_data(R, S) ->
                   end,
     {R1, [{create_path, <<"/", Id/binary>>}, {posted_json, Json1}|S]}.
 
+%% @doc Return either the value of the binding 'field' or return a
+%% query string value for the key 'field' if the binding is undefined.
 -spec field(req_data()) -> {string() | undefined, req_data()}.
 field(R) ->
     {FieldBin, R1} = cowboy_req:binding(field, R),
@@ -216,21 +247,27 @@ field(R) ->
             {binary_to_list(FieldBin), R1}
     end.
 
+%% @doc Retrieve the field item specified by field/1.
 -spec field_data(req_data(), req_state()) -> req_retval().
 field_data(R, S) ->
     {[Project, Field], R1} = g([project, field], R),
     {get(Field, Project, S), R1}.
 
+%% @doc Return the value of the 'fieldset' binding.
 -spec fieldset(req_data()) -> {string(), req_data()}.
 fieldset(R) ->
     {FieldsetBin, R1} = cowboy_req:binding(fieldset, R),
     {list_or_undefined(FieldsetBin), R1}.
 
+%% @doc Retrieve the fieldset item specified by the 'fieldset'
+%% binding.
 -spec fieldset_data(req_data(), req_state()) -> req_retval().
 fieldset_data(R, S) ->
     {[Project, Fieldset], R1} = g([project, fieldset], R),
     {get(Fieldset, Project, S), R1}.
 
+%% @doc Gather a bunch of values from the req_data() when given a list
+%% of atom() keys.
 -spec g([atom()], req_data()) -> {[string() | undefined], req_data()}.
 g(Keys, R) ->
   F = fun (X, {RX, Acc}) ->
@@ -239,51 +276,71 @@ g(Keys, R) ->
   end,
   {R1, Vals} = lists:foldl(F, {R, []}, Keys),
   {lists:reverse(Vals), R1}.
-  
+
+%% @doc Retrieve an item from the database.
 -spec get(string(), string(), req_state()) -> couch_ret().
 get(Id, Project, S) ->
     couch:get(Id, Project, S).
 
+%% @doc Retrieve a specific revision of an item from the database.
 -spec get(string(), string(), string(), req_state()) -> couch_ret().
 get(Id, Rev, Project, S) ->
     couch:get(Id, Rev, Project, S).
 
+%% @doc Retrieve an attachment from a database document.
 -spec get_attachment(string(), string(), string(), req_state()) -> couch_ret().
 get_attachment(Id, Name, Project, S) ->
     couch:get_attachment(Id, Name, Project, S).
 
+%% @doc Return the value of the 'id' binding.
 -spec id(req_data()) -> string().
 id(R) ->
     {IdBin, R1} = cowboy_req:binding(id, R),
     {list_or_undefined(IdBin), R1}.
 
+%% @doc Retrieve the item from the database with the id specified in
+%% the 'id' binding.
 -spec id_data(req_data(), req_state()) -> req_retval().
 id_data(R, S) ->
     {[Project, Id], R1} = g([project, id], R),
     {get(Id, Project, S), R1}.
 
+%% @doc Retrieve the item from the database with the id specified in
+%% the 'id' binding. Then render it using the supplied templated
+%% name. The assumption is that it will be an HTML template but any
+%% erlydtl template will due.
 -spec id_html(atom(), req_data(), req_state()) -> {iolist(), req_data(), req_state()}.
 id_html(Template, R, S) ->
     {{ok, Json}, R1} = h:id_data(R, S), 
     {ok, Html} = render:render(Template, Json),
     {Html, R1, S}.
 
+%% @doc When a user created view index is requested in a query string,
+%% return the identifier for the index as a string. Otherwise, return
+%% undefined.
 -spec index(req_data()) -> {string() | undefined, req_data()}.
 index(R) ->
     {IndexBin, R1} = cowboy_req:qs_val(<<"index">>, R),
     {list_or_undefined(IndexBin), R1}.
 
+%% @doc Convert a binary to a list, unless the given value isn't a
+%% binary, in which case, return undefined.
 -spec list_or_undefined(binary()|any()) -> string()|undefined.
 list_or_undefined(Bin) when is_binary(Bin) ->
     binary_to_list(Bin);
 list_or_undefined(_) ->
     undefined.
 
+%% @doc Determine if the "path" exists based on the value of
+%% cowboy_req:path_info/1. The path is actually a key or partial key
+%% for a document containing an attachment.
 -spec path_exists(req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 path_exists(R, S) ->
     {Path, R1} = cowboy_req:path_info(R),
     path_exists(Path, R1, S).
 
+%% @doc Determine if the given "path" exists. The path is actually a
+%% key or partial key for a document containing an attachment.
 -spec path_exists([string()|binary()], req_data(), req_state()) -> {boolean(), req_data(), req_state()}.
 path_exists(Path, R, S) ->
     {Project, R1} = project(R),
@@ -291,16 +348,20 @@ path_exists(Path, R, S) ->
     Total = length(proplists:get_value(<<"rows">>, Json)),
     {Total > 0, R1, S}.
 
+%% @doc Return the value of the 'project' binding.
 -spec project(req_data()) -> {string(), req_data()}.
 project(R) ->
     {ProjectBin, R1} = cowboy_req:binding(project, R),
     {list_or_undefined(ProjectBin), R1}.
 
+%% @doc Retrieve the project item from the shimi_ima database, where
+%% project information is centrally stored.
 -spec project_data(req_data(), req_state()) -> req_retval().
 project_data(R, S) ->
     {Project, R1} = project(R),
     {get(Project -- "project-", "shimi_ima", S), R1}.
 
+%% @doc Like field/1 but for a document revision specified as 'rev'.
 -spec rev(req_data()) -> {string(), req_data()}.
 rev(R) ->
     {RevBin, R1} = cowboy_req:binding(rev, R),
@@ -312,11 +373,14 @@ rev(R) ->
             {binary_to_list(RevBin), R1}
     end.
 
+%% @doc Using the return values of project/1, rev/1 and id/1 retrieve
+%% a specific document revision from the database.
 -spec rev_data(req_data(), req_state()) -> req_retval().
 rev_data(R, S) ->
     {[Project, Rev, Id], R1} = g([project, rev, id], R),
     {get(Id, Rev, Project, S), R1}.
 
+%% @doc Update a database item.
 -spec update(jsn:json_term(), req_data(), req_state()) -> {true, req_data(), req_state()} | {ok, req_data()}.
 update(Json, R, S) ->
     {[Project, Rev, Id], R1} = g([project, rev, id], R),
@@ -335,6 +399,11 @@ update(Json, R, S) ->
             {halt, R2, S}
     end.
 
+%% @doc Used to bump a doctype revision when some dependent item is
+%% updated.
+%%
+%% TODO: find a better mechanism for the client to keep track of
+%% dependent items.
 -spec update_doctype_version(req_data(), req_state()) -> req_retval().
 update_doctype_version(R, S) ->
     {[Project, Doctype], R1} = g([project, doctype], R),
