@@ -1,6 +1,6 @@
 // # Data Attribute Storage and Retrieval Helpers
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // It is likely that this mechanism will be replaced with a superior
 // mechanism for storing data on the client about documents.
@@ -45,6 +45,17 @@ Function.prototype.t = function ()
   return escape.apply(this, c[1]);
 };
 
+// Camel case a string
+var cc = function (str)
+{
+  'use strict';
+
+  return str.replace(/-./, function (substr)
+  {
+    return substr.toUpperCase()[1];
+  });
+};
+
 // ## External functions
 
 // Takes a JQuery element and returns an object with helper methods for
@@ -54,6 +65,12 @@ var store = function (elem)
   'use strict';
 
   var mod = {};
+
+  // TODO: Remove this when fieldsets.js has JQuery dependency removed
+  if (elem.dataset === undefined)
+  {
+    elem = elem[0];
+  }
 
   // This funtion takes a key that corresponds to the name of the data
   // attribute without the `data-` prefix. The element is expected to have
@@ -75,7 +92,8 @@ var store = function (elem)
   //
   // The `data-fieldset-doctype` may be retrieved like this:
   //
-  //     store($('#thisid')).get('fieldset-doctype') == 'did';
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
   //
   // This HTML contains a level of indirection and demonstrates the use
   // of the `data-group-id`:
@@ -96,10 +114,13 @@ var store = function (elem)
   //
   // The `data-fieldset-doctype` may be retrieved like this:
   //
-  //     store($('#thisid')).get('fieldset-doctype') == 'did';
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
+  //
   mod.get = function (key)
   {
-    var prelim = elem.attr('data-' + key);
+    var keycc = cc(key);
+    var prelim = elem.dataset[keycc];
 
     if (prelim)
     {
@@ -108,10 +129,10 @@ var store = function (elem)
 
     var getValue1 = function (key, elem, id)
     {
-      var gid = elem.attr('data-group-id');
-      var store = $('#' + gid);
-      var val = store.attr('data-' + key);
-      var next = store.attr('data-group-id');
+      var gid = elem.dataset.groupId;
+      var store = document.getElementById(gid);
+      var val = store.dataset[key];
+      var next = store.dataset.groupId;
 
       if (val === undefined && next !== undefined && gid !== next)
       {
@@ -121,7 +142,7 @@ var store = function (elem)
       return id.r(val);
     };
 
-    return getValue1.t(key, elem, identity);
+    return getValue1.t(keycc, elem, identity);
   };
 
   // Like 'get' but will decode base64 encoded values.
@@ -136,8 +157,9 @@ var store = function (elem)
   //  corresponding to key and a value of value.
   mod.put = function (key, value)
   {
-    var dataElem = elem.attr('data-group-id');
-    $('#' + dataElem).attr('data-' + key, value);
+    var keycc = cc(key);
+    var dataElem = elem.dataset.groupId;
+    document.getElementById(dataElem).dataset[keycc] = value;
   };
 
   //  Helper function for attributes that begin with `data-fieldset`.

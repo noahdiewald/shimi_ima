@@ -153,7 +153,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":8,"./dblclick-dispatch.js":18,"./documents/documents.js":22,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ilistingui.js":40,"./jquery-ui-input-state.js":44,"./keystrokes.js":46,"./projects/projectui.js":49}],2:[function(require,module,exports){
+},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":8,"./dblclick-dispatch.js":18,"./documents/documents.js":22,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ilistingui.js":38,"./jquery-ui-input-state.js":42,"./keystrokes.js":44,"./projects/projectui.js":48}],2:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -501,7 +501,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":6,"./config/doctype-tab.js":11,"./config/maintenanceui.js":17,"./dispatcher.js":19,"./documents/editui.js":23,"./documents/fieldsets.js":24,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/viewui.js":28,"./documents/worksheetui.js":29,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ieditui.js":35,"./panel-toggle.js":36,"./projects/projectui.js":49,"./sender.js":50}],4:[function(require,module,exports){
+},{"./config/charseq-tab":6,"./config/doctype-tab.js":11,"./config/maintenanceui.js":17,"./dispatcher.js":19,"./documents/editui.js":23,"./documents/fieldsets.js":24,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/viewui.js":28,"./documents/worksheetui.js":29,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ieditui.js":35,"./panel-toggle.js":46,"./projects/projectui.js":48,"./sender.js":53}],4:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -745,7 +745,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../form.js":32,"../store.js":54,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
+},{"../form.js":32,"../store.js":56,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -797,7 +797,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":47,"templates.js":"e8H8MT"}],8:[function(require,module,exports){
+},{"../pager.js":45,"templates.js":"e8H8MT"}],8:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -1242,7 +1242,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":48,"../store.js":54,"./doctype-dialog.js":9,"./doctype-elems.js":10,"./field-dialog.js":13,"./field-elems.js":14,"./fieldset-dialog.js":15,"./fieldset-elems.js":16}],12:[function(require,module,exports){
+},{"../path.js":47,"../store.js":56,"./doctype-dialog.js":9,"./doctype-elems.js":10,"./field-dialog.js":13,"./field-elems.js":14,"./fieldset-dialog.js":15,"./fieldset-elems.js":16}],12:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -1294,7 +1294,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":47,"templates.js":"e8H8MT"}],13:[function(require,module,exports){
+},{"../pager.js":45,"templates.js":"e8H8MT"}],13:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1550,7 +1550,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":32,"../utils.js":55}],15:[function(require,module,exports){
+},{"../form.js":32,"../utils.js":49}],15:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1801,7 +1801,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":19,"./documents/searchui.js":26,"./documents/worksheetui.js":29,"./panel-toggle.js":36}],19:[function(require,module,exports){
+},{"./dispatcher.js":19,"./documents/searchui.js":26,"./documents/worksheetui.js":29,"./panel-toggle.js":46}],19:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -1896,7 +1896,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":47}],21:[function(require,module,exports){
+},{"../pager.js":45}],21:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -2034,7 +2034,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":50,"./editui.js":23}],22:[function(require,module,exports){
+},{"../sender.js":53,"./editui.js":23}],22:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -2089,7 +2089,7 @@ var allDocContainer = function ()
 {
   'use strict';
 
-  return $('#all-document-container');
+  return document.getElementById('all-document-container');
 };
 
 // Key used in retrieving cached information from session storage.
@@ -2202,7 +2202,7 @@ var dname = function ()
 {
   'use strict';
 
-  return store($('#all-document-container')).d('doctype');
+  return store(allDocContainer()).d('doctype');
 };
 
 // Get the project id
@@ -2210,7 +2210,8 @@ var project = function ()
 {
   'use strict';
 
-  return store($('#container')).get('project-id');
+  var container = document.getElementById('container');
+  return store(container).get('project-id');
 };
 
 // ## Exported functions
@@ -2304,7 +2305,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":50,"../store.js":54,"./changeui.js":20,"./editui.js":23,"./indexui.js":25,"./setsui.js":27,"./viewui.js":28}],23:[function(require,module,exports){
+},{"../sender.js":53,"../store.js":56,"./changeui.js":20,"./editui.js":23,"./indexui.js":25,"./setsui.js":27,"./viewui.js":28}],23:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -2701,7 +2702,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":31,"../form.js":32,"../store.js":54,"./fieldsets.js":24,"./indexui.js":25,"./viewui.js":28}],24:[function(require,module,exports){
+},{"../flash.js":31,"../form.js":32,"../store.js":56,"./fieldsets.js":24,"./indexui.js":25,"./viewui.js":28}],24:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -2737,6 +2738,7 @@ var dpath = function (source, category)
   'use strict';
 
   var url = path(source, category);
+  window.console.log(url);
   url.doctype = false;
   return url;
 };
@@ -3184,7 +3186,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":48,"../store.js":54,"../utils.js":55,"./editui.js":23}],25:[function(require,module,exports){
+},{"../path.js":47,"../store.js":56,"../utils.js":49,"./editui.js":23}],25:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -3292,7 +3294,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":47,"./editui.js":23,"./viewui.js":28,"templates.js":"e8H8MT"}],26:[function(require,module,exports){
+},{"../pager.js":45,"./editui.js":23,"./viewui.js":28,"templates.js":"e8H8MT"}],26:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -3899,7 +3901,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":53,"../utils.js":55,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
+},{"../sets.js":55,"../utils.js":49,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4355,7 +4357,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":31,"../sender.js":50,"../sets.js":53,"../utils.js":55,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
+},{"../flash.js":31,"../sender.js":53,"../sets.js":55,"../utils.js":49,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4806,7 +4808,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":31,"../store.js":54,"./editui.js":23,"./fieldsets.js":24,"./indexui.js":25,"templates.js":"e8H8MT"}],29:[function(require,module,exports){
+},{"../flash.js":31,"../store.js":56,"./editui.js":23,"./fieldsets.js":24,"./indexui.js":25,"templates.js":"e8H8MT"}],29:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -5758,7 +5760,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":32,"../jquery-ui-input-state.js":44,"./ievents.js":38,"./ihelpers.js":39}],35:[function(require,module,exports){
+},{"../form.js":32,"../jquery-ui-input-state.js":42,"./ievents.js":36,"./ihelpers.js":37}],35:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6094,45 +6096,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":31,"../form.js":32,"./builder-dialog.js":34,"./ihelpers.js":39,"./ilistingui.js":40,"./ipreviewui.js":41,"./new-dialog.js":42,"./replace-dialog.js":43}],36:[function(require,module,exports){
-// # Panel Toggler
-//
-// Interface elements called panels can be visible or hidden.
-
-// Given an element that points to a panel id with a `data-panel`
-// attribute, toggle the panel's visibility.
-var panelToggler = function (target)
-{
-  'use strict';
-
-  var panel;
-
-  if ($(target).attr('data-panel'))
-  {
-    panel = $('#' + $(target).attr('data-panel'));
-  }
-  else
-  {
-    panel = $(target).closest('.panel');
-  }
-
-  if (panel.css('display') === 'none')
-  {
-    panel.css('display', 'table-cell');
-  }
-  else
-  {
-    panel.css('display', 'none');
-  }
-
-  return target;
-};
-
-exports.panelToggler = panelToggler;
-
-},{}],"hogan.js":[function(require,module,exports){
-module.exports=require('nLm5Ax');
-},{}],38:[function(require,module,exports){
+},{"../flash.js":31,"../form.js":32,"./builder-dialog.js":34,"./ihelpers.js":37,"./ilistingui.js":38,"./ipreviewui.js":39,"./new-dialog.js":40,"./replace-dialog.js":41}],36:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6251,7 +6215,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":39}],39:[function(require,module,exports){
+},{"./ihelpers.js":37}],37:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6553,7 +6517,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":52}],40:[function(require,module,exports){
+},{"../sess.js":54}],38:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -6586,7 +6550,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"e8H8MT"}],41:[function(require,module,exports){
+},{"templates.js":"e8H8MT"}],39:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -6651,7 +6615,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":47}],42:[function(require,module,exports){
+},{"../pager.js":45}],40:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6772,7 +6736,7 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":32,"../jquery-ui-input-state.js":44,"./ievents.js":38,"./ihelpers.js":39,"./ilistingui.js":40}],43:[function(require,module,exports){
+},{"../form.js":32,"../jquery-ui-input-state.js":42,"./ievents.js":36,"./ihelpers.js":37,"./ilistingui.js":38}],41:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6860,7 +6824,7 @@ var initReplaceDialog = function ()
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":32,"./ihelpers.js":39}],44:[function(require,module,exports){
+},{"../form.js":32,"./ihelpers.js":37}],42:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -6886,7 +6850,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],45:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -7069,7 +7033,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],46:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -7270,7 +7234,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":7,"./config/doctypeui.js":12,"./documents/changeui.js":20,"./documents/editui.js":23,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/viewui.js":28,"./index_tool/ipreviewui.js":41,"./jquery.hotkeys.js":45,"./sender.js":50}],47:[function(require,module,exports){
+},{"./config/charsequi.js":7,"./config/doctypeui.js":12,"./documents/changeui.js":20,"./documents/editui.js":23,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/viewui.js":28,"./index_tool/ipreviewui.js":39,"./jquery.hotkeys.js":43,"./sender.js":53}],45:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -7485,7 +7449,43 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":32,"templates.js":"e8H8MT"}],48:[function(require,module,exports){
+},{"./form.js":32,"templates.js":"e8H8MT"}],46:[function(require,module,exports){
+// # Panel Toggler
+//
+// Interface elements called panels can be visible or hidden.
+
+// Given an element that points to a panel id with a `data-panel`
+// attribute, toggle the panel's visibility.
+var panelToggler = function (target)
+{
+  'use strict';
+
+  var panel;
+
+  if ($(target).attr('data-panel'))
+  {
+    panel = $('#' + $(target).attr('data-panel'));
+  }
+  else
+  {
+    panel = $(target).closest('.panel');
+  }
+
+  if (panel.css('display') === 'none')
+  {
+    panel.css('display', 'table-cell');
+  }
+  else
+  {
+    panel.css('display', 'none');
+  }
+
+  return target;
+};
+
+exports.panelToggler = panelToggler;
+
+},{}],47:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -7693,7 +7693,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":32,"./store.js":54}],49:[function(require,module,exports){
+},{"./form.js":32,"./store.js":56}],48:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -7832,407 +7832,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":32}],50:[function(require,module,exports){
-// # Take actions depending on reported state.
-//
-// This is essentially and experiment in attempting to perform actions
-// based on the state of the application. It is an idea that I'm still
-// working on but the idea is to avoid having functions directly call
-// other functions to initiate new actions but to instead simply report
-// their state and have some central authority decide what to do next.
-
-// Variable Definitions
-
-var commands = require('./documents/commands.js');
-var documents = require('./documents/documents.js');
-var editui = require('./documents/editui.js');
-var searchui = require('./documents/searchui.js');
-var setsui = require('./documents/setsui.js');
-var worksheetui = require('./documents/worksheetui.js');
-
-// Exported functions
-
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg)
-{
-  'use strict';
-
-  var retval;
-
-  switch (message)
-  {
-  case 'bad-session-state':
-    retval = documents.clearSession();
-    break;
-  case 'doctype-info-ready':
-    retval = documents.makeLabels();
-    break;
-  case 'labels-ready':
-    retval = searchui.loadSearchVals();
-    worksheetui.buildTemplate();
-    break;
-  case 'new-set-form-submit':
-    retval = setsui.saveSelected();
-    break;
-  case 'sets-changed':
-    retval = setsui.updateSelection();
-    break;
-  case 'sets-form-submit':
-    retval = setsui.performOp();
-    break;
-  case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
-    break;
-  case 'worksheet-form-submit':
-    retval = worksheetui.fillWorksheet();
-    break;
-  case 'initiated-command':
-    retval = commands.dialogOpen(arg);
-    break;
-  case 'executed-command':
-    retval = commands.dialogClose();
-    break;
-  case 'submitted-command':
-    retval = commands.execute(arg);
-    break;
-  case 'lost-focus':
-    retval = editui.selectInput();
-    break;
-  }
-
-  return retval;
-};
-
-exports.sender = sender;
-
-},{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],52:[function(require,module,exports){
-// # Session storage helpers
-//
-// *Implicit depends:* DOM
-//
-// This is primarily used to store and retrieve items with a structure
-// similar to a CouchDB document.
-
-// Exported functions
-
-// If the item is not already in the session storage, convert it to JSON
-// and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
-{
-  'use strict';
-
-  if (!window.sessionStorage[doc._id])
-  {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-
-  return doc._id;
-};
-
-// Retrieve the document, which is stored as JSON, by its `_id` and
-// return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
-{
-  'use strict';
-
-  var doc = window.sessionStorage[docId];
-
-  if (doc)
-  {
-    return JSON.parse(doc);
-  }
-  else
-  {
-    return null;
-  }
-};
-
-exports.put = put;
-exports.get = get;
-
-},{}],53:[function(require,module,exports){
-// # Set operations
-//
-// The 'set' is a one dimensional Array by default but by replacing the
-// `member` function, other types of Arrays may be used.
-
-// Exported functions
-
-// Determine membership of item in the set.
-var member = function (arr, x)
-{
-  'use strict';
-
-  var memb = arr.some(function (y)
-  {
-    return x === y;
-  });
-  return memb;
-};
-
-// Rebuild the array so that all values are unique. This is kind of a
-// 'clean up' function used to work around the differences between arrays
-// and sets.
-var unique = function (x, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var uniq = x.reduce(function (acc, curr)
-  {
-    if (mem(acc, curr))
-    {
-      return acc;
-    }
-    else
-    {
-      return acc.concat([curr]);
-    }
-  }, []);
-  return uniq;
-};
-
-// Return the union of two sets.
-var union = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var uni = unique(xs.concat(ys), mem);
-  return uni;
-};
-
-// Return the intersection of two sets.
-var intersection = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var inter = xs.filter(function (x)
-  {
-    return mem(ys, x);
-  });
-  return inter;
-};
-
-// Return the relative complement of two sets.
-var relativeComplement = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp = xs.filter(function (x)
-  {
-    return !mem(ys, x);
-  });
-  return comp;
-};
-
-// Return the symmetric difference of two sets.
-var symmetricDifference = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp1 = relativeComplement(xs, ys, mem);
-  var comp2 = relativeComplement(ys, xs, mem);
-  var uni = union(comp1, comp2, mem);
-  return uni;
-};
-
-exports.member = member;
-exports.unique = unique;
-exports.union = union;
-exports.intersection = intersection;
-exports.relativeComplement = relativeComplement;
-exports.symmetricDifference = symmetricDifference;
-
-},{}],54:[function(require,module,exports){
-// # Data Attribute Storage and Retrieval Helpers
-//
-// *Implicit depends:* DOM, JQuery
-//
-// It is likely that this mechanism will be replaced with a superior
-// mechanism for storing data on the client about documents.
-
-// ## Variables
-
-var utils = require('./utils.js');
-
-// ## Internal functions
-
-// Identity function for tail recursion
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Part of the tail call optimization code
-Function.prototype.r = function ()
-{
-  'use strict';
-
-  return [this, arguments];
-};
-
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-Function.prototype.t = function ()
-{
-  'use strict';
-
-  var c = [this, arguments];
-  var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape)
-  {
-    c = c[0].apply(this, c[1]);
-  }
-  return escape.apply(this, c[1]);
-};
-
-// ## External functions
-
-// Takes a JQuery element and returns an object with helper methods for
-// getting and putting custom data attribute values.
-var store = function (elem)
-{
-  'use strict';
-
-  var mod = {};
-
-  // This funtion takes a key that corresponds to the name of the data
-  // attribute without the `data-` prefix. The element is expected to have
-  // an attribute data-group-id with a value that is the id of the
-  // element actually holding the data.
-  //
-  // ### Examples
-  //
-  // Given the following HTML:
-  //
-  //     <div
-  //       id='someid'
-  //       data-fieldset-fieldset='fsid'
-  //       data-fieldset-doctype='did'></div>
-  //
-  //     <div
-  //      id='thisid'
-  //      data-group-id='someid'>
-  //
-  // The `data-fieldset-doctype` may be retrieved like this:
-  //
-  //     store($('#thisid')).get('fieldset-doctype') == 'did';
-  //
-  // This HTML contains a level of indirection and demonstrates the use
-  // of the `data-group-id`:
-  //
-  //     <div
-  //       id='someid2'
-  //       data-fieldset-fieldset='fsid'
-  //       data-fieldset-doctype='did'></div>
-  //
-  //     <div
-  //       id='someid'
-  //       data-group-id='someid2'
-  //       data-fieldset-fieldset='fsid'></div>
-  //
-  //     <div
-  //      id='thisid'
-  //      data-group-id='someid'></div>
-  //
-  // The `data-fieldset-doctype` may be retrieved like this:
-  //
-  //     store($('#thisid')).get('fieldset-doctype') == 'did';
-  mod.get = function (key)
-  {
-    var prelim = elem.attr('data-' + key);
-
-    if (prelim)
-    {
-      return prelim;
-    }
-
-    var getValue1 = function (key, elem, id)
-    {
-      var gid = elem.attr('data-group-id');
-      var store = $('#' + gid);
-      var val = store.attr('data-' + key);
-      var next = store.attr('data-group-id');
-
-      if (val === undefined && next !== undefined && gid !== next)
-      {
-        return getValue1.r(key, store, id);
-      }
-
-      return id.r(val);
-    };
-
-    return getValue1.t(key, elem, identity);
-  };
-
-  // Like 'get' but will decode base64 encoded values.
-  mod.get64 = function (key)
-  {
-    var retval = mod.get(key);
-    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
-    return retval;
-  };
-
-  //  This function will set an attribute at the target with a name
-  //  corresponding to key and a value of value.
-  mod.put = function (key, value)
-  {
-    var dataElem = elem.attr('data-group-id');
-    $('#' + dataElem).attr('data-' + key, value);
-  };
-
-  //  Helper function for attributes that begin with `data-fieldset`.
-  mod.fs = function (key)
-  {
-    return mod.get('fieldset-' + key);
-  };
-
-  //  Helper function for attributes that begin with `data-field`.
-  mod.f = function (key)
-  {
-    return mod.get('field-' + key);
-  };
-
-  //  Helper function for attributes that begin with `data-document`.
-  mod.d = function (key)
-  {
-    return mod.get('document-' + key);
-  };
-
-  return mod;
-};
-
-exports.store = store;
-
-},{"./utils.js":55}],55:[function(require,module,exports){
+},{"../form.js":32}],49:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -8440,7 +8040,433 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"e8H8MT":[function(require,module,exports){
+},{}],"hogan.js":[function(require,module,exports){
+module.exports=require('nLm5Ax');
+},{}],"Bacon.js":[function(require,module,exports){
+module.exports=require('EMvo/m');
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],53:[function(require,module,exports){
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg)
+{
+  'use strict';
+
+  var retval;
+
+  switch (message)
+  {
+  case 'bad-session-state':
+    retval = documents.clearSession();
+    break;
+  case 'doctype-info-ready':
+    retval = documents.makeLabels();
+    break;
+  case 'labels-ready':
+    retval = searchui.loadSearchVals();
+    worksheetui.buildTemplate();
+    break;
+  case 'new-set-form-submit':
+    retval = setsui.saveSelected();
+    break;
+  case 'sets-changed':
+    retval = setsui.updateSelection();
+    break;
+  case 'sets-form-submit':
+    retval = setsui.performOp();
+    break;
+  case 'session-cleared':
+    documents.setVersion();
+    retval = documents.loadDoctype();
+    break;
+  case 'worksheet-form-submit':
+    retval = worksheetui.fillWorksheet();
+    break;
+  case 'initiated-command':
+    retval = commands.dialogOpen(arg);
+    break;
+  case 'executed-command':
+    retval = commands.dialogClose();
+    break;
+  case 'submitted-command':
+    retval = commands.execute(arg);
+    break;
+  case 'lost-focus':
+    retval = editui.selectInput();
+    break;
+  }
+
+  return retval;
+};
+
+exports.sender = sender;
+
+},{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],54:[function(require,module,exports){
+// # Session storage helpers
+//
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
+
+// Exported functions
+
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
+{
+  'use strict';
+
+  if (!window.sessionStorage[doc._id])
+  {
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
+  }
+
+  return doc._id;
+};
+
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
+{
+  'use strict';
+
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
+  {
+    return JSON.parse(doc);
+  }
+  else
+  {
+    return null;
+  }
+};
+
+exports.put = put;
+exports.get = get;
+
+},{}],55:[function(require,module,exports){
+// # Set operations
+//
+// The 'set' is a one dimensional Array by default but by replacing the
+// `member` function, other types of Arrays may be used.
+
+// Exported functions
+
+// Determine membership of item in the set.
+var member = function (arr, x)
+{
+  'use strict';
+
+  var memb = arr.some(function (y)
+  {
+    return x === y;
+  });
+  return memb;
+};
+
+// Rebuild the array so that all values are unique. This is kind of a
+// 'clean up' function used to work around the differences between arrays
+// and sets.
+var unique = function (x, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uniq = x.reduce(function (acc, curr)
+  {
+    if (mem(acc, curr))
+    {
+      return acc;
+    }
+    else
+    {
+      return acc.concat([curr]);
+    }
+  }, []);
+  return uniq;
+};
+
+// Return the union of two sets.
+var union = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uni = unique(xs.concat(ys), mem);
+  return uni;
+};
+
+// Return the intersection of two sets.
+var intersection = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var inter = xs.filter(function (x)
+  {
+    return mem(ys, x);
+  });
+  return inter;
+};
+
+// Return the relative complement of two sets.
+var relativeComplement = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp = xs.filter(function (x)
+  {
+    return !mem(ys, x);
+  });
+  return comp;
+};
+
+// Return the symmetric difference of two sets.
+var symmetricDifference = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp1 = relativeComplement(xs, ys, mem);
+  var comp2 = relativeComplement(ys, xs, mem);
+  var uni = union(comp1, comp2, mem);
+  return uni;
+};
+
+exports.member = member;
+exports.unique = unique;
+exports.union = union;
+exports.intersection = intersection;
+exports.relativeComplement = relativeComplement;
+exports.symmetricDifference = symmetricDifference;
+
+},{}],56:[function(require,module,exports){
+// # Data Attribute Storage and Retrieval Helpers
+//
+// *Implicit depends:* DOM
+//
+// It is likely that this mechanism will be replaced with a superior
+// mechanism for storing data on the client about documents.
+
+// ## Variables
+
+var utils = require('./utils.js');
+
+// ## Internal functions
+
+// Identity function for tail recursion
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Part of the tail call optimization code
+Function.prototype.r = function ()
+{
+  'use strict';
+
+  return [this, arguments];
+};
+
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+Function.prototype.t = function ()
+{
+  'use strict';
+
+  var c = [this, arguments];
+  var escape = arguments[arguments.length - 1];
+  while (c[0] !== escape)
+  {
+    c = c[0].apply(this, c[1]);
+  }
+  return escape.apply(this, c[1]);
+};
+
+// Camel case a string
+var cc = function (str)
+{
+  'use strict';
+
+  return str.replace(/-./, function (substr)
+  {
+    return substr.toUpperCase()[1];
+  });
+};
+
+// ## External functions
+
+// Takes a JQuery element and returns an object with helper methods for
+// getting and putting custom data attribute values.
+var store = function (elem)
+{
+  'use strict';
+
+  var mod = {};
+
+  // TODO: Remove this when fieldsets.js has JQuery dependency removed
+  if (elem.dataset === undefined)
+  {
+    elem = elem[0];
+  }
+
+  // This funtion takes a key that corresponds to the name of the data
+  // attribute without the `data-` prefix. The element is expected to have
+  // an attribute data-group-id with a value that is the id of the
+  // element actually holding the data.
+  //
+  // ### Examples
+  //
+  // Given the following HTML:
+  //
+  //     <div
+  //       id='someid'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
+  //
+  // This HTML contains a level of indirection and demonstrates the use
+  // of the `data-group-id`:
+  //
+  //     <div
+  //       id='someid2'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //       id='someid'
+  //       data-group-id='someid2'
+  //       data-fieldset-fieldset='fsid'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'></div>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
+  //
+  mod.get = function (key)
+  {
+    var keycc = cc(key);
+    var prelim = elem.dataset[keycc];
+
+    if (prelim)
+    {
+      return prelim;
+    }
+
+    var getValue1 = function (key, elem, id)
+    {
+      var gid = elem.dataset.groupId;
+      var store = document.getElementById(gid);
+      var val = store.dataset[key];
+      var next = store.dataset.groupId;
+
+      if (val === undefined && next !== undefined && gid !== next)
+      {
+        return getValue1.r(key, store, id);
+      }
+
+      return id.r(val);
+    };
+
+    return getValue1.t(keycc, elem, identity);
+  };
+
+  // Like 'get' but will decode base64 encoded values.
+  mod.get64 = function (key)
+  {
+    var retval = mod.get(key);
+    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    return retval;
+  };
+
+  //  This function will set an attribute at the target with a name
+  //  corresponding to key and a value of value.
+  mod.put = function (key, value)
+  {
+    var keycc = cc(key);
+    var dataElem = elem.dataset.groupId;
+    document.getElementById(dataElem).dataset[keycc] = value;
+  };
+
+  //  Helper function for attributes that begin with `data-fieldset`.
+  mod.fs = function (key)
+  {
+    return mod.get('fieldset-' + key);
+  };
+
+  //  Helper function for attributes that begin with `data-field`.
+  mod.f = function (key)
+  {
+    return mod.get('field-' + key);
+  };
+
+  //  Helper function for attributes that begin with `data-document`.
+  mod.d = function (key)
+  {
+    return mod.get('document-' + key);
+  };
+
+  return mod;
+};
+
+exports.store = store;
+
+},{"./utils.js":49}],"e8H8MT":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
   'changelog-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a");_.b("\n" + i);_.b("      href=\"#");_.b(_.v(_.f("document_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      class=\"view-document-link\">");_.b("\n" + i);_.b("      ");if(_.s(_.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.d(".",c,p,0)));});c.pop();}_.b("\n" + i);_.b("    </a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("change_type",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("user",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("timestamp",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n" + i);if(_.s(_.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <tr class=\"change-change\">");_.b("\n" + i);_.b("    <th>");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("fieldsetLabel",c,p,0)));_.b(": ");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("\n" + i);_.b("    </th>");_.b("\n" + i);_.b("    <td colspan=3>");_.b("\n" + i);if(!_.s(_.f("originalValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\n" + i);_.b("      →");_.b("\n" + i);if(!_.s(_.f("newValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("newValue",c,p,0)));_.b("\n" + i);_.b("    </td>");_.b("\n" + i);_.b("  </tr>");_.b("\n");});c.pop();}});c.pop();}return _.fl();;}),
@@ -8485,9 +8511,7 @@ module.exports = {
   'set-options' : r('set-options'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":"nLm5Ax"}],"Bacon.js":[function(require,module,exports){
-module.exports=require('EMvo/m');
-},{}],"EMvo/m":[function(require,module,exports){
+},{"hogan.js":"nLm5Ax"}],"EMvo/m":[function(require,module,exports){
 (function() {
   var Bacon, Bus, CompositeUnsubscribe, Dispatcher, End, Error, Event, EventStream, Initial, Next, None, Observable, Property, PropertyDispatcher, PropertyTransaction, Some, Source, addPropertyInitValueToStream, assert, assertArray, assertEvent, assertEventStream, assertFunction, assertNoArguments, assertString, cloneArray, compositeUnsubscribe, convertArgsToFunction, end, former, indexOf, initial, isFieldKey, isFunction, latterF, liftCallback, makeFunction, makeFunctionArgs, makeFunction_, makeSpawner, next, nop, partiallyApplied, sendWrapped, toCombinator, toEvent, toFieldExtractor, toFieldKey, toOption, toSimpleExtractor, withMethodCallSupport, _, _ref, _ref1, _ref2,
     __slice = [].slice,
@@ -11501,5 +11525,5 @@ var Hogan = {};
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
 
-},{}]},{},[2,3,4,5,6,1,7,8,9,11,10,12,13,14,15,16,18,17,19,20,22,23,21,24,25,27,29,28,26,30,31,32,33,34,38,35,39,41,40,42,43,44,45,46,36,47,48,49,52,50,53,55,54])
+},{}]},{},[1,3,2,4,5,6,7,9,10,8,11,12,13,14,15,16,19,18,17,21,20,22,23,24,26,25,27,28,29,30,31,33,32,34,35,36,37,38,40,39,41,42,43,44,45,47,46,48,53,54,55,56,49])
 ;

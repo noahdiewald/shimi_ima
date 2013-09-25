@@ -52,7 +52,7 @@ var allDocContainer = function ()
 {
   'use strict';
 
-  return $('#all-document-container');
+  return document.getElementById('all-document-container');
 };
 
 // Key used in retrieving cached information from session storage.
@@ -165,7 +165,7 @@ var dname = function ()
 {
   'use strict';
 
-  return store($('#all-document-container')).d('doctype');
+  return store(allDocContainer()).d('doctype');
 };
 
 // Get the project id
@@ -173,7 +173,8 @@ var project = function ()
 {
   'use strict';
 
-  return store($('#container')).get('project-id');
+  var container = document.getElementById('container');
+  return store(container).get('project-id');
 };
 
 // ## Exported functions
