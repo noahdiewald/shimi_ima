@@ -110,4 +110,3 @@ validate_authentication(Props, R, S) ->
         true -> {true, R, S};
         false -> {proplists:get_value(auth_head, S), R, S}
     end.
-
