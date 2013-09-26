@@ -1,0 +1,9 @@
+<li>
+  <label for="{{ key }}">{{ key }}</label>
+  {{^text}}
+  <input type="{{#string}}text{{/string}}{{#number}}number{{/number}}" name="{{ key }}" value="{{ val }}"/>
+  {{/text}}
+  {{#text}}
+    <textarea name="{{ key }}">{{ val }}</textarea>
+  {{/text}}
+</li>

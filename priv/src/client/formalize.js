@@ -8,6 +8,7 @@
 // ## Variable Definitions
 
 var r = require('./recurse.js');
+var templates = require('templates.js');
 
 // ## Internal Functions
 
@@ -73,25 +74,25 @@ var simpleToForm = function (obj)
   var fields = Object.keys(obj).reduce(function (acc, key)
   {
     var val = obj[key];
-    var ret = acc;
+    var ret = {key: key, val: val};
 
     if (typeof val === 'string' && val.length <= 32)
     {
-      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="text" name="' + key + '" value="' + val + '"/></li>';
+      ret.string = true;
     }
     else if (typeof val === 'number')
     {
-      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="number" name="' + key + '" value="' + val + '"/></li>';
+      ret.number = true;
     }
     else if (typeof val === 'string' && val.length > 32)
     {
-      ret = acc + '<li><label for="' + key + '">' + key + '</label> <textarea name="' + key + '">' + val + '</textarea></li>';
+      ret.text = true;
     }
 
-    return ret;
-  }, '');
+    return acc.concat(ret);
+  }, []);
 
-  return '<form><ul>' + fields + '</ul></form>';
+  return templates['simple-to-form']({fields: fields});
 };
 
 // ## External Functions

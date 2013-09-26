@@ -56,7 +56,7 @@ describe('Converting JSON to an HTML form', function ()
     });
     it('should return a form', function ()
     {
-      formalize.toForm('{"test": "ok"}').should.match(/^\s*<form.*<\/form>\s*$/);
+      formalize.toForm('{"test": "ok"}').should.match(/^\s*<form(.|\n)*<\/form>\s*$/);
     });
     it('should return a label named for the key', function ()
     {

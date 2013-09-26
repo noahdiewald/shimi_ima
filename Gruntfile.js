@@ -5,15 +5,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-docco');
   grunt.loadNpmTasks('grunt-hogan');
   grunt.loadNpmTasks('grunt-mocha-cov');
 
   // Project configuration.
-  grunt.initConfig({
+  grunt.initConfig(
+  {
     meta: {
-        version: '0.1.0',
-        banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */\n\n'
+      version: '0.1.0',
+      banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */\n\n'
     },
     browserify: {
       client: {
@@ -30,6 +32,16 @@ module.exports = function(grunt) {
       dist: {
         src: ['priv/src/client/globals.js', '<%= browserify.client.dest %>'],
         dest: 'priv/www/application.js'
+      }
+    },
+    copy: {
+      test: {
+        files: [
+          {expand: true,
+           flatten: true,
+           src: ['priv/templates/compiled/*'],
+           dest: 'node_modules'}
+        ]
       }
     },
     docco: {
@@ -126,7 +138,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('coverage', ['jshint', 'mochacov:coverage']);
-  grunt.registerTask('test', ['jshint', 'mochacov:unit']);
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
+  grunt.registerTask('coverage', ['jshint', 'copy', 'mochacov:coverage']);
+  grunt.registerTask('test', ['jshint', 'copy', 'mochacov:unit']);
+  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'copy', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
 };
