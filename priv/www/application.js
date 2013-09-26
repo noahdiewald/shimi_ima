@@ -501,7 +501,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":6,"./config/doctype-tab.js":11,"./config/maintenanceui.js":17,"./dispatcher.js":19,"./documents/editui.js":23,"./documents/fieldsets.js":24,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/viewui.js":28,"./documents/worksheetui.js":29,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ieditui.js":36,"./panel-toggle.js":47,"./projects/projectui.js":49,"./sender.js":54}],4:[function(require,module,exports){
+},{"./config/charseq-tab":6,"./config/doctype-tab.js":11,"./config/maintenanceui.js":17,"./dispatcher.js":19,"./documents/editui.js":23,"./documents/fieldsets.js":24,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/viewui.js":28,"./documents/worksheetui.js":29,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ieditui.js":36,"./panel-toggle.js":47,"./projects/projectui.js":49,"./sender.js":55}],4:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1550,7 +1550,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":32,"../utils.js":50}],15:[function(require,module,exports){
+},{"../form.js":32,"../utils.js":58}],15:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -2034,7 +2034,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":54,"./editui.js":23}],22:[function(require,module,exports){
+},{"../sender.js":55,"./editui.js":23}],22:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -2305,7 +2305,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":54,"../store.js":57,"./changeui.js":20,"./editui.js":23,"./indexui.js":25,"./setsui.js":27,"./viewui.js":28}],23:[function(require,module,exports){
+},{"../sender.js":55,"../store.js":57,"./changeui.js":20,"./editui.js":23,"./indexui.js":25,"./setsui.js":27,"./viewui.js":28}],23:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -3185,7 +3185,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":48,"../store.js":57,"../utils.js":50,"./editui.js":23}],25:[function(require,module,exports){
+},{"../path.js":48,"../store.js":57,"../utils.js":58,"./editui.js":23}],25:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -3900,7 +3900,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":56,"../utils.js":50,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
+},{"../sets.js":56,"../utils.js":58,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4356,7 +4356,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":31,"../sender.js":54,"../sets.js":56,"../utils.js":50,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
+},{"../flash.js":31,"../sender.js":55,"../sets.js":56,"../utils.js":58,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -5538,6 +5538,8 @@ exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
 // ## Variable Definitions
 
+var r = require('./recurse.js');
+
 // ## Internal Functions
 
 var validateToArg = function (obj)
@@ -5595,6 +5597,26 @@ var tryParseJSON = function (jsn)
   return obj;
 };
 
+var simpleToForm = function (obj)
+{
+  'use strict';
+
+  var fields = Object.keys(obj).reduce(function (acc, key)
+  {
+    var val = obj[key];
+    var ret = acc;
+
+    if (typeof val === 'string' && val.length <= 32)
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="text" name="' + key + '" value="' + val + '"/></li>';
+    }
+
+    return ret;
+  }, '');
+
+  return '<form><ul>' + fields + '</ul></form>';
+};
+
 // ## External Functions
 
 var toForm = function (jsn)
@@ -5605,12 +5627,12 @@ var toForm = function (jsn)
 
   obj = validateToArg(obj);
 
-  return '';
+  return simpleToForm(obj);
 };
 
 exports.toForm = toForm;
 
-},{}],34:[function(require,module,exports){
+},{"./recurse.js":53}],34:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -6598,7 +6620,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":55}],39:[function(require,module,exports){
+},{"../sess.js":50}],39:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -7315,7 +7337,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":7,"./config/doctypeui.js":12,"./documents/changeui.js":20,"./documents/editui.js":23,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/viewui.js":28,"./index_tool/ipreviewui.js":40,"./jquery.hotkeys.js":44,"./sender.js":54}],46:[function(require,module,exports){
+},{"./config/charsequi.js":7,"./config/doctypeui.js":12,"./documents/changeui.js":20,"./documents/editui.js":23,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/viewui.js":28,"./index_tool/ipreviewui.js":40,"./jquery.hotkeys.js":44,"./sender.js":55}],46:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -7914,6 +7936,446 @@ exports.del = del;
 exports.init = init;
 
 },{"../form.js":32}],50:[function(require,module,exports){
+// # Session storage helpers
+//
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
+
+// Exported functions
+
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
+{
+  'use strict';
+
+  if (!window.sessionStorage[doc._id])
+  {
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
+  }
+
+  return doc._id;
+};
+
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
+{
+  'use strict';
+
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
+  {
+    return JSON.parse(doc);
+  }
+  else
+  {
+    return null;
+  }
+};
+
+exports.put = put;
+exports.get = get;
+
+},{}],"hogan.js":[function(require,module,exports){
+module.exports=require('nLm5Ax');
+},{}],"Bacon.js":[function(require,module,exports){
+module.exports=require('EMvo/m');
+},{}],53:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],55:[function(require,module,exports){
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg)
+{
+  'use strict';
+
+  var retval;
+
+  switch (message)
+  {
+  case 'bad-session-state':
+    retval = documents.clearSession();
+    break;
+  case 'doctype-info-ready':
+    retval = documents.makeLabels();
+    break;
+  case 'labels-ready':
+    retval = searchui.loadSearchVals();
+    worksheetui.buildTemplate();
+    break;
+  case 'new-set-form-submit':
+    retval = setsui.saveSelected();
+    break;
+  case 'sets-changed':
+    retval = setsui.updateSelection();
+    break;
+  case 'sets-form-submit':
+    retval = setsui.performOp();
+    break;
+  case 'session-cleared':
+    documents.setVersion();
+    retval = documents.loadDoctype();
+    break;
+  case 'worksheet-form-submit':
+    retval = worksheetui.fillWorksheet();
+    break;
+  case 'initiated-command':
+    retval = commands.dialogOpen(arg);
+    break;
+  case 'executed-command':
+    retval = commands.dialogClose();
+    break;
+  case 'submitted-command':
+    retval = commands.execute(arg);
+    break;
+  case 'lost-focus':
+    retval = editui.selectInput();
+    break;
+  }
+
+  return retval;
+};
+
+exports.sender = sender;
+
+},{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],56:[function(require,module,exports){
+// # Set operations
+//
+// The 'set' is a one dimensional Array by default but by replacing the
+// `member` function, other types of Arrays may be used.
+
+// Exported functions
+
+// Determine membership of item in the set.
+var member = function (arr, x)
+{
+  'use strict';
+
+  var memb = arr.some(function (y)
+  {
+    return x === y;
+  });
+  return memb;
+};
+
+// Rebuild the array so that all values are unique. This is kind of a
+// 'clean up' function used to work around the differences between arrays
+// and sets.
+var unique = function (x, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uniq = x.reduce(function (acc, curr)
+  {
+    if (mem(acc, curr))
+    {
+      return acc;
+    }
+    else
+    {
+      return acc.concat([curr]);
+    }
+  }, []);
+  return uniq;
+};
+
+// Return the union of two sets.
+var union = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uni = unique(xs.concat(ys), mem);
+  return uni;
+};
+
+// Return the intersection of two sets.
+var intersection = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var inter = xs.filter(function (x)
+  {
+    return mem(ys, x);
+  });
+  return inter;
+};
+
+// Return the relative complement of two sets.
+var relativeComplement = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp = xs.filter(function (x)
+  {
+    return !mem(ys, x);
+  });
+  return comp;
+};
+
+// Return the symmetric difference of two sets.
+var symmetricDifference = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp1 = relativeComplement(xs, ys, mem);
+  var comp2 = relativeComplement(ys, xs, mem);
+  var uni = union(comp1, comp2, mem);
+  return uni;
+};
+
+exports.member = member;
+exports.unique = unique;
+exports.union = union;
+exports.intersection = intersection;
+exports.relativeComplement = relativeComplement;
+exports.symmetricDifference = symmetricDifference;
+
+},{}],57:[function(require,module,exports){
+// # Data Attribute Storage and Retrieval Helpers
+//
+// *Implicit depends:* DOM
+//
+// It is likely that this mechanism will be replaced with a superior
+// mechanism for storing data on the client about documents.
+
+// ## Variables
+
+var utils = require('./utils.js');
+var r = require('./recurse.js');
+
+// ## Internal functions
+
+// Camel case a string
+var cc = function (str)
+{
+  'use strict';
+
+  return str.replace(/-./, function (substr)
+  {
+    return substr.toUpperCase()[1];
+  });
+};
+
+// ## External functions
+
+// Takes a JQuery element and returns an object with helper methods for
+// getting and putting custom data attribute values.
+var store = function (elem)
+{
+  'use strict';
+
+  var mod = {};
+
+  // TODO: Remove this when fieldsets.js has JQuery dependency removed
+  if (elem.dataset === undefined)
+  {
+    elem = elem[0];
+  }
+
+  // This funtion takes a key that corresponds to the name of the data
+  // attribute without the `data-` prefix. The element is expected to have
+  // an attribute data-group-id with a value that is the id of the
+  // element actually holding the data.
+  //
+  // ### Examples
+  //
+  // Given the following HTML:
+  //
+  //     <div
+  //       id='someid'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
+  //
+  // This HTML contains a level of indirection and demonstrates the use
+  // of the `data-group-id`:
+  //
+  //     <div
+  //       id='someid2'
+  //       data-fieldset-fieldset='fsid'
+  //       data-fieldset-doctype='did'></div>
+  //
+  //     <div
+  //       id='someid'
+  //       data-group-id='someid2'
+  //       data-fieldset-fieldset='fsid'></div>
+  //
+  //     <div
+  //      id='thisid'
+  //      data-group-id='someid'></div>
+  //
+  // The `data-fieldset-doctype` may be retrieved like this:
+  //
+  //     var thisId = document.getElementById('thisid');
+  //     store(thisId).get('fieldset-doctype') == 'did';
+  //
+  mod.get = function (key)
+  {
+    var keycc = cc(key);
+    var prelim = elem.dataset[keycc];
+
+    if (prelim)
+    {
+      return prelim;
+    }
+
+    var getValue1 = function (key, elem, id)
+    {
+      var gid = elem.dataset.groupId;
+      var store = document.getElementById(gid);
+      var val = store.dataset[key];
+      var next = store.dataset.groupId;
+
+      if (val === undefined && next !== undefined && gid !== next)
+      {
+        return getValue1.r(key, store, id);
+      }
+
+      return id.r(val);
+    };
+
+    return getValue1.t(keycc, elem, r.identity);
+  };
+
+  // Like 'get' but will decode base64 encoded values.
+  mod.get64 = function (key)
+  {
+    var retval = mod.get(key);
+    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
+    return retval;
+  };
+
+  //  This function will set an attribute at the target with a name
+  //  corresponding to key and a value of value.
+  mod.put = function (key, value)
+  {
+    var keycc = cc(key);
+    var dataElem = elem.dataset.groupId;
+    document.getElementById(dataElem).dataset[keycc] = value;
+  };
+
+  //  Helper function for attributes that begin with `data-fieldset`.
+  mod.fs = function (key)
+  {
+    return mod.get('fieldset-' + key);
+  };
+
+  //  Helper function for attributes that begin with `data-field`.
+  mod.f = function (key)
+  {
+    return mod.get('field-' + key);
+  };
+
+  //  Helper function for attributes that begin with `data-document`.
+  mod.d = function (key)
+  {
+    return mod.get('document-' + key);
+  };
+
+  return mod;
+};
+
+exports.store = store;
+
+},{"./recurse.js":53,"./utils.js":58}],58:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -8121,433 +8583,7 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"hogan.js":[function(require,module,exports){
-module.exports=require('nLm5Ax');
-},{}],"Bacon.js":[function(require,module,exports){
-module.exports=require('EMvo/m');
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],54:[function(require,module,exports){
-// # Take actions depending on reported state.
-//
-// This is essentially and experiment in attempting to perform actions
-// based on the state of the application. It is an idea that I'm still
-// working on but the idea is to avoid having functions directly call
-// other functions to initiate new actions but to instead simply report
-// their state and have some central authority decide what to do next.
-
-// Variable Definitions
-
-var commands = require('./documents/commands.js');
-var documents = require('./documents/documents.js');
-var editui = require('./documents/editui.js');
-var searchui = require('./documents/searchui.js');
-var setsui = require('./documents/setsui.js');
-var worksheetui = require('./documents/worksheetui.js');
-
-// Exported functions
-
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg)
-{
-  'use strict';
-
-  var retval;
-
-  switch (message)
-  {
-  case 'bad-session-state':
-    retval = documents.clearSession();
-    break;
-  case 'doctype-info-ready':
-    retval = documents.makeLabels();
-    break;
-  case 'labels-ready':
-    retval = searchui.loadSearchVals();
-    worksheetui.buildTemplate();
-    break;
-  case 'new-set-form-submit':
-    retval = setsui.saveSelected();
-    break;
-  case 'sets-changed':
-    retval = setsui.updateSelection();
-    break;
-  case 'sets-form-submit':
-    retval = setsui.performOp();
-    break;
-  case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
-    break;
-  case 'worksheet-form-submit':
-    retval = worksheetui.fillWorksheet();
-    break;
-  case 'initiated-command':
-    retval = commands.dialogOpen(arg);
-    break;
-  case 'executed-command':
-    retval = commands.dialogClose();
-    break;
-  case 'submitted-command':
-    retval = commands.execute(arg);
-    break;
-  case 'lost-focus':
-    retval = editui.selectInput();
-    break;
-  }
-
-  return retval;
-};
-
-exports.sender = sender;
-
-},{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],55:[function(require,module,exports){
-// # Session storage helpers
-//
-// *Implicit depends:* DOM
-//
-// This is primarily used to store and retrieve items with a structure
-// similar to a CouchDB document.
-
-// Exported functions
-
-// If the item is not already in the session storage, convert it to JSON
-// and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
-{
-  'use strict';
-
-  if (!window.sessionStorage[doc._id])
-  {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-
-  return doc._id;
-};
-
-// Retrieve the document, which is stored as JSON, by its `_id` and
-// return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
-{
-  'use strict';
-
-  var doc = window.sessionStorage[docId];
-
-  if (doc)
-  {
-    return JSON.parse(doc);
-  }
-  else
-  {
-    return null;
-  }
-};
-
-exports.put = put;
-exports.get = get;
-
-},{}],56:[function(require,module,exports){
-// # Set operations
-//
-// The 'set' is a one dimensional Array by default but by replacing the
-// `member` function, other types of Arrays may be used.
-
-// Exported functions
-
-// Determine membership of item in the set.
-var member = function (arr, x)
-{
-  'use strict';
-
-  var memb = arr.some(function (y)
-  {
-    return x === y;
-  });
-  return memb;
-};
-
-// Rebuild the array so that all values are unique. This is kind of a
-// 'clean up' function used to work around the differences between arrays
-// and sets.
-var unique = function (x, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var uniq = x.reduce(function (acc, curr)
-  {
-    if (mem(acc, curr))
-    {
-      return acc;
-    }
-    else
-    {
-      return acc.concat([curr]);
-    }
-  }, []);
-  return uniq;
-};
-
-// Return the union of two sets.
-var union = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var uni = unique(xs.concat(ys), mem);
-  return uni;
-};
-
-// Return the intersection of two sets.
-var intersection = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var inter = xs.filter(function (x)
-  {
-    return mem(ys, x);
-  });
-  return inter;
-};
-
-// Return the relative complement of two sets.
-var relativeComplement = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp = xs.filter(function (x)
-  {
-    return !mem(ys, x);
-  });
-  return comp;
-};
-
-// Return the symmetric difference of two sets.
-var symmetricDifference = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp1 = relativeComplement(xs, ys, mem);
-  var comp2 = relativeComplement(ys, xs, mem);
-  var uni = union(comp1, comp2, mem);
-  return uni;
-};
-
-exports.member = member;
-exports.unique = unique;
-exports.union = union;
-exports.intersection = intersection;
-exports.relativeComplement = relativeComplement;
-exports.symmetricDifference = symmetricDifference;
-
-},{}],57:[function(require,module,exports){
-// # Data Attribute Storage and Retrieval Helpers
-//
-// *Implicit depends:* DOM
-//
-// It is likely that this mechanism will be replaced with a superior
-// mechanism for storing data on the client about documents.
-
-// ## Variables
-
-var utils = require('./utils.js');
-
-// ## Internal functions
-
-// Identity function for tail recursion
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Part of the tail call optimization code
-Function.prototype.r = function ()
-{
-  'use strict';
-
-  return [this, arguments];
-};
-
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-Function.prototype.t = function ()
-{
-  'use strict';
-
-  var c = [this, arguments];
-  var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape)
-  {
-    c = c[0].apply(this, c[1]);
-  }
-  return escape.apply(this, c[1]);
-};
-
-// Camel case a string
-var cc = function (str)
-{
-  'use strict';
-
-  return str.replace(/-./, function (substr)
-  {
-    return substr.toUpperCase()[1];
-  });
-};
-
-// ## External functions
-
-// Takes a JQuery element and returns an object with helper methods for
-// getting and putting custom data attribute values.
-var store = function (elem)
-{
-  'use strict';
-
-  var mod = {};
-
-  // TODO: Remove this when fieldsets.js has JQuery dependency removed
-  if (elem.dataset === undefined)
-  {
-    elem = elem[0];
-  }
-
-  // This funtion takes a key that corresponds to the name of the data
-  // attribute without the `data-` prefix. The element is expected to have
-  // an attribute data-group-id with a value that is the id of the
-  // element actually holding the data.
-  //
-  // ### Examples
-  //
-  // Given the following HTML:
-  //
-  //     <div
-  //       id='someid'
-  //       data-fieldset-fieldset='fsid'
-  //       data-fieldset-doctype='did'></div>
-  //
-  //     <div
-  //      id='thisid'
-  //      data-group-id='someid'>
-  //
-  // The `data-fieldset-doctype` may be retrieved like this:
-  //
-  //     var thisId = document.getElementById('thisid');
-  //     store(thisId).get('fieldset-doctype') == 'did';
-  //
-  // This HTML contains a level of indirection and demonstrates the use
-  // of the `data-group-id`:
-  //
-  //     <div
-  //       id='someid2'
-  //       data-fieldset-fieldset='fsid'
-  //       data-fieldset-doctype='did'></div>
-  //
-  //     <div
-  //       id='someid'
-  //       data-group-id='someid2'
-  //       data-fieldset-fieldset='fsid'></div>
-  //
-  //     <div
-  //      id='thisid'
-  //      data-group-id='someid'></div>
-  //
-  // The `data-fieldset-doctype` may be retrieved like this:
-  //
-  //     var thisId = document.getElementById('thisid');
-  //     store(thisId).get('fieldset-doctype') == 'did';
-  //
-  mod.get = function (key)
-  {
-    var keycc = cc(key);
-    var prelim = elem.dataset[keycc];
-
-    if (prelim)
-    {
-      return prelim;
-    }
-
-    var getValue1 = function (key, elem, id)
-    {
-      var gid = elem.dataset.groupId;
-      var store = document.getElementById(gid);
-      var val = store.dataset[key];
-      var next = store.dataset.groupId;
-
-      if (val === undefined && next !== undefined && gid !== next)
-      {
-        return getValue1.r(key, store, id);
-      }
-
-      return id.r(val);
-    };
-
-    return getValue1.t(keycc, elem, identity);
-  };
-
-  // Like 'get' but will decode base64 encoded values.
-  mod.get64 = function (key)
-  {
-    var retval = mod.get(key);
-    retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
-    return retval;
-  };
-
-  //  This function will set an attribute at the target with a name
-  //  corresponding to key and a value of value.
-  mod.put = function (key, value)
-  {
-    var keycc = cc(key);
-    var dataElem = elem.dataset.groupId;
-    document.getElementById(dataElem).dataset[keycc] = value;
-  };
-
-  //  Helper function for attributes that begin with `data-fieldset`.
-  mod.fs = function (key)
-  {
-    return mod.get('fieldset-' + key);
-  };
-
-  //  Helper function for attributes that begin with `data-field`.
-  mod.f = function (key)
-  {
-    return mod.get('field-' + key);
-  };
-
-  //  Helper function for attributes that begin with `data-document`.
-  mod.d = function (key)
-  {
-    return mod.get('document-' + key);
-  };
-
-  return mod;
-};
-
-exports.store = store;
-
-},{"./utils.js":50}],"e8H8MT":[function(require,module,exports){
+},{}],"e8H8MT":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
   'changelog-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a");_.b("\n" + i);_.b("      href=\"#");_.b(_.v(_.f("document_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      class=\"view-document-link\">");_.b("\n" + i);_.b("      ");if(_.s(_.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.d(".",c,p,0)));});c.pop();}_.b("\n" + i);_.b("    </a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("change_type",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("user",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("timestamp",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n" + i);if(_.s(_.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <tr class=\"change-change\">");_.b("\n" + i);_.b("    <th>");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("fieldsetLabel",c,p,0)));_.b(": ");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("\n" + i);_.b("    </th>");_.b("\n" + i);_.b("    <td colspan=3>");_.b("\n" + i);if(!_.s(_.f("originalValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\n" + i);_.b("      →");_.b("\n" + i);if(!_.s(_.f("newValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("newValue",c,p,0)));_.b("\n" + i);_.b("    </td>");_.b("\n" + i);_.b("  </tr>");_.b("\n");});c.pop();}});c.pop();}return _.fl();;}),
@@ -11606,5 +11642,5 @@ var Hogan = {};
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
 
-},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,54,55,56,57,50])
+},{}]},{},[1,3,2,4,7,9,8,5,6,11,10,12,13,14,16,17,18,19,21,22,23,24,25,15,20,26,27,28,30,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,49,48,55,53,50,56,57,58])
 ;

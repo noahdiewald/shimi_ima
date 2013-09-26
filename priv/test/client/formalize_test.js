@@ -58,11 +58,29 @@ describe('Converting JSON to an HTML form', function ()
     {
       formalize.toForm('{"test": "ok"}').should.match(/^\s*<form.*<\/form>\s*$/);
     });
+    it('should return have a label named for the key', function ()
+    {
+      formalize.toForm('{"test": "ok"}').should.match(/>test<\/label>/);
+      formalize.toForm('{"test": "ok"}').should.match(/<label for="test">/);
+    });
+    it('should return have an input named for the key', function ()
+    {
+      formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*name="test"/);
+    });
+    it('should return have an unordered list with a single element', function ()
+    {
+      formalize.toForm('{"test": "ok"}').match(/<ul>/g).length.should.equal(1);
+      formalize.toForm('{"test": "ok"}').match(/<li>/g).length.should.equal(1);
+    });
     describe('when key value is a string of less than 32 characters', function ()
     {
       it('should return an input type of "text"', function ()
       {
-        formalize.toForm('{"test": "ok"}').should.match(/<input type="text"/);
+        formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*type="text"/);
+      });
+      it('should return an input with the correct value', function ()
+      {
+        formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*value="ok"/);
       });
     });
   });

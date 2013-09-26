@@ -7,6 +7,8 @@
 
 // ## Variable Definitions
 
+var r = require('./recurse.js');
+
 // ## Internal Functions
 
 var validateToArg = function (obj)
@@ -64,6 +66,26 @@ var tryParseJSON = function (jsn)
   return obj;
 };
 
+var simpleToForm = function (obj)
+{
+  'use strict';
+
+  var fields = Object.keys(obj).reduce(function (acc, key)
+  {
+    var val = obj[key];
+    var ret = acc;
+
+    if (typeof val === 'string' && val.length <= 32)
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="text" name="' + key + '" value="' + val + '"/></li>';
+    }
+
+    return ret;
+  }, '');
+
+  return '<form><ul>' + fields + '</ul></form>';
+};
+
 // ## External Functions
 
 var toForm = function (jsn)
@@ -74,7 +96,7 @@ var toForm = function (jsn)
 
   obj = validateToArg(obj);
 
-  return '';
+  return simpleToForm(obj);
 };
 
 exports.toForm = toForm;
