@@ -58,16 +58,16 @@ describe('Converting JSON to an HTML form', function ()
     {
       formalize.toForm('{"test": "ok"}').should.match(/^\s*<form.*<\/form>\s*$/);
     });
-    it('should return have a label named for the key', function ()
+    it('should return a label named for the key', function ()
     {
       formalize.toForm('{"test": "ok"}').should.match(/>test<\/label>/);
       formalize.toForm('{"test": "ok"}').should.match(/<label for="test">/);
     });
-    it('should return have an input named for the key', function ()
+    it('should return an input named for the key', function ()
     {
       formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*name="test"/);
     });
-    it('should return have an unordered list with a single element', function ()
+    it('should return an unordered list with a single element', function ()
     {
       formalize.toForm('{"test": "ok"}').match(/<ul>/g).length.should.equal(1);
       formalize.toForm('{"test": "ok"}').match(/<li>/g).length.should.equal(1);
@@ -82,6 +82,41 @@ describe('Converting JSON to an HTML form', function ()
       {
         formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*value="ok"/);
       });
+    });
+    describe('when key value is a string of greater than 32 characters', function ()
+    {
+      it('should return a textarea', function ()
+      {
+        formalize.toForm('{"test": "0123456789012345678901234567890123"}').should.match(/<textarea name="test">[0-9]{34}<\/textarea>/);
+      });
+    });
+    describe('when key value is a number', function ()
+    {
+      it('should return an input type of "number"', function ()
+      {
+        formalize.toForm('{"test": 23}').should.match(/<input [^>]*type="number"/);
+      });
+    });
+  });
+  describe('when provided an object with multiple keys', function ()
+  {
+    it('should return a label named for each key', function ()
+    {
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/>a<\/label>/);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<label for="a">/);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/>b<\/label>/);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<label for="b">/);
+    });
+    it('should return an input named for each key', function ()
+    {
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<input [^>]*name="a"/);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<input [^>]*name="b"/);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<input [^>]*name="c"/);
+    });
+    it('should return an unordered list with the correct number of elements', function ()
+    {
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<ul>/g).length.should.equal(1);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<li>/g).length.should.equal(3);
     });
   });
 });

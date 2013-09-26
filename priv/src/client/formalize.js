@@ -79,6 +79,14 @@ var simpleToForm = function (obj)
     {
       ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="text" name="' + key + '" value="' + val + '"/></li>';
     }
+    else if (typeof val === 'number')
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="number" name="' + key + '" value="' + val + '"/></li>';
+    }
+    else if (typeof val === 'string' && val.length > 32)
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <textarea name="' + key + '">' + val + '</textarea></li>';
+    }
 
     return ret;
   }, '');

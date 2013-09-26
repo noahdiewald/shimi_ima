@@ -3900,7 +3900,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":56,"../utils.js":58,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
+},{"../sets.js":50,"../utils.js":58,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4356,7 +4356,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":31,"../sender.js":55,"../sets.js":56,"../utils.js":58,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
+},{"../flash.js":31,"../sender.js":55,"../sets.js":50,"../utils.js":58,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -5610,6 +5610,14 @@ var simpleToForm = function (obj)
     {
       ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="text" name="' + key + '" value="' + val + '"/></li>';
     }
+    else if (typeof val === 'number')
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <input type="number" name="' + key + '" value="' + val + '"/></li>';
+    }
+    else if (typeof val === 'string' && val.length > 32)
+    {
+      ret = acc + '<li><label for="' + key + '">' + key + '</label> <textarea name="' + key + '">' + val + '</textarea></li>';
+    }
 
     return ret;
   }, '');
@@ -6620,7 +6628,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":50}],39:[function(require,module,exports){
+},{"../sess.js":56}],39:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -7936,49 +7944,116 @@ exports.del = del;
 exports.init = init;
 
 },{"../form.js":32}],50:[function(require,module,exports){
-// # Session storage helpers
+// # Set operations
 //
-// *Implicit depends:* DOM
-//
-// This is primarily used to store and retrieve items with a structure
-// similar to a CouchDB document.
+// The 'set' is a one dimensional Array by default but by replacing the
+// `member` function, other types of Arrays may be used.
 
 // Exported functions
 
-// If the item is not already in the session storage, convert it to JSON
-// and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
+// Determine membership of item in the set.
+var member = function (arr, x)
 {
   'use strict';
 
-  if (!window.sessionStorage[doc._id])
+  var memb = arr.some(function (y)
   {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-
-  return doc._id;
+    return x === y;
+  });
+  return memb;
 };
 
-// Retrieve the document, which is stored as JSON, by its `_id` and
-// return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
+// Rebuild the array so that all values are unique. This is kind of a
+// 'clean up' function used to work around the differences between arrays
+// and sets.
+var unique = function (x, mem)
 {
   'use strict';
 
-  var doc = window.sessionStorage[docId];
-
-  if (doc)
+  if (!mem)
   {
-    return JSON.parse(doc);
+    mem = member;
   }
-  else
+  var uniq = x.reduce(function (acc, curr)
   {
-    return null;
-  }
+    if (mem(acc, curr))
+    {
+      return acc;
+    }
+    else
+    {
+      return acc.concat([curr]);
+    }
+  }, []);
+  return uniq;
 };
 
-exports.put = put;
-exports.get = get;
+// Return the union of two sets.
+var union = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var uni = unique(xs.concat(ys), mem);
+  return uni;
+};
+
+// Return the intersection of two sets.
+var intersection = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var inter = xs.filter(function (x)
+  {
+    return mem(ys, x);
+  });
+  return inter;
+};
+
+// Return the relative complement of two sets.
+var relativeComplement = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp = xs.filter(function (x)
+  {
+    return !mem(ys, x);
+  });
+  return comp;
+};
+
+// Return the symmetric difference of two sets.
+var symmetricDifference = function (xs, ys, mem)
+{
+  'use strict';
+
+  if (!mem)
+  {
+    mem = member;
+  }
+  var comp1 = relativeComplement(xs, ys, mem);
+  var comp2 = relativeComplement(ys, xs, mem);
+  var uni = union(comp1, comp2, mem);
+  return uni;
+};
+
+exports.member = member;
+exports.unique = unique;
+exports.union = union;
+exports.intersection = intersection;
+exports.relativeComplement = relativeComplement;
+exports.symmetricDifference = symmetricDifference;
 
 },{}],"hogan.js":[function(require,module,exports){
 module.exports=require('nLm5Ax');
@@ -8109,116 +8184,49 @@ var sender = function (message, arg)
 exports.sender = sender;
 
 },{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],56:[function(require,module,exports){
-// # Set operations
+// # Session storage helpers
 //
-// The 'set' is a one dimensional Array by default but by replacing the
-// `member` function, other types of Arrays may be used.
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
 
 // Exported functions
 
-// Determine membership of item in the set.
-var member = function (arr, x)
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
 {
   'use strict';
 
-  var memb = arr.some(function (y)
+  if (!window.sessionStorage[doc._id])
   {
-    return x === y;
-  });
-  return memb;
-};
-
-// Rebuild the array so that all values are unique. This is kind of a
-// 'clean up' function used to work around the differences between arrays
-// and sets.
-var unique = function (x, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
   }
-  var uniq = x.reduce(function (acc, curr)
-  {
-    if (mem(acc, curr))
-    {
-      return acc;
-    }
-    else
-    {
-      return acc.concat([curr]);
-    }
-  }, []);
-  return uniq;
+
+  return doc._id;
 };
 
-// Return the union of two sets.
-var union = function (xs, ys, mem)
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
 {
   'use strict';
 
-  if (!mem)
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
   {
-    mem = member;
+    return JSON.parse(doc);
   }
-  var uni = unique(xs.concat(ys), mem);
-  return uni;
+  else
+  {
+    return null;
+  }
 };
 
-// Return the intersection of two sets.
-var intersection = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var inter = xs.filter(function (x)
-  {
-    return mem(ys, x);
-  });
-  return inter;
-};
-
-// Return the relative complement of two sets.
-var relativeComplement = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp = xs.filter(function (x)
-  {
-    return !mem(ys, x);
-  });
-  return comp;
-};
-
-// Return the symmetric difference of two sets.
-var symmetricDifference = function (xs, ys, mem)
-{
-  'use strict';
-
-  if (!mem)
-  {
-    mem = member;
-  }
-  var comp1 = relativeComplement(xs, ys, mem);
-  var comp2 = relativeComplement(ys, xs, mem);
-  var uni = union(comp1, comp2, mem);
-  return uni;
-};
-
-exports.member = member;
-exports.unique = unique;
-exports.union = union;
-exports.intersection = intersection;
-exports.relativeComplement = relativeComplement;
-exports.symmetricDifference = symmetricDifference;
+exports.put = put;
+exports.get = get;
 
 },{}],57:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
@@ -11642,5 +11650,5 @@ var Hogan = {};
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
 
-},{}]},{},[1,3,2,4,7,9,8,5,6,11,10,12,13,14,16,17,18,19,21,22,23,24,25,15,20,26,27,28,30,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,49,48,55,53,50,56,57,58])
+},{}]},{},[1,5,6,3,8,4,9,13,10,11,12,14,17,16,18,19,20,15,21,2,22,23,7,25,24,27,26,28,29,30,32,33,31,34,35,36,37,39,40,38,41,42,45,43,44,46,47,49,48,53,55,56,50,57,58])
 ;
