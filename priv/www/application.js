@@ -11,6 +11,616 @@
 var globals = {};
 
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*
+ *  Copyright 2011 Twitter, Inc.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+(function (Hogan) {
+  // Setup regex  assignments
+  // remove whitespace according to Mustache spec
+  var rIsWhitespace = /\S/,
+      rQuot = /\"/g,
+      rNewline =  /\n/g,
+      rCr = /\r/g,
+      rSlash = /\\/g,
+      tagTypes = {
+        '#': 1, '^': 2, '/': 3,  '!': 4, '>': 5,
+        '<': 6, '=': 7, '_v': 8, '{': 9, '&': 10
+      };
+
+  Hogan.scan = function scan(text, delimiters) {
+    var len = text.length,
+        IN_TEXT = 0,
+        IN_TAG_TYPE = 1,
+        IN_TAG = 2,
+        state = IN_TEXT,
+        tagType = null,
+        tag = null,
+        buf = '',
+        tokens = [],
+        seenTag = false,
+        i = 0,
+        lineStart = 0,
+        otag = '{{',
+        ctag = '}}';
+
+    function addBuf() {
+      if (buf.length > 0) {
+        tokens.push(new String(buf));
+        buf = '';
+      }
+    }
+
+    function lineIsWhitespace() {
+      var isAllWhitespace = true;
+      for (var j = lineStart; j < tokens.length; j++) {
+        isAllWhitespace =
+          (tokens[j].tag && tagTypes[tokens[j].tag] < tagTypes['_v']) ||
+          (!tokens[j].tag && tokens[j].match(rIsWhitespace) === null);
+        if (!isAllWhitespace) {
+          return false;
+        }
+      }
+
+      return isAllWhitespace;
+    }
+
+    function filterLine(haveSeenTag, noNewLine) {
+      addBuf();
+
+      if (haveSeenTag && lineIsWhitespace()) {
+        for (var j = lineStart, next; j < tokens.length; j++) {
+          if (!tokens[j].tag) {
+            if ((next = tokens[j+1]) && next.tag == '>') {
+              // set indent to token value
+              next.indent = tokens[j].toString()
+            }
+            tokens.splice(j, 1);
+          }
+        }
+      } else if (!noNewLine) {
+        tokens.push({tag:'\n'});
+      }
+
+      seenTag = false;
+      lineStart = tokens.length;
+    }
+
+    function changeDelimiters(text, index) {
+      var close = '=' + ctag,
+          closeIndex = text.indexOf(close, index),
+          delimiters = trim(
+            text.substring(text.indexOf('=', index) + 1, closeIndex)
+          ).split(' ');
+
+      otag = delimiters[0];
+      ctag = delimiters[1];
+
+      return closeIndex + close.length - 1;
+    }
+
+    if (delimiters) {
+      delimiters = delimiters.split(' ');
+      otag = delimiters[0];
+      ctag = delimiters[1];
+    }
+
+    for (i = 0; i < len; i++) {
+      if (state == IN_TEXT) {
+        if (tagChange(otag, text, i)) {
+          --i;
+          addBuf();
+          state = IN_TAG_TYPE;
+        } else {
+          if (text.charAt(i) == '\n') {
+            filterLine(seenTag);
+          } else {
+            buf += text.charAt(i);
+          }
+        }
+      } else if (state == IN_TAG_TYPE) {
+        i += otag.length - 1;
+        tag = tagTypes[text.charAt(i + 1)];
+        tagType = tag ? text.charAt(i + 1) : '_v';
+        if (tagType == '=') {
+          i = changeDelimiters(text, i);
+          state = IN_TEXT;
+        } else {
+          if (tag) {
+            i++;
+          }
+          state = IN_TAG;
+        }
+        seenTag = i;
+      } else {
+        if (tagChange(ctag, text, i)) {
+          tokens.push({tag: tagType, n: trim(buf), otag: otag, ctag: ctag,
+                       i: (tagType == '/') ? seenTag - ctag.length : i + otag.length});
+          buf = '';
+          i += ctag.length - 1;
+          state = IN_TEXT;
+          if (tagType == '{') {
+            if (ctag == '}}') {
+              i++;
+            } else {
+              cleanTripleStache(tokens[tokens.length - 1]);
+            }
+          }
+        } else {
+          buf += text.charAt(i);
+        }
+      }
+    }
+
+    filterLine(seenTag, true);
+
+    return tokens;
+  }
+
+  function cleanTripleStache(token) {
+    if (token.n.substr(token.n.length - 1) === '}') {
+      token.n = token.n.substring(0, token.n.length - 1);
+    }
+  }
+
+  function trim(s) {
+    if (s.trim) {
+      return s.trim();
+    }
+
+    return s.replace(/^\s*|\s*$/g, '');
+  }
+
+  function tagChange(tag, text, index) {
+    if (text.charAt(index) != tag.charAt(0)) {
+      return false;
+    }
+
+    for (var i = 1, l = tag.length; i < l; i++) {
+      if (text.charAt(index + i) != tag.charAt(i)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function buildTree(tokens, kind, stack, customTags) {
+    var instructions = [],
+        opener = null,
+        token = null;
+
+    while (tokens.length > 0) {
+      token = tokens.shift();
+      if (token.tag == '#' || token.tag == '^' || isOpener(token, customTags)) {
+        stack.push(token);
+        token.nodes = buildTree(tokens, token.tag, stack, customTags);
+        instructions.push(token);
+      } else if (token.tag == '/') {
+        if (stack.length === 0) {
+          throw new Error('Closing tag without opener: /' + token.n);
+        }
+        opener = stack.pop();
+        if (token.n != opener.n && !isCloser(token.n, opener.n, customTags)) {
+          throw new Error('Nesting error: ' + opener.n + ' vs. ' + token.n);
+        }
+        opener.end = token.i;
+        return instructions;
+      } else {
+        instructions.push(token);
+      }
+    }
+
+    if (stack.length > 0) {
+      throw new Error('missing closing tag: ' + stack.pop().n);
+    }
+
+    return instructions;
+  }
+
+  function isOpener(token, tags) {
+    for (var i = 0, l = tags.length; i < l; i++) {
+      if (tags[i].o == token.n) {
+        token.tag = '#';
+        return true;
+      }
+    }
+  }
+
+  function isCloser(close, open, tags) {
+    for (var i = 0, l = tags.length; i < l; i++) {
+      if (tags[i].c == close && tags[i].o == open) {
+        return true;
+      }
+    }
+  }
+
+  Hogan.generate = function (tree, text, options) {
+    var code = 'var _=this;_.b(i=i||"");' + walk(tree) + 'return _.fl();';
+    if (options.asString) {
+      return 'function(c,p,i){' + code + ';}';
+    }
+
+    return new Hogan.Template(new Function('c', 'p', 'i', code), text, Hogan, options);
+  }
+
+  function esc(s) {
+    return s.replace(rSlash, '\\\\')
+            .replace(rQuot, '\\\"')
+            .replace(rNewline, '\\n')
+            .replace(rCr, '\\r');
+  }
+
+  function chooseMethod(s) {
+    return (~s.indexOf('.')) ? 'd' : 'f';
+  }
+
+  function walk(tree) {
+    var code = '';
+    for (var i = 0, l = tree.length; i < l; i++) {
+      var tag = tree[i].tag;
+      if (tag == '#') {
+        code += section(tree[i].nodes, tree[i].n, chooseMethod(tree[i].n),
+                        tree[i].i, tree[i].end, tree[i].otag + " " + tree[i].ctag);
+      } else if (tag == '^') {
+        code += invertedSection(tree[i].nodes, tree[i].n,
+                                chooseMethod(tree[i].n));
+      } else if (tag == '<' || tag == '>') {
+        code += partial(tree[i]);
+      } else if (tag == '{' || tag == '&') {
+        code += tripleStache(tree[i].n, chooseMethod(tree[i].n));
+      } else if (tag == '\n') {
+        code += text('"\\n"' + (tree.length-1 == i ? '' : ' + i'));
+      } else if (tag == '_v') {
+        code += variable(tree[i].n, chooseMethod(tree[i].n));
+      } else if (tag === undefined) {
+        code += text('"' + esc(tree[i]) + '"');
+      }
+    }
+    return code;
+  }
+
+  function section(nodes, id, method, start, end, tags) {
+    return 'if(_.s(_.' + method + '("' + esc(id) + '",c,p,1),' +
+           'c,p,0,' + start + ',' + end + ',"' + tags + '")){' +
+           '_.rs(c,p,' +
+           'function(c,p,_){' +
+           walk(nodes) +
+           '});c.pop();}';
+  }
+
+  function invertedSection(nodes, id, method) {
+    return 'if(!_.s(_.' + method + '("' + esc(id) + '",c,p,1),c,p,1,0,0,"")){' +
+           walk(nodes) +
+           '};';
+  }
+
+  function partial(tok) {
+    return '_.b(_.rp("' +  esc(tok.n) + '",c,p,"' + (tok.indent || '') + '"));';
+  }
+
+  function tripleStache(id, method) {
+    return '_.b(_.t(_.' + method + '("' + esc(id) + '",c,p,0)));';
+  }
+
+  function variable(id, method) {
+    return '_.b(_.v(_.' + method + '("' + esc(id) + '",c,p,0)));';
+  }
+
+  function text(id) {
+    return '_.b(' + id + ');';
+  }
+
+  Hogan.parse = function(tokens, text, options) {
+    options = options || {};
+    return buildTree(tokens, '', [], options.sectionTags || []);
+  },
+
+  Hogan.cache = {};
+
+  Hogan.compile = function(text, options) {
+    // options
+    //
+    // asString: false (default)
+    //
+    // sectionTags: [{o: '_foo', c: 'foo'}]
+    // An array of object with o and c fields that indicate names for custom
+    // section tags. The example above allows parsing of {{_foo}}{{/foo}}.
+    //
+    // delimiters: A string that overrides the default delimiters.
+    // Example: "<% %>"
+    //
+    options = options || {};
+
+    var key = text + '||' + !!options.asString;
+
+    var t = this.cache[key];
+
+    if (t) {
+      return t;
+    }
+
+    t = this.generate(this.parse(this.scan(text, options.delimiters), text, options), text, options);
+    return this.cache[key] = t;
+  };
+})(typeof exports !== 'undefined' ? exports : Hogan);
+
+},{}],2:[function(require,module,exports){
+/*
+ *  Copyright 2011 Twitter, Inc.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+// This file is for use with Node.js. See dist/ for browser files.
+
+var Hogan = require('./compiler');
+Hogan.Template = require('./template').Template;
+module.exports = Hogan; 
+},{"./compiler":1,"./template":3}],3:[function(require,module,exports){
+/*
+ *  Copyright 2011 Twitter, Inc.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+var Hogan = {};
+
+(function (Hogan, useArrayBuffer) {
+  Hogan.Template = function (renderFunc, text, compiler, options) {
+    this.r = renderFunc || this.r;
+    this.c = compiler;
+    this.options = options;
+    this.text = text || '';
+    this.buf = (useArrayBuffer) ? [] : '';
+  }
+
+  Hogan.Template.prototype = {
+    // render: replaced by generated code.
+    r: function (context, partials, indent) { return ''; },
+
+    // variable escaping
+    v: hoganEscape,
+
+    // triple stache
+    t: coerceToString,
+
+    render: function render(context, partials, indent) {
+      return this.ri([context], partials || {}, indent);
+    },
+
+    // render internal -- a hook for overrides that catches partials too
+    ri: function (context, partials, indent) {
+      return this.r(context, partials, indent);
+    },
+
+    // tries to find a partial in the curent scope and render it
+    rp: function(name, context, partials, indent) {
+      var partial = partials[name];
+
+      if (!partial) {
+        return '';
+      }
+
+      if (this.c && typeof partial == 'string') {
+        partial = this.c.compile(partial, this.options);
+      }
+
+      return partial.ri(context, partials, indent);
+    },
+
+    // render a section
+    rs: function(context, partials, section) {
+      var tail = context[context.length - 1];
+
+      if (!isArray(tail)) {
+        section(context, partials, this);
+        return;
+      }
+
+      for (var i = 0; i < tail.length; i++) {
+        context.push(tail[i]);
+        section(context, partials, this);
+        context.pop();
+      }
+    },
+
+    // maybe start a section
+    s: function(val, ctx, partials, inverted, start, end, tags) {
+      var pass;
+
+      if (isArray(val) && val.length === 0) {
+        return false;
+      }
+
+      if (typeof val == 'function') {
+        val = this.ls(val, ctx, partials, inverted, start, end, tags);
+      }
+
+      pass = (val === '') || !!val;
+
+      if (!inverted && pass && ctx) {
+        ctx.push((typeof val == 'object') ? val : ctx[ctx.length - 1]);
+      }
+
+      return pass;
+    },
+
+    // find values with dotted names
+    d: function(key, ctx, partials, returnFound) {
+      var names = key.split('.'),
+          val = this.f(names[0], ctx, partials, returnFound),
+          cx = null;
+
+      if (key === '.' && isArray(ctx[ctx.length - 2])) {
+        return ctx[ctx.length - 1];
+      }
+
+      for (var i = 1; i < names.length; i++) {
+        if (val && typeof val == 'object' && names[i] in val) {
+          cx = val;
+          val = val[names[i]];
+        } else {
+          val = '';
+        }
+      }
+
+      if (returnFound && !val) {
+        return false;
+      }
+
+      if (!returnFound && typeof val == 'function') {
+        ctx.push(cx);
+        val = this.lv(val, ctx, partials);
+        ctx.pop();
+      }
+
+      return val;
+    },
+
+    // find values with normal names
+    f: function(key, ctx, partials, returnFound) {
+      var val = false,
+          v = null,
+          found = false;
+
+      for (var i = ctx.length - 1; i >= 0; i--) {
+        v = ctx[i];
+        if (v && typeof v == 'object' && key in v) {
+          val = v[key];
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        return (returnFound) ? false : "";
+      }
+
+      if (!returnFound && typeof val == 'function') {
+        val = this.lv(val, ctx, partials);
+      }
+
+      return val;
+    },
+
+    // higher order templates
+    ho: function(val, cx, partials, text, tags) {
+      var compiler = this.c;
+      var options = this.options;
+      options.delimiters = tags;
+      var text = val.call(cx, text);
+      text = (text == null) ? String(text) : text.toString();
+      this.b(compiler.compile(text, options).render(cx, partials));
+      return false;
+    },
+
+    // template result buffering
+    b: (useArrayBuffer) ? function(s) { this.buf.push(s); } :
+                          function(s) { this.buf += s; },
+    fl: (useArrayBuffer) ? function() { var r = this.buf.join(''); this.buf = []; return r; } :
+                           function() { var r = this.buf; this.buf = ''; return r; },
+
+    // lambda replace section
+    ls: function(val, ctx, partials, inverted, start, end, tags) {
+      var cx = ctx[ctx.length - 1],
+          t = null;
+
+      if (!inverted && this.c && val.length > 0) {
+        return this.ho(val, cx, partials, this.text.substring(start, end), tags);
+      }
+
+      t = val.call(cx);
+
+      if (typeof t == 'function') {
+        if (inverted) {
+          return true;
+        } else if (this.c) {
+          return this.ho(t, cx, partials, this.text.substring(start, end), tags);
+        }
+      }
+
+      return t;
+    },
+
+    // lambda replace variable
+    lv: function(val, ctx, partials) {
+      var cx = ctx[ctx.length - 1];
+      var result = val.call(cx);
+
+      if (typeof result == 'function') {
+        result = coerceToString(result.call(cx));
+        if (this.c && ~result.indexOf("{\u007B")) {
+          return this.c.compile(result, this.options).render(cx, partials);
+        }
+      }
+
+      return coerceToString(result);
+    }
+
+  };
+
+  var rAmp = /&/g,
+      rLt = /</g,
+      rGt = />/g,
+      rApos =/\'/g,
+      rQuot = /\"/g,
+      hChars =/[&<>\"\']/;
+
+
+  function coerceToString(val) {
+    return String((val === null || val === undefined) ? '' : val);
+  }
+
+  function hoganEscape(str) {
+    str = coerceToString(str);
+    return hChars.test(str) ?
+      str
+        .replace(rAmp,'&amp;')
+        .replace(rLt,'&lt;')
+        .replace(rGt,'&gt;')
+        .replace(rApos,'&#39;')
+        .replace(rQuot, '&quot;') :
+      str;
+  }
+
+  var isArray = Array.isArray || function(a) {
+    return Object.prototype.toString.call(a) === '[object Array]';
+  };
+
+})(typeof exports !== 'undefined' ? exports : Hogan);
+
+
+},{}],4:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -153,7 +763,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":2,"./click-dispatch.js":3,"./config/config.js":8,"./dblclick-dispatch.js":18,"./documents/documents.js":22,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ilistingui.js":39,"./jquery-ui-input-state.js":43,"./keystrokes.js":45,"./projects/projectui.js":49}],2:[function(require,module,exports){
+},{"./changes.js":5,"./click-dispatch.js":6,"./config/config.js":11,"./dblclick-dispatch.js":23,"./documents/documents.js":26,"./file_manager/fm.js":34,"./form.js":36,"./index_tool/ilistingui.js":43,"./jquery-ui-input-state.js":47,"./keystrokes.js":49,"./projects/projectui.js":53}],5:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -191,7 +801,7 @@ var changes = function ()
 
 exports.changes = changes;
 
-},{"./documents/searchui.js":26}],3:[function(require,module,exports){
+},{"./documents/searchui.js":30}],6:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -501,7 +1111,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":6,"./config/doctype-tab.js":11,"./config/maintenanceui.js":17,"./dispatcher.js":19,"./documents/editui.js":23,"./documents/fieldsets.js":24,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/viewui.js":28,"./documents/worksheetui.js":29,"./file_manager/fm.js":30,"./form.js":32,"./index_tool/ieditui.js":36,"./panel-toggle.js":47,"./projects/projectui.js":49,"./sender.js":55}],4:[function(require,module,exports){
+},{"./config/charseq-tab":9,"./config/doctype-tab.js":14,"./config/maintenanceui.js":22,"./dispatcher.js":24,"./documents/editui.js":27,"./documents/fieldsets.js":28,"./documents/indexui.js":29,"./documents/searchui.js":30,"./documents/setsui.js":31,"./documents/viewui.js":32,"./documents/worksheetui.js":33,"./file_manager/fm.js":34,"./form.js":36,"./index_tool/ieditui.js":40,"./panel-toggle.js":51,"./projects/projectui.js":53,"./sender.js":55}],7:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -562,7 +1172,7 @@ var charseqDialog = function (values)
 
 exports.charseqDialog = charseqDialog;
 
-},{"../form.js":32,"./charseq-elems.js":5,"./charseq-tab.js":6}],5:[function(require,module,exports){
+},{"../form.js":36,"./charseq-elems.js":8,"./charseq-tab.js":9}],8:[function(require,module,exports){
 // # Working with elements of a charseq manipulation HTML form
 //
 // *Implicit depends:* DOM, JQuery
@@ -657,7 +1267,7 @@ var charseqElems = (function ()
 
 exports.charseqElems = charseqElems;
 
-},{"../form.js":32}],6:[function(require,module,exports){
+},{"../form.js":36}],9:[function(require,module,exports){
 // # Charseq tab initialization
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -745,7 +1355,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../form.js":32,"../store.js":57,"./charseq-dialog.js":4,"./charseq-elems.js":5}],7:[function(require,module,exports){
+},{"../form.js":36,"../store.js":58,"./charseq-dialog.js":7,"./charseq-elems.js":8}],10:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -797,7 +1407,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":46,"templates.js":"e8H8MT"}],8:[function(require,module,exports){
+},{"../pager.js":50,"templates.js":"e8H8MT"}],11:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -828,7 +1438,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"./charsequi.js":7,"./doctypeui.js":12,"./maintenanceui.js":17}],9:[function(require,module,exports){
+},{"./charsequi.js":10,"./doctypeui.js":17,"./maintenanceui.js":22}],12:[function(require,module,exports){
 // # Doctype manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -897,7 +1507,7 @@ var doctypeDialog = function (url, values)
 
 exports.doctypeDialog = doctypeDialog;
 
-},{"./doctype-elems.js":10,"./doctype-tab.js":11}],10:[function(require,module,exports){
+},{"./doctype-elems.js":13,"./doctype-tab.js":14}],13:[function(require,module,exports){
 // # Working with elements of a doctype manipulation HTML form
 //
 // *Implicit depends:* DOM, JQuery
@@ -962,7 +1572,7 @@ var doctypeElems = (function ()
 
 exports.doctypeElems = doctypeElems;
 
-},{"../form.js":32}],11:[function(require,module,exports){
+},{"../form.js":36}],14:[function(require,module,exports){
 // # Doctype tab initialization
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1242,7 +1852,71 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":48,"../store.js":57,"./doctype-dialog.js":9,"./doctype-elems.js":10,"./field-dialog.js":13,"./field-elems.js":14,"./fieldset-dialog.js":15,"./fieldset-elems.js":16}],12:[function(require,module,exports){
+},{"../path.js":52,"../store.js":58,"./doctype-dialog.js":12,"./doctype-elems.js":13,"./field-dialog.js":18,"./field-elems.js":19,"./fieldset-dialog.js":20,"./fieldset-elems.js":21}],15:[function(require,module,exports){
+// # Paging For Changes Listing
+//
+// *Implicit depends:* DOM, JSON
+//
+// Loads changes based on user suplied values.
+
+// Variable Definitions
+
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function ()
+{
+  'use strict';
+
+  return 'changelog';
+};
+
+// Called by a keystroke event handler when user changes form values.
+var get = function ()
+{
+  'use strict';
+
+  var url = prefix();
+  var target = document.getElementById(prefix() + '-listing');
+
+  var format = function (text)
+  {
+    var resp = JSON.parse(text);
+
+    resp.rows.map(function (item)
+    {
+      if (item.doc.changes)
+      {
+        item.doc.changes = Object.keys(item.doc.changes).map(function (key)
+        {
+          return item.doc.changes[key];
+        });
+      }
+    });
+
+    return resp;
+  };
+
+  pager(
+  {
+    prefix: prefix(),
+    url: url,
+    format: format,
+    target: target
+  }).get();
+
+  return true;
+};
+
+exports.prefix = prefix;
+exports.get = get;
+
+},{"../pager.js":50}],"Bacon.js":[function(require,module,exports){
+module.exports=require('EMvo/m');
+},{}],17:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -1294,7 +1968,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":46,"templates.js":"e8H8MT"}],13:[function(require,module,exports){
+},{"../pager.js":50,"templates.js":"e8H8MT"}],18:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1353,7 +2027,7 @@ var fieldDialog = function (url, values)
 
 exports.fieldDialog = fieldDialog;
 
-},{"./doctype-tab.js":11,"./field-elems.js":14}],14:[function(require,module,exports){
+},{"./doctype-tab.js":14,"./field-elems.js":19}],19:[function(require,module,exports){
 // # Working with elements of a field manipulation HTML form
 //
 // *Implicit depends:* DOM, JQuery
@@ -1550,7 +2224,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":32,"../utils.js":58}],15:[function(require,module,exports){
+},{"../form.js":36,"../utils.js":59}],20:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1612,7 +2286,7 @@ var fieldsetDialog = function (url, values)
 
 exports.fieldsetDialog = fieldsetDialog;
 
-},{"./doctype-tab.js":11,"./fieldset-elems.js":16}],16:[function(require,module,exports){
+},{"./doctype-tab.js":14,"./fieldset-elems.js":21}],21:[function(require,module,exports){
 // # Working with elements of a fieldset manipulation HTML form
 //
 // *Implicit depends:* DOM, JQuery
@@ -1691,7 +2365,7 @@ var fieldsetElems = (function ()
 
 exports.fieldsetElems = fieldsetElems;
 
-},{"../form.js":32}],17:[function(require,module,exports){
+},{"../form.js":36}],22:[function(require,module,exports){
 // # Maintenance User Interface
 // 
 // *Implicit depends:* DOM
@@ -1735,7 +2409,7 @@ var init = function ()
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"../flash.js":31,"../form.js":32,"templates.js":"e8H8MT"}],18:[function(require,module,exports){
+},{"../flash.js":35,"../form.js":36,"templates.js":"e8H8MT"}],23:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -1801,7 +2475,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":19,"./documents/searchui.js":26,"./documents/worksheetui.js":29,"./panel-toggle.js":47}],19:[function(require,module,exports){
+},{"./dispatcher.js":24,"./documents/searchui.js":30,"./documents/worksheetui.js":33,"./panel-toggle.js":51}],24:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -1834,69 +2508,7 @@ var dispatcher = function (patterns)
 };
 
 exports.dispatcher = dispatcher;
-},{}],20:[function(require,module,exports){
-// # Paging For Changes Listing
-//
-// *Implicit depends:* DOM, JSON
-//
-// Loads changes based on user suplied values.
-
-// Variable Definitions
-
-var pager = require('../pager.js').pager;
-
-// Exported Functions
-
-// Return the 'prefix' which is used in id and class names for
-// elements used to page through these values.
-var prefix = function ()
-{
-  'use strict';
-
-  return 'changelog';
-};
-
-// Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
-  'use strict';
-
-  var url = prefix();
-  var target = document.getElementById(prefix() + '-listing');
-
-  var format = function (text)
-  {
-    var resp = JSON.parse(text);
-
-    resp.rows.map(function (item)
-    {
-      if (item.doc.changes)
-      {
-        item.doc.changes = Object.keys(item.doc.changes).map(function (key)
-        {
-          return item.doc.changes[key];
-        });
-      }
-    });
-
-    return resp;
-  };
-
-  pager(
-  {
-    prefix: prefix(),
-    url: url,
-    format: format,
-    target: target
-  }).get();
-
-  return true;
-};
-
-exports.prefix = prefix;
-exports.get = get;
-
-},{"../pager.js":46}],21:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -2034,7 +2646,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":55,"./editui.js":23}],22:[function(require,module,exports){
+},{"../sender.js":55,"./editui.js":27}],26:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -2305,7 +2917,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":55,"../store.js":57,"./changeui.js":20,"./editui.js":23,"./indexui.js":25,"./setsui.js":27,"./viewui.js":28}],23:[function(require,module,exports){
+},{"../sender.js":55,"../store.js":58,"./changeui.js":15,"./editui.js":27,"./indexui.js":29,"./setsui.js":31,"./viewui.js":32}],27:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -2702,7 +3314,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":31,"../form.js":32,"../store.js":57,"./fieldsets.js":24,"./indexui.js":25,"./viewui.js":28}],24:[function(require,module,exports){
+},{"../flash.js":35,"../form.js":36,"../store.js":58,"./fieldsets.js":28,"./indexui.js":29,"./viewui.js":32}],28:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -3185,7 +3797,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":48,"../store.js":57,"../utils.js":58,"./editui.js":23}],25:[function(require,module,exports){
+},{"../path.js":52,"../store.js":58,"../utils.js":59,"./editui.js":27}],29:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -3293,7 +3905,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":46,"./editui.js":23,"./viewui.js":28,"templates.js":"e8H8MT"}],26:[function(require,module,exports){
+},{"../pager.js":50,"./editui.js":27,"./viewui.js":32,"templates.js":"e8H8MT"}],30:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -3900,7 +4512,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":50,"../utils.js":58,"./documents.js":22,"./setsui.js":27,"templates.js":"e8H8MT"}],27:[function(require,module,exports){
+},{"../sets.js":57,"../utils.js":59,"./documents.js":26,"./setsui.js":31,"templates.js":"e8H8MT"}],31:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4356,7 +4968,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":31,"../sender.js":55,"../sets.js":50,"../utils.js":58,"./documents.js":22,"templates.js":"e8H8MT"}],28:[function(require,module,exports){
+},{"../flash.js":35,"../sender.js":55,"../sets.js":57,"../utils.js":59,"./documents.js":26,"templates.js":"e8H8MT"}],32:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -4807,7 +5419,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":31,"../store.js":57,"./editui.js":23,"./fieldsets.js":24,"./indexui.js":25,"templates.js":"e8H8MT"}],29:[function(require,module,exports){
+},{"../flash.js":35,"../store.js":58,"./editui.js":27,"./fieldsets.js":28,"./indexui.js":29,"templates.js":"e8H8MT"}],33:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -5028,7 +5640,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"../flash.js":31,"../form.js":32,"./documents.js":22,"./setsui.js":27,"hogan.js":"nLm5Ax","templates.js":"e8H8MT"}],30:[function(require,module,exports){
+},{"../flash.js":35,"../form.js":36,"./documents.js":26,"./setsui.js":31,"hogan.js":2,"templates.js":"e8H8MT"}],34:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5256,7 +5868,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"../flash.js":31,"../form.js":32}],31:[function(require,module,exports){
+},{"../flash.js":35,"../form.js":36}],35:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -5311,7 +5923,7 @@ var highlight = function (title, body)
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],32:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -5528,7 +6140,7 @@ exports.checkRegexp = checkRegexp;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"./flash.js":31}],33:[function(require,module,exports){
+},{"./flash.js":35}],37:[function(require,module,exports){
 // # Formalize
 //
 // *implicit dependencies:* JSON
@@ -5641,7 +6253,7 @@ var toForm = function (jsn)
 
 exports.toForm = toForm;
 
-},{"./recurse.js":53,"templates.js":"e8H8MT"}],34:[function(require,module,exports){
+},{"./recurse.js":54,"templates.js":"e8H8MT"}],38:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -5654,7 +6266,7 @@ exports.toForm = toForm;
 
 var globals = {};
 
-},{}],35:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -5872,7 +6484,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":32,"../jquery-ui-input-state.js":43,"./ievents.js":37,"./ihelpers.js":38}],36:[function(require,module,exports){
+},{"../form.js":36,"../jquery-ui-input-state.js":47,"./ievents.js":41,"./ihelpers.js":42}],40:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6208,7 +6820,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":31,"../form.js":32,"./builder-dialog.js":35,"./ihelpers.js":38,"./ilistingui.js":39,"./ipreviewui.js":40,"./new-dialog.js":41,"./replace-dialog.js":42}],37:[function(require,module,exports){
+},{"../flash.js":35,"../form.js":36,"./builder-dialog.js":39,"./ihelpers.js":42,"./ilistingui.js":43,"./ipreviewui.js":44,"./new-dialog.js":45,"./replace-dialog.js":46}],41:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6327,7 +6939,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":38}],38:[function(require,module,exports){
+},{"./ihelpers.js":42}],42:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6629,7 +7241,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":56}],39:[function(require,module,exports){
+},{"../sess.js":56}],43:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -6662,7 +7274,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"e8H8MT"}],40:[function(require,module,exports){
+},{"templates.js":"e8H8MT"}],44:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -6727,7 +7339,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":46}],41:[function(require,module,exports){
+},{"../pager.js":50}],45:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6848,7 +7460,7 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":32,"../jquery-ui-input-state.js":43,"./ievents.js":37,"./ihelpers.js":38,"./ilistingui.js":39}],42:[function(require,module,exports){
+},{"../form.js":36,"../jquery-ui-input-state.js":47,"./ievents.js":41,"./ihelpers.js":42,"./ilistingui.js":43}],46:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -6936,7 +7548,7 @@ var initReplaceDialog = function ()
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":32,"./ihelpers.js":38}],43:[function(require,module,exports){
+},{"../form.js":36,"./ihelpers.js":42}],47:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -6962,7 +7574,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],44:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -7145,7 +7757,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],45:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -7346,7 +7958,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":7,"./config/doctypeui.js":12,"./documents/changeui.js":20,"./documents/editui.js":23,"./documents/indexui.js":25,"./documents/searchui.js":26,"./documents/viewui.js":28,"./index_tool/ipreviewui.js":40,"./jquery.hotkeys.js":44,"./sender.js":55}],46:[function(require,module,exports){
+},{"./config/charsequi.js":10,"./config/doctypeui.js":17,"./documents/changeui.js":15,"./documents/editui.js":27,"./documents/indexui.js":29,"./documents/searchui.js":30,"./documents/viewui.js":32,"./index_tool/ipreviewui.js":44,"./jquery.hotkeys.js":48,"./sender.js":55}],50:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -7561,7 +8173,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":32,"templates.js":"e8H8MT"}],47:[function(require,module,exports){
+},{"./form.js":36,"templates.js":"e8H8MT"}],51:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -7597,7 +8209,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],48:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -7805,7 +8417,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":32,"./store.js":57}],49:[function(require,module,exports){
+},{"./form.js":36,"./store.js":58}],53:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -7944,7 +8556,174 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":32}],50:[function(require,module,exports){
+},{"../form.js":36}],54:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],55:[function(require,module,exports){
+// # Take actions depending on reported state.
+//
+// This is essentially and experiment in attempting to perform actions
+// based on the state of the application. It is an idea that I'm still
+// working on but the idea is to avoid having functions directly call
+// other functions to initiate new actions but to instead simply report
+// their state and have some central authority decide what to do next.
+
+// Variable Definitions
+
+var commands = require('./documents/commands.js');
+var documents = require('./documents/documents.js');
+var editui = require('./documents/editui.js');
+var searchui = require('./documents/searchui.js');
+var setsui = require('./documents/setsui.js');
+var worksheetui = require('./documents/worksheetui.js');
+
+// Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg)
+{
+  'use strict';
+
+  var retval;
+
+  switch (message)
+  {
+  case 'bad-session-state':
+    retval = documents.clearSession();
+    break;
+  case 'doctype-info-ready':
+    retval = documents.makeLabels();
+    break;
+  case 'labels-ready':
+    retval = searchui.loadSearchVals();
+    worksheetui.buildTemplate();
+    break;
+  case 'new-set-form-submit':
+    retval = setsui.saveSelected();
+    break;
+  case 'sets-changed':
+    retval = setsui.updateSelection();
+    break;
+  case 'sets-form-submit':
+    retval = setsui.performOp();
+    break;
+  case 'session-cleared':
+    documents.setVersion();
+    retval = documents.loadDoctype();
+    break;
+  case 'worksheet-form-submit':
+    retval = worksheetui.fillWorksheet();
+    break;
+  case 'initiated-command':
+    retval = commands.dialogOpen(arg);
+    break;
+  case 'executed-command':
+    retval = commands.dialogClose();
+    break;
+  case 'submitted-command':
+    retval = commands.execute(arg);
+    break;
+  case 'lost-focus':
+    retval = editui.selectInput();
+    break;
+  }
+
+  return retval;
+};
+
+exports.sender = sender;
+
+},{"./documents/commands.js":25,"./documents/documents.js":26,"./documents/editui.js":27,"./documents/searchui.js":30,"./documents/setsui.js":31,"./documents/worksheetui.js":33}],56:[function(require,module,exports){
+// # Session storage helpers
+//
+// *Implicit depends:* DOM
+//
+// This is primarily used to store and retrieve items with a structure
+// similar to a CouchDB document.
+
+// Exported functions
+
+// If the item is not already in the session storage, convert it to JSON
+// and store it by `_id`. Return the `_id` of the document.
+var put = function (doc)
+{
+  'use strict';
+
+  if (!window.sessionStorage[doc._id])
+  {
+    window.sessionStorage[doc._id] = JSON.stringify(doc);
+  }
+
+  return doc._id;
+};
+
+// Retrieve the document, which is stored as JSON, by its `_id` and
+// return the parsed item. If the item does not exist, return `null`.
+var get = function (docId)
+{
+  'use strict';
+
+  var doc = window.sessionStorage[docId];
+
+  if (doc)
+  {
+    return JSON.parse(doc);
+  }
+  else
+  {
+    return null;
+  }
+};
+
+exports.put = put;
+exports.get = get;
+
+},{}],57:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -8056,180 +8835,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],"hogan.js":[function(require,module,exports){
-module.exports=require('nLm5Ax');
-},{}],"Bacon.js":[function(require,module,exports){
-module.exports=require('EMvo/m');
-},{}],53:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function ()
-{
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function ()
-  {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function ()
-  {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],55:[function(require,module,exports){
-// # Take actions depending on reported state.
-//
-// This is essentially and experiment in attempting to perform actions
-// based on the state of the application. It is an idea that I'm still
-// working on but the idea is to avoid having functions directly call
-// other functions to initiate new actions but to instead simply report
-// their state and have some central authority decide what to do next.
-
-// Variable Definitions
-
-var commands = require('./documents/commands.js');
-var documents = require('./documents/documents.js');
-var editui = require('./documents/editui.js');
-var searchui = require('./documents/searchui.js');
-var setsui = require('./documents/setsui.js');
-var worksheetui = require('./documents/worksheetui.js');
-
-// Exported functions
-
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg)
-{
-  'use strict';
-
-  var retval;
-
-  switch (message)
-  {
-  case 'bad-session-state':
-    retval = documents.clearSession();
-    break;
-  case 'doctype-info-ready':
-    retval = documents.makeLabels();
-    break;
-  case 'labels-ready':
-    retval = searchui.loadSearchVals();
-    worksheetui.buildTemplate();
-    break;
-  case 'new-set-form-submit':
-    retval = setsui.saveSelected();
-    break;
-  case 'sets-changed':
-    retval = setsui.updateSelection();
-    break;
-  case 'sets-form-submit':
-    retval = setsui.performOp();
-    break;
-  case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
-    break;
-  case 'worksheet-form-submit':
-    retval = worksheetui.fillWorksheet();
-    break;
-  case 'initiated-command':
-    retval = commands.dialogOpen(arg);
-    break;
-  case 'executed-command':
-    retval = commands.dialogClose();
-    break;
-  case 'submitted-command':
-    retval = commands.execute(arg);
-    break;
-  case 'lost-focus':
-    retval = editui.selectInput();
-    break;
-  }
-
-  return retval;
-};
-
-exports.sender = sender;
-
-},{"./documents/commands.js":21,"./documents/documents.js":22,"./documents/editui.js":23,"./documents/searchui.js":26,"./documents/setsui.js":27,"./documents/worksheetui.js":29}],56:[function(require,module,exports){
-// # Session storage helpers
-//
-// *Implicit depends:* DOM
-//
-// This is primarily used to store and retrieve items with a structure
-// similar to a CouchDB document.
-
-// Exported functions
-
-// If the item is not already in the session storage, convert it to JSON
-// and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
-{
-  'use strict';
-
-  if (!window.sessionStorage[doc._id])
-  {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
-  }
-
-  return doc._id;
-};
-
-// Retrieve the document, which is stored as JSON, by its `_id` and
-// return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
-{
-  'use strict';
-
-  var doc = window.sessionStorage[docId];
-
-  if (doc)
-  {
-    return JSON.parse(doc);
-  }
-  else
-  {
-    return null;
-  }
-};
-
-exports.put = put;
-exports.get = get;
-
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -8384,7 +8990,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":53,"./utils.js":58}],58:[function(require,module,exports){
+},{"./recurse.js":54,"./utils.js":59}],59:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -8641,7 +9247,7 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":"nLm5Ax"}],"EMvo/m":[function(require,module,exports){
+},{"hogan.js":2}],"EMvo/m":[function(require,module,exports){
 (function() {
   var Bacon, Bus, CompositeUnsubscribe, Dispatcher, End, Error, Event, EventStream, Initial, Next, None, Observable, Property, PropertyDispatcher, PropertyTransaction, Some, Source, addPropertyInitValueToStream, assert, assertArray, assertEvent, assertEventStream, assertFunction, assertNoArguments, assertString, cloneArray, compositeUnsubscribe, convertArgsToFunction, end, former, indexOf, initial, isFieldKey, isFunction, latterF, liftCallback, makeFunction, makeFunctionArgs, makeFunction_, makeSpawner, next, nop, partiallyApplied, sendWrapped, toCombinator, toEvent, toFieldExtractor, toFieldKey, toOption, toSimpleExtractor, withMethodCallSupport, _, _ref, _ref1, _ref2,
     __slice = [].slice,
@@ -11077,583 +11683,7 @@ module.exports = {
 
 }).call(this);
 
-},{}],"nLm5Ax":[function(require,module,exports){
-/*
- *  Copyright 2011 Twitter, Inc.
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
-
-
-var Hogan = {};
-
-(function (Hogan, useArrayBuffer) {
-  Hogan.Template = function (renderFunc, text, compiler, options) {
-    this.r = renderFunc || this.r;
-    this.c = compiler;
-    this.options = options;
-    this.text = text || '';
-    this.buf = (useArrayBuffer) ? [] : '';
-  }
-
-  Hogan.Template.prototype = {
-    // render: replaced by generated code.
-    r: function (context, partials, indent) { return ''; },
-
-    // variable escaping
-    v: hoganEscape,
-
-    // triple stache
-    t: coerceToString,
-
-    render: function render(context, partials, indent) {
-      return this.ri([context], partials || {}, indent);
-    },
-
-    // render internal -- a hook for overrides that catches partials too
-    ri: function (context, partials, indent) {
-      return this.r(context, partials, indent);
-    },
-
-    // tries to find a partial in the curent scope and render it
-    rp: function(name, context, partials, indent) {
-      var partial = partials[name];
-
-      if (!partial) {
-        return '';
-      }
-
-      if (this.c && typeof partial == 'string') {
-        partial = this.c.compile(partial, this.options);
-      }
-
-      return partial.ri(context, partials, indent);
-    },
-
-    // render a section
-    rs: function(context, partials, section) {
-      var tail = context[context.length - 1];
-
-      if (!isArray(tail)) {
-        section(context, partials, this);
-        return;
-      }
-
-      for (var i = 0; i < tail.length; i++) {
-        context.push(tail[i]);
-        section(context, partials, this);
-        context.pop();
-      }
-    },
-
-    // maybe start a section
-    s: function(val, ctx, partials, inverted, start, end, tags) {
-      var pass;
-
-      if (isArray(val) && val.length === 0) {
-        return false;
-      }
-
-      if (typeof val == 'function') {
-        val = this.ls(val, ctx, partials, inverted, start, end, tags);
-      }
-
-      pass = (val === '') || !!val;
-
-      if (!inverted && pass && ctx) {
-        ctx.push((typeof val == 'object') ? val : ctx[ctx.length - 1]);
-      }
-
-      return pass;
-    },
-
-    // find values with dotted names
-    d: function(key, ctx, partials, returnFound) {
-      var names = key.split('.'),
-          val = this.f(names[0], ctx, partials, returnFound),
-          cx = null;
-
-      if (key === '.' && isArray(ctx[ctx.length - 2])) {
-        return ctx[ctx.length - 1];
-      }
-
-      for (var i = 1; i < names.length; i++) {
-        if (val && typeof val == 'object' && names[i] in val) {
-          cx = val;
-          val = val[names[i]];
-        } else {
-          val = '';
-        }
-      }
-
-      if (returnFound && !val) {
-        return false;
-      }
-
-      if (!returnFound && typeof val == 'function') {
-        ctx.push(cx);
-        val = this.lv(val, ctx, partials);
-        ctx.pop();
-      }
-
-      return val;
-    },
-
-    // find values with normal names
-    f: function(key, ctx, partials, returnFound) {
-      var val = false,
-          v = null,
-          found = false;
-
-      for (var i = ctx.length - 1; i >= 0; i--) {
-        v = ctx[i];
-        if (v && typeof v == 'object' && key in v) {
-          val = v[key];
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        return (returnFound) ? false : "";
-      }
-
-      if (!returnFound && typeof val == 'function') {
-        val = this.lv(val, ctx, partials);
-      }
-
-      return val;
-    },
-
-    // higher order templates
-    ho: function(val, cx, partials, text, tags) {
-      var compiler = this.c;
-      var options = this.options;
-      options.delimiters = tags;
-      var text = val.call(cx, text);
-      text = (text == null) ? String(text) : text.toString();
-      this.b(compiler.compile(text, options).render(cx, partials));
-      return false;
-    },
-
-    // template result buffering
-    b: (useArrayBuffer) ? function(s) { this.buf.push(s); } :
-                          function(s) { this.buf += s; },
-    fl: (useArrayBuffer) ? function() { var r = this.buf.join(''); this.buf = []; return r; } :
-                           function() { var r = this.buf; this.buf = ''; return r; },
-
-    // lambda replace section
-    ls: function(val, ctx, partials, inverted, start, end, tags) {
-      var cx = ctx[ctx.length - 1],
-          t = null;
-
-      if (!inverted && this.c && val.length > 0) {
-        return this.ho(val, cx, partials, this.text.substring(start, end), tags);
-      }
-
-      t = val.call(cx);
-
-      if (typeof t == 'function') {
-        if (inverted) {
-          return true;
-        } else if (this.c) {
-          return this.ho(t, cx, partials, this.text.substring(start, end), tags);
-        }
-      }
-
-      return t;
-    },
-
-    // lambda replace variable
-    lv: function(val, ctx, partials) {
-      var cx = ctx[ctx.length - 1];
-      var result = val.call(cx);
-
-      if (typeof result == 'function') {
-        result = coerceToString(result.call(cx));
-        if (this.c && ~result.indexOf("{\u007B")) {
-          return this.c.compile(result, this.options).render(cx, partials);
-        }
-      }
-
-      return coerceToString(result);
-    }
-
-  };
-
-  var rAmp = /&/g,
-      rLt = /</g,
-      rGt = />/g,
-      rApos =/\'/g,
-      rQuot = /\"/g,
-      hChars =/[&<>\"\']/;
-
-
-  function coerceToString(val) {
-    return String((val === null || val === undefined) ? '' : val);
-  }
-
-  function hoganEscape(str) {
-    str = coerceToString(str);
-    return hChars.test(str) ?
-      str
-        .replace(rAmp,'&amp;')
-        .replace(rLt,'&lt;')
-        .replace(rGt,'&gt;')
-        .replace(rApos,'&#39;')
-        .replace(rQuot, '&quot;') :
-      str;
-  }
-
-  var isArray = Array.isArray || function(a) {
-    return Object.prototype.toString.call(a) === '[object Array]';
-  };
-
-})(typeof exports !== 'undefined' ? exports : Hogan);
-
-
-
-
-(function (Hogan) {
-  // Setup regex  assignments
-  // remove whitespace according to Mustache spec
-  var rIsWhitespace = /\S/,
-      rQuot = /\"/g,
-      rNewline =  /\n/g,
-      rCr = /\r/g,
-      rSlash = /\\/g,
-      tagTypes = {
-        '#': 1, '^': 2, '/': 3,  '!': 4, '>': 5,
-        '<': 6, '=': 7, '_v': 8, '{': 9, '&': 10
-      };
-
-  Hogan.scan = function scan(text, delimiters) {
-    var len = text.length,
-        IN_TEXT = 0,
-        IN_TAG_TYPE = 1,
-        IN_TAG = 2,
-        state = IN_TEXT,
-        tagType = null,
-        tag = null,
-        buf = '',
-        tokens = [],
-        seenTag = false,
-        i = 0,
-        lineStart = 0,
-        otag = '{{',
-        ctag = '}}';
-
-    function addBuf() {
-      if (buf.length > 0) {
-        tokens.push(new String(buf));
-        buf = '';
-      }
-    }
-
-    function lineIsWhitespace() {
-      var isAllWhitespace = true;
-      for (var j = lineStart; j < tokens.length; j++) {
-        isAllWhitespace =
-          (tokens[j].tag && tagTypes[tokens[j].tag] < tagTypes['_v']) ||
-          (!tokens[j].tag && tokens[j].match(rIsWhitespace) === null);
-        if (!isAllWhitespace) {
-          return false;
-        }
-      }
-
-      return isAllWhitespace;
-    }
-
-    function filterLine(haveSeenTag, noNewLine) {
-      addBuf();
-
-      if (haveSeenTag && lineIsWhitespace()) {
-        for (var j = lineStart, next; j < tokens.length; j++) {
-          if (!tokens[j].tag) {
-            if ((next = tokens[j+1]) && next.tag == '>') {
-              // set indent to token value
-              next.indent = tokens[j].toString()
-            }
-            tokens.splice(j, 1);
-          }
-        }
-      } else if (!noNewLine) {
-        tokens.push({tag:'\n'});
-      }
-
-      seenTag = false;
-      lineStart = tokens.length;
-    }
-
-    function changeDelimiters(text, index) {
-      var close = '=' + ctag,
-          closeIndex = text.indexOf(close, index),
-          delimiters = trim(
-            text.substring(text.indexOf('=', index) + 1, closeIndex)
-          ).split(' ');
-
-      otag = delimiters[0];
-      ctag = delimiters[1];
-
-      return closeIndex + close.length - 1;
-    }
-
-    if (delimiters) {
-      delimiters = delimiters.split(' ');
-      otag = delimiters[0];
-      ctag = delimiters[1];
-    }
-
-    for (i = 0; i < len; i++) {
-      if (state == IN_TEXT) {
-        if (tagChange(otag, text, i)) {
-          --i;
-          addBuf();
-          state = IN_TAG_TYPE;
-        } else {
-          if (text.charAt(i) == '\n') {
-            filterLine(seenTag);
-          } else {
-            buf += text.charAt(i);
-          }
-        }
-      } else if (state == IN_TAG_TYPE) {
-        i += otag.length - 1;
-        tag = tagTypes[text.charAt(i + 1)];
-        tagType = tag ? text.charAt(i + 1) : '_v';
-        if (tagType == '=') {
-          i = changeDelimiters(text, i);
-          state = IN_TEXT;
-        } else {
-          if (tag) {
-            i++;
-          }
-          state = IN_TAG;
-        }
-        seenTag = i;
-      } else {
-        if (tagChange(ctag, text, i)) {
-          tokens.push({tag: tagType, n: trim(buf), otag: otag, ctag: ctag,
-                       i: (tagType == '/') ? seenTag - ctag.length : i + otag.length});
-          buf = '';
-          i += ctag.length - 1;
-          state = IN_TEXT;
-          if (tagType == '{') {
-            if (ctag == '}}') {
-              i++;
-            } else {
-              cleanTripleStache(tokens[tokens.length - 1]);
-            }
-          }
-        } else {
-          buf += text.charAt(i);
-        }
-      }
-    }
-
-    filterLine(seenTag, true);
-
-    return tokens;
-  }
-
-  function cleanTripleStache(token) {
-    if (token.n.substr(token.n.length - 1) === '}') {
-      token.n = token.n.substring(0, token.n.length - 1);
-    }
-  }
-
-  function trim(s) {
-    if (s.trim) {
-      return s.trim();
-    }
-
-    return s.replace(/^\s*|\s*$/g, '');
-  }
-
-  function tagChange(tag, text, index) {
-    if (text.charAt(index) != tag.charAt(0)) {
-      return false;
-    }
-
-    for (var i = 1, l = tag.length; i < l; i++) {
-      if (text.charAt(index + i) != tag.charAt(i)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  function buildTree(tokens, kind, stack, customTags) {
-    var instructions = [],
-        opener = null,
-        token = null;
-
-    while (tokens.length > 0) {
-      token = tokens.shift();
-      if (token.tag == '#' || token.tag == '^' || isOpener(token, customTags)) {
-        stack.push(token);
-        token.nodes = buildTree(tokens, token.tag, stack, customTags);
-        instructions.push(token);
-      } else if (token.tag == '/') {
-        if (stack.length === 0) {
-          throw new Error('Closing tag without opener: /' + token.n);
-        }
-        opener = stack.pop();
-        if (token.n != opener.n && !isCloser(token.n, opener.n, customTags)) {
-          throw new Error('Nesting error: ' + opener.n + ' vs. ' + token.n);
-        }
-        opener.end = token.i;
-        return instructions;
-      } else {
-        instructions.push(token);
-      }
-    }
-
-    if (stack.length > 0) {
-      throw new Error('missing closing tag: ' + stack.pop().n);
-    }
-
-    return instructions;
-  }
-
-  function isOpener(token, tags) {
-    for (var i = 0, l = tags.length; i < l; i++) {
-      if (tags[i].o == token.n) {
-        token.tag = '#';
-        return true;
-      }
-    }
-  }
-
-  function isCloser(close, open, tags) {
-    for (var i = 0, l = tags.length; i < l; i++) {
-      if (tags[i].c == close && tags[i].o == open) {
-        return true;
-      }
-    }
-  }
-
-  Hogan.generate = function (tree, text, options) {
-    var code = 'var _=this;_.b(i=i||"");' + walk(tree) + 'return _.fl();';
-    if (options.asString) {
-      return 'function(c,p,i){' + code + ';}';
-    }
-
-    return new Hogan.Template(new Function('c', 'p', 'i', code), text, Hogan, options);
-  }
-
-  function esc(s) {
-    return s.replace(rSlash, '\\\\')
-            .replace(rQuot, '\\\"')
-            .replace(rNewline, '\\n')
-            .replace(rCr, '\\r');
-  }
-
-  function chooseMethod(s) {
-    return (~s.indexOf('.')) ? 'd' : 'f';
-  }
-
-  function walk(tree) {
-    var code = '';
-    for (var i = 0, l = tree.length; i < l; i++) {
-      var tag = tree[i].tag;
-      if (tag == '#') {
-        code += section(tree[i].nodes, tree[i].n, chooseMethod(tree[i].n),
-                        tree[i].i, tree[i].end, tree[i].otag + " " + tree[i].ctag);
-      } else if (tag == '^') {
-        code += invertedSection(tree[i].nodes, tree[i].n,
-                                chooseMethod(tree[i].n));
-      } else if (tag == '<' || tag == '>') {
-        code += partial(tree[i]);
-      } else if (tag == '{' || tag == '&') {
-        code += tripleStache(tree[i].n, chooseMethod(tree[i].n));
-      } else if (tag == '\n') {
-        code += text('"\\n"' + (tree.length-1 == i ? '' : ' + i'));
-      } else if (tag == '_v') {
-        code += variable(tree[i].n, chooseMethod(tree[i].n));
-      } else if (tag === undefined) {
-        code += text('"' + esc(tree[i]) + '"');
-      }
-    }
-    return code;
-  }
-
-  function section(nodes, id, method, start, end, tags) {
-    return 'if(_.s(_.' + method + '("' + esc(id) + '",c,p,1),' +
-           'c,p,0,' + start + ',' + end + ',"' + tags + '")){' +
-           '_.rs(c,p,' +
-           'function(c,p,_){' +
-           walk(nodes) +
-           '});c.pop();}';
-  }
-
-  function invertedSection(nodes, id, method) {
-    return 'if(!_.s(_.' + method + '("' + esc(id) + '",c,p,1),c,p,1,0,0,"")){' +
-           walk(nodes) +
-           '};';
-  }
-
-  function partial(tok) {
-    return '_.b(_.rp("' +  esc(tok.n) + '",c,p,"' + (tok.indent || '') + '"));';
-  }
-
-  function tripleStache(id, method) {
-    return '_.b(_.t(_.' + method + '("' + esc(id) + '",c,p,0)));';
-  }
-
-  function variable(id, method) {
-    return '_.b(_.v(_.' + method + '("' + esc(id) + '",c,p,0)));';
-  }
-
-  function text(id) {
-    return '_.b(' + id + ');';
-  }
-
-  Hogan.parse = function(tokens, text, options) {
-    options = options || {};
-    return buildTree(tokens, '', [], options.sectionTags || []);
-  },
-
-  Hogan.cache = {};
-
-  Hogan.compile = function(text, options) {
-    // options
-    //
-    // asString: false (default)
-    //
-    // sectionTags: [{o: '_foo', c: 'foo'}]
-    // An array of object with o and c fields that indicate names for custom
-    // section tags. The example above allows parsing of {{_foo}}{{/foo}}.
-    //
-    // delimiters: A string that overrides the default delimiters.
-    // Example: "<% %>"
-    //
-    options = options || {};
-
-    var key = text + '||' + !!options.asString;
-
-    var t = this.cache[key];
-
-    if (t) {
-      return t;
-    }
-
-    t = this.generate(this.parse(this.scan(text, options.delimiters), text, options), text, options);
-    return this.cache[key] = t;
-  };
-})(typeof exports !== 'undefined' ? exports : Hogan);
-
-
-},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,53,55,56,50,57,58])
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}]},{},[4,5,6,7,8,9,10,11,12,13,14,17,18,19,20,21,22,23,24,15,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59])
 ;

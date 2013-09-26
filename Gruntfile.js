@@ -22,9 +22,7 @@ module.exports = function(grunt) {
         src: ['priv/src/client/**/*.js'],
         dest: 'priv/www/application.tmp.js',
         options: {
-          alias: ['priv/vendor/hogan.js:hogan.js',
-                  'priv/vendor/Bacon.js:Bacon.js',
-                  'priv/templates/compiled/templates.js:templates.js']
+          alias: ['priv/templates/compiled/templates.js:templates.js']
         }
       }
     },
