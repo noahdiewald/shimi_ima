@@ -8,42 +8,9 @@
 // ## Variables
 
 var utils = require('./utils.js');
+var r = require('./recurse.js');
 
 // ## Internal functions
-
-// Identity function for tail recursion
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Part of the tail call optimization code
-Function.prototype.r = function ()
-{
-  'use strict';
-
-  return [this, arguments];
-};
-
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-Function.prototype.t = function ()
-{
-  'use strict';
-
-  var c = [this, arguments];
-  var escape = arguments[arguments.length - 1];
-  while (c[0] !== escape)
-  {
-    c = c[0].apply(this, c[1]);
-  }
-  return escape.apply(this, c[1]);
-};
 
 // Camel case a string
 var cc = function (str)
@@ -142,7 +109,7 @@ var store = function (elem)
       return id.r(val);
     };
 
-    return getValue1.t(keycc, elem, identity);
+    return getValue1.t(keycc, elem, r.identity);
   };
 
   // Like 'get' but will decode base64 encoded values.
