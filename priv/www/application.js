@@ -10727,7 +10727,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":36,"./click-dispatch.js":37,"./config/config.js":42,"./dblclick-dispatch.js":52,"./documents/documents.js":56,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ilistingui.js":73,"./jquery-ui-input-state.js":77,"./keystrokes.js":79,"./projects/projectui.js":83}],36:[function(require,module,exports){
+},{"./changes.js":36,"./click-dispatch.js":37,"./config/config.js":42,"./dblclick-dispatch.js":52,"./documents/documents.js":56,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ilistingui.js":73,"./jquery-ui-input-state.js":77,"./keystrokes.js":79,"./projects/projectui.js":85}],36:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11075,7 +11075,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":40,"./config/doctype-tab.js":45,"./config/maintenanceui.js":51,"./dispatcher.js":53,"./documents/editui.js":57,"./documents/fieldsets.js":58,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/setsui.js":61,"./documents/viewui.js":62,"./documents/worksheetui.js":63,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ieditui.js":70,"./panel-toggle.js":81,"./projects/projectui.js":83,"./sender.js":86}],38:[function(require,module,exports){
+},{"./config/charseq-tab":40,"./config/doctype-tab.js":45,"./config/maintenanceui.js":51,"./dispatcher.js":53,"./documents/editui.js":57,"./documents/fieldsets.js":58,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/setsui.js":61,"./documents/viewui.js":62,"./documents/worksheetui.js":63,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ieditui.js":70,"./panel-toggle.js":83,"./projects/projectui.js":85,"./sender.js":86}],38:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11371,7 +11371,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":80,"templates.js":"e8H8MT"}],42:[function(require,module,exports){
+},{"../pager.js":82,"templates.js":"e8H8MT"}],42:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -11816,7 +11816,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":82,"../store.js":89,"./doctype-dialog.js":43,"./doctype-elems.js":44,"./field-dialog.js":47,"./field-elems.js":48,"./fieldset-dialog.js":49,"./fieldset-elems.js":50}],46:[function(require,module,exports){
+},{"../path.js":84,"../store.js":89,"./doctype-dialog.js":43,"./doctype-elems.js":44,"./field-dialog.js":47,"./field-elems.js":48,"./fieldset-dialog.js":49,"./fieldset-elems.js":50}],46:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -11868,7 +11868,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":80,"templates.js":"e8H8MT"}],47:[function(require,module,exports){
+},{"../pager.js":82,"templates.js":"e8H8MT"}],47:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12375,7 +12375,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":53,"./documents/searchui.js":60,"./documents/worksheetui.js":63,"./panel-toggle.js":81}],53:[function(require,module,exports){
+},{"./dispatcher.js":53,"./documents/searchui.js":60,"./documents/worksheetui.js":63,"./panel-toggle.js":83}],53:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -12470,7 +12470,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":80}],55:[function(require,module,exports){
+},{"../pager.js":82}],55:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -13759,7 +13759,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":82,"../store.js":89,"../utils.js":90,"./editui.js":57}],59:[function(require,module,exports){
+},{"../path.js":84,"../store.js":89,"../utils.js":90,"./editui.js":57}],59:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -13867,7 +13867,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":80,"./editui.js":57,"./viewui.js":62,"templates.js":"e8H8MT"}],60:[function(require,module,exports){
+},{"../pager.js":82,"./editui.js":57,"./viewui.js":62,"templates.js":"e8H8MT"}],60:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16292,10 +16292,6 @@ var addTextareaValue = function (state, str)
     state.state.pop();
     addTextValue(state, str);
   }
-  else
-  {
-    throw 'invalid form: text outside of textarea' + showState(state);
-  }
 
   return state;
 };
@@ -16392,7 +16388,10 @@ var tryParseHTML = function (html)
     },
     ontext: function(str)
     {
-      addTextareaValue(state, str);
+      if (!str.match(/^\s+$/))
+      {
+        addTextareaValue(state, str);
+      }
     },
     onclosetag: function(tagname)
     {
@@ -16528,7 +16527,7 @@ var fromForm = function (html)
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":84,"htmlparser2":25,"templates.js":"e8H8MT"}],68:[function(require,module,exports){
+},{"./recurse.js":80,"htmlparser2":25,"templates.js":"e8H8MT"}],68:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17614,7 +17613,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":80}],75:[function(require,module,exports){
+},{"../pager.js":82}],75:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18234,6 +18233,55 @@ var keystrokes = function ()
 exports.keystrokes = keystrokes;
 
 },{"./config/charsequi.js":41,"./config/doctypeui.js":46,"./documents/changeui.js":54,"./documents/editui.js":57,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/viewui.js":62,"./index_tool/ipreviewui.js":74,"./jquery.hotkeys.js":78,"./sender.js":86}],80:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],82:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -18448,7 +18496,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":66,"templates.js":"e8H8MT"}],81:[function(require,module,exports){
+},{"./form.js":66,"templates.js":"e8H8MT"}],83:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -18484,7 +18532,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],82:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -18692,7 +18740,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":66,"./store.js":89}],83:[function(require,module,exports){
+},{"./form.js":66,"./store.js":89}],85:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18831,56 +18879,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":66}],84:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function ()
-{
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function ()
-  {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function ()
-  {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],86:[function(require,module,exports){
+},{"../form.js":66}],86:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially and experiment in attempting to perform actions
@@ -19267,7 +19266,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":84,"./utils.js":90}],90:[function(require,module,exports){
+},{"./recurse.js":80,"./utils.js":90}],90:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19524,5 +19523,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":12}]},{},[35,36,37,39,40,41,38,42,45,47,46,48,44,43,49,50,51,52,53,54,55,56,58,57,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,80,79,82,81,83,84,86,87,88,89,90])
+},{"hogan.js":12}]},{},[35,36,37,38,39,40,41,42,43,44,45,46,47,48,50,49,51,53,52,54,55,57,56,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,79,78,82,83,84,85,86,80,87,88,89,90])
 ;

@@ -176,7 +176,7 @@ describe('Converting HTML form to JSON', function ()
     {
       testCase(formalize.fromForm, '').should.Throw(/invalid HTML: ""/);
       testCase(formalize.fromForm, undefined).should.Throw(/invalid HTML: non-string/);
-      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: text outside of textarea/);
+      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: no form found/);
     });
   });
   describe('when provided no arguments', function ()
@@ -270,4 +270,56 @@ describe('Converting HTML form to JSON', function ()
       });
     });
   });
+});
+describe('Testing through inversion of toForm', function ()
+{
+  'use strict';
+
+  var invertTo = function (jsn)
+  {
+    it('should be equal', function ()
+    {
+      formalize.fromForm(formalize.toForm(jsn)).should.equal(jsn);
+    });
+  };
+  describe('when the argument is "null"', function ()
+  {
+    invertTo('null');
+  });
+  describe('when the argument is "{}"', function ()
+  {
+    invertTo('{}');
+  });
+  describe('when it is a single key with a string value', function ()
+  {
+    invertTo('{"test":"ok"}');
+  });
+  describe('when it is a single key with a text value', function ()
+  {
+    invertTo('{"test":"ok00000000000000000000000000000000000000000000000"}');
+  });
+  describe('when it is a single key with a number value', function ()
+  {
+    invertTo('{"test":99}');
+  });
+  describe('when it is a single key with a true value', function ()
+  {
+    invertTo('{"test":true}');
+  });
+  describe('when it is a single key with a false value', function ()
+  {
+    invertTo('{"test":false}');
+  });
+  describe('when it is a single key with a null value', function ()
+  {
+    invertTo('{"test":null}');
+  });
+  describe('when it is multiple keys with values', function ()
+  {
+    invertTo('{"test":null,"a":1,"b":true,"hippo":"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj","sevent":"ij"}');
+  });
+  //describe('when it has a object child', function ()
+  //{
+  //  invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
+  //});
 });

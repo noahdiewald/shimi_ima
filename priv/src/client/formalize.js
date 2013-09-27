@@ -187,10 +187,6 @@ var addTextareaValue = function (state, str)
     state.state.pop();
     addTextValue(state, str);
   }
-  else
-  {
-    throw 'invalid form: text outside of textarea' + showState(state);
-  }
 
   return state;
 };
@@ -287,7 +283,10 @@ var tryParseHTML = function (html)
     },
     ontext: function(str)
     {
-      addTextareaValue(state, str);
+      if (!str.match(/^\s+$/))
+      {
+        addTextareaValue(state, str);
+      }
     },
     onclosetag: function(tagname)
     {
