@@ -120,3 +120,45 @@ describe('Converting JSON to an HTML form', function ()
     });
   });
 });
+describe('Converting HTML form to JSON', function ()
+{
+  'use strict';
+
+  describe('when provided invalid HTML', function ()
+  {
+    it('should raise an exception', function ()
+    {
+      testCase(formalize.fromForm, '').should.Throw(/invalid HTML: ""/);
+      testCase(formalize.fromForm, undefined).should.Throw(/invalid HTML: non-string/);
+      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: no form found/);
+    });
+  });
+  describe('when provided no arguments', function ()
+  {
+    it('should raise an exception', function ()
+    {
+      var myTestCase = function ()
+      {
+        return formalize.fromForm();
+      };
+
+      myTestCase.should.Throw(/invalid HTML: non-string/);
+    });
+  });
+  describe('when provided an invalid form', function ()
+  {
+    it('should raise an exception', function ()
+    {
+      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: no form found/);
+      testCase(formalize.fromForm, '<form>').should.Throw(/invalid form: no closing tag/);
+      testCase(formalize.fromForm, '<form><form>').should.Throw(/invalid form: only one form allowed/);
+    });
+  });
+  describe('when provided with an empty form', function ()
+  {
+    it('should return "null"', function ()
+    {
+      formalize.fromForm('<form></form>').should.equal('null');
+    });
+  });
+});
