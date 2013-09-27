@@ -9,7 +9,7 @@
 
 var r = require('./recurse.js');
 var templates = require('templates.js');
-var htmlparser = require('htmlparser2.js');
+var htmlparser = require('htmlparser2');
 
 // ## Internal Functions
 
@@ -66,18 +66,25 @@ var curr = function (state)
   return state.state[state.state.length - 1];
 };
 
+var showState = function (state)
+{
+  'use strict';
+
+  return ' [' + state.state.join(',') + ']';
+};
+
 var openForm = function (state)
 {
   'use strict';
 
   if (curr(state) === 'start')
   {
-    state.state.push('open-form');
+    state.state.push('open');
     state.acc = 'null';
   }
   else
   {
-    throw 'invalid form: only one form allowed';
+    throw 'invalid form: only one form allowed' + showState(state);
   }
 
   return state;
@@ -169,7 +176,7 @@ var addTextareaValue = function (state, str)
   }
   else
   {
-    throw 'invalid form: text outside of textarea';
+    throw 'invalid form: text outside of textarea' + showState(state);
   }
 
   return state;
@@ -187,7 +194,7 @@ var noComma = function (state)
   return state;
 };
 
-var close = function (state, targ, callback)
+var klose = function (state, targ, callback)
 {
   'use strict';
 
@@ -202,8 +209,8 @@ var close = function (state, targ, callback)
   }
   else
   {
-    throw 'invalid form: tag mismatch [' + state.state.join(',') + ']';
-  };
+    throw 'invalid form: tag mismatch' + showState(state);
+  }
 
   return state;
 };
@@ -212,7 +219,7 @@ var closeForm = function (state)
 {
   'use strict';
 
-  close(state, 'open', function (state)
+  klose(state, 'open', function (state)
   {
     state.state = ['done'];
 
@@ -226,7 +233,7 @@ var closeObject = function (state)
 {
   'use strict';
 
-  close(state, 'open-object', function (state)
+  klose(state, 'open-object', function (state)
   {
     state.state.pop();
     state.acc = state.acc + '}';
@@ -283,14 +290,17 @@ var tryParseHTML = function (html)
     }
   });
 
-  switch (state.pop())
+  parser.write(html);
+  parser.end();
+
+  switch (state.state.pop())
   {
   case 'start':
-    throw 'invalid form: no  form found';
+    throw 'invalid form: no form found' + showState(state);
   case 'open':
-    throw 'invalid form: no closing tag';
+    throw 'invalid form: no closing tag' + showState(state);
   default:
-    return acc;
+    return state.acc;
   }
 };
 
@@ -364,12 +374,12 @@ var fromForm = function (html)
 {
   'use strict';
 
-  var obj;
+  var json;
 
   validateFromArg(html);
-  obj = tryParseHTML(html);
+  json = tryParseHTML(html);
 
-  return JSON.stringify(obj);
+  return json;
 };
 
 exports.toForm = toForm;

@@ -130,7 +130,7 @@ describe('Converting HTML form to JSON', function ()
     {
       testCase(formalize.fromForm, '').should.Throw(/invalid HTML: ""/);
       testCase(formalize.fromForm, undefined).should.Throw(/invalid HTML: non-string/);
-      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: no form found/);
+      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: text outside of textarea/);
     });
   });
   describe('when provided no arguments', function ()
@@ -147,11 +147,19 @@ describe('Converting HTML form to JSON', function ()
   });
   describe('when provided an invalid form', function ()
   {
-    it('should raise an exception', function ()
+    describe('with no form tag', function ()
     {
-      testCase(formalize.fromForm, 'dsfd').should.Throw(/invalid form: no form found/);
-      testCase(formalize.fromForm, '<form>').should.Throw(/invalid form: no closing tag/);
-      testCase(formalize.fromForm, '<form><form>').should.Throw(/invalid form: only one form allowed/);
+      it('should raise an exception', function ()
+      {
+        testCase(formalize.fromForm, '<p></p>').should.Throw(/invalid form: no form found/);
+      });
+    });
+    describe('with two form tags', function ()
+    {
+      it('should raise an exception', function ()
+      {
+        testCase(formalize.fromForm, '<form><form>').should.Throw(/invalid form: only one form allowed/);
+      });
     });
   });
   describe('when provided with an empty form', function ()
