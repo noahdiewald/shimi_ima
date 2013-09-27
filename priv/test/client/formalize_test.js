@@ -23,6 +23,7 @@ describe('Converting JSON to an HTML form', function ()
       testCase(formalize.toForm, '').should.Throw(/invalid JSON: ""/);
       testCase(formalize.toForm, undefined).should.Throw(/invalid JSON: undefined/);
       testCase(formalize.toForm, {}).should.Throw(/invalid JSON: {}/);
+      testCase(formalize.toForm, null).should.Throw(/invalid JSON: null/);
     });
   });
   describe('when provided no arguments', function ()
@@ -44,8 +45,20 @@ describe('Converting JSON to an HTML form', function ()
       testCase(formalize.toForm, '"string"').should.Throw(/cannot build form from: string/);
       testCase(formalize.toForm, '[]').should.Throw(/cannot build form from: array/);
       testCase(formalize.toForm, '1').should.Throw(/cannot build form from: number/);
-      testCase(formalize.toForm, 'null').should.Throw(/cannot build form from: null/);
-      testCase(formalize.toForm, '{}').should.Throw(/cannot build form from: empty object/);
+    });
+  });
+  describe('when provided null', function ()
+  {
+    it('should return an empty form', function ()
+    {
+      formalize.toForm('null').should.match(/^\s*<form>\s*<\/form>\s*$/);
+    });
+  });
+  describe('when provided an empty object', function ()
+  {
+    it('should return a form and an empty list', function ()
+    {
+      formalize.toForm('{}').should.match(/^\s*<form>\s*<ul>\s*<\/ul>\s*<\/form>\s*$/);
     });
   });
   describe('when provided an object with a single key', function ()
@@ -71,6 +84,39 @@ describe('Converting JSON to an HTML form', function ()
     {
       formalize.toForm('{"test": "ok"}').match(/<ul>/g).length.should.equal(1);
       formalize.toForm('{"test": "ok"}').match(/<li>/g).length.should.equal(1);
+    });
+    describe('when key value is true', function ()
+    {
+      it('should return an input type of "text"', function ()
+      {
+        formalize.toForm('{"test":true}').should.match(/<input [^>]*type="text"/);
+      });
+      it('should return an input value of true', function ()
+      {
+        formalize.toForm('{"test":true}').should.match(/<input [^>]*value="true"/);
+      });
+    });
+    describe('when key value is false', function ()
+    {
+      it('should return an input type of "text"', function ()
+      {
+        formalize.toForm('{"test":false}').should.match(/<input [^>]*type="text"/);
+      });
+      it('should return an input value of false', function ()
+      {
+        formalize.toForm('{"test":false}').should.match(/<input [^>]*value="false"/);
+      });
+    });
+    describe('when key value is null', function ()
+    {
+      it('should return an input type of "text"', function ()
+      {
+        formalize.toForm('{"test":null}').should.match(/<input [^>]*type="text"/);
+      });
+      it('should return an input value of null', function ()
+      {
+        formalize.toForm('{"test":null}').should.match(/<input [^>]*value="null"/);
+      });
     });
     describe('when key value is a string of less than 32 characters', function ()
     {
@@ -167,6 +213,61 @@ describe('Converting HTML form to JSON', function ()
     it('should return "null"', function ()
     {
       formalize.fromForm('<form></form>').should.equal('null');
+    });
+  });
+  describe('when provided with an empty unorder list', function ()
+  {
+    it('should return "{}"', function ()
+    {
+      formalize.fromForm('<form><ul></ul></form>').should.equal('{}');
+    });
+  });
+  describe('when provided with a form with one field', function ()
+  {
+    describe('when the field is text input', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        (typeof formalize.fromForm('<form><ul><input type="text" name="test" value="ok"/></ul></form>')).should.equal('string');
+        formalize.fromForm('<form><ul><input type="text" name="test" value="ok"/></ul></form>').should.equal('{"test":"ok"}');
+      });
+    });
+    describe('when the field is number input', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        (typeof formalize.fromForm('<form><ul><input type="number" name="test" value="7"/></ul></form>')).should.equal('string');
+        formalize.fromForm('<form><ul><input type="number" name="test" value="7"/></ul></form>').should.equal('{"test":7}');
+      });
+    });
+    describe('when the field is a textarea', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        (typeof formalize.fromForm('<form><ul><textarea name="test">ok</textarea></ul></form>')).should.equal('string');
+        formalize.fromForm('<form><ul><textarea name="test">ok</textarea></ul></form>').should.equal('{"test":"ok"}');
+      });
+    });
+    describe('when the field value is true', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        formalize.fromForm('<form><ul><input type="text" name="test" value="true"/></ul></form>').should.equal('{"test":true}');
+      });
+    });
+    describe('when the field value is false', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        formalize.fromForm('<form><ul><input type="text" name="test" value="false"/></ul></form>').should.equal('{"test":false}');
+      });
+    });
+    describe('when the field value is null', function ()
+    {
+      it('should return the proper JSON', function ()
+      {
+        formalize.fromForm('<form><ul><input type="text" name="test" value="null"/></ul></form>').should.equal('{"test":null}');
+      });
     });
   });
 });

@@ -35,11 +35,7 @@ var validateToArg = function (obj)
 
   var msg = 'cannot build form from: ';
 
-  if (obj === null)
-  {
-    throw msg + 'null';
-  }
-  else if (typeof obj === 'string')
+  if (typeof obj === 'string' && obj !== null)
   {
     throw msg + 'string';
   }
@@ -47,13 +43,9 @@ var validateToArg = function (obj)
   {
     throw msg + 'number';
   }
-  else if (obj.constructor === Array)
+  else if (obj !== null && obj.constructor === Array)
   {
     throw msg + 'array';
-  }
-  else if (Object.keys(obj).length === 0)
-  {
-    throw msg + 'empty object';
   }
 
   return obj;
@@ -138,13 +130,34 @@ var addKey = function (state, attribs)
   return state;
 };
 
+var addCorrectlyTypedValue = function(state, value)
+{
+  'use strict';
+
+  switch (value)
+  {
+  case 'null':
+  case 'true':
+  case 'false':
+    state.acc = state.acc + value;
+    break;
+  default:
+    addTextValue(state, value);
+  }
+
+  return state;
+};
+
 var addValue = function (state, attribs)
 {
   'use strict';
 
+  addComma(state);
+  addKey(state, attribs);
+
   if (attribs.type === 'text')
   {
-    addTextValue(state, attribs.value);
+    addCorrectlyTypedValue(state, attribs.value);
   }
   else if (attribs.type === 'number')
   {
@@ -326,6 +339,12 @@ var tryParseJSON = function (jsn)
     }
   }
 
+  // I've tested this and strangely enough JSON.parse(null) === null
+  if (jsn === null)
+  {
+    throw new SyntaxError('invalid JSON: null');
+  }
+
   return obj;
 };
 
@@ -333,28 +352,47 @@ var simpleToForm = function (obj)
 {
   'use strict';
 
-  var fields = Object.keys(obj).reduce(function (acc, key)
+  var fields;
+
+  if (obj === null)
   {
-    var val = obj[key];
-    var ret = {key: key, val: val};
-
-    if (typeof val === 'string' && val.length <= 32)
+    fields = false;
+  }
+  else
+  {
+    fields = Object.keys(obj).reduce(function (acc, key)
     {
-      ret.string = true;
-    }
-    else if (typeof val === 'number')
-    {
-      ret.number = true;
-    }
-    else if (typeof val === 'string' && val.length > 32)
-    {
-      ret.text = true;
-    }
+      var val = obj[key];
+      var ret = {key: key, val: val};
 
-    return acc.concat(ret);
-  }, []);
+      if (typeof val === 'string' && val.length <= 32)
+      {
+        ret.string = true;
+      }
+      else if (typeof val === 'number')
+      {
+        ret.number = true;
+      }
+      else if (typeof val === 'string' && val.length > 32)
+      {
+        ret.text = true;
+      }
+      else if (typeof val === 'boolean')
+      {
+        ret.string = true;
+        ret.val = val.toString();
+      }
+        else if (val === null)
+      {
+        ret.string = true;
+        ret.val = 'null';
+      }
 
-  return templates['simple-to-form']({fields: fields});
+      return acc.concat(ret);
+    }, []);
+  }
+
+  return templates['simple-to-form']({fields: fields, obj: obj !== null});
 };
 
 // ## External Functions
