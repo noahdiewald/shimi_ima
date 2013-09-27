@@ -381,7 +381,7 @@ var simpleToForm = function (obj)
         ret.string = true;
         ret.val = val.toString();
       }
-        else if (val === null)
+      else if (val === null)
       {
         ret.string = true;
         ret.val = 'null';

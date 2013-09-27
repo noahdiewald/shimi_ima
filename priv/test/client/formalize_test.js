@@ -165,6 +165,47 @@ describe('Converting JSON to an HTML form', function ()
       formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<li>/g).length.should.equal(3);
     });
   });
+  describe('when provided an object as value', function ()
+  {
+    describe('when the object is null', function ()
+    {
+      it('should return a fieldset with legend', function ()
+      {
+        formalize.toForm('{"a": null}').should.match(/<fieldset>\s*<legend>a/g);
+      });
+    });
+    describe('when the object is empty', function ()
+    {
+      it('should return a fieldset with legend and unordered list', function ()
+      {
+        formalize.toForm('{"a": {}}').should.match(/<fieldset>\s*<legend>a<\/legend>\s*<ul>/g);
+      });
+    });
+    describe('when the object has a key value pair', function ()
+    {
+      it('should return a fieldset with legend and unordered list with an input element', function ()
+      {
+        formalize.toForm('{"a":{"b":9}}').should.match(/<fieldset>\s*<legend>a.*<input.*/g);
+      });
+    });
+  });
+  describe('when provided an array as value', function ()
+  {
+    describe('when the array is empty', function ()
+    {
+      it('should return a fieldset with legend and ordered list', function ()
+      {
+        formalize.toForm('{"a": []}').should.match(/<fieldset>\s*<legend>a<\/legend>\s*<ol>/g);
+      });
+    });
+    describe('when the array has a string', function ()
+    {
+      it('should return a fieldset with legend and ordered list with an input element', function ()
+      {
+        formalize.toForm('{"a":["b"]}').should.match(/<fieldset>\s*<legend>a.*<ol>.*<input.*/g);
+      });
+    });
+  });
 });
 describe('Converting HTML form to JSON', function ()
 {
@@ -266,7 +307,50 @@ describe('Converting HTML form to JSON', function ()
     {
       it('should return the proper JSON', function ()
       {
-        formalize.fromForm('<form><ul><input type="text" name="test" value="null"/></ul></form>').should.equal('{"test":null}');
+        formalize.fromForm('<form><ul><li><input type="text" name="test" value="null"/></li></ul></form>').should.equal('{"test":null}');
+      });
+    });
+    describe('when a fieldset + legend is introduced without a list', function ()
+    {
+      it('should return the legend like a normal key with null value', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend></fieldset></li></ul></form>').should.equal('{"legend":null}');
+      });
+    });
+    describe('when a fieldset + legend is introduced with an empty unordered list', function ()
+    {
+      it('should return the legend like a normal key with empty object value', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ul></ul></fieldset></li></ul></form>').should.equal('{"legend":{}}');
+      });
+    });
+    describe('when a fieldset + legend is introduced with an empty ordered list', function ()
+    {
+      it('should return the legend like a normal key with empty array value', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ol></ol></fieldset></li></ul></form>').should.equal('{"legend":[]}');
+      });
+    });
+    describe('when a fieldset + legend is introduced with a unordered list', function ()
+    {
+      it('should return the legend like a normal key with an object value', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ul><li><input type="number" name="fox" value="chew"></li></ul></fieldset></li></ul></form>').should.equal('{"legend":{"fox":"chew"}}');
+      });
+    });
+    describe('when a fieldset + legend is introduced with an ordered list', function ()
+    {
+      it('should return an array with a string', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ol><li><input type="text" value="chew"></li></ol></fieldset></li></ul></form>').should.equal('{"legend":["chew"]}');
+      });
+      it('should return an array with an array', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ol><li><ol></ol></li></ol></fieldset></li></ul></form>').should.equal('{"legend":[[]]}');
+      });
+      it('should return an array with an object', function ()
+      {
+        formalize.fromForm('<form><ul><li><fieldset><legend>test</legend><ol><li><ul></ul></li></ol></fieldset></li></ul></form>').should.equal('{"legend":[{}]}');
       });
     });
   });
@@ -318,8 +402,8 @@ describe('Testing through inversion of toForm', function ()
   {
     invertTo('{"test":null,"a":1,"b":true,"hippo":"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj","sevent":"ij"}');
   });
-  //describe('when it has a object child', function ()
-  //{
-  //  invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
-  //});
+  describe('when it has a object child', function ()
+  {
+    invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
+  });
 });
