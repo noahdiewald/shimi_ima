@@ -9,13 +9,21 @@ describe('Tail recursion', function ()
   {
     it('should return a transformed object', function ()
     {
-      var origObj = {
+      var origObj = JSON.stringify({
         cat: 'sat',
         mat: {coat: 'cap'}
-      };
-      var transObj = JSON.stringify({
+      });
+      var transObj1 = JSON.stringify({
         CAT: 'SAT',
         MAT: {COAT: 'CAP'}
+      });
+      var transObj2 = JSON.stringify({
+        fields: [
+          {key: 'cat', string: true, number: false, array: false, object: false, value: 'sat'},
+          {key: 'mat', string: false, number: false, array: false, object: true, value: [
+            {key: 'coat', string: true, number: false, array: false, object: false, value: 'cap'}
+          ]}
+        ]
       });
 
       var getKeyVals = function (o)
@@ -35,9 +43,9 @@ describe('Tail recursion', function ()
         });
       };
 
-      var transform = function (o)
+      var transform1 = function (o)
       {
-        var transform1 = function (o, rest, accObj, id)
+        var transform_ = function (o, rest, accObj, id)
         {
           var result;
           var keyVals = getKeyVals(o);
@@ -66,7 +74,7 @@ describe('Tail recursion', function ()
 
           if (rest.length !== 0)
           {
-            return transform1.r(result[0], rest.slice(1), accObj, id);
+            return transform_.r(result[0], rest.slice(1), accObj, id);
           }
           else
           {
@@ -74,10 +82,48 @@ describe('Tail recursion', function ()
           }
         };
 
-        return transform1.t(o, [], o, recurse.identity);
+        return transform_.t(o, [], o, recurse.identity);
       };
 
-      JSON.stringify(transform(origObj)).should.be.equal(transObj);
+      var transform2 = function (o)
+      {
+        var start = {fields: []};
+
+        var transform_ = function (o, rest, accObj, id)
+        {
+          var result;
+          var keyVals = getKeyVals(o.object);
+
+          result = keyVals.reduce(function (acc, x, i)
+          {
+            if (x.object)
+            {
+              return acc.concat({object: x.value, key: 'value', parent: x});
+            }
+            else
+            {
+              return acc;
+            }
+          }, []);
+
+          rest = rest.concat(result);
+          o.parent[o.key] = keyVals;
+
+          if (rest.length !== 0)
+          {
+            return transform_.r(result[0], rest.slice(1), accObj, id);
+          }
+          else
+          {
+            return id.r(accObj);
+          }
+        };
+
+        return transform_.t({object: o, parent: start, key: 'fields'}, [], start, recurse.identity);
+      };
+
+      JSON.stringify(transform1(JSON.parse(origObj))).should.be.equal(transObj1);
+      JSON.stringify(transform2(JSON.parse(origObj))).should.be.equal(transObj2);
     });
   });
   describe('when recursing a nested array', function ()
