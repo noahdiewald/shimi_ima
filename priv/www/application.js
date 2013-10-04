@@ -10727,7 +10727,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":36,"./click-dispatch.js":37,"./config/config.js":42,"./dblclick-dispatch.js":52,"./documents/documents.js":56,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ilistingui.js":73,"./jquery-ui-input-state.js":77,"./keystrokes.js":79,"./projects/projectui.js":85}],36:[function(require,module,exports){
+},{"./changes.js":36,"./click-dispatch.js":37,"./config/config.js":42,"./dblclick-dispatch.js":52,"./documents/documents.js":56,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ilistingui.js":73,"./jquery-ui-input-state.js":77,"./keystrokes.js":79,"./projects/projectui.js":83}],36:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11075,7 +11075,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":40,"./config/doctype-tab.js":45,"./config/maintenanceui.js":51,"./dispatcher.js":53,"./documents/editui.js":57,"./documents/fieldsets.js":58,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/setsui.js":61,"./documents/viewui.js":62,"./documents/worksheetui.js":63,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ieditui.js":70,"./panel-toggle.js":83,"./projects/projectui.js":85,"./sender.js":86}],38:[function(require,module,exports){
+},{"./config/charseq-tab":40,"./config/doctype-tab.js":45,"./config/maintenanceui.js":51,"./dispatcher.js":53,"./documents/editui.js":57,"./documents/fieldsets.js":58,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/setsui.js":61,"./documents/viewui.js":62,"./documents/worksheetui.js":63,"./file_manager/fm.js":64,"./form.js":66,"./index_tool/ieditui.js":70,"./panel-toggle.js":81,"./projects/projectui.js":83,"./sender.js":86}],38:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11371,7 +11371,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":82,"templates.js":"e8H8MT"}],42:[function(require,module,exports){
+},{"../pager.js":80,"templates.js":"e8H8MT"}],42:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -11816,7 +11816,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":84,"../store.js":89,"./doctype-dialog.js":43,"./doctype-elems.js":44,"./field-dialog.js":47,"./field-elems.js":48,"./fieldset-dialog.js":49,"./fieldset-elems.js":50}],46:[function(require,module,exports){
+},{"../path.js":82,"../store.js":89,"./doctype-dialog.js":43,"./doctype-elems.js":44,"./field-dialog.js":47,"./field-elems.js":48,"./fieldset-dialog.js":49,"./fieldset-elems.js":50}],46:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -11868,7 +11868,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":82,"templates.js":"e8H8MT"}],47:[function(require,module,exports){
+},{"../pager.js":80,"templates.js":"e8H8MT"}],47:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12375,7 +12375,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":53,"./documents/searchui.js":60,"./documents/worksheetui.js":63,"./panel-toggle.js":83}],53:[function(require,module,exports){
+},{"./dispatcher.js":53,"./documents/searchui.js":60,"./documents/worksheetui.js":63,"./panel-toggle.js":81}],53:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -12470,7 +12470,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82}],55:[function(require,module,exports){
+},{"../pager.js":80}],55:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -13759,7 +13759,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":84,"../store.js":89,"../utils.js":90,"./editui.js":57}],59:[function(require,module,exports){
+},{"../path.js":82,"../store.js":89,"../utils.js":90,"./editui.js":57}],59:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -13867,7 +13867,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":82,"./editui.js":57,"./viewui.js":62,"templates.js":"e8H8MT"}],60:[function(require,module,exports){
+},{"../pager.js":80,"./editui.js":57,"./viewui.js":62,"templates.js":"e8H8MT"}],60:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16458,42 +16458,64 @@ var simpleToForm = function (obj)
 
   var fields;
 
+  var recurObj = function (obj, objacc, inarray)
+  {
+    var fs;
+
+    if (obj instanceof Array && !inarray)
+    {
+      recurObj.r(obj, objacc, true);
+    }
+    else if (obj instanceof Object && !(obj instanceof Array))
+    {
+      recurObj.r(obj, objacc, false);
+    }
+
+    {
+      fs = Object.keys(obj).reduce(function (acc, key)
+      {
+        var val = obj[key];
+        var ret = {key: key, val: val, inarray: inarray};
+
+        if (typeof val === 'string' && val.length <= 32)
+        {
+          ret.string = true;
+        }
+        else if (typeof val === 'number')
+        {
+          ret.number = true;
+        }
+        else if (typeof val === 'string' && val.length > 32)
+        {
+          ret.text = true;
+        }
+        else if (typeof val === 'boolean')
+        {
+          ret.string = true;
+          ret.val = val.toString();
+        }
+        else if (val === null)
+        {
+          ret.string = true;
+          ret.val = 'null';
+        }
+        else if (val instanceof Array)
+        {}
+        else if (val instanceof Object)
+        {}
+
+        return acc.concat(ret);
+      }, []);
+    }
+  };
+
   if (obj === null)
   {
     fields = false;
   }
   else
   {
-    fields = Object.keys(obj).reduce(function (acc, key)
-    {
-      var val = obj[key];
-      var ret = {key: key, val: val};
-
-      if (typeof val === 'string' && val.length <= 32)
-      {
-        ret.string = true;
-      }
-      else if (typeof val === 'number')
-      {
-        ret.number = true;
-      }
-      else if (typeof val === 'string' && val.length > 32)
-      {
-        ret.text = true;
-      }
-      else if (typeof val === 'boolean')
-      {
-        ret.string = true;
-        ret.val = val.toString();
-      }
-        else if (val === null)
-      {
-        ret.string = true;
-        ret.val = 'null';
-      }
-
-      return acc.concat(ret);
-    }, []);
+    fields = recurObj.t(obj, false);
   }
 
   return templates['simple-to-form']({fields: fields, obj: obj !== null});
@@ -16527,7 +16549,7 @@ var fromForm = function (html)
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":80,"htmlparser2":25,"templates.js":"e8H8MT"}],68:[function(require,module,exports){
+},{"./recurse.js":84,"htmlparser2":25,"templates.js":"e8H8MT"}],68:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17613,7 +17635,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82}],75:[function(require,module,exports){
+},{"../pager.js":80}],75:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18233,55 +18255,6 @@ var keystrokes = function ()
 exports.keystrokes = keystrokes;
 
 },{"./config/charsequi.js":41,"./config/doctypeui.js":46,"./documents/changeui.js":54,"./documents/editui.js":57,"./documents/indexui.js":59,"./documents/searchui.js":60,"./documents/viewui.js":62,"./index_tool/ipreviewui.js":74,"./jquery.hotkeys.js":78,"./sender.js":86}],80:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function ()
-{
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function ()
-  {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function ()
-  {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],82:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -18496,7 +18469,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":66,"templates.js":"e8H8MT"}],83:[function(require,module,exports){
+},{"./form.js":66,"templates.js":"e8H8MT"}],81:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -18532,7 +18505,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],84:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -18740,7 +18713,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":66,"./store.js":89}],85:[function(require,module,exports){
+},{"./form.js":66,"./store.js":89}],83:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18879,7 +18852,56 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":66}],86:[function(require,module,exports){
+},{"../form.js":66}],84:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],86:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially and experiment in attempting to perform actions
@@ -19266,7 +19288,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":80,"./utils.js":90}],90:[function(require,module,exports){
+},{"./recurse.js":84,"./utils.js":90}],90:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19492,7 +19514,9 @@ var t = {
   'search-field-item' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<a class='search-field-item' ");_.b("\n" + i);_.b("  title='click to remove' ");_.b("\n" + i);_.b("  data-field-field='");_.b(_.v(_.f("field",c,p,0)));_.b("' ");_.b("\n" + i);_.b("  href='#'>");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("</a>");_.b("\n");return _.fl();;}),
   'set-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: <span id=\"total-set-rows\">");_.b(_.v(_.f("total",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<div id=\"save-set-results\">");_.b("\n" + i);_.b("  <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table id=\"set-elements\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" id=\"select-all-set-elements\" title=\"Click to select or deselect all elements\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <th>");_.b("\n" + i);_.b("        Elements");_.b("\n" + i);_.b("      </th>");_.b("\n" + i);_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("elements",c,p,1),c,p,0,435,674,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" class=\"set-element-selection\" title=\"Click to select element\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <a class=\"view-document-link\" href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.f("context",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;}),
   'set-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("names",c,p,1),c,p,0,28,66,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.d(".",c,p,0)));_.b("\">");_.b(_.v(_.d(".",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
-  'simple-to-form-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li>");_.b("\n" + i);_.b("  <label for=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">");_.b(_.v(_.f("key",c,p,0)));_.b("</label>");_.b("\n" + i);if(!_.s(_.f("text",c,p,1),c,p,1,0,0,"")){_.b("  <input type=\"");if(_.s(_.f("string",c,p,1),c,p,0,86,90,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("text");});c.pop();}if(_.s(_.f("number",c,p,1),c,p,0,112,118,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("number");});c.pop();}_.b("\" name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" value=\"");_.b(_.v(_.f("val",c,p,0)));_.b("\"/>");_.b("\n");};if(_.s(_.f("text",c,p,1),c,p,0,191,246,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <textarea name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">");_.b(_.v(_.f("val",c,p,0)));_.b("</textarea>");_.b("\n");});c.pop();}_.b("</li>");_.b("\n");return _.fl();;}),
+  'simple-to-form-array' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<ol>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,18,52,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"    "));});c.pop();}_.b("</ol>");_.b("\n");return _.fl();;}),
+  'simple-to-form-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li>");_.b("\n" + i);if(!_.s(_.f("inarray",c,p,1),c,p,1,0,0,"")){_.b("    <label for=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">");_.b(_.v(_.f("key",c,p,0)));_.b("</label>");_.b("\n");};if(_.s(_.f("text",c,p,1),c,p,0,91,146,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <textarea name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">");_.b(_.v(_.f("val",c,p,0)));_.b("</textarea>");_.b("\n");});c.pop();}if(_.s(_.f("string",c,p,1),c,p,0,169,232,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <input type=\"text\" name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" value=\"");_.b(_.v(_.f("val",c,p,0)));_.b("\"/>");_.b("\n");});c.pop();}if(_.s(_.f("number",c,p,1),c,p,0,257,322,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <input type=\"number\" name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" value=\"");_.b(_.v(_.f("val",c,p,0)));_.b("\"/>");_.b("\n");});c.pop();}if(_.s(_.f("array",c,p,1),c,p,0,346,555,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("inarray",c,p,1),c,p,1,0,0,"")){_.b("      <fieldset>");_.b("\n" + i);_.b("        <legend>");_.b(_.v(_.f("key",c,p,0)));_.b("</legend>");_.b("\n" + i);_.b(_.rp("simple-to-form-array",c,p,"        "));_.b("      </fieldset>");_.b("\n");};if(_.s(_.f("inarray",c,p,1),c,p,0,502,540,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-array",c,p,"      "));});c.pop();}});c.pop();}if(_.s(_.f("object",c,p,1),c,p,0,579,790,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("inarray",c,p,1),c,p,1,0,0,"")){_.b("      <fieldset>");_.b("\n" + i);_.b("        <legend>");_.b(_.v(_.f("key",c,p,0)));_.b("</legend>");_.b("\n" + i);_.b(_.rp("simple-to-form-object",c,p,"        "));_.b("      </fieldset>");_.b("\n");};if(_.s(_.f("inarray",c,p,1),c,p,0,736,775,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-object",c,p,"      "));});c.pop();}});c.pop();}_.b("</li>");_.b("\n");return _.fl();;}),
+  'simple-to-form-object' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,18,52,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"    "));});c.pop();}_.b("</ul>");_.b("\n");return _.fl();;}),
   'simple-to-form' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<form>");_.b("\n" + i);if(_.s(_.f("obj",c,p,1),c,p,0,17,100,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,40,78,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"      "));});c.pop();}_.b("  </ul>");_.b("\n");});c.pop();}_.b("</form>");_.b("\n");return _.fl();;}),
   'worksheet' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<table id=\"worksheet-table\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr class=\"header-row\">");_.b("\n" + i);_.b("      <td id=\"select-all-worksheet-rows-cell\"");_.b("\n" + i);_.b("        class=\"select-column\">");_.b("\n" + i);_.b("        <input ");_.b("\n" + i);_.b("          id=\"select-all-worksheet-rows\"");_.b("\n" + i);_.b("          type=\"checkbox\"");_.b("\n" + i);_.b("          title=\"Click to select all rows\">");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,303,1494,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <th ");_.b("\n" + i);_.b("          class=\"worksheet-handle-header fieldset handle-column ");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("          <div>");_.b("\n" + i);_.b("            <span>");_.b("\n" + i);_.b("              <a class=\"fieldset-handle\" ");_.b("\n" + i);_.b("                data-field-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("                href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a></span></div>");_.b("\n" + i);_.b("        </th>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,634,1476,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <th");_.b("\n" + i);_.b("            class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,681,689,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,716,724,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" worksheet-handle-header field handle-column\"");_.b("\n" + i);_.b("            title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("            <div>");_.b("\n" + i);_.b("              <span>");_.b("\n" + i);_.b("                <a class=\"field-handle\" ");_.b("\n" + i);_.b("                  data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("                  href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a></span></div>");_.b("\n" + i);_.b("          </th>");_.b("\n" + i);_.b("          <th");_.b("\n" + i);_.b("            class=\"");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" field-column\"");_.b("\n" + i);_.b("            title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("            <a class=\"field-header\" ");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("              href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("            <input ");_.b("\n" + i);_.b("              class=\"select-worksheet-column\"");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("              type=\"checkbox\"");_.b("\n" + i);_.b("              title=\"Click to select column\">");_.b("\n" + i);_.b("          </td>");_.b("\n");});c.pop();}});c.pop();}_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);_.b("    <%#rows%>");_.b("\n" + i);_.b("      <tr id=\"worksheet-row-<% _id %>\"");_.b("\n" + i);_.b("        class=\"body-row\">");_.b("\n" + i);_.b("        <td class=\"select-column\">");_.b("\n" + i);_.b("          <input ");_.b("\n" + i);_.b("            class=\"select-worksheet-row\"");_.b("\n" + i);_.b("            data-row=\"worksheet-row-<% _id %>\"");_.b("\n" + i);_.b("            type=\"checkbox\"");_.b("\n" + i);_.b("            title=\"Click to select row\">");_.b("\n" + i);_.b("        </td>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,1865,2890,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <td class=\"");_.b(_.v(_.f("_id",c,p,0)));_.b(" fieldset handle-column\"></td>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,1948,2870,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("            <td class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,1985,1993,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,2020,2028,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" field handle-column\"></td>");_.b("\n" + i);_.b("            <td");_.b("\n" + i);_.b("              class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,2144,2152,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,2179,2187,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" field-column\"");_.b("\n" + i);_.b("              data-field-fieldset=\"");_.b(_.v(_.f("fieldset",c,p,0)));_.b("\"");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("              <%#");_.b(_.v(_.f("_id",c,p,0)));_.b("%>");_.b("\n" + i);_.b("                <%#multiple%>");_.b("\n" + i);_.b("                <ol>");_.b("\n" + i);_.b("                  <%#items%>");_.b("\n" + i);_.b("                    <li");_.b("\n" + i);_.b("                      data-field-fieldset_instance=\"<% fieldset_instance %>\"");_.b("\n" + i);_.b("                      data-field-field_instance=\"<% field_instance %>\"><% value %></li>");_.b("\n" + i);_.b("                  <%/items%>");_.b("\n" + i);_.b("                </ol>");_.b("\n" + i);_.b("                <%/multiple%>");_.b("\n" + i);_.b("                <%#single%>");_.b("\n" + i);_.b("                  <span><% value %></span>");_.b("\n" + i);_.b("                <%/single%>");_.b("\n" + i);_.b("              <%/");_.b(_.v(_.f("_id",c,p,0)));_.b("%>");_.b("\n" + i);_.b("            </td>");_.b("\n");});c.pop();}});c.pop();}_.b("      </tr>");_.b("\n" + i);_.b("    <%/rows%>");_.b("\n" + i);_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;})
 },
@@ -19519,9 +19543,11 @@ module.exports = {
   'search-field-item' : r('search-field-item'),
   'set-listing' : r('set-listing'),
   'set-options' : r('set-options'),
+  'simple-to-form-array' : r('simple-to-form-array'),
   'simple-to-form-field' : r('simple-to-form-field'),
+  'simple-to-form-object' : r('simple-to-form-object'),
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":12}]},{},[35,36,37,38,39,40,41,42,43,44,45,46,47,48,50,49,51,53,52,54,55,57,56,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,79,78,82,83,84,85,86,80,87,88,89,90])
+},{"hogan.js":12}]},{},[35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,86,87,88,89,90])
 ;

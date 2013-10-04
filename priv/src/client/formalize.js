@@ -353,42 +353,64 @@ var simpleToForm = function (obj)
 
   var fields;
 
+  var recurObj = function (obj, objacc, inarray)
+  {
+    var fs;
+
+    if (obj instanceof Array && !inarray)
+    {
+      recurObj.r(obj, objacc, true);
+    }
+    else if (obj instanceof Object && !(obj instanceof Array))
+    {
+      recurObj.r(obj, objacc, false);
+    }
+
+    {
+      fs = Object.keys(obj).reduce(function (acc, key)
+      {
+        var val = obj[key];
+        var ret = {key: key, val: val, inarray: inarray};
+
+        if (typeof val === 'string' && val.length <= 32)
+        {
+          ret.string = true;
+        }
+        else if (typeof val === 'number')
+        {
+          ret.number = true;
+        }
+        else if (typeof val === 'string' && val.length > 32)
+        {
+          ret.text = true;
+        }
+        else if (typeof val === 'boolean')
+        {
+          ret.string = true;
+          ret.val = val.toString();
+        }
+        else if (val === null)
+        {
+          ret.string = true;
+          ret.val = 'null';
+        }
+        else if (val instanceof Array)
+        {}
+        else if (val instanceof Object)
+        {}
+
+        return acc.concat(ret);
+      }, []);
+    }
+  };
+
   if (obj === null)
   {
     fields = false;
   }
   else
   {
-    fields = Object.keys(obj).reduce(function (acc, key)
-    {
-      var val = obj[key];
-      var ret = {key: key, val: val};
-
-      if (typeof val === 'string' && val.length <= 32)
-      {
-        ret.string = true;
-      }
-      else if (typeof val === 'number')
-      {
-        ret.number = true;
-      }
-      else if (typeof val === 'string' && val.length > 32)
-      {
-        ret.text = true;
-      }
-      else if (typeof val === 'boolean')
-      {
-        ret.string = true;
-        ret.val = val.toString();
-      }
-      else if (val === null)
-      {
-        ret.string = true;
-        ret.val = 'null';
-      }
-
-      return acc.concat(ret);
-    }, []);
+    fields = recurObj.t(obj, false);
   }
 
   return templates['simple-to-form']({fields: fields, obj: obj !== null});

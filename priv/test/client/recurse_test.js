@@ -5,6 +5,81 @@ describe('Tail recursion', function ()
 {
   'use strict';
 
+  describe('when recursing an object', function ()
+  {
+    it('should return a transformed object', function ()
+    {
+      var origObj = {
+        cat: 'sat',
+        mat: {coat: 'cap'}
+      };
+      var transObj = JSON.stringify({
+        CAT: 'SAT',
+        MAT: {COAT: 'CAP'}
+      });
+
+      var getKeyVals = function (o)
+      {
+        return Object.keys(o).map(function (k)
+        {
+          var val = o[k];
+
+          return {
+            key: k,
+            string: (typeof val === 'string'),
+            number: (typeof val === 'number'),
+            array: (val instanceof Array),
+            object: ((val instanceof Object) && !(val instanceof Array)),
+            value: val
+          };
+        });
+      };
+
+      var transform = function (o)
+      {
+        var transform1 = function (o, rest, accObj, id)
+        {
+          var result;
+          var keyVals = getKeyVals(o);
+
+          result = keyVals.reduce(function (acc, x)
+          {
+            var newKey = x.key.toUpperCase();
+            var oldKey = x.key;
+            var value = x.value;
+
+            o[newKey] = value;
+            delete o[oldKey];
+
+            if (x.string)
+            {
+              o[newKey] = value.toUpperCase();
+              return acc;
+            }
+            else
+            {
+              return acc.concat(value);
+            }
+          }, []);
+
+          rest = rest.concat(result);
+
+          if (rest.length !== 0)
+          {
+            return transform1.r(result[0], rest.slice(1), accObj, id);
+          }
+          else
+          {
+            return id.r(accObj);
+          }
+        };
+
+        return transform1.t(o, [], o, recurse.identity);
+      };
+
+      JSON.stringify(transform(origObj)).should.be.equal(transObj);
+    });
+  });
   describe('when recursing a nested array', function ()
   {
     it('should return the array items in the correct order', function ()
