@@ -254,6 +254,8 @@ var closeObject = function (state)
   return state;
 };
 
+// Main HTML parsing function. It uses the helper functions openForm,
+// openObject, addValue and openTextareaValue.
 var tryParseHTML = function (html)
 {
   'use strict';
@@ -316,6 +318,7 @@ var tryParseHTML = function (html)
   }
 };
 
+// Simply a call to JSON.parse with some special error handling.
 var tryParseJSON = function (jsn)
 {
   'use strict';
@@ -347,73 +350,182 @@ var tryParseJSON = function (jsn)
   return obj;
 };
 
-var simpleToForm = function (obj)
+// Process key value pairs in an object and return an object that
+// describes the original object.
+var getKeyVals = function (o)
 {
   'use strict';
 
-  var fields;
-
-  var recurObj = function (obj, objacc, inarray)
+  return Object.keys(o).map(function (k)
   {
-    var fs;
+    var val = o[k];
 
-    if (obj instanceof Array && !inarray)
+    var maybeNullToString = function (v)
     {
-      recurObj.r(obj, objacc, true);
-    }
-    else if (obj instanceof Object && !(obj instanceof Array))
-    {
-      recurObj.r(obj, objacc, false);
-    }
-
-    {
-      fs = Object.keys(obj).reduce(function (acc, key)
+      if (v === null)
       {
-        var val = obj[key];
-        var ret = {key: key, val: val, inarray: inarray};
+        return 'null';
+      }
+      else
+      {
+        return v;
+      }
+    };
 
-        if (typeof val === 'string' && val.length <= 32)
-        {
-          ret.string = true;
-        }
-        else if (typeof val === 'number')
-        {
-          ret.number = true;
-        }
-        else if (typeof val === 'string' && val.length > 32)
-        {
-          ret.text = true;
-        }
-        else if (typeof val === 'boolean')
-        {
-          ret.string = true;
-          ret.val = val.toString();
-        }
-        else if (val === null)
-        {
-          ret.string = true;
-          ret.val = 'null';
-        }
-        else if (val instanceof Array)
-        {}
-        else if (val instanceof Object)
-        {}
+    return {
+      key: (o instanceof Array) ? false : k,
+      index: (o instanceof Array) ? k * 1 : false,
+      string: ((typeof val === 'string') && val.length <= 32) || val === null,
+      text: (typeof val === 'string') && val.length > 32,
+      bool: (typeof val === 'boolean'),
+      number: (typeof val === 'number'),
+      array: (val instanceof Array),
+      object: ((val instanceof Object) && !(val instanceof Array) && (val !== null)),
+      value: maybeNullToString(val)
+    };
+  });
+};
 
-        return acc.concat(ret);
-      }, []);
+// Transform the object into an object suitable for the template in
+// order to convert JSON to HTML or another format.
+var transform = function (obj)
+{
+  'use strict';
+
+  var start = {fields: []};
+
+  var transform_ = function (o, rest, accObj, id)
+  {
+    var result;
+    var keyVals = getKeyVals(o.object);
+
+    result = keyVals.reduce(function (acc, x)
+    {
+      if (x.object || x.array)
+      {
+        return acc.concat({object: x.value, key: 'value', parent: x});
+      }
+      else
+      {
+        return acc;
+      }
+    }, []);
+
+    rest = rest.concat(result);
+    o.parent[o.key] = keyVals;
+
+    if (rest.length !== 0)
+    {
+      return transform_.r(rest[0], rest.slice(1), accObj, id);
+    }
+    else
+    {
+      return id.r(accObj);
     }
   };
 
   if (obj === null)
   {
-    fields = false;
+    return {};
   }
   else
   {
-    fields = recurObj.t(obj, false);
+    return transform_.t({object: obj, parent: start, key: 'fields'}, [], start, r.identity);
+  }
+};
+
+var descriptToHtml = function (obj)
+{
+  'use strict';
+
+  var begin = '<form>';
+  var end = '</form>';
+  var result;
+
+  var _descriptToHtml = function (fs, begin, end, id)
+  {
+    var lab = function (key)
+    {
+      return '<label for="' + key + '">' + key + '</label>';
+    };
+
+    var openFieldset = function (key)
+    {
+      return '<fieldset><legend>' + key + '</legend>';
+    };
+
+    if (!fs.array && !fs.object && fs.key)
+    {
+      begin = begin + lab(fs.key);
+    }
+    else if (fs.array || fs.object && fs.key)
+    {
+      begin = begin + openFieldset(fs.key);
+      end = '</fieldset>' + end;
+    }
+
+    if (fs.value)
+    {
+      begin = begin + '<li>';
+      end = '</li>' + end;
+    }
+
+    if (fs.text)
+    {
+      begin = begin + '<textarea ' + (fs.key ? 'name="' + fs.key + '" ' : '') + '>' + fs.value + '</textarea>';
+    }
+    else if (!fs.object && !fs.array && fs.value)
+    {
+      begin = begin + '<input type="' + (fs.number ? 'number' : 'text') + '" ' + (fs.key ? 'name="' + fs.key + '" ' : '') + 'value="' + fs.value + '"/>';
+    }
+    else if (fs.object)
+    {
+      begin = begin + '<ul>';
+      end = '</ul>' + end;
+    }
+    else if (fs.array)
+    {
+      begin = begin + '<ol>';
+      end = '</ol>' + end;
+    }
+
+    if (!fs.array && !fs.object)
+    {
+      return id.r({begin: begin, end: end});
+    }
+    else
+    {
+      return _descriptToHtml.r(fs.value, begin, end, id);
+    }
+  };
+
+  if (obj.obj && obj.fields)
+  {
+    begin = begin + '<ul>';
+    end = '</ul>' + end;
+
+    if (obj.fields.length >= 0)
+    {
+      result = _descriptToHtml.t(obj.fields, begin, end, r.identity);
+      begin = result.begin;
+      end = result.end;
+    }
   }
 
-  return templates['simple-to-form']({fields: fields, obj: obj !== null});
+  return begin + end;
+};
+
+// This is essentially the default simple form building function.
+var simpleToForm = function (obj)
+{
+  'use strict';
+
+  var fields = transform(obj);
+
+  fields.obj = obj !== null;
+
+  //return templates['simple-to-form'](fields);
+  return descriptToHtml(fields);
 };
 
 // ## External Functions

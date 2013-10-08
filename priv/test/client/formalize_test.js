@@ -167,13 +167,6 @@ describe('Converting JSON to an HTML form', function ()
   });
   describe('when provided an object as value', function ()
   {
-    describe('when the object is null', function ()
-    {
-      it('should return a fieldset with legend', function ()
-      {
-        formalize.toForm('{"a": null}').should.match(/<fieldset>\s*<legend>a/g);
-      });
-    });
     describe('when the object is empty', function ()
     {
       it('should return a fieldset with legend and unordered list', function ()
