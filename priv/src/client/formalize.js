@@ -10,6 +10,7 @@
 var r = require('./recurse.js');
 var templates = require('templates.js');
 var htmlparser = require('htmlparser2');
+var console = require('console');
 
 // ## Internal Functions
 
@@ -82,16 +83,20 @@ var openForm = function (state)
   return state;
 };
 
-var openObject = function (state)
+var addTextValue = function (state, text)
 {
   'use strict';
 
-  state.state.push('open-object');
-  if (state.acc === 'null')
-  {
-    state.acc = '';
-  }
-  state.acc = state.acc + '{';
+  state.acc = state.acc + '"' + text + '"';
+
+  return state;
+};
+
+var addKey = function (state, name)
+{
+  'use strict';
+
+  state.acc = addTextValue(state, name).acc + ':';
 
   return state;
 };
@@ -112,20 +117,38 @@ var addComma = function (state)
   return state;
 };
 
-var addTextValue = function (state, text)
+var openObject = function (state, attribs)
 {
   'use strict';
 
-  state.acc = state.acc + '"' + text + '"';
+  state.state.push('open-object');
+  if (state.acc === 'null')
+  {
+    state.acc = '';
+  }
+
+  if (attribs.title)
+  {
+    addKey(state, attribs.title);
+  }
+
+  state.acc = state.acc + '{';
 
   return state;
 };
 
-var addKey = function (state, attribs)
+var openArray = function (state, attribs)
 {
   'use strict';
 
-  state.acc = addTextValue(state, attribs.name).acc + ':';
+  state.state.push('open-array');
+
+  if (attribs.title)
+  {
+    addKey(state, attribs.title);
+  }
+
+  state.acc = state.acc + '[';
 
   return state;
 };
@@ -153,7 +176,11 @@ var addValue = function (state, attribs)
   'use strict';
 
   addComma(state);
-  addKey(state, attribs);
+
+  if (attribs.name)
+  {
+    addKey(state, attribs.name);
+  }
 
   if (attribs.type === 'text')
   {
@@ -172,7 +199,7 @@ var openTextareaValue = function (state, attribs)
   'use strict';
 
   addComma(state);
-  addKey(state, attribs);
+  addKey(state, attribs.name);
   state.state.push('open-text');
 
   return state;
@@ -254,6 +281,22 @@ var closeObject = function (state)
   return state;
 };
 
+var closeArray = function (state)
+{
+  'use strict';
+
+  klose(state, 'open-array', function (state)
+  {
+    state.state.pop();
+    state.acc = state.acc + ']';
+    addComma(state);
+
+    return state;
+  });
+
+  return state;
+};
+
 // Main HTML parsing function. It uses the helper functions openForm,
 // openObject, addValue and openTextareaValue.
 var tryParseHTML = function (html)
@@ -273,7 +316,10 @@ var tryParseHTML = function (html)
         openForm(state);
         break;
       case 'ul':
-        openObject(state);
+        openObject(state, attribs);
+        break;
+      case 'ol':
+        openArray(state, attribs);
         break;
       case 'input':
         addValue(state, attribs);
@@ -299,6 +345,9 @@ var tryParseHTML = function (html)
         break;
       case 'ul':
         closeObject(state);
+        break;
+      case 'ol':
+        closeArray(state);
         break;
       }
     }
@@ -350,6 +399,52 @@ var tryParseJSON = function (jsn)
   return obj;
 };
 
+// If v is null, return 'null', otherwise return v.
+var maybeNullToString = function (v)
+{
+  'use strict';
+
+  if (v === null)
+  {
+    return 'null';
+  }
+  else
+  {
+    return v;
+  }
+};
+
+// Get the 'type', which may not correspond to the JavaScript type.
+var getType = function (val)
+{
+  'use strict';
+
+  if (val === null || (typeof val === 'string' && val.length <= 32))
+  {
+    return 'string';
+  }
+  else if (typeof val === 'string' && val.length > 32)
+  {
+    return 'text';
+  }
+  else if (typeof val === 'boolean')
+  {
+    return 'boolean';
+  }
+  else if (typeof val === 'number')
+  {
+    return 'number';
+  }
+  else if (val instanceof Array)
+  {
+    return 'array';
+  }
+  else if (val instanceof Object && !(val instanceof Array) && val !== null)
+  {
+    return 'object';
+  }
+};
+
 // Process key value pairs in an object and return an object that
 // describes the original object.
 var getKeyVals = function (o)
@@ -360,27 +455,10 @@ var getKeyVals = function (o)
   {
     var val = o[k];
 
-    var maybeNullToString = function (v)
-    {
-      if (v === null)
-      {
-        return 'null';
-      }
-      else
-      {
-        return v;
-      }
-    };
-
     return {
       key: (o instanceof Array) ? false : k,
       index: (o instanceof Array) ? k * 1 : false,
-      string: ((typeof val === 'string') && val.length <= 32) || val === null,
-      text: (typeof val === 'string') && val.length > 32,
-      bool: (typeof val === 'boolean'),
-      number: (typeof val === 'number'),
-      array: (val instanceof Array),
-      object: ((val instanceof Object) && !(val instanceof Array) && (val !== null)),
+      type: getType(val),
       value: maybeNullToString(val)
     };
   });
@@ -401,7 +479,7 @@ var transform = function (obj)
 
     result = keyVals.reduce(function (acc, x)
     {
-      if (x.object || x.array)
+      if (x.type === 'array' || x.type === 'object')
       {
         return acc.concat({object: x.value, key: 'value', parent: x});
       }
@@ -414,7 +492,7 @@ var transform = function (obj)
     rest = rest.concat(result);
     o.parent[o.key] = keyVals;
 
-    if (rest.length !== 0)
+    if (rest && rest.length !== 0)
     {
       return transform_.r(rest[0], rest.slice(1), accObj, id);
     }
@@ -434,6 +512,22 @@ var transform = function (obj)
   }
 };
 
+// Return a label for a key.
+var lab = function (key)
+{
+  'use strict';
+
+  return {begin: '<label for="' + key + '">' + key + '</label>', end: ''};
+};
+
+// Return the openning of a fieldset for a key.
+var openFieldset = function (key)
+{
+  'use strict';
+
+  return {begin: '<fieldset><legend>' + key + '</legend>', end: '</fieldset>'};
+};
+
 var descriptToHtml = function (obj)
 {
   'use strict';
@@ -444,52 +538,46 @@ var descriptToHtml = function (obj)
 
   var _descriptToHtml = function (fs, begin, end, id)
   {
-    var lab = function (key)
-    {
-      return '<label for="' + key + '">' + key + '</label>';
-    };
-
-    var openFieldset = function (key)
-    {
-      return '<fieldset><legend>' + key + '</legend>';
-    };
-
-    if (!fs.array && !fs.object && fs.key)
-    {
-      begin = begin + lab(fs.key);
-    }
-    else if (fs.array || fs.object && fs.key)
-    {
-      begin = begin + openFieldset(fs.key);
-      end = '</fieldset>' + end;
-    }
+    var ret;
 
     if (fs.value)
     {
       begin = begin + '<li>';
       end = '</li>' + end;
+
+      if (fs.type && fs.type !== 'array' && fs.type !== 'object')
+      {
+        ret = lab(fs.key);
+        begin = begin + ret.begin;
+      }
+      else if (fs.type && (fs.type === 'array' || fs.type === 'object') && fs.key)
+      {
+        ret = openFieldset(fs.key);
+        begin = begin + ret.begin;
+        end = ret.end + end;
+      }
+
+      if (fs.type === 'text')
+      {
+        begin = begin + '<textarea ' + (fs.key ? 'name="' + fs.key + '" ' : '') + '>' + fs.value + '</textarea>';
+      }
+      else if (fs.type !== 'object' && fs.type !== 'array')
+      {
+        begin = begin + '<input type="' + (fs.type === 'number' ? 'number' : 'text') + '" ' + (fs.key ? 'name="' + fs.key + '" ' : '') + 'value="' + fs.value + '"/>';
+      }
+      else if (fs.type === 'object')
+      {
+        begin = begin + '<ul>';
+        end = '</ul>' + end;
+      }
+      else if (fs.type === 'array')
+      {
+        begin = begin + '<ol>';
+        end = '</ol>' + end;
+      }
     }
 
-    if (fs.text)
-    {
-      begin = begin + '<textarea ' + (fs.key ? 'name="' + fs.key + '" ' : '') + '>' + fs.value + '</textarea>';
-    }
-    else if (!fs.object && !fs.array && fs.value)
-    {
-      begin = begin + '<input type="' + (fs.number ? 'number' : 'text') + '" ' + (fs.key ? 'name="' + fs.key + '" ' : '') + 'value="' + fs.value + '"/>';
-    }
-    else if (fs.object)
-    {
-      begin = begin + '<ul>';
-      end = '</ul>' + end;
-    }
-    else if (fs.array)
-    {
-      begin = begin + '<ol>';
-      end = '</ol>' + end;
-    }
-
-    if (!fs.array && !fs.object)
+    if (!fs || (fs.type !== 'array' && fs.type !== 'object'))
     {
       return id.r({begin: begin, end: end});
     }
@@ -504,7 +592,7 @@ var descriptToHtml = function (obj)
     begin = begin + '<ul>';
     end = '</ul>' + end;
 
-    if (obj.fields.length >= 0)
+    if (obj.fields && obj.fields.length > 0)
     {
       result = _descriptToHtml.t(obj.fields, begin, end, r.identity);
       begin = result.begin;
