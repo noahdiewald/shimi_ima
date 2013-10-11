@@ -10,7 +10,6 @@
 var r = require('./recurse.js');
 var templates = require('templates.js');
 var htmlparser = require('htmlparser2');
-var console = require('console');
 
 // ## Internal Functions
 
@@ -512,95 +511,168 @@ var transform = function (obj)
   }
 };
 
+// Insert the strings in the acc object.
+var insert = function (begin, end, acc)
+{
+  'use strict';
+
+  acc.begin = acc.begin + begin;
+  acc.end = end + acc.end;
+
+  return acc;
+};
+
 // Return a label for a key.
-var lab = function (key)
+var label = function (key, acc)
 {
   'use strict';
 
-  return {begin: '<label for="' + key + '">' + key + '</label>', end: ''};
+  return insert('<label for="' + key + '">' + key + '</label>', '', acc);
 };
 
-// Return the openning of a fieldset for a key.
-var openFieldset = function (key)
+// For a labeled object.
+var newObject = function (key, acc)
 {
   'use strict';
 
-  return {begin: '<fieldset><legend>' + key + '</legend>', end: '</fieldset>'};
+  return insert('<ul title="' + key + '">', '</ul>', acc);
 };
 
+// For a labeled array.
+var newArray = function (key, acc)
+{
+  'use strict';
+
+  return insert('<ol title="' + key + '">', '</ol>', acc);
+};
+
+// When an item has a value
+var hasValue = function (acc)
+{
+  'use strict';
+
+  return insert('<li>', '</li>', acc);
+};
+
+// Longer text input.
+var textarea = function (key, value, acc)
+{
+  'use strict';
+
+  return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea>', '', acc);
+};
+
+// Could be text or number.
+var inputarea = function (key, value, type, acc)
+{
+  'use strict';
+
+  return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/>', '', acc);
+};
+
+// Unlabeled object, probably in array.
+var anonObject = function (acc)
+{
+  'use strict';
+
+  return insert('<ul>', '</ul>', acc);
+};
+
+// Unlabeled array, probably in array.
+var anonArray = function (acc)
+{
+  'use strict';
+
+  return insert('<ol>', '</ol>', acc);
+};
+
+// Process the field.
+var processDescriptField = function (fs, acc)
+{
+  'use strict';
+
+  if (fs && fs.value !== undefined)
+  {
+    hasValue(acc);
+
+    if (fs.type && fs.type !== 'array' && fs.type !== 'object')
+    {
+      label(fs.key, acc);
+    }
+    else if (fs.type && fs.type === 'object' && fs.key)
+    {
+      newObject(fs.key, acc);
+    }
+    else if (fs.type && fs.type === 'array' && fs.key)
+    {
+      newArray(fs.key, acc);
+    }
+
+    if (fs.type === 'text')
+    {
+      textarea(fs.key, fs.value, acc);
+    }
+    else if (fs.type !== 'object' && fs.type !== 'array')
+    {
+      inputarea(fs.key, fs.value, fs.type, acc);
+    }
+    else if (fs.type === 'object')
+    {
+      anonObject(acc);
+    }
+    else if (fs.type === 'array')
+    {
+      anonArray(acc);
+    }
+  }
+
+  return acc;
+};
+
+// The description JSON converted to HTML.
 var descriptToHtml = function (obj)
 {
   'use strict';
 
-  var begin = '<form>';
-  var end = '</form>';
+  var acc = {begin: '<form>', end: '</form>'};
   var result;
 
-  var _descriptToHtml = function (fs, begin, end, id)
+  var _descriptToHtml = function (fs, fsrest, acc, id)
   {
-    var ret;
+    // This will change the acc depending on fs information.
+    processDescriptField(fs, acc);
 
-    if (fs.value)
+    // There are no more fields and the value doesn't need to be
+    // descended, so just return.
+    if (!fs || (fsrest.length === 0 && (fs.type !== 'array' && fs.type !== 'object')))
     {
-      begin = begin + '<li>';
-      end = '</li>' + end;
-
-      if (fs.type && fs.type !== 'array' && fs.type !== 'object')
-      {
-        ret = lab(fs.key);
-        begin = begin + ret.begin;
-      }
-      else if (fs.type && (fs.type === 'array' || fs.type === 'object') && fs.key)
-      {
-        ret = openFieldset(fs.key);
-        begin = begin + ret.begin;
-        end = ret.end + end;
-      }
-
-      if (fs.type === 'text')
-      {
-        begin = begin + '<textarea ' + (fs.key ? 'name="' + fs.key + '" ' : '') + '>' + fs.value + '</textarea>';
-      }
-      else if (fs.type !== 'object' && fs.type !== 'array')
-      {
-        begin = begin + '<input type="' + (fs.type === 'number' ? 'number' : 'text') + '" ' + (fs.key ? 'name="' + fs.key + '" ' : '') + 'value="' + fs.value + '"/>';
-      }
-      else if (fs.type === 'object')
-      {
-        begin = begin + '<ul>';
-        end = '</ul>' + end;
-      }
-      else if (fs.type === 'array')
-      {
-        begin = begin + '<ol>';
-        end = '</ol>' + end;
-      }
+      return id.r(acc);
     }
-
-    if (!fs || (fs.type !== 'array' && fs.type !== 'object'))
+    // Unless it is a complex value, move on to the next field.
+    else if (fs.type !== 'array' && fs.type !== 'object')
     {
-      return id.r({begin: begin, end: end});
+      return _descriptToHtml.r(fsrest[0], fsrest.slice(1), acc, id);
     }
+    // Otherwise descend the complex value.
     else
     {
-      return _descriptToHtml.r(fs.value, begin, end, id);
+      return _descriptToHtml.r(fs.value[0], fs.value.slice(1), acc, id);
     }
   };
 
+  // When the original object isn't null and there are fields.
   if (obj.obj && obj.fields)
   {
-    begin = begin + '<ul>';
-    end = '</ul>' + end;
+    anonObject(acc);
 
+    // If there is more than just an empty list of fields.
     if (obj.fields && obj.fields.length > 0)
     {
-      result = _descriptToHtml.t(obj.fields, begin, end, r.identity);
-      begin = result.begin;
-      end = result.end;
+      result = _descriptToHtml.t(obj.fields[0], obj.fields.slice(1), acc, r.identity);
     }
   }
 
-  return begin + end;
+  return acc.begin + acc.end;
 };
 
 // This is essentially the default simple form building function.
