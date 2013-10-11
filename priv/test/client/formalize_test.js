@@ -171,7 +171,7 @@ describe('Converting JSON to an HTML form', function ()
     {
       it('should return a unordered list with title', function ()
       {
-        formalize.toForm('{"a": {}}').should.match(/<ul title="a">\s*<ul>/g);
+        formalize.toForm('{"a": {}}').should.match(/<ul title="a">\s*<\/ul>/g);
       });
     });
     describe('when the object has a key value pair', function ()
@@ -188,7 +188,7 @@ describe('Converting JSON to an HTML form', function ()
     {
       it('should return a ordered list with a title', function ()
       {
-        formalize.toForm('{"a": []}').should.match(/<ol title="a">\s*<ol>/g);
+        formalize.toForm('{"a": []}').should.match(/<ol title="a">\s*<\/ol>/g);
       });
     });
     describe('when the array has a string', function ()
@@ -196,6 +196,16 @@ describe('Converting JSON to an HTML form', function ()
       it('should return a ordered list with an input element', function ()
       {
         formalize.toForm('{"a":["b"]}').should.match(/<ol.*<input.*/g);
+      });
+    });
+  });
+  describe('when provided complex values', function ()
+  {
+    describe('and there is a center embeded object', function ()
+    {
+      it('should return the correct form', function ()
+      {
+        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/xxx/);
       });
     });
   });
@@ -341,55 +351,55 @@ describe('Converting HTML form to JSON', function ()
     });
   });
 });
-// describe('Testing through inversion of toForm', function ()
-// {
-//   'use strict';
+describe('Testing through inversion of toForm', function ()
+{
+  'use strict';
 
-//   var invertTo = function (jsn)
-//   {
-//     it('should be equal', function ()
-//     {
-//       formalize.fromForm(formalize.toForm(jsn)).should.equal(jsn);
-//     });
-//   };
-//   describe('when the argument is "null"', function ()
-//   {
-//     invertTo('null');
-//   });
-//   describe('when the argument is "{}"', function ()
-//   {
-//     invertTo('{}');
-//   });
-//   describe('when it is a single key with a string value', function ()
-//   {
-//     invertTo('{"test":"ok"}');
-//   });
-//   describe('when it is a single key with a text value', function ()
-//   {
-//     invertTo('{"test":"ok00000000000000000000000000000000000000000000000"}');
-//   });
-//   describe('when it is a single key with a number value', function ()
-//   {
-//     invertTo('{"test":99}');
-//   });
-//   describe('when it is a single key with a true value', function ()
-//   {
-//     invertTo('{"test":true}');
-//   });
-//   describe('when it is a single key with a false value', function ()
-//   {
-//     invertTo('{"test":false}');
-//   });
-//   describe('when it is a single key with a null value', function ()
-//   {
-//     invertTo('{"test":null}');
-//   });
-//   describe('when it is multiple keys with values', function ()
-//   {
-//     invertTo('{"test":null,"a":1,"b":true,"hippo":"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj","sevent":"ij"}');
-//   });
-//   describe('when it has a object child', function ()
-//   {
-//     invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
-//   });
-// });
+  var invertTo = function (jsn)
+  {
+    it('should be equal', function ()
+    {
+      formalize.fromForm(formalize.toForm(jsn)).should.equal(jsn);
+    });
+  };
+  describe('when the argument is "null"', function ()
+  {
+    invertTo('null');
+  });
+  describe('when the argument is "{}"', function ()
+  {
+    invertTo('{}');
+  });
+  describe('when it is a single key with a string value', function ()
+  {
+    invertTo('{"test":"ok"}');
+  });
+  describe('when it is a single key with a text value', function ()
+  {
+    invertTo('{"test":"ok00000000000000000000000000000000000000000000000"}');
+  });
+  describe('when it is a single key with a number value', function ()
+  {
+    invertTo('{"test":99}');
+  });
+  describe('when it is a single key with a true value', function ()
+  {
+    invertTo('{"test":true}');
+  });
+  describe('when it is a single key with a false value', function ()
+  {
+    invertTo('{"test":false}');
+  });
+  describe('when it is a single key with a null value', function ()
+  {
+    invertTo('{"test":null}');
+  });
+  describe('when it is multiple keys with values', function ()
+  {
+    invertTo('{"test":null,"a":1,"b":true,"hippo":"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj","sevent":"ij"}');
+  });
+  describe('when it has a object child', function ()
+  {
+    invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
+  });
+});

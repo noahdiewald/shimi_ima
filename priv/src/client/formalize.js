@@ -121,6 +121,7 @@ var openObject = function (state, attribs)
   'use strict';
 
   state.state.push('open-object');
+
   if (state.acc === 'null')
   {
     state.acc = '';
@@ -535,7 +536,7 @@ var newObject = function (key, acc)
 {
   'use strict';
 
-  return insert('<ul title="' + key + '">', '</ul>', acc);
+  return insert('<ul' + (key ? ' title="' + key + '"' : '') + '>', '</ul></li>', acc);
 };
 
 // For a labeled array.
@@ -543,7 +544,7 @@ var newArray = function (key, acc)
 {
   'use strict';
 
-  return insert('<ol title="' + key + '">', '</ol>', acc);
+  return insert('<ol' + (key ? ' title="' + key + '"' : '') + '>', '</ol></li>', acc);
 };
 
 // When an item has a value
@@ -551,7 +552,7 @@ var hasValue = function (acc)
 {
   'use strict';
 
-  return insert('<li>', '</li>', acc);
+  return insert('<li>', '', acc);
 };
 
 // Longer text input.
@@ -559,7 +560,7 @@ var textarea = function (key, value, acc)
 {
   'use strict';
 
-  return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea>', '', acc);
+  return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
@@ -567,23 +568,7 @@ var inputarea = function (key, value, type, acc)
 {
   'use strict';
 
-  return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/>', '', acc);
-};
-
-// Unlabeled object, probably in array.
-var anonObject = function (acc)
-{
-  'use strict';
-
-  return insert('<ul>', '</ul>', acc);
-};
-
-// Unlabeled array, probably in array.
-var anonArray = function (acc)
-{
-  'use strict';
-
-  return insert('<ol>', '</ol>', acc);
+  return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
@@ -615,14 +600,6 @@ var processDescriptField = function (fs, acc)
     else if (fs.type !== 'object' && fs.type !== 'array')
     {
       inputarea(fs.key, fs.value, fs.type, acc);
-    }
-    else if (fs.type === 'object')
-    {
-      anonObject(acc);
-    }
-    else if (fs.type === 'array')
-    {
-      anonArray(acc);
     }
   }
 
@@ -663,7 +640,7 @@ var descriptToHtml = function (obj)
   // When the original object isn't null and there are fields.
   if (obj.obj && obj.fields)
   {
-    anonObject(acc);
+    insert('<ul>', '</ul>', acc);
 
     // If there is more than just an empty list of fields.
     if (obj.fields && obj.fields.length > 0)
