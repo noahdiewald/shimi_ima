@@ -205,7 +205,9 @@ describe('Converting JSON to an HTML form', function ()
     {
       it('should return the correct form', function ()
       {
-        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/xxx/);
+        // This could be more detailed but I feel it catches the
+        // essentials
+        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul title="m">.*<li><label for="b">b.*<\/li><\/ul><\/li><li>*.sevent*.<\/li><\/ul><\/form>/);
       });
     });
   });
@@ -355,7 +357,7 @@ describe('Testing through inversion of toForm', function ()
 {
   'use strict';
 
-  var invertTo = function (jsn)
+  var invertTo = function (jsn, doMatch)
   {
     it('should be equal', function ()
     {
