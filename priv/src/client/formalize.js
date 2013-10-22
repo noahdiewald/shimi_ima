@@ -10,6 +10,7 @@
 var r = require('./recurse.js');
 var templates = require('templates.js');
 var htmlparser = require('htmlparser2');
+var console = require('console');
 
 // ## Internal Functions
 
@@ -120,8 +121,6 @@ var openObject = function (state, attribs)
 {
   'use strict';
 
-  state.state.push('open-object');
-
   if (state.acc === 'null')
   {
     state.acc = '';
@@ -129,8 +128,11 @@ var openObject = function (state, attribs)
 
   if (attribs.title)
   {
+    addComma(state);
     addKey(state, attribs.title);
   }
+
+  state.state.push('open-object');
 
   state.acc = state.acc + '{';
 
@@ -141,12 +143,13 @@ var openArray = function (state, attribs)
 {
   'use strict';
 
-  state.state.push('open-array');
-
   if (attribs.title)
   {
+    addComma(state);
     addKey(state, attribs.title);
   }
+
+  state.state.push('open-array');
 
   state.acc = state.acc + '[';
 
@@ -273,7 +276,6 @@ var closeObject = function (state)
   {
     state.state.pop();
     state.acc = state.acc + '}';
-    addComma(state);
 
     return state;
   });
@@ -289,7 +291,6 @@ var closeArray = function (state)
   {
     state.state.pop();
     state.acc = state.acc + ']';
-    addComma(state);
 
     return state;
   });
@@ -464,8 +465,13 @@ var getKeyVals = function (o)
   });
 };
 
-// Transform the object into an object suitable for the template in
-// order to convert JSON to HTML or another format.
+// Transform the object into an object that will be easier to convert
+// into HTML.
+//
+// NOTE: This was done during a first pass when I thought that I might
+// be using a specific templating system instead of an additional
+// recursive function to do the HTML rendering. This is probably an
+// unnecessary step at this point.
 var transform = function (obj)
 {
   'use strict';
@@ -513,12 +519,12 @@ var transform = function (obj)
 };
 
 // Insert the strings in the acc object.
-var insert = function (begin, end, acc)
+var insert = function (left, right, acc)
 {
   'use strict';
 
-  acc.begin = acc.begin + begin;
-  acc.end = end + acc.end;
+  acc.left = acc.left + left;
+  acc.right = right + acc.right;
 
   return acc;
 };
@@ -528,7 +534,12 @@ var label = function (key, acc)
 {
   'use strict';
 
-  return insert('<label for="' + key + '">' + key + '</label>', '', acc);
+  if (key)
+  {
+    acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
+  }
+
+  return acc;
 };
 
 // For a labeled object.
@@ -606,34 +617,77 @@ var processDescriptField = function (fs, acc)
   return acc;
 };
 
-// The description JSON converted to HTML.
+// Pop the accstack and insert the current acc left and right on the
+// left of the poped object.
+var accInsert = function (accstack, acc)
+{
+  'use strict';
+
+  var acc2 = accstack.pop();
+  acc2.left = acc2.left + acc.left + acc.right;
+
+  return acc2;
+};
+
+// The descriptive object created by the transform function is
+// converted to HTML.
 var descriptToHtml = function (obj)
 {
   'use strict';
 
-  var acc = {begin: '<form>', end: '</form>'};
+  var acc = {left: '<form>', right: '</form>'};
   var result;
 
-  var _descriptToHtml = function (fs, fsrest, acc, id)
+  var _descriptToHtml = function (fs, fsrest, acc, stack, accstack, id)
   {
-    // This will change the acc depending on fs information.
-    processDescriptField(fs, acc);
+    var isNotObject = fs && (fs.type !== 'array' && fs.type !== 'object');
+    var done = fsrest.length === 0;
+    var depleted = stack.length === 0;
+    var acc2;
 
     // There are no more fields and the value doesn't need to be
     // descended, so just return.
-    if (!fs || (fsrest.length === 0 && (fs.type !== 'array' && fs.type !== 'object')))
+    if (!fs || (done && depleted && isNotObject))
     {
+      processDescriptField(fs, acc);
+
+      if (accstack.length !== 0)
+      {
+        acc = accInsert(accstack, acc);
+      }
+
       return id.r(acc);
     }
-    // Unless it is a complex value, move on to the next field.
-    else if (fs.type !== 'array' && fs.type !== 'object')
+    // If there is more on the stack, process it
+    else if (!depleted && done && isNotObject)
     {
-      return _descriptToHtml.r(fsrest[0], fsrest.slice(1), acc, id);
+      var next = stack.pop();
+
+      // This will change the acc depending on fs information.
+      processDescriptField(fs, acc);
+
+      acc2 = accInsert(accstack, acc);
+
+      return _descriptToHtml.r(next[0], next.slice(1), acc2, stack, accstack, id);
+    }
+    // Unless it is a complex value, move on to the next field.
+    else if (isNotObject)
+    {
+      processDescriptField(fs, acc);
+
+      return _descriptToHtml.r(fsrest[0], fsrest.slice(1), acc, stack, accstack, id);
     }
     // Otherwise descend the complex value.
     else
     {
-      return _descriptToHtml.r(fs.value[0], fs.value.slice(1), acc, id);
+      acc2 = {left: '', right: ''};
+
+      stack.push(fsrest);
+      accstack.push(acc);
+
+      processDescriptField(fs, acc2);
+
+      return _descriptToHtml.r(fs.value[0], fs.value.slice(1), acc2, stack, accstack, id);
     }
   };
 
@@ -645,11 +699,11 @@ var descriptToHtml = function (obj)
     // If there is more than just an empty list of fields.
     if (obj.fields && obj.fields.length > 0)
     {
-      result = _descriptToHtml.t(obj.fields[0], obj.fields.slice(1), acc, r.identity);
+      result = _descriptToHtml.t(obj.fields[0], obj.fields.slice(1), acc, [], [], r.identity);
     }
   }
 
-  return acc.begin + acc.end;
+  return acc.left + acc.right;
 };
 
 // This is essentially the default simple form building function.

@@ -1,4 +1,3 @@
-var tv4 = require('tv4').tv4;
 var should = require('chai').should();
 var formalize = require('../../src/client/formalize.js');
 
@@ -180,6 +179,13 @@ describe('Converting JSON to an HTML form', function ()
       {
         formalize.toForm('{"a":{"b":9}}').should.match(/<ul title="a".*<input.*/g);
       });
+      describe('and is followed by an additional key', function ()
+      {
+        it('should return a unordered list with an input element followed by an additional input element.', function ()
+        {
+          formalize.toForm('{"a":{"b":9},"c":8}').should.match(/<ul title="a".*<input.*name="b".*<input.*name="c"/g);
+        });
+      });
     });
   });
   describe('when provided an array as value', function ()
@@ -197,6 +203,17 @@ describe('Converting JSON to an HTML form', function ()
       {
         formalize.toForm('{"a":["b"]}').should.match(/<ol.*<input.*/g);
       });
+      it('should not have a label', function ()
+      {
+        formalize.toForm('{"a":["b"]}').should.not.match(/label/g);
+      });
+      describe('and is followed by an additional key', function ()
+      {
+        it('should return an ordered list with an input element followed by an additional input element.', function ()
+        {
+          formalize.toForm('{"a":["b"],"c":8}').should.match(/<ol title="a".*<input.*value="b".*<input.*name="c"/g);
+        });
+      });
     });
   });
   describe('when provided complex values', function ()
@@ -207,7 +224,7 @@ describe('Converting JSON to an HTML form', function ()
       {
         // This could be more detailed but I feel it catches the
         // essentials
-        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul title="m">.*<li><label for="b">b.*<\/li><\/ul><\/li><li>*.sevent*.<\/li><\/ul><\/form>/);
+        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul title="m">.*<li><label for="b">b.*<\/li><\/ul><\/li><li>.*sevent.*<\/li><\/ul><\/form>/);
       });
     });
   });
@@ -403,5 +420,17 @@ describe('Testing through inversion of toForm', function ()
   describe('when it has a object child', function ()
   {
     invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
+    invertTo('{"test":"be","m":{"a":1,"b":true},"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":true},"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":{}},"sevent":"ij"}');
+  });
+  describe('when it has an array child', function ()
+  {
+    invertTo('{"ok":[]}');
+    invertTo('{"ok":[1]}');
+    invertTo('{"ok":[1,"a"]}');
+    invertTo('{"test":null,"m":["a",1,"b",true],"sevent":"ij"}');
+    // invertTo('{"test":"be","m":[{"a":1},{"b":true}],"sevent":"ij"}');
+    // invertTo('{"test":{"be":"ok"},"m":[["a"],[1,"b",[true]]],"sevent":"ij"}');
   });
 });
