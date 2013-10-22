@@ -10814,7 +10814,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":53,"./documents/documents.js":57,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ilistingui.js":74,"./jquery-ui-input-state.js":78,"./keystrokes.js":80,"./projects/projectui.js":84}],37:[function(require,module,exports){
+},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":53,"./documents/documents.js":57,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ilistingui.js":74,"./jquery-ui-input-state.js":78,"./keystrokes.js":80,"./projects/projectui.js":85}],37:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11162,7 +11162,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":52,"./dispatcher.js":54,"./documents/editui.js":58,"./documents/fieldsets.js":59,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/setsui.js":62,"./documents/viewui.js":63,"./documents/worksheetui.js":64,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ieditui.js":71,"./panel-toggle.js":82,"./projects/projectui.js":84,"./sender.js":87}],39:[function(require,module,exports){
+},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":52,"./dispatcher.js":54,"./documents/editui.js":58,"./documents/fieldsets.js":59,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/setsui.js":62,"./documents/viewui.js":63,"./documents/worksheetui.js":64,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ieditui.js":71,"./panel-toggle.js":82,"./projects/projectui.js":85,"./sender.js":87}],39:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -16851,7 +16851,7 @@ var descriptToHtml = function (obj)
       return id.r(acc);
     }
     // If there is more on the stack, process it
-    else if (!depleted && done && isNotObject)
+    else if (!depleted && done)
     {
       var next = stack.pop();
 
@@ -16939,7 +16939,7 @@ var fromForm = function (html)
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":85,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],69:[function(require,module,exports){
+},{"./recurse.js":86,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],69:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -19103,7 +19103,9 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":67,"./store.js":90}],84:[function(require,module,exports){
+},{"./form.js":67,"./store.js":90}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],85:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19242,7 +19244,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":67}],85:[function(require,module,exports){
+},{"../form.js":67}],86:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -19289,8 +19291,6 @@ var identity = function (x)
 
 exports.identity = identity;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
 },{}],87:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
@@ -19678,7 +19678,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":85,"./utils.js":91}],91:[function(require,module,exports){
+},{"./recurse.js":86,"./utils.js":91}],91:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19939,5 +19939,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":13}]},{},[36,37,38,41,40,42,44,45,43,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60,61,59,62,63,65,64,67,66,68,69,70,71,72,74,75,76,73,78,77,79,80,81,83,82,85,84,87,88,89,91,90])
+},{"hogan.js":13}]},{},[36,37,38,39,40,41,42,43,44,46,45,48,47,50,49,51,52,53,54,55,57,56,58,59,60,61,62,63,64,65,66,67,70,68,71,72,73,69,74,75,76,77,78,79,81,80,82,86,83,85,88,87,89,90,91])
 ;

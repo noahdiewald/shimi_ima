@@ -595,11 +595,11 @@ var processDescriptField = function (fs, acc)
     {
       label(fs.key, acc);
     }
-    else if (fs.type && fs.type === 'object' && fs.key)
+    else if (fs.type && fs.type === 'object')
     {
       newObject(fs.key, acc);
     }
-    else if (fs.type && fs.type === 'array' && fs.key)
+    else if (fs.type && fs.type === 'array')
     {
       newArray(fs.key, acc);
     }
@@ -644,6 +644,7 @@ var descriptToHtml = function (obj)
     var done = fsrest.length === 0;
     var depleted = stack.length === 0;
     var acc2;
+    var next;
 
     // There are no more fields and the value doesn't need to be
     // descended, so just return.
@@ -659,9 +660,9 @@ var descriptToHtml = function (obj)
       return id.r(acc);
     }
     // If there is more on the stack, process it
-    else if (!depleted && done && isNotObject)
+    else if (!depleted && done)
     {
-      var next = stack.pop();
+      next = stack.pop();
 
       // This will change the acc depending on fs information.
       processDescriptField(fs, acc);

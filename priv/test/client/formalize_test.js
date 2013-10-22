@@ -422,7 +422,9 @@ describe('Testing through inversion of toForm', function ()
     invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
     invertTo('{"test":"be","m":{"a":1,"b":true},"sevent":"ij"}');
     invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":true},"sevent":"ij"}');
-    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":{}},"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":{"6":5,"4":3}},"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":{"z":1,"j":99,"q":{"w":"gg"},"f":null},"x":"uuu","b":{}},"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":{"z":1,"j":[99,97,96],"q":{"w":"gg"},"f":null},"x":"uuu","b":{}},"sevent":"ij"}');
   });
   describe('when it has an array child', function ()
   {
@@ -430,7 +432,9 @@ describe('Testing through inversion of toForm', function ()
     invertTo('{"ok":[1]}');
     invertTo('{"ok":[1,"a"]}');
     invertTo('{"test":null,"m":["a",1,"b",true],"sevent":"ij"}');
-    // invertTo('{"test":"be","m":[{"a":1},{"b":true}],"sevent":"ij"}');
-    // invertTo('{"test":{"be":"ok"},"m":[["a"],[1,"b",[true]]],"sevent":"ij"}');
+    invertTo('{"test":"be","m":[{"a":1},{"b":true}],"sevent":"ij"}');
+    invertTo('{"test":"be","m":[{"a":1,"c":3},{"b":true}],"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":[["a"],[1,"b",[true]]],"sevent":"ij"}');
+    invertTo('{"test":{"be":"ok"},"m":[["a","tt",8],[1,"b",[true]]],"sevent":"ij"}');
   });
 });
