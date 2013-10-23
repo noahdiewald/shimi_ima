@@ -10814,7 +10814,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":53,"./documents/documents.js":57,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ilistingui.js":76,"./jquery-ui-input-state.js":79,"./keystrokes.js":81,"./projects/projectui.js":85}],37:[function(require,module,exports){
+},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":53,"./documents/documents.js":57,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ilistingui.js":74,"./jquery-ui-input-state.js":78,"./keystrokes.js":80,"./projects/projectui.js":86}],37:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11162,7 +11162,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":52,"./dispatcher.js":54,"./documents/editui.js":58,"./documents/fieldsets.js":59,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/setsui.js":62,"./documents/viewui.js":63,"./documents/worksheetui.js":64,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ieditui.js":73,"./panel-toggle.js":83,"./projects/projectui.js":85,"./sender.js":87}],39:[function(require,module,exports){
+},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":52,"./dispatcher.js":54,"./documents/editui.js":58,"./documents/fieldsets.js":59,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/setsui.js":62,"./documents/viewui.js":63,"./documents/worksheetui.js":64,"./file_manager/fm.js":65,"./form.js":67,"./index_tool/ieditui.js":71,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":87}],39:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11458,7 +11458,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":82,"templates.js":"e8H8MT"}],43:[function(require,module,exports){
+},{"../pager.js":81,"templates.js":"e8H8MT"}],43:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -11903,7 +11903,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":84,"../store.js":90,"./doctype-dialog.js":44,"./doctype-elems.js":45,"./field-dialog.js":48,"./field-elems.js":49,"./fieldset-dialog.js":50,"./fieldset-elems.js":51}],47:[function(require,module,exports){
+},{"../path.js":85,"../store.js":90,"./doctype-dialog.js":44,"./doctype-elems.js":45,"./field-dialog.js":48,"./field-elems.js":49,"./fieldset-dialog.js":50,"./fieldset-elems.js":51}],47:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -11955,7 +11955,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":82,"templates.js":"e8H8MT"}],48:[function(require,module,exports){
+},{"../pager.js":81,"templates.js":"e8H8MT"}],48:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12462,7 +12462,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":54,"./documents/searchui.js":61,"./documents/worksheetui.js":64,"./panel-toggle.js":83}],54:[function(require,module,exports){
+},{"./dispatcher.js":54,"./documents/searchui.js":61,"./documents/worksheetui.js":64,"./panel-toggle.js":84}],54:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -12557,7 +12557,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82}],56:[function(require,module,exports){
+},{"../pager.js":81}],56:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -13846,7 +13846,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":84,"../store.js":90,"../utils.js":91,"./editui.js":58}],60:[function(require,module,exports){
+},{"../path.js":85,"../store.js":90,"../utils.js":91,"./editui.js":58}],60:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -13954,7 +13954,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":82,"./editui.js":58,"./viewui.js":63,"templates.js":"e8H8MT"}],61:[function(require,module,exports){
+},{"../pager.js":81,"./editui.js":58,"./viewui.js":63,"templates.js":"e8H8MT"}],61:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16318,9 +16318,10 @@ var openObject = function (state, attribs)
     state.acc = '';
   }
 
+  addComma(state);
+
   if (attribs.title)
   {
-    addComma(state);
     addKey(state, attribs.title);
   }
 
@@ -16335,9 +16336,10 @@ var openArray = function (state, attribs)
 {
   'use strict';
 
+  addComma(state);
+
   if (attribs.title)
   {
-    addComma(state);
     addKey(state, attribs.title);
   }
 
@@ -16734,7 +16736,7 @@ var label = function (key, acc)
   return acc;
 };
 
-// For a labeled object.
+// For an object.
 var newObject = function (key, acc)
 {
   'use strict';
@@ -16742,7 +16744,7 @@ var newObject = function (key, acc)
   return insert('<ul' + (key ? ' title="' + key + '"' : '') + '>', '</ul></li>', acc);
 };
 
-// For a labeled array.
+// For an array.
 var newArray = function (key, acc)
 {
   'use strict';
@@ -16830,58 +16832,74 @@ var descriptToHtml = function (obj)
   var acc = {left: '<form>', right: '</form>'};
   var result;
 
-  var _descriptToHtml = function (fs, fsrest, acc, stack, accstack, id)
+  // This will recurse the descriptive object. The head variable is
+  // the current portion of the object to process. The rest variable
+  // is the remaining portion. The acc is an accumulator that stores
+  // the right and left ends of a string that is built up during
+  // processing. Stack is used to save state while descending complex
+  // objects. Accstack is used to store acc context when
+  // descending. Id is a reference to the identity function to define
+  // the base case.
+  var _descriptToHtml = function (head, rest, acc, stack, accstack, id)
   {
-    var isNotObject = fs && (fs.type !== 'array' && fs.type !== 'object');
-    var done = fsrest.length === 0;// && fs && (isNotObject || fs.value.length === 0);
+    var isNotObject = head && (head.type !== 'array' && head.type !== 'object');
+    var done = rest.length === 0;
     var depleted = stack.length === 0;
     var next;
     var acc2;
-    console.error({notObj:isNotObject,done:done,depleted:depleted});
-    console.error(stack);
-    // There are no more fields and the value doesn't need to be
-    // descended, so just return.
-    if (!fs && done && depleted)
+
+    // There are no more fields, the stack is depleted and the value
+    // doesn't need to be descended, so return the accumulator.
+    if (!head && done && depleted)
     {
-      processDescriptField(fs, acc);
-
-      if (accstack.length !== 0)
-      {
-        acc = accInsert(accstack, acc);
-      }
-
       return id.r(acc);
     }
-    // If there is more on the stack, process it
-    else if (!depleted && done && (isNotObject || !fs))
+    // If there is more on the stack, process it. We'll want to ignore
+    // objects so that they can be handled in the 'else' clause. We'll
+    // also want to continue if fs is undefined, which will indicate
+    // that we've hit the end of object or array values.
+    else if (!depleted && done && (isNotObject || !head))
     {
+      // Pop the next group of stored fs's off the stack where they
+      // were previously stored by the 'else' clause below.
       next = stack.pop();
 
       // This will change the acc depending on fs information.
-      processDescriptField(fs, acc);
+      processDescriptField(head, acc);
 
+      // This will nest the current acc string values inside the
+      // parent.
       acc2 = accInsert(accstack, acc);
 
+      // Use next instead of fs and fsrest, fsrest was already
+      // depleted in this step.
       return _descriptToHtml.r(next[0], next.slice(1), acc2, stack, accstack, id);
     }
-    // Unless it is a complex value, move on to the next field.
+    // Unless it is a complex value, process the value and move on to
+    // the next field.
     else if (isNotObject)
     {
-      processDescriptField(fs, acc);
+      processDescriptField(head, acc);
 
-      return _descriptToHtml.r(fsrest[0], fsrest.slice(1), acc, stack, accstack, id);
+      return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
     // Otherwise descend the complex value.
     else
     {
       acc2 = {left: '', right: ''};
 
-      stack.push(fsrest);
+      // Push the remaining values onto the stack so they will be
+      // processed later.
+      stack.push(rest);
+      // Push the accumulated left and right strings on to the
+      // stack. This will allow them to be pulled out to nest acc2
+      // later on.
       accstack.push(acc);
 
-      processDescriptField(fs, acc2);
+      processDescriptField(head, acc2);
 
-      return _descriptToHtml.r(fs.value[0], fs.value.slice(1), acc2, stack, accstack, id);
+      // Now use the values to specify fs and fsrest.
+      return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
     }
   };
 
@@ -16941,7 +16959,7 @@ var fromForm = function (html)
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":86,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],69:[function(require,module,exports){
+},{"./recurse.js":82,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],69:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17172,97 +17190,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":67,"../jquery-ui-input-state.js":79,"./ievents.js":74,"./ihelpers.js":75}],71:[function(require,module,exports){
-// # Replace dialog
-//
-// *Implicit depends:* DOM, JQuery, JQuery UI
-//
-// Dialog for providing a function to replace the normal output of
-// an index.
-
-// Variable Definitions
-
-var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
-
-// Exported functions
-
-// The dialog for providing a function to replace the normal output of
-// an index.
-var initReplaceDialog = function ()
-{
-  'use strict';
-
-  var replaceFunction = $('#index-replace_function-input');
-  var indexData = $('#index-editing-data');
-  var remove = $('#index-remove_function-input');
-
-  if (indexData.attr('data-index-replace_function'))
-  {
-    replaceFunction.val(indexData.attr('data-index-replace_function'));
-  }
-  else
-  {
-    form.clear(replaceFunction).removeClass('ui-state-error');
-  }
-
-  var dialog = $('#index-replace-dialog').dialog(
-  {
-    autoOpen: false,
-    modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
-        $('.input').removeClass('ui-state-error');
-
-        // place holder for client side validation
-        var checkResult = true;
-
-        if (!remove.is(':checked'))
-        {
-          if (replaceFunction.val().isBlank())
-          {
-            replaceFunction.addClass('ui-state-error');
-          }
-          else
-          {
-            replaceFunction.removeClass('ui-state-error');
-          }
-
-          if (checkResult)
-          {
-            indexData.attr('data-index-replace_function', replaceFunction.val());
-            $('#replace-function-message').text('This index has a replacement function.');
-          }
-        }
-        else
-        {
-          indexData.removeAttr('data-index-replace_function');
-          $('#replace-function-message').empty();
-        }
-
-        $(this).dialog('close');
-      },
-      'Cancel': function ()
-      {
-        $(this).dialog('close');
-      }
-    },
-    close: function ()
-    {
-      form.clear(replaceFunction).removeClass('ui-state-error');
-    }
-  });
-
-  return dialog;
-};
-
-exports.initReplaceDialog = initReplaceDialog;
-
-},{"../form.js":67,"./ihelpers.js":75}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],73:[function(require,module,exports){
+},{"../form.js":67,"../jquery-ui-input-state.js":78,"./ievents.js":72,"./ihelpers.js":73}],71:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17598,7 +17526,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":66,"../form.js":67,"./builder-dialog.js":70,"./ihelpers.js":75,"./ilistingui.js":76,"./ipreviewui.js":77,"./new-dialog.js":78,"./replace-dialog.js":71}],74:[function(require,module,exports){
+},{"../flash.js":66,"../form.js":67,"./builder-dialog.js":70,"./ihelpers.js":73,"./ilistingui.js":74,"./ipreviewui.js":75,"./new-dialog.js":76,"./replace-dialog.js":77}],72:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17717,7 +17645,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":75}],75:[function(require,module,exports){
+},{"./ihelpers.js":73}],73:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18019,7 +17947,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":88}],76:[function(require,module,exports){
+},{"../sess.js":88}],74:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18052,7 +17980,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"e8H8MT"}],77:[function(require,module,exports){
+},{"templates.js":"e8H8MT"}],75:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -18117,7 +18045,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82}],78:[function(require,module,exports){
+},{"../pager.js":81}],76:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18238,7 +18166,95 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":67,"../jquery-ui-input-state.js":79,"./ievents.js":74,"./ihelpers.js":75,"./ilistingui.js":76}],79:[function(require,module,exports){
+},{"../form.js":67,"../jquery-ui-input-state.js":78,"./ievents.js":72,"./ihelpers.js":73,"./ilistingui.js":74}],77:[function(require,module,exports){
+// # Replace dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for providing a function to replace the normal output of
+// an index.
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for providing a function to replace the normal output of
+// an index.
+var initReplaceDialog = function ()
+{
+  'use strict';
+
+  var replaceFunction = $('#index-replace_function-input');
+  var indexData = $('#index-editing-data');
+  var remove = $('#index-remove_function-input');
+
+  if (indexData.attr('data-index-replace_function'))
+  {
+    replaceFunction.val(indexData.attr('data-index-replace_function'));
+  }
+  else
+  {
+    form.clear(replaceFunction).removeClass('ui-state-error');
+  }
+
+  var dialog = $('#index-replace-dialog').dialog(
+  {
+    autoOpen: false,
+    modal: true,
+    buttons:
+    {
+      'Save': function ()
+      {
+        $('.input').removeClass('ui-state-error');
+
+        // place holder for client side validation
+        var checkResult = true;
+
+        if (!remove.is(':checked'))
+        {
+          if (replaceFunction.val().isBlank())
+          {
+            replaceFunction.addClass('ui-state-error');
+          }
+          else
+          {
+            replaceFunction.removeClass('ui-state-error');
+          }
+
+          if (checkResult)
+          {
+            indexData.attr('data-index-replace_function', replaceFunction.val());
+            $('#replace-function-message').text('This index has a replacement function.');
+          }
+        }
+        else
+        {
+          indexData.removeAttr('data-index-replace_function');
+          $('#replace-function-message').empty();
+        }
+
+        $(this).dialog('close');
+      },
+      'Cancel': function ()
+      {
+        $(this).dialog('close');
+      }
+    },
+    close: function ()
+    {
+      form.clear(replaceFunction).removeClass('ui-state-error');
+    }
+  });
+
+  return dialog;
+};
+
+exports.initReplaceDialog = initReplaceDialog;
+
+},{"../form.js":67,"./ihelpers.js":73}],78:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -18264,7 +18280,7 @@ exports.initIndexNewDialog = initIndexNewDialog;
 
 })(jQuery);
 
-},{}],80:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -18447,7 +18463,7 @@ exports.initIndexNewDialog = initIndexNewDialog;
 
 })(jQuery);
 
-},{}],81:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -18648,7 +18664,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":42,"./config/doctypeui.js":47,"./documents/changeui.js":55,"./documents/editui.js":58,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/viewui.js":63,"./index_tool/ipreviewui.js":77,"./jquery.hotkeys.js":80,"./sender.js":87}],82:[function(require,module,exports){
+},{"./config/charsequi.js":42,"./config/doctypeui.js":47,"./documents/changeui.js":55,"./documents/editui.js":58,"./documents/indexui.js":60,"./documents/searchui.js":61,"./documents/viewui.js":63,"./index_tool/ipreviewui.js":75,"./jquery.hotkeys.js":79,"./sender.js":87}],81:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -18863,7 +18879,56 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":67,"templates.js":"e8H8MT"}],83:[function(require,module,exports){
+},{"./form.js":67,"templates.js":"e8H8MT"}],82:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],84:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -18899,7 +18964,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -19107,7 +19172,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":67,"./store.js":90}],85:[function(require,module,exports){
+},{"./form.js":67,"./store.js":90}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19246,54 +19311,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":67}],86:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function ()
-{
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function ()
-  {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function ()
-  {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],87:[function(require,module,exports){
+},{"../form.js":67}],87:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially and experiment in attempting to perform actions
@@ -19680,7 +19698,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":86,"./utils.js":91}],91:[function(require,module,exports){
+},{"./recurse.js":82,"./utils.js":91}],91:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19941,5 +19959,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":13}]},{},[36,37,39,38,40,43,41,42,44,46,45,47,48,50,49,51,52,53,54,55,56,57,58,59,63,60,62,61,64,65,67,66,68,69,70,73,74,75,76,77,78,71,79,80,81,84,82,85,86,83,88,87,89,91,90])
+},{"hogan.js":13}]},{},[36,37,39,38,41,43,40,44,42,45,47,46,48,49,50,51,54,53,52,55,56,57,58,59,60,61,62,63,64,65,67,66,68,71,72,70,69,73,75,74,76,77,78,79,80,81,85,86,84,82,87,88,90,89,91])
 ;

@@ -126,9 +126,10 @@ var openObject = function (state, attribs)
     state.acc = '';
   }
 
+  addComma(state);
+
   if (attribs.title)
   {
-    addComma(state);
     addKey(state, attribs.title);
   }
 
@@ -143,9 +144,10 @@ var openArray = function (state, attribs)
 {
   'use strict';
 
+  addComma(state);
+
   if (attribs.title)
   {
-    addComma(state);
     addKey(state, attribs.title);
   }
 
@@ -542,7 +544,7 @@ var label = function (key, acc)
   return acc;
 };
 
-// For a labeled object.
+// For an object.
 var newObject = function (key, acc)
 {
   'use strict';
@@ -550,7 +552,7 @@ var newObject = function (key, acc)
   return insert('<ul' + (key ? ' title="' + key + '"' : '') + '>', '</ul></li>', acc);
 };
 
-// For a labeled array.
+// For an array.
 var newArray = function (key, acc)
 {
   'use strict';
@@ -638,58 +640,74 @@ var descriptToHtml = function (obj)
   var acc = {left: '<form>', right: '</form>'};
   var result;
 
-  var _descriptToHtml = function (fs, fsrest, acc, stack, accstack, id)
+  // This will recurse the descriptive object. The head variable is
+  // the current portion of the object to process. The rest variable
+  // is the remaining portion. The acc is an accumulator that stores
+  // the right and left ends of a string that is built up during
+  // processing. Stack is used to save state while descending complex
+  // objects. Accstack is used to store acc context when
+  // descending. Id is a reference to the identity function to define
+  // the base case.
+  var _descriptToHtml = function (head, rest, acc, stack, accstack, id)
   {
-    var isNotObject = fs && (fs.type !== 'array' && fs.type !== 'object');
-    var done = fsrest.length === 0;// && fs && (isNotObject || fs.value.length === 0);
+    var isNotObject = head && (head.type !== 'array' && head.type !== 'object');
+    var done = rest.length === 0;
     var depleted = stack.length === 0;
     var next;
     var acc2;
-    console.error({notObj:isNotObject,done:done,depleted:depleted});
-    console.error(stack);
-    // There are no more fields and the value doesn't need to be
-    // descended, so just return.
-    if (!fs && done && depleted)
+
+    // There are no more fields, the stack is depleted and the value
+    // doesn't need to be descended, so return the accumulator.
+    if (!head && done && depleted)
     {
-      processDescriptField(fs, acc);
-
-      if (accstack.length !== 0)
-      {
-        acc = accInsert(accstack, acc);
-      }
-
       return id.r(acc);
     }
-    // If there is more on the stack, process it
-    else if (!depleted && done && (isNotObject || !fs))
+    // If there is more on the stack, process it. We'll want to ignore
+    // objects so that they can be handled in the 'else' clause. We'll
+    // also want to continue if fs is undefined, which will indicate
+    // that we've hit the end of object or array values.
+    else if (!depleted && done && (isNotObject || !head))
     {
+      // Pop the next group of stored fs's off the stack where they
+      // were previously stored by the 'else' clause below.
       next = stack.pop();
 
       // This will change the acc depending on fs information.
-      processDescriptField(fs, acc);
+      processDescriptField(head, acc);
 
+      // This will nest the current acc string values inside the
+      // parent.
       acc2 = accInsert(accstack, acc);
 
+      // Use next instead of fs and fsrest, fsrest was already
+      // depleted in this step.
       return _descriptToHtml.r(next[0], next.slice(1), acc2, stack, accstack, id);
     }
-    // Unless it is a complex value, move on to the next field.
+    // Unless it is a complex value, process the value and move on to
+    // the next field.
     else if (isNotObject)
     {
-      processDescriptField(fs, acc);
+      processDescriptField(head, acc);
 
-      return _descriptToHtml.r(fsrest[0], fsrest.slice(1), acc, stack, accstack, id);
+      return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
     // Otherwise descend the complex value.
     else
     {
       acc2 = {left: '', right: ''};
 
-      stack.push(fsrest);
+      // Push the remaining values onto the stack so they will be
+      // processed later.
+      stack.push(rest);
+      // Push the accumulated left and right strings on to the
+      // stack. This will allow them to be pulled out to nest acc2
+      // later on.
       accstack.push(acc);
 
-      processDescriptField(fs, acc2);
+      processDescriptField(head, acc2);
 
-      return _descriptToHtml.r(fs.value[0], fs.value.slice(1), acc2, stack, accstack, id);
+      // Now use the values to specify fs and fsrest.
+      return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
     }
   };
 
