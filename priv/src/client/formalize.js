@@ -641,14 +641,15 @@ var descriptToHtml = function (obj)
   var _descriptToHtml = function (fs, fsrest, acc, stack, accstack, id)
   {
     var isNotObject = fs && (fs.type !== 'array' && fs.type !== 'object');
-    var done = fsrest.length === 0;
+    var done = fsrest.length === 0;// && fs && (isNotObject || fs.value.length === 0);
     var depleted = stack.length === 0;
-    var acc2;
     var next;
-
+    var acc2;
+    console.error({notObj:isNotObject,done:done,depleted:depleted});
+    console.error(stack);
     // There are no more fields and the value doesn't need to be
     // descended, so just return.
-    if (!fs || (done && depleted && isNotObject))
+    if (!fs && done && depleted)
     {
       processDescriptField(fs, acc);
 
@@ -660,7 +661,7 @@ var descriptToHtml = function (obj)
       return id.r(acc);
     }
     // If there is more on the stack, process it
-    else if (!depleted && done)
+    else if (!depleted && done && (isNotObject || !fs))
     {
       next = stack.pop();
 

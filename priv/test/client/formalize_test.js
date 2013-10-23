@@ -422,7 +422,8 @@ describe('Testing through inversion of toForm', function ()
     invertTo('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}');
     invertTo('{"test":"be","m":{"a":1,"b":true},"sevent":"ij"}');
     invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":true},"sevent":"ij"}');
-    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":{"6":5,"4":3}},"sevent":"ij"}');
+    invertTo('{"a":{"b":1,"c":{"d":2}}}');
+    invertTo('{"test":{"be":"ok"},"m":{"a":1,"b":{"1":5,"2":3,"3":9}},"sevent":"ij"}');
     invertTo('{"test":{"be":"ok"},"m":{"a":{"z":1,"j":99,"q":{"w":"gg"},"f":null},"x":"uuu","b":{}},"sevent":"ij"}');
     invertTo('{"test":{"be":"ok"},"m":{"a":{"z":1,"j":[99,97,96],"q":{"w":"gg"},"f":null},"x":"uuu","b":{}},"sevent":"ij"}');
   });
