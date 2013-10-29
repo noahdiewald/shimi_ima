@@ -1,6 +1,6 @@
 // # Take actions depending on reported state.
 //
-// This is essentially and experiment in attempting to perform actions
+// This is essentially an experiment in attempting to perform actions
 // based on the state of the application. It is an idea that I'm still
 // working on but the idea is to avoid having functions directly call
 // other functions to initiate new actions but to instead simply report
