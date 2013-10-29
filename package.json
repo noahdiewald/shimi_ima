@@ -3,6 +3,7 @@
   "description": "Manages JavaScript Source for this Project",
   "version": "0.0.1",
   "devDependencies": {
+    "baconjs": "0.6.21",
     "blanket": "1.1.4",
     "chai": "1.6.0",
     "grunt": "0.4.1",

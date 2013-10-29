@@ -46,6 +46,7 @@
       </div>
       <div id="config-edit" class="panel">
         <h2 class="header">Editor</h2>
+        <div id="edit-form"></div>
       </div>
     </div>
   </div>
