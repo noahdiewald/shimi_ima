@@ -3,7 +3,6 @@
   "description": "Manages JavaScript Source for this Project",
   "version": "0.0.1",
   "devDependencies": {
-    "baconjs": "0.6.21",
     "blanket": "1.1.4",
     "chai": "1.6.0",
     "grunt": "0.4.1",
@@ -20,6 +19,7 @@
     "hogan.js": "2.0.0",
     "htmlparser2": "3.3.0",
     "less": "1.4.0-b2",
+    "reactorjs": "0.0.2",
     "tv4": "1.0.5"
   },
   "scripts": {

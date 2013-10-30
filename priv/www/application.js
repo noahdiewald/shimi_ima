@@ -10814,7 +10814,7 @@ $(function ()
   }
 });
 
-},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ilistingui.js":75,"./jquery-ui-input-state.js":79,"./keystrokes.js":81,"./projects/projectui.js":87}],37:[function(require,module,exports){
+},{"./changes.js":37,"./click-dispatch.js":38,"./config/config.js":43,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ilistingui.js":77,"./jquery-ui-input-state.js":80,"./keystrokes.js":82,"./projects/projectui.js":86}],37:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11162,7 +11162,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":65,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ieditui.js":72,"./panel-toggle.js":85,"./projects/projectui.js":87,"./sender.js":88}],39:[function(require,module,exports){
+},{"./config/charseq-tab":41,"./config/doctype-tab.js":46,"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":65,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ieditui.js":74,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":88}],39:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11458,7 +11458,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":84,"templates.js":"e8H8MT"}],43:[function(require,module,exports){
+},{"../pager.js":83,"templates.js":"e8H8MT"}],43:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -11935,7 +11935,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":86,"../store.js":91,"./doctype-dialog.js":44,"./doctype-elems.js":45,"./field-dialog.js":49,"./field-elems.js":50,"./fieldset-dialog.js":51,"./fieldset-elems.js":52}],47:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"./doctype-dialog.js":44,"./doctype-elems.js":45,"./field-dialog.js":49,"./field-elems.js":50,"./fieldset-dialog.js":51,"./fieldset-elems.js":52}],47:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -11987,7 +11987,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":84,"templates.js":"e8H8MT"}],48:[function(require,module,exports){
+},{"../pager.js":83,"templates.js":"e8H8MT"}],48:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -12584,7 +12584,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":65,"./panel-toggle.js":85}],55:[function(require,module,exports){
+},{"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":65,"./panel-toggle.js":84}],55:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM, JQuery
@@ -12679,7 +12679,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":84}],57:[function(require,module,exports){
+},{"../pager.js":83}],57:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -13968,7 +13968,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":86,"../store.js":91,"../utils.js":92,"./editui.js":59}],61:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"../utils.js":92,"./editui.js":59}],61:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14076,7 +14076,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":84,"./editui.js":59,"./viewui.js":64,"templates.js":"e8H8MT"}],62:[function(require,module,exports){
+},{"../pager.js":83,"./editui.js":59,"./viewui.js":64,"templates.js":"e8H8MT"}],62:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17081,7 +17081,7 @@ var fromForm = function (html)
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":82,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],70:[function(require,module,exports){
+},{"./recurse.js":87,"console":9,"htmlparser2":26,"templates.js":"e8H8MT"}],70:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17312,7 +17312,97 @@ var initIndexBuilderDialog = function (indexDoctype)
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74}],72:[function(require,module,exports){
+},{"../form.js":68,"../jquery-ui-input-state.js":80,"./ievents.js":75,"./ihelpers.js":76}],72:[function(require,module,exports){
+// # Replace dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for providing a function to replace the normal output of
+// an index.
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var form = require('../form.js');
+
+// Exported functions
+
+// The dialog for providing a function to replace the normal output of
+// an index.
+var initReplaceDialog = function ()
+{
+  'use strict';
+
+  var replaceFunction = $('#index-replace_function-input');
+  var indexData = $('#index-editing-data');
+  var remove = $('#index-remove_function-input');
+
+  if (indexData.attr('data-index-replace_function'))
+  {
+    replaceFunction.val(indexData.attr('data-index-replace_function'));
+  }
+  else
+  {
+    form.clear(replaceFunction).removeClass('ui-state-error');
+  }
+
+  var dialog = $('#index-replace-dialog').dialog(
+  {
+    autoOpen: false,
+    modal: true,
+    buttons:
+    {
+      'Save': function ()
+      {
+        $('.input').removeClass('ui-state-error');
+
+        // place holder for client side validation
+        var checkResult = true;
+
+        if (!remove.is(':checked'))
+        {
+          if (replaceFunction.val().isBlank())
+          {
+            replaceFunction.addClass('ui-state-error');
+          }
+          else
+          {
+            replaceFunction.removeClass('ui-state-error');
+          }
+
+          if (checkResult)
+          {
+            indexData.attr('data-index-replace_function', replaceFunction.val());
+            $('#replace-function-message').text('This index has a replacement function.');
+          }
+        }
+        else
+        {
+          indexData.removeAttr('data-index-replace_function');
+          $('#replace-function-message').empty();
+        }
+
+        $(this).dialog('close');
+      },
+      'Cancel': function ()
+      {
+        $(this).dialog('close');
+      }
+    },
+    close: function ()
+    {
+      form.clear(replaceFunction).removeClass('ui-state-error');
+    }
+  });
+
+  return dialog;
+};
+
+exports.initReplaceDialog = initReplaceDialog;
+
+},{"../form.js":68,"./ihelpers.js":76}],"templates.js":[function(require,module,exports){
+module.exports=require('e8H8MT');
+},{}],74:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17648,7 +17738,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../flash.js":67,"../form.js":68,"./builder-dialog.js":71,"./ihelpers.js":74,"./ilistingui.js":75,"./ipreviewui.js":76,"./new-dialog.js":77,"./replace-dialog.js":78}],73:[function(require,module,exports){
+},{"../flash.js":67,"../form.js":68,"./builder-dialog.js":71,"./ihelpers.js":76,"./ilistingui.js":77,"./ipreviewui.js":78,"./new-dialog.js":79,"./replace-dialog.js":72}],75:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17767,7 +17857,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":74}],74:[function(require,module,exports){
+},{"./ihelpers.js":76}],76:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18069,7 +18159,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":89}],75:[function(require,module,exports){
+},{"../sess.js":89}],77:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18102,7 +18192,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"e8H8MT"}],76:[function(require,module,exports){
+},{"templates.js":"e8H8MT"}],78:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -18167,7 +18257,7 @@ var get = function ()
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":84}],77:[function(require,module,exports){
+},{"../pager.js":83}],79:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18288,95 +18378,7 @@ var initIndexNewDialog = function ()
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74,"./ilistingui.js":75}],78:[function(require,module,exports){
-// # Replace dialog
-//
-// *Implicit depends:* DOM, JQuery, JQuery UI
-//
-// Dialog for providing a function to replace the normal output of
-// an index.
-
-// Variable Definitions
-
-var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
-
-// Exported functions
-
-// The dialog for providing a function to replace the normal output of
-// an index.
-var initReplaceDialog = function ()
-{
-  'use strict';
-
-  var replaceFunction = $('#index-replace_function-input');
-  var indexData = $('#index-editing-data');
-  var remove = $('#index-remove_function-input');
-
-  if (indexData.attr('data-index-replace_function'))
-  {
-    replaceFunction.val(indexData.attr('data-index-replace_function'));
-  }
-  else
-  {
-    form.clear(replaceFunction).removeClass('ui-state-error');
-  }
-
-  var dialog = $('#index-replace-dialog').dialog(
-  {
-    autoOpen: false,
-    modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
-        $('.input').removeClass('ui-state-error');
-
-        // place holder for client side validation
-        var checkResult = true;
-
-        if (!remove.is(':checked'))
-        {
-          if (replaceFunction.val().isBlank())
-          {
-            replaceFunction.addClass('ui-state-error');
-          }
-          else
-          {
-            replaceFunction.removeClass('ui-state-error');
-          }
-
-          if (checkResult)
-          {
-            indexData.attr('data-index-replace_function', replaceFunction.val());
-            $('#replace-function-message').text('This index has a replacement function.');
-          }
-        }
-        else
-        {
-          indexData.removeAttr('data-index-replace_function');
-          $('#replace-function-message').empty();
-        }
-
-        $(this).dialog('close');
-      },
-      'Cancel': function ()
-      {
-        $(this).dialog('close');
-      }
-    },
-    close: function ()
-    {
-      form.clear(replaceFunction).removeClass('ui-state-error');
-    }
-  });
-
-  return dialog;
-};
-
-exports.initReplaceDialog = initReplaceDialog;
-
-},{"../form.js":68,"./ihelpers.js":74}],79:[function(require,module,exports){
+},{"../form.js":68,"../jquery-ui-input-state.js":80,"./ievents.js":75,"./ihelpers.js":76,"./ilistingui.js":77}],80:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -18402,7 +18404,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -18585,7 +18587,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -18786,56 +18788,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":42,"./config/doctypeui.js":47,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":76,"./jquery.hotkeys.js":80,"./sender.js":88}],82:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x)
-{
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function ()
-{
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function ()
-  {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function ()
-  {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('e8H8MT');
-},{}],84:[function(require,module,exports){
+},{"./config/charsequi.js":42,"./config/doctypeui.js":47,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":78,"./jquery.hotkeys.js":81,"./sender.js":88}],83:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19050,7 +19003,7 @@ var pager = function (args)
 
 exports.pager = pager;
 
-},{"./form.js":68,"templates.js":"e8H8MT"}],85:[function(require,module,exports){
+},{"./form.js":68,"templates.js":"e8H8MT"}],84:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -19086,7 +19039,7 @@ var panelToggler = function (target)
 
 exports.panelToggler = panelToggler;
 
-},{}],86:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 // # Path helper
 //
 // *Implicit depends:* DOM, JQuery
@@ -19294,7 +19247,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":68,"./store.js":91}],87:[function(require,module,exports){
+},{"./form.js":68,"./store.js":91}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19433,7 +19386,54 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":68}],88:[function(require,module,exports){
+},{"../form.js":68}],87:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x)
+{
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function ()
+{
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function ()
+  {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function ()
+  {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape)
+    {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
+},{}],88:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19820,7 +19820,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":82,"./utils.js":92}],92:[function(require,module,exports){
+},{"./recurse.js":87,"./utils.js":92}],92:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20081,5 +20081,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":13}]},{},[36,37,38,39,40,41,42,43,45,46,48,47,49,50,44,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,74,75,73,76,78,77,81,80,79,84,85,86,87,82,88,89,90,91,92])
+},{"hogan.js":13}]},{},[36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,74,75,76,77,78,79,72,80,81,82,83,84,85,86,87,88,89,90,91,92])
 ;

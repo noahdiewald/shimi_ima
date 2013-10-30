@@ -13,6 +13,9 @@ var maintenanceui = require('./maintenanceui.js');
 var charsequi = require('./charsequi.js');
 var editui = require('./editui.js');
 var dispatcher = require('../dispatcher.js').dispatcher;
+var Reactor = require('reactorjs');
+var Signal = Reactor.Signal;
+var Observer = Reactor.Observer;
 
 // ## Internal Functions
 
