@@ -1,10 +1,10 @@
 // # The Client Code Entry Point
 //
-// *Implicit depends:* DOM, JQuery, JQueryUI
+// *Implicit depends:* DOM, JQuery
 //
 // This is the entry point for the client side code. This is where
 // basic initializations take place and helper functions are added to
-// JavaScript Objects. The 'onload' code is here.
+// JavaScript Objects.
 
 // ## Variable Definitions
 
@@ -117,36 +117,33 @@ var init = function ()
   form.initDateFields();
 
   // ### Determine the sub-application.
-  //
-  // TODO: With the CommonJS module system there should be a better way
-  // of sharing code between these sub-applications.
 
   // Detect if this is the configuration sub-application
-  if ($('#all-config-container').length > 0)
+  if (document.getElementById('all-config-container'))
   {
     config.init();
   }
 
   // Detect if this is the document editing sub-application
-  if ($('#all-document-container').length > 0)
+  if (document.getElementById('all-document-container'))
   {
     documents.init();
   }
 
   // Detect if this is the file manager sub-application
-  if ($('#file-upload').length > 0)
+  if (document.getElementById('file-upload'))
   {
     fm.init();
   }
 
   // Detect if this is the index tool sub-application
-  if ($('#all-index-container').length > 0)
+  if (document.getElementById('all-index-container'))
   {
     ilistingui.init();
   }
 
   // Detect if this is the project creation sub-application
-  if ($('#projects-container').length > 0)
+  if (document.getElementById('projects-container'))
   {
     projectui.init();
   }

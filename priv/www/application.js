@@ -10814,11 +10814,11 @@ exports.PassThrough = require('./lib/_stream_passthrough.js');
 },{}],37:[function(require,module,exports){
 // # The Client Code Entry Point
 //
-// *Implicit depends:* DOM, JQuery, JQueryUI
+// *Implicit depends:* DOM, JQuery
 //
 // This is the entry point for the client side code. This is where
 // basic initializations take place and helper functions are added to
-// JavaScript Objects. The 'onload' code is here.
+// JavaScript Objects.
 
 // ## Variable Definitions
 
@@ -10936,31 +10936,31 @@ var init = function ()
   // of sharing code between these sub-applications.
 
   // Detect if this is the configuration sub-application
-  if ($('#all-config-container').length > 0)
+  if (document.getElementById('all-config-container'))
   {
     config.init();
   }
 
   // Detect if this is the document editing sub-application
-  if ($('#all-document-container').length > 0)
+  if (document.getElementById('all-document-container'))
   {
     documents.init();
   }
 
   // Detect if this is the file manager sub-application
-  if ($('#file-upload').length > 0)
+  if (document.getElementById('file-upload'))
   {
     fm.init();
   }
 
   // Detect if this is the index tool sub-application
-  if ($('#all-index-container').length > 0)
+  if (document.getElementById('all-index-container'))
   {
     ilistingui.init();
   }
 
   // Detect if this is the project creation sub-application
-  if ($('#projects-container').length > 0)
+  if (document.getElementById('projects-container'))
   {
     projectui.init();
   }
@@ -12439,7 +12439,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":69,"../utils.js":92}],52:[function(require,module,exports){
+},{"../form.js":69,"../utils.js":93}],52:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14075,7 +14075,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":85,"../store.js":91,"../utils.js":92,"./editui.js":60}],62:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"../utils.js":93,"./editui.js":60}],62:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14790,7 +14790,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":90,"../utils.js":92,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../sets.js":90,"../utils.js":93,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15246,7 +15246,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":68,"../sender.js":88,"../sets.js":90,"../utils.js":92,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../flash.js":68,"../sender.js":88,"../sets.js":90,"../utils.js":93,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -19914,7 +19914,9 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":87,"./utils.js":92}],92:[function(require,module,exports){
+},{"./recurse.js":87,"./utils.js":93}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],93:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20175,7 +20177,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":13}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}]},{},[37,38,39,40,41,42,43,44,45,47,48,46,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,77,76,78,79,80,81,82,83,85,84,86,87,88,89,90,91,92])
+},{"hogan.js":13}]},{},[37,38,39,40,41,42,43,44,46,45,47,50,48,49,52,51,54,55,53,56,58,57,59,62,61,60,63,64,65,66,67,68,70,69,71,72,73,74,75,76,77,78,79,80,82,84,81,83,85,86,87,88,89,91,90,93])
 ;
