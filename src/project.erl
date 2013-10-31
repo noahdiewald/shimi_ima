@@ -1,4 +1,4 @@
-%%% Copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% Copyright 2013 University of Wisconsin Madison Board of Regents.
 %%%
 %%% This file is part of dictionary_maker.
 %%%
@@ -7,13 +7,14 @@
 %%% published by the Free Software Foundation, either version 3 of the
 %%% License, or (at your option) any later version.
 %%%
-%%% dictionary_maker is distributed in the hope that it will be useful,
-%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-%%% GNU General Public License for more details.
+%%% dictionary_maker is distributed in the hope that it will be
+%%% useful, but WITHOUT ANY WARRANTY; without even the implied
+%%% warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+%%% PURPOSE. See the GNU General Public License for more details.
 %%%
 %%% You should have received a copy of the GNU General Public License
-%%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
+%%% along with dictionary_maker. If not, see
+%%% <http://www.gnu.org/licenses/>.
 
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
@@ -23,12 +24,20 @@
 -module(project).
 
 -export([
+         all/0,
          create/2,
          upgrade/1
         ]).
 
 -include_lib("types.hrl").
 
+%% @doc Return a listing of all projects.
+-spec all() -> jsn:json_term().
+all() ->
+    Json = couch:get_dbs(),
+    Rows = jsn:get_value(<<"rows">>, Json),
+    jsn:put_value(<<"rows">>, extract_process(Rows, [])).
+    
 %% @doc Create a project
 -spec create(string(), h:req_state()) -> ok.
 create(ProjectData, S) ->
@@ -45,3 +54,16 @@ create(ProjectData, S) ->
 upgrade(Project) ->
     {ok, replicated} = couch:replicate("shimi_ima", Project, "upgrade"),
     ok.
+
+%% @doc Extract the project ids and append the rest of the database
+%% identifier.
+-spec extract_process([jsn:json_term()], []) -> [jsn:json_term()].
+extract_process([], Acc) ->
+    Acc;
+extract_process([H|T], Acc) ->
+    case jsn:get_value(<<"id">>, H) of
+        <<"_design/shimi_ima">> -> 
+            extract_process(T, Acc);
+        Id ->
+            extract_process(T, [jsn:put_value(<<"id">>, << "project-", Id >>)|Acc])
+    end.
