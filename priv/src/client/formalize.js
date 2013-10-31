@@ -8,9 +8,7 @@
 // ## Variable Definitions
 
 var r = require('./recurse.js');
-var templates = require('templates.js');
 var htmlparser = require('htmlparser2');
-var console = require('console');
 
 // ## Internal Functions
 
@@ -544,12 +542,33 @@ var label = function (key, acc)
   return acc;
 };
 
+var spanTitle = function (key)
+{
+  'use strict';
+
+  var retval = '';
+
+  if (key)
+  {
+    retval = '<span title="' + key + '">' + key + '</span>';
+  }
+
+  return retval;
+};
+
+var newEither = function (type, key, acc)
+{
+  'use strict';
+
+  return insert(spanTitle(key) + '<' + type + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+};
+
 // For an object.
 var newObject = function (key, acc)
 {
   'use strict';
 
-  return insert('<ul' + (key ? ' title="' + key + '"' : '') + '>', '</ul></li>', acc);
+  return newEither('ul', key, acc);
 };
 
 // For an array.
@@ -557,7 +576,7 @@ var newArray = function (key, acc)
 {
   'use strict';
 
-  return insert('<ol' + (key ? ' title="' + key + '"' : '') + '>', '</ol></li>', acc);
+  return newEither('ol', key, acc);
 };
 
 // When an item has a value

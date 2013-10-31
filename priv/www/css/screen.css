@@ -19,18 +19,11 @@ h1 {
   font-size: 12pt;
   margin: 0;
 }
-section {
-  display: block !important;
-}
 header {
-  display: block !important;
   padding-left: 0.5em;
   text-align: left;
   margin: 0;
   background: #ffffff;
-}
-nav {
-  display: block !important;
 }
 nav ul {
   padding: 0;
@@ -174,6 +167,49 @@ fieldset {
   border-width: thin;
   border-color: #cccccc;
   margin: 1px;
+}
+div#config-edit div#edit-form .lists {
+  padding-left: 1em;
+}
+div#config-edit div#edit-form .list-elems .labels:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems label:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems span:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems span:before {
+  content: '▾ ';
+}
+div#config-edit div#edit-form .list-elems span:before.collapsed {
+  content: '▸ ';
+}
+div#config-edit div#edit-form li .labels:after {
+  content: ':';
+}
+div#config-edit div#edit-form li label:after {
+  content: ':';
+}
+div#config-edit div#edit-form li span:after {
+  content: ':';
+}
+div#config-edit div#edit-form li span:before {
+  content: '▾ ';
+}
+div#config-edit div#edit-form li span:before.collapsed {
+  content: '▸ ';
+}
+div#config-edit div#edit-form ul {
+  padding-left: 1em;
+}
+div#config-edit div#edit-form ul > li {
+  list-style-type: none;
+}
+div#config-edit div#edit-form ol {
+  padding-left: 1em;
+  list-style-position: inside;
 }
 #notifications-main {
   top: 0;
