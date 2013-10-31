@@ -33,10 +33,8 @@ var get = function ()
   var indexId = document.getElementById('index-' + prefix() + '-input').value;
   var target = document.getElementById(prefix() + '-listing');
 
-  var format = function (text)
+  var format = function (resp)
   {
-    var resp = JSON.parse(text);
-
     resp.rows = resp.rows.map(function (item)
     {
       item.display_key = item.key.map(function (k)

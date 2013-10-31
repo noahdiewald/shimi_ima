@@ -6,7 +6,7 @@
 
 var charseqElems = require('./charseq-elems.js').charseqElems;
 var charseqTab = require('./charseq-tab.js').charseqTab;
-var form = require('../form.js');
+var form = require('../ajax.js');
 
 // Exported functions
 
@@ -28,6 +28,8 @@ var charseqDialog = function (values)
         var obj = f.getCharseqInputVals();
         var url = 'config/charseqs';
         var method = 'POST';
+        // The new callback stuff doesn't do context but the plan is
+        // to get rid of these dialogs.
         var complete = function (context)
         {
           charseqTab.init();

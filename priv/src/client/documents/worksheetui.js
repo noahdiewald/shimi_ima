@@ -11,7 +11,7 @@ var Hogan = require('hogan.js');
 var templates = require('templates.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 
 // Internal functions
@@ -177,10 +177,9 @@ var fillWorksheet = function ()
 
   var setName = worksheetsSet().val();
   var url = 'worksheets';
-  var complete = function (_ignore, req)
+  var complete = function (req)
   {
-    var data = JSON.parse(req.responseText);
-    var ws = globals[worksheetName()].render(data);
+    var ws = globals[worksheetName()].render(req.response);
     worksheetsArea().html(ws);
   };
 
@@ -195,7 +194,7 @@ var fillWorksheet = function ()
         return x[1];
       });
 
-      form.send(url, setIds, 'POST', complete);
+      ajax.post(url, setIds, complete);
     }
     else
     {

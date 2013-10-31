@@ -1,5 +1,5 @@
 // # Maintenance User Interface
-// 
+//
 // *Implicit depends:* DOM
 //
 // This handles UI elements that are used for maintaining a project.
@@ -7,7 +7,7 @@
 // ## Variable Definitions
 
 var templates = require('templates.js');
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 
 // ## Exported Functions
@@ -19,7 +19,7 @@ var upgradeButton = function ()
 {
   'use strict';
 
-  form.send('config/upgrade', 'null', 'POST', function ()
+  ajax.post('config/upgrade', false, function ()
   {
     flash.highlight('Task Started', 'Upgrade Project');
   });

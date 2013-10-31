@@ -12,7 +12,7 @@ var initReplaceDialog = require('./replace-dialog.js').initReplaceDialog;
 var ilistingui = require('./ilistingui.js');
 var ipreviewui = require('./ipreviewui.js');
 var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 
 // Internal functions
@@ -142,7 +142,7 @@ var saveIndex = function (buttonData, completeFunction)
     obj.replace_function = buttonData.attr('data-index-replace_function');
   }
 
-  form.send(url, obj, 'PUT', completeFunction, this);
+  ajax.put(url, obj, 'PUT', completeFunction);
 
   return false;
 };

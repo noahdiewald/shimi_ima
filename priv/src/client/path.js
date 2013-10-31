@@ -1,6 +1,10 @@
 // # Path helper
 //
-// *Implicit depends:* DOM, JQuery
+// NOTE: This is only used by `config/doctype-tab.js` and
+// `documents/fieldsets`. It may be possible to refactor and remove
+// this since the `config/doctype-tab.js` code is already deprecated.
+//
+// *Implicit depends:* DOM
 //
 // This function returns an object with various helpers for URL
 // path operations. In this application a common pattern in paths is
@@ -26,13 +30,16 @@
 //
 // #### Example usage:
 //
-//     mypath = path($('#thisid'), 'fieldset');
+//     var t = getElementById('thisid');
+//     mypath = path($(t, 'fieldset');
 //     mypath.toString() == 'doctypes/did/fieldsets/fsid';
 //
-//     mypath = path($('#thisid'), 'fieldset', 'config');
+//     var t = getElementById('thisid');
+//     mypath = path(t, 'fieldset', 'config');
 //     mypath.toString() == 'config/doctypes/did/fieldsets/fsid';
 //
-//     mypath = path($('#thisid'), 'fieldset');
+//     var t = getElementById('thisid');
+//     mypath = path(t, 'fieldset');
 //     mypath.fieldset = false; // unsets the fielset id
 //     mypath.toString() == 'doctypes/did/fieldsets'; // all fieldsets
 //
@@ -66,10 +73,10 @@
 //
 // #### Example:
 //
-//     mypath = path($('#thisid'), 'fieldset');
-//     mypath.put(object, callback, context);
-//     mypath.post(object, callback, context);
-//     mypath.del(callback, context);
+//     mypath = path(HTMLElement, 'fieldset');
+//     mypath.put(object, callback);
+//     mypath.post(object, callback);
+//     mypath.del(callback);
 //
 // Object is an Javascript object that can be encoded as JSON, callback
 // will be run on success and context provides information the environment
@@ -87,7 +94,7 @@
 // Variable Definitions
 
 var store = require('./store.js').store;
-var form = require('./form.js');
+var ajax = require('./ajax.js');
 
 // Exported functions
 
@@ -136,28 +143,30 @@ var path = function (source, category, section)
 
   mod.doctype = s.get(prefix + 'doctype');
 
-  mod.send = function (object, method, callback, context)
+  // TODO: there is a redundant abstraction of `send` here that
+  // already exists in the `ajax` module.
+  mod.send = function (object, method, callback)
   {
-    form.send(mod.toString(), object, method, callback, context);
+    ajax.send(mod.toString(), object, method, callback);
     return mod;
   };
 
-  mod.put = function (object, callback, context)
+  mod.put = function (object, callback)
   {
-    mod.send(object, 'PUT', callback, context);
+    mod.send(object, 'PUT', callback);
     return mod;
   };
 
-  mod.post = function (object, callback, context)
+  mod.post = function (object, callback)
   {
-    mod.send(object, 'POST', callback, context);
+    mod.send(object, 'POST', callback);
     return mod;
   };
 
-  mod.del = function (callback, context)
+  mod.del = function (callback)
   {
     mod.send(
-    {}, 'DELETE', callback, context);
+    {}, 'DELETE', callback);
     return mod;
   };
 

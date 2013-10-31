@@ -20,7 +20,7 @@
 // Variable Definitions
 
 var templates = require('templates.js');
-var form = require('./form.js');
+var ajax = require('./ajax.js');
 
 // Exported functions
 
@@ -106,10 +106,10 @@ var pager = function (args)
       url = url + '&index=' + indexId;
     }
 
-    form.send(url, false, 'GET', function (context, req)
+    ajax.get(url, function (req)
     {
       mod.fill(req, state, target);
-    }, this);
+    });
 
     return mod;
   };
@@ -151,11 +151,11 @@ var pager = function (args)
 
     if (format === undefined)
     {
-      respJSON = JSON.parse(req.responseText);
+      respJSON = req.response;
     }
     else
     {
-      respJSON = format(req.responseText);
+      respJSON = format(req.response);
     }
 
     newRows = respJSON.rows.map(function (item, index, thisArray)

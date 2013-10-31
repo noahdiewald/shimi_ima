@@ -27,10 +27,8 @@ var get = function ()
   var url = prefix();
   var target = document.getElementById(prefix() + '-listing');
 
-  var format = function (text)
+  var format = function (resp)
   {
-    var resp = JSON.parse(text);
-
     resp.rows.map(function (item)
     {
       if (item.doc.changes)

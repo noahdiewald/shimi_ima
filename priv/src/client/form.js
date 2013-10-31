@@ -7,8 +7,23 @@
 
 // ## Variable Definitions
 
-var flash = require('./flash.js');
 var clear;
+
+// ## Internal Functions
+
+// Show a brief validation message.
+var updateTips = function (t, tips)
+{
+  'use strict';
+
+  tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
+  setTimeout(function ()
+  {
+    tips.removeClass('ui-state-highlight', 1500);
+  }, 500);
+
+  return true;
+};
 
 // ## Exported Functions
 
@@ -76,69 +91,11 @@ clear = function (inputFields, form)
   return inputFields;
 };
 
-// Perform an Ajax action with a URL, object to be translated to JSON,
-// an HTTP method, a function to be run on completion and the calling
-// context.
-var send = function (ajaxUrl, obj, method, completeFun, callContext)
-{
-  'use strict';
-
-  var dataObj;
-
-  if (obj)
-  {
-    dataObj = JSON.stringify(obj);
-  }
-
-  $.ajax(
-  {
-    type: method,
-    url: ajaxUrl,
-    dataType: 'json',
-    context: callContext,
-    contentType: 'application/json',
-    processData: false,
-    data: dataObj,
-    complete: function (req, status)
-    {
-      if (req.status >= 200 && req.status < 300)
-      {
-        completeFun(this, req);
-      }
-      else if (req.status === 500)
-      {
-        flash.error('Unknown Server Error', 'Please report that you received ' + 'this message');
-      }
-      else if (req.status >= 400)
-      {
-        var body = JSON.parse(req.responseText);
-        var title = req.statusText;
-
-        flash.error(title, body.fieldname + ' ' + body.message);
-      }
-    }
-  });
-
-  return true;
-};
-
 // ### Validation
 
-// Show a brief validation message.
-var updateTips = function (t, tips)
-{
-  'use strict';
-
-  tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-  setTimeout(function ()
-  {
-    tips.removeClass('ui-state-highlight', 1500);
-  }, 500);
-
-  return true;
-};
-
 // Client side validation of string length.
+//
+// NOTE: Used only by [`projectui.js`](./projects/projectui.html)
 var checkLength = function (o, n, min, max, tips)
 {
   'use strict';
@@ -147,23 +104,6 @@ var checkLength = function (o, n, min, max, tips)
   {
     o.addClass('ui-state-error');
     updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-};
-
-// Client side validation using a regex match.
-var checkRegexp = function (o, regexp, n, tips)
-{
-  'use strict';
-
-  if (!(regexp.test(o.val())))
-  {
-    o.addClass('ui-state-error');
-    updateTips(n, tips);
     return false;
   }
   else
@@ -207,9 +147,6 @@ var fillOptionsFromUrl = function (url, selectElement, callback)
 exports.toggle = toggle;
 exports.cancelDialog = cancelDialog;
 exports.clear = clear;
-exports.send = send;
-exports.updateTips = updateTips;
 exports.checkLength = checkLength;
-exports.checkRegexp = checkRegexp;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;

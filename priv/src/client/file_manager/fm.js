@@ -9,7 +9,7 @@
 
 // Variable Definitions
 
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 var refreshListings;
 
@@ -80,7 +80,7 @@ var pathEditDialog = function (obj, path)
         };
 
         obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
-        form.send(url, obj, 'PUT', complete, dialog);
+        ajax.put(url, obj, complete);
         $(this).dialog('close');
       },
       'Cancel': function ()
@@ -203,7 +203,7 @@ var deleteFile = function (target)
     flash.highlight('Success', 'File Deleted');
   };
 
-  form.send(url, null, 'DELETE', complete, target);
+  ajax.del(url, complete);
 
   return true;
 };

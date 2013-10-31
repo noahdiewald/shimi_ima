@@ -7,7 +7,7 @@
 var charseqDialog = require('./charseq-dialog.js').charseqDialog;
 var charseqElems = require('./charseq-elems.js').charseqElems;
 var store = require('../store.js').store;
-var form = require('../form.js');
+var form = require('../ajax.js');
 
 // Exported functions
 

@@ -28,10 +28,8 @@ var get = function ()
   var url = 'indexes/' + indexId + '/preview';
   var target = document.getElementById(prefix() + '-list-view');
 
-  var format = function (text)
+  var format = function (resp)
   {
-    var resp = JSON.parse(text);
-
     resp.rows = resp.rows.map(function (item)
     {
       item.display_key = item.key.map(function (k)
