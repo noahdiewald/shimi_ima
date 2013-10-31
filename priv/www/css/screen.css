@@ -174,6 +174,11 @@ div#config-edit div#edit-form .lists {
 div#config-edit div#edit-form .list-elems .labels:after {
   content: ':';
 }
+div#config-edit div#edit-form .list-elems label {
+  display: inline-block;
+  overflow-x: hide;
+  width: 10em;
+}
 div#config-edit div#edit-form .list-elems label:after {
   content: ':';
 }
@@ -188,6 +193,11 @@ div#config-edit div#edit-form .list-elems span:before.collapsed {
 }
 div#config-edit div#edit-form li .labels:after {
   content: ':';
+}
+div#config-edit div#edit-form li label {
+  display: inline-block;
+  overflow-x: hide;
+  width: 10em;
 }
 div#config-edit div#edit-form li label:after {
   content: ':';
