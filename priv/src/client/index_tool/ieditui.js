@@ -204,9 +204,9 @@ var init = function (target)
   var url = 'indexes/' + indexId;
   var htmlTarget = $('#index-conditions');
 
-  $.get(url, function (indexData)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    htmlTarget.html(indexData);
+    htmlTarget.html(req.response);
     tableBody().sortable();
     ipreviewui.get();
   });

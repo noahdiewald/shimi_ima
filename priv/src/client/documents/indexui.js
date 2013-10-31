@@ -10,6 +10,7 @@
 
 var templates = require('templates.js');
 var pager = require('../pager.js').pager;
+var ajax = require('../ajax.js');
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 
@@ -73,8 +74,10 @@ var iOpts = function ()
   var url = 'indexes?as=options';
   var options;
 
-  $.getJSON(url, function (data)
+  ajax.get(url, function (req)
   {
+    var data = req.response;
+
     options = templates['index-options'](data);
     $('#index-index-input').html(options);
   });

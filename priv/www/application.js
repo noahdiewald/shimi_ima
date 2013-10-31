@@ -10878,7 +10878,11 @@ var complete = function (req, callback)
   {
     var msg;
 
-    if (req.response)
+    if (req.response && typeof req.response === 'string')
+    {
+      msg = makeMessage(JSON.stringify(req.response));
+    }
+    else if (req.response && req.response instanceof Object)
     {
       msg = makeMessage(req.response);
     }
@@ -10987,12 +10991,28 @@ var put = function (url, obj, callback)
   return send(url, false, 'PUT', callback);
 };
 
+// Perform an Ajax GET action, expecting HTML, which is the old way.
+var legacyHTMLGet = function (url, callback)
+{
+  'use strict';
+
+  var req = new XMLHttpRequest();
+
+  req.open('GET', url);
+
+  req.onreadystatechange = stateChange(req, callback);
+
+  req.send();
+
+  return true;
+};
+
 exports.send = send;
 exports.post = post;
 exports.put = put;
 exports.del = del;
 exports.get = get;
-
+exports.legacyHTMLGet = legacyHTMLGet;
 },{"./flash.js":69}],38:[function(require,module,exports){
 // # The Client Code Entry Point
 //
@@ -13136,6 +13156,7 @@ var indexui = require('./indexui.js');
 var changeui = require('./changeui.js');
 var S = require('../sender.js');
 var store = require('../store.js').store;
+var ajax = require('../ajax.js');
 var identifier;
 
 // ## Internal functions
@@ -13148,6 +13169,7 @@ var indexForm = function ()
 {
   'use strict';
 
+  // TODO Remove JQuery
   $('#index-filter-form select').change(function ()
   {
     indexui.get();
@@ -13334,9 +13356,9 @@ var loadDoctype = function ()
 {
   'use strict';
 
-  $.getJSON('./', function (data)
+  ajax.get('./', function (req)
   {
-    storeDoctype(JSON.stringify(data));
+    storeDoctype(JSON.stringify(req.response));
   });
 
   return true;
@@ -13369,6 +13391,7 @@ var init = function ()
 {
   'use strict';
 
+  // TODO Remove JQuery
   $('form').on('submit', function ()
   {
     return false;
@@ -13379,6 +13402,7 @@ var init = function ()
   indexui.get();
   indexForm();
   editui.init();
+  // TODO remove JQuery
   loadHash($(location)[0].hash.split('#')[1]);
   changeui.get();
 };
@@ -13391,7 +13415,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":89,"../store.js":92,"./changeui.js":58,"./editui.js":61,"./indexui.js":63,"./setsui.js":65,"./viewui.js":66}],61:[function(require,module,exports){
+},{"../ajax.js":37,"../sender.js":89,"../store.js":92,"./changeui.js":58,"./editui.js":61,"./indexui.js":63,"./setsui.js":65,"./viewui.js":66}],61:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -13403,6 +13427,7 @@ exports.init = init;
 var store = require('../store.js').store;
 var form = require('../form.js');
 var flash = require('../flash.js');
+var ajax = require('../ajax.js');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
@@ -13505,8 +13530,9 @@ var init = function ()
 
   var url = 'documents/edit';
 
-  $.get(url, function (documentEditHtml)
+  ajax.legacyHTMLGet(url, function (req)
   {
+    var documentEditHtml = req.response;
 
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();
@@ -13788,7 +13814,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":69,"../form.js":70,"../store.js":92,"./fieldsets.js":62,"./indexui.js":63,"./viewui.js":66}],62:[function(require,module,exports){
+},{"../ajax.js":37,"../flash.js":69,"../form.js":70,"../store.js":92,"./fieldsets.js":62,"./indexui.js":63,"./viewui.js":66}],62:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -13801,6 +13827,7 @@ var path = require('../path.js').path;
 var store = require('../store.js').store;
 var utils = require('../utils.js');
 var editui = require('./editui.js');
+var ajax = require('../ajax.js');
 var dateOrNumber;
 var getEncoded;
 var getFieldValue;
@@ -13846,7 +13873,7 @@ var ifStoredElse = function (key, success, otherwise)
   }
   else
   {
-    $.get(key, otherwise);
+    ajax.legacyHTMLGet(key, otherwise);
   }
 };
 
@@ -14030,8 +14057,11 @@ var initFields = function (container, callback, addInstances)
 
     editui.afterFreshRefresh(addInstances);
   };
-  var storeIt = function (data)
+
+  var storeIt = function (req)
   {
+    var data = req.response;
+
     sessionStorage.setItem(url, data);
     prependIt(data);
   };
@@ -14155,8 +14185,10 @@ initFieldset = function (fieldset, callback, addInstances)
     container.append(data);
     initFields(container, callback, addInstances);
   };
-  var storeIt = function (data)
+  var storeIt = function (req)
   {
+    var data = req.response;
+
     sessionStorage.setItem(url, data);
     appendIt(data);
   };
@@ -14271,7 +14303,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":86,"../store.js":92,"../utils.js":93,"./editui.js":61}],63:[function(require,module,exports){
+},{"../ajax.js":37,"../path.js":86,"../store.js":92,"../utils.js":93,"./editui.js":61}],63:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14284,6 +14316,7 @@ exports.fillFieldsets = fillFieldsets;
 
 var templates = require('templates.js');
 var pager = require('../pager.js').pager;
+var ajax = require('../ajax.js');
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 
@@ -14347,8 +14380,10 @@ var iOpts = function ()
   var url = 'indexes?as=options';
   var options;
 
-  $.getJSON(url, function (data)
+  ajax.get(url, function (req)
   {
+    var data = req.response;
+
     options = templates['index-options'](data);
     $('#index-index-input').html(options);
   });
@@ -14377,7 +14412,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../pager.js":84,"./editui.js":61,"./viewui.js":66,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../ajax.js":37,"../pager.js":84,"./editui.js":61,"./viewui.js":66,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -14391,6 +14426,7 @@ var utils = require('../utils.js');
 var sets = require('../sets.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
+var ajax = require('../ajax.js');
 var multipleFields;
 var loadSearchVals;
 
@@ -14745,9 +14781,10 @@ var getSearch = function ()
 
   searchListing().hide();
 
-  $.get(url, function (searchResults)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    searchListing().html(searchResults);
+    searchListing().html(req.response);
+
     $('.search-result-field-id').each(function (index, item)
     {
       var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
@@ -14755,6 +14792,7 @@ var getSearch = function ()
       target.html(label);
       target.attr('data-search-label', label);
     });
+
     if (!invert)
     {
       $('.search-results th').each(function (index, item)
@@ -14765,7 +14803,9 @@ var getSearch = function ()
         $(item).children('a').html(newText);
       });
     }
+
     searchListing().show();
+
   });
 
   return true;
@@ -14984,7 +15024,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":91,"../utils.js":93,"./documents.js":60,"./setsui.js":65,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../ajax.js":37,"../sets.js":91,"../utils.js":93,"./documents.js":60,"./setsui.js":65,"templates.js":"3ddScq"}],65:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15457,6 +15497,7 @@ var indexui = require('./indexui.js');
 var flash = require('../flash.js');
 var editui = require('./editui.js');
 var fieldsets = require('./fieldsets.js');
+var ajax = require('../ajax.js');
 
 // Internal functions
 
@@ -15644,9 +15685,10 @@ var get = function (id, rev, callback)
 
   }
 
-  $.getJSON(url, function (docJson)
+  ajax.get(url, function (req)
   {
     var documentHtml;
+    var docJson = req.response;
 
     processIncoming(docJson, rev);
     documentHtml = tmpl(docJson);
@@ -15891,7 +15933,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":69,"../store.js":92,"./editui.js":61,"./fieldsets.js":62,"./indexui.js":63,"templates.js":"3ddScq"}],67:[function(require,module,exports){
+},{"../ajax.js":37,"../flash.js":69,"../store.js":92,"./editui.js":61,"./fieldsets.js":62,"./indexui.js":63,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -16140,9 +16182,9 @@ var getDirListing = function (path)
     path = '';
   }
 
-  $.get('file_manager/list_dirs/' + path, function (data)
+  ajax.legacyHTMLGet('file_manager/list_dirs/' + path, function (req)
   {
-    $('#file-paths').html(data);
+    $('#file-paths').html(req.response);
   });
 };
 
@@ -16156,9 +16198,9 @@ var getFileListing = function (path)
     path = '';
   }
 
-  $.get('file_manager/list_files/' + path, function (data)
+  ajax.legacyHTMLGet('file_manager/list_files/' + path, function (req)
   {
-    $('#file-listing').html(data);
+    $('#file-listing').html(req.response);
   });
 };
 
@@ -16294,9 +16336,9 @@ var editFile = function (target)
   var fileId = target.attr('data-file-id');
   var url = 'file_manager/' + fileId;
 
-  $.getJSON(url, function (obj)
+  ajax.get(url, function (req)
   {
-    pathEditDialog(obj, path).dialog('open');
+    pathEditDialog(req.response, path).dialog('open');
   });
 
   return true;
@@ -16404,6 +16446,7 @@ exports.highlight = highlight;
 
 // ## Variable Definitions
 
+var ajax = require('./ajax.js');
 var clear;
 
 // ## Internal Functions
@@ -16529,9 +16572,9 @@ var fillOptionsFromUrl = function (url, selectElement, callback)
 {
   'use strict';
 
-  $.get(url, function (options)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    selectElement.html(options);
+    selectElement.html(req.response);
     if (callback)
     {
       callback();
@@ -16548,7 +16591,7 @@ exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{}],71:[function(require,module,exports){
+},{"./ajax.js":37}],71:[function(require,module,exports){
 // # Formalize
 //
 // *implicit dependencies:* JSON
@@ -17756,9 +17799,9 @@ var init = function (target)
   var url = 'indexes/' + indexId;
   var htmlTarget = $('#index-conditions');
 
-  $.get(url, function (indexData)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    htmlTarget.html(indexData);
+    htmlTarget.html(req.response);
     tableBody().sortable();
     ipreviewui.get();
   });
@@ -18014,6 +18057,7 @@ exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 // Variable Definitions
 
 var s = require('../sess.js');
+var ajax = require('../ajax.js');
 
 // Internal functions
 
@@ -18156,9 +18200,10 @@ var fOpts = function (url, selectElement, callback)
 {
   'use strict';
 
-  $.get(url, function (options)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    selectElement.html(options);
+    selectElement.html(req.response);
+
     if (callback)
     {
       callback();
@@ -18306,7 +18351,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../sess.js":90}],77:[function(require,module,exports){
+},{"../ajax.js":37,"../sess.js":90}],77:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18316,6 +18361,7 @@ exports.evs = evs;
 // Variable Definitions
 
 var templates = require('templates.js');
+var ajax = require('../ajax.js');
 
 // Exported functions
 
@@ -18328,9 +18374,9 @@ var init = function ()
   var target = $('#index-index-listing');
   var listing;
 
-  $.getJSON(url, function (data)
+  ajax.get(url, function (req)
   {
-    listing = templates['index-listing'](data);
+    listing = templates['index-listing'](req.response);
     target.html(listing);
   });
 
@@ -18339,7 +18385,7 @@ var init = function ()
 
 exports.init = init;
 
-},{"templates.js":"3ddScq"}],78:[function(require,module,exports){
+},{"../ajax.js":37,"templates.js":"3ddScq"}],78:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -19499,6 +19545,7 @@ exports.path = path;
 // Variable Definitions
 
 var form = require('../form.js');
+var ajax = require('../ajax.js');
 var init;
 
 // Internal functions
@@ -19510,24 +19557,7 @@ var deleteProject = function (id)
 
   if (window.confirm('Are you sure? This is permanent.'))
   {
-    $.ajax(
-    {
-      type: 'DELETE',
-      url: '/projects/' + id,
-      dataType: 'json',
-      contentType: 'application/json',
-      complete: function (req, status)
-      {
-        if (req.status === 204)
-        {
-          init();
-        }
-        else
-        {
-          window.alert('An error occurred' + req.status);
-        }
-      }
-    });
+    ajax.del('/projects/' + id, init);
   }
 };
 
@@ -19558,30 +19588,13 @@ var add = function ()
 
         if (checkResult)
         {
-          $.ajax(
-          {
-            type: 'POST',
-            url: 'projects/index',
-            dataType: 'json',
-            contentType: 'application/json',
-            processData: false,
-            data: JSON.stringify(
-            {
-              name: projectName.val(),
-              description: projectDescription.val()
-            }),
-            complete: function (req, status)
-            {
-              if (req.status === 201)
-              {
-                init();
-              }
-              else
-              {
-                window.alert('An error occurred ' + req.status);
-              }
-            }
-          });
+          var data = {
+            name: projectName.val(),
+            description: projectDescription.val()
+          };
+
+          ajax.post('projects/index', data, init);
+
           $(this).dialog('close');
         }
       },
@@ -19617,10 +19630,10 @@ init = function ()
 
   var url = '/projects/index';
 
-  $.get(url, function (projects)
+  ajax.legacyHTMLGet(url, function (req)
   {
     $('tbody').empty();
-    $('tbody').html(projects);
+    $('tbody').html(req.response);
   });
 };
 
@@ -19628,7 +19641,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../form.js":70}],88:[function(require,module,exports){
+},{"../ajax.js":37,"../form.js":70}],88:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -20314,5 +20327,5 @@ module.exports = {
 };
 },{"hogan.js":13}],"templates.js":[function(require,module,exports){
 module.exports=require('3ddScq');
-},{}]},{},[37,38,39,40,41,42,43,44,46,47,48,50,51,45,49,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93])
+},{}]},{},[37,40,39,41,42,43,44,45,47,46,48,49,50,38,51,52,53,57,55,54,58,56,59,60,62,61,63,64,65,66,67,68,69,71,70,72,74,73,75,76,77,78,79,80,82,81,85,84,83,86,87,89,88,90,92,91,93])
 ;

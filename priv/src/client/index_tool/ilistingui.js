@@ -7,6 +7,7 @@
 // Variable Definitions
 
 var templates = require('templates.js');
+var ajax = require('../ajax.js');
 
 // Exported functions
 
@@ -19,9 +20,9 @@ var init = function ()
   var target = $('#index-index-listing');
   var listing;
 
-  $.getJSON(url, function (data)
+  ajax.get(url, function (req)
   {
-    listing = templates['index-listing'](data);
+    listing = templates['index-listing'](req.response);
     target.html(listing);
   });
 

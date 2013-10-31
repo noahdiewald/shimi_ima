@@ -64,7 +64,11 @@ var complete = function (req, callback)
   {
     var msg;
 
-    if (req.response)
+    if (req.response && typeof req.response === 'string')
+    {
+      msg = makeMessage(JSON.stringify(req.response));
+    }
+    else if (req.response && req.response instanceof Object)
     {
       msg = makeMessage(req.response);
     }
@@ -173,8 +177,25 @@ var put = function (url, obj, callback)
   return send(url, false, 'PUT', callback);
 };
 
+// Perform an Ajax GET action, expecting HTML, which is the old way.
+var legacyHTMLGet = function (url, callback)
+{
+  'use strict';
+
+  var req = new XMLHttpRequest();
+
+  req.open('GET', url);
+
+  req.onreadystatechange = stateChange(req, callback);
+
+  req.send();
+
+  return true;
+};
+
 exports.send = send;
 exports.post = post;
 exports.put = put;
 exports.del = del;
 exports.get = get;
+exports.legacyHTMLGet = legacyHTMLGet;

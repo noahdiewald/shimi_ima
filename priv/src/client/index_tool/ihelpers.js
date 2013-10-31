@@ -7,6 +7,7 @@
 // Variable Definitions
 
 var s = require('../sess.js');
+var ajax = require('../ajax.js');
 
 // Internal functions
 
@@ -149,9 +150,10 @@ var fOpts = function (url, selectElement, callback)
 {
   'use strict';
 
-  $.get(url, function (options)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    selectElement.html(options);
+    selectElement.html(req.response);
+
     if (callback)
     {
       callback();

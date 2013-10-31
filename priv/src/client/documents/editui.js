@@ -9,6 +9,7 @@
 var store = require('../store.js').store;
 var form = require('../form.js');
 var flash = require('../flash.js');
+var ajax = require('../ajax.js');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
@@ -111,8 +112,9 @@ var init = function ()
 
   var url = 'documents/edit';
 
-  $.get(url, function (documentEditHtml)
+  ajax.legacyHTMLGet(url, function (req)
   {
+    var documentEditHtml = req.response;
 
     $('#document-edit').html(documentEditHtml);
     $('#edit-tabs').tabs();

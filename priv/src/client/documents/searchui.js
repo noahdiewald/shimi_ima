@@ -11,6 +11,7 @@ var utils = require('../utils.js');
 var sets = require('../sets.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
+var ajax = require('../ajax.js');
 var multipleFields;
 var loadSearchVals;
 
@@ -365,9 +366,10 @@ var getSearch = function ()
 
   searchListing().hide();
 
-  $.get(url, function (searchResults)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    searchListing().html(searchResults);
+    searchListing().html(req.response);
+
     $('.search-result-field-id').each(function (index, item)
     {
       var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
@@ -375,6 +377,7 @@ var getSearch = function ()
       target.html(label);
       target.attr('data-search-label', label);
     });
+
     if (!invert)
     {
       $('.search-results th').each(function (index, item)
@@ -385,7 +388,9 @@ var getSearch = function ()
         $(item).children('a').html(newText);
       });
     }
+
     searchListing().show();
+
   });
 
   return true;

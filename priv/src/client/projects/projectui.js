@@ -7,6 +7,7 @@
 // Variable Definitions
 
 var form = require('../form.js');
+var ajax = require('../ajax.js');
 var init;
 
 // Internal functions
@@ -18,24 +19,7 @@ var deleteProject = function (id)
 
   if (window.confirm('Are you sure? This is permanent.'))
   {
-    $.ajax(
-    {
-      type: 'DELETE',
-      url: '/projects/' + id,
-      dataType: 'json',
-      contentType: 'application/json',
-      complete: function (req, status)
-      {
-        if (req.status === 204)
-        {
-          init();
-        }
-        else
-        {
-          window.alert('An error occurred' + req.status);
-        }
-      }
-    });
+    ajax.del('/projects/' + id, init);
   }
 };
 
@@ -66,30 +50,13 @@ var add = function ()
 
         if (checkResult)
         {
-          $.ajax(
-          {
-            type: 'POST',
-            url: 'projects/index',
-            dataType: 'json',
-            contentType: 'application/json',
-            processData: false,
-            data: JSON.stringify(
-            {
-              name: projectName.val(),
-              description: projectDescription.val()
-            }),
-            complete: function (req, status)
-            {
-              if (req.status === 201)
-              {
-                init();
-              }
-              else
-              {
-                window.alert('An error occurred ' + req.status);
-              }
-            }
-          });
+          var data = {
+            name: projectName.val(),
+            description: projectDescription.val()
+          };
+
+          ajax.post('projects/index', data, init);
+
           $(this).dialog('close');
         }
       },
@@ -125,10 +92,10 @@ init = function ()
 
   var url = '/projects/index';
 
-  $.get(url, function (projects)
+  ajax.legacyHTMLGet(url, function (req)
   {
     $('tbody').empty();
-    $('tbody').html(projects);
+    $('tbody').html(req.response);
   });
 };
 

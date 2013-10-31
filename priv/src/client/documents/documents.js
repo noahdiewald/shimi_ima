@@ -13,6 +13,7 @@ var indexui = require('./indexui.js');
 var changeui = require('./changeui.js');
 var S = require('../sender.js');
 var store = require('../store.js').store;
+var ajax = require('../ajax.js');
 var identifier;
 
 // ## Internal functions
@@ -25,6 +26,7 @@ var indexForm = function ()
 {
   'use strict';
 
+  // TODO Remove JQuery
   $('#index-filter-form select').change(function ()
   {
     indexui.get();
@@ -211,9 +213,9 @@ var loadDoctype = function ()
 {
   'use strict';
 
-  $.getJSON('./', function (data)
+  ajax.get('./', function (req)
   {
-    storeDoctype(JSON.stringify(data));
+    storeDoctype(JSON.stringify(req.response));
   });
 
   return true;
@@ -246,6 +248,7 @@ var init = function ()
 {
   'use strict';
 
+  // TODO Remove JQuery
   $('form').on('submit', function ()
   {
     return false;
@@ -256,6 +259,7 @@ var init = function ()
   indexui.get();
   indexForm();
   editui.init();
+  // TODO remove JQuery
   loadHash($(location)[0].hash.split('#')[1]);
   changeui.get();
 };

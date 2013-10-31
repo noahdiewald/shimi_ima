@@ -10,6 +10,7 @@ var path = require('../path.js').path;
 var store = require('../store.js').store;
 var utils = require('../utils.js');
 var editui = require('./editui.js');
+var ajax = require('../ajax.js');
 var dateOrNumber;
 var getEncoded;
 var getFieldValue;
@@ -55,7 +56,7 @@ var ifStoredElse = function (key, success, otherwise)
   }
   else
   {
-    $.get(key, otherwise);
+    ajax.legacyHTMLGet(key, otherwise);
   }
 };
 
@@ -239,8 +240,11 @@ var initFields = function (container, callback, addInstances)
 
     editui.afterFreshRefresh(addInstances);
   };
-  var storeIt = function (data)
+
+  var storeIt = function (req)
   {
+    var data = req.response;
+
     sessionStorage.setItem(url, data);
     prependIt(data);
   };
@@ -364,8 +368,10 @@ initFieldset = function (fieldset, callback, addInstances)
     container.append(data);
     initFields(container, callback, addInstances);
   };
-  var storeIt = function (data)
+  var storeIt = function (req)
   {
+    var data = req.response;
+
     sessionStorage.setItem(url, data);
     appendIt(data);
   };

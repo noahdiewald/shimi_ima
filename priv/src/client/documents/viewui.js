@@ -14,6 +14,7 @@ var indexui = require('./indexui.js');
 var flash = require('../flash.js');
 var editui = require('./editui.js');
 var fieldsets = require('./fieldsets.js');
+var ajax = require('../ajax.js');
 
 // Internal functions
 
@@ -201,9 +202,10 @@ var get = function (id, rev, callback)
 
   }
 
-  $.getJSON(url, function (docJson)
+  ajax.get(url, function (req)
   {
     var documentHtml;
+    var docJson = req.response;
 
     processIncoming(docJson, rev);
     documentHtml = tmpl(docJson);

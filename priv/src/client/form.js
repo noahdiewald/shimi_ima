@@ -7,6 +7,7 @@
 
 // ## Variable Definitions
 
+var ajax = require('./ajax.js');
 var clear;
 
 // ## Internal Functions
@@ -132,9 +133,9 @@ var fillOptionsFromUrl = function (url, selectElement, callback)
 {
   'use strict';
 
-  $.get(url, function (options)
+  ajax.legacyHTMLGet(url, function (req)
   {
-    selectElement.html(options);
+    selectElement.html(req.response);
     if (callback)
     {
       callback();

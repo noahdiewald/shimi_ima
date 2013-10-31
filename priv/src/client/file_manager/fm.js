@@ -26,9 +26,9 @@ var getDirListing = function (path)
     path = '';
   }
 
-  $.get('file_manager/list_dirs/' + path, function (data)
+  ajax.legacyHTMLGet('file_manager/list_dirs/' + path, function (req)
   {
-    $('#file-paths').html(data);
+    $('#file-paths').html(req.response);
   });
 };
 
@@ -42,9 +42,9 @@ var getFileListing = function (path)
     path = '';
   }
 
-  $.get('file_manager/list_files/' + path, function (data)
+  ajax.legacyHTMLGet('file_manager/list_files/' + path, function (req)
   {
-    $('#file-listing').html(data);
+    $('#file-listing').html(req.response);
   });
 };
 
@@ -180,9 +180,9 @@ var editFile = function (target)
   var fileId = target.attr('data-file-id');
   var url = 'file_manager/' + fileId;
 
-  $.getJSON(url, function (obj)
+  ajax.get(url, function (req)
   {
-    pathEditDialog(obj, path).dialog('open');
+    pathEditDialog(req.response, path).dialog('open');
   });
 
   return true;
