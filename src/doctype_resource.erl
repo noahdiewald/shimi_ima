@@ -50,7 +50,7 @@ allowed_methods(R, S) ->
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
         index -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S};
-        identifier -> {[{{<<"*">>, <<"*">>, []}, to_json}], R, S}
+        identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
 
 to_html(R, S) ->

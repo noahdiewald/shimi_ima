@@ -7,6 +7,7 @@
 // ## Variable Definitions
 
 var formalize = require('../formalize.js');
+var ajax = require('../ajax.js');
 
 // ## Internal Functions
 
@@ -18,12 +19,31 @@ var editForm = function ()
   return document.getElementById('edit-form');
 };
 
+var fillForm = function (json)
+{
+  'use strict';
+
+  var formHTML = formalize.toForm(json);
+  var form = editForm();
+
+  form.innerHTML = formHTML;
+
+  return 'form-filled';
+};
+
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
-var get = function (args)
+var get = function (url)
 {
   'use strict';
+
+  var complete = function (req)
+  {
+    return fillForm(JSON.stringify(req.response));
+  };
+
+  ajax.get(url, complete);
 
   return 'object-loaded';
 };
@@ -33,10 +53,7 @@ var fresh = function ()
 {
   'use strict';
 
-  var formHTML = formalize.toForm('{}');
-  var form = editForm();
-
-  form.innerHTML = formHTML;
+  fillForm('{}');
 
   return 'empty-object-loaded';
 };
