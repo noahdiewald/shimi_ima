@@ -92,7 +92,7 @@ var stateChange = function (req, callback)
   {
     switch (req.readyState)
     {
-    case 2:
+    case 1:
       return ajaxStart();
     case 4:
       ajaxStop();
@@ -133,12 +133,11 @@ var send = function (url, obj, method, callback)
   var dataObj = processObject(obj);
   var req = new XMLHttpRequest();
 
+  req.onreadystatechange = stateChange(req, callback);
   req.open(method, url);
-
   req.responseType = 'json';
   req.setRequestHeader('Content-Type', 'application/json');
   req.setRequestHeader('Accept', 'application/json');
-  req.onreadystatechange = stateChange(req, callback);
 
   req.send(dataObj);
 
@@ -166,7 +165,7 @@ var post = function (url, obj, callback)
 {
   'use strict';
 
-  return send(url, false, 'POST', callback);
+  return send(url, obj, 'POST', callback);
 };
 
 // Simplified `send` for PUT requests.
@@ -174,7 +173,7 @@ var put = function (url, obj, callback)
 {
   'use strict';
 
-  return send(url, false, 'PUT', callback);
+  return send(url, obj, 'PUT', callback);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
