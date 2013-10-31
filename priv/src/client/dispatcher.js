@@ -1,6 +1,6 @@
 // # Dispatcher for clicks and double clicks
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // See [`click-dispatch.js`](./click-dispatch.html) and
 // [`dblclick-dispatch.js`](./dblclick-dispatch.html).
@@ -14,11 +14,11 @@ var dispatcher = function (patterns)
 
   var d = function (e)
   {
-    var target = $(e.target);
+    var target = e.target;
 
     Object.keys(patterns).forEach(function (pattern)
     {
-      if (target.is(pattern))
+      if (target.matches(pattern))
       {
         var action = patterns[pattern];
         action(target);

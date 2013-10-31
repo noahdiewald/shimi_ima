@@ -10875,6 +10875,21 @@ Array.prototype.trimAll = function ()
   });
 };
 
+// ### Functions added to Element
+
+if (Element.prototype.mozMatchesSelector)
+{
+  Element.prototype.matches = Element.prototype.mozMatchesSelector;
+}
+else if (Element.prototype.webkitMatchesSelector)
+{
+  Element.prototype.matches = Element.prototype.webkitMatchesSelector;
+}
+else
+{
+  throw 'This browser is not supported at this time. An implementation of Element.matches is needed https://developer.mozilla.org/en-US/docs/Web/API/Element.matches';
+}
+
 // ## On Load
 
 // Using the JQuery function for running code after the page loads.
@@ -11546,7 +11561,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../form.js":69,"../store.js":92,"./charseq-dialog.js":40,"./charseq-elems.js":41}],43:[function(require,module,exports){
+},{"../form.js":69,"../store.js":91,"./charseq-dialog.js":40,"./charseq-elems.js":41}],43:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12078,7 +12093,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":85,"../store.js":92,"./doctype-dialog.js":45,"./doctype-elems.js":46,"./field-dialog.js":50,"./field-elems.js":51,"./fieldset-dialog.js":52,"./fieldset-elems.js":53}],48:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"./doctype-dialog.js":45,"./doctype-elems.js":46,"./field-dialog.js":50,"./field-elems.js":51,"./fieldset-dialog.js":52,"./fieldset-elems.js":53}],48:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -13231,7 +13246,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../sender.js":88,"../store.js":92,"./changeui.js":57,"./editui.js":60,"./indexui.js":62,"./setsui.js":64,"./viewui.js":65}],60:[function(require,module,exports){
+},{"../sender.js":88,"../store.js":91,"./changeui.js":57,"./editui.js":60,"./indexui.js":62,"./setsui.js":64,"./viewui.js":65}],60:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -13628,7 +13643,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../flash.js":68,"../form.js":69,"../store.js":92,"./fieldsets.js":61,"./indexui.js":62,"./viewui.js":65}],61:[function(require,module,exports){
+},{"../flash.js":68,"../form.js":69,"../store.js":91,"./fieldsets.js":61,"./indexui.js":62,"./viewui.js":65}],61:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14111,7 +14126,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":85,"../store.js":92,"../utils.js":93,"./editui.js":60}],62:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"../utils.js":93,"./editui.js":60}],62:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14826,7 +14841,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../sets.js":91,"../utils.js":93,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../sets.js":90,"../utils.js":93,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15282,7 +15297,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":68,"../sender.js":88,"../sets.js":91,"../utils.js":93,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../flash.js":68,"../sender.js":88,"../sets.js":90,"../utils.js":93,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15733,7 +15748,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../flash.js":68,"../store.js":92,"./editui.js":60,"./fieldsets.js":61,"./indexui.js":62,"templates.js":"3ddScq"}],66:[function(require,module,exports){
+},{"../flash.js":68,"../store.js":91,"./editui.js":60,"./fieldsets.js":61,"./indexui.js":62,"templates.js":"3ddScq"}],66:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -19388,7 +19403,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./form.js":69,"./store.js":92}],86:[function(require,module,exports){
+},{"./form.js":69,"./store.js":91}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19694,9 +19709,7 @@ var get = function (docId)
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],91:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19808,7 +19821,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],92:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19963,7 +19976,9 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":87,"./utils.js":93}],93:[function(require,module,exports){
+},{"./recurse.js":87,"./utils.js":93}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],93:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20224,5 +20239,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":13}]},{},[37,38,40,41,39,42,43,46,44,47,48,45,49,50,51,52,53,54,55,57,56,58,59,60,62,63,61,64,65,66,67,68,72,70,69,71,73,74,76,75,77,78,80,79,81,82,83,84,85,86,88,87,89,91,92,93])
+},{"hogan.js":13}]},{},[37,38,40,39,41,42,43,44,46,45,48,47,49,50,51,52,53,54,55,57,56,58,59,61,60,62,63,64,66,65,67,68,69,70,71,72,73,74,75,76,78,77,79,80,81,82,83,84,86,85,87,88,89,90,91,93])
 ;

@@ -61,6 +61,21 @@ Array.prototype.trimAll = function ()
   });
 };
 
+// ### Functions added to Element
+
+if (Element.prototype.mozMatchesSelector)
+{
+  Element.prototype.matches = Element.prototype.mozMatchesSelector;
+}
+else if (Element.prototype.webkitMatchesSelector)
+{
+  Element.prototype.matches = Element.prototype.webkitMatchesSelector;
+}
+else
+{
+  throw 'This browser is not supported at this time. An implementation of Element.matches is needed https://developer.mozilla.org/en-US/docs/Web/API/Element.matches';
+}
+
 // ## On Load
 
 // Using the JQuery function for running code after the page loads.
