@@ -84,16 +84,10 @@ $(function ()
   'use strict';
 
   // All clicks handled centraly
-  $('body').click(function (e)
-  {
-    clickDispatch(e);
-  });
+  document.body.onclick = clickDispatch;
 
   // All double clicks handled centraly
-  $('body').dblclick(function (e)
-  {
-    dblclickDispatch(e);
-  });
+  document.body.ondblclick = dblclickDispatch;
 
   // Other event handling
   keystrokes();
