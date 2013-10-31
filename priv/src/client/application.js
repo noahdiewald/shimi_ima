@@ -87,10 +87,10 @@ else
   throw 'This browser is not supported at this time. An implementation of Element.matches is needed https://developer.mozilla.org/en-US/docs/Web/API/Element.matches';
 }
 
-// ## On Load
+// ## Initialization
 
-// Using the JQuery function for running code after the page loads.
-$(function ()
+// Using the function for running code after the page loads.
+var init = function ()
 {
   'use strict';
 
@@ -150,4 +150,14 @@ $(function ()
   {
     projectui.init();
   }
-});
+};
+
+document.onreadystatechange = function ()
+{
+  'use strict';
+
+  if (document.readyState === 'complete')
+  {
+    init();
+  }
+};
