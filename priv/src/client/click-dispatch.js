@@ -24,6 +24,7 @@ var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
 var maintenanceui = require('./config/maintenanceui.js');
+var ceditui = require('./config/editui.js');
 var doctypeTab = require('./config/doctype-tab.js');
 var charseqTab = require('./config/charseq-tab').charseqTab;
 
@@ -39,37 +40,9 @@ var clickDispatch = function (e)
   {
     // ### Config
 
-    '.edit-field-button': function (t)
+    '.edit-doctype-link': function (t)
     {
-      doctypeTab.editField(t);
-    },
-    '.delete-field-button': function (t)
-    {
-      doctypeTab.deleteField(t);
-    },
-    '.add-field-button': function (t)
-    {
-      doctypeTab.addField(t);
-    },
-    '.edit-fieldset-button': function (t)
-    {
-      doctypeTab.editFieldset(t);
-    },
-    '.delete-fieldset-button': function (t)
-    {
-      doctypeTab.deleteFieldset(t);
-    },
-    '.add-fieldset-button': function (t)
-    {
-      doctypeTab.addFieldset(t);
-    },
-    '.delete-doctype-button': function (t)
-    {
-      doctypeTab.deleteDoctype(t);
-    },
-    '.edit-doctype-button': function (t)
-    {
-      doctypeTab.editDoctype(t);
+      return ceditui.get('doctypes/' + t.getAttribute('href').slice(1));
     },
     '.touch-doctype-button': function (t)
     {
@@ -83,17 +56,13 @@ var clickDispatch = function (e)
     {
       charseqTab.del(t);
     },
-    '.edit-charseq-button': function (t)
-    {
-      charseqTab.edit(t);
-    },
     '#charseq-add-button': function (t)
     {
       charseqTab.add();
     },
     '#maintenance-upgrade-button': function (t)
     {
-      maintenanceui.upgradeButton(t);
+      return maintenanceui.upgradeButton(t);
     },
 
     // ### Documents
