@@ -12,17 +12,6 @@ var r = require('./recurse.js');
 
 // ## Internal functions
 
-// Camel case a string
-var cc = function (str)
-{
-  'use strict';
-
-  return str.replace(/-./, function (substr)
-  {
-    return substr.toUpperCase()[1];
-  });
-};
-
 // ## External functions
 
 // Takes a JQuery element and returns an object with helper methods for
@@ -86,7 +75,7 @@ var store = function (elem)
   //
   mod.get = function (key)
   {
-    var keycc = cc(key);
+    var keycc = key.cc();
     var prelim = elem.dataset[keycc];
 
     if (prelim)
@@ -124,7 +113,7 @@ var store = function (elem)
   //  corresponding to key and a value of value.
   mod.put = function (key, value)
   {
-    var keycc = cc(key);
+    var keycc = key.cc();
     var dataElem = elem.dataset.groupId;
     document.getElementById(dataElem).dataset[keycc] = value;
   };

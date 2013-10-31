@@ -45,6 +45,17 @@ String.prototype.trim = function ()
   return this.replace(/^\s+/, '').replace(/\s+$/, '');
 };
 
+// Camel case string
+String.prototype.cc = function ()
+{
+  'use strict';
+
+  return this.replace(/-./, function (substr)
+  {
+    return substr.toUpperCase()[1];
+  });
+};
+
 // ### Functions added to Array
 
 // Remove white space on all strings in array.
