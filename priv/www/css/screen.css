@@ -185,6 +185,7 @@ fieldset {
 }
 #notifications-main div {
   padding: 0.5em;
+  display: none;
 }
 ul.head-elements {
   padding: 0;
@@ -408,6 +409,7 @@ nav ul li,
   margin-left: -50px;
   left: 50%;
   top: 40%;
+  display: none;
 }
 #tabs-container {
   width: 100%;
