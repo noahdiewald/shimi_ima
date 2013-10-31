@@ -19,7 +19,8 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc Helpers for resources.
+%%% @doc Helpers for resources. Generally a generic place to handle
+%%% CRUD.
 
 -module(h).
 -author('Noah Diewald <noah@diewald.me>').
