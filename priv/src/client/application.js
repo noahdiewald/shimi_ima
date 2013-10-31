@@ -93,21 +93,13 @@ $(function ()
   keystrokes();
   changes();
 
-  // Hide notification boxes.
-  // TODO: move to stylesheets
-  $('.notification').hide();
-
-  // Hide ajax loading indicator.
-  // TODO: move to stylesheets
-  $('#loading').hide();
-
   // Show and hide the AJAX loading indicator.
   $(document).ajaxStart(function ()
   {
-    $('#loading').show();
+    document.getElementById('loading').style.display = 'block';
   }).ajaxStop(function ()
   {
-    $('#loading').hide();
+    document.getElementById('loading').style.display = 'none';
   });
 
   // Initialize any data fields, which use JQueryUI.
