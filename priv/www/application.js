@@ -10819,7 +10819,7 @@ var stateChange = function (req, callback)
   {
     switch (req.readyState)
     {
-    case 2:
+    case 1:
       return ajaxStart();
     case 4:
       ajaxStop();
@@ -10860,12 +10860,11 @@ var send = function (url, obj, method, callback)
   var dataObj = processObject(obj);
   var req = new XMLHttpRequest();
 
+  req.onreadystatechange = stateChange(req, callback);
   req.open(method, url);
-
   req.responseType = 'json';
   req.setRequestHeader('Content-Type', 'application/json');
   req.setRequestHeader('Accept', 'application/json');
-  req.onreadystatechange = stateChange(req, callback);
 
   req.send(dataObj);
 
@@ -10893,7 +10892,7 @@ var post = function (url, obj, callback)
 {
   'use strict';
 
-  return send(url, false, 'POST', callback);
+  return send(url, obj, 'POST', callback);
 };
 
 // Simplified `send` for PUT requests.
@@ -10901,7 +10900,7 @@ var put = function (url, obj, callback)
 {
   'use strict';
 
-  return send(url, false, 'PUT', callback);
+  return send(url, obj, 'PUT', callback);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
@@ -11032,15 +11031,6 @@ var init = function ()
   // Other event handling
   keystrokes();
   changes();
-
-  // Show and hide the AJAX loading indicator.
-  //$(document).ajaxStart(function ()
-  //{
-  //  document.getElementById('loading').style.display = 'block';
-  //}).ajaxStop(function ()
-  //{
-  //  document.getElementById('loading').style.display = 'none';
-  //});
 
   // Initialize any data fields, which use JQueryUI.
   form.initDateFields();
@@ -11405,7 +11395,7 @@ var clickDispatch = function (e)
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":42,"./config/doctype-tab.js":47,"./config/editui.js":49,"./config/maintenanceui.js":54,"./dispatcher.js":56,"./documents/editui.js":60,"./documents/fieldsets.js":61,"./documents/indexui.js":62,"./documents/searchui.js":63,"./documents/setsui.js":64,"./documents/viewui.js":65,"./documents/worksheetui.js":66,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ieditui.js":73,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":89}],40:[function(require,module,exports){
+},{"./config/charseq-tab":42,"./config/doctype-tab.js":47,"./config/editui.js":49,"./config/maintenanceui.js":54,"./dispatcher.js":56,"./documents/editui.js":60,"./documents/fieldsets.js":61,"./documents/indexui.js":62,"./documents/searchui.js":63,"./documents/setsui.js":64,"./documents/viewui.js":65,"./documents/worksheetui.js":66,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ieditui.js":73,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":88}],40:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11651,7 +11641,7 @@ var charseqTab = (function ()
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":36,"../store.js":92,"./charseq-dialog.js":40,"./charseq-elems.js":41}],43:[function(require,module,exports){
+},{"../ajax.js":36,"../store.js":91,"./charseq-dialog.js":40,"./charseq-elems.js":41}],43:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12155,7 +12145,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":85,"../store.js":92,"./doctype-dialog.js":45,"./doctype-elems.js":46,"./field-dialog.js":50,"./field-elems.js":51,"./fieldset-dialog.js":52,"./fieldset-elems.js":53}],48:[function(require,module,exports){
+},{"../path.js":85,"../store.js":91,"./doctype-dialog.js":45,"./doctype-elems.js":46,"./field-dialog.js":50,"./field-elems.js":51,"./fieldset-dialog.js":52,"./fieldset-elems.js":53}],48:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12570,7 +12560,7 @@ var fieldElems = (function ()
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":69,"../utils.js":93}],52:[function(require,module,exports){
+},{"../form.js":69,"../utils.js":92}],52:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13053,7 +13043,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":89,"./editui.js":60}],59:[function(require,module,exports){
+},{"../sender.js":88,"./editui.js":60}],59:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -13328,7 +13318,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":36,"../sender.js":89,"../store.js":92,"./changeui.js":57,"./editui.js":60,"./indexui.js":62,"./setsui.js":64,"./viewui.js":65}],60:[function(require,module,exports){
+},{"../ajax.js":36,"../sender.js":88,"../store.js":91,"./changeui.js":57,"./editui.js":60,"./indexui.js":62,"./setsui.js":64,"./viewui.js":65}],60:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -13727,7 +13717,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":36,"../flash.js":68,"../form.js":69,"../store.js":92,"./fieldsets.js":61,"./indexui.js":62,"./viewui.js":65}],61:[function(require,module,exports){
+},{"../ajax.js":36,"../flash.js":68,"../form.js":69,"../store.js":91,"./fieldsets.js":61,"./indexui.js":62,"./viewui.js":65}],61:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14216,7 +14206,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":36,"../path.js":85,"../store.js":92,"../utils.js":93,"./editui.js":60}],62:[function(require,module,exports){
+},{"../ajax.js":36,"../path.js":85,"../store.js":91,"../utils.js":92,"./editui.js":60}],62:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14937,7 +14927,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":36,"../sets.js":91,"../utils.js":93,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../ajax.js":36,"../sets.js":90,"../utils.js":92,"./documents.js":59,"./setsui.js":64,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15393,7 +15383,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":68,"../sender.js":89,"../sets.js":91,"../utils.js":93,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../flash.js":68,"../sender.js":88,"../sets.js":90,"../utils.js":92,"./documents.js":59,"templates.js":"3ddScq"}],65:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15846,7 +15836,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":36,"../flash.js":68,"../store.js":92,"./editui.js":60,"./fieldsets.js":61,"./indexui.js":62,"templates.js":"3ddScq"}],66:[function(require,module,exports){
+},{"../ajax.js":36,"../flash.js":68,"../store.js":91,"./editui.js":60,"./fieldsets.js":61,"./indexui.js":62,"templates.js":"3ddScq"}],66:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -18283,7 +18273,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":36,"../sess.js":90}],76:[function(require,module,exports){
+},{"../ajax.js":36,"../sess.js":89}],76:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18999,7 +18989,7 @@ var keystrokes = function ()
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":43,"./config/doctypeui.js":48,"./documents/changeui.js":57,"./documents/editui.js":60,"./documents/indexui.js":62,"./documents/searchui.js":63,"./documents/viewui.js":65,"./index_tool/ipreviewui.js":77,"./jquery.hotkeys.js":81,"./sender.js":89}],83:[function(require,module,exports){
+},{"./config/charsequi.js":43,"./config/doctypeui.js":48,"./documents/changeui.js":57,"./documents/editui.js":60,"./documents/indexui.js":62,"./documents/searchui.js":63,"./documents/viewui.js":65,"./index_tool/ipreviewui.js":77,"./jquery.hotkeys.js":81,"./sender.js":88}],83:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19467,7 +19457,7 @@ var path = function (source, category, section)
 
 exports.path = path;
 
-},{"./ajax.js":36,"./store.js":92}],86:[function(require,module,exports){
+},{"./ajax.js":36,"./store.js":91}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19478,6 +19468,7 @@ exports.path = path;
 
 var form = require('../form.js');
 var ajax = require('../ajax.js');
+var templates = require('templates.js');
 var init;
 
 // Internal functions
@@ -19549,7 +19540,8 @@ var del = function (target)
 {
   'use strict';
 
-  var id = $(target).attr('id');
+  var id = target.getAttribute('id');
+
   deleteProject(id);
 
   return true;
@@ -19562,10 +19554,11 @@ init = function ()
 
   var url = '/projects/index';
 
-  ajax.legacyHTMLGet(url, function (req)
+  ajax.get(url, function (req)
   {
-    $('tbody').empty();
-    $('tbody').html(req.response);
+    var rendering = templates['project-listing'](req.response);
+
+    document.getElementsByTagName('tbody')[0].innerHTML = rendering;
   });
 };
 
@@ -19573,7 +19566,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":36,"../form.js":69}],87:[function(require,module,exports){
+},{"../ajax.js":36,"../form.js":69,"templates.js":"3ddScq"}],87:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -19620,9 +19613,7 @@ var identity = function (x)
 
 exports.identity = identity;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],89:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19697,7 +19688,7 @@ var sender = function (message, arg)
 
 exports.sender = sender;
 
-},{"./documents/commands.js":58,"./documents/documents.js":59,"./documents/editui.js":60,"./documents/searchui.js":63,"./documents/setsui.js":64,"./documents/worksheetui.js":66}],90:[function(require,module,exports){
+},{"./documents/commands.js":58,"./documents/documents.js":59,"./documents/editui.js":60,"./documents/searchui.js":63,"./documents/setsui.js":64,"./documents/worksheetui.js":66}],89:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19742,7 +19733,7 @@ var get = function (docId)
 exports.put = put;
 exports.get = get;
 
-},{}],91:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19854,7 +19845,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],92:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19998,7 +19989,7 @@ var store = function (elem)
 
 exports.store = store;
 
-},{"./recurse.js":87,"./utils.js":93}],93:[function(require,module,exports){
+},{"./recurse.js":87,"./utils.js":92}],92:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20221,6 +20212,8 @@ var t = {
   'index-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,27,74,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
   'paged-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<nav class=\"pager\">");_.b("\n" + i);_.b("<a");_.b("\n" + i);_.b("  href=\"#\" ");_.b("\n" + i);_.b("  title=\"Previous Page\"");_.b("\n" + i);_.b("  id=\"previous-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-page\"");_.b("\n" + i);_.b("  class=\"pager-button link-button\"");_.b("\n" + i);_.b(">Prev</a> ");_.b("\n" + i);_.b("<a");_.b("\n" + i);_.b("  href=\"#\"");_.b("\n" + i);_.b("  title=\"Next Page\"");_.b("\n" + i);_.b("  class=\"pager-button link-button\"");_.b("\n" + i);_.b("  id=\"next-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-page\"");_.b("\n" + i);if(_.s(_.f("lastpage",c,p,1),c,p,0,322,351,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    data-last-page=\"true\"");_.b("\n");});c.pop();}if(_.s(_.f("lastrow",c,p,1),c,p,0,379,448,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    data-startkey=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-startid=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b(">Next</a>");_.b("\n" + i);_.b("</nav>");_.b("\n" + i);_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: ");_.b(_.v(_.f("total_rows",c,p,0)));_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,567,595,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("listed-element",c,p,"    "));});c.pop();}_.b("</table>");_.b("\n");return _.fl();;}),
   'preview-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <ul class=\"head-elements\">");_.b("\n" + i);if(_.s(_.f("display_key",c,p,1),c,p,0,247,279,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b(_.v(_.d(".",c,p,0)));_.b("</li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <ul class=\"reversal-elements\">");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("value",c,p,0)));_.b("\n" + i);_.b("    </ul>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
+  'project-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr>");_.b("\n" + i);_.b("  <td><a href=\"/projects/");_.b(_.v(_.f("id",c,p,0)));_.b("/doctypes\">");if(_.s(_.f("doc",c,p,1),c,p,0,57,67,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("name",c,p,0)));});c.pop();}_.b("</a></td>");_.b("\n" + i);_.b("  <td>");if(_.s(_.f("doc",c,p,1),c,p,0,99,116,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("description",c,p,0)));});c.pop();}_.b("</td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <a href=\"/projects/");_.b(_.v(_.f("id",c,p,0)));_.b("/config\" ");_.b("\n" + i);_.b("       class=\"project-configure-button link-button\">Configure</a>");_.b("\n" + i);_.b("    <a href=\"#\" ");_.b("\n" + i);_.b("       class=\"project-delete-button link-button\" ");_.b("\n" + i);_.b("       id=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">Delete</button>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
+  'project-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("rows",c,p,1),c,p,0,9,34,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("project-element",c,p,"  "));});c.pop();}return _.fl();;}),
   'search-field-item' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<a class='search-field-item' ");_.b("\n" + i);_.b("  title='click to remove' ");_.b("\n" + i);_.b("  data-field-field='");_.b(_.v(_.f("field",c,p,0)));_.b("' ");_.b("\n" + i);_.b("  href='#'>");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("</a>");_.b("\n");return _.fl();;}),
   'set-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: <span id=\"total-set-rows\">");_.b(_.v(_.f("total",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<div id=\"save-set-results\">");_.b("\n" + i);_.b("  <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table id=\"set-elements\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" id=\"select-all-set-elements\" title=\"Click to select or deselect all elements\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <th>");_.b("\n" + i);_.b("        Elements");_.b("\n" + i);_.b("      </th>");_.b("\n" + i);_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("elements",c,p,1),c,p,0,435,674,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" class=\"set-element-selection\" title=\"Click to select element\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <a class=\"view-document-link\" href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.f("context",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;}),
   'set-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("names",c,p,1),c,p,0,28,66,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.d(".",c,p,0)));_.b("\">");_.b(_.v(_.d(".",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
@@ -20250,6 +20243,8 @@ module.exports = {
   'index-options' : r('index-options'),
   'paged-listing' : r('paged-listing'),
   'preview-element' : r('preview-element'),
+  'project-element' : r('project-element'),
+  'project-listing' : r('project-listing'),
   'search-field-item' : r('search-field-item'),
   'set-listing' : r('set-listing'),
   'set-options' : r('set-options'),
@@ -20259,5 +20254,7 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":12}]},{},[36,37,38,39,40,41,42,43,44,46,47,49,48,50,51,52,53,54,45,56,55,58,59,57,60,61,62,63,64,65,66,67,68,69,70,71,73,72,74,75,76,77,78,79,80,81,82,83,84,85,86,87,89,90,91,92,93])
+},{"hogan.js":12}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}]},{},[36,37,41,38,39,40,42,43,44,45,46,47,48,49,50,52,51,53,54,55,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,72,73,74,75,76,77,78,79,80,81,82,71,83,84,85,86,87,88,89,90,91,92])
 ;

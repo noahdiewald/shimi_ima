@@ -36,7 +36,7 @@
 all() ->
     Json = couch:get_dbs(),
     Rows = jsn:get_value(<<"rows">>, Json),
-    jsn:put_value(<<"rows">>, extract_process(Rows, [])).
+    jsn:set_value(<<"rows">>, extract_process(Rows, []), Json).
     
 %% @doc Create a project
 -spec create(string(), h:req_state()) -> ok.
@@ -65,5 +65,6 @@ extract_process([H|T], Acc) ->
         <<"_design/shimi_ima">> -> 
             extract_process(T, Acc);
         Id ->
-            extract_process(T, [jsn:put_value(<<"id">>, << "project-", Id >>)|Acc])
+            H2 = jsn:set_value(<<"id">>, << "project-", Id/binary >>, H),
+            extract_process(T, [H2|Acc])
     end.

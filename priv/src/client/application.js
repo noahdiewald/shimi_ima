@@ -104,15 +104,6 @@ var init = function ()
   keystrokes();
   changes();
 
-  // Show and hide the AJAX loading indicator.
-  //$(document).ajaxStart(function ()
-  //{
-  //  document.getElementById('loading').style.display = 'block';
-  //}).ajaxStop(function ()
-  //{
-  //  document.getElementById('loading').style.display = 'none';
-  //});
-
   // Initialize any data fields, which use JQueryUI.
   form.initDateFields();
 

@@ -8,6 +8,7 @@
 
 var form = require('../form.js');
 var ajax = require('../ajax.js');
+var templates = require('templates.js');
 var init;
 
 // Internal functions
@@ -79,7 +80,8 @@ var del = function (target)
 {
   'use strict';
 
-  var id = $(target).attr('id');
+  var id = target.getAttribute('id');
+
   deleteProject(id);
 
   return true;
@@ -92,10 +94,11 @@ init = function ()
 
   var url = '/projects/index';
 
-  ajax.legacyHTMLGet(url, function (req)
+  ajax.get(url, function (req)
   {
-    $('tbody').empty();
-    $('tbody').html(req.response);
+    var rendering = templates['project-listing'](req.response);
+
+    document.getElementsByTagName('tbody')[0].innerHTML = rendering;
   });
 };
 
