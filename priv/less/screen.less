@@ -196,8 +196,10 @@ div#config-edit div#edit-form
             &:before {
                 content:'▾ ';
             }
-            &:before.collapsed {
-                content:'▸ ';
+            &.collapsed {
+                &:before {
+                    content:'▸ ';
+                }
             }
         }
     }

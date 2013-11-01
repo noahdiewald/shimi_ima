@@ -11,6 +11,17 @@ var ajax = require('../ajax.js');
 
 // ## Internal Functions
 
+// Toggle the visibility of a group.
+var toggle = function (node)
+{
+  'use strict';
+
+  node.classList.toggle('collapsed');
+  node.nextSibling.classList.toggle('hidden');
+
+  return 'toggled-subgroup';
+};
+
 // Get the editor form object.
 var editForm = function ()
 {
@@ -103,3 +114,4 @@ exports.update = update;
 exports.create = create;
 exports.remove = remove;
 exports.restore = restore;
+exports.toggle = toggle;

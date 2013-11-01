@@ -12,6 +12,7 @@
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var searchui = require('./documents/searchui.js');
+var ceditui = require('./config/editui.js');
 var worksheetui = require('./documents/worksheetui.js');
 
 // ## Exported Functions
@@ -24,6 +25,10 @@ var dblclickDispatch = function (e)
 
   var action = dispatcher(
   {
+    '#edit-form span': function (t)
+    {
+      ceditui.toggle(t);
+    },
     '.search-result-field-id a': function (t)
     {
       searchui.addField($(t).parent('h5'));

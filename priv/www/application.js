@@ -12211,6 +12211,17 @@ var ajax = require('../ajax.js');
 
 // ## Internal Functions
 
+// Toggle the visibility of a group.
+var toggle = function (node)
+{
+  'use strict';
+
+  node.classList.toggle('collapsed');
+  node.nextSibling.classList.toggle('hidden');
+
+  return 'toggled-subgroup';
+};
+
 // Get the editor form object.
 var editForm = function ()
 {
@@ -12303,7 +12314,7 @@ exports.update = update;
 exports.create = create;
 exports.remove = remove;
 exports.restore = restore;
-
+exports.toggle = toggle;
 },{"../ajax.js":36,"../formalize.js":70}],50:[function(require,module,exports){
 // # Field manipulation dialog
 //
@@ -12760,6 +12771,7 @@ exports.upgradeButton = upgradeButton;
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var searchui = require('./documents/searchui.js');
+var ceditui = require('./config/editui.js');
 var worksheetui = require('./documents/worksheetui.js');
 
 // ## Exported Functions
@@ -12772,6 +12784,10 @@ var dblclickDispatch = function (e)
 
   var action = dispatcher(
   {
+    '#edit-form span': function (t)
+    {
+      ceditui.toggle(t);
+    },
     '.search-result-field-id a': function (t)
     {
       searchui.addField($(t).parent('h5'));
@@ -12811,7 +12827,7 @@ var dblclickDispatch = function (e)
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./dispatcher.js":56,"./documents/searchui.js":63,"./documents/worksheetui.js":66,"./panel-toggle.js":84}],56:[function(require,module,exports){
+},{"./config/editui.js":49,"./dispatcher.js":56,"./documents/searchui.js":63,"./documents/worksheetui.js":66,"./panel-toggle.js":84}],56:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -20256,5 +20272,5 @@ module.exports = {
 };
 },{"hogan.js":12}],"templates.js":[function(require,module,exports){
 module.exports=require('3ddScq');
-},{}]},{},[36,39,40,41,37,42,38,43,44,45,46,48,47,50,49,51,52,54,53,56,57,58,59,55,60,61,62,63,64,65,66,69,71,68,70,67,72,73,74,76,77,75,78,79,80,81,82,83,84,85,86,87,88,90,89,91,92])
+},{}]},{},[36,37,38,39,40,41,43,44,45,42,46,47,48,50,51,53,52,49,55,54,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,71,72,73,74,75,76,77,78,80,79,82,81,83,84,86,85,89,87,88,90,91,92])
 ;

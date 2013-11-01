@@ -188,7 +188,7 @@ div#config-edit div#edit-form .list-elems span:after {
 div#config-edit div#edit-form .list-elems span:before {
   content: '▾ ';
 }
-div#config-edit div#edit-form .list-elems span:before.collapsed {
+div#config-edit div#edit-form .list-elems span.collapsed:before {
   content: '▸ ';
 }
 div#config-edit div#edit-form li .labels:after {
@@ -208,7 +208,7 @@ div#config-edit div#edit-form li span:after {
 div#config-edit div#edit-form li span:before {
   content: '▾ ';
 }
-div#config-edit div#edit-form li span:before.collapsed {
+div#config-edit div#edit-form li span.collapsed:before {
   content: '▸ ';
 }
 div#config-edit div#edit-form ul {
