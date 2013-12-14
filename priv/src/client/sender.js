@@ -19,14 +19,12 @@ var worksheetui = require('./documents/worksheetui.js');
 
 // This is called by functions when the actions they have performed
 // result in a paticular state.
-var sender = function (message, arg)
-{
+var sender = function (message, arg) {
   'use strict';
 
   var retval;
 
-  switch (message)
-  {
+  switch (message) {
   case 'bad-session-state':
     retval = documents.clearSession();
     break;

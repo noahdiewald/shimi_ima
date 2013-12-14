@@ -17,8 +17,7 @@ var evs = require('./ievents.js');
 // Exported functions
 
 // The dialog for adding a condition to an index.
-var initIndexBuilderDialog = function (indexDoctype)
-{
+var initIndexBuilderDialog = function (indexDoctype) {
   'use strict';
 
   var builderOr = $('#builder-or-input');
@@ -34,8 +33,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
   $('.ui-helper-reset div').show();
 
-  var appendCondition = function (builderRow)
-  {
+  var appendCondition = function (builderRow) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
@@ -43,138 +41,101 @@ var initIndexBuilderDialog = function (indexDoctype)
     return false;
   };
 
-  ihelpers.fOpts(fieldset_url, builderFieldset, function ()
-  {
+  ihelpers.fOpts(fieldset_url, builderFieldset, function () {
     builderFieldset.inputEnable();
   });
 
-  builderOr.change(function ()
-  {
-    if (builderOr.is(':checked'))
-    {
+  builderOr.change(function () {
+    if (builderOr.is(':checked')) {
       $('#builder-conditions').hide();
       $('#builder-parens').hide();
-    }
-    else
-    {
+    } else {
       $('#builder-conditions').show();
       $('#builder-parens').show();
     }
   });
 
-  builderParen.change(function ()
-  {
-    if (builderParen.val())
-    {
+  builderParen.change(function () {
+    if (builderParen.val()) {
       $('#builder-or').hide();
       $('#builder-conditions').hide();
-    }
-    else
-    {
+    } else {
       $('#builder-or').show();
       $('#builder-conditions').show();
     }
   });
 
-  var fieldsetEvents = function ()
-  {
-    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function ()
-    {
+  var fieldsetEvents = function () {
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function () {
       builderOperator.inputDisable();
       builderField.inputDisable();
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderField.inputEnable();
       };
     });
   };
 
-  var fieldEvents = function ()
-  {
-    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function ()
-    {
+  var fieldEvents = function () {
+    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function () {
       builderOperator.inputDisable();
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderOperator.inputEnable();
       };
     });
   };
 
-  var operatorEvents = function ()
-  {
-    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function ()
-    {
+  var operatorEvents = function () {
+    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function () {
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderArgument.inputEnable();
       };
     });
   };
 
-  var dialog = $('#index-builder-dialog').dialog(
-  {
+  var dialog = $('#index-builder-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Create': function ()
-      {
+    buttons: {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!builderOr.is(':checked') && !builderParen.val())
-        {
-          notBlank.forEach(function (item)
-          {
-            if (item.val().isBlank())
-            {
+        if (!builderOr.is(':checked') && !builderParen.val()) {
+          notBlank.forEach(function (item) {
+            if (item.val().isBlank()) {
               item.addClass('ui-state-error');
               checkResult = false;
-            }
-            else
-            {
+            } else {
               item.removeClass('ui-state-error');
             }
           });
         }
 
-        if (checkResult)
-        {
-          if (builderOr.is(':checked'))
-          {
-            $.get(condition_url,
-            {
+        if (checkResult) {
+          if (builderOr.is(':checked')) {
+            $.get(condition_url, {
               'is_or': true
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
-          }
-          else if (builderParen.val())
-          {
-            $.get(condition_url,
-            {
+          } else if (builderParen.val()) {
+            $.get(condition_url, {
               'is_or': false,
               'parens': builderParen.val(),
               'negate': false
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
-          }
-          else
-          {
-            $.get(condition_url,
-            {
+          } else {
+            $.get(condition_url, {
               'is_or': false,
               'parens': false,
               'negate': builderNegate.is(':checked'),
@@ -182,8 +143,7 @@ var initIndexBuilderDialog = function (indexDoctype)
               'field': builderField.val(),
               'operator': builderOperator.val(),
               'argument': builderArgument.val()
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
           }
@@ -191,13 +151,11 @@ var initIndexBuilderDialog = function (indexDoctype)
           $(this).dialog('close');
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       $('#builder-conditions').show();
       builderFieldset.unbind('change');
       builderField.unbind('change');

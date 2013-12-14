@@ -13,31 +13,26 @@ var form = require('../form.js');
 // Exported functions
 
 // Return object for working with charseq elements
-var charseqElems = (function ()
-{
+var charseqElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['description', 'characters', 'name', 'sort_ignore', 'locale', 'tailoring', 'vowels', 'consonants', 'ietf_tag', 'iso639_tag', 'charseq', 'rev'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var cObj = {};
 
     cObj.attrs = mod.attrs;
 
-    cObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    cObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         cObj[field].val(source[field]);
       });
       return cObj;
     };
 
-    cObj.getCharseqInputVals = function ()
-    {
+    cObj.getCharseqInputVals = function () {
       var valObj = {
         'category': 'charseq',
         'description': cObj.description.val(),
@@ -56,31 +51,24 @@ var charseqElems = (function ()
       return valObj;
     };
 
-    cObj.parse = function (val)
-    {
-      if (val && !val.isBlank())
-      {
+    cObj.parse = function (val) {
+      if (val && !val.isBlank()) {
         return JSON.parse(val);
-      }
-      else
-      {
+      } else {
         return [];
       }
     };
 
-    cObj.clear = function ()
-    {
+    cObj.clear = function () {
       form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
 
-    cObj.attrs.forEach(function (item)
-    {
+    cObj.attrs.forEach(function (item) {
       cObj[item] = $('#charseq-' + item + '-input');
     });
 
-    if (values)
-    {
+    if (values) {
       cObj.copyValues(values);
     }
 

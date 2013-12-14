@@ -12,16 +12,14 @@ var flash = require('./flash.js');
 // ## Internal Functions
 
 // The spinner element.
-var spinner = function ()
-{
+var spinner = function () {
   'use strict';
 
   return document.getElementById('loading');
 };
 
 // Called when request is sent.
-var ajaxStart = function ()
-{
+var ajaxStart = function () {
   'use strict';
 
   spinner().style.display = 'block';
@@ -30,8 +28,7 @@ var ajaxStart = function ()
 };
 
 // Stop the spinner when request is complete.
-var ajaxStop = function ()
-{
+var ajaxStop = function () {
   'use strict';
 
   spinner().style.display = 'none';
@@ -39,8 +36,7 @@ var ajaxStop = function ()
   return 'ajax-stopped';
 };
 
-var makeMessage = function (response)
-{
+var makeMessage = function (response) {
   'use strict';
 
   return response.fieldname + ' ' + response.message;
@@ -48,32 +44,21 @@ var makeMessage = function (response)
 
 // Run on request completion with callback and default behavior in
 // case of common errors.
-var complete = function (req, callback)
-{
+var complete = function (req, callback) {
   'use strict';
 
-  if (req.status >= 200 && req.status < 300 && callback)
-  {
+  if (req.status >= 200 && req.status < 300 && callback) {
     callback(req);
-  }
-  else if (req.status === 500)
-  {
+  } else if (req.status === 500) {
     flash.error('Unknown Server Error', 'Please report that you received this message');
-  }
-  else if (req.status >= 400)
-  {
+  } else if (req.status >= 400) {
     var msg;
 
-    if (req.response && typeof req.response === 'string')
-    {
+    if (req.response && typeof req.response === 'string') {
       msg = makeMessage(JSON.stringify(req.response));
-    }
-    else if (req.response && req.response instanceof Object)
-    {
+    } else if (req.response && req.response instanceof Object) {
       msg = makeMessage(req.response);
-    }
-    else
-    {
+    } else {
       msg = 'That is all.';
     }
 
@@ -84,14 +69,11 @@ var complete = function (req, callback)
 };
 
 // Returns an `onreadystatechange` handler.
-var stateChange = function (req, callback)
-{
+var stateChange = function (req, callback) {
   'use strict';
 
-  return function ()
-  {
-    switch (req.readyState)
-    {
+  return function () {
+    switch (req.readyState) {
     case 1:
       return ajaxStart();
     case 4:
@@ -104,20 +86,14 @@ var stateChange = function (req, callback)
 };
 
 // Convert object to JSON if needed.
-var processObject = function (obj)
-{
+var processObject = function (obj) {
   'use strict';
 
-  if (obj instanceof Object)
-  {
+  if (obj instanceof Object) {
     return JSON.stringify(obj);
-  }
-  else if (typeof obj === 'string')
-  {
+  } else if (typeof obj === 'string') {
     return obj;
-  }
-  else
-  {
+  } else {
     return '';
   }
 };
@@ -126,8 +102,7 @@ var processObject = function (obj)
 
 // Perform an Ajax action with a URL, object to be translated to JSON,
 // an HTTP method and a function to be run on completion.
-var send = function (url, obj, method, callback)
-{
+var send = function (url, obj, method, callback) {
   'use strict';
 
   var dataObj = processObject(obj);
@@ -145,40 +120,35 @@ var send = function (url, obj, method, callback)
 };
 
 // Simplified `send` for GET requests.
-var get = function (url, callback)
-{
+var get = function (url, callback) {
   'use strict';
 
   return send(url, false, 'GET', callback);
 };
 
 // Simplified `send` for DELETE requests.
-var del = function (url, callback)
-{
+var del = function (url, callback) {
   'use strict';
 
   return send(url, false, 'DELETE', callback);
 };
 
 // Simplified `send` for POST requests.
-var post = function (url, obj, callback)
-{
+var post = function (url, obj, callback) {
   'use strict';
 
   return send(url, obj, 'POST', callback);
 };
 
 // Simplified `send` for PUT requests.
-var put = function (url, obj, callback)
-{
+var put = function (url, obj, callback) {
   'use strict';
 
   return send(url, obj, 'PUT', callback);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
-var legacyHTMLGet = function (url, callback)
-{
+var legacyHTMLGet = function (url, callback) {
   'use strict';
 
   var req = new XMLHttpRequest();

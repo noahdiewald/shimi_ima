@@ -10,53 +10,40 @@ var doctypeTab = require('./doctype-tab.js');
 // Exported functions
 
 // Dialog for manipulating doctypes
-var doctypeDialog = function (url, values)
-{
+var doctypeDialog = function (url, values) {
   'use strict';
 
   var f = doctypeElems.get(values);
 
-  if (values.rev && !values.rev.isBlank())
-  {
+  if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
-  }
-  else
-  {
+  } else {
     f.doctype.removeAttr('disabled');
   }
 
-  var dialog = $('#doctype-dialog').dialog(
-  {
+  var dialog = $('#doctype-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         var obj = f.getDoctypeInputVals();
-        var complete = function (context)
-        {
+        var complete = function (context) {
           doctypeTab.init();
           $(context).dialog('close');
         };
 
-        if (!values.rev || values.rev.isBlank())
-        {
+        if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
-        }
-        else
-        {
+        } else {
           obj._id = url.doctype;
           url.put(obj, complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       f.clear();
     }
   });

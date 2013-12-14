@@ -13,13 +13,11 @@ var clear;
 // ## Internal Functions
 
 // Show a brief validation message.
-var updateTips = function (t, tips)
-{
+var updateTips = function (t, tips) {
   'use strict';
 
   tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-  setTimeout(function ()
-  {
+  setTimeout(function () {
     tips.removeClass('ui-state-highlight', 1500);
   }, 500);
 
@@ -31,15 +29,13 @@ var updateTips = function (t, tips)
 // Generic element toggler. The idea being that a clicked or otherwise
 // 'stimulated' element has a `data-target` attribute with a value the
 // ID of an element to be toggled.
-var toggle = function (t)
-{
+var toggle = function (t) {
   'use strict';
 
   var toggleElem;
   var target = $(t);
 
-  if (target.attr('data-target'))
-  {
+  if (target.attr('data-target')) {
     toggleElem = $('#' + target.attr('data-target'));
     toggleElem.toggle();
   }
@@ -48,16 +44,14 @@ var toggle = function (t)
 };
 
 // Generic dialog canceling code
-var cancelDialog = function (t)
-{
+var cancelDialog = function (t) {
   'use strict';
 
   var target = $(t);
   var toggleElem;
   var elemId;
 
-  if (target.attr('data-target'))
-  {
+  if (target.attr('data-target')) {
     elemId = '#' + target.attr('data-target');
     toggleElem = $(elemId);
     toggleElem.hide();
@@ -68,22 +62,17 @@ var cancelDialog = function (t)
 };
 
 // Generic dialog form clearing code
-clear = function (inputFields, form)
-{
+clear = function (inputFields, form) {
   'use strict';
 
-  if (inputFields === undefined)
-  {
+  if (inputFields === undefined) {
     inputFields = $(form).find('input, select, textarea');
   }
-  inputFields.each(function (index, elem)
-  {
+  inputFields.each(function (index, elem) {
     var inputField = $(elem);
 
-    if (!inputField.attr('data-retain'))
-    {
-      if (inputField.is(':checked'))
-      {
+    if (!inputField.attr('data-retain')) {
+      if (inputField.is(':checked')) {
         inputField.attr('checked', false);
       }
       inputField.val('');
@@ -97,18 +86,14 @@ clear = function (inputFields, form)
 // Client side validation of string length.
 //
 // NOTE: Used only by [`projectui.js`](./projects/projectui.html)
-var checkLength = function (o, n, min, max, tips)
-{
+var checkLength = function (o, n, min, max, tips) {
   'use strict';
 
-  if (o.val().length > max || o.val().length < min)
-  {
+  if (o.val().length > max || o.val().length < min) {
     o.addClass('ui-state-error');
     updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 };
@@ -116,12 +101,10 @@ var checkLength = function (o, n, min, max, tips)
 // ### Form element manipulation
 
 // Init JqueryUI datepicker widgets
-var initDateFields = function ()
-{
+var initDateFields = function () {
   'use strict';
 
-  $('.date').datepicker(
-  {
+  $('.date').datepicker({
     dateFormat: 'yy-mm-dd'
   });
 
@@ -129,15 +112,12 @@ var initDateFields = function ()
 };
 
 // Fill select options from a URL using Ajax
-var fillOptionsFromUrl = function (url, selectElement, callback)
-{
+var fillOptionsFromUrl = function (url, selectElement, callback) {
   'use strict';
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     selectElement.html(req.response);
-    if (callback)
-    {
+    if (callback) {
       callback();
     }
   });

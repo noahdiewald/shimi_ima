@@ -1,13 +1,10 @@
-function map(doc)
-{
+function map(doc) {
   'use strict';
 
-  if (doc._attachments)
-  {
+  if (doc._attachments) {
     var path = [];
 
-    if (doc.path)
-    {
+    if (doc.path) {
       path = doc.path;
     }
 

@@ -12,16 +12,14 @@ var ajax = require('../ajax.js');
 // Exported functions
 
 // Initialize the listing of user created indexes.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var url = 'indexes';
   var target = $('#index-index-listing');
   var listing;
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     listing = templates['index-listing'](req.response);
     target.html(listing);
   });

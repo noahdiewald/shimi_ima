@@ -18,80 +18,70 @@ var loadSearchVals;
 // Internal functions
 
 // User interface element
-var searchIndex = function ()
-{
+var searchIndex = function () {
   'use strict';
 
   return $('#document-search-index');
 };
 
 // User interface element
-var searchIndexLabel = function ()
-{
+var searchIndexLabel = function () {
   'use strict';
 
   return $('#search-index-label');
 };
 
 // User interface element
-var searchTerm = function ()
-{
+var searchTerm = function () {
   'use strict';
 
   return $('#document-search-term');
 };
 
 // User interface element
-var searchFields = function ()
-{
+var searchFields = function () {
   'use strict';
 
   return $('#document-search-field');
 };
 
 // User interface element
-var searchFieldsLabel = function ()
-{
+var searchFieldsLabel = function () {
   'use strict';
 
   return $('#search-field-label');
 };
 
 // User interface element
-var searchExclude = function ()
-{
+var searchExclude = function () {
   'use strict';
 
   return $('#document-search-exclude');
 };
 
 // User interface element
-var searchInvert = function ()
-{
+var searchInvert = function () {
   'use strict';
 
   return $('#document-search-invert');
 };
 
 // User interface element
-var searchAll = function ()
-{
+var searchAll = function () {
   'use strict';
 
   return $('#search-all-fields-switch');
 };
 
 // User interface element
-var searchListing = function ()
-{
+var searchListing = function () {
   'use strict';
 
   return $('#search-listing');
 };
 
 // User interface element
-var getIdentifier = function ()
-{
+var getIdentifier = function () {
   'use strict';
 
   return documents.identifier();
@@ -102,39 +92,30 @@ var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel,
 
 // If searching a user created index, the value of the hidden input
 // where the index id specified.
-var indexVal = function ()
-{
+var indexVal = function () {
   'use strict';
 
   var val = $('#index-index-input').val();
-  if (val.length === 0)
-  {
+  if (val.length === 0) {
     return null;
-  }
-  else
-  {
+  } else {
     return val;
   }
 };
 
 // Used for values that must either be true or null.
-var maybeTrue = function (bool)
-{
+var maybeTrue = function (bool) {
   'use strict';
 
-  if (bool)
-  {
+  if (bool) {
     return true;
-  }
-  else
-  {
+  } else {
     return null;
   }
 };
 
 // Clear all search information that is stored in local storage.
-var clearStore = function ()
-{
+var clearStore = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -146,15 +127,12 @@ var clearStore = function ()
 };
 
 // Clear the search form.
-var clearVals = function ()
-{
+var clearVals = function () {
   'use strict';
 
-  formElems.forEach(function (x)
-  {
+  formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type'))
-    {
+    switch (elem.attr('type')) {
     case 'hidden':
       elem.val('');
       break;
@@ -166,15 +144,12 @@ var clearVals = function ()
 };
 
 // Hide all the form elements.
-var hideElems = function ()
-{
+var hideElems = function () {
   'use strict';
 
-  formElems.forEach(function (x)
-  {
+  formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type'))
-    {
+    switch (elem.attr('type')) {
     case 'hidden':
       break;
     case 'checkbox':
@@ -187,8 +162,7 @@ var hideElems = function ()
 };
 
 // Get the field labels from session storage.
-var fieldLabels = function ()
-{
+var fieldLabels = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -197,20 +171,17 @@ var fieldLabels = function ()
 };
 
 // Render the search field item template using given values.
-var searchFieldItem = function (field, fieldLabel)
-{
+var searchFieldItem = function (field, fieldLabel) {
   'use strict';
 
-  return templates['search-field-item'](
-  {
+  return templates['search-field-item']({
     fieldLabel: fieldLabel,
     field: field
   });
 };
 
 // Set the fields to search.
-var setFields = function (fields)
-{
+var setFields = function (fields) {
   'use strict';
 
   var fLabels = fieldLabels();
@@ -221,8 +192,7 @@ var setFields = function (fields)
   searchFields().val(jFields);
   localStorage.setItem(ident + '_searchFields', jFields);
 
-  var linkLabels = fields.map(function (x)
-  {
+  var linkLabels = fields.map(function (x) {
     return searchFieldItem(x, fLabels[x].join(': '));
   });
 
@@ -234,8 +204,7 @@ var setFields = function (fields)
 // Exported functions
 
 // Put the form in a state where all fields will be searched.
-var allFields = function ()
-{
+var allFields = function () {
   'use strict';
 
   clearStore();
@@ -245,8 +214,7 @@ var allFields = function ()
 };
 
 // Put the form in a state where one field will be searched.
-var singleField = function (fields)
-{
+var singleField = function (fields) {
   'use strict';
 
   multipleFields(fields);
@@ -256,8 +224,7 @@ var singleField = function (fields)
 
 // Put the form in a state where one field will be used to perform an
 // inverse search.
-var singleFieldInverse = function (fields)
-{
+var singleFieldInverse = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
@@ -268,31 +235,25 @@ var singleFieldInverse = function (fields)
 };
 
 // Put the form in a state where multiple fields will be searched.
-multipleFields = function (fields)
-{
+multipleFields = function (fields) {
   'use strict';
 
   allFields();
   setFields(fields);
-  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x)
-  {
+  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
     x.show();
   });
   return true;
 };
 
 // Put the form in a state where fields will be excluded from search.
-var excludedFields = function (fields)
-{
+var excludedFields = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
-  if (fields.length > 1)
-  {
+  if (fields.length > 1) {
     multipleFields(fields);
-  }
-  else
-  {
+  } else {
     singleField(fields);
   }
   searchExclude().prop('checked', true);
@@ -301,8 +262,7 @@ var excludedFields = function (fields)
 };
 
 // Put the form in a state where a user created index will be searched.
-var indexOnly = function (index, indexLabel)
-{
+var indexOnly = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
@@ -311,8 +271,7 @@ var indexOnly = function (index, indexLabel)
   localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
   searchIndex().val(index);
   searchIndexLabel().html(indexLabel);
-  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x)
-  {
+  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
     x.show();
   });
   return true;
@@ -320,8 +279,7 @@ var indexOnly = function (index, indexLabel)
 
 // Put the form in a state where a user created index will be used to
 // perform an inverse search.
-var indexInverse = function (index, indexLabel)
-{
+var indexInverse = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
@@ -332,8 +290,7 @@ var indexInverse = function (index, indexLabel)
 };
 
 // Perform the search.
-var getSearch = function ()
-{
+var getSearch = function () {
   'use strict';
 
   var query = searchTerm().val();
@@ -344,44 +301,34 @@ var getSearch = function ()
   var index = searchIndex().val();
   var fieldlabels = fieldLabels();
 
-  if (index)
-  {
+  if (index) {
     url = url + '&index=' + index;
-  }
-  else
-  {
-    if (field)
-    {
+  } else {
+    if (field) {
       url = url + '&field=' + field;
     }
-    if (exclude)
-    {
+    if (exclude) {
       url = url + '&exclude=true';
     }
   }
-  if (invert)
-  {
+  if (invert) {
     url = url + '&invert=true';
   }
 
   searchListing().hide();
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     searchListing().html(req.response);
 
-    $('.search-result-field-id').each(function (index, item)
-    {
+    $('.search-result-field-id').each(function (index, item) {
       var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
       var target = $(item).children('a').first();
       target.html(label);
       target.attr('data-search-label', label);
     });
 
-    if (!invert)
-    {
-      $('.search-results th').each(function (index, item)
-      {
+    if (!invert) {
+      $('.search-results th').each(function (index, item) {
         var itemText = $.trim($(item).children('a').html());
         var re = new RegExp('(' + query + ')', 'g');
         var newText = itemText.replace(re, '<span class="highlight">$1</span>');
@@ -398,8 +345,7 @@ var getSearch = function ()
 
 // Remove a field from those that will be searched (or excluded in an
 // exclusive search.)
-var removeField = function (t)
-{
+var removeField = function (t) {
   'use strict';
 
   var ident = getIdentifier();
@@ -409,10 +355,8 @@ var removeField = function (t)
   var newFields;
   var id = $(t).attr('data-field-field');
 
-  if (fields !== null)
-  {
-    newFields = fields.filter(function (x)
-    {
+  if (fields !== null) {
+    newFields = fields.filter(function (x) {
       return x !== id;
     });
     newSearchFields = JSON.stringify(newFields);
@@ -426,8 +370,7 @@ var removeField = function (t)
 
 // Add a field to those that will be searched (or excluded in an
 // exclusive search.)
-var addField = function (t)
-{
+var addField = function (t) {
   'use strict';
 
   var ident = getIdentifier();
@@ -437,8 +380,7 @@ var addField = function (t)
   var newFields;
   var id = $(t).attr('data-field-field');
 
-  if (fields === null)
-  {
+  if (fields === null) {
     fields = [];
   }
 
@@ -452,15 +394,13 @@ var addField = function (t)
 };
 
 // Add a user created index to be searched.
-var addIndex = function ()
-{
+var addIndex = function () {
   'use strict';
 
   var val = indexVal();
   var ident = getIdentifier();
 
-  if (val)
-  {
+  if (val) {
     localStorage.setItem(ident + '_searchFields', null);
     localStorage.setItem(ident + '_searchIndex', val);
     localStorage.setItem(ident + '_searchIndexLabel', $('option[value=' + val + ']').html());
@@ -471,8 +411,7 @@ var addIndex = function ()
 };
 
 // Toggle the inverse search setting.
-var toggleInversion = function ()
-{
+var toggleInversion = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -484,8 +423,7 @@ var toggleInversion = function ()
 };
 
 // Toggle the exclusive search setting.
-var toggleExclusion = function ()
-{
+var toggleExclusion = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -499,8 +437,7 @@ var toggleExclusion = function ()
 // The functions that alter the search form above store the values in
 // local storage. This interprets those values and puts the search form
 // in a consistent state.
-loadSearchVals = function ()
-{
+loadSearchVals = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -510,63 +447,41 @@ loadSearchVals = function ()
   var fieldids = localStorage.getItem(ident + '_searchFields');
   var fields;
   var indexLabel;
-  var params = [exclude, invert, index, fieldids].map(function (x)
-  {
+  var params = [exclude, invert, index, fieldids].map(function (x) {
     return (x === 'null' || x === 'false' || x === 'true') ? JSON.parse(x) : x;
   });
-  var allNull = params.every(function (x)
-  {
+  var allNull = params.every(function (x) {
     return x === null;
   });
 
-  try
-  {
-    if (allNull)
-    {
+  try {
+    if (allNull) {
       allFields();
-    }
-    else if (params[0] === true)
-    {
+    } else if (params[0] === true) {
       fields = JSON.parse(fieldids);
       excludedFields(fields);
-    }
-    else if (params[1] === null && params[3] !== null)
-    {
+    } else if (params[1] === null && params[3] !== null) {
       fields = JSON.parse(fieldids);
-      if (fields.length > 1)
-      {
+      if (fields.length > 1) {
         multipleFields(fields);
-      }
-      else
-      {
+      } else {
         singleField(fields);
       }
-    }
-    else if (params[3] !== null)
-    {
+    } else if (params[3] !== null) {
       fields = JSON.parse(fieldids);
-      if (fields.length > 1)
-      {
+      if (fields.length > 1) {
         multipleFields(fields);
-      }
-      else
-      {
+      } else {
         singleFieldInverse(fields);
       }
-    }
-    else if (params[1] === null)
-    {
+    } else if (params[1] === null) {
       indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
       indexOnly(index, indexLabel);
-    }
-    else if (params[1] === true)
-    {
+    } else if (params[1] === true) {
       indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
       indexInverse(index, indexLabel);
     }
-  }
-  catch (e)
-  {
+  } catch (e) {
     window.console.log(e);
     allFields();
   }
@@ -575,18 +490,14 @@ loadSearchVals = function ()
 };
 
 // Toggle selection of result to save to set.
-var toggleSelection = function (t)
-{
+var toggleSelection = function (t) {
   'use strict';
 
   var target = $(t);
 
-  if (target.is(':checked'))
-  {
+  if (target.is(':checked')) {
     target.next('label').next('table').addClass('selected-for-save');
-  }
-  else
-  {
+  } else {
     target.next('label').next('table').removeClass('selected-for-save');
   }
 

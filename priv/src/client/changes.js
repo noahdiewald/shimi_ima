@@ -14,20 +14,17 @@ var searchui = require('./documents/searchui.js');
 // ## Exported Functions
 
 // Run to add event listeners to `document`.
-var changes = function ()
-{
+var changes = function () {
   'use strict';
 
   // ### Search UI Change Events
 
-  $(document).on('change', '#document-search-exclude', function (e)
-  {
+  $(document).on('change', '#document-search-exclude', function (e) {
     searchui.toggleExclusion();
     return true;
   });
 
-  $(document).on('change', '#document-search-invert', function (e)
-  {
+  $(document).on('change', '#document-search-invert', function (e) {
     searchui.toggleInversion();
     return true;
   });

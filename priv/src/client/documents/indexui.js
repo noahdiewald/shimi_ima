@@ -18,33 +18,27 @@ var editui = require('./editui.js');
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'index';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = 'documents/' + prefix();
   var indexId = document.getElementById('index-' + prefix() + '-input').value;
   var target = document.getElementById(prefix() + '-listing');
 
-  var format = function (resp)
-  {
-    resp.rows = resp.rows.map(function (item)
-    {
-      item.display_key = item.key.map(function (k)
-      {
+  var format = function (resp) {
+    resp.rows = resp.rows.map(function (item) {
+      item.display_key = item.key.map(function (k) {
         return k[1];
       });
 
-      if (indexId && item.value.length > 0)
-      {
+      if (indexId && item.value.length > 0) {
         item.value = item.value.split(', ');
       }
 
@@ -54,8 +48,7 @@ var get = function ()
     return resp;
   };
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     format: format,
     url: url,
@@ -67,15 +60,13 @@ var get = function ()
 };
 
 // Loads the listing of user created indexes.
-var iOpts = function ()
-{
+var iOpts = function () {
   'use strict';
 
   var url = 'indexes?as=options';
   var options;
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     var data = req.response;
 
     options = templates['index-options'](data);
@@ -89,8 +80,7 @@ var iOpts = function ()
 // the application.
 //
 // TODO: Move to documents.js
-var load = function (target)
-{
+var load = function (target) {
   'use strict';
 
   var id = $(target).attr('href').slice(1);

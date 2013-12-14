@@ -12,8 +12,7 @@ var ajax = require('../ajax.js');
 // ## Internal Functions
 
 // Toggle the visibility of a group.
-var toggle = function (node)
-{
+var toggle = function (node) {
   'use strict';
 
   node.classList.toggle('collapsed');
@@ -23,15 +22,13 @@ var toggle = function (node)
 };
 
 // Get the editor form object.
-var editForm = function ()
-{
+var editForm = function () {
   'use strict';
 
   return document.getElementById('edit-form');
 };
 
-var fillForm = function (json)
-{
+var fillForm = function (json) {
   'use strict';
 
   var formHTML = formalize.toForm(json);
@@ -45,12 +42,10 @@ var fillForm = function (json)
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
-var get = function (url)
-{
+var get = function (url) {
   'use strict';
 
-  var complete = function (req)
-  {
+  var complete = function (req) {
     return fillForm(JSON.stringify(req.response));
   };
 
@@ -60,8 +55,7 @@ var get = function (url)
 };
 
 // Load an empty object into the editor.
-var fresh = function ()
-{
+var fresh = function () {
   'use strict';
 
   fillForm('{}');
@@ -69,37 +63,32 @@ var fresh = function ()
   return 'empty-object-loaded';
 };
 
-var create = function (args)
-{
+var create = function (args) {
   'use strict';
 
   return 'object-created';
 };
 
-var update = function (args)
-{
+var update = function (args) {
   'use strict';
 
   return 'object-updated';
 };
 
-var remove = function (args)
-{
+var remove = function (args) {
   'use strict';
 
   return 'object-removed';
 };
 
-var restore = function (args)
-{
+var restore = function (args) {
   'use strict';
 
   return 'object-restored';
 };
 
 // Initialize the editor, loading a fresh object.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   fresh();

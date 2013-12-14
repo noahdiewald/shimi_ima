@@ -14,12 +14,10 @@ var init;
 // Internal functions
 
 // Delete the project with the given ID.
-var deleteProject = function (id)
-{
+var deleteProject = function (id) {
   'use strict';
 
-  if (window.confirm('Are you sure? This is permanent.'))
-  {
+  if (window.confirm('Are you sure? This is permanent.')) {
     ajax.del('/projects/' + id, init);
   }
 };
@@ -27,8 +25,7 @@ var deleteProject = function (id)
 // Exported functions
 
 // Add a project.
-var add = function ()
-{
+var add = function () {
   'use strict';
 
   var projectName = $('#project-name');
@@ -36,21 +33,17 @@ var add = function ()
   var tips = $('.validate-tips');
   var allFields = $([]).add(projectName).add(projectDescription);
 
-  var dialog = $('#add-dialog').dialog(
-  {
+  var dialog = $('#add-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Add project': function ()
-      {
+    buttons: {
+      'Add project': function () {
         allFields.removeClass('ui-state-error');
         $('.validation-error-message').remove();
 
         var checkResult = form.checkLength(projectName, 'project name', 1, 50, tips);
 
-        if (checkResult)
-        {
+        if (checkResult) {
           var data = {
             name: projectName.val(),
             description: projectDescription.val()
@@ -61,13 +54,11 @@ var add = function ()
           $(this).dialog('close');
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       allFields.val('').removeClass('ui-state-error');
     }
   });
@@ -76,8 +67,7 @@ var add = function ()
 };
 
 // Add a project.
-var del = function (target)
-{
+var del = function (target) {
   'use strict';
 
   var id = target.getAttribute('id');
@@ -88,14 +78,12 @@ var del = function (target)
 };
 
 // Initialize the interface.
-init = function ()
-{
+init = function () {
   'use strict';
 
   var url = '/projects/index';
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     var rendering = templates['project-listing'](req.response);
 
     document.getElementsByTagName('tbody')[0].innerHTML = rendering;

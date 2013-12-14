@@ -8,20 +8,17 @@
 
 // Helper function that handles the displaying and fading of the flashed
 // notification.
-var f = function (flasher, title, body)
-{
+var f = function (flasher, title, body) {
   'use strict';
 
-  var fadeout = function ()
-  {
+  var fadeout = function () {
     flasher.fadeOut();
   };
   flasher.find('.notification-summary').text(title + ': ');
   flasher.find('.notification-message').text(body);
   var timeout = window.setTimeout(fadeout, 7000);
   flasher.fadeIn();
-  flasher.find('.close').click(function ()
-  {
+  flasher.find('.close').click(function () {
     window.clearTimeout(timeout);
     flasher.hide();
   });
@@ -30,8 +27,7 @@ var f = function (flasher, title, body)
 // # Exported Functions
 
 // Display an error.
-var error = function (title, body)
-{
+var error = function (title, body) {
   'use strict';
 
   f($('#notifications-main .ui-state-error'), title, body);
@@ -40,8 +36,7 @@ var error = function (title, body)
 };
 
 // Display a notification.
-var highlight = function (title, body)
-{
+var highlight = function (title, body) {
   'use strict';
 
   f($('#notifications-main .ui-state-highlight'), title, body);

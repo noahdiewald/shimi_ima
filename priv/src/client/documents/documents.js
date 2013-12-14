@@ -22,13 +22,11 @@ var identifier;
 // which is triggering the change event.
 //
 // *TODO* put this with other change handlers.
-var indexForm = function ()
-{
+var indexForm = function () {
   'use strict';
 
   // TODO Remove JQuery
-  $('#index-filter-form select').change(function ()
-  {
+  $('#index-filter-form select').change(function () {
     indexui.get();
   });
 
@@ -37,12 +35,10 @@ var indexForm = function ()
 
 // If there is a hash at the end of the URL with a document ID specified,
 // this will pass the information on the correct funciont in `viewui`.
-var loadHash = function (urlHash)
-{
+var loadHash = function (urlHash) {
   'use strict';
 
-  if (urlHash)
-  {
+  if (urlHash) {
     viewui.get(urlHash);
   }
 
@@ -50,40 +46,35 @@ var loadHash = function (urlHash)
 };
 
 // A user interface element.
-var allDocContainer = function ()
-{
+var allDocContainer = function () {
   'use strict';
 
   return document.getElementById('all-document-container');
 };
 
 // Key used in retrieving cached information from session storage.
-var versionKey = function ()
-{
+var versionKey = function () {
   'use strict';
 
   return identifier() + '_version';
 };
 
 // Key used in retrieving cached information from session storage.
-var infoKey = function ()
-{
+var infoKey = function () {
   'use strict';
 
   return identifier() + '_info';
 };
 
 // Key used in retrieving cached information from session storage.
-var labelsKey = function ()
-{
+var labelsKey = function () {
   'use strict';
 
   return identifier() + '_labels';
 };
 
 // Store the doctype info in the session store.
-var storeDoctype = function (doctype)
-{
+var storeDoctype = function (doctype) {
   'use strict';
 
   sessionStorage.setItem(infoKey(), doctype);
@@ -92,8 +83,7 @@ var storeDoctype = function (doctype)
 };
 
 // Get the stored doctype version.
-var getVersion = function ()
-{
+var getVersion = function () {
   'use strict';
 
   return sessionStorage.getItem(versionKey());
@@ -101,8 +91,7 @@ var getVersion = function ()
 
 // Get the most recent doctype version, which is placed in a `data`
 // attribute that is updated on page reloads.
-var getCurrentVersion = function ()
-{
+var getCurrentVersion = function () {
   'use strict';
 
   return store(allDocContainer()).d('version');
@@ -110,30 +99,26 @@ var getCurrentVersion = function ()
 
 // Check if the stored doctype version matches the version found in the
 // `data` attribute.
-var isCurrentVersionStored = function ()
-{
+var isCurrentVersionStored = function () {
   'use strict';
 
   return (getVersion() && getVersion() === getCurrentVersion());
 };
 
-var isInfoStored = function ()
-{
+var isInfoStored = function () {
   'use strict';
 
   return sessionStorage.getItem(infoKey()) !== null;
 };
 
-var isLabelsStored = function ()
-{
+var isLabelsStored = function () {
   'use strict';
 
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
 // Reset the doctype version
-var setVersion = function ()
-{
+var setVersion = function () {
   'use strict';
 
   sessionStorage.setItem(versionKey(), getCurrentVersion());
@@ -144,18 +129,14 @@ var setVersion = function ()
 
 // Check the session state to ensure it is up to date and fully
 // loaded.
-var checkState = function ()
-{
+var checkState = function () {
   'use strict';
 
   var retval;
 
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored())
-  {
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored()) {
     retval = S.sender('labels-ready');
-  }
-  else
-  {
+  } else {
     retval = S.sender('bad-session-state');
   }
 
@@ -163,16 +144,14 @@ var checkState = function ()
 };
 
 // Get the doctype name
-var dname = function ()
-{
+var dname = function () {
   'use strict';
 
   return store(allDocContainer()).d('doctype');
 };
 
 // Get the project id
-var project = function ()
-{
+var project = function () {
   'use strict';
 
   var container = document.getElementById('container');
@@ -182,8 +161,7 @@ var project = function ()
 // ## Exported functions
 
 // Clear the session storage
-var clearSession = function ()
-{
+var clearSession = function () {
   'use strict';
 
   sessionStorage.clear();
@@ -193,28 +171,24 @@ var clearSession = function ()
 };
 
 // Identifier is a combination of the project and doctype name.
-identifier = function ()
-{
+identifier = function () {
   'use strict';
 
   return project() + '_' + dname();
 };
 
 // Get information about doctype.
-var info = function ()
-{
+var info = function () {
   'use strict';
 
   return JSON.parse(sessionStorage.getItem(infoKey()));
 };
 
 // Load the doctype document stored on the server.
-var loadDoctype = function ()
-{
+var loadDoctype = function () {
   'use strict';
 
-  ajax.get('./', function (req)
-  {
+  ajax.get('./', function (req) {
     storeDoctype(JSON.stringify(req.response));
   });
 
@@ -223,17 +197,14 @@ var loadDoctype = function ()
 
 // Process the field and fieldset info to create a field label to field
 // id index.
-var makeLabels = function ()
-{
+var makeLabels = function () {
   'use strict';
 
   var info1 = info();
   var labels = {};
 
-  info1.fieldsets.forEach(function (fieldset)
-  {
-    fieldset.fields.forEach(function (field)
-    {
+  info1.fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
       labels[field._id] = [fieldset.label, field.label];
     });
   });
@@ -244,13 +215,11 @@ var makeLabels = function ()
 };
 
 // Initialize the documents sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   // TODO Remove JQuery
-  $('form').on('submit', function ()
-  {
+  $('form').on('submit', function () {
     return false;
   });
   checkState();

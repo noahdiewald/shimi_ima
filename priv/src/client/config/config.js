@@ -21,8 +21,7 @@ var Observer = Reactor.Observer;
 // ## Exported Functions
 
 // Run initialization code for the configuration sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   editui.init();

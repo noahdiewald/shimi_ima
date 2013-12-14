@@ -10739,16 +10739,14 @@ var flash = require('./flash.js');
 // ## Internal Functions
 
 // The spinner element.
-var spinner = function ()
-{
+var spinner = function () {
   'use strict';
 
   return document.getElementById('loading');
 };
 
 // Called when request is sent.
-var ajaxStart = function ()
-{
+var ajaxStart = function () {
   'use strict';
 
   spinner().style.display = 'block';
@@ -10757,8 +10755,7 @@ var ajaxStart = function ()
 };
 
 // Stop the spinner when request is complete.
-var ajaxStop = function ()
-{
+var ajaxStop = function () {
   'use strict';
 
   spinner().style.display = 'none';
@@ -10766,8 +10763,7 @@ var ajaxStop = function ()
   return 'ajax-stopped';
 };
 
-var makeMessage = function (response)
-{
+var makeMessage = function (response) {
   'use strict';
 
   return response.fieldname + ' ' + response.message;
@@ -10775,32 +10771,21 @@ var makeMessage = function (response)
 
 // Run on request completion with callback and default behavior in
 // case of common errors.
-var complete = function (req, callback)
-{
+var complete = function (req, callback) {
   'use strict';
 
-  if (req.status >= 200 && req.status < 300 && callback)
-  {
+  if (req.status >= 200 && req.status < 300 && callback) {
     callback(req);
-  }
-  else if (req.status === 500)
-  {
+  } else if (req.status === 500) {
     flash.error('Unknown Server Error', 'Please report that you received this message');
-  }
-  else if (req.status >= 400)
-  {
+  } else if (req.status >= 400) {
     var msg;
 
-    if (req.response && typeof req.response === 'string')
-    {
+    if (req.response && typeof req.response === 'string') {
       msg = makeMessage(JSON.stringify(req.response));
-    }
-    else if (req.response && req.response instanceof Object)
-    {
+    } else if (req.response && req.response instanceof Object) {
       msg = makeMessage(req.response);
-    }
-    else
-    {
+    } else {
       msg = 'That is all.';
     }
 
@@ -10811,14 +10796,11 @@ var complete = function (req, callback)
 };
 
 // Returns an `onreadystatechange` handler.
-var stateChange = function (req, callback)
-{
+var stateChange = function (req, callback) {
   'use strict';
 
-  return function ()
-  {
-    switch (req.readyState)
-    {
+  return function () {
+    switch (req.readyState) {
     case 1:
       return ajaxStart();
     case 4:
@@ -10831,20 +10813,14 @@ var stateChange = function (req, callback)
 };
 
 // Convert object to JSON if needed.
-var processObject = function (obj)
-{
+var processObject = function (obj) {
   'use strict';
 
-  if (obj instanceof Object)
-  {
+  if (obj instanceof Object) {
     return JSON.stringify(obj);
-  }
-  else if (typeof obj === 'string')
-  {
+  } else if (typeof obj === 'string') {
     return obj;
-  }
-  else
-  {
+  } else {
     return '';
   }
 };
@@ -10853,8 +10829,7 @@ var processObject = function (obj)
 
 // Perform an Ajax action with a URL, object to be translated to JSON,
 // an HTTP method and a function to be run on completion.
-var send = function (url, obj, method, callback)
-{
+var send = function (url, obj, method, callback) {
   'use strict';
 
   var dataObj = processObject(obj);
@@ -10872,40 +10847,35 @@ var send = function (url, obj, method, callback)
 };
 
 // Simplified `send` for GET requests.
-var get = function (url, callback)
-{
+var get = function (url, callback) {
   'use strict';
 
   return send(url, false, 'GET', callback);
 };
 
 // Simplified `send` for DELETE requests.
-var del = function (url, callback)
-{
+var del = function (url, callback) {
   'use strict';
 
   return send(url, false, 'DELETE', callback);
 };
 
 // Simplified `send` for POST requests.
-var post = function (url, obj, callback)
-{
+var post = function (url, obj, callback) {
   'use strict';
 
   return send(url, obj, 'POST', callback);
 };
 
 // Simplified `send` for PUT requests.
-var put = function (url, obj, callback)
-{
+var put = function (url, obj, callback) {
   'use strict';
 
   return send(url, obj, 'PUT', callback);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
-var legacyHTMLGet = function (url, callback)
-{
+var legacyHTMLGet = function (url, callback) {
   'use strict';
 
   var req = new XMLHttpRequest();
@@ -10925,6 +10895,7 @@ exports.put = put;
 exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
+
 },{"./flash.js":68}],37:[function(require,module,exports){
 // # The Client Code Entry Point
 //
@@ -10958,28 +10929,24 @@ var config = require('./config/config.js');
 // ### Functions added to String
 
 // This is a poorly implement `isBlank` predicate.
-String.prototype.isBlank = function ()
-{
+String.prototype.isBlank = function () {
   'use strict';
 
   return ((/^\s*$/).test(this) && !(/\S/).test(this));
 };
 
 // Remove white space at the beginning and end of string.
-String.prototype.trim = function ()
-{
+String.prototype.trim = function () {
   'use strict';
 
   return this.replace(/^\s+/, '').replace(/\s+$/, '');
 };
 
 // Camel case string
-String.prototype.cc = function ()
-{
+String.prototype.cc = function () {
   'use strict';
 
-  return this.replace(/-./, function (substr)
-  {
+  return this.replace(/-./, function (substr) {
     return substr.toUpperCase()[1];
   });
 };
@@ -10987,39 +10954,30 @@ String.prototype.cc = function ()
 // ### Functions added to Array
 
 // Remove white space on all strings in array.
-Array.prototype.trimAll = function ()
-{
+Array.prototype.trimAll = function () {
   'use strict';
 
-  return this.map(function (i)
-  {
+  return this.map(function (i) {
     return i.trim();
-  }).filter(function (i)
-  {
+  }).filter(function (i) {
     return !i.match(/^$/);
   });
 };
 
 // ### Functions added to Element
 
-if (Element.prototype.mozMatchesSelector)
-{
+if (Element.prototype.mozMatchesSelector) {
   Element.prototype.matches = Element.prototype.mozMatchesSelector;
-}
-else if (Element.prototype.webkitMatchesSelector)
-{
+} else if (Element.prototype.webkitMatchesSelector) {
   Element.prototype.matches = Element.prototype.webkitMatchesSelector;
-}
-else
-{
+} else {
   throw 'This browser is not supported at this time. An implementation of Element.matches is needed https://developer.mozilla.org/en-US/docs/Web/API/Element.matches';
 }
 
 // ## Initialization
 
 // Using the function for running code after the page loads.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   // All clicks handled centraly
@@ -11038,42 +10996,35 @@ var init = function ()
   // ### Determine the sub-application.
 
   // Detect if this is the configuration sub-application
-  if (document.getElementById('all-config-container'))
-  {
+  if (document.getElementById('all-config-container')) {
     config.init();
   }
 
   // Detect if this is the document editing sub-application
-  if (document.getElementById('all-document-container'))
-  {
+  if (document.getElementById('all-document-container')) {
     documents.init();
   }
 
   // Detect if this is the file manager sub-application
-  if (document.getElementById('file-upload'))
-  {
+  if (document.getElementById('file-upload')) {
     fm.init();
   }
 
   // Detect if this is the index tool sub-application
-  if (document.getElementById('all-index-container'))
-  {
+  if (document.getElementById('all-index-container')) {
     ilistingui.init();
   }
 
   // Detect if this is the project creation sub-application
-  if (document.getElementById('projects-container'))
-  {
+  if (document.getElementById('projects-container')) {
     projectui.init();
   }
 };
 
-document.onreadystatechange = function ()
-{
+document.onreadystatechange = function () {
   'use strict';
 
-  if (document.readyState === 'complete')
-  {
+  if (document.readyState === 'complete') {
     init();
   }
 };
@@ -11095,20 +11046,17 @@ var searchui = require('./documents/searchui.js');
 // ## Exported Functions
 
 // Run to add event listeners to `document`.
-var changes = function ()
-{
+var changes = function () {
   'use strict';
 
   // ### Search UI Change Events
 
-  $(document).on('change', '#document-search-exclude', function (e)
-  {
+  $(document).on('change', '#document-search-exclude', function (e) {
     searchui.toggleExclusion();
     return true;
   });
 
-  $(document).on('change', '#document-search-invert', function (e)
-  {
+  $(document).on('change', '#document-search-invert', function (e) {
     searchui.toggleInversion();
     return true;
   });
@@ -11151,241 +11099,188 @@ var charseqTab = require('./config/charseq-tab').charseqTab;
 
 // Given a click event, determine what action to take based on the
 // click target.
-var clickDispatch = function (e)
-{
+var clickDispatch = function (e) {
   'use strict';
 
-  var action = dispatcher(
-  {
+  var action = dispatcher({
     // ### Config
 
-    '.edit-doctype-link': function (t)
-    {
+    '.edit-doctype-link': function (t) {
       return ceditui.get('doctypes/' + t.getAttribute('href').slice(1));
     },
-    '.touch-doctype-button': function (t)
-    {
+    '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctype-add-button': function (t)
-    {
+    '#doctype-add-button': function (t) {
       doctypeTab.addDoctype(t);
     },
-    '.delete-charseq-button': function (t)
-    {
+    '.delete-charseq-button': function (t) {
       charseqTab.del(t);
     },
-    '#charseq-add-button': function (t)
-    {
+    '#charseq-add-button': function (t) {
       charseqTab.add();
     },
-    '#maintenance-upgrade-button': function (t)
-    {
+    '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);
     },
 
     // ### Documents
 
-    '.add-button': function (t)
-    {
+    '.add-button': function (t) {
       fieldsets.initFieldset(t, false, true);
     },
-    '.remove-button': function (t)
-    {
+    '.remove-button': function (t) {
       fieldsets.removeFieldset(t);
     },
-    '#save-document-button': function (t)
-    {
+    '#save-document-button': function (t) {
       editui.save();
     },
-    '#create-document-button': function (t)
-    {
+    '#create-document-button': function (t) {
       editui.create();
     },
-    '#clear-document-button': function (t)
-    {
+    '#clear-document-button': function (t) {
       editui.clear();
     },
-    '.expander': function (t)
-    {
+    '.expander': function (t) {
       editui.toggleTextarea(t);
     },
-    'label span.ui-icon-help': function (t)
-    {
+    'label span.ui-icon-help': function (t) {
       editui.showHelpDialog(t);
     },
-    '#document-edit-button': function (t)
-    {
+    '#document-edit-button': function (t) {
       viewui.edit(t);
     },
-    '#document-delete-button': function (t)
-    {
+    '#document-delete-button': function (t) {
       viewui.confirmDelete();
     },
-    '#document-restore-button': function (t)
-    {
+    '#document-restore-button': function (t) {
       viewui.confirmRestore();
     },
-    '#document-view-tree > ul > li > b': function (t)
-    {
+    '#document-view-tree > ul > li > b': function (t) {
       viewui.collapseToggle(t);
     },
-    '.revision-link': function (t)
-    {
+    '.revision-link': function (t) {
       viewui.fetchRevision(t);
     },
-    '#search-all-fields-switch a': function ()
-    {
+    '#search-all-fields-switch a': function () {
       searchui.allFields();
     },
-    '.search-field-item': function (t)
-    {
+    '.search-field-item': function (t) {
       searchui.removeField(t);
     },
-    '.select-results': function (t)
-    {
+    '.select-results': function (t) {
       searchui.toggleSelection(t);
     },
-    '#save-search-results a': function ()
-    {
+    '#save-search-results a': function () {
       $('#new-set-target-input').val('search');
       $('#new-set-dialog').show();
     },
-    '#save-set-results a': function ()
-    {
+    '#save-set-results a': function () {
       $('#new-set-target-input').val('sets');
       $('#new-set-dialog').show();
     },
-    '#new-set-save-button': function ()
-    {
+    '#new-set-save-button': function () {
       S.sender('new-set-form-submit');
     },
-    '#select-all-set-elements': function (t)
-    {
+    '#select-all-set-elements': function (t) {
       setsui.toggleSelectAll(t);
     },
-    '.view-document-link span': function (t)
-    {
+    '.view-document-link span': function (t) {
       var parent = t[0].parentNode;
       indexui.load(parent);
     },
-    '.view-document-link': function (t)
-    {
+    '.view-document-link': function (t) {
       indexui.load(t);
     },
-    '.select-worksheet-column': function (t)
-    {
+    '.select-worksheet-column': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
       var field = target.attr('data-field-field');
       worksheetui.columnSelection(field, checked);
     },
-    '.select-worksheet-row': function (t)
-    {
+    '.select-worksheet-row': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
       var row = target.attr('data-row');
       worksheetui.rowSelection(row, checked);
     },
-    '#select-all-worksheet-rows': function (t)
-    {
+    '#select-all-worksheet-rows': function (t) {
       var checked = $(t).is(':checked');
       worksheetui.selectAllRows(checked);
     },
-    '#toggle-handles': function (t)
-    {
+    '#toggle-handles': function (t) {
       worksheetui.showHandles();
     },
-    '.fieldset-handle': function (t)
-    {
+    '.fieldset-handle': function (t) {
       worksheetui.showFieldset($(t).attr('data-field-fieldset'));
     },
-    '.field-handle': function (t)
-    {
+    '.field-handle': function (t) {
       worksheetui.showField($(t).attr('data-field-field'));
     },
-    '.field-header': function (t)
-    {
+    '.field-header': function (t) {
       worksheetui.hideField($(t).attr('data-field-field'));
     },
 
     // ### Index Tool
 
-    '#new-index-button': function (t)
-    {
+    '#new-index-button': function (t) {
       ieditui.newCond();
     },
-    '.remove-condition-button': function (t)
-    {
+    '.remove-condition-button': function (t) {
       ieditui.remCond(t);
     },
-    '#delete-index-button': function (t)
-    {
+    '#delete-index-button': function (t) {
       ieditui.del();
     },
-    '#save-index-button': function (t)
-    {
+    '#save-index-button': function (t) {
       ieditui.save();
     },
-    '#replace-button': function (t)
-    {
+    '#replace-button': function (t) {
       ieditui.replace();
     },
-    '#add-index-condition-button': function (t)
-    {
+    '#add-index-condition-button': function (t) {
       ieditui.addCond();
     },
-    '#index-index-listing a': function (t)
-    {
+    '#index-index-listing a': function (t) {
       ieditui.init(t);
     },
 
     // ### Project
 
-    '#create-project': function ()
-    {
+    '#create-project': function () {
       projectui.add().dialog('open');
     },
-    '.project-delete-button': function (t)
-    {
+    '.project-delete-button': function (t) {
       projectui.del(t);
     },
 
     // ### File Manager
 
-    '#up-dir': function ()
-    {
+    '#up-dir': function () {
       fm.upDir();
     },
-    '#root-dir': function ()
-    {
+    '#root-dir': function () {
       fm.rootDir();
     },
-    '.dir': function (t)
-    {
+    '.dir': function (t) {
       fm.goDir(t);
     },
-    '.delete-file-button': function (t)
-    {
+    '.delete-file-button': function (t) {
       fm.deleteFile(t);
     },
-    '.edit-file-button': function (t)
-    {
+    '.edit-file-button': function (t) {
       fm.editFile(t);
     },
 
     // ### General
 
-    '.toggler': function (t)
-    {
+    '.toggler': function (t) {
       form.toggle(t);
     },
-    '.cancel-dialog': function (t)
-    {
+    '.cancel-dialog': function (t) {
       form.cancelDialog(t);
     },
-    '#panel-toggle li': function (t)
-    {
+    '#panel-toggle li': function (t) {
       panelToggler(t);
     }
   });
@@ -11409,46 +11304,38 @@ var form = require('../ajax.js');
 // Exported functions
 
 // Dialog for manipulating doctypes
-var charseqDialog = function (values)
-{
+var charseqDialog = function (values) {
   'use strict';
   var f = charseqElems.get(values);
 
-  var dialog = $('#charseq-dialog').dialog(
-  {
+  var dialog = $('#charseq-dialog').dialog({
     width: 650,
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         var obj = f.getCharseqInputVals();
         var url = 'config/charseqs';
         var method = 'POST';
         // The new callback stuff doesn't do context but the plan is
         // to get rid of these dialogs.
-        var complete = function (context)
-        {
+        var complete = function (context) {
           charseqTab.init();
           $(context).dialog('close');
         };
 
-        if (values && values.rev)
-        {
+        if (values && values.rev) {
           method = 'PUT';
           url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
         }
 
         form.send(url, obj, method, complete, this);
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       f.clear();
     }
   });
@@ -11474,31 +11361,26 @@ var form = require('../form.js');
 // Exported functions
 
 // Return object for working with charseq elements
-var charseqElems = (function ()
-{
+var charseqElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['description', 'characters', 'name', 'sort_ignore', 'locale', 'tailoring', 'vowels', 'consonants', 'ietf_tag', 'iso639_tag', 'charseq', 'rev'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var cObj = {};
 
     cObj.attrs = mod.attrs;
 
-    cObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    cObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         cObj[field].val(source[field]);
       });
       return cObj;
     };
 
-    cObj.getCharseqInputVals = function ()
-    {
+    cObj.getCharseqInputVals = function () {
       var valObj = {
         'category': 'charseq',
         'description': cObj.description.val(),
@@ -11517,31 +11399,24 @@ var charseqElems = (function ()
       return valObj;
     };
 
-    cObj.parse = function (val)
-    {
-      if (val && !val.isBlank())
-      {
+    cObj.parse = function (val) {
+      if (val && !val.isBlank()) {
         return JSON.parse(val);
-      }
-      else
-      {
+      } else {
         return [];
       }
     };
 
-    cObj.clear = function ()
-    {
+    cObj.clear = function () {
       form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
 
-    cObj.attrs.forEach(function (item)
-    {
+    cObj.attrs.forEach(function (item) {
       cObj[item] = $('#charseq-' + item + '-input');
     });
 
-    if (values)
-    {
+    if (values) {
       cObj.copyValues(values);
     }
 
@@ -11568,25 +11443,21 @@ var form = require('../ajax.js');
 // Exported functions
 
 // Object containing initialization and other functions.
-var charseqTab = (function ()
-{
+var charseqTab = (function () {
   'use strict';
 
   var mod = {};
 
-  mod.add = function ()
-  {
+  mod.add = function () {
     charseqDialog().dialog('open');
     return mod;
   };
 
-  mod.edit = function (target)
-  {
+  mod.edit = function (target) {
     var oldobj = {};
     var attrs = charseqElems.attrs;
 
-    attrs.forEach(function (item)
-    {
+    attrs.forEach(function (item) {
       oldobj[item] = store(target).get64('charseq-' + item);
     });
     charseqDialog(oldobj).dialog('open');
@@ -11594,36 +11465,30 @@ var charseqTab = (function ()
     return mod;
   };
 
-  mod.del = function (target)
-  {
+  mod.del = function (target) {
     var s = store(target);
     var id = s.get('charseq-charseq');
     var rev = s.get('charseq-rev');
     var url = 'config/charseqs/' + id + '?rev=' + rev;
-    var complete = function ()
-    {
+    var complete = function () {
       mod.init();
     };
 
-    if (window.confirm('Are you sure? This is permanent.'))
-    {
-      form.send(url,
-      {}, 'DELETE', complete, this);
+    if (window.confirm('Are you sure? This is permanent.')) {
+      form.send(url, {}, 'DELETE', complete, this);
     }
 
     return mod;
   };
 
-  mod.init = function ()
-  {
+  mod.init = function () {
     var tabs = $('#charseq-tabs');
     var heads = $('#charseq-tabs-headings');
     var url = 'config/charseqs';
 
     tabs.tabs();
 
-    $.get(url, function (charseqs)
-    {
+    $.get(url, function (charseqs) {
       heads.empty();
       //$('#charseq-tabs-headings + .ui-tabs-panel').remove();
       heads.find('.ui-tabs-panel').remove();
@@ -11655,23 +11520,20 @@ var pager = require('../pager.js').pager;
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'charseqs';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = 'config/' + prefix();
   var target = document.getElementById(prefix() + '-listing');
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     url: url,
     target: target
@@ -11680,8 +11542,7 @@ var get = function ()
   return 'charseq-listing-requested';
 };
 
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   get();
@@ -11717,8 +11578,7 @@ var Observer = Reactor.Observer;
 // ## Exported Functions
 
 // Run initialization code for the configuration sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   editui.init();
@@ -11744,53 +11604,40 @@ var doctypeTab = require('./doctype-tab.js');
 // Exported functions
 
 // Dialog for manipulating doctypes
-var doctypeDialog = function (url, values)
-{
+var doctypeDialog = function (url, values) {
   'use strict';
 
   var f = doctypeElems.get(values);
 
-  if (values.rev && !values.rev.isBlank())
-  {
+  if (values.rev && !values.rev.isBlank()) {
     f.doctype.attr('disabled', 'disabled');
-  }
-  else
-  {
+  } else {
     f.doctype.removeAttr('disabled');
   }
 
-  var dialog = $('#doctype-dialog').dialog(
-  {
+  var dialog = $('#doctype-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         var obj = f.getDoctypeInputVals();
-        var complete = function (context)
-        {
+        var complete = function (context) {
           doctypeTab.init();
           $(context).dialog('close');
         };
 
-        if (!values.rev || values.rev.isBlank())
-        {
+        if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
-        }
-        else
-        {
+        } else {
           obj._id = url.doctype;
           url.put(obj, complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       f.clear();
     }
   });
@@ -11813,29 +11660,24 @@ var form = require('../form.js');
 
 // Returns an object with references to add/edit doctype dialog
 // field elements with helper functions.
-var doctypeElems = (function ()
-{
+var doctypeElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['description', 'doctype', 'rev'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var fObj = {};
 
-    fObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    fObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
       });
       return fObj;
     };
 
-    fObj.getDoctypeInputVals = function ()
-    {
+    fObj.getDoctypeInputVals = function () {
       var valObj = {
         'category': 'doctype',
         'description': fObj.description.val(),
@@ -11844,14 +11686,12 @@ var doctypeElems = (function ()
       return valObj;
     };
 
-    fObj.clear = function ()
-    {
+    fObj.clear = function () {
       form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
-    mod.attrs.forEach(function (item)
-    {
+    mod.attrs.forEach(function (item) {
       fObj[item] = $('#doctype-' + item + '-input');
     });
 
@@ -11883,8 +11723,7 @@ var path = require('../path.js').path;
 
 // Internal functions
 
-var cpath = function (source, category)
-{
+var cpath = function (source, category) {
   'use strict';
 
   return path(source, category, 'config');
@@ -11893,14 +11732,12 @@ var cpath = function (source, category)
 // Exported functions
 
 // Populate the listing of fields
-var initFields = function (path)
-{
+var initFields = function (path) {
   'use strict';
 
   path.field = false;
 
-  $.get(path.toString(), function (fields)
-  {
+  $.get(path.toString(), function (fields) {
     var fieldContainer = $('#fields-' + path.fieldset);
     fieldContainer.empty();
     fieldContainer.html(fields);
@@ -11910,12 +11747,10 @@ var initFields = function (path)
 };
 
 // Populate the listing of fieldsets
-var initFieldsets = function (url)
-{
+var initFieldsets = function (url) {
   'use strict';
 
-  $.get(url.toString(), function (fieldsets)
-  {
+  $.get(url.toString(), function (fieldsets) {
     var fieldsetContainer = $('#fieldsets-' + url.doctype);
 
     fieldsetContainer.empty();
@@ -11923,8 +11758,7 @@ var initFieldsets = function (url)
     fieldsetContainer.accordion('destroy');
     fieldsetContainer.html(fieldsets);
 
-    fieldsetContainer.accordion(
-    {
+    fieldsetContainer.accordion({
       autoHeight: false,
       collapsible: true,
       active: false
@@ -11933,16 +11767,14 @@ var initFieldsets = function (url)
 };
 
 // populate the tabs listing the doctypes
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var url = 'config/doctypes';
 
   $('#doctype-tabs').tabs();
 
-  $.get(url, function (doctypes)
-  {
+  $.get(url, function (doctypes) {
     var fieldsetDoctype = $('#fieldset-doctype-input');
 
     $('#doctype-tabs-headings').empty();
@@ -11950,17 +11782,14 @@ var init = function ()
     $('#doctype-tabs').tabs('destroy');
     $('#doctype-tabs-headings').html(doctypes);
 
-    var loadFun = function (event, ui)
-    {
+    var loadFun = function (event, ui) {
       var source = $(ui.panel).children('div[data-fieldset-doctype]');
       var fieldsetsPath = path(source, 'fieldset', 'config');
       initFieldsets(fieldsetsPath);
     };
 
-    $('#doctype-tabs').tabs(
-    {
-      load: function (e, ui)
-      {
+    $('#doctype-tabs').tabs({
+      load: function (e, ui) {
         loadFun(e, ui);
       }
     });
@@ -11968,8 +11797,7 @@ var init = function ()
 };
 
 // Button that opens a dialog for editing a field
-var editField = function (target)
-{
+var editField = function (target) {
   'use strict';
 
   var url = cpath(target, 'field');
@@ -11977,11 +11805,9 @@ var editField = function (target)
   var attrs = fieldElems.attrs;
   var charseqUrl = 'config/charseqs?as=options';
 
-  $.get(charseqUrl, function (charseqs)
-  {
+  $.get(charseqUrl, function (charseqs) {
     $('#field-charseq-input').html(charseqs);
-    attrs.forEach(function (item)
-    {
+    attrs.forEach(function (item) {
       oldobj[item] = store(target).get('field-' + item);
     });
     fieldDialog(url, oldobj).dialog('open');
@@ -11989,17 +11815,14 @@ var editField = function (target)
 };
 
 // Button that opens a dialog for deleting a field
-var deleteField = function (target)
-{
+var deleteField = function (target) {
   'use strict';
 
   var answer = window.confirm('Are you sure? This is permanent.');
 
-  if (answer)
-  {
+  if (answer) {
     var url = cpath(target, 'field');
-    var complete = function ()
-    {
+    var complete = function () {
       url.field = false;
       url.rev = false;
 
@@ -12010,18 +11833,15 @@ var deleteField = function (target)
 };
 
 // Button that opens a dialog for adding a field
-var addField = function (target)
-{
+var addField = function (target) {
   'use strict';
 
   var url = cpath(target, 'field');
   var charseqUrl = 'config/charseqs?as=options';
 
-  $.get(charseqUrl, function (charseqs)
-  {
+  $.get(charseqUrl, function (charseqs) {
     $('#field-charseq-input').html(charseqs);
-    fieldDialog(url,
-    {
+    fieldDialog(url, {
       fieldset: url.fieldset,
       doctype: url.doctype
     }).dialog('open');
@@ -12029,16 +11849,14 @@ var addField = function (target)
 };
 
 // Button that opens a dialog for editing a fieldset
-var editFieldset = function (target)
-{
+var editFieldset = function (target) {
   'use strict';
 
   var url = cpath(target, 'fieldset');
   var oldobj = {};
   var attrs = fieldsetElems.attrs;
 
-  attrs.forEach(function (item)
-  {
+  attrs.forEach(function (item) {
     oldobj[item] = store(target).get('fieldset-' + item);
   });
 
@@ -12046,56 +11864,48 @@ var editFieldset = function (target)
 };
 
 // Button that opens a dialog for deleting a fieldset
-var deleteFieldset = function (target)
-{
+var deleteFieldset = function (target) {
   'use strict';
 
   var url = cpath(target, 'fieldset');
 
-  var complete = function ()
-  {
+  var complete = function () {
     url.fieldset = false;
     url.rev = false;
     initFieldsets(url);
   };
 
-  if (window.confirm('Are you sure? This is permanent.'))
-  {
+  if (window.confirm('Are you sure? This is permanent.')) {
     url.del(complete, this);
   }
 };
 
 // Button that opens a dialog for adding a fieldset.
-var addFieldset = function (target)
-{
+var addFieldset = function (target) {
   'use strict';
 
   var url = cpath(target, 'fieldset');
-  fieldsetDialog(url,
-  {
+  fieldsetDialog(url, {
     doctype: url.doctype
   }).dialog('open');
 };
 
 // Button that opens a dialog for editing a doctype.
-var editDoctype = function (target)
-{
+var editDoctype = function (target) {
   'use strict';
 
   var url = cpath(target, 'doctype');
   var oldobj = {};
   var attrs = doctypeElems.attrs;
 
-  attrs.forEach(function (item)
-  {
+  attrs.forEach(function (item) {
     oldobj[item] = store(target).get('doctype-' + item);
   });
   doctypeDialog(url, oldobj).dialog('open');
 };
 
 // Button for initiating the touch operation.
-var touchDoctype = function (target)
-{
+var touchDoctype = function (target) {
   'use strict';
 
   var docid = store(target).get('doctype-doctype');
@@ -12104,27 +11914,23 @@ var touchDoctype = function (target)
 };
 
 // Button for deleting a doctype.
-var deleteDoctype = function (target)
-{
+var deleteDoctype = function (target) {
   'use strict';
 
   var url = cpath(target, 'doctype');
-  var complete = function ()
-  {
+  var complete = function () {
     url.doctype = false;
     url.rev = false;
     init();
   };
 
-  if (window.confirm('Are you sure? This is permanent.'))
-  {
+  if (window.confirm('Are you sure? This is permanent.')) {
     url.del(complete, this);
   }
 };
 
 // Button for adding a doctype.
-var addDoctype = function (target)
-{
+var addDoctype = function (target) {
   'use strict';
 
   var url = cpath(target, 'doctype');
@@ -12159,23 +11965,20 @@ var pager = require('../pager.js').pager;
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'doctypes';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = 'config/' + prefix();
   var target = document.getElementById(prefix() + '-listing');
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     url: url,
     target: target
@@ -12184,8 +11987,7 @@ var get = function ()
   return 'doctype-listing-requested';
 };
 
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   get();
@@ -12212,8 +12014,7 @@ var ajax = require('../ajax.js');
 // ## Internal Functions
 
 // Toggle the visibility of a group.
-var toggle = function (node)
-{
+var toggle = function (node) {
   'use strict';
 
   node.classList.toggle('collapsed');
@@ -12223,15 +12024,13 @@ var toggle = function (node)
 };
 
 // Get the editor form object.
-var editForm = function ()
-{
+var editForm = function () {
   'use strict';
 
   return document.getElementById('edit-form');
 };
 
-var fillForm = function (json)
-{
+var fillForm = function (json) {
   'use strict';
 
   var formHTML = formalize.toForm(json);
@@ -12245,12 +12044,10 @@ var fillForm = function (json)
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
-var get = function (url)
-{
+var get = function (url) {
   'use strict';
 
-  var complete = function (req)
-  {
+  var complete = function (req) {
     return fillForm(JSON.stringify(req.response));
   };
 
@@ -12260,8 +12057,7 @@ var get = function (url)
 };
 
 // Load an empty object into the editor.
-var fresh = function ()
-{
+var fresh = function () {
   'use strict';
 
   fillForm('{}');
@@ -12269,37 +12065,32 @@ var fresh = function ()
   return 'empty-object-loaded';
 };
 
-var create = function (args)
-{
+var create = function (args) {
   'use strict';
 
   return 'object-created';
 };
 
-var update = function (args)
-{
+var update = function (args) {
   'use strict';
 
   return 'object-updated';
 };
 
-var remove = function (args)
-{
+var remove = function (args) {
   'use strict';
 
   return 'object-removed';
 };
 
-var restore = function (args)
-{
+var restore = function (args) {
   'use strict';
 
   return 'object-restored';
 };
 
 // Initialize the editor, loading a fresh object.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   fresh();
@@ -12315,6 +12106,7 @@ exports.create = create;
 exports.remove = remove;
 exports.restore = restore;
 exports.toggle = toggle;
+
 },{"../ajax.js":36,"../formalize.js":70}],50:[function(require,module,exports){
 // # Field manipulation dialog
 //
@@ -12328,43 +12120,33 @@ var doctypeTab = require('./doctype-tab.js');
 // Exported functions
 
 // Dialog for manipulating fields
-var fieldDialog = function (url, values)
-{
+var fieldDialog = function (url, values) {
   'use strict';
 
   var f = fieldElems.get(values);
 
-  var dialog = $('#field-dialog').dialog(
-  {
+  var dialog = $('#field-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         var obj = f.clearDisabled().getFieldInputVals();
-        var complete = function (context)
-        {
+        var complete = function (context) {
           doctypeTab.initFields(url);
           $(context).dialog('close');
         };
-        if (!values.rev || values.rev.isBlank())
-        {
+        if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
-        }
-        else
-        {
+        } else {
           obj._id = url.field;
           url.put(obj, complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       f.clear();
     }
   });
@@ -12388,16 +12170,14 @@ var utils = require('../utils.js');
 
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions.
-var fieldElems = (function ()
-{
+var fieldElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['name', 'label', 'order', 'description', 'subcategory', 'head', 'reversal', 'default', 'required', 'allowed', 'source', 'max', 'min', 'regex', 'doctype', 'fieldset', 'charseq', 'rev', 'field'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var fObj = {};
 
     fObj.attrs = mod.attrs;
@@ -12405,41 +12185,31 @@ var fieldElems = (function ()
     // These are fields that only some field subcategories use.
     // Below you'll see them being disabled and reenabled depending on the
     // chosen subcategory.
-    fObj.notDefault = function ()
-    {
+    fObj.notDefault = function () {
       return [fObj.charseq, fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
     };
 
-    fObj.disable = function ()
-    {
-      fObj.notDefault().forEach(function (field)
-      {
+    fObj.disable = function () {
+      fObj.notDefault().forEach(function (field) {
         field.attr('disabled', 'disabled');
       });
       return fObj;
     };
 
-    fObj.clearDisabled = function ()
-    {
-      fObj.notDefault().forEach(function (field)
-      {
-        if (field.attr('disabled'))
-        {
+    fObj.clearDisabled = function () {
+      fObj.notDefault().forEach(function (field) {
+        if (field.attr('disabled')) {
           field.val('');
         }
       });
       return fObj;
     };
 
-    fObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    fObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]'))
-        {
-          if (source[field] === 'true')
-          {
+        if (fObj[field].is('input[type=checkbox]')) {
+          if (source[field] === 'true') {
             fObj[field].prop('checked', true);
           }
         }
@@ -12447,8 +12217,7 @@ var fieldElems = (function ()
       return fObj;
     };
 
-    fObj.getFieldInputVals = function ()
-    {
+    fObj.getFieldInputVals = function () {
       var valObj = {
         'category': 'field',
         'name': fObj.name.val(),
@@ -12472,41 +12241,30 @@ var fieldElems = (function ()
       return valObj;
     };
 
-    fObj.clear = function ()
-    {
+    fObj.clear = function () {
       form.clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
 
-    fObj.decodeBound = function (subcategory, bound)
-    {
-      if (subcategory === 'date')
-      {
+    fObj.decodeBound = function (subcategory, bound) {
+      if (subcategory === 'date') {
         return bound;
-      }
-      else
-      {
+      } else {
         return utils.stringToNumber(bound);
       }
     };
 
-    fObj.decodeSource = function (subcategory, source)
-    {
-      if (subcategory === 'file')
-      {
+    fObj.decodeSource = function (subcategory, source) {
+      if (subcategory === 'file') {
         return source.split('/').trimAll();
-      }
-      else
-      {
+      } else {
         return source;
       }
     };
 
-    fObj.decodeDefaults = function (subcategory, defaults)
-    {
-      switch (subcategory)
-      {
+    fObj.decodeDefaults = function (subcategory, defaults) {
+      switch (subcategory) {
       case 'docmultiselect':
       case 'multiselect':
         return defaults.split(',').trimAll();
@@ -12517,10 +12275,8 @@ var fieldElems = (function ()
       }
     };
 
-    fObj.displayFields = function (subcategory)
-    {
-      switch (subcategory)
-      {
+    fObj.displayFields = function (subcategory) {
+      switch (subcategory) {
       case 'select':
       case 'multiselect':
         fObj.disable();
@@ -12550,16 +12306,14 @@ var fieldElems = (function ()
       }
     };
 
-    fObj.attrs.forEach(function (item)
-    {
+    fObj.attrs.forEach(function (item) {
       fObj[item] = $('#field-' + item + '-input');
     });
 
     fObj.copyValues(values);
     fObj.displayFields(fObj.subcategory.val());
 
-    fObj.subcategory.change(function ()
-    {
+    fObj.subcategory.change(function () {
       fObj.displayFields(fObj.subcategory.val());
     });
 
@@ -12584,46 +12338,36 @@ var doctypeTab = require('./doctype-tab.js');
 // Exported functions
 
 // Dialog for manipulating fieldsets
-var fieldsetDialog = function (url, values)
-{
+var fieldsetDialog = function (url, values) {
   'use strict';
 
   var f = fieldsetElems.get(values);
 
-  var dialog = $('#fieldset-dialog').dialog(
-  {
+  var dialog = $('#fieldset-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         var obj = f.getFieldsetInputVals();
-        var complete = function (context)
-        {
+        var complete = function (context) {
           url.fieldset = false;
           url.rev = false;
 
           doctypeTab.initFieldsets(url);
           $(context).dialog('close');
         };
-        if (!values.rev || values.rev.isBlank())
-        {
+        if (!values.rev || values.rev.isBlank()) {
           url.post(obj, complete, this);
-        }
-        else
-        {
+        } else {
           obj._id = url.fieldset;
           url.put(obj, complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       f.clear();
     }
   });
@@ -12646,29 +12390,23 @@ var form = require('../form.js');
 
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions.
-var fieldsetElems = (function ()
-{
+var fieldsetElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['name', 'label', 'order', 'description', 'doctype', 'rev', 'multiple', 'collapse', 'fieldset'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var fObj = {};
 
     fObj.attrs = mod.attrs;
 
-    fObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    fObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]'))
-        {
-          if (source[field] === 'true')
-          {
+        if (fObj[field].is('input[type=checkbox]')) {
+          if (source[field] === 'true') {
             fObj[field].attr('checked', true);
           }
         }
@@ -12676,8 +12414,7 @@ var fieldsetElems = (function ()
       return fObj;
     };
 
-    fObj.getFieldsetInputVals = function ()
-    {
+    fObj.getFieldsetInputVals = function () {
       var valObj = {
         'category': 'fieldset',
         'name': fObj.name.val(),
@@ -12691,14 +12428,12 @@ var fieldsetElems = (function ()
       return valObj;
     };
 
-    fObj.clear = function ()
-    {
+    fObj.clear = function () {
       form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
-    fObj.attrs.forEach(function (item)
-    {
+    fObj.attrs.forEach(function (item) {
       fObj[item] = $('#fieldset-' + item + '-input');
     });
 
@@ -12730,12 +12465,10 @@ var flash = require('../flash.js');
 // When the upgrade button is pressed in the configuration UI, this
 // will carry out the necessary action. It will make an empty `POST`
 // to the upgrade path and alert the user that this was done.
-var upgradeButton = function ()
-{
+var upgradeButton = function () {
   'use strict';
 
-  ajax.post('config/upgrade', false, function ()
-  {
+  ajax.post('config/upgrade', false, function () {
     flash.highlight('Task Started', 'Upgrade Project');
   });
 
@@ -12743,8 +12476,7 @@ var upgradeButton = function ()
 };
 
 // Initialize and display the interface.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var renderedHTML = templates['config-maintenance']();
@@ -12778,46 +12510,35 @@ var worksheetui = require('./documents/worksheetui.js');
 
 // Given a click event, determine what action to take based on the
 // click target.
-var dblclickDispatch = function (e)
-{
+var dblclickDispatch = function (e) {
   'use strict';
 
-  var action = dispatcher(
-  {
-    '#edit-form span': function (t)
-    {
+  var action = dispatcher({
+    '#edit-form span': function (t) {
       ceditui.toggle(t);
     },
-    '.search-result-field-id a': function (t)
-    {
+    '.search-result-field-id a': function (t) {
       searchui.addField($(t).parent('h5'));
     },
-    '.field-view b': function (t)
-    {
+    '.field-view b': function (t) {
       searchui.addField($(t).parent('li'));
     },
-    '.field-container label span': function (t)
-    {
+    '.field-container label span': function (t) {
       searchui.addField($(t).parent('label').parent('div'));
     },
-    '#index-index-input-label': function ()
-    {
+    '#index-index-input-label': function () {
       searchui.addIndex();
     },
-    '.panel > h2': function (t)
-    {
+    '.panel > h2': function (t) {
       panelToggler(t);
     },
-    '#toggle-handles': function (t)
-    {
+    '#toggle-handles': function (t) {
       worksheetui.hideHandles();
     },
-    '.fieldset-handle': function (t)
-    {
+    '.fieldset-handle': function (t) {
       worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
     },
-    '.field-handle': function (t)
-    {
+    '.field-handle': function (t) {
       worksheetui.hideField($(t).attr('data-field-field'));
     }
   });
@@ -12838,18 +12559,14 @@ exports.dblclickDispatch = dblclickDispatch;
 // # Exported Functions
 
 // Match the target to a pattern and run its action.
-var dispatcher = function (patterns)
-{
+var dispatcher = function (patterns) {
   'use strict';
 
-  var d = function (e)
-  {
+  var d = function (e) {
     var target = e.target;
 
-    Object.keys(patterns).forEach(function (pattern)
-    {
-      if (target.matches(pattern))
-      {
+    Object.keys(patterns).forEach(function (pattern) {
+      if (target.matches(pattern)) {
         var action = patterns[pattern];
         action(target);
       }
@@ -12876,29 +12593,23 @@ var pager = require('../pager.js').pager;
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'changelog';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = prefix();
   var target = document.getElementById(prefix() + '-listing');
 
-  var format = function (resp)
-  {
-    resp.rows.map(function (item)
-    {
-      if (item.doc.changes)
-      {
-        item.doc.changes = Object.keys(item.doc.changes).map(function (key)
-        {
+  var format = function (resp) {
+    resp.rows.map(function (item) {
+      if (item.doc.changes) {
+        item.doc.changes = Object.keys(item.doc.changes).map(function (key) {
           return item.doc.changes[key];
         });
       }
@@ -12907,8 +12618,7 @@ var get = function ()
     return resp;
   };
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     url: url,
     format: format,
@@ -12936,29 +12646,25 @@ var S = require('../sender.js');
 
 // Internal functions
 
-var commandInput = function ()
-{
+var commandInput = function () {
   'use strict';
 
   return document.getElementById('edit-command-input');
 };
 
-var commandDialog = function ()
-{
+var commandDialog = function () {
   'use strict';
 
   return $('#command-dialog');
 };
 
-var setContext = function (elem, context)
-{
+var setContext = function (elem, context) {
   'use strict';
 
   return elem.attr('data-last-active', context);
 };
 
-var getContext = function (elem)
-{
+var getContext = function (elem) {
   'use strict';
 
   return elem.attr('data-last-active');
@@ -12967,14 +12673,12 @@ var getContext = function (elem)
 // Exported functions
 
 // Lookup the command and perform an action.
-var execute = function (command)
-{
+var execute = function (command) {
   'use strict';
 
   var restoreFocus = true;
 
-  switch (command)
-  {
+  switch (command) {
   case 'w':
   case 'clear':
     editui.clear();
@@ -12991,16 +12695,14 @@ var execute = function (command)
   case 'd':
   case 'delete':
     $('#document-view').show();
-    if ($('#document-delete-button').css('display') !== 'none')
-    {
+    if ($('#document-delete-button').css('display') !== 'none') {
       $('#document-delete-button').click();
     }
     break;
   case 'e':
   case 'edit':
     $('#document-view').show();
-    if ($('#document-edit-button').css('display') !== 'none')
-    {
+    if ($('#document-edit-button').css('display') !== 'none') {
       $('#document-edit-button').click();
       restoreFocus = false;
     }
@@ -13008,21 +12710,17 @@ var execute = function (command)
   case 'r':
   case 'restore':
     $('#document-view').show();
-    if ($('#document-restore-button').css('display') !== 'none')
-    {
+    if ($('#document-restore-button').css('display') !== 'none') {
       $('#document-restore-button').click();
     }
     break;
   }
 
-  if (restoreFocus)
-  {
+  if (restoreFocus) {
     var cdialog = commandDialog();
     var context = getContext(cdialog);
     $('#' + context).focus();
-  }
-  else
-  {
+  } else {
     S.sender('lost-focus');
   }
 
@@ -13031,8 +12729,7 @@ var execute = function (command)
 };
 
 // Open the command dialog
-var dialogOpen = function (context)
-{
+var dialogOpen = function (context) {
   'use strict';
 
   var cinput = commandInput();
@@ -13044,8 +12741,7 @@ var dialogOpen = function (context)
 };
 
 // Close the command dialog
-var dialogClose = function ()
-{
+var dialogClose = function () {
   'use strict';
 
   var cinput = commandInput();
@@ -13084,13 +12780,11 @@ var identifier;
 // which is triggering the change event.
 //
 // *TODO* put this with other change handlers.
-var indexForm = function ()
-{
+var indexForm = function () {
   'use strict';
 
   // TODO Remove JQuery
-  $('#index-filter-form select').change(function ()
-  {
+  $('#index-filter-form select').change(function () {
     indexui.get();
   });
 
@@ -13099,12 +12793,10 @@ var indexForm = function ()
 
 // If there is a hash at the end of the URL with a document ID specified,
 // this will pass the information on the correct funciont in `viewui`.
-var loadHash = function (urlHash)
-{
+var loadHash = function (urlHash) {
   'use strict';
 
-  if (urlHash)
-  {
+  if (urlHash) {
     viewui.get(urlHash);
   }
 
@@ -13112,40 +12804,35 @@ var loadHash = function (urlHash)
 };
 
 // A user interface element.
-var allDocContainer = function ()
-{
+var allDocContainer = function () {
   'use strict';
 
   return document.getElementById('all-document-container');
 };
 
 // Key used in retrieving cached information from session storage.
-var versionKey = function ()
-{
+var versionKey = function () {
   'use strict';
 
   return identifier() + '_version';
 };
 
 // Key used in retrieving cached information from session storage.
-var infoKey = function ()
-{
+var infoKey = function () {
   'use strict';
 
   return identifier() + '_info';
 };
 
 // Key used in retrieving cached information from session storage.
-var labelsKey = function ()
-{
+var labelsKey = function () {
   'use strict';
 
   return identifier() + '_labels';
 };
 
 // Store the doctype info in the session store.
-var storeDoctype = function (doctype)
-{
+var storeDoctype = function (doctype) {
   'use strict';
 
   sessionStorage.setItem(infoKey(), doctype);
@@ -13154,8 +12841,7 @@ var storeDoctype = function (doctype)
 };
 
 // Get the stored doctype version.
-var getVersion = function ()
-{
+var getVersion = function () {
   'use strict';
 
   return sessionStorage.getItem(versionKey());
@@ -13163,8 +12849,7 @@ var getVersion = function ()
 
 // Get the most recent doctype version, which is placed in a `data`
 // attribute that is updated on page reloads.
-var getCurrentVersion = function ()
-{
+var getCurrentVersion = function () {
   'use strict';
 
   return store(allDocContainer()).d('version');
@@ -13172,30 +12857,26 @@ var getCurrentVersion = function ()
 
 // Check if the stored doctype version matches the version found in the
 // `data` attribute.
-var isCurrentVersionStored = function ()
-{
+var isCurrentVersionStored = function () {
   'use strict';
 
   return (getVersion() && getVersion() === getCurrentVersion());
 };
 
-var isInfoStored = function ()
-{
+var isInfoStored = function () {
   'use strict';
 
   return sessionStorage.getItem(infoKey()) !== null;
 };
 
-var isLabelsStored = function ()
-{
+var isLabelsStored = function () {
   'use strict';
 
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
 // Reset the doctype version
-var setVersion = function ()
-{
+var setVersion = function () {
   'use strict';
 
   sessionStorage.setItem(versionKey(), getCurrentVersion());
@@ -13206,18 +12887,14 @@ var setVersion = function ()
 
 // Check the session state to ensure it is up to date and fully
 // loaded.
-var checkState = function ()
-{
+var checkState = function () {
   'use strict';
 
   var retval;
 
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored())
-  {
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored()) {
     retval = S.sender('labels-ready');
-  }
-  else
-  {
+  } else {
     retval = S.sender('bad-session-state');
   }
 
@@ -13225,16 +12902,14 @@ var checkState = function ()
 };
 
 // Get the doctype name
-var dname = function ()
-{
+var dname = function () {
   'use strict';
 
   return store(allDocContainer()).d('doctype');
 };
 
 // Get the project id
-var project = function ()
-{
+var project = function () {
   'use strict';
 
   var container = document.getElementById('container');
@@ -13244,8 +12919,7 @@ var project = function ()
 // ## Exported functions
 
 // Clear the session storage
-var clearSession = function ()
-{
+var clearSession = function () {
   'use strict';
 
   sessionStorage.clear();
@@ -13255,28 +12929,24 @@ var clearSession = function ()
 };
 
 // Identifier is a combination of the project and doctype name.
-identifier = function ()
-{
+identifier = function () {
   'use strict';
 
   return project() + '_' + dname();
 };
 
 // Get information about doctype.
-var info = function ()
-{
+var info = function () {
   'use strict';
 
   return JSON.parse(sessionStorage.getItem(infoKey()));
 };
 
 // Load the doctype document stored on the server.
-var loadDoctype = function ()
-{
+var loadDoctype = function () {
   'use strict';
 
-  ajax.get('./', function (req)
-  {
+  ajax.get('./', function (req) {
     storeDoctype(JSON.stringify(req.response));
   });
 
@@ -13285,17 +12955,14 @@ var loadDoctype = function ()
 
 // Process the field and fieldset info to create a field label to field
 // id index.
-var makeLabels = function ()
-{
+var makeLabels = function () {
   'use strict';
 
   var info1 = info();
   var labels = {};
 
-  info1.fieldsets.forEach(function (fieldset)
-  {
-    fieldset.fields.forEach(function (field)
-    {
+  info1.fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
       labels[field._id] = [fieldset.label, field.label];
     });
   });
@@ -13306,13 +12973,11 @@ var makeLabels = function ()
 };
 
 // Initialize the documents sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   // TODO Remove JQuery
-  $('form').on('submit', function ()
-  {
+  $('form').on('submit', function () {
     return false;
   });
   checkState();
@@ -13355,24 +13020,21 @@ var afterRefresh;
 // Internal functions
 
 // UI Element
-var saveButton = function ()
-{
+var saveButton = function () {
   'use strict';
 
   return $('#save-document-button');
 };
 
 // UI Element
-var createButton = function ()
-{
+var createButton = function () {
   'use strict';
 
   return $('#create-document-button');
 };
 
 // UI Element
-var editButton = function ()
-{
+var editButton = function () {
   'use strict';
 
   return $('#document-edit-button');
@@ -13380,8 +13042,7 @@ var editButton = function ()
 
 
 // Display validation error properly.
-var validationError = function (req)
-{
+var validationError = function (req) {
   'use strict';
 
   var body = JSON.parse(req.responseText);
@@ -13399,27 +13060,22 @@ var validationError = function (req)
 };
 
 // Fields need to have instances. This should ensure they have them.
-var instances = function (addInstances)
-{
+var instances = function (addInstances) {
   'use strict';
 
   var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-  var makeInstance = function ()
-  {
-    return text.map(function ()
-    {
+  var makeInstance = function () {
+    return text.map(function () {
       return text[Math.floor(Math.random() * text.length)];
     }).join('');
   };
 
-  $('#last-added [data-field-instance]').each(function (index, item)
-  {
+  $('#last-added [data-field-instance]').each(function (index, item) {
     var itemElem = $(item).first();
     var oldInstance = itemElem.attr('data-field-instance');
     var newInstance = oldInstance;
 
-    if (addInstances)
-    {
+    if (addInstances) {
       newInstance = makeInstance();
     }
 
@@ -13432,8 +13088,7 @@ var instances = function (addInstances)
     itemElem.next().next('.expander').attr('data-group-id', newInstance);
   });
 
-  if (addInstances)
-  {
+  if (addInstances) {
     $('#last-added').removeAttr('id');
   }
 
@@ -13443,14 +13098,12 @@ var instances = function (addInstances)
 // Exported functions
 
 // Initialize the editing pane.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var url = 'documents/edit';
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     var documentEditHtml = req.response;
 
     $('#document-edit').html(documentEditHtml);
@@ -13462,13 +13115,11 @@ var init = function ()
 };
 
 // Focus on the first focusable input element in an active tab.
-var selectInput = function ()
-{
+var selectInput = function () {
   'use strict';
 
   var inputable = 'input, select, textarea';
-  var t = function ()
-  {
+  var t = function () {
     return $('#edit-tabs');
   };
 
@@ -13483,8 +13134,7 @@ var selectInput = function ()
 // set. Basically this is for a completely fresh refresh, when the form
 // is in the state such that a document can be created but no information
 // is available to do an update.
-var afterFreshRefresh = function (addInstances)
-{
+var afterFreshRefresh = function (addInstances) {
   'use strict';
 
   afterRefresh(addInstances);
@@ -13493,14 +13143,12 @@ var afterFreshRefresh = function (addInstances)
 };
 
 // Run after the edit button in the view UI is clicked.
-var afterEditRefresh = function ()
-{
+var afterEditRefresh = function () {
   'use strict';
 
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
-  sharedAttrs.forEach(function (elem)
-  {
+  sharedAttrs.forEach(function (elem) {
     saveButton().attr(elem, editButton().attr(elem));
   });
 
@@ -13512,8 +13160,7 @@ var afterEditRefresh = function ()
 
 // Essentially initialization of the form. If `addInstances` is true,
 // new instance identifiers will be created for a blank form.
-afterRefresh = function (addInstances)
-{
+afterRefresh = function (addInstances) {
   'use strict';
 
   form.initDateFields();
@@ -13523,32 +13170,22 @@ afterRefresh = function (addInstances)
 };
 
 // Reset field values to defaults.
-var resetFields = function ()
-{
+var resetFields = function () {
   'use strict';
 
-  $('.field').each(function (index)
-  {
+  $('.field').each(function (index) {
     var field = $(this);
     var thedefault = field.attr('data-field-default');
 
-    if (thedefault && thedefault !== '')
-    {
-      if (field.is('select.multiselect'))
-      {
+    if (thedefault && thedefault !== '') {
+      if (field.is('select.multiselect')) {
         field.val(thedefault.split(','));
-      }
-      else if (field.is('input.boolean'))
-      {
+      } else if (field.is('input.boolean')) {
         field.attr('checked', thedefault === true);
-      }
-      else
-      {
+      } else {
         field.val(thedefault);
       }
-    }
-    else
-    {
+    } else {
       field.val('');
       field.removeAttr('checked');
     }
@@ -13559,14 +13196,11 @@ var resetFields = function ()
 
 // To be run if the user chooses to save the form contents. This is an
 // update, not creation.
-var save = function ()
-{
+var save = function () {
   'use strict';
 
-  if (saveButton().hasClass('oldrev'))
-  {
-    if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
-    {
+  if (saveButton().hasClass('oldrev')) {
+    if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
   }
@@ -13589,32 +13223,25 @@ var save = function ()
   saveButton().hide();
   $.extend(obj, fieldsets.fieldsetsToObject(root));
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'PUT',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
     processData: false,
     data: JSON.stringify(obj),
-    complete: function (req, status)
-    {
-      if (req.status === 204 || req.status === 200)
-      {
+    complete: function (req, status) {
+      if (req.status === 204 || req.status === 200) {
         title = 'Success';
         body = 'Your document was saved.';
         viewui.get(document);
         indexui.get(skey, sid);
         flash.highlight(title, body);
         saveButton().removeClass('oldrev').show();
-      }
-      else if (req.status === 403)
-      {
+      } else if (req.status === 403) {
         validationError(req);
         saveButton().show();
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
@@ -13626,8 +13253,7 @@ var save = function ()
 };
 
 // To be run if creating a new document.
-var create = function ()
-{
+var create = function () {
   'use strict';
 
   var s = store(createButton());
@@ -13643,17 +13269,14 @@ var create = function ()
   createButton().hide();
   $.extend(obj, fieldsets.fieldsetsToObject(root));
 
-  var postUrl = $.ajax(
-  {
+  var postUrl = $.ajax({
     type: 'POST',
     dataType: 'json',
     contentType: 'application/json',
     processData: false,
     data: JSON.stringify(obj),
-    complete: function (req, status)
-    {
-      if (req.status === 201)
-      {
+    complete: function (req, status) {
+      if (req.status === 201) {
         var title = 'Success';
         var body = 'Your document was created.';
         var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
@@ -13665,9 +13288,7 @@ var create = function ()
         indexui.get(skey, sid);
         flash.highlight(title, body);
         createButton().show();
-      }
-      else if (req.status === 403)
-      {
+      } else if (req.status === 403) {
         validationError(req);
         createButton().show();
       }
@@ -13676,8 +13297,7 @@ var create = function ()
 };
 
 // Clear the form.
-var clear = function ()
-{
+var clear = function () {
   'use strict';
 
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -13687,12 +13307,10 @@ var clear = function ()
 };
 
 // Display a help dialog for a form field.
-var showHelpDialog = function (target)
-{
+var showHelpDialog = function (target) {
   'use strict';
 
-  if (target.is('.label-text'))
-  {
+  if (target.is('.label-text')) {
     target = target.parent('label').find('.ui-icon-help');
   }
 
@@ -13702,19 +13320,15 @@ var showHelpDialog = function (target)
 };
 
 // Contract and expand textarea elements.
-var toggleTextarea = function (target)
-{
+var toggleTextarea = function (target) {
   'use strict';
 
   var textarea = $('#' + target.attr('data-group-id'));
 
-  if (target.attr('id') === textarea.attr('data-group-id'))
-  {
+  if (target.attr('id') === textarea.attr('data-group-id')) {
     textarea.toggleClass('expanded');
     textarea.next().next('span').toggleClass('expanded');
-  }
-  else
-  {
+  } else {
     textarea.toggleClass('expanded');
     target.toggleClass('expanded');
   }
@@ -13757,16 +13371,14 @@ var initFieldset;
 // Internal functions
 
 // Get the container for a fieldset with `id`.
-var fsContainer = function (id)
-{
+var fsContainer = function (id) {
   'use strict';
 
   return $('#container-' + id);
 };
 
 // Get the doctype path.
-var dpath = function (source, category)
-{
+var dpath = function (source, category) {
   'use strict';
 
   var url = path(source, category);
@@ -13778,27 +13390,22 @@ var dpath = function (source, category)
 // `success` action with the stored items as the argument, otherwise,
 // get the item from the server and perform the `otherwise` action with
 // the retrieved item as an argument.
-var ifStoredElse = function (key, success, otherwise)
-{
+var ifStoredElse = function (key, success, otherwise) {
   'use strict';
 
   var item = null;
 
   item = sessionStorage.getItem(key);
 
-  if (item)
-  {
+  if (item) {
     success(item);
-  }
-  else
-  {
+  } else {
     ajax.legacyHTMLGet(key, otherwise);
   }
 };
 
 // Convert field values to an object that can be converted to JSON
-var fieldsToObject = function (fields, index)
-{
+var fieldsToObject = function (fields, index) {
   'use strict';
 
   fields = fields.children('.field-container').children('.field');
@@ -13806,8 +13413,7 @@ var fieldsToObject = function (fields, index)
     fields: []
   };
 
-  fields.each(function (i, field)
-  {
+  fields.each(function (i, field) {
     field = $(field);
     var s = store(field);
     var value = getFieldValue(field);
@@ -13830,8 +13436,7 @@ var fieldsToObject = function (fields, index)
       value: value
     };
 
-    if (index >= 0)
-    {
+    if (index >= 0) {
       obj.fields[i].index = index;
     }
   });
@@ -13841,27 +13446,21 @@ var fieldsToObject = function (fields, index)
 
 // `min` and `max` are either dates or numbers. Provide the correct
 // value or the correct type depending on the subcategory of the field.
-dateOrNumber = function (subcategory, fieldvalue)
-{
+dateOrNumber = function (subcategory, fieldvalue) {
   'use strict';
 
-  if (subcategory === 'date')
-  {
+  if (subcategory === 'date') {
     return fieldvalue;
-  }
-  else
-  {
+  } else {
     return utils.stringToNumber(fieldvalue);
   }
 };
 
 // Get the correct value for a boolean that can be null
-var getOpenboolean = function (value)
-{
+var getOpenboolean = function (value) {
   'use strict';
 
-  switch (value)
-  {
+  switch (value) {
   case 'true':
     value = true;
     break;
@@ -13876,16 +13475,12 @@ var getOpenboolean = function (value)
 };
 
 // Get a number from a string. Blanks are returned as an empty string.
-var getNumber = function (value)
-{
+var getNumber = function (value) {
   'use strict';
 
-  if (utils.isBlank(value))
-  {
+  if (utils.isBlank(value)) {
     value = '';
-  }
-  else if (!isNaN(value))
-  {
+  } else if (!isNaN(value)) {
     value = value * 1;
   }
 
@@ -13893,19 +13488,14 @@ var getNumber = function (value)
 };
 
 // Items in multiple select lists are URL encoded
-var getMultiple = function (value)
-{
+var getMultiple = function (value) {
   'use strict';
 
-  if (value)
-  {
-    value = value.map(function (v)
-    {
+  if (value) {
+    value = value.map(function (v) {
       return getEncoded(v);
     });
-  }
-  else
-  {
+  } else {
     value = null;
   }
 
@@ -13913,8 +13503,7 @@ var getMultiple = function (value)
 };
 
 // Items in select lists are URL encoded
-getEncoded = function (value)
-{
+getEncoded = function (value) {
   'use strict';
 
   return window.decodeURIComponent(value.replace(/\+/g, ' '));
@@ -13922,14 +13511,12 @@ getEncoded = function (value)
 
 // Get the value from a field using the subcategory to ensure
 // that the value has the correct type and is properly formatted.
-getFieldValue = function (field)
-{
+getFieldValue = function (field) {
   'use strict';
 
   var value;
 
-  switch (store(field).f('subcategory'))
-  {
+  switch (store(field).f('subcategory')) {
   case 'boolean':
     value = field.is('input:checkbox:checked');
     break;
@@ -13956,29 +13543,24 @@ getFieldValue = function (field)
 };
 
 // Basic initialization of fields.
-var initFields = function (container, callback, addInstances)
-{
+var initFields = function (container, callback, addInstances) {
   'use strict';
 
   var url = dpath(container, 'field');
   var section = container.children('.fields').last();
-  var prependIt = function (data)
-  {
-    if (addInstances)
-    {
+  var prependIt = function (data) {
+    if (addInstances) {
       section.attr('id', 'last-added');
     }
     section.prepend(data);
-    if (callback)
-    {
+    if (callback) {
       callback(section);
     }
 
     editui.afterFreshRefresh(addInstances);
   };
 
-  var storeIt = function (req)
-  {
+  var storeIt = function (req) {
     var data = req.response;
 
     sessionStorage.setItem(url, data);
@@ -13991,8 +13573,7 @@ var initFields = function (container, callback, addInstances)
 };
 
 // Initialize and fill multifieldsets.
-var fillMultiFieldsets = function (vfieldset)
-{
+var fillMultiFieldsets = function (vfieldset) {
   'use strict';
 
   vfieldset = $(vfieldset);
@@ -14002,45 +13583,38 @@ var fillMultiFieldsets = function (vfieldset)
 
   container.html('');
 
-  vfieldset.find('.multifield').each(function (i, multifield)
-  {
-    initFieldset(container, function (fieldset)
-    {
+  vfieldset.find('.multifield').each(function (i, multifield) {
+    initFieldset(container, function (fieldset) {
       fillFields($(multifield), fieldset);
     });
   });
 };
 
 // Initialize and fill normal fieldsets.
-var fillNormalFieldsets = function (vfieldset)
-{
+var fillNormalFieldsets = function (vfieldset) {
   'use strict';
 
   fillFields($(vfieldset));
 };
 
 // Fill the fields with values taken from the view pane.
-fillFields = function (container, context)
-{
+fillFields = function (container, context) {
   'use strict';
 
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
   $('#save-document-button').show();
 
-  container.find('.field-view').each(function (i, field)
-  {
+  container.find('.field-view').each(function (i, field) {
     var valueJson = $(field).attr('data-field-value');
     var id = $(field).attr('data-field-field');
     var instance = $(field).attr('data-field-instance');
     var value;
 
-    if (valueJson)
-    {
+    if (valueJson) {
       value = JSON.parse(valueJson);
     }
 
-    if (!context)
-    {
+    if (!context) {
       context = $('body');
     }
 
@@ -14052,37 +13626,24 @@ fillFields = function (container, context)
 };
 
 // Properly set the value of the field.
-setFieldValue = function (field, value, instance)
-{
+setFieldValue = function (field, value, instance) {
   'use strict';
 
-  if (field.is('input.boolean'))
-  {
+  if (field.is('input.boolean')) {
     field.prop('checked', value);
-  }
-  else if (value && field.is('select.open-boolean'))
-  {
+  } else if (value && field.is('select.open-boolean')) {
     field.val(value.toString());
-  }
-  else if (value && field.is('select.multiselect'))
-  {
-    value = value.map(function (x)
-    {
+  } else if (value && field.is('select.multiselect')) {
+    value = value.map(function (x) {
       return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
     });
     field.val(value);
-  }
-  else if (value && field.is('select.select'))
-  {
+  } else if (value && field.is('select.select')) {
     value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
     field.val(value);
-  }
-  else if (value && (field.is('input.text') || field.is('select.file')))
-  {
+  } else if (value && (field.is('input.text') || field.is('select.file'))) {
     field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
-  }
-  else
-  {
+  } else {
     field.val(value);
   }
 
@@ -14092,20 +13653,17 @@ setFieldValue = function (field, value, instance)
 // Exported functions
 
 // Initialize a fieldset.
-initFieldset = function (fieldset, callback, addInstances)
-{
+initFieldset = function (fieldset, callback, addInstances) {
   'use strict';
 
   var url = dpath($(fieldset), 'fieldset').toString();
   var id = store($(fieldset)).fs('fieldset');
   var container = $('#container-' + id);
-  var appendIt = function (data)
-  {
+  var appendIt = function (data) {
     container.append(data);
     initFields(container, callback, addInstances);
   };
-  var storeIt = function (req)
-  {
+  var storeIt = function (req) {
     var data = req.response;
 
     sessionStorage.setItem(url, data);
@@ -14119,16 +13677,14 @@ initFieldset = function (fieldset, callback, addInstances)
 
 // Before submitting the form, the form data is converted into an object
 // that can be serialized to JSON. This begins with the fieldsets.
-var fieldsetsToObject = function (root)
-{
+var fieldsetsToObject = function (root) {
   'use strict';
 
   var obj = {
     fieldsets: []
   };
 
-  root.find('fieldset').each(function (i, fieldset)
-  {
+  root.find('fieldset').each(function (i, fieldset) {
     fieldset = $(fieldset);
     var s = store(fieldset);
 
@@ -14145,16 +13701,12 @@ var fieldsetsToObject = function (root)
 
     fields = fsContainer(fsObj.id).children('.fields');
 
-    if (!fsObj.multiple)
-    {
+    if (!fsObj.multiple) {
       $.extend(fsObj, fieldsToObject(fields.first()));
-    }
-    else
-    {
+    } else {
       fsObj.multifields = [];
 
-      fields.each(function (j, field)
-      {
+      fields.each(function (j, field) {
         field = $(field);
 
         fsObj.multifields[j] = fieldsToObject(field, j);
@@ -14168,16 +13720,13 @@ var fieldsetsToObject = function (root)
 };
 
 // Initialize fieldsets
-var initFieldsets = function ()
-{
+var initFieldsets = function () {
   'use strict';
 
-  $('fieldset').each(function (i, fieldset)
-  {
+  $('fieldset').each(function (i, fieldset) {
     var fs = store($(fieldset));
 
-    if (fs.fs('multiple') === 'false')
-    {
+    if (fs.fs('multiple') === 'false') {
       initFieldset(fieldset, false);
     }
   });
@@ -14187,26 +13736,20 @@ var initFieldsets = function ()
 
 // Remove a multifieldset. This is done after the remove button is
 // pressed.
-var removeFieldset = function (target)
-{
+var removeFieldset = function (target) {
   'use strict';
 
   target.parent().remove();
 };
 
 // Fill the fieldset with values from the view pane.
-var fillFieldsets = function ()
-{
+var fillFieldsets = function () {
   'use strict';
 
-  $('.fieldset-view').each(function (i, fieldset)
-  {
-    if (store($(fieldset)).fs('multiple') === 'true')
-    {
+  $('.fieldset-view').each(function (i, fieldset) {
+    if (store($(fieldset)).fs('multiple') === 'true') {
       fillMultiFieldsets(fieldset);
-    }
-    else
-    {
+    } else {
       fillNormalFieldsets(fieldset);
     }
   });
@@ -14243,33 +13786,27 @@ var editui = require('./editui.js');
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'index';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = 'documents/' + prefix();
   var indexId = document.getElementById('index-' + prefix() + '-input').value;
   var target = document.getElementById(prefix() + '-listing');
 
-  var format = function (resp)
-  {
-    resp.rows = resp.rows.map(function (item)
-    {
-      item.display_key = item.key.map(function (k)
-      {
+  var format = function (resp) {
+    resp.rows = resp.rows.map(function (item) {
+      item.display_key = item.key.map(function (k) {
         return k[1];
       });
 
-      if (indexId && item.value.length > 0)
-      {
+      if (indexId && item.value.length > 0) {
         item.value = item.value.split(', ');
       }
 
@@ -14279,8 +13816,7 @@ var get = function ()
     return resp;
   };
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     format: format,
     url: url,
@@ -14292,15 +13828,13 @@ var get = function ()
 };
 
 // Loads the listing of user created indexes.
-var iOpts = function ()
-{
+var iOpts = function () {
   'use strict';
 
   var url = 'indexes?as=options';
   var options;
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     var data = req.response;
 
     options = templates['index-options'](data);
@@ -14314,8 +13848,7 @@ var iOpts = function ()
 // the application.
 //
 // TODO: Move to documents.js
-var load = function (target)
-{
+var load = function (target) {
   'use strict';
 
   var id = $(target).attr('href').slice(1);
@@ -14352,80 +13885,70 @@ var loadSearchVals;
 // Internal functions
 
 // User interface element
-var searchIndex = function ()
-{
+var searchIndex = function () {
   'use strict';
 
   return $('#document-search-index');
 };
 
 // User interface element
-var searchIndexLabel = function ()
-{
+var searchIndexLabel = function () {
   'use strict';
 
   return $('#search-index-label');
 };
 
 // User interface element
-var searchTerm = function ()
-{
+var searchTerm = function () {
   'use strict';
 
   return $('#document-search-term');
 };
 
 // User interface element
-var searchFields = function ()
-{
+var searchFields = function () {
   'use strict';
 
   return $('#document-search-field');
 };
 
 // User interface element
-var searchFieldsLabel = function ()
-{
+var searchFieldsLabel = function () {
   'use strict';
 
   return $('#search-field-label');
 };
 
 // User interface element
-var searchExclude = function ()
-{
+var searchExclude = function () {
   'use strict';
 
   return $('#document-search-exclude');
 };
 
 // User interface element
-var searchInvert = function ()
-{
+var searchInvert = function () {
   'use strict';
 
   return $('#document-search-invert');
 };
 
 // User interface element
-var searchAll = function ()
-{
+var searchAll = function () {
   'use strict';
 
   return $('#search-all-fields-switch');
 };
 
 // User interface element
-var searchListing = function ()
-{
+var searchListing = function () {
   'use strict';
 
   return $('#search-listing');
 };
 
 // User interface element
-var getIdentifier = function ()
-{
+var getIdentifier = function () {
   'use strict';
 
   return documents.identifier();
@@ -14436,39 +13959,30 @@ var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel,
 
 // If searching a user created index, the value of the hidden input
 // where the index id specified.
-var indexVal = function ()
-{
+var indexVal = function () {
   'use strict';
 
   var val = $('#index-index-input').val();
-  if (val.length === 0)
-  {
+  if (val.length === 0) {
     return null;
-  }
-  else
-  {
+  } else {
     return val;
   }
 };
 
 // Used for values that must either be true or null.
-var maybeTrue = function (bool)
-{
+var maybeTrue = function (bool) {
   'use strict';
 
-  if (bool)
-  {
+  if (bool) {
     return true;
-  }
-  else
-  {
+  } else {
     return null;
   }
 };
 
 // Clear all search information that is stored in local storage.
-var clearStore = function ()
-{
+var clearStore = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -14480,15 +13994,12 @@ var clearStore = function ()
 };
 
 // Clear the search form.
-var clearVals = function ()
-{
+var clearVals = function () {
   'use strict';
 
-  formElems.forEach(function (x)
-  {
+  formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type'))
-    {
+    switch (elem.attr('type')) {
     case 'hidden':
       elem.val('');
       break;
@@ -14500,15 +14011,12 @@ var clearVals = function ()
 };
 
 // Hide all the form elements.
-var hideElems = function ()
-{
+var hideElems = function () {
   'use strict';
 
-  formElems.forEach(function (x)
-  {
+  formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type'))
-    {
+    switch (elem.attr('type')) {
     case 'hidden':
       break;
     case 'checkbox':
@@ -14521,8 +14029,7 @@ var hideElems = function ()
 };
 
 // Get the field labels from session storage.
-var fieldLabels = function ()
-{
+var fieldLabels = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -14531,20 +14038,17 @@ var fieldLabels = function ()
 };
 
 // Render the search field item template using given values.
-var searchFieldItem = function (field, fieldLabel)
-{
+var searchFieldItem = function (field, fieldLabel) {
   'use strict';
 
-  return templates['search-field-item'](
-  {
+  return templates['search-field-item']({
     fieldLabel: fieldLabel,
     field: field
   });
 };
 
 // Set the fields to search.
-var setFields = function (fields)
-{
+var setFields = function (fields) {
   'use strict';
 
   var fLabels = fieldLabels();
@@ -14555,8 +14059,7 @@ var setFields = function (fields)
   searchFields().val(jFields);
   localStorage.setItem(ident + '_searchFields', jFields);
 
-  var linkLabels = fields.map(function (x)
-  {
+  var linkLabels = fields.map(function (x) {
     return searchFieldItem(x, fLabels[x].join(': '));
   });
 
@@ -14568,8 +14071,7 @@ var setFields = function (fields)
 // Exported functions
 
 // Put the form in a state where all fields will be searched.
-var allFields = function ()
-{
+var allFields = function () {
   'use strict';
 
   clearStore();
@@ -14579,8 +14081,7 @@ var allFields = function ()
 };
 
 // Put the form in a state where one field will be searched.
-var singleField = function (fields)
-{
+var singleField = function (fields) {
   'use strict';
 
   multipleFields(fields);
@@ -14590,8 +14091,7 @@ var singleField = function (fields)
 
 // Put the form in a state where one field will be used to perform an
 // inverse search.
-var singleFieldInverse = function (fields)
-{
+var singleFieldInverse = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
@@ -14602,31 +14102,25 @@ var singleFieldInverse = function (fields)
 };
 
 // Put the form in a state where multiple fields will be searched.
-multipleFields = function (fields)
-{
+multipleFields = function (fields) {
   'use strict';
 
   allFields();
   setFields(fields);
-  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x)
-  {
+  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
     x.show();
   });
   return true;
 };
 
 // Put the form in a state where fields will be excluded from search.
-var excludedFields = function (fields)
-{
+var excludedFields = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
-  if (fields.length > 1)
-  {
+  if (fields.length > 1) {
     multipleFields(fields);
-  }
-  else
-  {
+  } else {
     singleField(fields);
   }
   searchExclude().prop('checked', true);
@@ -14635,8 +14129,7 @@ var excludedFields = function (fields)
 };
 
 // Put the form in a state where a user created index will be searched.
-var indexOnly = function (index, indexLabel)
-{
+var indexOnly = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
@@ -14645,8 +14138,7 @@ var indexOnly = function (index, indexLabel)
   localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
   searchIndex().val(index);
   searchIndexLabel().html(indexLabel);
-  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x)
-  {
+  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
     x.show();
   });
   return true;
@@ -14654,8 +14146,7 @@ var indexOnly = function (index, indexLabel)
 
 // Put the form in a state where a user created index will be used to
 // perform an inverse search.
-var indexInverse = function (index, indexLabel)
-{
+var indexInverse = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
@@ -14666,8 +14157,7 @@ var indexInverse = function (index, indexLabel)
 };
 
 // Perform the search.
-var getSearch = function ()
-{
+var getSearch = function () {
   'use strict';
 
   var query = searchTerm().val();
@@ -14678,44 +14168,34 @@ var getSearch = function ()
   var index = searchIndex().val();
   var fieldlabels = fieldLabels();
 
-  if (index)
-  {
+  if (index) {
     url = url + '&index=' + index;
-  }
-  else
-  {
-    if (field)
-    {
+  } else {
+    if (field) {
       url = url + '&field=' + field;
     }
-    if (exclude)
-    {
+    if (exclude) {
       url = url + '&exclude=true';
     }
   }
-  if (invert)
-  {
+  if (invert) {
     url = url + '&invert=true';
   }
 
   searchListing().hide();
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     searchListing().html(req.response);
 
-    $('.search-result-field-id').each(function (index, item)
-    {
+    $('.search-result-field-id').each(function (index, item) {
       var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
       var target = $(item).children('a').first();
       target.html(label);
       target.attr('data-search-label', label);
     });
 
-    if (!invert)
-    {
-      $('.search-results th').each(function (index, item)
-      {
+    if (!invert) {
+      $('.search-results th').each(function (index, item) {
         var itemText = $.trim($(item).children('a').html());
         var re = new RegExp('(' + query + ')', 'g');
         var newText = itemText.replace(re, '<span class="highlight">$1</span>');
@@ -14732,8 +14212,7 @@ var getSearch = function ()
 
 // Remove a field from those that will be searched (or excluded in an
 // exclusive search.)
-var removeField = function (t)
-{
+var removeField = function (t) {
   'use strict';
 
   var ident = getIdentifier();
@@ -14743,10 +14222,8 @@ var removeField = function (t)
   var newFields;
   var id = $(t).attr('data-field-field');
 
-  if (fields !== null)
-  {
-    newFields = fields.filter(function (x)
-    {
+  if (fields !== null) {
+    newFields = fields.filter(function (x) {
       return x !== id;
     });
     newSearchFields = JSON.stringify(newFields);
@@ -14760,8 +14237,7 @@ var removeField = function (t)
 
 // Add a field to those that will be searched (or excluded in an
 // exclusive search.)
-var addField = function (t)
-{
+var addField = function (t) {
   'use strict';
 
   var ident = getIdentifier();
@@ -14771,8 +14247,7 @@ var addField = function (t)
   var newFields;
   var id = $(t).attr('data-field-field');
 
-  if (fields === null)
-  {
+  if (fields === null) {
     fields = [];
   }
 
@@ -14786,15 +14261,13 @@ var addField = function (t)
 };
 
 // Add a user created index to be searched.
-var addIndex = function ()
-{
+var addIndex = function () {
   'use strict';
 
   var val = indexVal();
   var ident = getIdentifier();
 
-  if (val)
-  {
+  if (val) {
     localStorage.setItem(ident + '_searchFields', null);
     localStorage.setItem(ident + '_searchIndex', val);
     localStorage.setItem(ident + '_searchIndexLabel', $('option[value=' + val + ']').html());
@@ -14805,8 +14278,7 @@ var addIndex = function ()
 };
 
 // Toggle the inverse search setting.
-var toggleInversion = function ()
-{
+var toggleInversion = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -14818,8 +14290,7 @@ var toggleInversion = function ()
 };
 
 // Toggle the exclusive search setting.
-var toggleExclusion = function ()
-{
+var toggleExclusion = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -14833,8 +14304,7 @@ var toggleExclusion = function ()
 // The functions that alter the search form above store the values in
 // local storage. This interprets those values and puts the search form
 // in a consistent state.
-loadSearchVals = function ()
-{
+loadSearchVals = function () {
   'use strict';
 
   var ident = getIdentifier();
@@ -14844,63 +14314,41 @@ loadSearchVals = function ()
   var fieldids = localStorage.getItem(ident + '_searchFields');
   var fields;
   var indexLabel;
-  var params = [exclude, invert, index, fieldids].map(function (x)
-  {
+  var params = [exclude, invert, index, fieldids].map(function (x) {
     return (x === 'null' || x === 'false' || x === 'true') ? JSON.parse(x) : x;
   });
-  var allNull = params.every(function (x)
-  {
+  var allNull = params.every(function (x) {
     return x === null;
   });
 
-  try
-  {
-    if (allNull)
-    {
+  try {
+    if (allNull) {
       allFields();
-    }
-    else if (params[0] === true)
-    {
+    } else if (params[0] === true) {
       fields = JSON.parse(fieldids);
       excludedFields(fields);
-    }
-    else if (params[1] === null && params[3] !== null)
-    {
+    } else if (params[1] === null && params[3] !== null) {
       fields = JSON.parse(fieldids);
-      if (fields.length > 1)
-      {
+      if (fields.length > 1) {
         multipleFields(fields);
-      }
-      else
-      {
+      } else {
         singleField(fields);
       }
-    }
-    else if (params[3] !== null)
-    {
+    } else if (params[3] !== null) {
       fields = JSON.parse(fieldids);
-      if (fields.length > 1)
-      {
+      if (fields.length > 1) {
         multipleFields(fields);
-      }
-      else
-      {
+      } else {
         singleFieldInverse(fields);
       }
-    }
-    else if (params[1] === null)
-    {
+    } else if (params[1] === null) {
       indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
       indexOnly(index, indexLabel);
-    }
-    else if (params[1] === true)
-    {
+    } else if (params[1] === true) {
       indexLabel = localStorage.getItem(ident + '_searchIndexLabel');
       indexInverse(index, indexLabel);
     }
-  }
-  catch (e)
-  {
+  } catch (e) {
     window.console.log(e);
     allFields();
   }
@@ -14909,18 +14357,14 @@ loadSearchVals = function ()
 };
 
 // Toggle selection of result to save to set.
-var toggleSelection = function (t)
-{
+var toggleSelection = function (t) {
   'use strict';
 
   var target = $(t);
 
-  if (target.is(':checked'))
-  {
+  if (target.is(':checked')) {
     target.next('label').next('table').addClass('selected-for-save');
-  }
-  else
-  {
+  } else {
     target.next('label').next('table').removeClass('selected-for-save');
   }
 
@@ -14969,67 +14413,58 @@ var getSet;
 // Internal functions
 
 // User interface element
-var setA = function ()
-{
+var setA = function () {
   'use strict';
 
   return $('#document-set-a-input');
 };
 
 // User interface element
-var setB = function ()
-{
+var setB = function () {
   'use strict';
 
   return $('#document-set-b-input');
 };
 
 // User interface element
-var worksheetsSet = function ()
-{
+var worksheetsSet = function () {
   'use strict';
 
   return $('#document-worksheets-set-input');
 };
 
 // User interface element
-var op = function ()
-{
+var op = function () {
   'use strict';
 
   return $('#document-set-operation-input');
 };
 
 // User interface element
-var setListing = function ()
-{
+var setListing = function () {
   'use strict';
 
   return $('#set-listing');
 };
 
 // User interface element
-var sessionKey = function ()
-{
+var sessionKey = function () {
   'use strict';
 
   return documents.identifier() + '_sets';
 };
 
 // Custom member function to use with [sets.js](./sets.html).
-var member = function (arr, x)
-{
+var member = function (arr, x) {
   'use strict';
 
-  return arr.some(function (y)
-  {
+  return arr.some(function (y) {
     return x[0] === y[0] && x[1] === y[1];
   });
 };
 
 // Ensure that the set is correct.
-var processSet = function (set)
-{
+var processSet = function (set) {
   'use strict';
 
   var name = set[0];
@@ -15039,8 +14474,7 @@ var processSet = function (set)
 };
 
 // Perform the union of the sets specified by the user interface.
-var union = function (setNameA, setNameB)
-{
+var union = function (setNameA, setNameB) {
   'use strict';
 
   var setElemsA = getSet(setNameA)[1];
@@ -15051,8 +14485,7 @@ var union = function (setNameA, setNameB)
 };
 
 // Perform the intersection of the sets specified by the user interface.
-var intersection = function (setNameA, setNameB)
-{
+var intersection = function (setNameA, setNameB) {
   'use strict';
 
   var setElemsA = getSet(setNameA)[1];
@@ -15064,8 +14497,7 @@ var intersection = function (setNameA, setNameB)
 
 // Perform the relative complement of the sets specified by the user
 // interface.
-var relativeComplement = function (setName1, setName2)
-{
+var relativeComplement = function (setName1, setName2) {
   'use strict';
 
   var setElems1 = getSet(setName1)[1];
@@ -15078,8 +14510,7 @@ var relativeComplement = function (setName1, setName2)
 
 // Perform the symmetric difference of the sets specified by the user
 // interface.
-var symmetricDifference = function (setNameA, setNameB)
-{
+var symmetricDifference = function (setNameA, setNameB) {
   'use strict';
 
   var setElemsA = getSet(setNameA)[1];
@@ -15091,15 +14522,13 @@ var symmetricDifference = function (setNameA, setNameB)
 };
 
 // Get the sets saved in session storage
-getSets = function ()
-{
+getSets = function () {
   'use strict';
 
   var curr = window.sessionStorage.getItem(sessionKey());
   var retval = [];
 
-  if (curr !== null)
-  {
+  if (curr !== null) {
     retval = JSON.parse(curr);
   }
 
@@ -15107,8 +14536,7 @@ getSets = function ()
 };
 
 // View a set.
-var view = function (setName)
-{
+var view = function (setName) {
   'use strict';
 
   var elems = getSet(setName)[1];
@@ -15118,8 +14546,7 @@ var view = function (setName)
 };
 
 // Remove a set.
-var remove = function (setName)
-{
+var remove = function (setName) {
   'use strict';
 
   removeSet(setName);
@@ -15130,14 +14557,12 @@ var remove = function (setName)
 };
 
 // Perform set removal.
-removeSet = function (setName)
-{
+removeSet = function (setName) {
   'use strict';
 
   var nnew;
   var curr = getSets();
-  nnew = curr.filter(function (x)
-  {
+  nnew = curr.filter(function (x) {
     return x[0] !== setName;
   });
   setSets(nnew);
@@ -15146,33 +14571,26 @@ removeSet = function (setName)
 };
 
 // Retrieve the set names.
-var getSetNames = function ()
-{
+var getSetNames = function () {
   'use strict';
 
   var curr = getSets();
-  return curr.map(function (x)
-  {
+  return curr.map(function (x) {
     return x[0];
   });
 };
 
 // Save sets to session storage.
-setSets = function (nnew)
-{
+setSets = function (nnew) {
   'use strict';
 
   var procSets;
-  if (Array.isArray(nnew))
-  {
-    procSets = nnew.map(function (x)
-    {
+  if (Array.isArray(nnew)) {
+    procSets = nnew.map(function (x) {
       return processSet(x);
     });
     window.sessionStorage.setItem(sessionKey(), JSON.stringify(procSets));
-  }
-  else
-  {
+  } else {
     window.sessionStorage.settem(sessionKey(), '[]');
   }
 
@@ -15180,16 +14598,13 @@ setSets = function (nnew)
 };
 
 // Save a set to session storage.
-var setSet = function (nnew)
-{
+var setSet = function (nnew) {
   'use strict';
 
-  if (Array.isArray(nnew) && nnew.length === 2)
-  {
+  if (Array.isArray(nnew) && nnew.length === 2) {
     var curr = getSets();
     var newName = nnew[0];
-    var filtered = curr.filter(function (x)
-    {
+    var filtered = curr.filter(function (x) {
       return x[0] !== newName;
     });
     setSets(filtered.concat([nnew]));
@@ -15198,14 +14613,12 @@ var setSet = function (nnew)
 };
 
 // Convert selected search results or a selected elements to an array.
-var selectedToArray = function (target)
-{
+var selectedToArray = function (target) {
   'use strict';
 
   var retval = [];
 
-  switch (target)
-  {
+  switch (target) {
   case 'search':
     retval = selectedSaveResultsToArray();
     break;
@@ -15218,15 +14631,13 @@ var selectedToArray = function (target)
 };
 
 // Convert selected elements to an array.
-selectedElementsToArray = function ()
-{
+selectedElementsToArray = function () {
   'use strict';
 
   var retval;
   var selected = $('input.set-element-selection:checked');
 
-  retval = $.map(selected, function (elem)
-  {
+  retval = $.map(selected, function (elem) {
     var anchor = $(elem).parent('td').next('td').find('a').first();
     var id = anchor.first().attr('href').replace(/^#/, '');
     var context = anchor.html().trim();
@@ -15236,15 +14647,13 @@ selectedElementsToArray = function ()
 };
 
 // Convert selected search results to an array.
-selectedSaveResultsToArray = function ()
-{
+selectedSaveResultsToArray = function () {
   'use strict';
 
   var retval;
   var selected = $('table.selected-for-save tr');
 
-  retval = $.map(selected, function (elem)
-  {
+  retval = $.map(selected, function (elem) {
     var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
     var context = $(elem).find('td.search-result-context a').first().html().trim();
     return [[context, id]];
@@ -15254,20 +14663,17 @@ selectedSaveResultsToArray = function ()
 };
 
 // Render the set for display.
-render = function (setElems)
-{
+render = function (setElems) {
   'use strict';
 
   var total = setElems.length;
-  var elems = setElems.map(function (x)
-  {
+  var elems = setElems.map(function (x) {
     return {
       id: x[1],
       context: x[0]
     };
   });
-  var listing = templates['set-listing'](
-  {
+  var listing = templates['set-listing']({
     elements: elems,
     total: total
   });
@@ -15278,26 +14684,22 @@ render = function (setElems)
 // Exported functions
 
 // Retrieve a set.
-var getSet = function (setName)
-{
+var getSet = function (setName) {
   'use strict';
 
   var retval;
   var curr = getSets();
-  retval = curr.filter(function (x)
-  {
+  retval = curr.filter(function (x) {
     return x[0] === setName;
   })[0];
   return retval;
 };
 
 // Perform a set operation.
-var performOp = function ()
-{
+var performOp = function () {
   'use strict';
 
-  switch (op().val())
-  {
+  switch (op().val()) {
   case 'view-a':
     view(setA().val());
     break;
@@ -15332,13 +14734,11 @@ var performOp = function ()
 };
 
 // Update the selection of sets to choose from.
-var updateSelection = function ()
-{
+var updateSelection = function () {
   'use strict';
 
   var currNames = getSetNames();
-  var newOptions = templates['set-options'](
-  {
+  var newOptions = templates['set-options']({
     names: currNames
   });
   setA().html(newOptions);
@@ -15349,8 +14749,7 @@ var updateSelection = function ()
 };
 
 // Save select items as a set.
-var saveSelected = function ()
-{
+var saveSelected = function () {
   'use strict';
 
   var dialog = $('#new-set-dialog');
@@ -15359,8 +14758,7 @@ var saveSelected = function ()
   var selected;
   var newSet;
 
-  if (!utils.isBlank(name))
-  {
+  if (!utils.isBlank(name)) {
     dialog.hide();
     selected = selectedToArray(target);
     newSet = [name, selected];
@@ -15368,9 +14766,7 @@ var saveSelected = function ()
     $('#new-set-input').val('');
     S.sender('sets-changed');
     flash.highlight('Success:', 'Set "' + name + '" saved.');
-  }
-  else
-  {
+  } else {
     flash.error('Input invalid:', 'You must supply a valid name.');
   }
 
@@ -15378,16 +14774,12 @@ var saveSelected = function ()
 };
 
 // Toggle the selection of all elements.
-var toggleSelectAll = function (target)
-{
+var toggleSelectAll = function (target) {
   'use strict';
 
-  if ($(target).is(':checked'))
-  {
+  if ($(target).is(':checked')) {
     $('input.set-element-selection').prop('checked', true);
-  }
-  else
-  {
+  } else {
     $('input.set-element-selection').prop('checked', false);
   }
   return true;
@@ -15421,129 +14813,102 @@ var ajax = require('../ajax.js');
 // Internal functions
 
 // User interface element
-var dv = function ()
-{
+var dv = function () {
   'use strict';
 
   return $('#document-view');
 };
 
 // User interface element
-var dvt = function ()
-{
+var dvt = function () {
   'use strict';
 
   return $('#document-view-tree');
 };
 
 // User interface element
-var viewInfo = function ()
-{
+var viewInfo = function () {
   'use strict';
 
   return $('#document-view-info');
 };
 
 // Make an object where fieldsets with deletions are identified.
-var getDeletions = function (changes)
-{
+var getDeletions = function (changes) {
   'use strict';
 
-  return Object.keys(changes).reduce(function (acc, x)
-  {
+  return Object.keys(changes).reduce(function (acc, x) {
     // If it was changed and there is no new value, it was deleted.
-    if (changes[x].newValue === undefined)
-    {
-      if (acc[changes[x].fieldset] === undefined)
-      {
+    if (changes[x].newValue === undefined) {
+      if (acc[changes[x].fieldset] === undefined) {
         acc[changes[x].fieldset] = {};
       }
       acc[changes[x].fieldset][x] = changes[x];
     }
 
     return acc;
-  },
-  {});
+  }, {});
 };
 
 // Process the document from the server.
-var processIncoming = function (docJson, rev)
-{
+var processIncoming = function (docJson, rev) {
   'use strict';
 
   var withDeletions = {};
 
-  if (docJson.changes)
-  {
+  if (docJson.changes) {
     withDeletions = getDeletions(docJson.changes);
   }
 
-  docJson.fieldsets.forEach(function (fset)
-  {
+  docJson.fieldsets.forEach(function (fset) {
     var fsetId = fset.id;
 
-    if (withDeletions[fsetId] !== undefined)
-    {
+    if (withDeletions[fsetId] !== undefined) {
       fset.removal = true;
       fset.altered = true;
     }
 
-    var fieldFunc = function (field)
-    {
+    var fieldFunc = function (field) {
       var changes = {};
       var change;
 
-      if (docJson.changes)
-      {
+      if (docJson.changes) {
         changes = docJson.changes;
       }
       change = changes[field.instance];
 
       field.json_value = JSON.stringify(field.value);
 
-      if (change !== undefined)
-      {
+      if (change !== undefined) {
         field.changed = true;
         fset.altered = true;
 
-        if (change.originalValue === undefined)
-        {
+        if (change.originalValue === undefined) {
           fset.addition = true;
           field.newfield = true;
-        }
-        else
-        {
+        } else {
           field.originalValue = JSON.parse(change.originalValue);
         }
       }
 
-      if (field.subcategory === 'textarea')
-      {
+      if (field.subcategory === 'textarea') {
         field.is_textarea = true;
-      }
-      else if (field.value && field.subcategory.match('multi'))
-      {
+      } else if (field.value && field.subcategory.match('multi')) {
         field.value = field.value.join(', ');
       }
 
       return true;
     };
 
-    if (fset.multiple)
-    {
-      fset.multifields.forEach(function (mfs)
-      {
-        mfs.fields.forEach(function (field)
-        {
+    if (fset.multiple) {
+      fset.multifields.forEach(function (mfs) {
+        mfs.fields.forEach(function (field) {
           fieldFunc(field);
           return true;
         });
       });
-    }
-    else
-    {
-      fset.fields.forEach(function (field)
-      {
+    } else {
+      fset.fields.forEach(function (field) {
         fieldFunc(field);
         return true;
       });
@@ -15559,53 +14924,43 @@ var processIncoming = function (docJson, rev)
 
 // Format the 'update at' and 'created at' timestamps and localize them
 // to the current time zone.
-var formatTimestamps = function ()
-{
+var formatTimestamps = function () {
   'use strict';
 
   $('.timestamp').each(
 
-  function (i, item)
-  {
-    var newDate = (new Date($(item).text())).toLocaleString();
-    if (newDate !== 'Invalid Date')
-    {
-      $(item).text(newDate);
-    }
-  });
+    function (i, item) {
+      var newDate = (new Date($(item).text())).toLocaleString();
+      if (newDate !== 'Invalid Date') {
+        $(item).text(newDate);
+      }
+    });
 
   return true;
 };
 
 // Get the document.
-var get = function (id, rev, callback)
-{
+var get = function (id, rev, callback) {
   'use strict';
 
   var url = 'documents/' + id;
   var htmlTarget = dv();
   var tmpl;
 
-  if (rev)
-  {
+  if (rev) {
     url = url + '/' + rev;
     htmlTarget = dvt();
-    tmpl = function (docJson)
-    {
+    tmpl = function (docJson) {
       return templates['document-view-tree'](docJson);
     };
-  }
-  else
-  {
-    tmpl = function (docJson)
-    {
+  } else {
+    tmpl = function (docJson) {
       return templates['document-view'](docJson);
     };
 
   }
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     var documentHtml;
     var docJson = req.response;
 
@@ -15615,23 +14970,18 @@ var get = function (id, rev, callback)
     window.location.hash = id;
     formatTimestamps();
     dv().fadeTo('slow', 1);
-    if (callback)
-    {
+    if (callback) {
       callback();
     }
 
-    if (rev)
-    {
+    if (rev) {
       $('#document-view-tree').addClass('oldrev');
-    }
-    else
-    {
+    } else {
       var restoreButton = $('#document-restore-button');
       var editButton = $('#document-edit-button');
       var deleteButton = $('#document-delete-button');
 
-      if (store(restoreButton).d('deleted') === 'true')
-      {
+      if (store(restoreButton).d('deleted') === 'true') {
         editButton.hide();
         deleteButton.hide();
         restoreButton.show();
@@ -15643,8 +14993,7 @@ var get = function (id, rev, callback)
 };
 
 // Restore the state of a document to that of an earlier revision.
-var restore = function (id, rev)
-{
+var restore = function (id, rev) {
   'use strict';
 
   var url = './documents/' + id + '?rev=' + rev;
@@ -15654,35 +15003,27 @@ var restore = function (id, rev)
   var body;
   var title;
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'DELETE',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
-    complete: function (req, status)
-    {
-      if (req.status === 200)
-      {
+    complete: function (req, status) {
+      if (req.status === 200) {
         title = 'Success';
         body = 'Your document was restored.';
 
-        get(id, null, function ()
-        {
+        get(id, null, function () {
           dv().fadeTo('slow', 1);
           indexui.get(skey, sid);
         });
         flash.highlight(title, body);
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
         flash.error(title, body.message);
-      }
-      else if (req.status === 404)
-      {
+      } else if (req.status === 404) {
         body = 'Document was erased and cannot be restored.';
         title = req.statusText;
 
@@ -15695,8 +15036,7 @@ var restore = function (id, rev)
 };
 
 // Delete the document.
-var del = function (id, rev)
-{
+var del = function (id, rev) {
   'use strict';
 
   var url = './documents/' + id + '?rev=' + rev;
@@ -15706,16 +15046,13 @@ var del = function (id, rev)
   var body;
   var title;
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'DELETE',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
-    complete: function (req, status)
-    {
-      if (req.status === 200)
-      {
+    complete: function (req, status) {
+      if (req.status === 200) {
         title = 'Success';
         body = 'Your document was deleted.';
         var response = JSON.parse(req.responseText);
@@ -15729,16 +15066,12 @@ var del = function (id, rev)
 
         indexui.get(skey, sid);
         flash.highlight(title, body);
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
         flash.error(title, body.message);
-      }
-      else if (req.status === 404)
-      {
+      } else if (req.status === 404) {
         body = 'Document appears to have been deleted already.';
         title = req.statusText;
 
@@ -15751,12 +15084,10 @@ var del = function (id, rev)
 };
 
 // Confirm an action.
-var confirmIt = function (callback)
-{
+var confirmIt = function (callback) {
   'use strict';
 
-  if (window.confirm('Are you sure?'))
-  {
+  if (window.confirm('Are you sure?')) {
     var s = store(viewInfo());
     var id = s.d('document');
     var rev = s.d('rev');
@@ -15768,17 +15099,13 @@ var confirmIt = function (callback)
 };
 
 // Move the document to the editor.
-var edit = function ()
-{
+var edit = function () {
   'use strict';
 
   editui.resetFields();
-  if ($('#document-view-tree').hasClass('oldrev'))
-  {
+  if ($('#document-view-tree').hasClass('oldrev')) {
     $('#save-document-button').addClass('oldrev');
-  }
-  else
-  {
+  } else {
     $('#save-document-button').removeClass('oldrev');
   }
   fieldsets.fillFieldsets();
@@ -15787,36 +15114,31 @@ var edit = function ()
 };
 
 // Ask for confirmation on deletion.
-var confirmDelete = function ()
-{
+var confirmDelete = function () {
   'use strict';
 
   var s = store(viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
-  return confirmIt(function ()
-  {
+  return confirmIt(function () {
     del(id, rev);
   });
 };
 
 // Ask for confirmation on restoration.
-var confirmRestore = function ()
-{
+var confirmRestore = function () {
   'use strict';
 
   var s = store(viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
-  return confirmIt(function ()
-  {
+  return confirmIt(function () {
     restore(id, rev);
   });
 };
 
 // Expand and collapse elements of the view tree.
-var collapseToggle = function (target)
-{
+var collapseToggle = function (target) {
   'use strict';
 
   $(target).parent('li').toggleClass('collapsed');
@@ -15825,8 +15147,7 @@ var collapseToggle = function (target)
 };
 
 // Get a previous revision.
-var fetchRevision = function (target)
-{
+var fetchRevision = function (target) {
   'use strict';
 
   var s = store($(target));
@@ -15872,24 +15193,21 @@ var flash = require('../flash.js');
 // Internal functions
 
 // User interface element
-var worksheetsSet = function ()
-{
+var worksheetsSet = function () {
   'use strict';
 
   return $('#document-worksheets-set-input');
 };
 
 // User interface element
-var worksheetsArea = function ()
-{
+var worksheetsArea = function () {
   'use strict';
 
   return $('#worksheet-area');
 };
 
 // Name for the worksheet template.
-var worksheetName = function ()
-{
+var worksheetName = function () {
   'use strict';
 
   return documents.identifier() + '_worksheet-template';
@@ -15898,17 +15216,13 @@ var worksheetName = function ()
 // Exported functions
 
 // Select all the visible rows.
-var selectAllRows = function (select)
-{
+var selectAllRows = function (select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('#worksheet-table tbody tr').addClass('selected-row');
     $('#worksheet-table tbody tr input').prop('checked', true);
-  }
-  else
-  {
+  } else {
     $('#worksheet-table tbody tr').removeClass('selected-row');
     $('#worksheet-table tbody tr input:checked').prop('checked', false);
   }
@@ -15917,17 +15231,13 @@ var selectAllRows = function (select)
 };
 
 // Set the proper class for a selected row and unset the 'select all'
-var rowSelection = function (row, select)
-{
+var rowSelection = function (row, select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('#' + row).addClass('selected-row');
     $('#select-all-worksheet-rows').prop('checked', false);
-  }
-  else
-  {
+  } else {
     $('#' + row).removeClass('selected-row');
     $('#select-all-worksheet-rows').prop('checked', false);
   }
@@ -15936,16 +15246,12 @@ var rowSelection = function (row, select)
 };
 
 // Select a column.
-var columnSelection = function (column, select)
-{
+var columnSelection = function (column, select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('.field-column.' + column).addClass('selected-column');
-  }
-  else
-  {
+  } else {
     $('.field-column.' + column).removeClass('selected-column');
   }
 
@@ -15953,8 +15259,7 @@ var columnSelection = function (column, select)
 };
 
 // Show vertical headers for fields and fieldsets.
-var showHandles = function ()
-{
+var showHandles = function () {
   'use strict';
 
   $('#worksheet-table .handle-column.fieldset').show();
@@ -15963,8 +15268,7 @@ var showHandles = function ()
 };
 
 // Hide vertical headers for fields and fieldsets.
-var hideHandles = function ()
-{
+var hideHandles = function () {
   'use strict';
 
   $('#worksheet-table .handle-column.fieldset').hide();
@@ -15973,8 +15277,7 @@ var hideHandles = function ()
 };
 
 // Show the fieldset handle.
-var showFieldset = function (fsid)
-{
+var showFieldset = function (fsid) {
   'use strict';
 
   $('#worksheet-table .handle-column.field.' + fsid).show();
@@ -15983,8 +15286,7 @@ var showFieldset = function (fsid)
 };
 
 // Hide the fieldset handle.
-var hideFieldset = function (fsid)
-{
+var hideFieldset = function (fsid) {
   'use strict';
 
   $('#worksheet-table .handle-column.field.' + fsid).hide();
@@ -15993,8 +15295,7 @@ var hideFieldset = function (fsid)
 };
 
 // Show a field.
-var showField = function (fid)
-{
+var showField = function (fid) {
   'use strict';
 
   $('.field-column.' + fid).show();
@@ -16003,8 +15304,7 @@ var showField = function (fid)
 };
 
 // Hide a field.
-var hideField = function (fid)
-{
+var hideField = function (fid) {
   'use strict';
 
   $('.field-column.' + fid).hide();
@@ -16014,8 +15314,7 @@ var hideField = function (fid)
 
 // There are two layers of templating information in the
 // template. Activate the second layer.
-var buildTemplate = function ()
-{
+var buildTemplate = function () {
   'use strict';
 
   var doctypeInfo = documents.info();
@@ -16026,33 +15325,26 @@ var buildTemplate = function ()
 };
 
 // Render the worksheet.
-var fillWorksheet = function ()
-{
+var fillWorksheet = function () {
   'use strict';
 
   var setName = worksheetsSet().val();
   var url = 'worksheets';
-  var complete = function (req)
-  {
+  var complete = function (req) {
     var ws = globals[worksheetName()].render(req.response);
     worksheetsArea().html(ws);
   };
 
-  if (!setName.isBlank())
-  {
+  if (!setName.isBlank()) {
     var thisSet = setsui.getSet(setName)[1];
 
-    if (thisSet.length <= 250)
-    {
-      var setIds = thisSet.map(function (x)
-      {
+    if (thisSet.length <= 250) {
+      var setIds = thisSet.map(function (x) {
         return x[1];
       });
 
       ajax.post(url, setIds, complete);
-    }
-    else
-    {
+    } else {
       flash.error('Could not load worksheet', 'the current set size is limited to 250 items.');
     }
   }
@@ -16092,64 +15384,50 @@ var refreshListings;
 
 // Get information subdirectories within a path. As an example
 // '/home/chuck/'.
-var getDirListing = function (path)
-{
+var getDirListing = function (path) {
   'use strict';
 
-  if (path === undefined)
-  {
+  if (path === undefined) {
     path = '';
   }
 
-  ajax.legacyHTMLGet('file_manager/list_dirs/' + path, function (req)
-  {
+  ajax.legacyHTMLGet('file_manager/list_dirs/' + path, function (req) {
     $('#file-paths').html(req.response);
   });
 };
 
 // Get the document information for documents with a certain path.
-var getFileListing = function (path)
-{
+var getFileListing = function (path) {
   'use strict';
 
-  if (path === undefined)
-  {
+  if (path === undefined) {
     path = '';
   }
 
-  ajax.legacyHTMLGet('file_manager/list_files/' + path, function (req)
-  {
+  ajax.legacyHTMLGet('file_manager/list_files/' + path, function (req) {
     $('#file-listing').html(req.response);
   });
 };
 
 // Open a dialog for editing a file path.
-var pathEditDialog = function (obj, path)
-{
+var pathEditDialog = function (obj, path) {
   'use strict';
 
   var pathInput = $('#file-path-input');
 
-  if (obj.path)
-  {
+  if (obj.path) {
     pathInput.val(obj.path.join('/'));
-  }
-  else
-  {
+  } else {
     pathInput.val('');
   }
 
-  var dialog = $('#edit-path-dialog').dialog(
-  {
+  var dialog = $('#edit-path-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Move': function ()
-      {
+    buttons: {
+      'Move': function () {
         var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
-        var complete = function ()
-        {
+        var complete = function () {
           refreshListings(path);
           flash.highlight('Success', 'File Moved');
         };
@@ -16158,8 +15436,7 @@ var pathEditDialog = function (obj, path)
         ajax.put(url, obj, complete);
         $(this).dialog('close');
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     }
@@ -16171,35 +15448,26 @@ var pathEditDialog = function (obj, path)
 // Exported functions
 
 // Initialize the sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   refreshListings();
-  $('#file-upload-target').load(function ()
-  {
+  $('#file-upload-target').load(function () {
     var encoded = $('#file-upload-target').contents().find('body pre').html();
-    var obj = function ()
-    {
-      if (encoded && encoded.length > 0)
-      {
+    var obj = function () {
+      if (encoded && encoded.length > 0) {
         return JSON.parse(encoded);
-      }
-      else
-      {
+      } else {
         return {
           message: false
         };
       }
     };
 
-    if (obj() && obj().message && obj().status !== 'success')
-    {
+    if (obj() && obj().message && obj().status !== 'success') {
       flash.error('Error', obj().message);
       refreshListings();
-    }
-    else if (obj().message)
-    {
+    } else if (obj().message) {
       flash.highlight('Success', obj().message);
       refreshListings();
     }
@@ -16207,8 +15475,7 @@ var init = function ()
 };
 
 // Handle the mouse click action that initiates going to a directory.
-var goDir = function (target)
-{
+var goDir = function (target) {
   'use strict';
 
   var newpath = $(target).attr('data-path');
@@ -16219,8 +15486,7 @@ var goDir = function (target)
 };
 
 // Return to the root directory.
-var rootDir = function ()
-{
+var rootDir = function () {
   'use strict';
 
   var path = window.sessionStorage.fmPath = '';
@@ -16230,8 +15496,7 @@ var rootDir = function ()
 };
 
 // Move up a directory.
-var upDir = function ()
-{
+var upDir = function () {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
@@ -16247,16 +15512,14 @@ var upDir = function ()
 
 // Handle the mouse click action that initiates editing a file by opening
 // a dialog to edit its path.
-var editFile = function (target)
-{
+var editFile = function (target) {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
   var fileId = target.attr('data-file-id');
   var url = 'file_manager/' + fileId;
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     pathEditDialog(req.response, path).dialog('open');
   });
 
@@ -16264,16 +15527,14 @@ var editFile = function (target)
 };
 
 // Handle the mouse click action that initiates deleting a file.
-var deleteFile = function (target)
-{
+var deleteFile = function (target) {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
   var fileId = target.attr('data-file-id');
   var fileRev = target.attr('data-file-rev');
   var url = 'file_manager/' + fileId + '?rev=' + fileRev;
-  var complete = function ()
-  {
+  var complete = function () {
     refreshListings(path);
     flash.highlight('Success', 'File Deleted');
   };
@@ -16284,8 +15545,7 @@ var deleteFile = function (target)
 };
 
 // Refresh the file listing using the given path.
-refreshListings = function (path)
-{
+refreshListings = function (path) {
   'use strict';
 
   getDirListing(path);
@@ -16311,20 +15571,17 @@ exports.refreshListings = refreshListings;
 
 // Helper function that handles the displaying and fading of the flashed
 // notification.
-var f = function (flasher, title, body)
-{
+var f = function (flasher, title, body) {
   'use strict';
 
-  var fadeout = function ()
-  {
+  var fadeout = function () {
     flasher.fadeOut();
   };
   flasher.find('.notification-summary').text(title + ': ');
   flasher.find('.notification-message').text(body);
   var timeout = window.setTimeout(fadeout, 7000);
   flasher.fadeIn();
-  flasher.find('.close').click(function ()
-  {
+  flasher.find('.close').click(function () {
     window.clearTimeout(timeout);
     flasher.hide();
   });
@@ -16333,8 +15590,7 @@ var f = function (flasher, title, body)
 // # Exported Functions
 
 // Display an error.
-var error = function (title, body)
-{
+var error = function (title, body) {
   'use strict';
 
   f($('#notifications-main .ui-state-error'), title, body);
@@ -16343,8 +15599,7 @@ var error = function (title, body)
 };
 
 // Display a notification.
-var highlight = function (title, body)
-{
+var highlight = function (title, body) {
   'use strict';
 
   f($('#notifications-main .ui-state-highlight'), title, body);
@@ -16371,13 +15626,11 @@ var clear;
 // ## Internal Functions
 
 // Show a brief validation message.
-var updateTips = function (t, tips)
-{
+var updateTips = function (t, tips) {
   'use strict';
 
   tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
-  setTimeout(function ()
-  {
+  setTimeout(function () {
     tips.removeClass('ui-state-highlight', 1500);
   }, 500);
 
@@ -16389,15 +15642,13 @@ var updateTips = function (t, tips)
 // Generic element toggler. The idea being that a clicked or otherwise
 // 'stimulated' element has a `data-target` attribute with a value the
 // ID of an element to be toggled.
-var toggle = function (t)
-{
+var toggle = function (t) {
   'use strict';
 
   var toggleElem;
   var target = $(t);
 
-  if (target.attr('data-target'))
-  {
+  if (target.attr('data-target')) {
     toggleElem = $('#' + target.attr('data-target'));
     toggleElem.toggle();
   }
@@ -16406,16 +15657,14 @@ var toggle = function (t)
 };
 
 // Generic dialog canceling code
-var cancelDialog = function (t)
-{
+var cancelDialog = function (t) {
   'use strict';
 
   var target = $(t);
   var toggleElem;
   var elemId;
 
-  if (target.attr('data-target'))
-  {
+  if (target.attr('data-target')) {
     elemId = '#' + target.attr('data-target');
     toggleElem = $(elemId);
     toggleElem.hide();
@@ -16426,22 +15675,17 @@ var cancelDialog = function (t)
 };
 
 // Generic dialog form clearing code
-clear = function (inputFields, form)
-{
+clear = function (inputFields, form) {
   'use strict';
 
-  if (inputFields === undefined)
-  {
+  if (inputFields === undefined) {
     inputFields = $(form).find('input, select, textarea');
   }
-  inputFields.each(function (index, elem)
-  {
+  inputFields.each(function (index, elem) {
     var inputField = $(elem);
 
-    if (!inputField.attr('data-retain'))
-    {
-      if (inputField.is(':checked'))
-      {
+    if (!inputField.attr('data-retain')) {
+      if (inputField.is(':checked')) {
         inputField.attr('checked', false);
       }
       inputField.val('');
@@ -16455,18 +15699,14 @@ clear = function (inputFields, form)
 // Client side validation of string length.
 //
 // NOTE: Used only by [`projectui.js`](./projects/projectui.html)
-var checkLength = function (o, n, min, max, tips)
-{
+var checkLength = function (o, n, min, max, tips) {
   'use strict';
 
-  if (o.val().length > max || o.val().length < min)
-  {
+  if (o.val().length > max || o.val().length < min) {
     o.addClass('ui-state-error');
     updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 };
@@ -16474,12 +15714,10 @@ var checkLength = function (o, n, min, max, tips)
 // ### Form element manipulation
 
 // Init JqueryUI datepicker widgets
-var initDateFields = function ()
-{
+var initDateFields = function () {
   'use strict';
 
-  $('.date').datepicker(
-  {
+  $('.date').datepicker({
     dateFormat: 'yy-mm-dd'
   });
 
@@ -16487,15 +15725,12 @@ var initDateFields = function ()
 };
 
 // Fill select options from a URL using Ajax
-var fillOptionsFromUrl = function (url, selectElement, callback)
-{
+var fillOptionsFromUrl = function (url, selectElement, callback) {
   'use strict';
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     selectElement.html(req.response);
-    if (callback)
-    {
+    if (callback) {
       callback();
     }
   });
@@ -16525,77 +15760,60 @@ var htmlparser = require('htmlparser2');
 
 // ## Internal Functions
 
-var validateFromArg = function (html)
-{
+var validateFromArg = function (html) {
   'use strict';
 
-  if (typeof html !== 'string')
-  {
+  if (typeof html !== 'string') {
     throw 'invalid HTML: non-string';
-  }
-  else if (html.length === 0)
-  {
+  } else if (html.length === 0) {
     throw 'invalid HTML: ""';
   }
 
   return html;
 };
 
-var validateToArg = function (obj)
-{
+var validateToArg = function (obj) {
   'use strict';
 
   var msg = 'cannot build form from: ';
 
-  if (typeof obj === 'string' && obj !== null)
-  {
+  if (typeof obj === 'string' && obj !== null) {
     throw msg + 'string';
-  }
-  else if (typeof obj === 'number')
-  {
+  } else if (typeof obj === 'number') {
     throw msg + 'number';
-  }
-  else if (obj !== null && obj.constructor === Array)
-  {
+  } else if (obj !== null && obj.constructor === Array) {
     throw msg + 'array';
   }
 
   return obj;
 };
 
-var curr = function (state)
-{
+var curr = function (state) {
   'use strict';
 
   return state.state[state.state.length - 1];
 };
 
-var showState = function (state)
-{
+var showState = function (state) {
   'use strict';
 
   return ' [' + state.state.join(',') + ']';
 };
 
-var openForm = function (state)
-{
+var openForm = function (state) {
   'use strict';
 
-  if (curr(state) === 'start')
-  {
+  if (curr(state) === 'start') {
     state.state.push('open');
     state.acc = 'null';
-  }
-  else
-  {
+  } else {
     throw 'invalid form: only one form allowed' + showState(state);
   }
 
   return state;
 };
 
-var addTextValue = function (state, text)
-{
+var addTextValue = function (state, text) {
   'use strict';
 
   state.acc = state.acc + '"' + text + '"';
@@ -16603,8 +15821,7 @@ var addTextValue = function (state, text)
   return state;
 };
 
-var addKey = function (state, name)
-{
+var addKey = function (state, name) {
   'use strict';
 
   state.acc = addTextValue(state, name).acc + ':';
@@ -16612,35 +15829,28 @@ var addKey = function (state, name)
   return state;
 };
 
-var addComma = function (state)
-{
+var addComma = function (state) {
   'use strict';
 
-  if (curr(state) === 'need-comma')
-  {
+  if (curr(state) === 'need-comma') {
     state.acc = state.acc + ',';
-  }
-  else
-  {
+  } else {
     state.state.push('need-comma');
   }
 
   return state;
 };
 
-var openObject = function (state, attribs)
-{
+var openObject = function (state, attribs) {
   'use strict';
 
-  if (state.acc === 'null')
-  {
+  if (state.acc === 'null') {
     state.acc = '';
   }
 
   addComma(state);
 
-  if (attribs.title)
-  {
+  if (attribs.title) {
     addKey(state, attribs.title);
   }
 
@@ -16651,14 +15861,12 @@ var openObject = function (state, attribs)
   return state;
 };
 
-var openArray = function (state, attribs)
-{
+var openArray = function (state, attribs) {
   'use strict';
 
   addComma(state);
 
-  if (attribs.title)
-  {
+  if (attribs.title) {
     addKey(state, attribs.title);
   }
 
@@ -16669,12 +15877,10 @@ var openArray = function (state, attribs)
   return state;
 };
 
-var addCorrectlyTypedValue = function(state, value)
-{
+var addCorrectlyTypedValue = function (state, value) {
   'use strict';
 
-  switch (value)
-  {
+  switch (value) {
   case 'null':
   case 'true':
   case 'false':
@@ -16687,31 +15893,25 @@ var addCorrectlyTypedValue = function(state, value)
   return state;
 };
 
-var addValue = function (state, attribs)
-{
+var addValue = function (state, attribs) {
   'use strict';
 
   addComma(state);
 
-  if (attribs.name)
-  {
+  if (attribs.name) {
     addKey(state, attribs.name);
   }
 
-  if (attribs.type === 'text')
-  {
+  if (attribs.type === 'text') {
     addCorrectlyTypedValue(state, attribs.value);
-  }
-  else if (attribs.type === 'number')
-  {
+  } else if (attribs.type === 'number') {
     state.acc = state.acc + attribs.value;
   }
 
   return state;
 };
 
-var openTextareaValue = function (state, attribs)
-{
+var openTextareaValue = function (state, attribs) {
   'use strict';
 
   addComma(state);
@@ -16721,12 +15921,10 @@ var openTextareaValue = function (state, attribs)
   return state;
 };
 
-var addTextareaValue = function (state, str)
-{
+var addTextareaValue = function (state, str) {
   'use strict';
 
-  if (curr(state) === 'open-text')
-  {
+  if (curr(state) === 'open-text') {
     state.state.pop();
     addTextValue(state, str);
   }
@@ -16734,20 +15932,17 @@ var addTextareaValue = function (state, str)
   return state;
 };
 
-var noComma = function (state)
-{
+var noComma = function (state) {
   'use strict';
 
-  if (curr(state) === 'need-comma')
-  {
+  if (curr(state) === 'need-comma') {
     state.state.pop();
   }
 
   return state;
 };
 
-var klose = function (state, targ, callback)
-{
+var klose = function (state, targ, callback) {
   'use strict';
 
   var current;
@@ -16755,24 +15950,19 @@ var klose = function (state, targ, callback)
   noComma(state);
   current = curr(state);
 
-  if (current === targ)
-  {
+  if (current === targ) {
     callback(state);
-  }
-  else
-  {
+  } else {
     throw 'invalid form: tag mismatch' + showState(state);
   }
 
   return state;
 };
 
-var closeForm = function (state)
-{
+var closeForm = function (state) {
   'use strict';
 
-  klose(state, 'open', function (state)
-  {
+  klose(state, 'open', function (state) {
     state.state = ['done'];
 
     return state;
@@ -16781,12 +15971,10 @@ var closeForm = function (state)
   return state;
 };
 
-var closeObject = function (state)
-{
+var closeObject = function (state) {
   'use strict';
 
-  klose(state, 'open-object', function (state)
-  {
+  klose(state, 'open-object', function (state) {
     state.state.pop();
     state.acc = state.acc + '}';
 
@@ -16796,12 +15984,10 @@ var closeObject = function (state)
   return state;
 };
 
-var closeArray = function (state)
-{
+var closeArray = function (state) {
   'use strict';
 
-  klose(state, 'open-array', function (state)
-  {
+  klose(state, 'open-array', function (state) {
     state.state.pop();
     state.acc = state.acc + ']';
 
@@ -16813,19 +15999,18 @@ var closeArray = function (state)
 
 // Main HTML parsing function. It uses the helper functions openForm,
 // openObject, addValue and openTextareaValue.
-var tryParseHTML = function (html)
-{
+var tryParseHTML = function (html) {
   'use strict';
 
-  var state = {state: ['start'], acc: ''};
+  var state = {
+    state: ['start'],
+    acc: ''
+  };
   var parser;
 
-  parser = new htmlparser.Parser(
-  {
-    onopentag: function(name, attribs)
-    {
-      switch (name)
-      {
+  parser = new htmlparser.Parser({
+    onopentag: function (name, attribs) {
+      switch (name) {
       case 'form':
         openForm(state);
         break;
@@ -16843,17 +16028,13 @@ var tryParseHTML = function (html)
         break;
       }
     },
-    ontext: function(str)
-    {
-      if (!str.match(/^\s+$/))
-      {
+    ontext: function (str) {
+      if (!str.match(/^\s+$/)) {
         addTextareaValue(state, str);
       }
     },
-    onclosetag: function(tagname)
-    {
-      switch (tagname)
-      {
+    onclosetag: function (tagname) {
+      switch (tagname) {
       case 'form':
         closeForm(state);
         break;
@@ -16870,8 +16051,7 @@ var tryParseHTML = function (html)
   parser.write(html);
   parser.end();
 
-  switch (state.state.pop())
-  {
+  switch (state.state.pop()) {
   case 'start':
     throw 'invalid form: no form found' + showState(state);
   case 'open':
@@ -16882,20 +16062,15 @@ var tryParseHTML = function (html)
 };
 
 // Simply a call to JSON.parse with some special error handling.
-var tryParseJSON = function (jsn)
-{
+var tryParseJSON = function (jsn) {
   'use strict';
 
   var obj;
 
-  try
-  {
+  try {
     obj = JSON.parse(jsn);
-  }
-  catch (e)
-  {
-    switch (e.name)
-    {
+  } catch (e) {
+    switch (e.name) {
     case 'SyntaxError':
       e.message = 'invalid JSON: ' + JSON.stringify(jsn);
       throw e;
@@ -16905,8 +16080,7 @@ var tryParseJSON = function (jsn)
   }
 
   // I've tested this and strangely enough JSON.parse(null) === null
-  if (jsn === null)
-  {
+  if (jsn === null) {
     throw new SyntaxError('invalid JSON: null');
   }
 
@@ -16914,59 +16088,41 @@ var tryParseJSON = function (jsn)
 };
 
 // If v is null, return 'null', otherwise return v.
-var maybeNullToString = function (v)
-{
+var maybeNullToString = function (v) {
   'use strict';
 
-  if (v === null)
-  {
+  if (v === null) {
     return 'null';
-  }
-  else
-  {
+  } else {
     return v;
   }
 };
 
 // Get the 'type', which may not correspond to the JavaScript type.
-var getType = function (val)
-{
+var getType = function (val) {
   'use strict';
 
-  if (val === null || (typeof val === 'string' && val.length <= 32))
-  {
+  if (val === null || (typeof val === 'string' && val.length <= 32)) {
     return 'string';
-  }
-  else if (typeof val === 'string' && val.length > 32)
-  {
+  } else if (typeof val === 'string' && val.length > 32) {
     return 'text';
-  }
-  else if (typeof val === 'boolean')
-  {
+  } else if (typeof val === 'boolean') {
     return 'boolean';
-  }
-  else if (typeof val === 'number')
-  {
+  } else if (typeof val === 'number') {
     return 'number';
-  }
-  else if (val instanceof Array)
-  {
+  } else if (val instanceof Array) {
     return 'array';
-  }
-  else if (val instanceof Object && !(val instanceof Array) && val !== null)
-  {
+  } else if (val instanceof Object && !(val instanceof Array) && val !== null) {
     return 'object';
   }
 };
 
 // Process key value pairs in an object and return an object that
 // describes the original object.
-var getKeyVals = function (o)
-{
+var getKeyVals = function (o) {
   'use strict';
 
-  return Object.keys(o).map(function (k)
-  {
+  return Object.keys(o).map(function (k) {
     var val = o[k];
 
     return {
@@ -16985,25 +16141,25 @@ var getKeyVals = function (o)
 // be using a specific templating system instead of an additional
 // recursive function to do the HTML rendering. This is probably an
 // unnecessary step at this point.
-var transform = function (obj)
-{
+var transform = function (obj) {
   'use strict';
 
-  var start = {fields: []};
+  var start = {
+    fields: []
+  };
 
-  var transform_ = function (o, rest, accObj, id)
-  {
+  var transform_ = function (o, rest, accObj, id) {
     var result;
     var keyVals = getKeyVals(o.object);
 
-    result = keyVals.reduce(function (acc, x)
-    {
-      if (x.type === 'array' || x.type === 'object')
-      {
-        return acc.concat({object: x.value, key: 'value', parent: x});
-      }
-      else
-      {
+    result = keyVals.reduce(function (acc, x) {
+      if (x.type === 'array' || x.type === 'object') {
+        return acc.concat({
+          object: x.value,
+          key: 'value',
+          parent: x
+        });
+      } else {
         return acc;
       }
     }, []);
@@ -17011,29 +16167,26 @@ var transform = function (obj)
     rest = rest.concat(result);
     o.parent[o.key] = keyVals;
 
-    if (rest && rest.length !== 0)
-    {
+    if (rest && rest.length !== 0) {
       return transform_.r(rest[0], rest.slice(1), accObj, id);
-    }
-    else
-    {
+    } else {
       return id.r(accObj);
     }
   };
 
-  if (obj === null)
-  {
+  if (obj === null) {
     return {};
-  }
-  else
-  {
-    return transform_.t({object: obj, parent: start, key: 'fields'}, [], start, r.identity);
+  } else {
+    return transform_.t({
+      object: obj,
+      parent: start,
+      key: 'fields'
+    }, [], start, r.identity);
   }
 };
 
 // Insert the strings in the acc object.
-var insert = function (left, right, acc)
-{
+var insert = function (left, right, acc) {
   'use strict';
 
   acc.left = acc.left + left;
@@ -17043,107 +16196,87 @@ var insert = function (left, right, acc)
 };
 
 // Return a label for a key.
-var label = function (key, acc)
-{
+var label = function (key, acc) {
   'use strict';
 
-  if (key)
-  {
+  if (key) {
     acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
   }
 
   return acc;
 };
 
-var spanTitle = function (key)
-{
+var spanTitle = function (key) {
   'use strict';
 
   var retval = '';
 
-  if (key)
-  {
+  if (key) {
     retval = '<span title="' + key + '">' + key + '</span>';
   }
 
   return retval;
 };
 
-var newEither = function (type, key, acc)
-{
+var newEither = function (type, key, acc) {
   'use strict';
 
   return insert(spanTitle(key) + '<' + type + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // For an object.
-var newObject = function (key, acc)
-{
+var newObject = function (key, acc) {
   'use strict';
 
   return newEither('ul', key, acc);
 };
 
 // For an array.
-var newArray = function (key, acc)
-{
+var newArray = function (key, acc) {
   'use strict';
 
   return newEither('ol', key, acc);
 };
 
 // When an item has a value
-var hasValue = function (acc)
-{
+var hasValue = function (acc) {
   'use strict';
 
   return insert('<li>', '', acc);
 };
 
 // Longer text input.
-var textarea = function (key, value, acc)
-{
+var textarea = function (key, value, acc) {
   'use strict';
 
   return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
-var inputarea = function (key, value, type, acc)
-{
+var inputarea = function (key, value, type, acc) {
   'use strict';
 
   return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
-var processDescriptField = function (fs, acc)
-{
+var processDescriptField = function (fs, acc) {
   'use strict';
 
-  if (fs && fs.value !== undefined)
-  {
+  if (fs && fs.value !== undefined) {
     hasValue(acc);
 
-    if (fs.type && fs.type !== 'array' && fs.type !== 'object')
-    {
+    if (fs.type && fs.type !== 'array' && fs.type !== 'object') {
       label(fs.key, acc);
-    }
-    else if (fs.type && fs.type === 'object')
-    {
+    } else if (fs.type && fs.type === 'object') {
       newObject(fs.key, acc);
-    }
-    else if (fs.type && fs.type === 'array')
-    {
+    } else if (fs.type && fs.type === 'array') {
       newArray(fs.key, acc);
     }
 
-    if (fs.type === 'text')
-    {
+    if (fs.type === 'text') {
       textarea(fs.key, fs.value, acc);
-    }
-    else if (fs.type !== 'object' && fs.type !== 'array')
-    {
+    } else if (fs.type !== 'object' && fs.type !== 'array') {
       inputarea(fs.key, fs.value, fs.type, acc);
     }
   }
@@ -17153,8 +16286,7 @@ var processDescriptField = function (fs, acc)
 
 // Pop the accstack and insert the current acc left and right on the
 // left of the poped object.
-var accInsert = function (accstack, acc)
-{
+var accInsert = function (accstack, acc) {
   'use strict';
 
   var acc2 = accstack.pop();
@@ -17165,11 +16297,13 @@ var accInsert = function (accstack, acc)
 
 // The descriptive object created by the transform function is
 // converted to HTML.
-var descriptToHtml = function (obj)
-{
+var descriptToHtml = function (obj) {
   'use strict';
 
-  var acc = {left: '<form>', right: '</form>'};
+  var acc = {
+    left: '<form>',
+    right: '</form>'
+  };
   var result;
 
   // This will recurse the descriptive object. The head variable is
@@ -17180,8 +16314,7 @@ var descriptToHtml = function (obj)
   // objects. Accstack is used to store acc context when
   // descending. Id is a reference to the identity function to define
   // the base case.
-  var _descriptToHtml = function (head, rest, acc, stack, accstack, id)
-  {
+  var _descriptToHtml = function (head, rest, acc, stack, accstack, id) {
     var isNotObject = head && (head.type !== 'array' && head.type !== 'object');
     var done = rest.length === 0;
     var depleted = stack.length === 0;
@@ -17190,16 +16323,14 @@ var descriptToHtml = function (obj)
 
     // There are no more fields, the stack is depleted and the value
     // doesn't need to be descended, so return the accumulator.
-    if (!head && done && depleted)
-    {
+    if (!head && done && depleted) {
       return id.r(acc);
     }
     // If there is more on the stack, process it. We'll want to ignore
     // objects so that they can be handled in the 'else' clause. We'll
     // also want to continue if fs is undefined, which will indicate
     // that we've hit the end of object or array values.
-    else if (!depleted && done && (isNotObject || !head))
-    {
+    else if (!depleted && done && (isNotObject || !head)) {
       // Pop the next group of stored fs's off the stack where they
       // were previously stored by the 'else' clause below.
       next = stack.pop();
@@ -17217,16 +16348,17 @@ var descriptToHtml = function (obj)
     }
     // Unless it is a complex value, process the value and move on to
     // the next field.
-    else if (isNotObject)
-    {
+    else if (isNotObject) {
       processDescriptField(head, acc);
 
       return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
     // Otherwise descend the complex value.
-    else
-    {
-      acc2 = {left: '', right: ''};
+    else {
+      acc2 = {
+        left: '',
+        right: ''
+      };
 
       // Push the remaining values onto the stack so they will be
       // processed later.
@@ -17244,13 +16376,11 @@ var descriptToHtml = function (obj)
   };
 
   // When the original object isn't null and there are fields.
-  if (obj.obj && obj.fields)
-  {
+  if (obj.obj && obj.fields) {
     insert('<ul>', '</ul>', acc);
 
     // If there is more than just an empty list of fields.
-    if (obj.fields && obj.fields.length > 0)
-    {
+    if (obj.fields && obj.fields.length > 0) {
       result = _descriptToHtml.t(obj.fields[0], obj.fields.slice(1), acc, [], [], r.identity);
     }
   }
@@ -17259,8 +16389,7 @@ var descriptToHtml = function (obj)
 };
 
 // This is essentially the default simple form building function.
-var simpleToForm = function (obj)
-{
+var simpleToForm = function (obj) {
   'use strict';
 
   var fields = transform(obj);
@@ -17273,8 +16402,7 @@ var simpleToForm = function (obj)
 
 // ## External Functions
 
-var toForm = function (jsn)
-{
+var toForm = function (jsn) {
   'use strict';
 
   var obj = tryParseJSON(jsn);
@@ -17284,8 +16412,7 @@ var toForm = function (jsn)
   return simpleToForm(obj);
 };
 
-var fromForm = function (html)
-{
+var fromForm = function (html) {
   'use strict';
 
   var json;
@@ -17332,8 +16459,7 @@ var evs = require('./ievents.js');
 // Exported functions
 
 // The dialog for adding a condition to an index.
-var initIndexBuilderDialog = function (indexDoctype)
-{
+var initIndexBuilderDialog = function (indexDoctype) {
   'use strict';
 
   var builderOr = $('#builder-or-input');
@@ -17349,8 +16475,7 @@ var initIndexBuilderDialog = function (indexDoctype)
 
   $('.ui-helper-reset div').show();
 
-  var appendCondition = function (builderRow)
-  {
+  var appendCondition = function (builderRow) {
     var tableBody = $('#index-conditions-listing tbody');
     tableBody.append(builderRow);
     tableBody.sortable();
@@ -17358,138 +16483,101 @@ var initIndexBuilderDialog = function (indexDoctype)
     return false;
   };
 
-  ihelpers.fOpts(fieldset_url, builderFieldset, function ()
-  {
+  ihelpers.fOpts(fieldset_url, builderFieldset, function () {
     builderFieldset.inputEnable();
   });
 
-  builderOr.change(function ()
-  {
-    if (builderOr.is(':checked'))
-    {
+  builderOr.change(function () {
+    if (builderOr.is(':checked')) {
       $('#builder-conditions').hide();
       $('#builder-parens').hide();
-    }
-    else
-    {
+    } else {
       $('#builder-conditions').show();
       $('#builder-parens').show();
     }
   });
 
-  builderParen.change(function ()
-  {
-    if (builderParen.val())
-    {
+  builderParen.change(function () {
+    if (builderParen.val()) {
       $('#builder-or').hide();
       $('#builder-conditions').hide();
-    }
-    else
-    {
+    } else {
       $('#builder-or').show();
       $('#builder-conditions').show();
     }
   });
 
-  var fieldsetEvents = function ()
-  {
-    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function ()
-    {
+  var fieldsetEvents = function () {
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function () {
       builderOperator.inputDisable();
       builderField.inputDisable();
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderField.inputEnable();
       };
     });
   };
 
-  var fieldEvents = function ()
-  {
-    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function ()
-    {
+  var fieldEvents = function () {
+    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function () {
       builderOperator.inputDisable();
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderOperator.inputEnable();
       };
     });
   };
 
-  var operatorEvents = function ()
-  {
-    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function ()
-    {
+  var operatorEvents = function () {
+    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function () {
       builderArgument.inputDisable();
 
-      return function ()
-      {
+      return function () {
         builderArgument.inputEnable();
       };
     });
   };
 
-  var dialog = $('#index-builder-dialog').dialog(
-  {
+  var dialog = $('#index-builder-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Create': function ()
-      {
+    buttons: {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!builderOr.is(':checked') && !builderParen.val())
-        {
-          notBlank.forEach(function (item)
-          {
-            if (item.val().isBlank())
-            {
+        if (!builderOr.is(':checked') && !builderParen.val()) {
+          notBlank.forEach(function (item) {
+            if (item.val().isBlank()) {
               item.addClass('ui-state-error');
               checkResult = false;
-            }
-            else
-            {
+            } else {
               item.removeClass('ui-state-error');
             }
           });
         }
 
-        if (checkResult)
-        {
-          if (builderOr.is(':checked'))
-          {
-            $.get(condition_url,
-            {
+        if (checkResult) {
+          if (builderOr.is(':checked')) {
+            $.get(condition_url, {
               'is_or': true
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
-          }
-          else if (builderParen.val())
-          {
-            $.get(condition_url,
-            {
+          } else if (builderParen.val()) {
+            $.get(condition_url, {
               'is_or': false,
               'parens': builderParen.val(),
               'negate': false
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
-          }
-          else
-          {
-            $.get(condition_url,
-            {
+          } else {
+            $.get(condition_url, {
               'is_or': false,
               'parens': false,
               'negate': builderNegate.is(':checked'),
@@ -17497,8 +16585,7 @@ var initIndexBuilderDialog = function (indexDoctype)
               'field': builderField.val(),
               'operator': builderOperator.val(),
               'argument': builderArgument.val()
-            }, function (data)
-            {
+            }, function (data) {
               appendCondition(data);
             });
           }
@@ -17506,13 +16593,11 @@ var initIndexBuilderDialog = function (indexDoctype)
           $(this).dialog('close');
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       $('#builder-conditions').show();
       builderFieldset.unbind('change');
       builderField.unbind('change');
@@ -17551,36 +16636,31 @@ var flash = require('../flash.js');
 // Internal functions
 
 // User interface element
-var tableBody = function ()
-{
+var tableBody = function () {
   'use strict';
 
   return $('#index-conditions-listing tbody');
 };
 
 // User interface element
-var editingData = function ()
-{
+var editingData = function () {
   'use strict';
 
   return $('#index-editing-data');
 };
 
 // Make sure the arguments are of the correct type.
-var fixArgumentType = function (argument, subcategory, operator)
-{
+var fixArgumentType = function (argument, subcategory, operator) {
   'use strict';
 
-  switch (subcategory)
-  {
+  switch (subcategory) {
   case 'integer':
   case 'rational':
     argument = argument * 1;
     break;
   }
 
-  switch (operator)
-  {
+  switch (operator) {
   case 'hasExactly':
   case 'hasGreater':
   case 'hasLess':
@@ -17593,65 +16673,57 @@ var fixArgumentType = function (argument, subcategory, operator)
 
 // Use data in `data` attributes of HTML elements to produce an array
 // of conditions.
-var getIndexConditions = function (doctypeId, rows)
-{
+var getIndexConditions = function (doctypeId, rows) {
   'use strict';
 
   var conditions = rows.map(
 
-  function (index, row)
-  {
-    row = $(row);
-    var is_or = row.find('td.or-condition').attr('data-value') === 'true';
-    var paren = row.find('td.paren-condition').attr('data-value');
-    var condition;
+    function (index, row) {
+      row = $(row);
+      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
+      var paren = row.find('td.paren-condition').attr('data-value');
+      var condition;
 
-    if (is_or)
-    {
-      condition = {
-        'is_or': true,
-        'parens': false
-      };
-    }
-    else if (paren)
-    {
-      condition = {
-        'is_or': false,
-        'parens': paren
-      };
-    }
-    else
-    {
-      var fieldId = row.find('td.field-condition').attr('data-value');
-      var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-      var argument = row.find('td.argument-condition').attr('data-value');
-      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
-      var negate =
-        row.find('td.negate-condition').attr('data-value') === 'true';
-      var operator = row.find('td.operator-condition').attr('data-value');
+      if (is_or) {
+        condition = {
+          'is_or': true,
+          'parens': false
+        };
+      } else if (paren) {
+        condition = {
+          'is_or': false,
+          'parens': paren
+        };
+      } else {
+        var fieldId = row.find('td.field-condition').attr('data-value');
+        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+        var argument = row.find('td.argument-condition').attr('data-value');
+        var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+        var negate =
+          row.find('td.negate-condition').attr('data-value') === 'true';
+        var operator = row.find('td.operator-condition').attr('data-value');
 
-      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
 
-      condition = {
-        'is_or': false,
-        'parens': false,
-        'negate': negate,
-        'fieldset': fieldsetId,
-        'field': fieldId,
-        'operator': operator,
-        'argument': argument
-      };
-    }
+        condition = {
+          'is_or': false,
+          'parens': false,
+          'negate': negate,
+          'fieldset': fieldsetId,
+          'field': fieldId,
+          'operator': operator,
+          'argument': argument
+        };
+      }
 
-    return condition;
-  }).toArray();
+      return condition;
+    }).toArray();
 
   return conditions;
 };
 
 // Initiate the save action.
-var saveIndex = function (buttonData, completeFunction)
-{
+var saveIndex = function (buttonData, completeFunction) {
   'use strict';
 
   var indexId = buttonData.attr('data-index-id');
@@ -17670,8 +16742,7 @@ var saveIndex = function (buttonData, completeFunction)
     'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
   };
 
-  if (buttonData.attr('data-index-replace_function'))
-  {
+  if (buttonData.attr('data-index-replace_function')) {
     obj.replace_function = buttonData.attr('data-index-replace_function');
   }
 
@@ -17681,40 +16752,32 @@ var saveIndex = function (buttonData, completeFunction)
 };
 
 // Initiate the delete action.
-var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction)
-{
+var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction) {
   'use strict';
 
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
   var title;
   var body;
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'DELETE',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
-    complete: function (req, status)
-    {
-      if (req.status === 204)
-      {
+    complete: function (req, status) {
+      if (req.status === 204) {
         title = 'Success';
         body = completeMessage;
 
         completeFunction();
 
         flash.highlight(title, body);
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
         flash.error(title, body.message);
-      }
-      else if (req.status === 404)
-      {
+      } else if (req.status === 404) {
         body = 'Index appears to have been deleted already.';
         title = req.statusText;
 
@@ -17729,16 +16792,14 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
 // Exported functions
 
 // Initialize the index editing user interface.
-var init = function (target)
-{
+var init = function (target) {
   'use strict';
 
   var indexId = $(target).attr('data-index-id');
   var url = 'indexes/' + indexId;
   var htmlTarget = $('#index-conditions');
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     htmlTarget.html(req.response);
     tableBody().sortable();
     ipreviewui.get();
@@ -17748,42 +16809,33 @@ var init = function (target)
 };
 
 // Save the index.
-var save = function ()
-{
+var save = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
-    var completeFunction = function ()
-    {
+  if (bData.length !== 0) {
+    var completeFunction = function () {
       init(bData);
       flash.highlight('Success', 'Your index has been saved.');
     };
 
     saveIndex(bData, completeFunction);
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'No index has been chosen to save.');
   }
 };
 
 // Open the replace dialog, which allows the user to enter a function
 // that will replace the normal output of the index.
-var replace = function ()
-{
+var replace = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     initReplaceDialog.dialog('open');
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
 
@@ -17791,18 +16843,14 @@ var replace = function ()
 };
 
 // Add a condition using the index builder dialog.
-var addCond = function ()
-{
+var addCond = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     initIndexBuilderDialog(bData.attr('data-index-doctype')).dialog('open');
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
 
@@ -17810,8 +16858,7 @@ var addCond = function ()
 };
 
 // Handle the mouse click initiate action of removing a condition.
-var remCond = function (target)
-{
+var remCond = function (target) {
   'use strict';
 
   $(target).closest('tr').remove();
@@ -17819,8 +16866,7 @@ var remCond = function (target)
 };
 
 // Open the new index dialog.
-var newCond = function ()
-{
+var newCond = function () {
   'use strict';
 
   initIndexNewDialog().dialog('open');
@@ -17828,30 +16874,24 @@ var newCond = function ()
 };
 
 // Delete the current index.
-var del = function ()
-{
+var del = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     var indexId = bData.attr('data-index-id');
     var indexRev = bData.attr('data-index-rev');
     var completeMessage = 'Your index has been deleted.';
-    var completeFunction = function ()
-    {
+    var completeFunction = function () {
       $('#index-conditions').empty();
       ilistingui.init();
     };
 
-    if (window.confirm('Are you sure?'))
-    {
+    if (window.confirm('Are you sure?')) {
       deleteIndex(indexId, indexRev, completeMessage, completeFunction);
     }
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'No index has been chosen to delete.');
   }
 
@@ -17882,17 +16922,14 @@ var h = require('./ihelpers.js');
 //
 
 // Set change events for doctype field
-var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
-{
+var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
   'use strict';
 
-  indexDoctype.change(function ()
-  {
+  indexDoctype.change(function () {
     var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 
@@ -17903,25 +16940,20 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
 };
 
 // Set change events for index field
-var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
-{
+var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexFieldset.change(function ()
-  {
+  indexFieldset.change(function () {
     var callback2;
 
-    if (typeof indexDoctype !== 'string')
-    {
+    if (typeof indexDoctype !== 'string') {
       indexDoctype = indexDoctype.val();
     }
 
-    if (indexFieldset.val())
-    {
+    if (indexFieldset.val()) {
       var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
 
-      if (callback)
-      {
+      if (callback) {
         callback2 = callback();
       }
 
@@ -17933,25 +16965,20 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 };
 
 // Set change events for field
-var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
-{
+var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexField.change(function ()
-  {
+  indexField.change(function () {
     var fieldId = indexField.val();
     var fieldsetId = indexFieldset.val();
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 
-    if (!(fieldId.isBlank()))
-    {
-      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
-      {
+    if (!(fieldId.isBlank())) {
+      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
         h.alterOpts(data, fieldId, callback2);
       });
     }
@@ -17961,16 +16988,13 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
 };
 
 // Set change events for the operator field.
-var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
-{
+var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
-  operatorField.change(function ()
-  {
+  operatorField.change(function () {
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 
@@ -18000,14 +17024,12 @@ var ajax = require('../ajax.js');
 // Internal functions
 
 // Disable certain options match `disables`.
-var disableOptions = function (options, disables)
-{
+var disableOptions = function (options, disables) {
   'use strict';
 
   options.children().show();
 
-  disables.forEach(function (item)
-  {
+  disables.forEach(function (item) {
     options.children('option:contains(' + item + ')').hide();
   });
 
@@ -18015,14 +17037,12 @@ var disableOptions = function (options, disables)
 };
 
 // Disable the operator options.
-var disableOperatorOptions = function (fieldDoc)
-{
+var disableOperatorOptions = function (fieldDoc) {
   'use strict';
 
   var options = $('#builder-operator-input');
 
-  switch (fieldDoc.subcategory)
-  {
+  switch (fieldDoc.subcategory) {
   case 'select':
   case 'docselect':
   case 'text':
@@ -18051,43 +17071,32 @@ var disableOperatorOptions = function (fieldDoc)
 
 // Handles an input field that presents different behavior depending on
 // the values of previously filled in fields.
-var alterArg = function (argumentField, operatorField, fieldField, callback)
-{
+var alterArg = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
-  var fieldDoc = function ()
-  {
+  var fieldDoc = function () {
     return s.get(fieldField.val());
   };
 
   callback();
 
-  try
-  {
+  try {
     // Destroy these if initialized already
     argumentField.removeAttr('disabled').datepicker('destroy');
     argumentField.removeAttr('disabled').autocomplete('destroy');
-  }
-  catch (err)
-  {
+  } catch (err) {
     window.console.log(err.message);
   }
 
-  var dateOrText = function (argumentField, fdoc)
-  {
-    if (fdoc.subcategory === 'date')
-    {
+  var dateOrText = function (argumentField, fdoc) {
+    if (fdoc.subcategory === 'date') {
       argumentField.removeAttr('disabled');
-      argumentField.datepicker(
-      {
+      argumentField.datepicker({
         dateFormat: 'yy-mm-dd'
       });
-    }
-    else
-    {
+    } else {
       argumentField.removeAttr('disabled');
-      argumentField.autocomplete(
-      {
+      argumentField.autocomplete({
         source: fdoc.allowed
       });
     }
@@ -18097,10 +17106,8 @@ var alterArg = function (argumentField, operatorField, fieldField, callback)
 
   var fdoc = fieldDoc();
 
-  if (fdoc)
-  {
-    switch (operatorField.val())
-    {
+  if (fdoc) {
+    switch (operatorField.val()) {
     case 'true':
     case 'isDefined':
     case 'blank':
@@ -18123,8 +17130,7 @@ var alterArg = function (argumentField, operatorField, fieldField, callback)
 };
 
 // Certain operator options only exist for certain types of fields.
-var alterOpts = function (fieldDoc, fieldId, callback)
-{
+var alterOpts = function (fieldDoc, fieldId, callback) {
   'use strict';
 
   disableOperatorOptions(fieldDoc);
@@ -18134,16 +17140,13 @@ var alterOpts = function (fieldDoc, fieldId, callback)
 };
 
 // Get the fields that the user may choose from.
-var fOpts = function (url, selectElement, callback)
-{
+var fOpts = function (url, selectElement, callback) {
   'use strict';
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     selectElement.html(req.response);
 
-    if (callback)
-    {
+    if (callback) {
       callback();
     }
   });
@@ -18152,33 +17155,25 @@ var fOpts = function (url, selectElement, callback)
 };
 
 // Get the document holding the field information.
-var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
-{
+var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
   'use strict';
 
   var fieldDoc = s.get(fieldId);
   var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
 
-  if (fieldDoc)
-  {
-    if (callback)
-    {
+  if (fieldDoc) {
+    if (callback) {
       callback(fieldDoc);
     }
     return fieldDoc;
-  }
-  else
-  {
-    $.ajax(
-    {
+  } else {
+    $.ajax({
       url: url,
       async: false,
       dataType: 'json',
-      success: function (data)
-      {
+      success: function (data) {
         s.put(data);
-        if (callback)
-        {
+        if (callback) {
           callback(s.get(fieldId));
         }
       }
@@ -18189,21 +17184,17 @@ var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback)
 };
 
 // Return an object containing methods for working with common events.
-var evs = function ()
-{
+var evs = function () {
   'use strict';
 
   var mod = {};
 
-  mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
-  {
-    indexDoctype.change(function ()
-    {
+  mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
+    indexDoctype.change(function () {
       var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
       var callback2;
 
-      if (callback)
-      {
+      if (callback) {
         callback2 = callback();
       }
 
@@ -18213,23 +17204,18 @@ var evs = function ()
     return false;
   };
 
-  mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
-  {
-    indexFieldset.change(function ()
-    {
+  mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
+    indexFieldset.change(function () {
       var callback2;
 
-      if (typeof indexDoctype !== 'string')
-      {
+      if (typeof indexDoctype !== 'string') {
         indexDoctype = indexDoctype.val();
       }
 
-      if (indexFieldset.val())
-      {
+      if (indexFieldset.val()) {
         var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
 
-        if (callback)
-        {
+        if (callback) {
           callback2 = callback();
         }
 
@@ -18240,23 +17226,18 @@ var evs = function ()
     return mod;
   };
 
-  mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
-  {
-    indexField.change(function ()
-    {
+  mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
+    indexField.change(function () {
       var fieldId = indexField.val();
       var fieldsetId = indexFieldset.val();
       var callback2;
 
-      if (callback)
-      {
+      if (callback) {
         callback2 = callback();
       }
 
-      if (!(fieldId.isBlank()))
-      {
-        getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
-        {
+      if (!(fieldId.isBlank())) {
+        getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
           alterOpts(data, fieldId, callback2);
         });
       }
@@ -18265,14 +17246,11 @@ var evs = function ()
     return mod;
   };
 
-  mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
-  {
-    operatorField.change(function ()
-    {
+  mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
+    operatorField.change(function () {
       var callback2;
 
-      if (callback)
-      {
+      if (callback) {
         callback2 = callback();
       }
 
@@ -18304,16 +17282,14 @@ var ajax = require('../ajax.js');
 // Exported functions
 
 // Initialize the listing of user created indexes.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var url = 'indexes';
   var target = $('#index-index-listing');
   var listing;
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     listing = templates['index-listing'](req.response);
     target.html(listing);
   });
@@ -18338,28 +17314,23 @@ var pager = require('../pager.js').pager;
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'preview';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var indexId = document.getElementById('index-editing-data').getAttribute('data-index-id');
   var url = 'indexes/' + indexId + '/preview';
   var target = document.getElementById(prefix() + '-list-view');
 
-  var format = function (resp)
-  {
-    resp.rows = resp.rows.map(function (item)
-    {
-      item.display_key = item.key.map(function (k)
-      {
+  var format = function (resp) {
+    resp.rows = resp.rows.map(function (item) {
+      item.display_key = item.key.map(function (k) {
         return k[1];
       });
 
@@ -18369,10 +17340,8 @@ var get = function ()
     return resp;
   };
 
-  if (indexId)
-  {
-    pager(
-    {
+  if (indexId) {
+    pager({
       prefix: prefix(),
       format: format,
       url: url,
@@ -18407,8 +17376,7 @@ var evs = require('./ievents.js');
 // Exported functions
 
 // The dialog for adding a new index.
-var initIndexNewDialog = function ()
-{
+var initIndexNewDialog = function () {
   'use strict';
 
   var indexDoctype = $('#index-doctype-input');
@@ -18417,58 +17385,46 @@ var initIndexNewDialog = function ()
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
 
-  var doctypeEvents = function ()
-  {
-    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function ()
-    {
+  var doctypeEvents = function () {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
       indexFieldset.inputDisable();
       indexField.inputDisable();
 
-      return function ()
-      {
+      return function () {
         indexFieldset.inputEnable();
       };
     });
   };
 
-  var fieldsetEvents = function ()
-  {
-    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function ()
-    {
+  var fieldsetEvents = function () {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
       indexField.inputDisable();
 
-      return function ()
-      {
+      return function () {
         indexField.inputEnable();
       };
     });
   };
 
-  var getLabelForVal = function (val)
-  {
+  var getLabelForVal = function (val) {
     return $('#index-new-dialog option[value="' + val + '"]').text();
   };
 
-  var getLabel = function ()
-  {
+  var getLabel = function () {
     return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
   };
 
-  var dialog = $('#index-new-dialog').dialog(
-  {
+  var dialog = $('#index-new-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Create': function ()
-      {
+    buttons: {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (checkResult)
-        {
+        if (checkResult) {
           var obj = {
             'category': 'index',
             'name': indexName.val(),
@@ -18478,21 +17434,18 @@ var initIndexNewDialog = function ()
             'fields_label': [getLabel()],
             'fields': [indexField.val()]
           },
-            complete = function (context)
-            {
+            complete = function (context) {
               ilistingui.init();
               $(context).dialog('close');
             };
           form.send('indexes', obj, 'POST', complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
       form.clear($('.input')).removeClass('ui-state-error');
@@ -18524,68 +17477,52 @@ var form = require('../form.js');
 
 // The dialog for providing a function to replace the normal output of
 // an index.
-var initReplaceDialog = function ()
-{
+var initReplaceDialog = function () {
   'use strict';
 
   var replaceFunction = $('#index-replace_function-input');
   var indexData = $('#index-editing-data');
   var remove = $('#index-remove_function-input');
 
-  if (indexData.attr('data-index-replace_function'))
-  {
+  if (indexData.attr('data-index-replace_function')) {
     replaceFunction.val(indexData.attr('data-index-replace_function'));
-  }
-  else
-  {
+  } else {
     form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
-  var dialog = $('#index-replace-dialog').dialog(
-  {
+  var dialog = $('#index-replace-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!remove.is(':checked'))
-        {
-          if (replaceFunction.val().isBlank())
-          {
+        if (!remove.is(':checked')) {
+          if (replaceFunction.val().isBlank()) {
             replaceFunction.addClass('ui-state-error');
-          }
-          else
-          {
+          } else {
             replaceFunction.removeClass('ui-state-error');
           }
 
-          if (checkResult)
-          {
+          if (checkResult) {
             indexData.attr('data-index-replace_function', replaceFunction.val());
             $('#replace-function-message').text('This index has a replacement function.');
           }
-        }
-        else
-        {
+        } else {
           indexData.removeAttr('data-index-replace_function');
           $('#replace-function-message').empty();
         }
 
         $(this).dialog('close');
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       form.clear(replaceFunction).removeClass('ui-state-error');
     }
   });
@@ -18600,20 +17537,17 @@ exports.initReplaceDialog = initReplaceDialog;
  Simple plugin for manipulating input.
 */
 
-(function ($)
-{
+(function ($) {
   'use strict';
 
-  $.fn.inputDisable = function ()
-  {
+  $.fn.inputDisable = function () {
     this.val('');
     this.attr('disabled', 'disabled');
     this.addClass('ui-state-disabled');
     return this;
   };
 
-  $.fn.inputEnable = function ()
-  {
+  $.fn.inputEnable = function () {
     this.removeAttr('disabled');
     this.removeClass('ui-state-disabled');
     return this;
@@ -18635,15 +17569,13 @@ exports.initReplaceDialog = initReplaceDialog;
  * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
  */
 
-(function (jQuery)
-{
+(function (jQuery) {
   'use strict';
 
   jQuery.hotkeys = {
     version: '0.8',
 
-    specialKeys:
-    {
+    specialKeys: {
       8: 'backspace',
       9: 'tab',
       13: 'return',
@@ -18697,8 +17629,7 @@ exports.initReplaceDialog = initReplaceDialog;
       224: 'meta'
     },
 
-    shiftNums:
-    {
+    shiftNums: {
       '`': '~',
       '1': '!',
       '2': '@',
@@ -18721,19 +17652,16 @@ exports.initReplaceDialog = initReplaceDialog;
     }
   };
 
-  function keyHandler(handleObj)
-  {
+  function keyHandler(handleObj) {
     // Only care when a possible input has been specified
-    if (typeof handleObj.data !== 'string')
-    {
+    if (typeof handleObj.data !== 'string') {
       return;
     }
 
     var origHandler = handleObj.handler,
       keys = handleObj.data.toLowerCase().split(' ');
 
-    handleObj.handler = function (event)
-    {
+    handleObj.handler = function (event) {
       // Don't fire in text-accepting inputs that we didn't directly bind to
       // MODIFIED FROM ORIGINAL
       //if ( this !== event.target && (/textarea|select/i.test( event.target.nodeName ) ||
@@ -18747,56 +17675,45 @@ exports.initReplaceDialog = initReplaceDialog;
         possible = {};
 
       // check combinations (alt|ctrl|shift+anything)
-      if (event.altKey && special !== 'alt')
-      {
+      if (event.altKey && special !== 'alt') {
         modif += 'alt+';
       }
 
-      if (event.ctrlKey && special !== 'ctrl')
-      {
+      if (event.ctrlKey && special !== 'ctrl') {
         modif += 'ctrl+';
       }
 
       // TODO: Need to make sure this works consistently across platforms
-      if (event.metaKey && !event.ctrlKey && special !== 'meta')
-      {
+      if (event.metaKey && !event.ctrlKey && special !== 'meta') {
         modif += 'meta+';
       }
 
-      if (event.shiftKey && special !== 'shift')
-      {
+      if (event.shiftKey && special !== 'shift') {
         modif += 'shift+';
       }
 
-      if (special)
-      {
+      if (special) {
         possible[modif + special] = true;
 
-      }
-      else
-      {
+      } else {
         possible[modif + character] = true;
         possible[modif + jQuery.hotkeys.shiftNums[character]] = true;
 
         // '$' can be triggered as 'Shift+4' or 'Shift+$' or just '$'
-        if (modif === 'shift+')
-        {
+        if (modif === 'shift+') {
           possible[jQuery.hotkeys.shiftNums[character]] = true;
         }
       }
 
-      for (var i = 0, l = keys.length; i < l; i++)
-      {
-        if (possible[keys[i]])
-        {
+      for (var i = 0, l = keys.length; i < l; i++) {
+        if (possible[keys[i]]) {
           return origHandler.apply(this, arguments);
         }
       }
     };
   }
 
-  jQuery.each(['keydown', 'keyup', 'keypress'], function ()
-  {
+  jQuery.each(['keydown', 'keyup', 'keypress'], function () {
     jQuery.event.special[this] = {
       add: keyHandler
     };
@@ -18831,84 +17748,64 @@ var doctypeui = require('./config/doctypeui.js');
 // # Exported Functions
 
 // All this does is register a bunch of event handlers.
-var keystrokes = function ()
-{
+var keystrokes = function () {
   'use strict';
 
-  [ipreviewui, indexui, changeui, doctypeui, charsequi].forEach(function (mod)
-  {
-    var keyupHandler = function (e)
-    {
+  [ipreviewui, indexui, changeui, doctypeui, charsequi].forEach(function (mod) {
+    var keyupHandler = function (e) {
       var getIndexTimer;
       window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
+      getIndexTimer = setTimeout(function () {
+        if (e.which !== 8 && e.which !== 46) {
           mod.get();
         }
       }, 500);
     };
 
-    document.addEventListener('keyup', function(e)
-    {
-      if (e.target.id === mod.prefix() + '-filter')
-      {
+    document.addEventListener('keyup', function (e) {
+      if (e.target.id === mod.prefix() + '-filter') {
         keyupHandler(e);
-      }
-      else if (e.target.id === mod.prefix() + '-limit')
-      {
+      } else if (e.target.id === mod.prefix() + '-limit') {
         keyupHandler(e);
       }
     });
   });
 
-  $(document).on('keydown', '#document-worksheets-form', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-worksheets-form', function (e) {
+    if (e.which === 13) {
       S.sender('worksheet-form-submit');
       return false;
     }
     return true;
   });
 
-  $(document).on('keydown', '#document-sets-form', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-sets-form', function (e) {
+    if (e.which === 13) {
       S.sender('sets-form-submit');
       return false;
     }
     return true;
   });
 
-  $('#new-set-form').on('keydown', function (e)
-  {
-    if (e.which === 13)
-    {
+  $('#new-set-form').on('keydown', function (e) {
+    if (e.which === 13) {
       S.sender('new-set-form-submit');
       return false;
     }
     return true;
   });
 
-  $(document).bind('keydown', 'Alt+n', function (e)
-  {
-    var t = function ()
-    {
+  $(document).bind('keydown', 'Alt+n', function (e) {
+    var t = function () {
       return $('#edit-tabs');
     };
     var totaltabs = t().find('li').length;
     var selected = t().tabs('option', 'active');
 
-    if (selected < totaltabs - 1)
-    {
+    if (selected < totaltabs - 1) {
       t().tabs('option', 'active', selected + 1);
       S.sender('lost-focus');
-    }
-    else
-    {
+    } else {
       t().tabs('option', 'active', 0);
       S.sender('lost-focus');
     }
@@ -18916,29 +17813,23 @@ var keystrokes = function ()
     return false;
   });
 
-  $(document).bind('keydown', 'Alt+c', function (e)
-  {
+  $(document).bind('keydown', 'Alt+c', function (e) {
     var active = $(document.activeElement).attr('id');
     S.sender('initiated-command', active);
     return true;
   });
 
-  $(document).bind('keydown', 'Alt+p', function (e)
-  {
-    var t = function ()
-    {
+  $(document).bind('keydown', 'Alt+p', function (e) {
+    var t = function () {
       return $('#edit-tabs');
     };
     var totaltabs = t().find('li').length;
     var selected = t().tabs('option', 'active');
 
-    if (selected !== 0)
-    {
+    if (selected !== 0) {
       t().tabs('option', 'active', selected - 1);
       S.sender('lost-focus');
-    }
-    else
-    {
+    } else {
       t().tabs('option', 'active', totaltabs - 1);
       S.sender('lost-focus');
     }
@@ -18947,42 +17838,32 @@ var keystrokes = function ()
   });
 
 
-  $(document).on('keydown', '#edit-command-input', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#edit-command-input', function (e) {
+    if (e.which === 13) {
       var command = $('#edit-command-input').val();
       S.sender('submitted-command', command);
     }
     return true;
   });
 
-  $(document).on('keydown', '#edit-document-form input', function (e)
-  {
-    if (e.which === 13)
-    {
-      if ($('#save-document-button').css('display') === 'none')
-      {
+  $(document).on('keydown', '#edit-document-form input', function (e) {
+    if (e.which === 13) {
+      if ($('#save-document-button').css('display') === 'none') {
         editui.create();
-      }
-      else
-      {
+      } else {
         editui.save();
       }
     }
     return true;
   });
 
-  $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
-  {
+  $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e) {
     editui.toggleTextarea($(e.target));
     return false;
   });
 
-  $(document).on('keypress', '#view-jump-id', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keypress', '#view-jump-id', function (e) {
+    if (e.which === 13) {
       var docid = $('#view-jump-id').val();
       viewui.get(docid);
       return false;
@@ -18990,10 +17871,8 @@ var keystrokes = function ()
     return true;
   });
 
-  $(document).on('keydown', '#document-search-term', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-search-term', function (e) {
+    if (e.which === 13) {
       searchui.getSearch();
       return false;
     }
@@ -19033,15 +17912,13 @@ var ajax = require('./ajax.js');
 // Exported functions
 
 // Initialize the pager with an args object.
-var pager = function (args)
-{
+var pager = function (args) {
   'use strict';
 
   var mod = {};
   // If the 'prefix' used to automatically determine certain element
   // ID's is not set, set it to 'index'.
-  if (args.prefix === undefined)
-  {
+  if (args.prefix === undefined) {
     args.prefix = 'index';
   }
   // Special formatting or template code.
@@ -19049,23 +17926,20 @@ var pager = function (args)
   var prefix = args.prefix;
 
   // Escape a value and base64 encode it.
-  var escapeValue = function (value)
-  {
+  var escapeValue = function (value) {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
 
   // The number of elements to display is given here. Note how `prefix`
   // is used.
-  var limitField = function ()
-  {
+  var limitField = function () {
     return document.getElementById(prefix + '-limit');
   };
 
   // Get the first or next page. There won't be `prevkeys` or `previds`
   // if it is the first page. These accumulate during paging so that it
   // is possible to go backwards.
-  mod.get = function (startkey, startid, prevkeys, previds)
-  {
+  mod.get = function (startkey, startid, prevkeys, previds) {
     // The URL given as one of the original args.
     var url = args.url + '?';
     // This would be a custom index ID.
@@ -19083,69 +17957,56 @@ var pager = function (args)
       pids: previds
     };
 
-    if (!state.pks)
-    {
+    if (!state.pks) {
       state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];
     }
 
-    if (state.sk)
-    {
+    if (state.sk) {
       url = url + 'startkey=' + window.escape(window.atob(state.sk));
-      if (state.sid)
-      {
+      if (state.sid) {
         url = url + '&startkey_docid=' + state.sid;
       }
     }
 
-    if (limit)
-    {
+    if (limit) {
       url = url + '&limit=' + (limit + 1);
-    }
-    else
-    {
+    } else {
       limitField().value = 25;
       url = url + '&limit=26';
     }
 
-    if (indexId)
-    {
+    if (indexId) {
       url = url + '&index=' + indexId;
     }
 
-    ajax.get(url, function (req)
-    {
+    ajax.get(url, function (req) {
       mod.fill(req, state, target);
     });
 
     return mod;
   };
 
-  mod.fill = function (req, state, target)
-  {
+  mod.fill = function (req, state, target) {
     var limit = limitField().value * 1;
     var respJSON;
     var lastrow;
     var newRows;
 
-    var prevElem = function ()
-    {
+    var prevElem = function () {
       return document.getElementById('previous-' + prefix + '-page');
     };
 
-    var nextElem = function ()
-    {
+    var nextElem = function () {
       return document.getElementById('next-' + prefix + '-page');
     };
 
-    var prevHandler = function ()
-    {
+    var prevHandler = function () {
       mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
     };
 
-    var nextHandler = function ()
-    {
+    var nextHandler = function () {
       var firstElem = document.getElementById('first-' + prefix + '-element');
       var nextkey = nextElem().getAttribute('data-startkey');
       var nextid = nextElem().getAttribute('data-startid');
@@ -19157,34 +18018,26 @@ var pager = function (args)
       mod.get(nextkey, nextid, state.pks, state.pids);
     };
 
-    if (format === undefined)
-    {
+    if (format === undefined) {
       respJSON = req.response;
-    }
-    else
-    {
+    } else {
       respJSON = format(req.response);
     }
 
-    newRows = respJSON.rows.map(function (item, index, thisArray)
-    {
+    newRows = respJSON.rows.map(function (item, index, thisArray) {
       item.encoded_key = escapeValue(item.key);
       return item;
     });
 
     lastrow = newRows.slice(-1);
 
-    if (newRows[0])
-    {
+    if (newRows[0]) {
       newRows[0].firstrow = true;
     }
 
-    if (newRows.length > limit)
-    {
+    if (newRows.length > limit) {
       respJSON.rows = newRows.slice(0, -1);
-    }
-    else
-    {
+    } else {
       respJSON.rows = newRows;
       respJSON.lastpage = true;
     }
@@ -19192,8 +18045,7 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.innerHTML = templates['paged-listing'](respJSON,
-    {
+    target.innerHTML = templates['paged-listing'](respJSON, {
       'listed-element': templates.templates[prefix + '-element']
     });
 
@@ -19201,14 +18053,12 @@ var pager = function (args)
     prevElem().onclick = prevHandler;
 
     // Disable the previous button if we're at the beginning
-    if (state.pks.length === 0)
-    {
+    if (state.pks.length === 0) {
       prevElem().classList.add('hidden');
     }
 
     // Disable the next button if we're at the end
-    if (nextElem().getAttribute('data-last-page'))
-    {
+    if (nextElem().getAttribute('data-last-page')) {
       nextElem().classList.add('hidden');
     }
 
@@ -19227,27 +18077,20 @@ exports.pager = pager;
 
 // Given an element that points to a panel id with a `data-panel`
 // attribute, toggle the panel's visibility.
-var panelToggler = function (target)
-{
+var panelToggler = function (target) {
   'use strict';
 
   var panel;
 
-  if ($(target).attr('data-panel'))
-  {
+  if ($(target).attr('data-panel')) {
     panel = $('#' + $(target).attr('data-panel'));
-  }
-  else
-  {
+  } else {
     panel = $(target).closest('.panel');
   }
 
-  if (panel.css('display') === 'none')
-  {
+  if (panel.css('display') === 'none') {
     panel.css('display', 'table-cell');
-  }
-  else
-  {
+  } else {
     panel.css('display', 'none');
   }
 
@@ -19358,28 +18201,21 @@ var ajax = require('./ajax.js');
 // Exported functions
 
 // Object initialization
-var path = function (source, category, section)
-{
+var path = function (source, category, section) {
   'use strict';
 
   var mod = {};
   var prefix;
 
-  if (category)
-  {
+  if (category) {
     prefix = category + '-';
-  }
-  else
-  {
+  } else {
     prefix = '';
   }
 
-  if (section)
-  {
+  if (section) {
     mod.string = section + '/';
-  }
-  else
-  {
+  } else {
     mod.string = '';
   }
 
@@ -19389,10 +18225,8 @@ var path = function (source, category, section)
   mod.valid_components = ['doctype', 'fieldset', 'field'];
   var s = store(mod.origin);
 
-  mod.valid_components.forEach(function (item)
-  {
-    mod[item] = (function ()
-    {
+  mod.valid_components.forEach(function (item) {
+    mod[item] = (function () {
       var value = s.get(prefix + item);
       return value;
     })();
@@ -19404,64 +18238,52 @@ var path = function (source, category, section)
 
   // TODO: there is a redundant abstraction of `send` here that
   // already exists in the `ajax` module.
-  mod.send = function (object, method, callback)
-  {
+  mod.send = function (object, method, callback) {
     ajax.send(mod.toString(), object, method, callback);
     return mod;
   };
 
-  mod.put = function (object, callback)
-  {
+  mod.put = function (object, callback) {
     mod.send(object, 'PUT', callback);
     return mod;
   };
 
-  mod.post = function (object, callback)
-  {
+  mod.post = function (object, callback) {
     mod.send(object, 'POST', callback);
     return mod;
   };
 
-  mod.del = function (callback)
-  {
-    mod.send(
-    {}, 'DELETE', callback);
+  mod.del = function (callback) {
+    mod.send({}, 'DELETE', callback);
     return mod;
   };
 
-  mod.toString = function ()
-  {
+  mod.toString = function () {
     var rev;
 
     var pathString =
       mod.string.concat(
-      mod.valid_components.map(
+        mod.valid_components.map(
 
-    function (item)
-    {
-      var plural = item + 's';
-      var value = mod[item];
-      var retval = null;
+          function (item) {
+            var plural = item + 's';
+            var value = mod[item];
+            var retval = null;
 
-      if (value)
-      {
-        retval = plural + '/' + value;
-      }
-      else if (item === mod.category)
-      {
-        retval = plural;
-      }
+            if (value) {
+              retval = plural + '/' + value;
+            } else if (item === mod.category) {
+              retval = plural;
+            }
 
-      return retval;
-    }).filter(
+            return retval;
+          }).filter(
 
-    function (item)
-    {
-      return (typeof item === 'string' && !item.isBlank());
-    }).join('/'));
+          function (item) {
+            return (typeof item === 'string' && !item.isBlank());
+          }).join('/'));
 
-    if (mod.rev)
-    {
+    if (mod.rev) {
       pathString = pathString.concat('?rev=' + mod.rev);
     }
 
@@ -19490,12 +18312,10 @@ var init;
 // Internal functions
 
 // Delete the project with the given ID.
-var deleteProject = function (id)
-{
+var deleteProject = function (id) {
   'use strict';
 
-  if (window.confirm('Are you sure? This is permanent.'))
-  {
+  if (window.confirm('Are you sure? This is permanent.')) {
     ajax.del('/projects/' + id, init);
   }
 };
@@ -19503,8 +18323,7 @@ var deleteProject = function (id)
 // Exported functions
 
 // Add a project.
-var add = function ()
-{
+var add = function () {
   'use strict';
 
   var projectName = $('#project-name');
@@ -19512,21 +18331,17 @@ var add = function ()
   var tips = $('.validate-tips');
   var allFields = $([]).add(projectName).add(projectDescription);
 
-  var dialog = $('#add-dialog').dialog(
-  {
+  var dialog = $('#add-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Add project': function ()
-      {
+    buttons: {
+      'Add project': function () {
         allFields.removeClass('ui-state-error');
         $('.validation-error-message').remove();
 
         var checkResult = form.checkLength(projectName, 'project name', 1, 50, tips);
 
-        if (checkResult)
-        {
+        if (checkResult) {
           var data = {
             name: projectName.val(),
             description: projectDescription.val()
@@ -19537,13 +18352,11 @@ var add = function ()
           $(this).dialog('close');
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       allFields.val('').removeClass('ui-state-error');
     }
   });
@@ -19552,8 +18365,7 @@ var add = function ()
 };
 
 // Add a project.
-var del = function (target)
-{
+var del = function (target) {
   'use strict';
 
   var id = target.getAttribute('id');
@@ -19564,14 +18376,12 @@ var del = function (target)
 };
 
 // Initialize the interface.
-init = function ()
-{
+init = function () {
   'use strict';
 
   var url = '/projects/index';
 
-  ajax.get(url, function (req)
-  {
+  ajax.get(url, function (req) {
     var rendering = templates['project-listing'](req.response);
 
     document.getElementsByTagName('tbody')[0].innerHTML = rendering;
@@ -19594,31 +18404,26 @@ exports.init = init;
 // ## Exported Functions
 
 // Identity function
-var identity = function (x)
-{
+var identity = function (x) {
   'use strict';
 
   return x;
 };
 
 // Adds the prototype functions
-(function ()
-{
+(function () {
   'use strict';
 
   // Return the values to apply
-  Function.prototype.r = function ()
-  {
+  Function.prototype.r = function () {
     return [this, arguments];
   };
 
   // Tail call function
-  Function.prototype.t = function ()
-  {
+  Function.prototype.t = function () {
     var c = [this, arguments];
     var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape)
-    {
+    while (c[0] !== escape) {
       c = c[0].apply(this, c[1]);
     }
     return escape.apply(this, c[1]);
@@ -19651,14 +18456,12 @@ var worksheetui = require('./documents/worksheetui.js');
 
 // This is called by functions when the actions they have performed
 // result in a paticular state.
-var sender = function (message, arg)
-{
+var sender = function (message, arg) {
   'use strict';
 
   var retval;
 
-  switch (message)
-  {
+  switch (message) {
   case 'bad-session-state':
     retval = documents.clearSession();
     break;
@@ -19716,12 +18519,10 @@ exports.sender = sender;
 
 // If the item is not already in the session storage, convert it to JSON
 // and store it by `_id`. Return the `_id` of the document.
-var put = function (doc)
-{
+var put = function (doc) {
   'use strict';
 
-  if (!window.sessionStorage[doc._id])
-  {
+  if (!window.sessionStorage[doc._id]) {
     window.sessionStorage[doc._id] = JSON.stringify(doc);
   }
 
@@ -19730,18 +18531,14 @@ var put = function (doc)
 
 // Retrieve the document, which is stored as JSON, by its `_id` and
 // return the parsed item. If the item does not exist, return `null`.
-var get = function (docId)
-{
+var get = function (docId) {
   'use strict';
 
   var doc = window.sessionStorage[docId];
 
-  if (doc)
-  {
+  if (doc) {
     return JSON.parse(doc);
-  }
-  else
-  {
+  } else {
     return null;
   }
 };
@@ -19758,12 +18555,10 @@ exports.get = get;
 // Exported functions
 
 // Determine membership of item in the set.
-var member = function (arr, x)
-{
+var member = function (arr, x) {
   'use strict';
 
-  var memb = arr.some(function (y)
-  {
+  var memb = arr.some(function (y) {
     return x === y;
   });
   return memb;
@@ -19772,22 +18567,16 @@ var member = function (arr, x)
 // Rebuild the array so that all values are unique. This is kind of a
 // 'clean up' function used to work around the differences between arrays
 // and sets.
-var unique = function (x, mem)
-{
+var unique = function (x, mem) {
   'use strict';
 
-  if (!mem)
-  {
+  if (!mem) {
     mem = member;
   }
-  var uniq = x.reduce(function (acc, curr)
-  {
-    if (mem(acc, curr))
-    {
+  var uniq = x.reduce(function (acc, curr) {
+    if (mem(acc, curr)) {
       return acc;
-    }
-    else
-    {
+    } else {
       return acc.concat([curr]);
     }
   }, []);
@@ -19795,12 +18584,10 @@ var unique = function (x, mem)
 };
 
 // Return the union of two sets.
-var union = function (xs, ys, mem)
-{
+var union = function (xs, ys, mem) {
   'use strict';
 
-  if (!mem)
-  {
+  if (!mem) {
     mem = member;
   }
   var uni = unique(xs.concat(ys), mem);
@@ -19808,44 +18595,36 @@ var union = function (xs, ys, mem)
 };
 
 // Return the intersection of two sets.
-var intersection = function (xs, ys, mem)
-{
+var intersection = function (xs, ys, mem) {
   'use strict';
 
-  if (!mem)
-  {
+  if (!mem) {
     mem = member;
   }
-  var inter = xs.filter(function (x)
-  {
+  var inter = xs.filter(function (x) {
     return mem(ys, x);
   });
   return inter;
 };
 
 // Return the relative complement of two sets.
-var relativeComplement = function (xs, ys, mem)
-{
+var relativeComplement = function (xs, ys, mem) {
   'use strict';
 
-  if (!mem)
-  {
+  if (!mem) {
     mem = member;
   }
-  var comp = xs.filter(function (x)
-  {
+  var comp = xs.filter(function (x) {
     return !mem(ys, x);
   });
   return comp;
 };
 
 // Return the symmetric difference of two sets.
-var symmetricDifference = function (xs, ys, mem)
-{
+var symmetricDifference = function (xs, ys, mem) {
   'use strict';
 
-  if (!mem)
-  {
+  if (!mem) {
     mem = member;
   }
   var comp1 = relativeComplement(xs, ys, mem);
@@ -19880,15 +18659,13 @@ var r = require('./recurse.js');
 
 // Takes a JQuery element and returns an object with helper methods for
 // getting and putting custom data attribute values.
-var store = function (elem)
-{
+var store = function (elem) {
   'use strict';
 
   var mod = {};
 
   // TODO: Remove this when fieldsets.js has JQuery dependency removed
-  if (elem.dataset === undefined)
-  {
+  if (elem.dataset === undefined) {
     elem = elem[0];
   }
 
@@ -19937,25 +18714,21 @@ var store = function (elem)
   //     var thisId = document.getElementById('thisid');
   //     store(thisId).get('fieldset-doctype') == 'did';
   //
-  mod.get = function (key)
-  {
+  mod.get = function (key) {
     var keycc = key.cc();
     var prelim = elem.dataset[keycc];
 
-    if (prelim)
-    {
+    if (prelim) {
       return prelim;
     }
 
-    var getValue1 = function (key, elem, id)
-    {
+    var getValue1 = function (key, elem, id) {
       var gid = elem.dataset.groupId;
       var store = document.getElementById(gid);
       var val = store.dataset[key];
       var next = store.dataset.groupId;
 
-      if (val === undefined && next !== undefined && gid !== next)
-      {
+      if (val === undefined && next !== undefined && gid !== next) {
         return getValue1.r(key, store, id);
       }
 
@@ -19966,8 +18739,7 @@ var store = function (elem)
   };
 
   // Like 'get' but will decode base64 encoded values.
-  mod.get64 = function (key)
-  {
+  mod.get64 = function (key) {
     var retval = mod.get(key);
     retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
@@ -19975,28 +18747,24 @@ var store = function (elem)
 
   //  This function will set an attribute at the target with a name
   //  corresponding to key and a value of value.
-  mod.put = function (key, value)
-  {
+  mod.put = function (key, value) {
     var keycc = key.cc();
     var dataElem = elem.dataset.groupId;
     document.getElementById(dataElem).dataset[keycc] = value;
   };
 
   //  Helper function for attributes that begin with `data-fieldset`.
-  mod.fs = function (key)
-  {
+  mod.fs = function (key) {
     return mod.get('fieldset-' + key);
   };
 
   //  Helper function for attributes that begin with `data-field`.
-  mod.f = function (key)
-  {
+  mod.f = function (key) {
     return mod.get('field-' + key);
   };
 
   //  Helper function for attributes that begin with `data-document`.
-  mod.d = function (key)
-  {
+  mod.d = function (key) {
     return mod.get('document-' + key);
   };
 
@@ -20012,23 +18780,18 @@ exports.store = store;
 
 // safer(ish) string to number. The difference is that in this app
 // I am using '' if the string isn't a valid number.
-var stringToNumber = function (string)
-{
+var stringToNumber = function (string) {
   'use strict';
 
-  if (typeof string === 'string' && !isNaN(string) && string !== '')
-  {
+  if (typeof string === 'string' && !isNaN(string) && string !== '') {
     return string * 1;
-  }
-  else
-  {
+  } else {
     return '';
   }
 };
 
 // A predicate function to detect blankness of various object types.
-var isBlank = function (value)
-{
+var isBlank = function (value) {
   'use strict';
 
   return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
@@ -20036,8 +18799,7 @@ var isBlank = function (value)
 
 // A predicate to test if the input is a string containing 32 characters
 // limited to hexidecimal digits.
-var validID = function (id)
-{
+var validID = function (id) {
   'use strict';
 
   return !!id.match(/^[a-f0-9]{32}$/);
@@ -20050,8 +18812,7 @@ var Base64 = {
   _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
 
   // public method for encoding
-  encode: function (input)
-  {
+  encode: function (input) {
     'use strict';
 
     var output = '';
@@ -20060,8 +18821,7 @@ var Base64 = {
 
     input = Base64._utf8_encode(input);
 
-    while (i < input.length)
-    {
+    while (i < input.length) {
 
       chr1 = input.charCodeAt(i++);
       chr2 = input.charCodeAt(i++);
@@ -20072,12 +18832,9 @@ var Base64 = {
       enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
       enc4 = chr3 & 63;
 
-      if (isNaN(chr2))
-      {
+      if (isNaN(chr2)) {
         enc3 = enc4 = 64;
-      }
-      else if (isNaN(chr3))
-      {
+      } else if (isNaN(chr3)) {
         enc4 = 64;
       }
 
@@ -20089,8 +18846,7 @@ var Base64 = {
   },
 
   // public method for decoding
-  decode: function (input)
-  {
+  decode: function (input) {
     'use strict';
 
     var output = '';
@@ -20100,8 +18856,7 @@ var Base64 = {
 
     input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
 
-    while (i < input.length)
-    {
+    while (i < input.length) {
 
       enc1 = this._keyStr.indexOf(input.charAt(i++));
       enc2 = this._keyStr.indexOf(input.charAt(i++));
@@ -20114,12 +18869,10 @@ var Base64 = {
 
       output = output + String.fromCharCode(chr1);
 
-      if (enc3 !== 64)
-      {
+      if (enc3 !== 64) {
         output = output + String.fromCharCode(chr2);
       }
-      if (enc4 !== 64)
-      {
+      if (enc4 !== 64) {
         output = output + String.fromCharCode(chr3);
       }
 
@@ -20132,29 +18885,22 @@ var Base64 = {
   },
 
   // private method for UTF-8 encoding
-  _utf8_encode: function (string)
-  {
+  _utf8_encode: function (string) {
     'use strict';
 
     string = string.replace(/\r\n/g, '\n');
     var utftext = '';
 
-    for (var n = 0; n < string.length; n++)
-    {
+    for (var n = 0; n < string.length; n++) {
 
       var c = string.charCodeAt(n);
 
-      if (c < 128)
-      {
+      if (c < 128) {
         utftext += String.fromCharCode(c);
-      }
-      else if ((c > 127) && (c < 2048))
-      {
+      } else if ((c > 127) && (c < 2048)) {
         utftext += String.fromCharCode((c >> 6) | 192);
         utftext += String.fromCharCode((c & 63) | 128);
-      }
-      else
-      {
+      } else {
         utftext += String.fromCharCode((c >> 12) | 224);
         utftext += String.fromCharCode(((c >> 6) & 63) | 128);
         utftext += String.fromCharCode((c & 63) | 128);
@@ -20166,8 +18912,7 @@ var Base64 = {
   },
 
   // private method for UTF-8 decoding
-  _utf8_decode: function (utftext)
-  {
+  _utf8_decode: function (utftext) {
     'use strict';
 
     var string = '';
@@ -20177,24 +18922,18 @@ var Base64 = {
     var c2 = 0;
     var c3 = 0;
 
-    while (i < utftext.length)
-    {
+    while (i < utftext.length) {
 
       c = utftext.charCodeAt(i);
 
-      if (c < 128)
-      {
+      if (c < 128) {
         string += String.fromCharCode(c);
         i++;
-      }
-      else if ((c > 191) && (c < 224))
-      {
+      } else if ((c > 191) && (c < 224)) {
         c2 = utftext.charCodeAt(i + 1);
         string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
         i += 2;
-      }
-      else
-      {
+      } else {
         c2 = utftext.charCodeAt(i + 1);
         c3 = utftext.charCodeAt(i + 2);
         string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
@@ -20272,5 +19011,5 @@ module.exports = {
 };
 },{"hogan.js":12}],"templates.js":[function(require,module,exports){
 module.exports=require('3ddScq');
-},{}]},{},[36,37,38,39,40,41,43,44,45,42,46,47,48,50,51,53,52,49,55,54,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,71,72,73,74,75,76,77,78,80,79,82,81,83,84,86,85,89,87,88,90,91,92])
+},{}]},{},[36,39,41,40,42,43,44,38,47,48,37,46,45,49,50,51,53,52,54,55,56,57,59,58,60,61,62,64,63,66,65,67,69,68,70,71,72,73,74,75,76,78,77,79,80,81,82,85,83,86,84,87,89,88,90,91,92])
 ;

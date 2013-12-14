@@ -14,68 +14,52 @@ var form = require('../form.js');
 
 // The dialog for providing a function to replace the normal output of
 // an index.
-var initReplaceDialog = function ()
-{
+var initReplaceDialog = function () {
   'use strict';
 
   var replaceFunction = $('#index-replace_function-input');
   var indexData = $('#index-editing-data');
   var remove = $('#index-remove_function-input');
 
-  if (indexData.attr('data-index-replace_function'))
-  {
+  if (indexData.attr('data-index-replace_function')) {
     replaceFunction.val(indexData.attr('data-index-replace_function'));
-  }
-  else
-  {
+  } else {
     form.clear(replaceFunction).removeClass('ui-state-error');
   }
 
-  var dialog = $('#index-replace-dialog').dialog(
-  {
+  var dialog = $('#index-replace-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Save': function ()
-      {
+    buttons: {
+      'Save': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!remove.is(':checked'))
-        {
-          if (replaceFunction.val().isBlank())
-          {
+        if (!remove.is(':checked')) {
+          if (replaceFunction.val().isBlank()) {
             replaceFunction.addClass('ui-state-error');
-          }
-          else
-          {
+          } else {
             replaceFunction.removeClass('ui-state-error');
           }
 
-          if (checkResult)
-          {
+          if (checkResult) {
             indexData.attr('data-index-replace_function', replaceFunction.val());
             $('#replace-function-message').text('This index has a replacement function.');
           }
-        }
-        else
-        {
+        } else {
           indexData.removeAttr('data-index-replace_function');
           $('#replace-function-message').empty();
         }
 
         $(this).dialog('close');
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       form.clear(replaceFunction).removeClass('ui-state-error');
     }
   });

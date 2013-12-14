@@ -15,12 +15,10 @@ var flash = require('../flash.js');
 // When the upgrade button is pressed in the configuration UI, this
 // will carry out the necessary action. It will make an empty `POST`
 // to the upgrade path and alert the user that this was done.
-var upgradeButton = function ()
-{
+var upgradeButton = function () {
   'use strict';
 
-  ajax.post('config/upgrade', false, function ()
-  {
+  ajax.post('config/upgrade', false, function () {
     flash.highlight('Task Started', 'Upgrade Project');
   });
 
@@ -28,8 +26,7 @@ var upgradeButton = function ()
 };
 
 // Initialize and display the interface.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var renderedHTML = templates['config-maintenance']();

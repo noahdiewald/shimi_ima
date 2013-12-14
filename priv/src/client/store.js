@@ -16,15 +16,13 @@ var r = require('./recurse.js');
 
 // Takes a JQuery element and returns an object with helper methods for
 // getting and putting custom data attribute values.
-var store = function (elem)
-{
+var store = function (elem) {
   'use strict';
 
   var mod = {};
 
   // TODO: Remove this when fieldsets.js has JQuery dependency removed
-  if (elem.dataset === undefined)
-  {
+  if (elem.dataset === undefined) {
     elem = elem[0];
   }
 
@@ -73,25 +71,21 @@ var store = function (elem)
   //     var thisId = document.getElementById('thisid');
   //     store(thisId).get('fieldset-doctype') == 'did';
   //
-  mod.get = function (key)
-  {
+  mod.get = function (key) {
     var keycc = key.cc();
     var prelim = elem.dataset[keycc];
 
-    if (prelim)
-    {
+    if (prelim) {
       return prelim;
     }
 
-    var getValue1 = function (key, elem, id)
-    {
+    var getValue1 = function (key, elem, id) {
       var gid = elem.dataset.groupId;
       var store = document.getElementById(gid);
       var val = store.dataset[key];
       var next = store.dataset.groupId;
 
-      if (val === undefined && next !== undefined && gid !== next)
-      {
+      if (val === undefined && next !== undefined && gid !== next) {
         return getValue1.r(key, store, id);
       }
 
@@ -102,8 +96,7 @@ var store = function (elem)
   };
 
   // Like 'get' but will decode base64 encoded values.
-  mod.get64 = function (key)
-  {
+  mod.get64 = function (key) {
     var retval = mod.get(key);
     retval = utils.Base64.decode(retval.replace(/'/g, '')).replace(/(^'|'$)/g, '');
     return retval;
@@ -111,28 +104,24 @@ var store = function (elem)
 
   //  This function will set an attribute at the target with a name
   //  corresponding to key and a value of value.
-  mod.put = function (key, value)
-  {
+  mod.put = function (key, value) {
     var keycc = key.cc();
     var dataElem = elem.dataset.groupId;
     document.getElementById(dataElem).dataset[keycc] = value;
   };
 
   //  Helper function for attributes that begin with `data-fieldset`.
-  mod.fs = function (key)
-  {
+  mod.fs = function (key) {
     return mod.get('fieldset-' + key);
   };
 
   //  Helper function for attributes that begin with `data-field`.
-  mod.f = function (key)
-  {
+  mod.f = function (key) {
     return mod.get('field-' + key);
   };
 
   //  Helper function for attributes that begin with `data-document`.
-  mod.d = function (key)
-  {
+  mod.d = function (key) {
     return mod.get('document-' + key);
   };
 

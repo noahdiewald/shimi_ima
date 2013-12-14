@@ -1,41 +1,30 @@
-function list(head, req)
-{
+function list(head, req) {
   'use strict';
 
-  start(
-  {
-    'headers':
-    {
+  start({
+    'headers': {
       'Content-Type': 'text/csv; charset=utf-8'
     }
   });
 
   var row;
-  var csvVal = function (item)
-  {
+  var csvVal = function (item) {
     return item.replace(/"/g, '""').replace(/^(.*)$/, '"$1"');
   };
-  var csvCell = function (item)
-  {
-    if (item === null)
-    {
+  var csvCell = function (item) {
+    if (item === null) {
       return 'null';
-    }
-    else
-    {
+    } else {
       return csvVal(item.toString());
     }
   };
-  var csvKey = function (item)
-  {
-    return csvCell(item.map(function (x)
-    {
+  var csvKey = function (item) {
+    return csvCell(item.map(function (x) {
       return x[1];
     }));
   };
 
-  while (row = getRow())
-  {
+  while (row = getRow()) {
     send([csvCell(row.id), csvKey(row.key), csvCell(row.value)].join(',') + '\n');
   }
 }

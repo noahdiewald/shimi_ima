@@ -99,28 +99,21 @@ var ajax = require('./ajax.js');
 // Exported functions
 
 // Object initialization
-var path = function (source, category, section)
-{
+var path = function (source, category, section) {
   'use strict';
 
   var mod = {};
   var prefix;
 
-  if (category)
-  {
+  if (category) {
     prefix = category + '-';
-  }
-  else
-  {
+  } else {
     prefix = '';
   }
 
-  if (section)
-  {
+  if (section) {
     mod.string = section + '/';
-  }
-  else
-  {
+  } else {
     mod.string = '';
   }
 
@@ -130,10 +123,8 @@ var path = function (source, category, section)
   mod.valid_components = ['doctype', 'fieldset', 'field'];
   var s = store(mod.origin);
 
-  mod.valid_components.forEach(function (item)
-  {
-    mod[item] = (function ()
-    {
+  mod.valid_components.forEach(function (item) {
+    mod[item] = (function () {
       var value = s.get(prefix + item);
       return value;
     })();
@@ -145,64 +136,52 @@ var path = function (source, category, section)
 
   // TODO: there is a redundant abstraction of `send` here that
   // already exists in the `ajax` module.
-  mod.send = function (object, method, callback)
-  {
+  mod.send = function (object, method, callback) {
     ajax.send(mod.toString(), object, method, callback);
     return mod;
   };
 
-  mod.put = function (object, callback)
-  {
+  mod.put = function (object, callback) {
     mod.send(object, 'PUT', callback);
     return mod;
   };
 
-  mod.post = function (object, callback)
-  {
+  mod.post = function (object, callback) {
     mod.send(object, 'POST', callback);
     return mod;
   };
 
-  mod.del = function (callback)
-  {
-    mod.send(
-    {}, 'DELETE', callback);
+  mod.del = function (callback) {
+    mod.send({}, 'DELETE', callback);
     return mod;
   };
 
-  mod.toString = function ()
-  {
+  mod.toString = function () {
     var rev;
 
     var pathString =
       mod.string.concat(
-      mod.valid_components.map(
+        mod.valid_components.map(
 
-    function (item)
-    {
-      var plural = item + 's';
-      var value = mod[item];
-      var retval = null;
+          function (item) {
+            var plural = item + 's';
+            var value = mod[item];
+            var retval = null;
 
-      if (value)
-      {
-        retval = plural + '/' + value;
-      }
-      else if (item === mod.category)
-      {
-        retval = plural;
-      }
+            if (value) {
+              retval = plural + '/' + value;
+            } else if (item === mod.category) {
+              retval = plural;
+            }
 
-      return retval;
-    }).filter(
+            return retval;
+          }).filter(
 
-    function (item)
-    {
-      return (typeof item === 'string' && !item.isBlank());
-    }).join('/'));
+          function (item) {
+            return (typeof item === 'string' && !item.isBlank());
+          }).join('/'));
 
-    if (mod.rev)
-    {
+    if (mod.rev) {
       pathString = pathString.concat('?rev=' + mod.rev);
     }
 

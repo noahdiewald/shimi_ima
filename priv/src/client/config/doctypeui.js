@@ -11,23 +11,20 @@ var pager = require('../pager.js').pager;
 
 // Return the 'prefix' which is used in id and class names for
 // elements used to page through these values.
-var prefix = function ()
-{
+var prefix = function () {
   'use strict';
 
   return 'doctypes';
 };
 
 // Called by a keystroke event handler when user changes form values.
-var get = function ()
-{
+var get = function () {
   'use strict';
 
   var url = 'config/' + prefix();
   var target = document.getElementById(prefix() + '-listing');
 
-  pager(
-  {
+  pager({
     prefix: prefix(),
     url: url,
     target: target
@@ -36,8 +33,7 @@ var get = function ()
   return 'doctype-listing-requested';
 };
 
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   get();

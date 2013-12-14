@@ -18,24 +18,21 @@ var afterRefresh;
 // Internal functions
 
 // UI Element
-var saveButton = function ()
-{
+var saveButton = function () {
   'use strict';
 
   return $('#save-document-button');
 };
 
 // UI Element
-var createButton = function ()
-{
+var createButton = function () {
   'use strict';
 
   return $('#create-document-button');
 };
 
 // UI Element
-var editButton = function ()
-{
+var editButton = function () {
   'use strict';
 
   return $('#document-edit-button');
@@ -43,8 +40,7 @@ var editButton = function ()
 
 
 // Display validation error properly.
-var validationError = function (req)
-{
+var validationError = function (req) {
   'use strict';
 
   var body = JSON.parse(req.responseText);
@@ -62,27 +58,22 @@ var validationError = function (req)
 };
 
 // Fields need to have instances. This should ensure they have them.
-var instances = function (addInstances)
-{
+var instances = function (addInstances) {
   'use strict';
 
   var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-  var makeInstance = function ()
-  {
-    return text.map(function ()
-    {
+  var makeInstance = function () {
+    return text.map(function () {
       return text[Math.floor(Math.random() * text.length)];
     }).join('');
   };
 
-  $('#last-added [data-field-instance]').each(function (index, item)
-  {
+  $('#last-added [data-field-instance]').each(function (index, item) {
     var itemElem = $(item).first();
     var oldInstance = itemElem.attr('data-field-instance');
     var newInstance = oldInstance;
 
-    if (addInstances)
-    {
+    if (addInstances) {
       newInstance = makeInstance();
     }
 
@@ -95,8 +86,7 @@ var instances = function (addInstances)
     itemElem.next().next('.expander').attr('data-group-id', newInstance);
   });
 
-  if (addInstances)
-  {
+  if (addInstances) {
     $('#last-added').removeAttr('id');
   }
 
@@ -106,14 +96,12 @@ var instances = function (addInstances)
 // Exported functions
 
 // Initialize the editing pane.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   var url = 'documents/edit';
 
-  ajax.legacyHTMLGet(url, function (req)
-  {
+  ajax.legacyHTMLGet(url, function (req) {
     var documentEditHtml = req.response;
 
     $('#document-edit').html(documentEditHtml);
@@ -125,13 +113,11 @@ var init = function ()
 };
 
 // Focus on the first focusable input element in an active tab.
-var selectInput = function ()
-{
+var selectInput = function () {
   'use strict';
 
   var inputable = 'input, select, textarea';
-  var t = function ()
-  {
+  var t = function () {
     return $('#edit-tabs');
   };
 
@@ -146,8 +132,7 @@ var selectInput = function ()
 // set. Basically this is for a completely fresh refresh, when the form
 // is in the state such that a document can be created but no information
 // is available to do an update.
-var afterFreshRefresh = function (addInstances)
-{
+var afterFreshRefresh = function (addInstances) {
   'use strict';
 
   afterRefresh(addInstances);
@@ -156,14 +141,12 @@ var afterFreshRefresh = function (addInstances)
 };
 
 // Run after the edit button in the view UI is clicked.
-var afterEditRefresh = function ()
-{
+var afterEditRefresh = function () {
   'use strict';
 
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
-  sharedAttrs.forEach(function (elem)
-  {
+  sharedAttrs.forEach(function (elem) {
     saveButton().attr(elem, editButton().attr(elem));
   });
 
@@ -175,8 +158,7 @@ var afterEditRefresh = function ()
 
 // Essentially initialization of the form. If `addInstances` is true,
 // new instance identifiers will be created for a blank form.
-afterRefresh = function (addInstances)
-{
+afterRefresh = function (addInstances) {
   'use strict';
 
   form.initDateFields();
@@ -186,32 +168,22 @@ afterRefresh = function (addInstances)
 };
 
 // Reset field values to defaults.
-var resetFields = function ()
-{
+var resetFields = function () {
   'use strict';
 
-  $('.field').each(function (index)
-  {
+  $('.field').each(function (index) {
     var field = $(this);
     var thedefault = field.attr('data-field-default');
 
-    if (thedefault && thedefault !== '')
-    {
-      if (field.is('select.multiselect'))
-      {
+    if (thedefault && thedefault !== '') {
+      if (field.is('select.multiselect')) {
         field.val(thedefault.split(','));
-      }
-      else if (field.is('input.boolean'))
-      {
+      } else if (field.is('input.boolean')) {
         field.attr('checked', thedefault === true);
-      }
-      else
-      {
+      } else {
         field.val(thedefault);
       }
-    }
-    else
-    {
+    } else {
       field.val('');
       field.removeAttr('checked');
     }
@@ -222,14 +194,11 @@ var resetFields = function ()
 
 // To be run if the user chooses to save the form contents. This is an
 // update, not creation.
-var save = function ()
-{
+var save = function () {
   'use strict';
 
-  if (saveButton().hasClass('oldrev'))
-  {
-    if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?'))
-    {
+  if (saveButton().hasClass('oldrev')) {
+    if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
   }
@@ -252,32 +221,25 @@ var save = function ()
   saveButton().hide();
   $.extend(obj, fieldsets.fieldsetsToObject(root));
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'PUT',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
     processData: false,
     data: JSON.stringify(obj),
-    complete: function (req, status)
-    {
-      if (req.status === 204 || req.status === 200)
-      {
+    complete: function (req, status) {
+      if (req.status === 204 || req.status === 200) {
         title = 'Success';
         body = 'Your document was saved.';
         viewui.get(document);
         indexui.get(skey, sid);
         flash.highlight(title, body);
         saveButton().removeClass('oldrev').show();
-      }
-      else if (req.status === 403)
-      {
+      } else if (req.status === 403) {
         validationError(req);
         saveButton().show();
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
@@ -289,8 +251,7 @@ var save = function ()
 };
 
 // To be run if creating a new document.
-var create = function ()
-{
+var create = function () {
   'use strict';
 
   var s = store(createButton());
@@ -306,17 +267,14 @@ var create = function ()
   createButton().hide();
   $.extend(obj, fieldsets.fieldsetsToObject(root));
 
-  var postUrl = $.ajax(
-  {
+  var postUrl = $.ajax({
     type: 'POST',
     dataType: 'json',
     contentType: 'application/json',
     processData: false,
     data: JSON.stringify(obj),
-    complete: function (req, status)
-    {
-      if (req.status === 201)
-      {
+    complete: function (req, status) {
+      if (req.status === 201) {
         var title = 'Success';
         var body = 'Your document was created.';
         var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
@@ -328,9 +286,7 @@ var create = function ()
         indexui.get(skey, sid);
         flash.highlight(title, body);
         createButton().show();
-      }
-      else if (req.status === 403)
-      {
+      } else if (req.status === 403) {
         validationError(req);
         createButton().show();
       }
@@ -339,8 +295,7 @@ var create = function ()
 };
 
 // Clear the form.
-var clear = function ()
-{
+var clear = function () {
   'use strict';
 
   $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
@@ -350,12 +305,10 @@ var clear = function ()
 };
 
 // Display a help dialog for a form field.
-var showHelpDialog = function (target)
-{
+var showHelpDialog = function (target) {
   'use strict';
 
-  if (target.is('.label-text'))
-  {
+  if (target.is('.label-text')) {
     target = target.parent('label').find('.ui-icon-help');
   }
 
@@ -365,19 +318,15 @@ var showHelpDialog = function (target)
 };
 
 // Contract and expand textarea elements.
-var toggleTextarea = function (target)
-{
+var toggleTextarea = function (target) {
   'use strict';
 
   var textarea = $('#' + target.attr('data-group-id'));
 
-  if (target.attr('id') === textarea.attr('data-group-id'))
-  {
+  if (target.attr('id') === textarea.attr('data-group-id')) {
     textarea.toggleClass('expanded');
     textarea.next().next('span').toggleClass('expanded');
-  }
-  else
-  {
+  } else {
     textarea.toggleClass('expanded');
     target.toggleClass('expanded');
   }

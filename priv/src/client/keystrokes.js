@@ -24,84 +24,64 @@ var doctypeui = require('./config/doctypeui.js');
 // # Exported Functions
 
 // All this does is register a bunch of event handlers.
-var keystrokes = function ()
-{
+var keystrokes = function () {
   'use strict';
 
-  [ipreviewui, indexui, changeui, doctypeui, charsequi].forEach(function (mod)
-  {
-    var keyupHandler = function (e)
-    {
+  [ipreviewui, indexui, changeui, doctypeui, charsequi].forEach(function (mod) {
+    var keyupHandler = function (e) {
       var getIndexTimer;
       window.clearTimeout(getIndexTimer);
-      getIndexTimer = setTimeout(function ()
-      {
-        if (e.which !== 8 && e.which !== 46)
-        {
+      getIndexTimer = setTimeout(function () {
+        if (e.which !== 8 && e.which !== 46) {
           mod.get();
         }
       }, 500);
     };
 
-    document.addEventListener('keyup', function(e)
-    {
-      if (e.target.id === mod.prefix() + '-filter')
-      {
+    document.addEventListener('keyup', function (e) {
+      if (e.target.id === mod.prefix() + '-filter') {
         keyupHandler(e);
-      }
-      else if (e.target.id === mod.prefix() + '-limit')
-      {
+      } else if (e.target.id === mod.prefix() + '-limit') {
         keyupHandler(e);
       }
     });
   });
 
-  $(document).on('keydown', '#document-worksheets-form', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-worksheets-form', function (e) {
+    if (e.which === 13) {
       S.sender('worksheet-form-submit');
       return false;
     }
     return true;
   });
 
-  $(document).on('keydown', '#document-sets-form', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-sets-form', function (e) {
+    if (e.which === 13) {
       S.sender('sets-form-submit');
       return false;
     }
     return true;
   });
 
-  $('#new-set-form').on('keydown', function (e)
-  {
-    if (e.which === 13)
-    {
+  $('#new-set-form').on('keydown', function (e) {
+    if (e.which === 13) {
       S.sender('new-set-form-submit');
       return false;
     }
     return true;
   });
 
-  $(document).bind('keydown', 'Alt+n', function (e)
-  {
-    var t = function ()
-    {
+  $(document).bind('keydown', 'Alt+n', function (e) {
+    var t = function () {
       return $('#edit-tabs');
     };
     var totaltabs = t().find('li').length;
     var selected = t().tabs('option', 'active');
 
-    if (selected < totaltabs - 1)
-    {
+    if (selected < totaltabs - 1) {
       t().tabs('option', 'active', selected + 1);
       S.sender('lost-focus');
-    }
-    else
-    {
+    } else {
       t().tabs('option', 'active', 0);
       S.sender('lost-focus');
     }
@@ -109,29 +89,23 @@ var keystrokes = function ()
     return false;
   });
 
-  $(document).bind('keydown', 'Alt+c', function (e)
-  {
+  $(document).bind('keydown', 'Alt+c', function (e) {
     var active = $(document.activeElement).attr('id');
     S.sender('initiated-command', active);
     return true;
   });
 
-  $(document).bind('keydown', 'Alt+p', function (e)
-  {
-    var t = function ()
-    {
+  $(document).bind('keydown', 'Alt+p', function (e) {
+    var t = function () {
       return $('#edit-tabs');
     };
     var totaltabs = t().find('li').length;
     var selected = t().tabs('option', 'active');
 
-    if (selected !== 0)
-    {
+    if (selected !== 0) {
       t().tabs('option', 'active', selected - 1);
       S.sender('lost-focus');
-    }
-    else
-    {
+    } else {
       t().tabs('option', 'active', totaltabs - 1);
       S.sender('lost-focus');
     }
@@ -140,42 +114,32 @@ var keystrokes = function ()
   });
 
 
-  $(document).on('keydown', '#edit-command-input', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#edit-command-input', function (e) {
+    if (e.which === 13) {
       var command = $('#edit-command-input').val();
       S.sender('submitted-command', command);
     }
     return true;
   });
 
-  $(document).on('keydown', '#edit-document-form input', function (e)
-  {
-    if (e.which === 13)
-    {
-      if ($('#save-document-button').css('display') === 'none')
-      {
+  $(document).on('keydown', '#edit-document-form input', function (e) {
+    if (e.which === 13) {
+      if ($('#save-document-button').css('display') === 'none') {
         editui.create();
-      }
-      else
-      {
+      } else {
         editui.save();
       }
     }
     return true;
   });
 
-  $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e)
-  {
+  $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e) {
     editui.toggleTextarea($(e.target));
     return false;
   });
 
-  $(document).on('keypress', '#view-jump-id', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keypress', '#view-jump-id', function (e) {
+    if (e.which === 13) {
       var docid = $('#view-jump-id').val();
       viewui.get(docid);
       return false;
@@ -183,10 +147,8 @@ var keystrokes = function ()
     return true;
   });
 
-  $(document).on('keydown', '#document-search-term', function (e)
-  {
-    if (e.which === 13)
-    {
+  $(document).on('keydown', '#document-search-term', function (e) {
+    if (e.which === 13) {
       searchui.getSearch();
       return false;
     }

@@ -13,15 +13,13 @@ exports.simple_user_index = {
   'created_at_': 'Tue, 20 Nov 2012 15:16:22 GMT',
   'created_by_': 'monica',
   'prev_': '8-e3053a73fcf555a8a8b4e5d035678aaa',
-  'conditions': [
-    {
-      'is_or': false,
-      'parens': false,
-      'negate': false,
-      'fieldset': 'd5331cbb4d62fe3d2899f142d9036de5',
-      'field': 'd5331cbb4d62fe3d2899f142d90746b7',
-      'operator': 'equal',
-      'argument': 'vai+o'
-    }
-  ]
+  'conditions': [{
+    'is_or': false,
+    'parens': false,
+    'negate': false,
+    'fieldset': 'd5331cbb4d62fe3d2899f142d9036de5',
+    'field': 'd5331cbb4d62fe3d2899f142d90746b7',
+    'operator': 'equal',
+    'argument': 'vai+o'
+  }]
 };

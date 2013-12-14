@@ -12,77 +12,60 @@ var htmlparser = require('htmlparser2');
 
 // ## Internal Functions
 
-var validateFromArg = function (html)
-{
+var validateFromArg = function (html) {
   'use strict';
 
-  if (typeof html !== 'string')
-  {
+  if (typeof html !== 'string') {
     throw 'invalid HTML: non-string';
-  }
-  else if (html.length === 0)
-  {
+  } else if (html.length === 0) {
     throw 'invalid HTML: ""';
   }
 
   return html;
 };
 
-var validateToArg = function (obj)
-{
+var validateToArg = function (obj) {
   'use strict';
 
   var msg = 'cannot build form from: ';
 
-  if (typeof obj === 'string' && obj !== null)
-  {
+  if (typeof obj === 'string' && obj !== null) {
     throw msg + 'string';
-  }
-  else if (typeof obj === 'number')
-  {
+  } else if (typeof obj === 'number') {
     throw msg + 'number';
-  }
-  else if (obj !== null && obj.constructor === Array)
-  {
+  } else if (obj !== null && obj.constructor === Array) {
     throw msg + 'array';
   }
 
   return obj;
 };
 
-var curr = function (state)
-{
+var curr = function (state) {
   'use strict';
 
   return state.state[state.state.length - 1];
 };
 
-var showState = function (state)
-{
+var showState = function (state) {
   'use strict';
 
   return ' [' + state.state.join(',') + ']';
 };
 
-var openForm = function (state)
-{
+var openForm = function (state) {
   'use strict';
 
-  if (curr(state) === 'start')
-  {
+  if (curr(state) === 'start') {
     state.state.push('open');
     state.acc = 'null';
-  }
-  else
-  {
+  } else {
     throw 'invalid form: only one form allowed' + showState(state);
   }
 
   return state;
 };
 
-var addTextValue = function (state, text)
-{
+var addTextValue = function (state, text) {
   'use strict';
 
   state.acc = state.acc + '"' + text + '"';
@@ -90,8 +73,7 @@ var addTextValue = function (state, text)
   return state;
 };
 
-var addKey = function (state, name)
-{
+var addKey = function (state, name) {
   'use strict';
 
   state.acc = addTextValue(state, name).acc + ':';
@@ -99,35 +81,28 @@ var addKey = function (state, name)
   return state;
 };
 
-var addComma = function (state)
-{
+var addComma = function (state) {
   'use strict';
 
-  if (curr(state) === 'need-comma')
-  {
+  if (curr(state) === 'need-comma') {
     state.acc = state.acc + ',';
-  }
-  else
-  {
+  } else {
     state.state.push('need-comma');
   }
 
   return state;
 };
 
-var openObject = function (state, attribs)
-{
+var openObject = function (state, attribs) {
   'use strict';
 
-  if (state.acc === 'null')
-  {
+  if (state.acc === 'null') {
     state.acc = '';
   }
 
   addComma(state);
 
-  if (attribs.title)
-  {
+  if (attribs.title) {
     addKey(state, attribs.title);
   }
 
@@ -138,14 +113,12 @@ var openObject = function (state, attribs)
   return state;
 };
 
-var openArray = function (state, attribs)
-{
+var openArray = function (state, attribs) {
   'use strict';
 
   addComma(state);
 
-  if (attribs.title)
-  {
+  if (attribs.title) {
     addKey(state, attribs.title);
   }
 
@@ -156,12 +129,10 @@ var openArray = function (state, attribs)
   return state;
 };
 
-var addCorrectlyTypedValue = function(state, value)
-{
+var addCorrectlyTypedValue = function (state, value) {
   'use strict';
 
-  switch (value)
-  {
+  switch (value) {
   case 'null':
   case 'true':
   case 'false':
@@ -174,31 +145,25 @@ var addCorrectlyTypedValue = function(state, value)
   return state;
 };
 
-var addValue = function (state, attribs)
-{
+var addValue = function (state, attribs) {
   'use strict';
 
   addComma(state);
 
-  if (attribs.name)
-  {
+  if (attribs.name) {
     addKey(state, attribs.name);
   }
 
-  if (attribs.type === 'text')
-  {
+  if (attribs.type === 'text') {
     addCorrectlyTypedValue(state, attribs.value);
-  }
-  else if (attribs.type === 'number')
-  {
+  } else if (attribs.type === 'number') {
     state.acc = state.acc + attribs.value;
   }
 
   return state;
 };
 
-var openTextareaValue = function (state, attribs)
-{
+var openTextareaValue = function (state, attribs) {
   'use strict';
 
   addComma(state);
@@ -208,12 +173,10 @@ var openTextareaValue = function (state, attribs)
   return state;
 };
 
-var addTextareaValue = function (state, str)
-{
+var addTextareaValue = function (state, str) {
   'use strict';
 
-  if (curr(state) === 'open-text')
-  {
+  if (curr(state) === 'open-text') {
     state.state.pop();
     addTextValue(state, str);
   }
@@ -221,20 +184,17 @@ var addTextareaValue = function (state, str)
   return state;
 };
 
-var noComma = function (state)
-{
+var noComma = function (state) {
   'use strict';
 
-  if (curr(state) === 'need-comma')
-  {
+  if (curr(state) === 'need-comma') {
     state.state.pop();
   }
 
   return state;
 };
 
-var klose = function (state, targ, callback)
-{
+var klose = function (state, targ, callback) {
   'use strict';
 
   var current;
@@ -242,24 +202,19 @@ var klose = function (state, targ, callback)
   noComma(state);
   current = curr(state);
 
-  if (current === targ)
-  {
+  if (current === targ) {
     callback(state);
-  }
-  else
-  {
+  } else {
     throw 'invalid form: tag mismatch' + showState(state);
   }
 
   return state;
 };
 
-var closeForm = function (state)
-{
+var closeForm = function (state) {
   'use strict';
 
-  klose(state, 'open', function (state)
-  {
+  klose(state, 'open', function (state) {
     state.state = ['done'];
 
     return state;
@@ -268,12 +223,10 @@ var closeForm = function (state)
   return state;
 };
 
-var closeObject = function (state)
-{
+var closeObject = function (state) {
   'use strict';
 
-  klose(state, 'open-object', function (state)
-  {
+  klose(state, 'open-object', function (state) {
     state.state.pop();
     state.acc = state.acc + '}';
 
@@ -283,12 +236,10 @@ var closeObject = function (state)
   return state;
 };
 
-var closeArray = function (state)
-{
+var closeArray = function (state) {
   'use strict';
 
-  klose(state, 'open-array', function (state)
-  {
+  klose(state, 'open-array', function (state) {
     state.state.pop();
     state.acc = state.acc + ']';
 
@@ -300,19 +251,18 @@ var closeArray = function (state)
 
 // Main HTML parsing function. It uses the helper functions openForm,
 // openObject, addValue and openTextareaValue.
-var tryParseHTML = function (html)
-{
+var tryParseHTML = function (html) {
   'use strict';
 
-  var state = {state: ['start'], acc: ''};
+  var state = {
+    state: ['start'],
+    acc: ''
+  };
   var parser;
 
-  parser = new htmlparser.Parser(
-  {
-    onopentag: function(name, attribs)
-    {
-      switch (name)
-      {
+  parser = new htmlparser.Parser({
+    onopentag: function (name, attribs) {
+      switch (name) {
       case 'form':
         openForm(state);
         break;
@@ -330,17 +280,13 @@ var tryParseHTML = function (html)
         break;
       }
     },
-    ontext: function(str)
-    {
-      if (!str.match(/^\s+$/))
-      {
+    ontext: function (str) {
+      if (!str.match(/^\s+$/)) {
         addTextareaValue(state, str);
       }
     },
-    onclosetag: function(tagname)
-    {
-      switch (tagname)
-      {
+    onclosetag: function (tagname) {
+      switch (tagname) {
       case 'form':
         closeForm(state);
         break;
@@ -357,8 +303,7 @@ var tryParseHTML = function (html)
   parser.write(html);
   parser.end();
 
-  switch (state.state.pop())
-  {
+  switch (state.state.pop()) {
   case 'start':
     throw 'invalid form: no form found' + showState(state);
   case 'open':
@@ -369,20 +314,15 @@ var tryParseHTML = function (html)
 };
 
 // Simply a call to JSON.parse with some special error handling.
-var tryParseJSON = function (jsn)
-{
+var tryParseJSON = function (jsn) {
   'use strict';
 
   var obj;
 
-  try
-  {
+  try {
     obj = JSON.parse(jsn);
-  }
-  catch (e)
-  {
-    switch (e.name)
-    {
+  } catch (e) {
+    switch (e.name) {
     case 'SyntaxError':
       e.message = 'invalid JSON: ' + JSON.stringify(jsn);
       throw e;
@@ -392,8 +332,7 @@ var tryParseJSON = function (jsn)
   }
 
   // I've tested this and strangely enough JSON.parse(null) === null
-  if (jsn === null)
-  {
+  if (jsn === null) {
     throw new SyntaxError('invalid JSON: null');
   }
 
@@ -401,59 +340,41 @@ var tryParseJSON = function (jsn)
 };
 
 // If v is null, return 'null', otherwise return v.
-var maybeNullToString = function (v)
-{
+var maybeNullToString = function (v) {
   'use strict';
 
-  if (v === null)
-  {
+  if (v === null) {
     return 'null';
-  }
-  else
-  {
+  } else {
     return v;
   }
 };
 
 // Get the 'type', which may not correspond to the JavaScript type.
-var getType = function (val)
-{
+var getType = function (val) {
   'use strict';
 
-  if (val === null || (typeof val === 'string' && val.length <= 32))
-  {
+  if (val === null || (typeof val === 'string' && val.length <= 32)) {
     return 'string';
-  }
-  else if (typeof val === 'string' && val.length > 32)
-  {
+  } else if (typeof val === 'string' && val.length > 32) {
     return 'text';
-  }
-  else if (typeof val === 'boolean')
-  {
+  } else if (typeof val === 'boolean') {
     return 'boolean';
-  }
-  else if (typeof val === 'number')
-  {
+  } else if (typeof val === 'number') {
     return 'number';
-  }
-  else if (val instanceof Array)
-  {
+  } else if (val instanceof Array) {
     return 'array';
-  }
-  else if (val instanceof Object && !(val instanceof Array) && val !== null)
-  {
+  } else if (val instanceof Object && !(val instanceof Array) && val !== null) {
     return 'object';
   }
 };
 
 // Process key value pairs in an object and return an object that
 // describes the original object.
-var getKeyVals = function (o)
-{
+var getKeyVals = function (o) {
   'use strict';
 
-  return Object.keys(o).map(function (k)
-  {
+  return Object.keys(o).map(function (k) {
     var val = o[k];
 
     return {
@@ -472,25 +393,25 @@ var getKeyVals = function (o)
 // be using a specific templating system instead of an additional
 // recursive function to do the HTML rendering. This is probably an
 // unnecessary step at this point.
-var transform = function (obj)
-{
+var transform = function (obj) {
   'use strict';
 
-  var start = {fields: []};
+  var start = {
+    fields: []
+  };
 
-  var transform_ = function (o, rest, accObj, id)
-  {
+  var transform_ = function (o, rest, accObj, id) {
     var result;
     var keyVals = getKeyVals(o.object);
 
-    result = keyVals.reduce(function (acc, x)
-    {
-      if (x.type === 'array' || x.type === 'object')
-      {
-        return acc.concat({object: x.value, key: 'value', parent: x});
-      }
-      else
-      {
+    result = keyVals.reduce(function (acc, x) {
+      if (x.type === 'array' || x.type === 'object') {
+        return acc.concat({
+          object: x.value,
+          key: 'value',
+          parent: x
+        });
+      } else {
         return acc;
       }
     }, []);
@@ -498,29 +419,26 @@ var transform = function (obj)
     rest = rest.concat(result);
     o.parent[o.key] = keyVals;
 
-    if (rest && rest.length !== 0)
-    {
+    if (rest && rest.length !== 0) {
       return transform_.r(rest[0], rest.slice(1), accObj, id);
-    }
-    else
-    {
+    } else {
       return id.r(accObj);
     }
   };
 
-  if (obj === null)
-  {
+  if (obj === null) {
     return {};
-  }
-  else
-  {
-    return transform_.t({object: obj, parent: start, key: 'fields'}, [], start, r.identity);
+  } else {
+    return transform_.t({
+      object: obj,
+      parent: start,
+      key: 'fields'
+    }, [], start, r.identity);
   }
 };
 
 // Insert the strings in the acc object.
-var insert = function (left, right, acc)
-{
+var insert = function (left, right, acc) {
   'use strict';
 
   acc.left = acc.left + left;
@@ -530,107 +448,87 @@ var insert = function (left, right, acc)
 };
 
 // Return a label for a key.
-var label = function (key, acc)
-{
+var label = function (key, acc) {
   'use strict';
 
-  if (key)
-  {
+  if (key) {
     acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
   }
 
   return acc;
 };
 
-var spanTitle = function (key)
-{
+var spanTitle = function (key) {
   'use strict';
 
   var retval = '';
 
-  if (key)
-  {
+  if (key) {
     retval = '<span title="' + key + '">' + key + '</span>';
   }
 
   return retval;
 };
 
-var newEither = function (type, key, acc)
-{
+var newEither = function (type, key, acc) {
   'use strict';
 
   return insert(spanTitle(key) + '<' + type + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // For an object.
-var newObject = function (key, acc)
-{
+var newObject = function (key, acc) {
   'use strict';
 
   return newEither('ul', key, acc);
 };
 
 // For an array.
-var newArray = function (key, acc)
-{
+var newArray = function (key, acc) {
   'use strict';
 
   return newEither('ol', key, acc);
 };
 
 // When an item has a value
-var hasValue = function (acc)
-{
+var hasValue = function (acc) {
   'use strict';
 
   return insert('<li>', '', acc);
 };
 
 // Longer text input.
-var textarea = function (key, value, acc)
-{
+var textarea = function (key, value, acc) {
   'use strict';
 
   return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
-var inputarea = function (key, value, type, acc)
-{
+var inputarea = function (key, value, type, acc) {
   'use strict';
 
   return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
-var processDescriptField = function (fs, acc)
-{
+var processDescriptField = function (fs, acc) {
   'use strict';
 
-  if (fs && fs.value !== undefined)
-  {
+  if (fs && fs.value !== undefined) {
     hasValue(acc);
 
-    if (fs.type && fs.type !== 'array' && fs.type !== 'object')
-    {
+    if (fs.type && fs.type !== 'array' && fs.type !== 'object') {
       label(fs.key, acc);
-    }
-    else if (fs.type && fs.type === 'object')
-    {
+    } else if (fs.type && fs.type === 'object') {
       newObject(fs.key, acc);
-    }
-    else if (fs.type && fs.type === 'array')
-    {
+    } else if (fs.type && fs.type === 'array') {
       newArray(fs.key, acc);
     }
 
-    if (fs.type === 'text')
-    {
+    if (fs.type === 'text') {
       textarea(fs.key, fs.value, acc);
-    }
-    else if (fs.type !== 'object' && fs.type !== 'array')
-    {
+    } else if (fs.type !== 'object' && fs.type !== 'array') {
       inputarea(fs.key, fs.value, fs.type, acc);
     }
   }
@@ -640,8 +538,7 @@ var processDescriptField = function (fs, acc)
 
 // Pop the accstack and insert the current acc left and right on the
 // left of the poped object.
-var accInsert = function (accstack, acc)
-{
+var accInsert = function (accstack, acc) {
   'use strict';
 
   var acc2 = accstack.pop();
@@ -652,11 +549,13 @@ var accInsert = function (accstack, acc)
 
 // The descriptive object created by the transform function is
 // converted to HTML.
-var descriptToHtml = function (obj)
-{
+var descriptToHtml = function (obj) {
   'use strict';
 
-  var acc = {left: '<form>', right: '</form>'};
+  var acc = {
+    left: '<form>',
+    right: '</form>'
+  };
   var result;
 
   // This will recurse the descriptive object. The head variable is
@@ -667,8 +566,7 @@ var descriptToHtml = function (obj)
   // objects. Accstack is used to store acc context when
   // descending. Id is a reference to the identity function to define
   // the base case.
-  var _descriptToHtml = function (head, rest, acc, stack, accstack, id)
-  {
+  var _descriptToHtml = function (head, rest, acc, stack, accstack, id) {
     var isNotObject = head && (head.type !== 'array' && head.type !== 'object');
     var done = rest.length === 0;
     var depleted = stack.length === 0;
@@ -677,16 +575,14 @@ var descriptToHtml = function (obj)
 
     // There are no more fields, the stack is depleted and the value
     // doesn't need to be descended, so return the accumulator.
-    if (!head && done && depleted)
-    {
+    if (!head && done && depleted) {
       return id.r(acc);
     }
     // If there is more on the stack, process it. We'll want to ignore
     // objects so that they can be handled in the 'else' clause. We'll
     // also want to continue if fs is undefined, which will indicate
     // that we've hit the end of object or array values.
-    else if (!depleted && done && (isNotObject || !head))
-    {
+    else if (!depleted && done && (isNotObject || !head)) {
       // Pop the next group of stored fs's off the stack where they
       // were previously stored by the 'else' clause below.
       next = stack.pop();
@@ -704,16 +600,17 @@ var descriptToHtml = function (obj)
     }
     // Unless it is a complex value, process the value and move on to
     // the next field.
-    else if (isNotObject)
-    {
+    else if (isNotObject) {
       processDescriptField(head, acc);
 
       return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
     // Otherwise descend the complex value.
-    else
-    {
-      acc2 = {left: '', right: ''};
+    else {
+      acc2 = {
+        left: '',
+        right: ''
+      };
 
       // Push the remaining values onto the stack so they will be
       // processed later.
@@ -731,13 +628,11 @@ var descriptToHtml = function (obj)
   };
 
   // When the original object isn't null and there are fields.
-  if (obj.obj && obj.fields)
-  {
+  if (obj.obj && obj.fields) {
     insert('<ul>', '</ul>', acc);
 
     // If there is more than just an empty list of fields.
-    if (obj.fields && obj.fields.length > 0)
-    {
+    if (obj.fields && obj.fields.length > 0) {
       result = _descriptToHtml.t(obj.fields[0], obj.fields.slice(1), acc, [], [], r.identity);
     }
   }
@@ -746,8 +641,7 @@ var descriptToHtml = function (obj)
 };
 
 // This is essentially the default simple form building function.
-var simpleToForm = function (obj)
-{
+var simpleToForm = function (obj) {
   'use strict';
 
   var fields = transform(obj);
@@ -760,8 +654,7 @@ var simpleToForm = function (obj)
 
 // ## External Functions
 
-var toForm = function (jsn)
-{
+var toForm = function (jsn) {
   'use strict';
 
   var obj = tryParseJSON(jsn);
@@ -771,8 +664,7 @@ var toForm = function (jsn)
   return simpleToForm(obj);
 };
 
-var fromForm = function (html)
-{
+var fromForm = function (html) {
   'use strict';
 
   var json;

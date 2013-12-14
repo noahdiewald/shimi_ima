@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
 
+  grunt.loadNpmTasks('grunt-jsbeautifier');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-less');
@@ -133,10 +134,19 @@ module.exports = function(grunt) {
         }
       },
       all: ['grunt.js', 'priv/src/**/*.js', 'priv/test/**/*.js']
+    },
+    'jsbeautifier': {
+      files: ['grunt.js', 'priv/src/**/*.js', 'priv/test/**/*.js'],
+      options: {
+        js: {
+          indentSize: 2,
+          jslintHappy: true
+        }
+      }
     }
   });
 
   grunt.registerTask('coverage', ['jshint', 'copy', 'mochacov:coverage']);
   grunt.registerTask('test', ['jshint', 'copy', 'mochacov:unit']);
-  grunt.registerTask('default', ['less', 'hogan', 'jshint', 'copy', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
+  grunt.registerTask('default', ['less', 'hogan', 'jsbeautifier', 'jshint', 'copy', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
 };

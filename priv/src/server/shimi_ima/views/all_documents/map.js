@@ -1,30 +1,21 @@
-function map(doc)
-{
+function map(doc) {
   'use strict';
 
-  var isReversal = function (elem)
-  {
+  var isReversal = function (elem) {
     return elem.reversal === true;
   };
 
-  var isHead = function (elem)
-  {
+  var isHead = function (elem) {
     return elem.head === true;
   };
 
-  var gatherElems = function (acc, obj, filterFun, reversal)
-  {
-    acc = acc.concat(obj.fields.filter(function (elem, index)
-    {
+  var gatherElems = function (acc, obj, filterFun, reversal) {
+    acc = acc.concat(obj.fields.filter(function (elem, index) {
       return (filterFun(elem));
-    }).map(function (elem, index)
-    {
-      if (reversal)
-      {
+    }).map(function (elem, index) {
+      if (reversal) {
         return [elem.value];
-      }
-      else
-      {
+      } else {
         return [elem.sortkey, elem.value];
       }
     }));
@@ -32,18 +23,12 @@ function map(doc)
     return acc;
   };
 
-  var gather = function (acc, filterFun, reversal)
-  {
-    doc.fieldsets.forEach(function (fieldset, index)
-    {
-      if (!fieldset.multiple)
-      {
+  var gather = function (acc, filterFun, reversal) {
+    doc.fieldsets.forEach(function (fieldset, index) {
+      if (!fieldset.multiple) {
         acc = gatherElems(acc, fieldset, filterFun, reversal);
-      }
-      else
-      {
-        fieldset.multifields.forEach(function (multifield, index)
-        {
+      } else {
+        fieldset.multifields.forEach(function (multifield, index) {
           acc = gatherElems(acc, multifield, filterFun, reversal);
         });
       }
@@ -52,13 +37,11 @@ function map(doc)
     return acc;
   };
 
-  if (doc.doctype && !doc.category && doc.fieldsets && !doc.deleted_)
-  {
+  if (doc.doctype && !doc.category && doc.fieldsets && !doc.deleted_) {
     var heads = gather([], isHead);
     var reversals = gather([], isReversal, true);
 
-    if (heads.length === 0)
-    {
+    if (heads.length === 0) {
       heads = [
         ['', doc._id]
       ];

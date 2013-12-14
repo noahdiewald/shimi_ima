@@ -25,15 +25,13 @@ var ajax = require('./ajax.js');
 // Exported functions
 
 // Initialize the pager with an args object.
-var pager = function (args)
-{
+var pager = function (args) {
   'use strict';
 
   var mod = {};
   // If the 'prefix' used to automatically determine certain element
   // ID's is not set, set it to 'index'.
-  if (args.prefix === undefined)
-  {
+  if (args.prefix === undefined) {
     args.prefix = 'index';
   }
   // Special formatting or template code.
@@ -41,23 +39,20 @@ var pager = function (args)
   var prefix = args.prefix;
 
   // Escape a value and base64 encode it.
-  var escapeValue = function (value)
-  {
+  var escapeValue = function (value) {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
 
   // The number of elements to display is given here. Note how `prefix`
   // is used.
-  var limitField = function ()
-  {
+  var limitField = function () {
     return document.getElementById(prefix + '-limit');
   };
 
   // Get the first or next page. There won't be `prevkeys` or `previds`
   // if it is the first page. These accumulate during paging so that it
   // is possible to go backwards.
-  mod.get = function (startkey, startid, prevkeys, previds)
-  {
+  mod.get = function (startkey, startid, prevkeys, previds) {
     // The URL given as one of the original args.
     var url = args.url + '?';
     // This would be a custom index ID.
@@ -75,69 +70,56 @@ var pager = function (args)
       pids: previds
     };
 
-    if (!state.pks)
-    {
+    if (!state.pks) {
       state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];
     }
 
-    if (state.sk)
-    {
+    if (state.sk) {
       url = url + 'startkey=' + window.escape(window.atob(state.sk));
-      if (state.sid)
-      {
+      if (state.sid) {
         url = url + '&startkey_docid=' + state.sid;
       }
     }
 
-    if (limit)
-    {
+    if (limit) {
       url = url + '&limit=' + (limit + 1);
-    }
-    else
-    {
+    } else {
       limitField().value = 25;
       url = url + '&limit=26';
     }
 
-    if (indexId)
-    {
+    if (indexId) {
       url = url + '&index=' + indexId;
     }
 
-    ajax.get(url, function (req)
-    {
+    ajax.get(url, function (req) {
       mod.fill(req, state, target);
     });
 
     return mod;
   };
 
-  mod.fill = function (req, state, target)
-  {
+  mod.fill = function (req, state, target) {
     var limit = limitField().value * 1;
     var respJSON;
     var lastrow;
     var newRows;
 
-    var prevElem = function ()
-    {
+    var prevElem = function () {
       return document.getElementById('previous-' + prefix + '-page');
     };
 
-    var nextElem = function ()
-    {
+    var nextElem = function () {
       return document.getElementById('next-' + prefix + '-page');
     };
 
-    var prevHandler = function ()
-    {
+    var prevHandler = function () {
       mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
     };
 
-    var nextHandler = function ()
-    {
+    var nextHandler = function () {
       var firstElem = document.getElementById('first-' + prefix + '-element');
       var nextkey = nextElem().getAttribute('data-startkey');
       var nextid = nextElem().getAttribute('data-startid');
@@ -149,34 +131,26 @@ var pager = function (args)
       mod.get(nextkey, nextid, state.pks, state.pids);
     };
 
-    if (format === undefined)
-    {
+    if (format === undefined) {
       respJSON = req.response;
-    }
-    else
-    {
+    } else {
       respJSON = format(req.response);
     }
 
-    newRows = respJSON.rows.map(function (item, index, thisArray)
-    {
+    newRows = respJSON.rows.map(function (item, index, thisArray) {
       item.encoded_key = escapeValue(item.key);
       return item;
     });
 
     lastrow = newRows.slice(-1);
 
-    if (newRows[0])
-    {
+    if (newRows[0]) {
       newRows[0].firstrow = true;
     }
 
-    if (newRows.length > limit)
-    {
+    if (newRows.length > limit) {
       respJSON.rows = newRows.slice(0, -1);
-    }
-    else
-    {
+    } else {
       respJSON.rows = newRows;
       respJSON.lastpage = true;
     }
@@ -184,8 +158,7 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.innerHTML = templates['paged-listing'](respJSON,
-    {
+    target.innerHTML = templates['paged-listing'](respJSON, {
       'listed-element': templates.templates[prefix + '-element']
     });
 
@@ -193,14 +166,12 @@ var pager = function (args)
     prevElem().onclick = prevHandler;
 
     // Disable the previous button if we're at the beginning
-    if (state.pks.length === 0)
-    {
+    if (state.pks.length === 0) {
       prevElem().classList.add('hidden');
     }
 
     // Disable the next button if we're at the end
-    if (nextElem().getAttribute('data-last-page'))
-    {
+    if (nextElem().getAttribute('data-last-page')) {
       nextElem().classList.add('hidden');
     }
 
