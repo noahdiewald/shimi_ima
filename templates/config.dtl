@@ -21,6 +21,7 @@
     <div id="all-config-container">
       <div id="config-doctypes" class="panel">
         <h2 class="header">Doctypes Listing</h2>
+        <a href="#" id="doctypes-add-button" class="link-button">Add Document Type</a>
         <form id="doctypes-filter-form">
           <label for="doctypes-filter">Filter</label>
           <input id="doctypes-filter" type="text" name="doctypes-filter"></input>
@@ -46,6 +47,10 @@
       </div>
       <div id="config-edit" class="panel">
         <h2 class="header">Editor</h2>
+        <a href="#" id="config-clear-form-button" class="link-button">Clear Form</a>
+        <a href="#" id="config-save-button" class="link-button">Save</a>
+        <a href="#" id="config-create-button" class="link-button">Create</a>
+        <a href="#" id="config-delete-button" class="link-button">Delete</a>
         <div id="edit-form"></div>
       </div>
     </div>

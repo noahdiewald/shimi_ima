@@ -21,11 +21,17 @@
     "htmlparser2": "3.3.0",
     "less": "1.4.0-b2",
     "reactorjs": "0.0.2",
-    "tv4": "1.0.5"
+    "tv4": "1.0.5",
+    "node-uuid": "1.4.1"
   },
   "scripts": {
     "blanket": {
-        "pattern": ["src/server/shimi_ima/"]
+      "pattern": [
+        "src/server/shimi_ima/"
+      ]
     }
+  },
+  "dependencies": {
+    "swig": "~1.2.2"
   }
 }

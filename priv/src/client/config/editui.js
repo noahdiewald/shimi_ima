@@ -8,6 +8,7 @@
 
 var formalize = require('../formalize.js');
 var ajax = require('../ajax.js');
+var S = require('../sender.js');
 
 // ## Internal Functions
 
@@ -39,6 +40,14 @@ var fillForm = function (json) {
   return 'form-filled';
 };
 
+var determineCategory = function (json) {
+  'use strict';
+
+  var obj = JSON.parse(json);
+
+  return obj.category;
+};
+
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
@@ -63,8 +72,17 @@ var fresh = function () {
   return 'empty-object-loaded';
 };
 
-var create = function (args) {
+var create = function () {
   'use strict';
+
+  var form = editForm();
+  var json = formalize.fromForm(form.innerHTML);
+  var category = determineCategory(json);
+  var complete = function () {
+    S.sender('config-' + category + '-created');
+  };
+
+  ajax.post('config/' + category + 's', json, complete);
 
   return 'object-created';
 };
@@ -88,10 +106,14 @@ var restore = function (args) {
 };
 
 // Initialize the editor, loading a fresh object.
-var init = function () {
+var init = function (json) {
   'use strict';
 
-  fresh();
+  if (json) {
+    fillForm(json);
+  } else {
+    fresh();
+  }
 
   return 'editor-initialized';
 };

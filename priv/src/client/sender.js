@@ -5,6 +5,9 @@
 // working on but the idea is to avoid having functions directly call
 // other functions to initiate new actions but to instead simply report
 // their state and have some central authority decide what to do next.
+//
+// The idea is to make something like this into a worker to achieve
+// concurrency.
 
 // Variable Definitions
 
@@ -14,6 +17,8 @@ var editui = require('./documents/editui.js');
 var searchui = require('./documents/searchui.js');
 var setsui = require('./documents/setsui.js');
 var worksheetui = require('./documents/worksheetui.js');
+var ceditui = require('./config/editui.js');
+var cdoctypeui = require('./config/doctypeui.js');
 
 // Exported functions
 
@@ -63,7 +68,31 @@ var sender = function (message, arg) {
   case 'lost-focus':
     retval = editui.selectInput();
     break;
+    // Config messages
+  case 'new-doctype-requested':
+    retval = cdoctypeui.addDoctype();
+    break;
+  case 'new-doctype-built':
+    retval = ceditui.init(arg);
+    break;
+  case 'edit-doctype-requested':
+    retval = ceditui.get(arg);
+    break;
+  case 'save-config-document-request':
+    retval = ceditui.update();
+    break;
+  case 'create-config-document-request':
+    retval = ceditui.create();
+    break;
+  case 'config-doctype-created':
+    retval = cdoctypeui.init();
+    break;
+  case 'delete-config-document-request':
+    retval = ceditui.remove();
+    break;
   }
+
+  window.console.log(retval);
 
   return retval;
 };

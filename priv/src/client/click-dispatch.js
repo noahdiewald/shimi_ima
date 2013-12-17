@@ -24,7 +24,6 @@ var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
 var maintenanceui = require('./config/maintenanceui.js');
-var ceditui = require('./config/editui.js');
 var doctypeTab = require('./config/doctype-tab.js');
 var charseqTab = require('./config/charseq-tab').charseqTab;
 
@@ -39,13 +38,13 @@ var clickDispatch = function (e) {
     // ### Config
 
     '.edit-doctype-link': function (t) {
-      return ceditui.get('doctypes/' + t.getAttribute('href').slice(1));
+      return S.sender('edit-doctype-requested', 'doctypes/' + t.getAttribute('href').slice(1));
     },
     '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctype-add-button': function (t) {
-      doctypeTab.addDoctype(t);
+    '#doctypes-add-button': function () {
+      return S.sender('new-doctype-requested');
     },
     '.delete-charseq-button': function (t) {
       charseqTab.del(t);
@@ -55,6 +54,15 @@ var clickDispatch = function (e) {
     },
     '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);
+    },
+    '#config-save-button': function () {
+      return S.sender('save-config-document-request');
+    },
+    '#config-delete-button': function () {
+      return S.sender('delete-config-document-request');
+    },
+    '#config-create-button': function () {
+      return S.sender('create-config-document-request');
     },
 
     // ### Documents
