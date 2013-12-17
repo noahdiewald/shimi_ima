@@ -177,12 +177,12 @@ When(/^click the Add Document Type button$/) do
 end
 
 When(/^I fill in the name (\w+) in the new document type form$/) do | name |
-  doctypeNameField = @browser.text_field(:name => '_id')
+  doctypeNameField = @browser.text_field(:name => 'name')
   doctypeNameField.set name
 end
 
-When(/^I click the document type dialog Save button$/) do
-  @browser.span(:text => 'Save').click
+When(/^I click the editor Create button$/) do
+  @browser.link(:id => 'config-create-button').click
 end
 
 When(/^I click the Delete (\w+) Document Type button$/) do | name |
@@ -209,7 +209,7 @@ Then(/^the document type (\w+) has been deleted$/) do | name |
 end
 
 Then(/^there is a new (\w+) document type$/) do | name |
-  @browser.link(:href => "config/doctypes/#{name}").wait_until_present
+  @browser.link(:text => name).wait_until_present
   true
 end
 
