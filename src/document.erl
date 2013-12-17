@@ -76,11 +76,13 @@ from_json(doc, Json) ->
       };
 from_json(Json, S) ->
     Fieldsets = get_fieldsets(S),
+    Id = jsn:get_value(<<"_id">>, Json),
     #doctype{
-       id = jsn:get_value(<<"_id">>, Json),
+       id = Id,
        rev = jsn:get_value(<<"_rev">>, Json),
+       name = proplists:get_value(<<"name">>, Json, Id),
        category = <<"doctype">>,
-       description = jsn:get_value(<<"description">>, Json),
+       description = proplists:get_value(<<"description">>, Json, <<>>),
        fieldsets = Fieldsets
       }.
 
@@ -118,6 +120,7 @@ to_json(D) ->
     Fieldsets = [fieldset:to_json(X) || X <- D#doctype.fieldsets],
     [{<<"_id">>, D#doctype.id},
      {<<"_rev">>, D#doctype.rev},
+     {<<"name">>, D#doctype.name},
      {<<"description">>, D#doctype.description},
      {<<"category">>, <<"doctype">>},
      {<<"fieldsets">>, Fieldsets}].
