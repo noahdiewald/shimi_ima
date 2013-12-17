@@ -92,8 +92,6 @@ var sender = function (message, arg) {
     break;
   }
 
-  window.console.log(retval);
-
   return retval;
 };
 

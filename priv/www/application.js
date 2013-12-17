@@ -12290,7 +12290,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":43,"../store.js":98,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
+},{"../ajax.js":43,"../store.js":99,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12735,7 +12735,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":92,"../store.js":98,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
+},{"../path.js":92,"../store.js":99,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12790,7 +12790,8 @@ var addDoctype = function () {
   var obj = {
     _id: uuid.v4().replace(/-/g, ''),
     category: 'doctype',
-    name: ''
+    name: '',
+    description: ''
   };
 
   S.sender('new-doctype-built', JSON.stringify(obj));
@@ -12828,6 +12829,20 @@ var toggle = function (node) {
   return 'toggled-subgroup';
 };
 
+// Update the default attribute when the value property changes.
+var updateDefaults = function (e) {
+  'use strict';
+
+  var t = e.target;
+  var val = t.value;
+
+  if (t.type === 'text') {
+    t.setAttribute('value', val);
+  }
+
+  return t;
+};
+
 // Get the editor form object.
 var editForm = function () {
   'use strict';
@@ -12838,10 +12853,15 @@ var editForm = function () {
 var fillForm = function (json) {
   'use strict';
 
+  var forEach = Array.prototype.forEach;
   var formHTML = formalize.toForm(json);
   var form = editForm();
 
   form.innerHTML = formHTML;
+
+  forEach.call(form.getElementsByTagName('input'), function (item) {
+    item.onchange = updateDefaults;
+  });
 
   return 'form-filled';
 };
@@ -13825,7 +13845,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":43,"../sender.js":95,"../store.js":98,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
+},{"../ajax.js":43,"../sender.js":95,"../store.js":99,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14173,7 +14193,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":98,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":99,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14591,7 +14611,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":43,"../path.js":92,"../store.js":98,"../utils.js":100,"./editui.js":67}],69:[function(require,module,exports){
+},{"../ajax.js":43,"../path.js":92,"../store.js":99,"../utils.js":100,"./editui.js":67}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15213,7 +15233,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":43,"../sets.js":97,"../utils.js":100,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../ajax.js":43,"../sets.js":98,"../utils.js":100,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15617,7 +15637,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":75,"../sender.js":95,"../sets.js":97,"../utils.js":100,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../flash.js":75,"../sender.js":95,"../sets.js":98,"../utils.js":100,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15999,7 +16019,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":43,"../flash.js":75,"../store.js":98,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../store.js":99,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -18093,7 +18113,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":43,"../sess.js":96}],83:[function(require,module,exports){
+},{"../ajax.js":43,"../sess.js":97}],83:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19121,7 +19141,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":43,"./store.js":98}],93:[function(require,module,exports){
+},{"./ajax.js":43,"./store.js":99}],93:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19355,14 +19375,14 @@ var sender = function (message, arg) {
     break;
   }
 
-  window.console.log(retval);
-
   return retval;
 };
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":55,"./config/editui.js":56,"./documents/commands.js":65,"./documents/documents.js":66,"./documents/editui.js":67,"./documents/searchui.js":70,"./documents/setsui.js":71,"./documents/worksheetui.js":73}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":55,"./config/editui.js":56,"./documents/commands.js":65,"./documents/documents.js":66,"./documents/editui.js":67,"./documents/searchui.js":70,"./documents/setsui.js":71,"./documents/worksheetui.js":73}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],97:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19401,7 +19421,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19495,7 +19515,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19628,9 +19648,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":94,"./utils.js":100}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],100:[function(require,module,exports){
+},{"./recurse.js":94,"./utils.js":100}],100:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19866,5 +19884,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[43,44,47,48,45,50,46,51,53,52,49,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,74,73,75,77,76,78,79,80,82,81,84,83,85,86,87,88,89,90,91,92,93,94,95,96,97,98,100])
+},{"hogan.js":18}]},{},[43,44,46,48,47,45,49,50,51,53,52,54,55,56,58,59,60,57,61,62,64,63,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,97,98,99,100])
 ;

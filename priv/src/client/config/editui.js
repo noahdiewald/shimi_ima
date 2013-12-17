@@ -22,6 +22,20 @@ var toggle = function (node) {
   return 'toggled-subgroup';
 };
 
+// Update the default attribute when the value property changes.
+var updateDefaults = function (e) {
+  'use strict';
+
+  var t = e.target;
+  var val = t.value;
+
+  if (t.type === 'text') {
+    t.setAttribute('value', val);
+  }
+
+  return t;
+};
+
 // Get the editor form object.
 var editForm = function () {
   'use strict';
@@ -32,10 +46,15 @@ var editForm = function () {
 var fillForm = function (json) {
   'use strict';
 
+  var forEach = Array.prototype.forEach;
   var formHTML = formalize.toForm(json);
   var form = editForm();
 
   form.innerHTML = formHTML;
+
+  forEach.call(form.getElementsByTagName('input'), function (item) {
+    item.onchange = updateDefaults;
+  });
 
   return 'form-filled';
 };

@@ -52,7 +52,8 @@ var addDoctype = function () {
   var obj = {
     _id: uuid.v4().replace(/-/g, ''),
     category: 'doctype',
-    name: ''
+    name: '',
+    description: ''
   };
 
   S.sender('new-doctype-built', JSON.stringify(obj));
