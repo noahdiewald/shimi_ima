@@ -171,12 +171,13 @@ When(/^I click the project Configure button$/) do
 end
 
 When(/^click the Add Document Type button$/) do
-  @browser.link(:id => 'doctype-add-button').wait_until_present
-  @browser.link(:id => 'doctype-add-button').click
+  button = @browser.link(:id => 'doctypes-add-button')
+  button.wait_until_present
+  button.click
 end
 
 When(/^I fill in the name (\w+) in the new document type form$/) do | name |
-  doctypeNameField = @browser.text_field(:id => 'doctype-doctype-input')
+  doctypeNameField = @browser.text_field(:name => '_id')
   doctypeNameField.set name
 end
 
