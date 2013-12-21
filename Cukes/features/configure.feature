@@ -6,14 +6,21 @@ Scenario: Creating a document type
   When I click the project Configure button
   And click the Add Document Type button
   And I fill in Popsicle in the name editor input
-  And I click the editor Create button
-  Then there is a new Popsicle document type
+  And I click the editor create button
+  Then there is a Popsicle document type
 
 Scenario: Deleting a document type
   Given I created the NoGood document type
   When I open the NoGood document type in the editor
-  And I click the editor Delete button
+  And I click the editor delete button
   Then the document type NoGood has been deleted
+
+Scenario: Updating a document type
+  Given I created the ExtraCorn document type
+  When I open the ExtraCorn document type in the editor
+  And I fill in SampleCorn in the name editor input
+  And I click the editor save button
+  Then there is a SampleCorn document type
 
 # Scenario Outline: Creating fieldsets
 #   Given the Popsicle document type is selected

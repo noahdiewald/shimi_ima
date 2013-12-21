@@ -102,6 +102,19 @@ var create = function () {
 var update = function (args) {
   'use strict';
 
+  var form = editForm();
+  var json = formalize.fromForm(form.innerHTML);
+  var obj = JSON.parse(json);
+  var category = obj.category;
+  var identifier = obj._id;
+  var revision = obj._rev;
+  var url = 'config/' + category + 's/' + identifier + '?rev=' + revision;
+  var complete = function () {
+    S.sender('config-' + category + '-updated');
+  };
+
+  ajax.put(url, json, complete);
+
   return 'object-updated';
 };
 

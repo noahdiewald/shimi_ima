@@ -12909,6 +12909,19 @@ var create = function () {
 var update = function (args) {
   'use strict';
 
+  var form = editForm();
+  var json = formalize.fromForm(form.innerHTML);
+  var obj = JSON.parse(json);
+  var category = obj.category;
+  var identifier = obj._id;
+  var revision = obj._rev;
+  var url = 'config/' + category + 's/' + identifier + '?rev=' + revision;
+  var complete = function () {
+    S.sender('config-' + category + '-updated');
+  };
+
+  ajax.put(url, json, complete);
+
   return 'object-updated';
 };
 
@@ -19377,9 +19390,8 @@ var sender = function (message, arg) {
     retval = ceditui.create();
     break;
   case 'config-doctype-created':
-    retval = cdoctypeui.init();
-    break;
   case 'config-doctype-deleted':
+  case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;
   case 'delete-config-document-request':
@@ -19896,5 +19908,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[43,44,45,47,46,49,48,50,51,52,53,55,54,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,80,81,79,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,98,99,100])
+},{"hogan.js":18}]},{},[43,44,45,49,46,48,47,52,50,51,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,72,71,73,74,75,76,77,78,79,80,81,83,82,84,85,86,87,89,88,90,91,92,93,95,94,96,98,99,100])
 ;

@@ -85,9 +85,8 @@ var sender = function (message, arg) {
     retval = ceditui.create();
     break;
   case 'config-doctype-created':
-    retval = cdoctypeui.init();
-    break;
   case 'config-doctype-deleted':
+  case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;
   case 'delete-config-document-request':

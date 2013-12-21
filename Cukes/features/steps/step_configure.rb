@@ -22,7 +22,7 @@ Given(/^I created the (\w+) document type$/) do | name |
   @browser.goto("#{@baseURL}/projects/project-#{projectId}/config")
   step("click the Add Document Type button")
   step("I fill in #{name} in the name editor input")
-  step("I click the editor Create button")
+  step("I click the editor create button")
   @browser.div(:id => 'loading').wait_while_present
 end
 
@@ -185,13 +185,11 @@ When(/^I open the (\w+) document type in the editor$/) do | name |
   @browser.link(:text => name).click
 end
 
-When(/^I click the editor Create button$/) do
-  @browser.link(:id => 'config-create-button').click
-end
-
-When(/^I click the editor Delete button$/) do
-  @browser.link(:id => "config-delete-button").click
-  @browser.alert.ok
+When(/^I click the editor (\w+) button$/) do | bttn |
+  @browser.link(:id => "config-#{bttn}-button").click
+  if bttn == "delete"
+    @browser.alert.ok
+  end
   @browser.div(:id => 'loading').wait_while_present
 end
 
@@ -212,7 +210,7 @@ Then(/^the document type (\w+) has been deleted$/) do | name |
   @browser.link(:text => name).should_not be_exists
 end
 
-Then(/^there is a new (\w+) document type$/) do | name |
+Then(/^there is a (\w+) document type$/) do | name |
   @browser.link(:text => name).wait_until_present
   true
 end
