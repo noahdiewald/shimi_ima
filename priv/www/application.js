@@ -12290,7 +12290,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":43,"../store.js":98,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
+},{"../ajax.js":43,"../store.js":99,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12735,7 +12735,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":92,"../store.js":98,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
+},{"../path.js":92,"../store.js":99,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12866,14 +12866,6 @@ var fillForm = function (json) {
   return 'form-filled';
 };
 
-var determineCategory = function (json) {
-  'use strict';
-
-  var obj = JSON.parse(json);
-
-  return obj.category;
-};
-
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
@@ -12903,7 +12895,8 @@ var create = function () {
 
   var form = editForm();
   var json = formalize.fromForm(form.innerHTML);
-  var category = determineCategory(json);
+  var obj = JSON.parse(json);
+  var category = obj.category;
   var complete = function () {
     S.sender('config-' + category + '-created');
   };
@@ -12921,6 +12914,22 @@ var update = function (args) {
 
 var remove = function (args) {
   'use strict';
+
+  var answer = window.confirm('Are you sure you want to delete this?');
+  var form = editForm();
+  var json = formalize.fromForm(form.innerHTML);
+  var obj = JSON.parse(json);
+  var category = obj.category;
+  var identifier = obj._id;
+  var revision = obj._rev;
+  var url = 'config/' + category + 's/' + identifier + '?rev=' + revision;
+  var complete = function () {
+    S.sender('config-' + category + '-deleted');
+  };
+
+  if (answer) {
+    ajax.del(url, complete);
+  }
 
   return 'object-removed';
 };
@@ -13845,7 +13854,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":43,"../sender.js":95,"../store.js":98,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
+},{"../ajax.js":43,"../sender.js":95,"../store.js":99,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14193,7 +14202,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":98,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":99,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14611,7 +14620,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":43,"../path.js":92,"../store.js":98,"../utils.js":100,"./editui.js":67}],69:[function(require,module,exports){
+},{"../ajax.js":43,"../path.js":92,"../store.js":99,"../utils.js":100,"./editui.js":67}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15233,7 +15242,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":43,"../sets.js":97,"../utils.js":100,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../ajax.js":43,"../sets.js":98,"../utils.js":100,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15637,7 +15646,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":75,"../sender.js":95,"../sets.js":97,"../utils.js":100,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../flash.js":75,"../sender.js":95,"../sets.js":98,"../utils.js":100,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16019,7 +16028,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":43,"../flash.js":75,"../store.js":98,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../store.js":99,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -19141,7 +19150,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":43,"./store.js":98}],93:[function(require,module,exports){
+},{"./ajax.js":43,"./store.js":99}],93:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19370,6 +19379,9 @@ var sender = function (message, arg) {
   case 'config-doctype-created':
     retval = cdoctypeui.init();
     break;
+  case 'config-doctype-deleted':
+    retval = cdoctypeui.init();
+    break;
   case 'delete-config-document-request':
     retval = ceditui.remove();
     break;
@@ -19419,7 +19431,9 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],97:[function(require,module,exports){
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],98:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19513,7 +19527,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19646,9 +19660,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":94,"./utils.js":100}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],100:[function(require,module,exports){
+},{"./recurse.js":94,"./utils.js":100}],100:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19884,5 +19896,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[43,44,45,46,47,48,49,50,51,52,53,54,56,55,57,58,59,60,61,62,63,64,65,67,66,68,69,71,70,72,73,74,75,76,77,78,79,80,81,82,83,85,84,86,88,87,89,91,90,92,93,94,95,96,97,98,100])
+},{"hogan.js":18}]},{},[43,44,45,47,46,49,48,50,51,52,53,55,54,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,80,81,79,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,98,99,100])
 ;

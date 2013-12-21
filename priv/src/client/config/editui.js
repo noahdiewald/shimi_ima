@@ -59,14 +59,6 @@ var fillForm = function (json) {
   return 'form-filled';
 };
 
-var determineCategory = function (json) {
-  'use strict';
-
-  var obj = JSON.parse(json);
-
-  return obj.category;
-};
-
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
@@ -96,7 +88,8 @@ var create = function () {
 
   var form = editForm();
   var json = formalize.fromForm(form.innerHTML);
-  var category = determineCategory(json);
+  var obj = JSON.parse(json);
+  var category = obj.category;
   var complete = function () {
     S.sender('config-' + category + '-created');
   };
@@ -114,6 +107,22 @@ var update = function (args) {
 
 var remove = function (args) {
   'use strict';
+
+  var answer = window.confirm('Are you sure you want to delete this?');
+  var form = editForm();
+  var json = formalize.fromForm(form.innerHTML);
+  var obj = JSON.parse(json);
+  var category = obj.category;
+  var identifier = obj._id;
+  var revision = obj._rev;
+  var url = 'config/' + category + 's/' + identifier + '?rev=' + revision;
+  var complete = function () {
+    S.sender('config-' + category + '-deleted');
+  };
+
+  if (answer) {
+    ajax.del(url, complete);
+  }
 
   return 'object-removed';
 };
