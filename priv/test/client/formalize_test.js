@@ -61,8 +61,8 @@ describe('Converting JSON to an HTML form', function () {
       formalize.toForm('{"test": "ok"}').should.match(/<input [^>]*name="test"/);
     });
     it('should return an unordered list with a single element', function () {
-      formalize.toForm('{"test": "ok"}').match(/<ul>/g).length.should.equal(1);
-      formalize.toForm('{"test": "ok"}').match(/<li>/g).length.should.equal(1);
+      formalize.toForm('{"test": "ok"}').match(/<ul[^>]*>/g).length.should.equal(1);
+      formalize.toForm('{"test": "ok"}').match(/<li[^>]*>/g).length.should.equal(1);
     });
     describe('when key value is true', function () {
       it('should return an input type of "text"', function () {
@@ -98,7 +98,7 @@ describe('Converting JSON to an HTML form', function () {
     });
     describe('when key value is a string of greater than 32 characters', function () {
       it('should return a textarea', function () {
-        formalize.toForm('{"test": "0123456789012345678901234567890123"}').should.match(/<textarea name="test">[0-9]{34}<\/textarea>/);
+        formalize.toForm('{"test": "0123456789012345678901234567890123"}').should.match(/<textarea [^>]*name="test">[0-9]{34}<\/textarea>/);
       });
     });
     describe('when key value is a number', function () {
@@ -120,23 +120,23 @@ describe('Converting JSON to an HTML form', function () {
       formalize.toForm('{"a": 1, "b": 2, "c": "3"}').should.match(/<input [^>]*name="c"/);
     });
     it('should return an unordered list with the correct number of elements', function () {
-      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<ul>/g).length.should.equal(1);
-      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<li>/g).length.should.equal(3);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<ul[^>]*>/g).length.should.equal(1);
+      formalize.toForm('{"a": 1, "b": 2, "c": "3"}').match(/<li[^>]*>/g).length.should.equal(3);
     });
   });
   describe('when provided an object as value', function () {
     describe('when the object is empty', function () {
       it('should return a unordered list with title', function () {
-        formalize.toForm('{"a": {}}').should.match(/<ul title="a">\s*<\/ul>/g);
+        formalize.toForm('{"a": {}}').should.match(/<ul [^>]*title="a">\s*<\/ul>/g);
       });
     });
     describe('when the object has a key value pair', function () {
       it('should return a unordered list with an input element', function () {
-        formalize.toForm('{"a":{"b":9}}').should.match(/<ul title="a".*<input.*/g);
+        formalize.toForm('{"a":{"b":9}}').should.match(/<ul [^>]*title="a".*<input.*/g);
       });
       describe('and is followed by an additional key', function () {
         it('should return a unordered list with an input element followed by an additional input element.', function () {
-          formalize.toForm('{"a":{"b":9},"c":8}').should.match(/<ul title="a".*<input.*name="b".*<input.*name="c"/g);
+          formalize.toForm('{"a":{"b":9},"c":8}').should.match(/<ul [^>]*title="a".*<input[^>]*name="b".*<input[^>]*name="c"/g);
         });
       });
     });
@@ -144,7 +144,7 @@ describe('Converting JSON to an HTML form', function () {
   describe('when provided an array as value', function () {
     describe('when the array is empty', function () {
       it('should return a ordered list with a title', function () {
-        formalize.toForm('{"a": []}').should.match(/<ol title="a">\s*<\/ol>/g);
+        formalize.toForm('{"a": []}').should.match(/<ol [^>]*title="a">\s*<\/ol>/g);
       });
     });
     describe('when the array has a string', function () {
@@ -156,7 +156,7 @@ describe('Converting JSON to an HTML form', function () {
       });
       describe('and is followed by an additional key', function () {
         it('should return an ordered list with an input element followed by an additional input element.', function () {
-          formalize.toForm('{"a":["b"],"c":8}').should.match(/<ol title="a".*<input.*value="b".*<input.*name="c"/g);
+          formalize.toForm('{"a":["b"],"c":8}').should.match(/<ol [^>]*title="a".*<input[^>]*value="b".*<input[^>]*name="c"/g);
         });
       });
     });
@@ -166,7 +166,7 @@ describe('Converting JSON to an HTML form', function () {
       it('should return the correct form', function () {
         // This could be more detailed but I feel it catches the
         // essentials
-        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul title="m">.*<li><label for="b">b.*<\/li><\/ul><\/li><li>.*sevent.*<\/li><\/ul><\/form>/);
+        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul [^>]*title="m">.*<li[^>]*><label for="b">b.*<\/li><\/ul><\/li><li[^>]*>.*sevent.*<\/li><\/ul><\/form>/);
       });
     });
   });

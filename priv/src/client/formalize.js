@@ -9,6 +9,7 @@
 
 var r = require('./recurse.js');
 var htmlparser = require('htmlparser2');
+var uuid = require('node-uuid');
 
 // ## Internal Functions
 
@@ -473,7 +474,7 @@ var spanTitle = function (key) {
 var newEither = function (type, key, acc) {
   'use strict';
 
-  return insert(spanTitle(key) + '<' + type + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+  return insert(spanTitle(key) + '<' + type + ' id="' + uuid.v4() + '" ' + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // For an object.
@@ -494,21 +495,21 @@ var newArray = function (key, acc) {
 var hasValue = function (acc) {
   'use strict';
 
-  return insert('<li>', '', acc);
+  return insert('<li id="' + uuid.v4() + '">', '', acc);
 };
 
 // Longer text input.
 var textarea = function (key, value, acc) {
   'use strict';
 
-  return insert('<textarea ' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
+  return insert('<textarea  id="' + uuid.v4() + '"' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
 var inputarea = function (key, value, type, acc) {
   'use strict';
 
-  return insert('<input type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
+  return insert('<input  id="' + uuid.v4() + '" type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
