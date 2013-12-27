@@ -214,12 +214,24 @@ div#config-edit div#edit-form li span.collapsed:before {
 div#config-edit div#edit-form ul {
   padding-left: 1em;
 }
+div#config-edit div#edit-form ul:before {
+  content: "{";
+}
+div#config-edit div#edit-form ul:after {
+  content: "}";
+}
 div#config-edit div#edit-form ul > li {
   list-style-type: none;
 }
 div#config-edit div#edit-form ol {
   padding-left: 1em;
   list-style-position: inside;
+}
+div#config-edit div#edit-form ol:before {
+  content: "[";
+}
+div#config-edit div#edit-form ol:after {
+  content: "]";
 }
 #notifications-main {
   top: 0;

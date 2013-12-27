@@ -12290,7 +12290,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":43,"../store.js":99,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
+},{"../ajax.js":43,"../store.js":98,"./charseq-dialog.js":47,"./charseq-elems.js":48}],50:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12735,7 +12735,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":92,"../store.js":99,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
+},{"../path.js":92,"../store.js":98,"./doctype-dialog.js":52,"./doctype-elems.js":53,"./field-dialog.js":57,"./field-elems.js":58,"./fieldset-dialog.js":59,"./fieldset-elems.js":60}],55:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -13193,7 +13193,7 @@ var fieldElems = (function () {
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":76,"../utils.js":100}],59:[function(require,module,exports){
+},{"../form.js":76,"../utils.js":99}],59:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13867,7 +13867,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":43,"../sender.js":95,"../store.js":99,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
+},{"../ajax.js":43,"../sender.js":95,"../store.js":98,"./changeui.js":64,"./editui.js":67,"./indexui.js":69,"./setsui.js":71,"./viewui.js":72}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14215,7 +14215,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":99,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../form.js":76,"../store.js":98,"./fieldsets.js":68,"./indexui.js":69,"./viewui.js":72}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14633,7 +14633,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":43,"../path.js":92,"../store.js":99,"../utils.js":100,"./editui.js":67}],69:[function(require,module,exports){
+},{"../ajax.js":43,"../path.js":92,"../store.js":98,"../utils.js":99,"./editui.js":67}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15255,7 +15255,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":43,"../sets.js":98,"../utils.js":100,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../ajax.js":43,"../sets.js":97,"../utils.js":99,"./documents.js":66,"./setsui.js":71,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15659,7 +15659,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":75,"../sender.js":95,"../sets.js":98,"../utils.js":100,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../flash.js":75,"../sender.js":95,"../sets.js":97,"../utils.js":99,"./documents.js":66,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16041,7 +16041,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":43,"../flash.js":75,"../store.js":99,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
+},{"../ajax.js":43,"../flash.js":75,"../store.js":98,"./editui.js":67,"./fieldsets.js":68,"./indexui.js":69,"templates.js":"3ddScq"}],73:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -19163,7 +19163,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":43,"./store.js":99}],93:[function(require,module,exports){
+},{"./ajax.js":43,"./store.js":98}],93:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19443,9 +19443,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19539,7 +19537,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],99:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19672,7 +19670,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":94,"./utils.js":100}],100:[function(require,module,exports){
+},{"./recurse.js":94,"./utils.js":99}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19851,6 +19849,8 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -19908,5 +19908,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[43,44,45,49,46,48,47,52,50,51,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,72,71,73,74,75,76,77,78,79,80,81,83,82,84,85,86,87,89,88,90,91,92,93,95,94,96,98,99,100])
+},{"hogan.js":18}]},{},[43,44,46,45,47,48,49,51,50,52,53,54,57,55,58,56,59,60,61,62,63,65,64,66,67,68,69,70,71,72,73,75,74,77,76,78,79,80,83,82,81,84,85,86,88,87,89,90,92,93,91,94,96,97,95,98,99])
 ;
