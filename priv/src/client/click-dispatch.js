@@ -64,6 +64,12 @@ var clickDispatch = function (e) {
     '#config-create-button': function () {
       return S.sender('create-config-document-request');
     },
+    '#config-edit a.up': function (t) {
+      return S.sender('move-config-element-up-request', t.dataset.target);
+    },
+    '#config-edit a.down': function (t) {
+      return S.sender('move-config-element-down-request', t.dataset.target);
+    },
 
     // ### Documents
 

@@ -43,18 +43,50 @@ var editForm = function () {
   return document.getElementById('edit-form');
 };
 
-var fillForm = function (json) {
+// Initialize the form inputs.
+var formInputsInit = function (form) {
   'use strict';
 
   var forEach = Array.prototype.forEach;
-  var formHTML = formalize.toForm(json);
-  var form = editForm();
-
-  form.innerHTML = formHTML;
 
   forEach.call(form.getElementsByTagName('input'), function (item) {
     item.onchange = updateDefaults;
   });
+};
+
+// Initialize form elements.
+var formElementsInit = function (form) {
+  'use strict';
+
+  var forEach = Array.prototype.forEach;
+
+  forEach.call(form.getElementsByTagName('li'), function (item) {
+    var controls = [document.createElement('a'), document.createElement('a')];
+    var names = ['up', 'down'];
+    controls.forEach(function (x, i) {
+      [names[i], 'editor-control', 'small-control'].forEach(function (y) {
+        x.classList.add(y);
+      });
+      x.title = names[i];
+      x.text = names[i];
+      x.dataset.target = item.id;
+      x.href = '#';
+      item.appendChild(x);
+    });
+  });
+};
+
+// Given some json, create a form, perform initialization and display
+// it in the editor area.
+var fillForm = function (json) {
+  'use strict';
+
+  var formHTML = formalize.toForm(json);
+  var form = editForm();
+
+  form.innerHTML = formHTML;
+  formInputsInit(form);
+  formElementsInit(form);
 
   return 'form-filled';
 };
@@ -146,6 +178,36 @@ var restore = function (args) {
   return 'object-restored';
 };
 
+// Move and element up in the tree.
+var elementUp = function (identifier) {
+  'use strict';
+
+  var targ = document.getElementById(identifier);
+  var prev = targ.previousSibling;
+
+  if (prev) {
+    targ.parentElement.insertBefore(targ, prev);
+  }
+
+  return 'element-moved-up';
+};
+
+// Move and element down in the tree.
+var elementDown = function (identifier) {
+  'use strict';
+
+  var targ = document.getElementById(identifier);
+  var next = targ.nextSibling;
+
+  if (next) {
+    targ.parentElement.insertBefore(targ, next.nextSibling);
+  } else {
+    targ.parentElement.appendChild(targ);
+  }
+
+  return 'element-moved-down';
+};
+
 // Initialize the editor, loading a fresh object.
 var init = function (json) {
   'use strict';
@@ -167,3 +229,5 @@ exports.create = create;
 exports.remove = remove;
 exports.restore = restore;
 exports.toggle = toggle;
+exports.elementUp = elementUp;
+exports.elementDown = elementDown;

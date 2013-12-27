@@ -12,9 +12,6 @@ var doctypeui = require('./doctypeui.js');
 var maintenanceui = require('./maintenanceui.js');
 var charsequi = require('./charsequi.js');
 var editui = require('./editui.js');
-var Reactor = require('reactorjs');
-var Signal = Reactor.Signal;
-var Observer = Reactor.Observer;
 
 // ## Internal Functions
 
