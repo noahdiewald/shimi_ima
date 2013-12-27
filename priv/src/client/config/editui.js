@@ -52,7 +52,7 @@ var updateLabelAttributes = function (e) {
 
   label.title = label.textContent;
 
-  if (elem.matches('ul, ol')) {
+  if (label.classList.contains('span-title')) {
     elem.title = label.textContent;
   } else {
     elem.name = label.textContent;
@@ -106,8 +106,27 @@ var formElementsInit = function (form) {
 
   forEach.call(form.getElementsByTagName('li'), function (item) {
     var controls = ['up', 'down', 'delete'];
+    forEach.call(item.children, function (z) {
+      // Keep track of last element with focus.
+      z.onblur = function (e) {
+        var oldLast = document.getElementsByClassName('last-touched');
+        forEach.call(oldLast, function (ol) {
+          ol.classList.remove('last-touched');
+        });
+        e.target.classList.add('last-touched');
+      };
+    });
     addElementControls(controls, item);
   });
+};
+
+// Initialize the form.
+var formInit = function (form) {
+  'use strict';
+
+  formInputsInit(form);
+  formElementsInit(form);
+  formLabelsInit(form);
 };
 
 // Given some json, create a form, perform initialization and display
@@ -127,11 +146,62 @@ var fillForm = function (json, options) {
   var form = editForm();
 
   form.innerHTML = formHTML;
-  formInputsInit(form);
-  formElementsInit(form);
-  formLabelsInit(form);
+  formInit(form);
 
   return 'form-filled';
+};
+
+// Find the target placement for a new element and return a function
+// that will place it there.
+var findTarget = function () {
+  'use strict';
+
+  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var retval;
+
+  if (lastTouched && lastTouched.parentNode.matches('#edit-form li')) {
+    var parent = lastTouched.parentNode;
+    retval = function (elem) {
+      if (parent.nextSibling) {
+        parent.parentNode.insertBefore(elem, parent.nextSibling);
+      } else {
+        parent.parentNode.appendChild(elem);
+      }
+    };
+  } else {
+    retval = function (elem) {
+      var firstObj = editForm().getElementsByTagName('ul')[0];
+      firstObj.appendChild(elem);
+    };
+  }
+
+  return retval;
+};
+
+// Add an element given JSON.
+var addElement = function (json) {
+  'use strict';
+
+  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var tmp = document.createElement('div');
+  var tmpForm = formalize.toForm(json, {
+    spanLabel: true
+  });
+  var targ = findTarget();
+  var newElem;
+
+  tmp.innerHTML = tmpForm;
+  formInit(tmp);
+
+  newElem = tmp.getElementsByTagName('li')[0];
+
+  if (lastTouched && lastTouched.parentNode.matches('#edit-form ol > li')) {
+    newElem.removeChild(newElem.getElementsByTagName('span')[0]);
+    newElem.firstChild.removeAttribute('name');
+    newElem.firstChild.removeAttribute('title');
+  }
+
+  targ(newElem);
 };
 
 // ## Exported Functions
@@ -262,6 +332,33 @@ var elementDelete = function (identifier) {
   return 'element-removed';
 };
 
+// Add an object element to the form.
+var addObjectElement = function () {
+  'use strict';
+
+  addElement('{"_blank_":{"_first_":""}}');
+
+  return 'text-element-added';
+};
+
+// Add an array element to the form.
+var addArrayElement = function () {
+  'use strict';
+
+  addElement('{"_blank_":[""]}');
+
+  return 'text-element-added';
+};
+
+// Add a text element to the form.
+var addTextElement = function () {
+  'use strict';
+
+  addElement('{"_blank_":""}');
+
+  return 'text-element-added';
+};
+
 // Initialize the editor, loading a fresh object.
 var init = function (json) {
   'use strict';
@@ -286,3 +383,6 @@ exports.toggle = toggle;
 exports.elementUp = elementUp;
 exports.elementDown = elementDown;
 exports.elementDelete = elementDelete;
+exports.addObjectElement = addObjectElement;
+exports.addArrayElement = addArrayElement;
+exports.addTextElement = addTextElement;

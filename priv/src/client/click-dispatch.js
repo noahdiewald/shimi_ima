@@ -73,6 +73,15 @@ var clickDispatch = function (e) {
     '#config-edit a.delete': function (t) {
       return S.sender('config-element-delete-request', t.dataset.target);
     },
+    '#config-add-object-button': function () {
+      return S.sender('add-config-object-request');
+    },
+    '#config-add-array-button': function () {
+      return S.sender('add-config-array-request');
+    },
+    '#config-add-text-button': function () {
+      return S.sender('add-config-text-request');
+    },
 
     // ### Documents
 

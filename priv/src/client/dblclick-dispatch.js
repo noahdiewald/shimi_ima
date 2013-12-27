@@ -23,7 +23,7 @@ var dblclickDispatch = function (e) {
   'use strict';
 
   var action = dispatcher({
-    '#edit-form span': function (t) {
+    '#edit-form span.span-title': function (t) {
       ceditui.toggle(t);
     },
     '.search-result-field-id a': function (t) {

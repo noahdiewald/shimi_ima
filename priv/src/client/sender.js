@@ -101,6 +101,15 @@ var sender = function (message, arg) {
   case 'config-element-delete-request':
     retval = ceditui.elementDelete(arg);
     break;
+  case 'add-config-text-request':
+    retval = ceditui.addTextElement();
+    break;
+  case 'add-config-array-request':
+    retval = ceditui.addArrayElement();
+    break;
+  case 'add-config-object-request':
+    retval = ceditui.addObjectElement();
+    break;
   }
 
   return retval;
