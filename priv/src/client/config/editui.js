@@ -54,6 +54,22 @@ var formInputsInit = function (form) {
   });
 };
 
+var addElementControls = function (controls, item) {
+  'use strict';
+
+  controls.forEach(function (name) {
+    var x = document.createElement('a');
+    [name, 'editor-control', 'small-control'].forEach(function (y) {
+      x.classList.add(y);
+    });
+    x.title = name;
+    x.text = name;
+    x.dataset.target = item.id;
+    x.href = '#';
+    item.appendChild(x);
+  });
+};
+
 // Initialize form elements.
 var formElementsInit = function (form) {
   'use strict';
@@ -61,18 +77,8 @@ var formElementsInit = function (form) {
   var forEach = Array.prototype.forEach;
 
   forEach.call(form.getElementsByTagName('li'), function (item) {
-    var controls = [document.createElement('a'), document.createElement('a')];
-    var names = ['up', 'down'];
-    controls.forEach(function (x, i) {
-      [names[i], 'editor-control', 'small-control'].forEach(function (y) {
-        x.classList.add(y);
-      });
-      x.title = names[i];
-      x.text = names[i];
-      x.dataset.target = item.id;
-      x.href = '#';
-      item.appendChild(x);
-    });
+    var controls = ['up', 'down', 'delete'];
+    addElementControls(controls, item);
   });
 };
 
@@ -208,6 +214,17 @@ var elementDown = function (identifier) {
   return 'element-moved-down';
 };
 
+// Remove and element from the tree.
+var elementDelete = function (identifier) {
+  'use strict';
+
+  var targ = document.getElementById(identifier);
+
+  targ.parentElement.removeChild(targ);
+
+  return 'element-removed';
+};
+
 // Initialize the editor, loading a fresh object.
 var init = function (json) {
   'use strict';
@@ -231,3 +248,4 @@ exports.restore = restore;
 exports.toggle = toggle;
 exports.elementUp = elementUp;
 exports.elementDown = elementDown;
+exports.elementDelete = elementDelete;

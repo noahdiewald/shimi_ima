@@ -70,6 +70,9 @@ var clickDispatch = function (e) {
     '#config-edit a.down': function (t) {
       return S.sender('move-config-element-down-request', t.dataset.target);
     },
+    '#config-edit a.delete': function (t) {
+      return S.sender('config-element-delete-request', t.dataset.target);
+    },
 
     // ### Documents
 

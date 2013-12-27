@@ -98,6 +98,9 @@ var sender = function (message, arg) {
   case 'move-config-element-down-request':
     retval = ceditui.elementDown(arg);
     break;
+  case 'config-element-delete-request':
+    retval = ceditui.elementDelete(arg);
+    break;
   }
 
   return retval;

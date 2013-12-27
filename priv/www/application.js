@@ -11773,6 +11773,9 @@ var clickDispatch = function (e) {
     '#config-edit a.down': function (t) {
       return S.sender('move-config-element-down-request', t.dataset.target);
     },
+    '#config-edit a.delete': function (t) {
+      return S.sender('config-element-delete-request', t.dataset.target);
+    },
 
     // ### Documents
 
@@ -12724,6 +12727,22 @@ var formInputsInit = function (form) {
   });
 };
 
+var addElementControls = function (controls, item) {
+  'use strict';
+
+  controls.forEach(function (name) {
+    var x = document.createElement('a');
+    [name, 'editor-control', 'small-control'].forEach(function (y) {
+      x.classList.add(y);
+    });
+    x.title = name;
+    x.text = name;
+    x.dataset.target = item.id;
+    x.href = '#';
+    item.appendChild(x);
+  });
+};
+
 // Initialize form elements.
 var formElementsInit = function (form) {
   'use strict';
@@ -12731,18 +12750,8 @@ var formElementsInit = function (form) {
   var forEach = Array.prototype.forEach;
 
   forEach.call(form.getElementsByTagName('li'), function (item) {
-    var controls = [document.createElement('a'), document.createElement('a')];
-    var names = ['up', 'down'];
-    controls.forEach(function (x, i) {
-      [names[i], 'editor-control', 'small-control'].forEach(function (y) {
-        x.classList.add(y);
-      });
-      x.title = names[i];
-      x.text = names[i];
-      x.dataset.target = item.id;
-      x.href = '#';
-      item.appendChild(x);
-    });
+    var controls = ['up', 'down', 'delete'];
+    addElementControls(controls, item);
   });
 };
 
@@ -12878,6 +12887,17 @@ var elementDown = function (identifier) {
   return 'element-moved-down';
 };
 
+// Remove and element from the tree.
+var elementDelete = function (identifier) {
+  'use strict';
+
+  var targ = document.getElementById(identifier);
+
+  targ.parentElement.removeChild(targ);
+
+  return 'element-removed';
+};
+
 // Initialize the editor, loading a fresh object.
 var init = function (json) {
   'use strict';
@@ -12901,6 +12921,7 @@ exports.restore = restore;
 exports.toggle = toggle;
 exports.elementUp = elementUp;
 exports.elementDown = elementDown;
+exports.elementDelete = elementDelete;
 
 },{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
 // # Field manipulation dialog
@@ -19331,6 +19352,9 @@ var sender = function (message, arg) {
   case 'move-config-element-down-request':
     retval = ceditui.elementDown(arg);
     break;
+  case 'config-element-delete-request':
+    retval = ceditui.elementDelete(arg);
+    break;
   }
 
   return retval;
@@ -19842,5 +19866,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,44,45,47,46,48,49,50,53,52,54,55,51,57,56,58,59,60,62,61,63,64,65,66,67,68,69,70,72,71,73,75,76,74,77,79,78,81,80,82,84,83,87,85,89,86,88,90,92,91,93,94,97,95,98,99])
+},{"hogan.js":18}]},{},[42,45,43,46,44,48,47,51,50,52,53,55,54,57,56,58,59,60,49,61,65,64,66,67,63,62,68,69,71,70,72,73,75,74,76,77,78,79,80,81,83,85,82,84,86,88,87,89,90,91,92,93,94,95,97,98,99])
 ;
