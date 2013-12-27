@@ -43,6 +43,34 @@ var editForm = function () {
   return document.getElementById('edit-form');
 };
 
+// Update the attributes associated with the text of the label.
+var updateLabelAttributes = function (e) {
+  'use strict';
+
+  var label = e.target;
+  var elem = document.getElementById(label.nextSibling.id);
+
+  label.title = label.textContent;
+
+  if (elem.matches('ul, ol')) {
+    elem.title = label.textContent;
+  } else {
+    elem.name = label.textContent;
+  }
+};
+
+// Initialize the form labels.
+var formLabelsInit = function (form) {
+  'use strict';
+
+  var forEach = Array.prototype.forEach;
+
+  forEach.call(form.getElementsByTagName('span'), function (item) {
+    item.contentEditable = true;
+    item.oninput = updateLabelAttributes;
+  });
+};
+
 // Initialize the form inputs.
 var formInputsInit = function (form) {
   'use strict';
@@ -84,15 +112,24 @@ var formElementsInit = function (form) {
 
 // Given some json, create a form, perform initialization and display
 // it in the editor area.
-var fillForm = function (json) {
+var fillForm = function (json, options) {
   'use strict';
 
-  var formHTML = formalize.toForm(json);
+  if (!options) {
+    options = {
+      spanLabel: true
+    };
+  } else {
+    options.spanLabel = true;
+  }
+
+  var formHTML = formalize.toForm(json, options);
   var form = editForm();
 
   form.innerHTML = formHTML;
   formInputsInit(form);
   formElementsInit(form);
+  formLabelsInit(form);
 
   return 'form-filled';
 };

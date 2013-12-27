@@ -106,6 +106,13 @@ describe('Converting JSON to an HTML form', function () {
         formalize.toForm('{"test": 23}').should.match(/<input [^>]*type="number"/);
       });
     });
+    describe('when span label option is used', function () {
+      it('should return a span instead of a label', function () {
+        formalize.toForm('{"test": "ok"}', {
+          spanLabel: true
+        }).should.match(/<span title="test" class="span-label">test<\/span>.*<input [^>]*value="ok"/);
+      });
+    });
   });
   describe('when provided an object with multiple keys', function () {
     it('should return a label named for each key', function () {

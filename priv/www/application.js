@@ -12159,7 +12159,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":42,"../store.js":98,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
+},{"../ajax.js":42,"../store.js":97,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12601,7 +12601,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":91,"../store.js":98,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
+},{"../path.js":91,"../store.js":97,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12716,6 +12716,34 @@ var editForm = function () {
   return document.getElementById('edit-form');
 };
 
+// Update the attributes associated with the text of the label.
+var updateLabelAttributes = function (e) {
+  'use strict';
+
+  var label = e.target;
+  var elem = document.getElementById(label.nextSibling.id);
+
+  label.title = label.textContent;
+
+  if (elem.matches('ul, ol')) {
+    elem.title = label.textContent;
+  } else {
+    elem.name = label.textContent;
+  }
+};
+
+// Initialize the form labels.
+var formLabelsInit = function (form) {
+  'use strict';
+
+  var forEach = Array.prototype.forEach;
+
+  forEach.call(form.getElementsByTagName('span'), function (item) {
+    item.contentEditable = true;
+    item.oninput = updateLabelAttributes;
+  });
+};
+
 // Initialize the form inputs.
 var formInputsInit = function (form) {
   'use strict';
@@ -12757,15 +12785,24 @@ var formElementsInit = function (form) {
 
 // Given some json, create a form, perform initialization and display
 // it in the editor area.
-var fillForm = function (json) {
+var fillForm = function (json, options) {
   'use strict';
 
-  var formHTML = formalize.toForm(json);
+  if (!options) {
+    options = {
+      spanLabel: true
+    };
+  } else {
+    options.spanLabel = true;
+  }
+
+  var formHTML = formalize.toForm(json, options);
   var form = editForm();
 
   form.innerHTML = formHTML;
   formInputsInit(form);
   formElementsInit(form);
+  formLabelsInit(form);
 
   return 'form-filled';
 };
@@ -13141,7 +13178,7 @@ var fieldElems = (function () {
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":75,"../utils.js":99}],58:[function(require,module,exports){
+},{"../form.js":75,"../utils.js":98}],58:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13815,7 +13852,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":97,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14163,7 +14200,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":98,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71}],67:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":97,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71}],67:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14581,7 +14618,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":98,"../utils.js":99,"./editui.js":66}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":98,"./editui.js":66}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15203,7 +15240,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":98,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15607,7 +15644,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":98,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15989,7 +16026,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":42,"../flash.js":74,"../store.js":98,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../store.js":97,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -17013,11 +17050,15 @@ var insert = function (left, right, acc) {
 };
 
 // Return a label for a key.
-var label = function (key, acc) {
+var label = function (key, acc, options) {
   'use strict';
 
   if (key) {
-    acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
+    if (options.spanLabel) {
+      acc = insert('<span title="' + key + '" class="span-label">' + key + '</span>', '', acc);
+    } else {
+      acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
+    }
   }
 
   return acc;
@@ -17029,72 +17070,104 @@ var spanTitle = function (key) {
   var retval = '';
 
   if (key) {
-    retval = '<span title="' + key + '">' + key + '</span>';
+    retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
   }
 
   return retval;
 };
 
-var newEither = function (type, key, acc) {
+var newEither = function (type, key, acc, options) {
   'use strict';
 
-  return insert(spanTitle(key) + '<' + type + ' id="' + uuid.v4() + '" ' + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+  var id;
+
+  if (options.noObjectIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '" ';
+  }
+
+  return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // For an object.
-var newObject = function (key, acc) {
+var newObject = function (key, acc, options) {
   'use strict';
 
-  return newEither('ul', key, acc);
+  return newEither('ul', key, acc, options);
 };
 
 // For an array.
-var newArray = function (key, acc) {
+var newArray = function (key, acc, options) {
   'use strict';
 
-  return newEither('ol', key, acc);
+  return newEither('ol', key, acc, options);
 };
 
 // When an item has a value
-var hasValue = function (acc) {
+var hasValue = function (acc, options) {
   'use strict';
 
-  return insert('<li id="' + uuid.v4() + '">', '', acc);
+  var id;
+
+  if (options.noElementIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<li' + id + '>', '', acc);
 };
 
 // Longer text input.
-var textarea = function (key, value, acc) {
+var textarea = function (key, value, acc, options) {
   'use strict';
 
-  return insert('<textarea  id="' + uuid.v4() + '"' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
+  var id;
+
+  if (options.noInputIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<textarea' + id + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
-var inputarea = function (key, value, type, acc) {
+var inputarea = function (key, value, type, acc, options) {
   'use strict';
 
-  return insert('<input  id="' + uuid.v4() + '" type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
+  var id;
+
+  if (options.noInputIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<input' + id + ' type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
-var processDescriptField = function (fs, acc) {
+var processDescriptField = function (fs, acc, options) {
   'use strict';
 
   if (fs && fs.value !== undefined) {
-    hasValue(acc);
+    hasValue(acc, options);
 
     if (fs.type && fs.type !== 'array' && fs.type !== 'object') {
-      label(fs.key, acc);
+      label(fs.key, acc, options);
     } else if (fs.type && fs.type === 'object') {
-      newObject(fs.key, acc);
+      newObject(fs.key, acc, options);
     } else if (fs.type && fs.type === 'array') {
-      newArray(fs.key, acc);
+      newArray(fs.key, acc, options);
     }
 
     if (fs.type === 'text') {
-      textarea(fs.key, fs.value, acc);
+      textarea(fs.key, fs.value, acc, options);
     } else if (fs.type !== 'object' && fs.type !== 'array') {
-      inputarea(fs.key, fs.value, fs.type, acc);
+      inputarea(fs.key, fs.value, fs.type, acc, options);
     }
   }
 
@@ -17114,14 +17187,23 @@ var accInsert = function (accstack, acc) {
 
 // The descriptive object created by the transform function is
 // converted to HTML.
-var descriptToHtml = function (obj) {
+var descriptToHtml = function (obj, options) {
   'use strict';
 
-  var acc = {
-    left: '<form>',
-    right: '</form>'
-  };
+  var acc = {};
   var result;
+
+  if (options.noForm) {
+    acc = {
+      left: '',
+      right: ''
+    };
+  } else {
+    acc = {
+      left: '<form>',
+      right: '</form>'
+    };
+  }
 
   // This will recurse the descriptive object. The head variable is
   // the current portion of the object to process. The rest variable
@@ -17153,7 +17235,7 @@ var descriptToHtml = function (obj) {
       next = stack.pop();
 
       // This will change the acc depending on fs information.
-      processDescriptField(head, acc);
+      processDescriptField(head, acc, options);
 
       // This will nest the current acc string values inside the
       // parent.
@@ -17166,7 +17248,7 @@ var descriptToHtml = function (obj) {
     // Unless it is a complex value, process the value and move on to
     // the next field.
     else if (isNotObject) {
-      processDescriptField(head, acc);
+      processDescriptField(head, acc, options);
 
       return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
@@ -17185,7 +17267,7 @@ var descriptToHtml = function (obj) {
       // later on.
       accstack.push(acc);
 
-      processDescriptField(head, acc2);
+      processDescriptField(head, acc2, options);
 
       // Now use the values to specify fs and fsrest.
       return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
@@ -17206,27 +17288,27 @@ var descriptToHtml = function (obj) {
 };
 
 // This is essentially the default simple form building function.
-var simpleToForm = function (obj) {
+var simpleToForm = function (obj, options) {
   'use strict';
 
-  var fields = transform(obj);
+  var fields = transform(obj, options);
 
   fields.obj = obj !== null;
 
-  //return templates['simple-to-form'](fields);
-  return descriptToHtml(fields);
+  return descriptToHtml(fields, options);
 };
 
 // ## External Functions
 
-var toForm = function (jsn) {
+var toForm = function (jsn, options) {
   'use strict';
 
-  var obj = tryParseJSON(jsn);
+  var obj = tryParseJSON(jsn, options);
+  options = options ? options : {};
 
-  validateToArg(obj);
+  validateToArg(obj, options);
 
-  return simpleToForm(obj);
+  return simpleToForm(obj, options);
 };
 
 var fromForm = function (html) {
@@ -19112,7 +19194,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":42,"./store.js":98}],92:[function(require,module,exports){
+},{"./ajax.js":42,"./store.js":97}],92:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19401,9 +19483,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19497,7 +19577,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19630,7 +19710,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":98}],98:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19866,5 +19946,7 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,45,43,46,44,48,47,51,50,52,53,55,54,57,56,58,59,60,49,61,65,64,66,67,63,62,68,69,71,70,72,73,75,74,76,77,78,79,80,81,83,85,82,84,86,88,87,89,90,91,92,93,94,95,97,98,99])
+},{"hogan.js":18}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}]},{},[42,43,44,45,46,47,49,48,50,51,52,53,55,54,56,57,58,59,60,61,62,63,65,64,66,67,68,69,71,70,73,72,74,75,76,77,78,79,80,82,81,84,83,85,86,87,88,89,90,91,92,93,94,96,95,97,98])
 ;

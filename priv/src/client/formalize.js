@@ -449,11 +449,15 @@ var insert = function (left, right, acc) {
 };
 
 // Return a label for a key.
-var label = function (key, acc) {
+var label = function (key, acc, options) {
   'use strict';
 
   if (key) {
-    acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
+    if (options.spanLabel) {
+      acc = insert('<span title="' + key + '" class="span-label">' + key + '</span>', '', acc);
+    } else {
+      acc = insert('<label for="' + key + '">' + key + '</label>', '', acc);
+    }
   }
 
   return acc;
@@ -465,72 +469,104 @@ var spanTitle = function (key) {
   var retval = '';
 
   if (key) {
-    retval = '<span title="' + key + '">' + key + '</span>';
+    retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
   }
 
   return retval;
 };
 
-var newEither = function (type, key, acc) {
+var newEither = function (type, key, acc, options) {
   'use strict';
 
-  return insert(spanTitle(key) + '<' + type + ' id="' + uuid.v4() + '" ' + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+  var id;
+
+  if (options.noObjectIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '" ';
+  }
+
+  return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // For an object.
-var newObject = function (key, acc) {
+var newObject = function (key, acc, options) {
   'use strict';
 
-  return newEither('ul', key, acc);
+  return newEither('ul', key, acc, options);
 };
 
 // For an array.
-var newArray = function (key, acc) {
+var newArray = function (key, acc, options) {
   'use strict';
 
-  return newEither('ol', key, acc);
+  return newEither('ol', key, acc, options);
 };
 
 // When an item has a value
-var hasValue = function (acc) {
+var hasValue = function (acc, options) {
   'use strict';
 
-  return insert('<li id="' + uuid.v4() + '">', '', acc);
+  var id;
+
+  if (options.noElementIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<li' + id + '>', '', acc);
 };
 
 // Longer text input.
-var textarea = function (key, value, acc) {
+var textarea = function (key, value, acc, options) {
   'use strict';
 
-  return insert('<textarea  id="' + uuid.v4() + '"' + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
+  var id;
+
+  if (options.noInputIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<textarea' + id + (key ? 'name="' + key + '"' : '') + '>' + value + '</textarea></li>', '', acc);
 };
 
 // Could be text or number.
-var inputarea = function (key, value, type, acc) {
+var inputarea = function (key, value, type, acc, options) {
   'use strict';
 
-  return insert('<input  id="' + uuid.v4() + '" type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
+  var id;
+
+  if (options.noInputIds) {
+    id = '';
+  } else {
+    id = ' id="' + uuid.v4() + '"';
+  }
+
+  return insert('<input' + id + ' type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
 // Process the field.
-var processDescriptField = function (fs, acc) {
+var processDescriptField = function (fs, acc, options) {
   'use strict';
 
   if (fs && fs.value !== undefined) {
-    hasValue(acc);
+    hasValue(acc, options);
 
     if (fs.type && fs.type !== 'array' && fs.type !== 'object') {
-      label(fs.key, acc);
+      label(fs.key, acc, options);
     } else if (fs.type && fs.type === 'object') {
-      newObject(fs.key, acc);
+      newObject(fs.key, acc, options);
     } else if (fs.type && fs.type === 'array') {
-      newArray(fs.key, acc);
+      newArray(fs.key, acc, options);
     }
 
     if (fs.type === 'text') {
-      textarea(fs.key, fs.value, acc);
+      textarea(fs.key, fs.value, acc, options);
     } else if (fs.type !== 'object' && fs.type !== 'array') {
-      inputarea(fs.key, fs.value, fs.type, acc);
+      inputarea(fs.key, fs.value, fs.type, acc, options);
     }
   }
 
@@ -550,14 +586,23 @@ var accInsert = function (accstack, acc) {
 
 // The descriptive object created by the transform function is
 // converted to HTML.
-var descriptToHtml = function (obj) {
+var descriptToHtml = function (obj, options) {
   'use strict';
 
-  var acc = {
-    left: '<form>',
-    right: '</form>'
-  };
+  var acc = {};
   var result;
+
+  if (options.noForm) {
+    acc = {
+      left: '',
+      right: ''
+    };
+  } else {
+    acc = {
+      left: '<form>',
+      right: '</form>'
+    };
+  }
 
   // This will recurse the descriptive object. The head variable is
   // the current portion of the object to process. The rest variable
@@ -589,7 +634,7 @@ var descriptToHtml = function (obj) {
       next = stack.pop();
 
       // This will change the acc depending on fs information.
-      processDescriptField(head, acc);
+      processDescriptField(head, acc, options);
 
       // This will nest the current acc string values inside the
       // parent.
@@ -602,7 +647,7 @@ var descriptToHtml = function (obj) {
     // Unless it is a complex value, process the value and move on to
     // the next field.
     else if (isNotObject) {
-      processDescriptField(head, acc);
+      processDescriptField(head, acc, options);
 
       return _descriptToHtml.r(rest[0], rest.slice(1), acc, stack, accstack, id);
     }
@@ -621,7 +666,7 @@ var descriptToHtml = function (obj) {
       // later on.
       accstack.push(acc);
 
-      processDescriptField(head, acc2);
+      processDescriptField(head, acc2, options);
 
       // Now use the values to specify fs and fsrest.
       return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
@@ -642,27 +687,27 @@ var descriptToHtml = function (obj) {
 };
 
 // This is essentially the default simple form building function.
-var simpleToForm = function (obj) {
+var simpleToForm = function (obj, options) {
   'use strict';
 
-  var fields = transform(obj);
+  var fields = transform(obj, options);
 
   fields.obj = obj !== null;
 
-  //return templates['simple-to-form'](fields);
-  return descriptToHtml(fields);
+  return descriptToHtml(fields, options);
 };
 
 // ## External Functions
 
-var toForm = function (jsn) {
+var toForm = function (jsn, options) {
   'use strict';
 
-  var obj = tryParseJSON(jsn);
+  var obj = tryParseJSON(jsn, options);
+  options = options ? options : {};
 
-  validateToArg(obj);
+  validateToArg(obj, options);
 
-  return simpleToForm(obj);
+  return simpleToForm(obj, options);
 };
 
 var fromForm = function (html) {
