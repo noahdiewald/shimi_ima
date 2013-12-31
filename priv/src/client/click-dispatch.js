@@ -27,6 +27,16 @@ var maintenanceui = require('./config/maintenanceui.js');
 var doctypeTab = require('./config/doctype-tab.js');
 var charseqTab = require('./config/charseq-tab').charseqTab;
 
+// ## Internal Functions
+
+// The calling of the default action will seem redundant for a while
+// until a more full refactor can be done and all actions are default.
+var defaultAction = function (t) {
+  'use strict';
+
+  return S.sender(t.id.slice(0, -7));
+};
+
 // ## Exported Functions
 
 // Given a click event, determine what action to take based on the
@@ -43,8 +53,8 @@ var clickDispatch = function (e) {
     '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctypes-add-button': function () {
-      return S.sender('new-doctype-requested');
+    '#doctypes-add-button': function (t) {
+      return defaultAction(t);
     },
     '.delete-charseq-button': function (t) {
       charseqTab.del(t);
@@ -55,32 +65,32 @@ var clickDispatch = function (e) {
     '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);
     },
-    '#config-save-button': function () {
-      return S.sender('save-config-document-request');
+    '#config-save-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-delete-button': function () {
-      return S.sender('delete-config-document-request');
+    '#config-delete-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-create-button': function () {
-      return S.sender('create-config-document-request');
+    '#config-create-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.up': function (t) {
-      return S.sender('move-config-element-up-request', t.dataset.target);
+    '#config-move-up-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.down': function (t) {
-      return S.sender('move-config-element-down-request', t.dataset.target);
+    '#config-move-down-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.delete': function (t) {
-      return S.sender('config-element-delete-request', t.dataset.target);
+    '#config-remove-element-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-object-button': function () {
-      return S.sender('add-config-object-request');
+    '#config-add-object-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-array-button': function () {
-      return S.sender('add-config-array-request');
+    '#config-add-array-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-text-button': function () {
-      return S.sender('add-config-text-request');
+    '#config-add-text-button': function (t) {
+      return defaultAction(t);
     },
 
     // ### Documents

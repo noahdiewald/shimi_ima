@@ -11730,6 +11730,16 @@ var maintenanceui = require('./config/maintenanceui.js');
 var doctypeTab = require('./config/doctype-tab.js');
 var charseqTab = require('./config/charseq-tab').charseqTab;
 
+// ## Internal Functions
+
+// The calling of the default action will seem redundant for a while
+// until a more full refactor can be done and all actions are default.
+var defaultAction = function (t) {
+  'use strict';
+
+  return S.sender(t.id.slice(0, -7));
+};
+
 // ## Exported Functions
 
 // Given a click event, determine what action to take based on the
@@ -11746,8 +11756,8 @@ var clickDispatch = function (e) {
     '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctypes-add-button': function () {
-      return S.sender('new-doctype-requested');
+    '#doctypes-add-button': function (t) {
+      return defaultAction(t);
     },
     '.delete-charseq-button': function (t) {
       charseqTab.del(t);
@@ -11758,32 +11768,32 @@ var clickDispatch = function (e) {
     '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);
     },
-    '#config-save-button': function () {
-      return S.sender('save-config-document-request');
+    '#config-save-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-delete-button': function () {
-      return S.sender('delete-config-document-request');
+    '#config-delete-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-create-button': function () {
-      return S.sender('create-config-document-request');
+    '#config-create-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.up': function (t) {
-      return S.sender('move-config-element-up-request', t.dataset.target);
+    '#config-move-up-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.down': function (t) {
-      return S.sender('move-config-element-down-request', t.dataset.target);
+    '#config-move-down-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-edit a.delete': function (t) {
-      return S.sender('config-element-delete-request', t.dataset.target);
+    '#config-remove-element-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-object-button': function () {
-      return S.sender('add-config-object-request');
+    '#config-add-object-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-array-button': function () {
-      return S.sender('add-config-array-request');
+    '#config-add-array-button': function (t) {
+      return defaultAction(t);
     },
-    '#config-add-text-button': function () {
-      return S.sender('add-config-text-request');
+    '#config-add-text-button': function (t) {
+      return defaultAction(t);
     },
 
     // ### Documents
@@ -12694,6 +12704,9 @@ var S = require('../sender.js');
 
 // ## Internal Functions
 
+// Providing a shorter name to call this function.
+var forEach = Array.prototype.forEach;
+
 // Toggle the visibility of a group.
 var toggle = function (node) {
   'use strict';
@@ -12745,8 +12758,6 @@ var updateLabelAttributes = function (e) {
 var formLabelsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('span'), function (item) {
     item.contentEditable = true;
     item.oninput = updateLabelAttributes;
@@ -12757,26 +12768,17 @@ var formLabelsInit = function (form) {
 var formInputsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('input'), function (item) {
     item.onchange = updateDefaults;
   });
 };
 
-var addElementControls = function (controls, item) {
+// Remove the class from all instances.
+var removeClass = function (items, className) {
   'use strict';
 
-  controls.forEach(function (name) {
-    var x = document.createElement('a');
-    [name, 'editor-control', 'small-control'].forEach(function (y) {
-      x.classList.add(y);
-    });
-    x.title = name;
-    x.text = name;
-    x.dataset.target = item.id;
-    x.href = '#';
-    item.appendChild(x);
+  forEach.call(items, function (item) {
+    item.classList.remove(className);
   });
 };
 
@@ -12784,21 +12786,18 @@ var addElementControls = function (controls, item) {
 var formElementsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('li'), function (item) {
-    var controls = ['up', 'down', 'delete'];
-    forEach.call(item.children, function (z) {
+    forEach.call(item.children, function (child) {
       // Keep track of last element with focus.
-      z.onblur = function (e) {
-        var oldLast = document.getElementsByClassName('last-touched');
-        forEach.call(oldLast, function (ol) {
-          ol.classList.remove('last-touched');
-        });
-        e.target.classList.add('last-touched');
+      child.onfocus = function (e) {
+        var oldMark = document.getElementsByClassName('marked');
+        var oldLine = document.getElementsByClassName('marked-line');
+        removeClass(oldMark, 'marked');
+        removeClass(oldLine, 'marked-line');
+        item.classList.add('marked-line');
+        e.target.classList.add('marked');
       };
     });
-    addElementControls(controls, item);
   });
 };
 
@@ -12838,16 +12837,16 @@ var fillForm = function (json, options) {
 var findTarget = function () {
   'use strict';
 
-  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var marked = document.getElementsByClassName('marked')[0];
+  var markedLine = document.getElementsByClassName('marked-line')[0];
   var retval;
 
-  if (lastTouched && lastTouched.parentNode.matches('#edit-form li')) {
-    var parent = lastTouched.parentNode;
+  if (markedLine) {
     retval = function (elem) {
-      if (parent.nextSibling) {
-        parent.parentNode.insertBefore(elem, parent.nextSibling);
+      if (markedLine.nextSibling) {
+        markedLine.parentNode.insertBefore(elem, parent.nextSibling);
       } else {
-        parent.parentNode.appendChild(elem);
+        markedLine.parentNode.appendChild(elem);
       }
     };
   } else {
@@ -12864,7 +12863,7 @@ var findTarget = function () {
 var addElement = function (json) {
   'use strict';
 
-  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var markedLine = document.getElementsByClassName('marked-line')[0];
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, {
     spanLabel: true
@@ -12877,7 +12876,8 @@ var addElement = function (json) {
 
   newElem = tmp.getElementsByTagName('li')[0];
 
-  if (lastTouched && lastTouched.parentNode.matches('#edit-form ol > li')) {
+  // Array elements don't have labels.
+  if (markedLine && markedLine.matches('#edit-form ol > li')) {
     newElem.removeChild(newElem.getElementsByTagName('span')[0]);
     newElem.firstChild.removeAttribute('name');
     newElem.firstChild.removeAttribute('title');
@@ -12974,10 +12974,10 @@ var restore = function (args) {
 };
 
 // Move and element up in the tree.
-var elementUp = function (identifier) {
+var elementUp = function () {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
   var prev = targ.previousSibling;
 
   if (prev) {
@@ -12988,10 +12988,10 @@ var elementUp = function (identifier) {
 };
 
 // Move and element down in the tree.
-var elementDown = function (identifier) {
+var elementDown = function () {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
   var next = targ.nextSibling;
 
   if (next) {
@@ -13007,7 +13007,7 @@ var elementDown = function (identifier) {
 var elementDelete = function (identifier) {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
 
   targ.parentElement.removeChild(targ);
 
@@ -19514,7 +19514,7 @@ var sender = function (message, arg) {
     retval = editui.selectInput();
     break;
     // Config messages
-  case 'new-doctype-requested':
+  case 'doctypes-add':
     retval = cdoctypeui.addDoctype();
     break;
   case 'new-doctype-built':
@@ -19523,10 +19523,10 @@ var sender = function (message, arg) {
   case 'edit-doctype-requested':
     retval = ceditui.get(arg);
     break;
-  case 'save-config-document-request':
+  case 'config-save':
     retval = ceditui.update();
     break;
-  case 'create-config-document-request':
+  case 'config-create':
     retval = ceditui.create();
     break;
   case 'config-doctype-created':
@@ -19534,25 +19534,25 @@ var sender = function (message, arg) {
   case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;
-  case 'delete-config-document-request':
+  case 'config-delete':
     retval = ceditui.remove();
     break;
-  case 'move-config-element-up-request':
-    retval = ceditui.elementUp(arg);
+  case 'config-move-up':
+    retval = ceditui.elementUp();
     break;
-  case 'move-config-element-down-request':
-    retval = ceditui.elementDown(arg);
+  case 'config-move-down':
+    retval = ceditui.elementDown();
     break;
-  case 'config-element-delete-request':
-    retval = ceditui.elementDelete(arg);
+  case 'config-remove-element':
+    retval = ceditui.elementDelete();
     break;
-  case 'add-config-text-request':
+  case 'config-add-text':
     retval = ceditui.addTextElement();
     break;
-  case 'add-config-array-request':
+  case 'config-add-array':
     retval = ceditui.addArrayElement();
     break;
-  case 'add-config-object-request':
+  case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
   }
@@ -20066,5 +20066,5 @@ module.exports = {
 };
 },{"hogan.js":18}],"templates.js":[function(require,module,exports){
 module.exports=require('3ddScq');
-},{}]},{},[42,43,44,45,46,48,47,49,50,52,51,53,54,55,56,57,58,61,62,63,60,59,65,64,67,66,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,86,85,87,88,89,90,91,92,93,94,95,97,96,98])
+},{}]},{},[42,44,45,46,47,43,48,50,51,49,52,53,54,57,55,58,59,60,56,61,62,64,66,65,67,68,69,63,70,71,73,72,74,75,76,77,79,78,80,81,82,84,83,85,86,87,88,90,89,91,92,93,94,95,96,98,97])
 ;

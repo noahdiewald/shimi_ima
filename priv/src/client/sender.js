@@ -69,7 +69,7 @@ var sender = function (message, arg) {
     retval = editui.selectInput();
     break;
     // Config messages
-  case 'new-doctype-requested':
+  case 'doctypes-add':
     retval = cdoctypeui.addDoctype();
     break;
   case 'new-doctype-built':
@@ -78,10 +78,10 @@ var sender = function (message, arg) {
   case 'edit-doctype-requested':
     retval = ceditui.get(arg);
     break;
-  case 'save-config-document-request':
+  case 'config-save':
     retval = ceditui.update();
     break;
-  case 'create-config-document-request':
+  case 'config-create':
     retval = ceditui.create();
     break;
   case 'config-doctype-created':
@@ -89,25 +89,25 @@ var sender = function (message, arg) {
   case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;
-  case 'delete-config-document-request':
+  case 'config-delete':
     retval = ceditui.remove();
     break;
-  case 'move-config-element-up-request':
-    retval = ceditui.elementUp(arg);
+  case 'config-move-up':
+    retval = ceditui.elementUp();
     break;
-  case 'move-config-element-down-request':
-    retval = ceditui.elementDown(arg);
+  case 'config-move-down':
+    retval = ceditui.elementDown();
     break;
-  case 'config-element-delete-request':
-    retval = ceditui.elementDelete(arg);
+  case 'config-remove-element':
+    retval = ceditui.elementDelete();
     break;
-  case 'add-config-text-request':
+  case 'config-add-text':
     retval = ceditui.addTextElement();
     break;
-  case 'add-config-array-request':
+  case 'config-add-array':
     retval = ceditui.addArrayElement();
     break;
-  case 'add-config-object-request':
+  case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
   }

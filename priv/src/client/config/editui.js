@@ -12,6 +12,9 @@ var S = require('../sender.js');
 
 // ## Internal Functions
 
+// Providing a shorter name to call this function.
+var forEach = Array.prototype.forEach;
+
 // Toggle the visibility of a group.
 var toggle = function (node) {
   'use strict';
@@ -63,8 +66,6 @@ var updateLabelAttributes = function (e) {
 var formLabelsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('span'), function (item) {
     item.contentEditable = true;
     item.oninput = updateLabelAttributes;
@@ -75,26 +76,17 @@ var formLabelsInit = function (form) {
 var formInputsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('input'), function (item) {
     item.onchange = updateDefaults;
   });
 };
 
-var addElementControls = function (controls, item) {
+// Remove the class from all instances.
+var removeClass = function (items, className) {
   'use strict';
 
-  controls.forEach(function (name) {
-    var x = document.createElement('a');
-    [name, 'editor-control', 'small-control'].forEach(function (y) {
-      x.classList.add(y);
-    });
-    x.title = name;
-    x.text = name;
-    x.dataset.target = item.id;
-    x.href = '#';
-    item.appendChild(x);
+  forEach.call(items, function (item) {
+    item.classList.remove(className);
   });
 };
 
@@ -102,21 +94,18 @@ var addElementControls = function (controls, item) {
 var formElementsInit = function (form) {
   'use strict';
 
-  var forEach = Array.prototype.forEach;
-
   forEach.call(form.getElementsByTagName('li'), function (item) {
-    var controls = ['up', 'down', 'delete'];
-    forEach.call(item.children, function (z) {
+    forEach.call(item.children, function (child) {
       // Keep track of last element with focus.
-      z.onblur = function (e) {
-        var oldLast = document.getElementsByClassName('last-touched');
-        forEach.call(oldLast, function (ol) {
-          ol.classList.remove('last-touched');
-        });
-        e.target.classList.add('last-touched');
+      child.onfocus = function (e) {
+        var oldMark = document.getElementsByClassName('marked');
+        var oldLine = document.getElementsByClassName('marked-line');
+        removeClass(oldMark, 'marked');
+        removeClass(oldLine, 'marked-line');
+        item.classList.add('marked-line');
+        e.target.classList.add('marked');
       };
     });
-    addElementControls(controls, item);
   });
 };
 
@@ -156,16 +145,16 @@ var fillForm = function (json, options) {
 var findTarget = function () {
   'use strict';
 
-  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var marked = document.getElementsByClassName('marked')[0];
+  var markedLine = document.getElementsByClassName('marked-line')[0];
   var retval;
 
-  if (lastTouched && lastTouched.parentNode.matches('#edit-form li')) {
-    var parent = lastTouched.parentNode;
+  if (markedLine) {
     retval = function (elem) {
-      if (parent.nextSibling) {
-        parent.parentNode.insertBefore(elem, parent.nextSibling);
+      if (markedLine.nextSibling) {
+        markedLine.parentNode.insertBefore(elem, parent.nextSibling);
       } else {
-        parent.parentNode.appendChild(elem);
+        markedLine.parentNode.appendChild(elem);
       }
     };
   } else {
@@ -182,7 +171,7 @@ var findTarget = function () {
 var addElement = function (json) {
   'use strict';
 
-  var lastTouched = document.getElementsByClassName('last-touched')[0];
+  var markedLine = document.getElementsByClassName('marked-line')[0];
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, {
     spanLabel: true
@@ -195,7 +184,8 @@ var addElement = function (json) {
 
   newElem = tmp.getElementsByTagName('li')[0];
 
-  if (lastTouched && lastTouched.parentNode.matches('#edit-form ol > li')) {
+  // Array elements don't have labels.
+  if (markedLine && markedLine.matches('#edit-form ol > li')) {
     newElem.removeChild(newElem.getElementsByTagName('span')[0]);
     newElem.firstChild.removeAttribute('name');
     newElem.firstChild.removeAttribute('title');
@@ -292,10 +282,10 @@ var restore = function (args) {
 };
 
 // Move and element up in the tree.
-var elementUp = function (identifier) {
+var elementUp = function () {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
   var prev = targ.previousSibling;
 
   if (prev) {
@@ -306,10 +296,10 @@ var elementUp = function (identifier) {
 };
 
 // Move and element down in the tree.
-var elementDown = function (identifier) {
+var elementDown = function () {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
   var next = targ.nextSibling;
 
   if (next) {
@@ -325,7 +315,7 @@ var elementDown = function (identifier) {
 var elementDelete = function (identifier) {
   'use strict';
 
-  var targ = document.getElementById(identifier);
+  var targ = document.getElementsByClassName('marked-line')[0];
 
   targ.parentElement.removeChild(targ);
 
