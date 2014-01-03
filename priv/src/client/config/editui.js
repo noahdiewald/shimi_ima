@@ -245,6 +245,8 @@ var update = function (args) {
   var revision = obj._rev;
   var url = 'config/' + category + 's/' + identifier + '?rev=' + revision;
   var complete = function () {
+    get('doctypes/' + obj._id);
+
     S.sender('config-' + category + '-updated');
   };
 
