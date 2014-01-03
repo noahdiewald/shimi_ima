@@ -110,6 +110,9 @@ var sender = function (message, arg) {
   case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
+  case 'config-clear-form':
+    retval = ceditui.init();
+    break;
   }
 
   return retval;

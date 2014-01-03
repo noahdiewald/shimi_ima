@@ -11785,6 +11785,9 @@ var clickDispatch = function (e) {
     '#config-add-text-button': function (t) {
       return defaultAction(t);
     },
+    '#config-clear-form-button': function (t) {
+      return defaultAction(t);
+    },
 
     // ### Documents
 
@@ -12168,7 +12171,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":42,"../store.js":98,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
+},{"../ajax.js":42,"../store.js":97,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12610,7 +12613,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":91,"../store.js":98,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
+},{"../path.js":91,"../store.js":97,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -13953,7 +13956,7 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.init = init;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":97,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14301,7 +14304,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":98,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71}],67:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":97,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71}],67:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14719,7 +14722,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":98,"../utils.js":99,"./editui.js":66}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":99,"./editui.js":66}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15341,7 +15344,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15745,7 +15748,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16127,7 +16130,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":42,"../flash.js":74,"../store.js":98,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../store.js":97,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -19295,7 +19298,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":42,"./store.js":98}],92:[function(require,module,exports){
+},{"./ajax.js":42,"./store.js":97}],92:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19547,6 +19550,9 @@ var sender = function (message, arg) {
   case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
+  case 'config-clear-form':
+    retval = ceditui.init();
+    break;
   }
 
   return retval;
@@ -19593,9 +19599,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19689,7 +19693,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19822,7 +19826,9 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":99}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20058,5 +20064,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,46,48,49,50,47,44,51,45,53,52,55,54,56,57,59,60,58,63,64,65,66,67,68,70,69,71,61,72,74,75,62,76,73,77,79,78,80,81,82,83,84,85,86,87,88,89,91,90,92,93,94,95,97,98,99])
+},{"hogan.js":18}]},{},[42,43,45,46,44,47,49,51,50,52,53,54,55,56,48,57,58,59,61,60,62,63,64,65,66,67,69,68,70,71,72,73,74,75,76,78,77,79,80,81,82,83,84,85,86,87,88,89,90,91,92,95,94,96,93,97,99])
 ;

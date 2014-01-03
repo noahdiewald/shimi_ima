@@ -92,6 +92,9 @@ var clickDispatch = function (e) {
     '#config-add-text-button': function (t) {
       return defaultAction(t);
     },
+    '#config-clear-form-button': function (t) {
+      return defaultAction(t);
+    },
 
     // ### Documents
 
