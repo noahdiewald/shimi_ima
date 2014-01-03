@@ -2486,6 +2486,8 @@ function hash(alg, key) {
   if(!fn) error('algorithm:', alg, 'is not yet supported')
   return {
     update: function (data) {
+      if(!Buffer.isBuffer(data)) data = new Buffer(data)
+        
       bufs.push(data)
       length += data.length
       return this
@@ -2727,14 +2729,9 @@ module.exports = function md5(buf) {
   }
 
   if (_global.crypto && crypto.getRandomValues) {
-    var _rnds = new Uint32Array(4);
     whatwgRNG = function(size) {
-      var bytes = new Array(size);
-      crypto.getRandomValues(_rnds);
-
-      for (var c = 0 ; c < size; c++) {
-        bytes[c] = _rnds[c >> 2] >>> ((c & 0x03) * 8) & 0xff;
-      }
+      var bytes = new Uint8Array(size);
+      crypto.getRandomValues(bytes);
       return bytes;
     }
   }
@@ -2754,14 +2751,6 @@ module.exports = function md5(buf) {
  */
 
 var helpers = require('./helpers');
-
-/*
- * Perform a simple self-test to see if the VM is working
- */
-function sha1_vm_test()
-{
-  return hex_sha1("abc") == "a9993e364706816aba3e25717850c26c9cd0d89d";
-}
 
 /*
  * Calculate the SHA-1 of an array of big-endian words, and a bit length
@@ -6816,7 +6805,8 @@ process.nextTick = (function () {
     if (canPost) {
         var queue = [];
         window.addEventListener('message', function (ev) {
-            if (ev.source === window && ev.data === 'process-tick') {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
                 ev.stopPropagation();
                 if (queue.length > 0) {
                     var fn = queue.shift();
@@ -20007,6 +19997,8 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -20064,7 +20056,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}]},{},[42,44,45,46,47,43,48,50,51,49,52,53,54,57,55,58,59,60,56,61,62,64,66,65,67,68,69,63,70,71,73,72,74,75,76,77,79,78,80,81,82,84,83,85,86,87,88,90,89,91,92,93,94,95,96,98,97])
+},{"hogan.js":18}]},{},[42,43,44,46,48,47,50,45,51,49,52,54,55,56,57,58,59,61,62,63,64,65,53,60,66,69,68,70,71,72,67,74,73,75,77,76,78,80,79,82,81,83,84,86,85,87,90,88,89,91,93,92,94,95,96,97,98])
 ;

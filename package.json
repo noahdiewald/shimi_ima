@@ -27,11 +27,9 @@
   "scripts": {
     "blanket": {
       "pattern": [
-        "src/server/shimi_ima/"
+        "src/server/shimi_ima/",
+        "src/client/"
       ]
     }
-  },
-  "dependencies": {
-    "swig": "~1.2.2"
   }
 }
