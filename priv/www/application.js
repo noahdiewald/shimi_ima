@@ -13545,6 +13545,7 @@ exports.dispatcher = dispatcher;
 // Variable Definitions
 
 var pager = require('../pager.js').pager;
+var documents = require('./documents.js');
 
 // Exported Functions
 
@@ -13575,11 +13576,22 @@ var get = function () {
     return resp;
   };
 
+  var filterMod = function (filterVal) {
+    var retval = documents.doctypeId() + '-';
+
+    if (filterVal && filterVal !== '') {
+      retval = retval + filterVal.replace(/\D/, '');
+    }
+
+    return retval;
+  };
+
   pager({
     prefix: prefix(),
     url: url,
     format: format,
-    target: target
+    target: target,
+    filterMod: filterMod
   }).get();
 
   return true;
@@ -13588,7 +13600,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":89}],64:[function(require,module,exports){
+},{"../pager.js":89,"./documents.js":65}],64:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -13832,16 +13844,6 @@ var isLabelsStored = function () {
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
-// Reset the doctype version
-var setVersion = function () {
-  'use strict';
-
-  sessionStorage.setItem(versionKey(), getCurrentVersion());
-  S.sender('version-set');
-
-  return true;
-};
-
 // Check the session state to ensure it is up to date and fully
 // loaded.
 var checkState = function () {
@@ -13858,13 +13860,6 @@ var checkState = function () {
   return retval;
 };
 
-// Get the doctype name
-var dname = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('doctype');
-};
-
 // Get the project id
 var project = function () {
   'use strict';
@@ -13874,6 +13869,16 @@ var project = function () {
 };
 
 // ## Exported functions
+
+// Reset the doctype version
+var setVersion = function () {
+  'use strict';
+
+  sessionStorage.setItem(versionKey(), getCurrentVersion());
+  S.sender('version-set');
+
+  return true;
+};
 
 // Clear the session storage
 var clearSession = function () {
@@ -13885,11 +13890,18 @@ var clearSession = function () {
   return true;
 };
 
+// Get the doctype name
+var doctypeId = function () {
+  'use strict';
+
+  return store(allDocContainer()).d('doctype');
+};
+
 // Identifier is a combination of the project and doctype name.
 identifier = function () {
   'use strict';
 
-  return project() + '_' + dname();
+  return project() + '_' + doctypeId();
 };
 
 // Get information about doctype.
@@ -13950,6 +13962,7 @@ var init = function () {
 
 exports.setVersion = setVersion;
 exports.clearSession = clearSession;
+exports.doctypeId = doctypeId;
 exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;
@@ -18961,6 +18974,11 @@ var pager = function (args) {
     };
 
     if (!state.pks) {
+
+      if (args.filterMod) {
+        filterVal = args.filterMod(filterVal);
+      }
+
       state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];
@@ -20064,5 +20082,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,45,43,44,47,48,49,50,51,53,54,46,56,55,52,57,61,59,58,63,62,64,66,65,67,69,60,70,68,71,72,75,74,73,77,76,78,79,80,81,83,82,84,85,86,87,88,89,91,90,92,93,94,95,96,97,99])
+},{"hogan.js":18}]},{},[42,44,45,46,43,48,47,49,50,51,52,54,53,55,56,57,58,59,60,61,62,63,64,65,67,68,66,69,70,71,73,74,72,78,75,79,80,76,77,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,99])
 ;

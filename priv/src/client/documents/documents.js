@@ -117,16 +117,6 @@ var isLabelsStored = function () {
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
-// Reset the doctype version
-var setVersion = function () {
-  'use strict';
-
-  sessionStorage.setItem(versionKey(), getCurrentVersion());
-  S.sender('version-set');
-
-  return true;
-};
-
 // Check the session state to ensure it is up to date and fully
 // loaded.
 var checkState = function () {
@@ -143,13 +133,6 @@ var checkState = function () {
   return retval;
 };
 
-// Get the doctype name
-var dname = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('doctype');
-};
-
 // Get the project id
 var project = function () {
   'use strict';
@@ -159,6 +142,16 @@ var project = function () {
 };
 
 // ## Exported functions
+
+// Reset the doctype version
+var setVersion = function () {
+  'use strict';
+
+  sessionStorage.setItem(versionKey(), getCurrentVersion());
+  S.sender('version-set');
+
+  return true;
+};
 
 // Clear the session storage
 var clearSession = function () {
@@ -170,11 +163,18 @@ var clearSession = function () {
   return true;
 };
 
+// Get the doctype name
+var doctypeId = function () {
+  'use strict';
+
+  return store(allDocContainer()).d('doctype');
+};
+
 // Identifier is a combination of the project and doctype name.
 identifier = function () {
   'use strict';
 
-  return project() + '_' + dname();
+  return project() + '_' + doctypeId();
 };
 
 // Get information about doctype.
@@ -235,6 +235,7 @@ var init = function () {
 
 exports.setVersion = setVersion;
 exports.clearSession = clearSession;
+exports.doctypeId = doctypeId;
 exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;

@@ -71,6 +71,11 @@ var pager = function (args) {
     };
 
     if (!state.pks) {
+
+      if (args.filterMod) {
+        filterVal = args.filterMod(filterVal);
+      }
+
       state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];

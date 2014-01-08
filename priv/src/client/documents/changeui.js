@@ -7,6 +7,7 @@
 // Variable Definitions
 
 var pager = require('../pager.js').pager;
+var documents = require('./documents.js');
 
 // Exported Functions
 
@@ -37,11 +38,22 @@ var get = function () {
     return resp;
   };
 
+  var filterMod = function (filterVal) {
+    var retval = documents.doctypeId() + '-';
+
+    if (filterVal && filterVal !== '') {
+      retval = retval + filterVal.replace(/\D/, '');
+    }
+
+    return retval;
+  };
+
   pager({
     prefix: prefix(),
     url: url,
     format: format,
-    target: target
+    target: target,
+    filterMod: filterMod
   }).get();
 
   return true;

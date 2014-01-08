@@ -71,20 +71,9 @@ to_json(R, S) ->
 
 get_qs_vals(R, S) ->
     Doctype = list_to_binary(proplists:get_value(doctype, S)),
-    DSize = byte_size(Doctype),
-    Default = <<"\"", Doctype:DSize/binary, "-\"" >>,
     {QsVals, R1} = cowboy_req:qs_vals(R),
-    StartKey = case proplists:get_value(<<"startkey">>, QsVals) of
-                   undefined -> Default;
-                   <<>> -> Default;
-                   <<"\"\"">> -> Default;
-                   <<"\"", Doctype:DSize/binary, KeyRest:48/binary, "\"">> ->
-                       << Doctype/binary, KeyRest:48/binary >>;
-                   Key when is_binary(Key) ->
-                       DatePart = re:replace(Key, <<"[^0-9]">>, <<>>, [global,unicode,{return, binary}]),
-                       << Doctype/binary, "-", DatePart/binary >>
-               end,
-    {[{<<"include_docs">>, true}, {<<"endkey">>, <<"\"", Doctype/binary, "-a\"">>}|jsn:set_value(<<"startkey">>, StartKey, QsVals)], R1}.
+    EndKey = <<"\"", Doctype/binary, "-a\"">>,
+    {[{<<"include_docs">>, <<"true">>}, {<<"endkey">>, EndKey}|QsVals], R1}.
     
 json_index(R, S) ->
     {Project, R1} = h:project(R),
