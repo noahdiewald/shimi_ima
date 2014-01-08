@@ -82,6 +82,7 @@ json_index(R, S) ->
     i:view_ret(changelog, Ret, R2, S).
 
 json_change(R, S) ->
+    % TODO: still unimplemented.
     {<<>>, R, S}.
     
 validate_authentication(Props, R, S) ->
