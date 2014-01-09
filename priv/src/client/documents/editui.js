@@ -6,6 +6,7 @@
 
 // Variable Definitions
 
+var templates = require('templates.js');
 var store = require('../store.js').store;
 var form = require('../form.js');
 var flash = require('../flash.js');
@@ -13,6 +14,7 @@ var ajax = require('../ajax.js');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
+var documents = require('./documents.js');
 var afterRefresh;
 
 // Internal functions
@@ -96,18 +98,21 @@ var instances = function (addInstances) {
 // Exported functions
 
 // Initialize the editing pane.
+// TODO: refactor taking advantage of documents.info(). Old code used
+// ajax calls and server rendered HTML.
 var init = function () {
   'use strict';
 
-  var url = 'documents/edit';
+  var fs = {};
+  var editArea = document.getElementById('document-edit');
+  var info = documents.info();
 
-  ajax.legacyHTMLGet(url, function (req) {
-    var documentEditHtml = req.response;
-
-    $('#document-edit').html(documentEditHtml);
-    $('#edit-tabs').tabs();
-    fieldsets.initFieldsets();
-  });
+  fs.fieldsets = info.fieldsets;
+  fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
+  fs.title = (info.name ? info.name : info._id) + ' Edit';
+  editArea.innerHTML = templates['document-edit'](fs);
+  $('#edit-tabs').tabs();
+  fieldsets.initFieldsets();
 
   return true;
 };

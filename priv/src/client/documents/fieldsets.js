@@ -10,6 +10,7 @@ var path = require('../path.js').path;
 var store = require('../store.js').store;
 var utils = require('../utils.js');
 var editui = require('./editui.js');
+var documents = require('./documents.js');
 var ajax = require('../ajax.js');
 var dateOrNumber;
 var getEncoded;
@@ -38,19 +39,30 @@ var dpath = function (source, category) {
 
 // If the item referred to by `key` is in session storage perform the
 // `success` action with the stored items as the argument, otherwise,
-// get the item from the server and perform the `otherwise` action with
-// the retrieved item as an argument.
+// get the item from the document info and render it.
+// WARNING: This exists as part of a minimal change to support a very
+// different way of managing this information. It will be rewritten
+// soon.
 var ifStoredElse = function (key, success, otherwise) {
   'use strict';
 
   var item = null;
+  var id = key.replace(/^fieldsets\/([^/]*)(\/fields)*$/, '\1');
+  var info;
 
   item = sessionStorage.getItem(key);
 
   if (item) {
     success(item);
   } else {
-    ajax.legacyHTMLGet(key, otherwise);
+    info = documents.info();
+
+    if (key.matches(/\/fields$/)) {
+      document.console.log('fixme');
+    } else {
+      document.console.log('fixme');
+    }
+    //ajax.legacyHTMLGet(key, otherwise);
   }
 };
 
