@@ -12,6 +12,7 @@ var utils = require('../utils.js');
 var editui = require('./editui.js');
 var documents = require('./documents.js');
 var ajax = require('../ajax.js');
+var templates = require('templates.js');
 var dateOrNumber;
 var getEncoded;
 var getFieldValue;
@@ -46,8 +47,9 @@ var dpath = function (source, category) {
 var ifStoredElse = function (key, success, otherwise) {
   'use strict';
 
-  var item = null;
-  var id = key.replace(/^fieldsets\/([^/]*)(\/fields)*$/, '\1');
+  var item;
+  var id = key.replace(/^fieldsets\/([^/]*)(\/fields)*$/, '$1');
+  var fieldset;
   var info;
 
   item = sessionStorage.getItem(key);
@@ -56,14 +58,102 @@ var ifStoredElse = function (key, success, otherwise) {
     success(item);
   } else {
     info = documents.info();
+    fieldset = info.fieldsets.filter(function (x) {
+      return x._id === id;
+    })[0];
 
-    if (key.matches(/\/fields$/)) {
-      document.console.log('fixme');
-    } else {
-      document.console.log('fixme');
-    }
-    //ajax.legacyHTMLGet(key, otherwise);
+    otherwise(fieldset);
   }
+};
+
+// Get the allowed file values from the server.
+var getFileAllowed = function (field, callback) {
+  'use strict';
+
+  // This is unimplemented.
+  return function () {
+    callback();
+  };
+};
+
+// Get the allowed doc values from the server.
+var getAllowed = function (field, callback) {
+  'use strict';
+
+  var url = '/projects/' + documents.project() + '/doctypes/' + field.source + '/documents/index';
+
+  return function () {
+    ajax.get(url, function (req) {
+      var json = JSON.parse(req.response);
+      var rows = json.rows;
+
+      field.allowed = rows.length > 0 ? rows.map(function (x) {
+        var value = x.key.map(function (y) {
+          return y[1];
+        }).join(', ');
+
+        return {
+          value: value,
+          is_default: value === field['default']
+        };
+      }) : null;
+    });
+
+    callback();
+  };
+};
+
+// Process the listing of allowed values.
+var processAllowed = function (field, callback) {
+  'use strict';
+
+  if (!field.allowed || field.allowed.length === 0) {
+    field.allowed = null;
+  } else {
+    field.allowed = field.allowed.map(function (x) {
+      return {
+        value: x,
+        is_default: x === field['default']
+      };
+    });
+  }
+
+  return function () {
+    callback();
+  };
+};
+
+// Process the fields before applying the template.
+var processFields = function (fieldset, callback) {
+  'use strict';
+
+  var fields = fieldset.fields;
+  var combined;
+
+  combined = fields.reduce(function (acc, field) {
+    var retval = acc;
+
+    field.default_exists = field['default'] === '' ? false : field['default'];
+    field.is_null = field['default'] === null;
+    field.is_false = field['default'] === false;
+    field[field.subcategory] = field.subcategory === field.subcategory;
+
+    if (field.docselect || field.docmultiselect) {
+      retval = getAllowed(field, acc);
+    } else if (field.file) {
+      retval = getFileAllowed(field, acc);
+    } else if (field.allowed) {
+      retval = processAllowed(field, acc);
+    }
+
+    return retval;
+  }, function () {
+    return callback(fieldset);
+  });
+
+  combined();
+
+  return fieldset;
 };
 
 // Convert field values to an object that can be converted to JSON
@@ -222,11 +312,13 @@ var initFields = function (container, callback, addInstances) {
     editui.afterFreshRefresh(addInstances);
   };
 
-  var storeIt = function (req) {
-    var data = req.response;
-
-    sessionStorage.setItem(url, data);
-    prependIt(data);
+  // This is an ugly bit of callback stuff. This is intended to be
+  // rewritten soon.
+  var storeIt = function (data) {
+    processFields(data, function (processed) {
+      sessionStorage.setItem(url, templates['fields'](processed));
+      prependIt(processed);
+    });
   };
 
   ifStoredElse(url.toString(), prependIt, storeIt);
@@ -325,14 +417,12 @@ initFieldset = function (fieldset, callback, addInstances) {
     container.append(data);
     initFields(container, callback, addInstances);
   };
-  var storeIt = function (req) {
-    var data = req.response;
-
-    sessionStorage.setItem(url, data);
+  var storeIt = function (data) {
+    sessionStorage.setItem(url, templates['fieldset'](data));
     appendIt(data);
   };
 
-  ifStoredElse(url.toString(), appendIt, storeIt);
+  ifStoredElse(url, appendIt, storeIt);
 
   return false;
 };

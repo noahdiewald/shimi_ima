@@ -133,6 +133,8 @@ var checkState = function () {
   return retval;
 };
 
+// ## Exported functions
+
 // Get the project id
 var project = function () {
   'use strict';
@@ -140,8 +142,6 @@ var project = function () {
   var container = document.getElementById('container');
   return store(container).get('project-id');
 };
-
-// ## Exported functions
 
 // Reset the doctype version
 var setVersion = function () {
@@ -240,4 +240,5 @@ exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
+exports.project = project;
 exports.init = init;
