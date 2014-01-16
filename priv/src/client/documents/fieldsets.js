@@ -80,12 +80,11 @@ var getFileAllowed = function (field, callback) {
 var getAllowed = function (field, callback) {
   'use strict';
 
-  var url = '/projects/' + documents.project() + '/doctypes/' + field.source + '/documents/index';
+  var url = '/projects/project-' + documents.project() + '/doctypes/' + field.source + '/documents/index';
 
   return function () {
     ajax.get(url, function (req) {
-      var json = JSON.parse(req.response);
-      var rows = json.rows;
+      var rows = req.response.rows;
 
       field.allowed = rows.length > 0 ? rows.map(function (x) {
         var value = x.key.map(function (y) {
@@ -97,9 +96,9 @@ var getAllowed = function (field, callback) {
           is_default: value === field['default']
         };
       }) : null;
-    });
 
-    callback();
+      return callback();
+    });
   };
 };
 
@@ -315,11 +314,7 @@ var initFields = function (container, callback, addInstances) {
   // This is an ugly bit of callback stuff. This is intended to be
   // rewritten soon.
   var storeIt = function (data) {
-    window.console.log('in fields storeIt callback');
-
     processFields(data, function (processed) {
-      window.console.log('in procesFields callback');
-      window.console.log(processed);
       var html = templates['fields'](processed);
       sessionStorage.setItem(url, html);
       prependIt(html);
@@ -423,7 +418,6 @@ initFieldset = function (fieldset, callback, addInstances) {
     initFields(container, callback, addInstances);
   };
   var storeIt = function (data) {
-    window.console.log('in fieldset storeIt callback');
     var html = templates['fieldset'](data);
     sessionStorage.setItem(url, html);
     appendIt(html);

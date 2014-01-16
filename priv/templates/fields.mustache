@@ -12,108 +12,108 @@
       <input 
       class="field text ui-widget ui-corner-all" 
       type="text"
-      {{#default}}
+      {{#default_exists}}
       value="{{ default }}"
       data-field-default="{{ default }}"
-      {{/default}}
-      {{^default}}
+      {{/default_exists}}
+      {{^default_exists}}
       value=""
-      {{/default}}
+      {{/default_exists}}
     {{/text}}
     {{#integer}}
       <input 
       class="field number ui-widget ui-corner-all" 
       type="text"
-      {{#default}}
+      {{#default_exists}}
       value="{{ default }}"
       data-field-default="{{ default }}"
-      {{/default}}
-      {{^default}}
+      {{/default_exists}}
+      {{^default_exists}}
       value=""
-      {{/default}}
+      {{/default_exists}}
     {{/integer}}
     {{#rational}}
       <input 
       class="field number ui-widget ui-corner-all" 
       type="text"
-      {{#default}}
+      {{#default_exists}}
       value="{{ default }}"
       data-field-default="{{ default }}"
-      {{/default}}
-      {{^default}}
+      {{/default_exists}}
+      {{^default_exists}}
       value=""
-      {{/default}}
+      {{/default_exists}}
     {{/rational}}
     {{#date}}
       <input 
       class="field date field-text ui-widget ui-corner-all" 
       type="text"
-      {{#default}}
+      {{#default_exists}}
       value="{{ default }}"
       data-field-default="{{ default }}"
-      {{/default}}
-      {{^default}}
+      {{/default_exists}}
+      {{^default_exists}}
       value=""
-      {{/default}}
+      {{/default_exists}}
     {{/date}}
     {{#boolean}}
       <input
       class="boolean field ui-widget ui-corner-all"
       type="checkbox"
-      {{#default}}
+      {{#default_exists}}
         checked
-      {{/default}}
+      {{/default_exists}}
     {{/boolean}}
     {{#openboolean}}
       <select 
         class="field open-boolean ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/openboolean}}
     {{#select}}
       <select 
         class="field select ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/select}}
     {{#docselect}}
       <select 
         class="field select ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/docselect}}
     {{#file}}
       <select 
         class="field file ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/file}}
     {{#multiselect}}
       <select 
         multiple=true
         class="field multiselect ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/multiselect}}
     {{#docmultiselect}}
       <select 
         multiple=true
         class="field multiselect ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/docmultiselect}}
     {{#textarea}}
       <textarea 
         class="field textarea ui-widget ui-corner-all"
-        {{#default}}
+        {{#default_exists}}
           data-field-default="{{ default }}"
-        {{/default}}
+        {{/default_exists}}
     {{/textarea}}
     name="{{ name }}" 
     data-field-subcategory="{{ subcategory }}"
