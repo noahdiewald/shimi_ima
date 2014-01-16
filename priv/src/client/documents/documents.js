@@ -223,6 +223,12 @@ var init = function () {
     return false;
   });
   checkState();
+};
+
+// Initialization dependent on init.
+var init2 = function () {
+  'use strict';
+
   setsui.updateSelection();
   indexui.iOpts();
   indexui.get();
@@ -242,3 +248,4 @@ exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
 exports.project = project;
 exports.init = init;
+exports.init2 = init2;

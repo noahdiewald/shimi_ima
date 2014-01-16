@@ -37,6 +37,7 @@ var sender = function (message, arg) {
     retval = documents.makeLabels();
     break;
   case 'labels-ready':
+    documents.init2();
     retval = searchui.loadSearchVals();
     worksheetui.buildTemplate();
     break;
