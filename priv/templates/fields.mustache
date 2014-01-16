@@ -20,7 +20,7 @@
       value=""
       {{/default}}
     {{/text}}
-    {{#number}}
+    {{#integer}}
       <input 
       class="field number ui-widget ui-corner-all" 
       type="text"
@@ -31,7 +31,19 @@
       {{^default}}
       value=""
       {{/default}}
-    {{/number}}
+    {{/integer}}
+    {{#rational}}
+      <input 
+      class="field number ui-widget ui-corner-all" 
+      type="text"
+      {{#default}}
+      value="{{ default }}"
+      data-field-default="{{ default }}"
+      {{/default}}
+      {{^default}}
+      value=""
+      {{/default}}
+    {{/rational}}
     {{#date}}
       <input 
       class="field date field-text ui-widget ui-corner-all" 
@@ -119,13 +131,15 @@
     data-field-instance="{{ instance_id }}"
     data-group-id="{{ _id }}-{{ instance_id }}"
     id="{{ _id }}-{{ instance_id }}"
-  </div>
   {{#text}}
     />
   {{/text}}
-  {{#number}}
+  {{#integer}}
     />
-  {{/number}}
+  {{/integer}}
+  {{#rational}}
+    />
+  {{/rational}}
   {{#date}}
     />
   {{/date}}
@@ -187,4 +201,5 @@
     >{{#default}}{{ default }}{{/default}}</textarea>
     <span title="Expand/Shrink Text Box" class="expander" data-group-id="{{ _id }}-{{ instance_id }}"></span>
   {{/textarea}}    
+  </div>
 {{/fields}}
