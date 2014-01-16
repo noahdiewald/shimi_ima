@@ -14648,9 +14648,14 @@ var initFields = function (container, callback, addInstances) {
   // This is an ugly bit of callback stuff. This is intended to be
   // rewritten soon.
   var storeIt = function (data) {
+    window.console.log('in fields storeIt callback');
+
     processFields(data, function (processed) {
-      sessionStorage.setItem(url, templates['fields'](processed));
-      prependIt(processed);
+      window.console.log('in procesFields callback');
+      window.console.log(processed);
+      var html = templates['fields'](processed);
+      sessionStorage.setItem(url, html);
+      prependIt(html);
     });
   };
 
@@ -14751,8 +14756,10 @@ initFieldset = function (fieldset, callback, addInstances) {
     initFields(container, callback, addInstances);
   };
   var storeIt = function (data) {
-    sessionStorage.setItem(url, templates['fieldset'](data));
-    appendIt(data);
+    window.console.log('in fieldset storeIt callback');
+    var html = templates['fieldset'](data);
+    sessionStorage.setItem(url, html);
+    appendIt(html);
   };
 
   ifStoredElse(url, appendIt, storeIt);
@@ -18398,7 +18405,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19694,9 +19701,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19735,6 +19740,8 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],97:[function(require,module,exports){
 // # Set operations
 //
@@ -20204,5 +20211,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,46,45,44,47,43,48,50,49,51,52,54,53,55,56,57,59,58,60,61,62,63,65,64,67,66,68,69,70,71,72,73,74,75,76,78,77,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,96,97,98,99])
+},{"hogan.js":18}]},{},[42,44,43,45,46,47,49,48,50,51,52,53,54,55,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,71,72,74,75,73,76,77,78,79,80,81,82,83,84,86,85,87,88,89,90,91,92,93,94,95,97,98,99])
 ;

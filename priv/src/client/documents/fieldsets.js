@@ -315,9 +315,14 @@ var initFields = function (container, callback, addInstances) {
   // This is an ugly bit of callback stuff. This is intended to be
   // rewritten soon.
   var storeIt = function (data) {
+    window.console.log('in fields storeIt callback');
+
     processFields(data, function (processed) {
-      sessionStorage.setItem(url, templates['fields'](processed));
-      prependIt(processed);
+      window.console.log('in procesFields callback');
+      window.console.log(processed);
+      var html = templates['fields'](processed);
+      sessionStorage.setItem(url, html);
+      prependIt(html);
     });
   };
 
@@ -418,8 +423,10 @@ initFieldset = function (fieldset, callback, addInstances) {
     initFields(container, callback, addInstances);
   };
   var storeIt = function (data) {
-    sessionStorage.setItem(url, templates['fieldset'](data));
-    appendIt(data);
+    window.console.log('in fieldset storeIt callback');
+    var html = templates['fieldset'](data);
+    sessionStorage.setItem(url, html);
+    appendIt(html);
   };
 
   ifStoredElse(url, appendIt, storeIt);
