@@ -291,7 +291,7 @@ takedrop([H|Rest], Acc, N) ->
     takedrop(Rest, [H|Acc], N - 1).
 
 delete_all_design_docs(DB) ->
-    Url = adb() ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{<<"startkey">>, <<"_design/">>},{<<"endkey">>, <<"_design0">>}])),
+    Url = adb() ++ DB ++ "/_all_docs?" ++ view:to_string(view:from_list([{<<"startkey">>, <<"\"_design/\"">>},{<<"endkey">>, <<"\"_design0\"">>}])),
     {ok, "200", _, Json} = ibrowse:send_req(Url, [], get),
     Designs = proplists:get_value(<<"rows">>, jsn:decode(Json)),
     F = fun(X) ->
