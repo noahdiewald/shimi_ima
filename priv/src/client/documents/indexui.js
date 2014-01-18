@@ -39,7 +39,7 @@ var get = function () {
       });
 
       if (indexId && item.value.length > 0) {
-        item.value = item.value.split(', ');
+        item.value = item.value[1].split(', ');
       }
 
       return item;

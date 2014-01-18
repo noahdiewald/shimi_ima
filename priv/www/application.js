@@ -11955,7 +11955,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":95}],46:[function(require,module,exports){
+},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":94}],46:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12682,7 +12682,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":89,"../sender.js":95,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
+},{"../pager.js":89,"../sender.js":94,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13064,7 +13064,7 @@ exports.addObjectElement = addObjectElement;
 exports.addArrayElement = addArrayElement;
 exports.addTextElement = addTextElement;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":95}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13724,7 +13724,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":95,"./editui.js":66}],65:[function(require,module,exports){
+},{"../sender.js":94,"./editui.js":66}],65:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -13977,7 +13977,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":95,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14880,7 +14880,7 @@ var get = function () {
       });
 
       if (indexId && item.value.length > 0) {
-        item.value = item.value.split(', ');
+        item.value = item.value[1].split(', ');
       }
 
       return item;
@@ -15864,7 +15864,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":95,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17545,7 +17545,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":94,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
+},{"./recurse.js":93,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -19003,7 +19003,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":95}],89:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":94}],89:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19516,9 +19516,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],94:[function(require,module,exports){
+},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],93:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -19560,7 +19558,7 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}],95:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19684,7 +19682,9 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19950,7 +19950,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":94,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20192,5 +20192,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,46,44,45,48,47,49,50,51,53,52,54,55,56,57,61,60,62,63,59,64,65,58,66,67,68,69,70,71,72,73,75,74,76,77,79,78,80,81,83,82,85,84,87,86,88,89,90,91,92,95,94,96,97,98,99])
+},{"hogan.js":18}]},{},[42,44,45,46,47,43,48,49,50,51,53,54,55,56,52,57,59,58,60,61,63,62,64,65,66,68,67,69,71,72,73,70,75,74,76,77,78,79,80,81,82,83,84,85,86,87,89,88,90,91,92,93,94,96,97,98,99])
 ;
