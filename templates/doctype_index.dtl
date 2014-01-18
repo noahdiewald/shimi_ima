@@ -20,7 +20,7 @@
       {% for doctype in doctypes %}
       <tr>
         <th>
-          <a href="./doctypes/{{ doctype.id }}/documents">
+          <a href="{{ doctype.id }}/documents">
             {{ doctype.key }}
           </a>
         </th>
