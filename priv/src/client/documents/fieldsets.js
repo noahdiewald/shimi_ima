@@ -372,9 +372,6 @@ fillFields = function (container, context) {
       context = $('body');
     }
 
-    // TODO: There is still a mismatch in template systems and
-    // conventions that means that I cannot simply set the values
-    // directly. There are different rules for escaping, etc.
     setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
   });
 };
@@ -387,16 +384,6 @@ setFieldValue = function (field, value, instance) {
     field.prop('checked', value);
   } else if (value && field.is('select.open-boolean')) {
     field.val(value.toString());
-  } else if (value && field.is('select.multiselect')) {
-    value = value.map(function (x) {
-      return encodeURIComponent(x).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
-    });
-    field.val(value);
-  } else if (value && field.is('select.select')) {
-    value = encodeURIComponent(value).replace(/[!'()]/g, window.escape).replace(/\*/g, '%2A');
-    field.val(value);
-  } else if (value && (field.is('input.text') || field.is('select.file'))) {
-    field.val(decodeURIComponent(value.replace(/\+/g, ' ')));
   } else {
     field.val(value);
   }
