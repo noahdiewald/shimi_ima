@@ -297,6 +297,9 @@ describe('Testing through inversion of toForm', function () {
   });
   describe('when it is a single key with a string value', function () {
     invertTo('{"test":"ok"}');
+    describe('and the string has a newline', function () {
+      invertTo('{"test":"o\\nk"}');
+    });
   });
   describe('when it is a single key with a text value', function () {
     invertTo('{"test":"ok00000000000000000000000000000000000000000000000"}');

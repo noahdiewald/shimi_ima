@@ -69,7 +69,7 @@ var openForm = function (state) {
 var addTextValue = function (state, text) {
   'use strict';
 
-  state.acc = state.acc + '"' + text + '"';
+  state.acc = state.acc + '"' + text.replace(/\n/g, '\\n') + '"';
 
   return state;
 };
