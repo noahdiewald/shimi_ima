@@ -55,6 +55,9 @@
         <a href="#" id="config-add-object-button" class="small-control">Add Object</a>
         <a href="#" id="config-add-array-button" class="small-control">Add Array</a>
         <a href="#" id="config-add-text-button" class="small-control">Add Text</a>
+        <a href="#" id="config-add-child-object-button" class="small-control">Add Child Object</a>
+        <a href="#" id="config-add-child-array-button" class="small-control">Add Child Array</a>
+        <a href="#" id="config-add-child-text-button" class="small-control">Add Child Text</a>
         <a href="#" id="config-remove-element-button" class="small-control">Remove Element</a>
         <a href="#" id="config-move-up-button" class="small-control">Move Up</a>
         <a href="#" id="config-move-down-button" class="small-control">Move Down</a>

@@ -11785,6 +11785,15 @@ var clickDispatch = function (e) {
     '#config-add-text-button': function (t) {
       return defaultAction(t);
     },
+    '#config-add-child-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-array-button': function (t) {
+      return defaultAction(t);
+    },
     '#config-clear-form-button': function (t) {
       return defaultAction(t);
     },
@@ -12825,25 +12834,76 @@ var fillForm = function (json, options) {
   return 'form-filled';
 };
 
-// Find the target placement for a new element and return a function
-// that will place it there.
-var findTarget = function () {
+// Is the element an unordered list element?
+var isHTMLUList = function (elem) {
   'use strict';
 
-  var marked = document.getElementsByClassName('marked')[0];
+  return elem instanceof HTMLUListElement;
+};
+
+// Is the element an ordered list element?
+var isHTMLOList = function (elem) {
+  'use strict';
+
+  return elem instanceof HTMLOListElement;
+};
+
+// Is the element a list element?
+var isHTMLList = function (elem) {
+  'use strict';
+
+  return isHTMLOList(elem) || isHTMLUList(elem);
+};
+
+// Array elements don't have labels.
+var maybeRemoveLabel = function (elem, targ) {
+  'use strict';
+
+  if (targ && isHTMLOList(targ)) {
+    elem.removeChild(elem.getElementsByTagName('span')[0]);
+    elem.firstChild.removeAttribute('name');
+    elem.firstChild.removeAttribute('title');
+  }
+
+  return elem;
+};
+
+// Find the target placement for a new element and return a function
+// that will place it there.
+var findTarget = function (asChild) {
+  'use strict';
+
   var markedLine = document.getElementsByClassName('marked-line')[0];
+  var targ = markedLine.parentNode;
   var retval;
 
   if (markedLine) {
-    retval = function (elem) {
-      if (markedLine.nextSibling) {
-        markedLine.parentNode.insertBefore(elem, parent.nextSibling);
+    // When the item should be added as a child to another item.
+    if (asChild) {
+      var lastChild = Array.prototype.slice.call(markedLine.children, -1)[0];
+
+      if (isHTMLList(lastChild)) {
+        targ = lastChild;
       } else {
-        markedLine.parentNode.appendChild(elem);
+        // This is the wrong type of target element for adding a child
+        // to.
+        asChild = false;
+      }
+    }
+
+    retval = function (elem) {
+      elem = maybeRemoveLabel(elem, targ);
+
+      if (markedLine.nextSibling && !asChild) {
+        targ.insertBefore(elem, markedLine.nextSibling);
+      } else {
+        targ.appendChild(elem);
       }
     };
   } else {
     retval = function (elem) {
+      elem = maybeRemoveLabel(elem, targ);
+
       var firstObj = editForm().getElementsByTagName('ul')[0];
       firstObj.appendChild(elem);
     };
@@ -12853,7 +12913,7 @@ var findTarget = function () {
 };
 
 // Add an element given JSON.
-var addElement = function (json) {
+var addElement = function (json, asChild) {
   'use strict';
 
   var markedLine = document.getElementsByClassName('marked-line')[0];
@@ -12861,21 +12921,12 @@ var addElement = function (json) {
   var tmpForm = formalize.toForm(json, {
     spanLabel: true
   });
-  var targ = findTarget();
+  var targ = findTarget(asChild);
   var newElem;
 
   tmp.innerHTML = tmpForm;
   formInit(tmp);
-
   newElem = tmp.getElementsByTagName('li')[0];
-
-  // Array elements don't have labels.
-  if (markedLine && markedLine.matches('#edit-form ol > li')) {
-    newElem.removeChild(newElem.getElementsByTagName('span')[0]);
-    newElem.firstChild.removeAttribute('name');
-    newElem.firstChild.removeAttribute('title');
-  }
-
   targ(newElem);
 };
 
@@ -13010,30 +13061,57 @@ var elementDelete = function (identifier) {
 };
 
 // Add an object element to the form.
-var addObjectElement = function () {
+var addObjectElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":{"_first_":""}}');
+  addElement('{"_blank_":{"_first_":""}}', asChild);
 
-  return 'text-element-added';
+  return 'object-element-added';
 };
 
 // Add an array element to the form.
-var addArrayElement = function () {
+var addArrayElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":[""]}');
+  addElement('{"_blank_":[""]}', asChild);
+
+  return 'array-element-added';
+};
+
+// Add a text element to the form.
+var addTextElement = function (asChild) {
+  'use strict';
+
+  addElement('{"_blank_":""}', asChild);
 
   return 'text-element-added';
 };
 
-// Add a text element to the form.
-var addTextElement = function () {
+// Add an object element to the form.
+var addChildObjectElement = function () {
   'use strict';
 
-  addElement('{"_blank_":""}');
+  addObjectElement(true);
 
-  return 'text-element-added';
+  return 'child-object-element-added';
+};
+
+// Add a child array element to an object or array.
+var addChildArrayElement = function () {
+  'use strict';
+
+  addArrayElement(true);
+
+  return 'child-array-element-added';
+};
+
+// Add a child text element to an object or array.
+var addChildTextElement = function () {
+  'use strict';
+
+  addTextElement(true);
+
+  return 'child-text-element-added';
 };
 
 // Initialize the editor, loading a fresh object.
@@ -13063,6 +13141,9 @@ exports.elementDelete = elementDelete;
 exports.addObjectElement = addObjectElement;
 exports.addArrayElement = addArrayElement;
 exports.addTextElement = addTextElement;
+exports.addChildObjectElement = addChildObjectElement;
+exports.addChildArrayElement = addChildArrayElement;
+exports.addChildTextElement = addChildTextElement;
 
 },{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
 // # Field manipulation dialog
@@ -19672,6 +19753,15 @@ var sender = function (message, arg) {
   case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
+  case 'config-add-child-text':
+    retval = ceditui.addChildTextElement();
+    break;
+  case 'config-add-child-array':
+    retval = ceditui.addChildArrayElement();
+    break;
+  case 'config-add-child-object':
+    retval = ceditui.addChildObjectElement();
+    break;
   case 'config-clear-form':
     retval = ceditui.init();
     break;
@@ -20192,5 +20282,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,44,45,46,47,43,48,49,50,51,53,54,55,56,52,57,59,58,60,61,63,62,64,65,66,68,67,69,71,72,73,70,75,74,76,77,78,79,80,81,82,83,84,85,86,87,89,88,90,91,92,93,94,96,97,98,99])
+},{"hogan.js":18}]},{},[42,45,43,46,47,44,49,48,50,51,52,53,54,55,56,57,58,60,59,62,61,63,64,66,65,67,68,69,70,71,72,73,75,74,76,77,78,79,80,81,82,83,85,84,86,87,88,89,90,91,92,93,96,94,97,98,99])
 ;

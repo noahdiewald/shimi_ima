@@ -92,6 +92,15 @@ var clickDispatch = function (e) {
     '#config-add-text-button': function (t) {
       return defaultAction(t);
     },
+    '#config-add-child-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-array-button': function (t) {
+      return defaultAction(t);
+    },
     '#config-clear-form-button': function (t) {
       return defaultAction(t);
     },

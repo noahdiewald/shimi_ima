@@ -111,6 +111,15 @@ var sender = function (message, arg) {
   case 'config-add-object':
     retval = ceditui.addObjectElement();
     break;
+  case 'config-add-child-text':
+    retval = ceditui.addChildTextElement();
+    break;
+  case 'config-add-child-array':
+    retval = ceditui.addChildArrayElement();
+    break;
+  case 'config-add-child-object':
+    retval = ceditui.addChildObjectElement();
+    break;
   case 'config-clear-form':
     retval = ceditui.init();
     break;
