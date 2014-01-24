@@ -177,6 +177,15 @@ describe('Converting JSON to an HTML form', function () {
       });
     });
   });
+  describe('when provided the parameter', function () {
+    describe('noForm', function () {
+      it('should return a string without the form tag', function () {
+        formalize.toForm('{"test":null,"sevent":"ij"}', {
+          noForm: true
+        }).should.match(/^<ul>.*<\/ul>$/);
+      });
+    });
+  });
 });
 describe('Converting HTML form to JSON', function () {
   'use strict';

@@ -11964,7 +11964,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":94}],46:[function(require,module,exports){
+},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":95}],46:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12691,7 +12691,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":89,"../sender.js":94,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
+},{"../pager.js":89,"../sender.js":95,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13145,7 +13145,7 @@ exports.addChildObjectElement = addChildObjectElement;
 exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":95}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13805,7 +13805,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":94,"./editui.js":66}],65:[function(require,module,exports){
+},{"../sender.js":95,"./editui.js":66}],65:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -14058,7 +14058,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":95,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15945,7 +15945,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":95,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17626,7 +17626,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":93,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
+},{"./recurse.js":94,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -19084,7 +19084,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":94}],89:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":95}],89:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19597,7 +19597,9 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],93:[function(require,module,exports){
+},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],94:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -19639,7 +19641,7 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19772,9 +19774,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20040,7 +20040,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":94,"./utils.js":99}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20282,5 +20282,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,45,43,46,47,44,49,48,50,51,52,53,54,55,56,57,58,60,59,62,61,63,64,66,65,67,68,69,70,71,72,73,75,74,76,77,78,79,80,81,82,83,85,84,86,87,88,89,90,91,92,93,96,94,97,98,99])
+},{"hogan.js":18}]},{},[43,45,46,48,49,51,52,47,53,55,50,57,58,59,56,54,60,61,63,62,64,67,65,68,66,69,71,70,72,73,75,76,74,77,79,78,81,42,82,83,84,86,85,87,80,88,91,89,92,94,95,96,97,90,98,99,44])
 ;
