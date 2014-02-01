@@ -178,6 +178,18 @@ describe('Converting JSON to an HTML form', function () {
     });
   });
   describe('when provided the parameter', function () {
+    describe('noObjectIds equal to true', function () {
+      it('should return no HTML identifiers for objects', function () {
+        formalize.toForm('{"test":{}}', {
+          noObjectIds: true
+        }).should.match(/<ul title="test">/);
+      });
+      it('should return no HTML identifiers for arrays', function () {
+        formalize.toForm('{"test":[]}', {
+          noObjectIds: true
+        }).should.match(/<ol title="test">/);
+      });
+    });
     describe('noForm equal to true', function () {
       it('should return a string without the form tag', function () {
         formalize.toForm('{"test":null,"sevent":"ij"}', {
