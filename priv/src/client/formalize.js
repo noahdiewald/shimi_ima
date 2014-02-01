@@ -587,7 +587,7 @@ var accInsert = function (accstack, acc) {
   return acc2;
 };
 
-// The descriptive object created by the transform function is
+// The descriptive object created by the `transform` function is
 // converted to HTML.
 var descriptToHtml = function (obj, options) {
   'use strict';
@@ -629,26 +629,26 @@ var descriptToHtml = function (obj, options) {
     }
     // If there is more on the stack, process it. We'll want to ignore
     // objects so that they can be handled in the 'else' clause. We'll
-    // also want to continue if fs is undefined, which will indicate
-    // that we've hit the end of object or array values.
+    // also want to continue if `head` is undefined, which will
+    // indicate that we've hit the end of object or array values.
     else if (!depleted && done && (isNotObject || !head)) {
-      // Pop the next group of stored fs's off the stack where they
-      // were previously stored by the 'else' clause below.
+      // Pop the next group of stored field information off the stack
+      // where it was previously stored by the 'else' clause below.
       next = stack.pop();
 
-      // This will change the acc depending on fs information.
+      // This will change the acc depending on `head` information.
       processDescriptField(head, acc, options);
 
       // This will nest the current acc string values inside the
       // parent.
       acc2 = accInsert(accstack, acc);
 
-      // Use next instead of fs and fsrest, fsrest was already
+      // Use next instead of `head` and `rest`, `rest` was already
       // depleted in this step.
       return _descriptToHtml.r(next[0], next.slice(1), acc2, stack, accstack, id);
     }
-    // Unless it is a complex value, process the value and move on to
-    // the next field.
+    // Unless it is a complex value (such as array or object), process
+    // the value and move on to the next field.
     else if (isNotObject) {
       processDescriptField(head, acc, options);
 
@@ -671,7 +671,7 @@ var descriptToHtml = function (obj, options) {
 
       processDescriptField(head, acc2, options);
 
-      // Now use the values to specify fs and fsrest.
+      // Now use the values to specify `head` and `rest`.
       return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
     }
   };
@@ -689,7 +689,7 @@ var descriptToHtml = function (obj, options) {
   return acc.left + acc.right;
 };
 
-// This is essentially the default simple form building function.
+// Build an HTML form from JSON.
 var simpleToForm = function (obj, options) {
   'use strict';
 
@@ -705,8 +705,8 @@ var simpleToForm = function (obj, options) {
 var toForm = function (jsn, options) {
   'use strict';
 
-  var obj = tryParseJSON(jsn, options);
   options = options ? options : {};
+  var obj = tryParseJSON(jsn, options);
 
   validateToArg(obj, options);
 
