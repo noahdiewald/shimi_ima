@@ -12761,8 +12761,10 @@ var formLabelsInit = function (form) {
   'use strict';
 
   forEach.call(form.getElementsByTagName('span'), function (item) {
-    item.contentEditable = true;
-    item.oninput = updateLabelAttributes;
+    if (!item.classList.contains('array-element-handle')) {
+      item.contentEditable = true;
+      item.oninput = updateLabelAttributes;
+    }
   });
 };
 
@@ -12784,21 +12786,31 @@ var removeClass = function (items, className) {
   });
 };
 
+// Keep track of last element with focus.
+var markIt = function (item) {
+  'use strict';
+
+  return function (e) {
+    var oldMark = document.getElementsByClassName('marked');
+    var oldLine = document.getElementsByClassName('marked-line');
+    removeClass(oldMark, 'marked');
+    removeClass(oldLine, 'marked-line');
+    item.classList.add('marked-line');
+    e.target.classList.add('marked');
+  };
+};
+
 // Initialize form elements.
 var formElementsInit = function (form) {
   'use strict';
 
   forEach.call(form.getElementsByTagName('li'), function (item) {
     forEach.call(item.children, function (child) {
-      // Keep track of last element with focus.
-      child.onfocus = function (e) {
-        var oldMark = document.getElementsByClassName('marked');
-        var oldLine = document.getElementsByClassName('marked-line');
-        removeClass(oldMark, 'marked');
-        removeClass(oldLine, 'marked-line');
-        item.classList.add('marked-line');
-        e.target.classList.add('marked');
-      };
+      if (child.classList.contains('array-element-handle')) {
+        child.onclick = markIt(item);
+      } else {
+        child.onfocus = markIt(item);
+      }
     });
   });
 };
@@ -12812,19 +12824,22 @@ var formInit = function (form) {
   formLabelsInit(form);
 };
 
+// Set the default options.
+var setDefaultOptions = function (options) {
+  'use strict';
+  options = options ? options : {};
+  options.spanLabel = true;
+  options.arrayElementHandles = '◉';
+
+  return options;
+};
+
 // Given some json, create a form, perform initialization and display
 // it in the editor area.
 var fillForm = function (json, options) {
   'use strict';
 
-  if (!options) {
-    options = {
-      spanLabel: true
-    };
-  } else {
-    options.spanLabel = true;
-  }
-
+  options = setDefaultOptions(options);
   var formHTML = formalize.toForm(json, options);
   var form = editForm();
 
@@ -12918,9 +12933,7 @@ var addElement = function (json, asChild) {
 
   var markedLine = document.getElementsByClassName('marked-line')[0];
   var tmp = document.createElement('div');
-  var tmpForm = formalize.toForm(json, {
-    spanLabel: true
-  });
+  var tmpForm = formalize.toForm(json, setDefaultOptions());
   var targ = findTarget(asChild);
   var newElem;
 
@@ -20290,5 +20303,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,44,45,46,47,48,49,50,51,52,54,53,55,56,57,58,59,60,61,62,65,66,64,67,63,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,98,99])
+},{"hogan.js":18}]},{},[42,43,44,45,46,47,49,48,50,51,52,54,53,55,56,57,58,59,60,61,62,63,64,65,67,68,69,66,70,74,73,71,75,72,76,77,79,78,82,81,80,83,84,85,88,87,86,89,91,90,93,94,92,98,99,96,95])
 ;

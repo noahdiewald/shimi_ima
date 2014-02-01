@@ -67,8 +67,10 @@ var formLabelsInit = function (form) {
   'use strict';
 
   forEach.call(form.getElementsByTagName('span'), function (item) {
-    item.contentEditable = true;
-    item.oninput = updateLabelAttributes;
+    if (!item.classList.contains('array-element-handle')) {
+      item.contentEditable = true;
+      item.oninput = updateLabelAttributes;
+    }
   });
 };
 
@@ -90,21 +92,31 @@ var removeClass = function (items, className) {
   });
 };
 
+// Keep track of last element with focus.
+var markIt = function (item) {
+  'use strict';
+
+  return function (e) {
+    var oldMark = document.getElementsByClassName('marked');
+    var oldLine = document.getElementsByClassName('marked-line');
+    removeClass(oldMark, 'marked');
+    removeClass(oldLine, 'marked-line');
+    item.classList.add('marked-line');
+    e.target.classList.add('marked');
+  };
+};
+
 // Initialize form elements.
 var formElementsInit = function (form) {
   'use strict';
 
   forEach.call(form.getElementsByTagName('li'), function (item) {
     forEach.call(item.children, function (child) {
-      // Keep track of last element with focus.
-      child.onfocus = function (e) {
-        var oldMark = document.getElementsByClassName('marked');
-        var oldLine = document.getElementsByClassName('marked-line');
-        removeClass(oldMark, 'marked');
-        removeClass(oldLine, 'marked-line');
-        item.classList.add('marked-line');
-        e.target.classList.add('marked');
-      };
+      if (child.classList.contains('array-element-handle')) {
+        child.onclick = markIt(item);
+      } else {
+        child.onfocus = markIt(item);
+      }
     });
   });
 };
@@ -118,19 +130,22 @@ var formInit = function (form) {
   formLabelsInit(form);
 };
 
+// Set the default options.
+var setDefaultOptions = function (options) {
+  'use strict';
+  options = options ? options : {};
+  options.spanLabel = true;
+  options.arrayElementHandles = '◉';
+
+  return options;
+};
+
 // Given some json, create a form, perform initialization and display
 // it in the editor area.
 var fillForm = function (json, options) {
   'use strict';
 
-  if (!options) {
-    options = {
-      spanLabel: true
-    };
-  } else {
-    options.spanLabel = true;
-  }
-
+  options = setDefaultOptions(options);
   var formHTML = formalize.toForm(json, options);
   var form = editForm();
 
@@ -224,9 +239,7 @@ var addElement = function (json, asChild) {
 
   var markedLine = document.getElementsByClassName('marked-line')[0];
   var tmp = document.createElement('div');
-  var tmpForm = formalize.toForm(json, {
-    spanLabel: true
-  });
+  var tmpForm = formalize.toForm(json, setDefaultOptions());
   var targ = findTarget(asChild);
   var newElem;
 
