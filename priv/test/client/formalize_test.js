@@ -178,7 +178,7 @@ describe('Converting JSON to an HTML form', function () {
     });
   });
   describe('when provided the parameter', function () {
-    describe('noForm', function () {
+    describe('noForm equal to true', function () {
       it('should return a string without the form tag', function () {
         formalize.toForm('{"test":null,"sevent":"ij"}', {
           noForm: true
