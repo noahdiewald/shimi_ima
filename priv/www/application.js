@@ -12180,7 +12180,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":42,"../store.js":97,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
+},{"../ajax.js":42,"../store.js":98,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12622,7 +12622,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":91,"../store.js":97,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
+},{"../path.js":91,"../store.js":98,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -13363,7 +13363,7 @@ var fieldElems = (function () {
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":75,"../utils.js":98}],58:[function(require,module,exports){
+},{"../form.js":75,"../utils.js":99}],58:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14058,7 +14058,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":97,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14411,7 +14411,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":97,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":98,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14919,7 +14919,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":98,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":98,"../utils.js":99,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15541,7 +15541,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":96,"../utils.js":98,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15945,7 +15945,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":98,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16327,7 +16327,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":42,"../flash.js":74,"../store.js":97,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../store.js":98,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -16915,6 +16915,7 @@ var uuid = require('node-uuid');
 
 // ## Internal Functions
 
+// Reject non-strings or strings of length zero.
 var validateFromArg = function (html) {
   'use strict';
 
@@ -17452,7 +17453,7 @@ var inputarea = function (key, value, type, acc, options) {
   return insert('<input' + id + ' type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
-// Process the field.
+// Process a field.
 var processDescriptField = function (fs, acc, options) {
   'use strict';
 
@@ -17488,7 +17489,7 @@ var accInsert = function (accstack, acc) {
   return acc2;
 };
 
-// The descriptive object created by the transform function is
+// The descriptive object created by the `transform` function is
 // converted to HTML.
 var descriptToHtml = function (obj, options) {
   'use strict';
@@ -17530,26 +17531,26 @@ var descriptToHtml = function (obj, options) {
     }
     // If there is more on the stack, process it. We'll want to ignore
     // objects so that they can be handled in the 'else' clause. We'll
-    // also want to continue if fs is undefined, which will indicate
-    // that we've hit the end of object or array values.
+    // also want to continue if `head` is undefined, which will
+    // indicate that we've hit the end of object or array values.
     else if (!depleted && done && (isNotObject || !head)) {
-      // Pop the next group of stored fs's off the stack where they
-      // were previously stored by the 'else' clause below.
+      // Pop the next group of stored field information off the stack
+      // where it was previously stored by the 'else' clause below.
       next = stack.pop();
 
-      // This will change the acc depending on fs information.
+      // This will change the acc depending on `head` information.
       processDescriptField(head, acc, options);
 
       // This will nest the current acc string values inside the
       // parent.
       acc2 = accInsert(accstack, acc);
 
-      // Use next instead of fs and fsrest, fsrest was already
+      // Use next instead of `head` and `rest`, `rest` was already
       // depleted in this step.
       return _descriptToHtml.r(next[0], next.slice(1), acc2, stack, accstack, id);
     }
-    // Unless it is a complex value, process the value and move on to
-    // the next field.
+    // Unless it is a complex value (such as array or object), process
+    // the value and move on to the next field.
     else if (isNotObject) {
       processDescriptField(head, acc, options);
 
@@ -17572,7 +17573,7 @@ var descriptToHtml = function (obj, options) {
 
       processDescriptField(head, acc2, options);
 
-      // Now use the values to specify fs and fsrest.
+      // Now use the values to specify `head` and `rest`.
       return _descriptToHtml.r(head.value[0], head.value.slice(1), acc2, stack, accstack, id);
     }
   };
@@ -17590,7 +17591,7 @@ var descriptToHtml = function (obj, options) {
   return acc.left + acc.right;
 };
 
-// This is essentially the default simple form building function.
+// Build an HTML form from JSON.
 var simpleToForm = function (obj, options) {
   'use strict';
 
@@ -17606,8 +17607,8 @@ var simpleToForm = function (obj, options) {
 var toForm = function (jsn, options) {
   'use strict';
 
-  var obj = tryParseJSON(jsn, options);
   options = options ? options : {};
+  var obj = tryParseJSON(jsn, options);
 
   validateToArg(obj, options);
 
@@ -19502,7 +19503,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":42,"./store.js":97}],92:[function(require,module,exports){
+},{"./ajax.js":42,"./store.js":98}],92:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19813,7 +19814,9 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],96:[function(require,module,exports){
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],97:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19907,7 +19910,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -20040,7 +20043,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":98}],98:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20219,8 +20222,6 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -20284,5 +20285,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,44,45,46,48,49,50,51,52,53,54,55,56,57,58,59,61,60,62,63,64,65,67,66,68,70,69,71,72,73,75,74,76,77,78,80,79,81,82,83,84,85,86,87,88,89,91,90,92,93,95,94,96,98,97,47,43])
+},{"hogan.js":18}]},{},[42,47,43,46,44,45,49,48,50,51,52,54,55,58,56,53,59,61,60,63,64,65,57,66,62,67,68,69,70,71,73,74,72,75,76,77,78,79,80,82,83,81,84,86,85,87,88,89,91,93,92,94,90,95,97,98,99])
 ;

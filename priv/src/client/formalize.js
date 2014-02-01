@@ -551,7 +551,7 @@ var inputarea = function (key, value, type, acc, options) {
   return insert('<input' + id + ' type="' + (type === 'number' ? 'number' : 'text') + '" ' + (key ? 'name="' + key + '" ' : '') + 'value="' + value + '"/></li>', '', acc);
 };
 
-// Process the field.
+// Process a field.
 var processDescriptField = function (fs, acc, options) {
   'use strict';
 

@@ -185,6 +185,18 @@ describe('Converting JSON to an HTML form', function () {
         }).should.match(/^<ul>.*<\/ul>$/);
       });
     });
+    describe('spanLabel equal to true', function () {
+      it('should return a form without "label" elements', function () {
+        formalize.toForm('{"test":null,"sevent":"ij"}', {
+          spanLabel: true
+        }).should.not.match(/<label for/);
+      });
+      it('should return a form with "span" elements of class "span-label"', function () {
+        formalize.toForm('{"test":null,"sevent":"ij"}', {
+          spanLabel: true
+        }).should.match(/<span title="sevent" class="span-label">/);
+      });
+    });
   });
 });
 describe('Converting HTML form to JSON', function () {
