@@ -467,13 +467,15 @@ var label = function (key, acc, options) {
 };
 
 // Return a title for the key as a span element.
-var spanTitle = function (key) {
+var spanTitle = function (key, options) {
   'use strict';
 
   var retval = '';
 
   if (key) {
     retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
+  } else if (options.arrayElementHandles) {
+    retval = '<span class="array-element-handle">' + options.arrayElementHandles + '</span>';
   }
 
   return retval;
@@ -492,7 +494,7 @@ var newEither = function (type, key, acc, options) {
     id = ' id="' + uuid.v4() + '" ';
   }
 
-  return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+  return insert(spanTitle(key, options) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // Accumulate HTML strings for an object.

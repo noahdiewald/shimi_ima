@@ -15541,7 +15541,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15945,7 +15945,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17369,13 +17369,15 @@ var label = function (key, acc, options) {
 };
 
 // Return a title for the key as a span element.
-var spanTitle = function (key) {
+var spanTitle = function (key, options) {
   'use strict';
 
   var retval = '';
 
   if (key) {
     retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
+  } else if (options.arrayElementHandles) {
+    retval = '<span class="array-element-handle">' + options.arrayElementHandles + '</span>';
   }
 
   return retval;
@@ -17394,7 +17396,7 @@ var newEither = function (type, key, acc, options) {
     id = ' id="' + uuid.v4() + '" ';
   }
 
-  return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
+  return insert(spanTitle(key, options) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
 // Accumulate HTML strings for an object.
@@ -19817,9 +19819,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19913,6 +19913,8 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],98:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
@@ -20288,5 +20290,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,46,47,48,44,49,50,45,52,53,54,55,57,56,58,62,61,51,63,59,64,60,66,65,67,68,70,69,72,71,73,74,75,77,78,79,76,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,97,95,99,98])
+},{"hogan.js":18}]},{},[42,43,44,45,46,47,48,49,50,51,52,54,53,55,56,57,58,59,60,61,62,65,66,64,67,63,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,98,99])
 ;

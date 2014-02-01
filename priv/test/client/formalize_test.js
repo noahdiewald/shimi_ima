@@ -178,11 +178,35 @@ describe('Converting JSON to an HTML form', function () {
     });
   });
   describe('when provided the parameter', function () {
+    describe('arrayElementHandles equal to "X"', function () {
+      it('should return HTML with the handle', function () {
+        formalize.toForm('{"test":["ok",["nokay"]]}', {
+          arrayElementHandles: 'X'
+        }).should.match(/<li[^>]+><span class="array-element-handle">X<\/span><ol/);
+      });
+      it('should not disrupt the inverse', function () {
+        formalize.fromForm(formalize.toForm('{"test":["ok",["nokay"]]}', {
+          arrayElementHandles: 'X'
+        })).should.match(/^{"test":\["ok",\["nokay"\]\]}$/);
+      });
+    });
     describe('noElementIds equal to true', function () {
       it('should return no HTML identifiers for li elements', function () {
         formalize.toForm('{"test":"tok"}', {
           noElementIds: true
         }).should.not.match(/<li id=/);
+      });
+    });
+    describe('noInputIds equal to true', function () {
+      it('should return no HTML identifiers for input elements', function () {
+        formalize.toForm('{"test":"tok"}', {
+          noInputIds: true
+        }).should.not.match(/<input id=/);
+      });
+      it('should return no HTML identifiers for textarea elements', function () {
+        formalize.toForm('{"test":"tok000000000000000000000000000000000"}', {
+          noInputIds: true
+        }).should.not.match(/<textarea id=/);
       });
     });
     describe('noObjectIds equal to true', function () {
