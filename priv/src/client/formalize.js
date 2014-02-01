@@ -466,6 +466,7 @@ var label = function (key, acc, options) {
   return acc;
 };
 
+// Return a title for the key as a span element.
 var spanTitle = function (key) {
   'use strict';
 
@@ -478,6 +479,8 @@ var spanTitle = function (key) {
   return retval;
 };
 
+// Accumulate HTML strings for a complex type, such as an object or
+// array.
 var newEither = function (type, key, acc, options) {
   'use strict';
 
@@ -492,14 +495,14 @@ var newEither = function (type, key, acc, options) {
   return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
-// For an object.
+// Accumulate HTML strings for an object.
 var newObject = function (key, acc, options) {
   'use strict';
 
   return newEither('ul', key, acc, options);
 };
 
-// For an array.
+// Accumulate HTML string for an array.
 var newArray = function (key, acc, options) {
   'use strict';
 
