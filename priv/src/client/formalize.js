@@ -25,12 +25,14 @@ var validateFromArg = function (html) {
   return html;
 };
 
+// Some types of valid JSON are not suitable to use for building a
+// form. A non-array object is required.
 var validateToArg = function (obj) {
   'use strict';
 
   var msg = 'cannot build form from: ';
 
-  if (typeof obj === 'string' && obj !== null) {
+  if (typeof obj === 'string') {
     throw msg + 'string';
   } else if (typeof obj === 'number') {
     throw msg + 'number';
