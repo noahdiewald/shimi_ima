@@ -13,6 +13,7 @@ var uuid = require('node-uuid');
 
 // ## Internal Functions
 
+// Reject non-strings or strings of length zero.
 var validateFromArg = function (html) {
   'use strict';
 
