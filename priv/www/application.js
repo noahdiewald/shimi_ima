@@ -11964,7 +11964,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":95}],46:[function(require,module,exports){
+},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":94}],46:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12691,7 +12691,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":89,"../sender.js":95,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
+},{"../pager.js":89,"../sender.js":94,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13145,7 +13145,7 @@ exports.addChildObjectElement = addChildObjectElement;
 exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":95}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13805,7 +13805,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":95,"./editui.js":66}],65:[function(require,module,exports){
+},{"../sender.js":94,"./editui.js":66}],65:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -14058,7 +14058,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":95,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15945,7 +15945,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":95,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17368,6 +17368,7 @@ var label = function (key, acc, options) {
   return acc;
 };
 
+// Return a title for the key as a span element.
 var spanTitle = function (key) {
   'use strict';
 
@@ -17380,6 +17381,8 @@ var spanTitle = function (key) {
   return retval;
 };
 
+// Accumulate HTML strings for a complex type, such as an object or
+// array.
 var newEither = function (type, key, acc, options) {
   'use strict';
 
@@ -17394,14 +17397,14 @@ var newEither = function (type, key, acc, options) {
   return insert(spanTitle(key) + '<' + type + id + (key ? ' title="' + key + '"' : '') + '>', '</' + type + '></li>', acc);
 };
 
-// For an object.
+// Accumulate HTML strings for an object.
 var newObject = function (key, acc, options) {
   'use strict';
 
   return newEither('ul', key, acc, options);
 };
 
-// For an array.
+// Accumulate HTML string for an array.
 var newArray = function (key, acc, options) {
   'use strict';
 
@@ -18470,7 +18473,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19087,7 +19090,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":95}],89:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":94}],89:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19642,9 +19645,7 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],95:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19777,7 +19778,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19816,6 +19817,8 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],97:[function(require,module,exports){
 // # Set operations
 //
@@ -20285,5 +20288,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,45,48,46,47,43,50,49,44,51,52,53,55,54,56,57,60,61,62,63,58,64,59,66,65,67,68,69,72,70,71,73,74,75,76,77,79,80,81,82,78,84,85,83,86,88,87,89,90,91,92,93,96,95,97,98,99])
+},{"hogan.js":18}]},{},[42,43,46,47,48,44,49,50,45,52,53,54,55,57,56,58,62,61,51,63,59,64,60,66,65,67,68,70,69,72,71,73,74,75,77,78,79,76,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,97,95,99,98])
 ;
