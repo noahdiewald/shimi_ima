@@ -123,6 +123,9 @@ var sender = function (message, arg) {
   case 'config-clear-form':
     retval = ceditui.init();
     break;
+  case 'config-mark-line':
+    retval = ceditui.markLine(arg);
+    break;
   }
 
   return retval;

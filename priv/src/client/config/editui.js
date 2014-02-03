@@ -9,20 +9,16 @@
 var formalize = require('../formalize.js');
 var ajax = require('../ajax.js');
 var S = require('../sender.js');
+var toggle;
+var init;
 
 // ## Internal Functions
 
 // Providing a shorter name to call this function.
-var forEach = Array.prototype.forEach;
-
-// Toggle the visibility of a group.
-var toggle = function (node) {
+var forEach = function (list, fun) {
   'use strict';
 
-  node.classList.toggle('collapsed');
-  node.nextSibling.classList.toggle('hidden');
-
-  return 'toggled-subgroup';
+  Array.prototype.forEach.call(list, fun);
 };
 
 // Update the default attribute when the value property changes.
@@ -66,7 +62,7 @@ var updateLabelAttributes = function (e) {
 var formLabelsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('span'), function (item) {
+  forEach(form.getElementsByTagName('span'), function (item) {
     if (!item.classList.contains('array-element-handle')) {
       item.contentEditable = true;
       item.oninput = updateLabelAttributes;
@@ -78,7 +74,7 @@ var formLabelsInit = function (form) {
 var formInputsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('input'), function (item) {
+  forEach(form.getElementsByTagName('input'), function (item) {
     item.onchange = updateDefaults;
   });
 };
@@ -87,22 +83,34 @@ var formInputsInit = function (form) {
 var removeClass = function (items, className) {
   'use strict';
 
-  forEach.call(items, function (item) {
+  forEach(items, function (item) {
     item.classList.remove(className);
   });
 };
 
+var removeMark = function () {
+  'use strict';
+
+  var oldMark = document.getElementsByClassName('marked');
+  var oldLine = document.getElementsByClassName('marked-line');
+  removeClass(oldMark, 'marked');
+  removeClass(oldLine, 'marked-line');
+};
+
+var addMark = function (line, item) {
+  'use strict';
+
+  removeMark();
+  line.classList.add('marked-line');
+  item.classList.add('marked');
+};
+
 // Keep track of last element with focus.
-var markIt = function (item) {
+var markItem = function (item) {
   'use strict';
 
   return function (e) {
-    var oldMark = document.getElementsByClassName('marked');
-    var oldLine = document.getElementsByClassName('marked-line');
-    removeClass(oldMark, 'marked');
-    removeClass(oldLine, 'marked-line');
-    item.classList.add('marked-line');
-    e.target.classList.add('marked');
+    addMark(item, e.target);
   };
 };
 
@@ -110,13 +118,9 @@ var markIt = function (item) {
 var formElementsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('li'), function (item) {
-    forEach.call(item.children, function (child) {
-      if (child.classList.contains('array-element-handle')) {
-        child.onclick = markIt(item);
-      } else {
-        child.onfocus = markIt(item);
-      }
+  forEach(form.getElementsByTagName('li'), function (item) {
+    forEach(item.children, function (child) {
+      child.onfocus = markItem(item);
     });
   });
 };
@@ -135,7 +139,6 @@ var setDefaultOptions = function (options) {
   'use strict';
   options = options ? options : {};
   options.spanLabel = true;
-  options.arrayElementHandles = '◉';
 
   return options;
 };
@@ -249,6 +252,19 @@ var addElement = function (json, asChild) {
   targ(newElem);
 };
 
+var defaultToggle = function () {
+  'use strict';
+
+  forEach(document.querySelectorAll('#edit-form span.span-title'), function (x) {
+    toggle('title', x);
+  });
+  forEach(document.querySelectorAll('#edit-form ol > li'), function (x) {
+    toggle('array-elem', x);
+  });
+
+  return 'default-toggle-applied';
+};
+
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
@@ -256,7 +272,7 @@ var get = function (url) {
   'use strict';
 
   var complete = function (req) {
-    return fillForm(JSON.stringify(req.response));
+    return init(JSON.stringify(req.response));
   };
 
   ajax.get(url, complete);
@@ -433,12 +449,38 @@ var addChildTextElement = function () {
   return 'child-text-element-added';
 };
 
+// Mark a "line" aka an entire li. This is invoked when ol > li is
+// clicked.
+var markLine = function (line) {
+  'use strict';
+
+  addMark(line, line);
+
+  return 'line-marked';
+};
+
+// Toggle the visibility of a group.
+toggle = function (kind, node) {
+  'use strict';
+
+  if (kind === 'title') {
+    node.classList.toggle('collapsed');
+    node.nextSibling.classList.toggle('hidden');
+  } else if (isHTMLList(node.children[0])) {
+    node.classList.toggle('collapsed');
+    node.children[0].classList.toggle('hidden');
+  }
+
+  return 'toggled-subgroup';
+};
+
 // Initialize the editor, loading a fresh object.
-var init = function (json) {
+init = function (json) {
   'use strict';
 
   if (json) {
     fillForm(json);
+    defaultToggle();
   } else {
     fresh();
   }
@@ -463,3 +505,4 @@ exports.addTextElement = addTextElement;
 exports.addChildObjectElement = addChildObjectElement;
 exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
+exports.markLine = markLine;

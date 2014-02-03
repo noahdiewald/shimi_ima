@@ -24,7 +24,10 @@ var dblclickDispatch = function (e) {
 
   var action = dispatcher({
     '#edit-form span.span-title': function (t) {
-      ceditui.toggle(t);
+      ceditui.toggle('title', t);
+    },
+    '#edit-form ol > li': function (t) {
+      ceditui.toggle('array-elem', t);
     },
     '.search-result-field-id a': function (t) {
       searchui.addField($(t).parent('h5'));

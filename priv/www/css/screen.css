@@ -176,6 +176,9 @@ div#config-edit div#edit-form .marked {
 div#config-edit div#edit-form .lists {
   padding-left: 1em;
 }
+div#config-edit div#edit-form .collapsable.collapsed:after {
+  content: ' ... ';
+}
 div#config-edit div#edit-form .list-elems .labels {
   margin-right: 1em;
 }
@@ -212,11 +215,8 @@ div#config-edit div#edit-form .list-elems span.span-title:-moz-focusring {
   border: none;
   background-color: rgba(255, 255, 255, 0.5);
 }
-div#config-edit div#edit-form .list-elems span.span-title:before {
-  content: '▾ ';
-}
-div#config-edit div#edit-form .list-elems span.span-title.collapsed:before {
-  content: '▸ ';
+div#config-edit div#edit-form .list-elems span.span-title.collapsed:after {
+  content: ' ... ';
 }
 div#config-edit div#edit-form li .labels {
   margin-right: 1em;
@@ -254,23 +254,14 @@ div#config-edit div#edit-form li span.span-title:-moz-focusring {
   border: none;
   background-color: rgba(255, 255, 255, 0.5);
 }
-div#config-edit div#edit-form li span.span-title:before {
-  content: '▾ ';
-}
-div#config-edit div#edit-form li span.span-title.collapsed:before {
-  content: '▸ ';
+div#config-edit div#edit-form li span.span-title.collapsed:after {
+  content: ' ... ';
 }
 div#config-edit div#edit-form li.marked-line {
   background-color: #f0a265;
 }
 div#config-edit div#edit-form ul {
   padding-left: 1em;
-}
-div#config-edit div#edit-form ul:before {
-  content: "{";
-}
-div#config-edit div#edit-form ul:after {
-  content: "}";
 }
 div#config-edit div#edit-form ul > li {
   list-style-type: none;
@@ -279,11 +270,8 @@ div#config-edit div#edit-form ol {
   padding-left: 1em;
   list-style-position: inside;
 }
-div#config-edit div#edit-form ol:before {
-  content: "[";
-}
-div#config-edit div#edit-form ol:after {
-  content: "]";
+div#config-edit div#edit-form ol > li.collapsed:after {
+  content: ' ... ';
 }
 #notifications-main {
   top: 0;

@@ -184,6 +184,14 @@ div#config-edit div#edit-form
     .lists {
         padding-left: 1em;
     }
+    .collapsable
+    {
+        &.collapsed {
+            &:after {
+                content:' ... ';
+            }
+        }
+    }
     .list-elems {
         .labels {
             &:after {
@@ -199,14 +207,7 @@ div#config-edit div#edit-form
         }
         span.span-title {
             .labels;
-            &:before {
-                content:'▾ ';
-            }
-            &.collapsed {
-                &:before {
-                    content:'▸ ';
-                }
-            }
+            .collapsable;
         }
     }
     li {
@@ -217,25 +218,16 @@ div#config-edit div#edit-form
     }
     ul {
         .lists;
-        &:before {
-            content: "{";
-        }
-        &:after {
-            content: "}";
-        }
         >li {
             list-style-type:none;
         }
     }
     ol {
         .lists;
-        &:before {
-            content: "[";
-        }
-        &:after {
-            content: "]";
-        }
         list-style-position: inside;
+        >li {
+            .collapsable;
+        }
     }
 }
 #notifications-main {

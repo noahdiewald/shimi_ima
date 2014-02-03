@@ -178,6 +178,13 @@ describe('Converting JSON to an HTML form', function () {
     });
   });
   describe('when provided the parameter', function () {
+    describe('titleClass equal to "collapsed"', function () {
+      it('should return a span with the proper class', function () {
+        formalize.toForm('{"test":{"ok":["nokay"]}}', {
+          titleClass: 'bright'
+        }).should.match(/class="span-title bright/);
+      });
+    });
     describe('arrayElementHandles equal to "X"', function () {
       it('should return HTML with the handle', function () {
         formalize.toForm('{"test":["ok",["nokay"]]}', {

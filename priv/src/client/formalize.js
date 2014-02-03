@@ -471,9 +471,10 @@ var spanTitle = function (key, options) {
   'use strict';
 
   var retval = '';
+  var tc = options.titleClass ? ' ' + options.titleClass : '';
 
   if (key) {
-    retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
+    retval = '<span title="' + key + '" class="span-title' + tc + '">' + key + '</span>';
   } else if (options.arrayElementHandles) {
     retval = '<span class="array-element-handle">' + options.arrayElementHandles + '</span>';
   }

@@ -104,6 +104,9 @@ var clickDispatch = function (e) {
     '#config-clear-form-button': function (t) {
       return defaultAction(t);
     },
+    '#edit-form ol > li': function (t) {
+      return S.sender('config-mark-line', t);
+    },
 
     // ### Documents
 

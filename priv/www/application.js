@@ -11797,6 +11797,9 @@ var clickDispatch = function (e) {
     '#config-clear-form-button': function (t) {
       return defaultAction(t);
     },
+    '#edit-form ol > li': function (t) {
+      return S.sender('config-mark-line', t);
+    },
 
     // ### Documents
 
@@ -12703,20 +12706,16 @@ exports.addDoctype = addDoctype;
 var formalize = require('../formalize.js');
 var ajax = require('../ajax.js');
 var S = require('../sender.js');
+var toggle;
+var init;
 
 // ## Internal Functions
 
 // Providing a shorter name to call this function.
-var forEach = Array.prototype.forEach;
-
-// Toggle the visibility of a group.
-var toggle = function (node) {
+var forEach = function (list, fun) {
   'use strict';
 
-  node.classList.toggle('collapsed');
-  node.nextSibling.classList.toggle('hidden');
-
-  return 'toggled-subgroup';
+  Array.prototype.forEach.call(list, fun);
 };
 
 // Update the default attribute when the value property changes.
@@ -12760,7 +12759,7 @@ var updateLabelAttributes = function (e) {
 var formLabelsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('span'), function (item) {
+  forEach(form.getElementsByTagName('span'), function (item) {
     if (!item.classList.contains('array-element-handle')) {
       item.contentEditable = true;
       item.oninput = updateLabelAttributes;
@@ -12772,7 +12771,7 @@ var formLabelsInit = function (form) {
 var formInputsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('input'), function (item) {
+  forEach(form.getElementsByTagName('input'), function (item) {
     item.onchange = updateDefaults;
   });
 };
@@ -12781,22 +12780,34 @@ var formInputsInit = function (form) {
 var removeClass = function (items, className) {
   'use strict';
 
-  forEach.call(items, function (item) {
+  forEach(items, function (item) {
     item.classList.remove(className);
   });
 };
 
+var removeMark = function () {
+  'use strict';
+
+  var oldMark = document.getElementsByClassName('marked');
+  var oldLine = document.getElementsByClassName('marked-line');
+  removeClass(oldMark, 'marked');
+  removeClass(oldLine, 'marked-line');
+};
+
+var addMark = function (line, item) {
+  'use strict';
+
+  removeMark();
+  line.classList.add('marked-line');
+  item.classList.add('marked');
+};
+
 // Keep track of last element with focus.
-var markIt = function (item) {
+var markItem = function (item) {
   'use strict';
 
   return function (e) {
-    var oldMark = document.getElementsByClassName('marked');
-    var oldLine = document.getElementsByClassName('marked-line');
-    removeClass(oldMark, 'marked');
-    removeClass(oldLine, 'marked-line');
-    item.classList.add('marked-line');
-    e.target.classList.add('marked');
+    addMark(item, e.target);
   };
 };
 
@@ -12804,13 +12815,9 @@ var markIt = function (item) {
 var formElementsInit = function (form) {
   'use strict';
 
-  forEach.call(form.getElementsByTagName('li'), function (item) {
-    forEach.call(item.children, function (child) {
-      if (child.classList.contains('array-element-handle')) {
-        child.onclick = markIt(item);
-      } else {
-        child.onfocus = markIt(item);
-      }
+  forEach(form.getElementsByTagName('li'), function (item) {
+    forEach(item.children, function (child) {
+      child.onfocus = markItem(item);
     });
   });
 };
@@ -12829,7 +12836,6 @@ var setDefaultOptions = function (options) {
   'use strict';
   options = options ? options : {};
   options.spanLabel = true;
-  options.arrayElementHandles = '◉';
 
   return options;
 };
@@ -12943,6 +12949,19 @@ var addElement = function (json, asChild) {
   targ(newElem);
 };
 
+var defaultToggle = function () {
+  'use strict';
+
+  forEach(document.querySelectorAll('#edit-form span.span-title'), function (x) {
+    toggle('title', x);
+  });
+  forEach(document.querySelectorAll('#edit-form ol > li'), function (x) {
+    toggle('array-elem', x);
+  });
+
+  return 'default-toggle-applied';
+};
+
 // ## Exported Functions
 
 // Get the specified stored document and load it into the editor.
@@ -12950,7 +12969,7 @@ var get = function (url) {
   'use strict';
 
   var complete = function (req) {
-    return fillForm(JSON.stringify(req.response));
+    return init(JSON.stringify(req.response));
   };
 
   ajax.get(url, complete);
@@ -13127,12 +13146,39 @@ var addChildTextElement = function () {
   return 'child-text-element-added';
 };
 
+// Mark a "line" aka an entire li. This is invoked when ol > li is
+// clicked.
+var markLine = function (line) {
+  'use strict';
+
+  addMark(line, line);
+
+  return 'line-marked';
+};
+
+// Toggle the visibility of a group.
+toggle = function (kind, node) {
+  'use strict';
+
+  if (kind === 'title') {
+    node.classList.toggle('collapsed');
+    node.nextSibling.classList.toggle('hidden');
+  } else if (isHTMLList(node.children[0])) {
+    node.classList.toggle('collapsed');
+    node.children[0].classList.toggle('hidden');
+  }
+
+  return 'toggled-subgroup';
+};
+
 // Initialize the editor, loading a fresh object.
-var init = function (json) {
+init = function (json) {
   'use strict';
 
   if (json) {
     fillForm(json);
+    window.console.log('got');
+    defaultToggle();
   } else {
     fresh();
   }
@@ -13157,6 +13203,7 @@ exports.addTextElement = addTextElement;
 exports.addChildObjectElement = addChildObjectElement;
 exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
+exports.markLine = markLine;
 
 },{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
 // # Field manipulation dialog
@@ -13566,7 +13613,10 @@ var dblclickDispatch = function (e) {
 
   var action = dispatcher({
     '#edit-form span.span-title': function (t) {
-      ceditui.toggle(t);
+      ceditui.toggle('title', t);
+    },
+    '#edit-form ol > li': function (t) {
+      ceditui.toggle('array-elem', t);
     },
     '.search-result-field-id a': function (t) {
       searchui.addField($(t).parent('h5'));
@@ -15554,7 +15604,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15958,7 +16008,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17386,9 +17436,10 @@ var spanTitle = function (key, options) {
   'use strict';
 
   var retval = '';
+  var tc = options.titleClass ? ' ' + options.titleClass : '';
 
   if (key) {
-    retval = '<span title="' + key + '" class="span-title">' + key + '</span>';
+    retval = '<span title="' + key + '" class="span-title' + tc + '">' + key + '</span>';
   } else if (options.arrayElementHandles) {
     retval = '<span class="array-element-handle">' + options.arrayElementHandles + '</span>';
   }
@@ -18488,7 +18539,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19786,6 +19837,9 @@ var sender = function (message, arg) {
   case 'config-clear-form':
     retval = ceditui.init();
     break;
+  case 'config-mark-line':
+    retval = ceditui.markLine(arg);
+    break;
   }
 
   return retval;
@@ -19793,7 +19847,9 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19832,7 +19888,7 @@ var get = function (docId) {
 exports.put = put;
 exports.get = get;
 
-},{}],96:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19926,8 +19982,6 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],98:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
@@ -20303,5 +20357,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,44,45,46,47,49,48,50,51,52,54,53,55,56,57,58,59,60,61,62,63,64,65,67,68,69,66,70,74,73,71,75,72,76,77,79,78,82,81,80,83,84,85,88,87,86,89,91,90,93,94,92,98,99,96,95])
+},{"hogan.js":18}]},{},[42,43,47,45,48,50,49,44,46,51,52,53,54,55,56,57,60,61,59,58,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,83,82,84,85,86,87,89,88,90,91,92,93,94,96,97,98,99])
 ;
