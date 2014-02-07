@@ -8,11 +8,30 @@
 
 var formalize = require('../formalize.js');
 var ajax = require('../ajax.js');
+var sess = require('../sess.js');
 var S = require('../sender.js');
 var toggle;
 var init;
 
 // ## Internal Functions
+
+// Toggle collapsed class
+var toggleCollapseNode = function (node) {
+  'use strict';
+
+  node.classList.toggle('collapsed');
+
+  return node;
+};
+
+// Toggle hide class
+var toggleHideNode = function (node) {
+  'use strict';
+
+  node.classList.toggle('hidden');
+
+  return node;
+};
 
 // Providing a shorter name to call this function.
 var forEach = function (list, fun) {
@@ -80,21 +99,33 @@ var formInputsInit = function (form) {
 };
 
 // Remove the class from all instances.
-var removeClass = function (items, className) {
+var removeClass = function (item, className) {
   'use strict';
 
-  forEach(items, function (item) {
-    item.classList.remove(className);
-  });
+  item.classList.remove(className);
+
+  return item;
 };
 
+// Get previous mark.
+var getMark = function () {
+  'use strict';
+
+  return {
+    mark: document.getElementsByClassName('marked')[0],
+    line: document.getElementsByClassName('marked-line')[0]
+  };
+};
+
+// Remove previous mark.
 var removeMark = function () {
   'use strict';
 
-  var oldMark = document.getElementsByClassName('marked');
-  var oldLine = document.getElementsByClassName('marked-line');
-  removeClass(oldMark, 'marked');
-  removeClass(oldLine, 'marked-line');
+  var old = getMark();
+  removeClass(old.mark, 'marked');
+  removeClass(old.line, 'marked-line');
+
+  return old;
 };
 
 var addMark = function (line, item) {
@@ -103,6 +134,8 @@ var addMark = function (line, item) {
   removeMark();
   line.classList.add('marked-line');
   item.classList.add('marked');
+
+  return getMark();
 };
 
 // Keep track of last element with focus.
@@ -179,6 +212,13 @@ var isHTMLList = function (elem) {
   return isHTMLOList(elem) || isHTMLUList(elem);
 };
 
+// Is this the child of a `ul` list?
+var isChildOfHTMLULList = function (elem) {
+  'use strict';
+
+  return isHTMLUList(elem.parentElement);
+};
+
 // Array elements don't have labels.
 var maybeRemoveLabel = function (elem, targ) {
   'use strict';
@@ -192,22 +232,53 @@ var maybeRemoveLabel = function (elem, targ) {
   return elem;
 };
 
+var lastChild = function (node) {
+  'use strict';
+
+  return Array.prototype.slice.call(node.children, -1)[0];
+};
+
+var markedParentIsHTMLULList = function () {
+  'use strict';
+
+  var markedLine = getMark().line;
+  var parent = markedLine.parentNode;
+
+  return isHTMLULList(parentNode);
+};
+
+var markedIsHTMLULList = function () {
+  'use strict';
+
+  var markedLine = getMark().line;
+  var lastChild = lastChild(markedLine);
+
+  return isHTMLULList(lastChild);
+};
+
+var markedIsHTMLList = function () {
+  'use strict';
+
+  var markedLine = getMark().line;
+  var lastChild = lastChild(markedLine);
+
+  return isHTMLList(lastChild);
+};
+
 // Find the target placement for a new element and return a function
 // that will place it there.
 var findTarget = function (asChild) {
   'use strict';
 
-  var markedLine = document.getElementsByClassName('marked-line')[0];
+  var markedLine = getMark().line;
   var targ = markedLine.parentNode;
   var retval;
 
   if (markedLine) {
     // When the item should be added as a child to another item.
     if (asChild) {
-      var lastChild = Array.prototype.slice.call(markedLine.children, -1)[0];
-
-      if (isHTMLList(lastChild)) {
-        targ = lastChild;
+      if (markedIsHTMLList()) {
+        targ = lastChild(markedLine);
       } else {
         // This is the wrong type of target element for adding a child
         // to.
@@ -240,7 +311,7 @@ var findTarget = function (asChild) {
 var addElement = function (json, asChild) {
   'use strict';
 
-  var markedLine = document.getElementsByClassName('marked-line')[0];
+  var markedLine = getMark().line;
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, setDefaultOptions());
   var targ = findTarget(asChild);
@@ -358,7 +429,7 @@ var restore = function (args) {
 var elementUp = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
   var prev = targ.previousSibling;
 
   if (prev) {
@@ -372,7 +443,7 @@ var elementUp = function () {
 var elementDown = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
   var next = targ.nextSibling;
 
   if (next) {
@@ -384,11 +455,11 @@ var elementDown = function () {
   return 'element-moved-down';
 };
 
-// Remove and element from the tree.
-var elementDelete = function (identifier) {
+// Remove the marked element from the tree.
+var elementDelete = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
 
   targ.parentElement.removeChild(targ);
 
@@ -463,15 +534,71 @@ var markLine = function (line) {
 toggle = function (kind, node) {
   'use strict';
 
+  var hideNode = false;
+
   if (kind === 'title') {
-    node.classList.toggle('collapsed');
-    node.nextSibling.classList.toggle('hidden');
+    hideNode = node.nextSibling;
   } else if (isHTMLList(node.children[0])) {
-    node.classList.toggle('collapsed');
-    node.children[0].classList.toggle('hidden');
+    hideNode = node.children[0];
+  }
+
+  if (hideNode) {
+    toggleCollapseNode(node);
+    toggleHideNode(hideNode);
   }
 
   return 'toggled-subgroup';
+};
+
+var pasteChild = function () {
+  'use strict';
+
+  paste(markedIsHTMLULList());
+
+  return 'child-pasted';
+};
+
+var paste = function () {
+  'use strict';
+
+  return 'pasted';
+};
+
+var cut = function () {
+  'use strict';
+
+  copy();
+  elementDelete();
+
+  return 'cut';
+};
+
+// Copy the marked item into session storage
+var copy = function () {
+  'use strict';
+
+  var markedLine = getMark().line;
+  var copyInfo = {
+    _id: 'shimi-ima-copied',
+    html: markedLine.outerHTML,
+    obj: isChildOfHTMLULList(markedLine)
+  };
+
+  sess.replace(copyInfo);
+
+  return 'copied';
+};
+
+var promote = function () {
+  'use strict';
+
+  return 'promoted';
+};
+
+var demote = function () {
+  'use strict';
+
+  return 'demoted';
 };
 
 // Initialize the editor, loading a fresh object.

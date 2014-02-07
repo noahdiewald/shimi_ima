@@ -7,13 +7,22 @@
 
 // Exported functions
 
+// Like put but will overwrite the previous item.
+var replace = function (doc) {
+  'use strict';
+
+  window.sessionStorage[doc._id] = JSON.stringify(doc);
+
+  return doc._id;
+};
+
 // If the item is not already in the session storage, convert it to JSON
 // and store it by `_id`. Return the `_id` of the document.
 var put = function (doc) {
   'use strict';
 
   if (!window.sessionStorage[doc._id]) {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
+    replace(doc);
   }
 
   return doc._id;
@@ -33,5 +42,6 @@ var get = function (docId) {
   }
 };
 
+exports.replace = replace;
 exports.put = put;
 exports.get = get;
