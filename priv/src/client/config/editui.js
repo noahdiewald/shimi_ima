@@ -232,30 +232,14 @@ var maybeRemoveLabel = function (elem, targ) {
   return elem;
 };
 
+// Get the last child of this node.
 var lastChild = function (node) {
   'use strict';
 
   return Array.prototype.slice.call(node.children, -1)[0];
 };
 
-var markedParentIsHTMLULList = function () {
-  'use strict';
-
-  var markedLine = getMark().line;
-  var parent = markedLine.parentNode;
-
-  return isHTMLULList(parentNode);
-};
-
-var markedIsHTMLULList = function () {
-  'use strict';
-
-  var markedLine = getMark().line;
-  var lastChild = lastChild(markedLine);
-
-  return isHTMLULList(lastChild);
-};
-
+// Predicate function to determine if marked item is a UL or OL.
 var markedIsHTMLList = function () {
   'use strict';
 
@@ -550,27 +534,41 @@ toggle = function (kind, node) {
   return 'toggled-subgroup';
 };
 
-var pasteChild = function () {
+// Paste a node plus children in new context.
+var paste = function (asChild) {
   'use strict';
 
-  paste(markedIsHTMLULList());
+  var copied = sess.get('shimi-ima-copied');
+  var tmp;
+  var tmpForm;
+  var tmpWrap;
+  var json;
 
-  return 'child-pasted';
-};
+  if (copied !== null) {
+    tmp = document.createElement('div');
+    tmpForm = document.createElement('form');
+    tmpWrap = document.createElement('ul');
 
-var paste = function () {
-  'use strict';
+    tmpWrap.innerHTML = copied.html;
+    tmpForm.appendChild(tmpWrap);
+    tmp.appendChild(tmpForm);
+
+    json = formalize.fromForm(tmp.innerHTML);
+
+    addElement(json, asChild);
+  }
 
   return 'pasted';
 };
 
-var cut = function () {
+// Paste a node plus children in new context as a child of the currently
+// marked element.
+var pasteChild = function () {
   'use strict';
 
-  copy();
-  elementDelete();
+  paste(true);
 
-  return 'cut';
+  return 'child-pasted';
 };
 
 // Copy the marked item into session storage
@@ -581,7 +579,7 @@ var copy = function () {
   var copyInfo = {
     _id: 'shimi-ima-copied',
     html: markedLine.outerHTML,
-    obj: isChildOfHTMLULList(markedLine)
+    parenWasUL: isChildOfHTMLULList(markedLine)
   };
 
   sess.replace(copyInfo);
@@ -589,12 +587,24 @@ var copy = function () {
   return 'copied';
 };
 
+// Copy the marked item into session storage before deleting it.
+var cut = function () {
+  'use strict';
+
+  copy();
+  elementDelete();
+
+  return 'cut';
+};
+
+// Move marked to a higher tier.
 var promote = function () {
   'use strict';
 
   return 'promoted';
 };
 
+// Move marked to a lower obj/UL tier.
 var demote = function () {
   'use strict';
 

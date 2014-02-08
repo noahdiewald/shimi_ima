@@ -12183,7 +12183,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":42,"../store.js":98,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
+},{"../ajax.js":42,"../store.js":97,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12625,7 +12625,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":91,"../store.js":98,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
+},{"../path.js":91,"../store.js":97,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12705,11 +12705,30 @@ exports.addDoctype = addDoctype;
 
 var formalize = require('../formalize.js');
 var ajax = require('../ajax.js');
+var sess = require('../sess.js');
 var S = require('../sender.js');
 var toggle;
 var init;
 
 // ## Internal Functions
+
+// Toggle collapsed class
+var toggleCollapseNode = function (node) {
+  'use strict';
+
+  node.classList.toggle('collapsed');
+
+  return node;
+};
+
+// Toggle hide class
+var toggleHideNode = function (node) {
+  'use strict';
+
+  node.classList.toggle('hidden');
+
+  return node;
+};
 
 // Providing a shorter name to call this function.
 var forEach = function (list, fun) {
@@ -12777,21 +12796,33 @@ var formInputsInit = function (form) {
 };
 
 // Remove the class from all instances.
-var removeClass = function (items, className) {
+var removeClass = function (item, className) {
   'use strict';
 
-  forEach(items, function (item) {
-    item.classList.remove(className);
-  });
+  item.classList.remove(className);
+
+  return item;
 };
 
+// Get previous mark.
+var getMark = function () {
+  'use strict';
+
+  return {
+    mark: document.getElementsByClassName('marked')[0],
+    line: document.getElementsByClassName('marked-line')[0]
+  };
+};
+
+// Remove previous mark.
 var removeMark = function () {
   'use strict';
 
-  var oldMark = document.getElementsByClassName('marked');
-  var oldLine = document.getElementsByClassName('marked-line');
-  removeClass(oldMark, 'marked');
-  removeClass(oldLine, 'marked-line');
+  var old = getMark();
+  removeClass(old.mark, 'marked');
+  removeClass(old.line, 'marked-line');
+
+  return old;
 };
 
 var addMark = function (line, item) {
@@ -12800,6 +12831,8 @@ var addMark = function (line, item) {
   removeMark();
   line.classList.add('marked-line');
   item.classList.add('marked');
+
+  return getMark();
 };
 
 // Keep track of last element with focus.
@@ -12876,6 +12909,13 @@ var isHTMLList = function (elem) {
   return isHTMLOList(elem) || isHTMLUList(elem);
 };
 
+// Is this the child of a `ul` list?
+var isChildOfHTMLULList = function (elem) {
+  'use strict';
+
+  return isHTMLUList(elem.parentElement);
+};
+
 // Array elements don't have labels.
 var maybeRemoveLabel = function (elem, targ) {
   'use strict';
@@ -12889,22 +12929,37 @@ var maybeRemoveLabel = function (elem, targ) {
   return elem;
 };
 
+// Get the last child of this node.
+var lastChild = function (node) {
+  'use strict';
+
+  return Array.prototype.slice.call(node.children, -1)[0];
+};
+
+// Predicate function to determine if marked item is a UL or OL.
+var markedIsHTMLList = function () {
+  'use strict';
+
+  var markedLine = getMark().line;
+  var lastChild = lastChild(markedLine);
+
+  return isHTMLList(lastChild);
+};
+
 // Find the target placement for a new element and return a function
 // that will place it there.
 var findTarget = function (asChild) {
   'use strict';
 
-  var markedLine = document.getElementsByClassName('marked-line')[0];
+  var markedLine = getMark().line;
   var targ = markedLine.parentNode;
   var retval;
 
   if (markedLine) {
     // When the item should be added as a child to another item.
     if (asChild) {
-      var lastChild = Array.prototype.slice.call(markedLine.children, -1)[0];
-
-      if (isHTMLList(lastChild)) {
-        targ = lastChild;
+      if (markedIsHTMLList()) {
+        targ = lastChild(markedLine);
       } else {
         // This is the wrong type of target element for adding a child
         // to.
@@ -12937,7 +12992,7 @@ var findTarget = function (asChild) {
 var addElement = function (json, asChild) {
   'use strict';
 
-  var markedLine = document.getElementsByClassName('marked-line')[0];
+  var markedLine = getMark().line;
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, setDefaultOptions());
   var targ = findTarget(asChild);
@@ -13055,7 +13110,7 @@ var restore = function (args) {
 var elementUp = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
   var prev = targ.previousSibling;
 
   if (prev) {
@@ -13069,7 +13124,7 @@ var elementUp = function () {
 var elementDown = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
   var next = targ.nextSibling;
 
   if (next) {
@@ -13081,11 +13136,11 @@ var elementDown = function () {
   return 'element-moved-down';
 };
 
-// Remove and element from the tree.
-var elementDelete = function (identifier) {
+// Remove the marked element from the tree.
+var elementDelete = function () {
   'use strict';
 
-  var targ = document.getElementsByClassName('marked-line')[0];
+  var targ = getMark().line;
 
   targ.parentElement.removeChild(targ);
 
@@ -13160,41 +13215,93 @@ var markLine = function (line) {
 toggle = function (kind, node) {
   'use strict';
 
+  var hideNode = false;
+
   if (kind === 'title') {
-    node.classList.toggle('collapsed');
-    node.nextSibling.classList.toggle('hidden');
+    hideNode = node.nextSibling;
   } else if (isHTMLList(node.children[0])) {
-    node.classList.toggle('collapsed');
-    node.children[0].classList.toggle('hidden');
+    hideNode = node.children[0];
+  }
+
+  if (hideNode) {
+    toggleCollapseNode(node);
+    toggleHideNode(hideNode);
   }
 
   return 'toggled-subgroup';
 };
 
-var paste = function () {
+// Paste a node plus children in new context.
+var paste = function (asChild) {
   'use strict';
 
-  return 'demoted';
+  var copied = sess.get('shimi-ima-copied');
+  var tmp;
+  var tmpForm;
+  var tmpWrap;
+  var json;
+
+  if (copied !== null) {
+    tmp = document.createElement('div');
+    tmpForm = document.createElement('form');
+    tmpWrap = document.createElement('ul');
+
+    tmpWrap.innerHTML = copied.html;
+    tmpForm.appendChild(tmpWrap);
+    tmp.appendChild(tmpForm);
+
+    json = formalize.fromForm(tmp.innerHTML);
+
+    addElement(json, asChild);
+  }
+
+  return 'pasted';
 };
 
-var cut = function () {
+// Paste a node plus children in new context as a child of the currently
+// marked element.
+var pasteChild = function () {
   'use strict';
 
-  return 'demoted';
+  paste(true);
+
+  return 'child-pasted';
 };
 
+// Copy the marked item into session storage
 var copy = function () {
   'use strict';
 
-  return 'demoted';
+  var markedLine = getMark().line;
+  var copyInfo = {
+    _id: 'shimi-ima-copied',
+    html: markedLine.outerHTML,
+    parenWasUL: isChildOfHTMLULList(markedLine)
+  };
+
+  sess.replace(copyInfo);
+
+  return 'copied';
 };
 
+// Copy the marked item into session storage before deleting it.
+var cut = function () {
+  'use strict';
+
+  copy();
+  elementDelete();
+
+  return 'cut';
+};
+
+// Move marked to a higher tier.
 var promote = function () {
   'use strict';
 
-  return 'demoted';
+  return 'promoted';
 };
 
+// Move marked to a lower obj/UL tier.
 var demote = function () {
   'use strict';
 
@@ -13234,7 +13341,7 @@ exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
 exports.markLine = markLine;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":95}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13452,7 +13559,7 @@ var fieldElems = (function () {
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":75,"../utils.js":99}],58:[function(require,module,exports){
+},{"../form.js":75,"../utils.js":98}],58:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14150,7 +14257,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":97,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14503,7 +14610,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":98,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":97,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -15011,7 +15118,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":98,"../utils.js":99,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":98,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15633,7 +15740,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":98,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16037,7 +16144,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":98,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16419,7 +16526,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":42,"../flash.js":74,"../store.js":98,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../store.js":97,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -19601,7 +19708,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":42,"./store.js":98}],92:[function(require,module,exports){
+},{"./ajax.js":42,"./store.js":97}],92:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19886,13 +19993,22 @@ exports.sender = sender;
 
 // Exported functions
 
+// Like put but will overwrite the previous item.
+var replace = function (doc) {
+  'use strict';
+
+  window.sessionStorage[doc._id] = JSON.stringify(doc);
+
+  return doc._id;
+};
+
 // If the item is not already in the session storage, convert it to JSON
 // and store it by `_id`. Return the `_id` of the document.
 var put = function (doc) {
   'use strict';
 
   if (!window.sessionStorage[doc._id]) {
-    window.sessionStorage[doc._id] = JSON.stringify(doc);
+    replace(doc);
   }
 
   return doc._id;
@@ -19912,6 +20028,7 @@ var get = function (docId) {
   }
 };
 
+exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
@@ -20009,9 +20126,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -20144,7 +20259,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":98}],98:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20323,6 +20438,8 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -20386,5 +20503,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,46,48,47,49,50,51,52,53,44,54,55,56,57,58,61,60,63,62,65,64,59,67,66,69,68,71,70,72,73,74,75,76,79,80,81,82,83,78,84,85,86,87,88,89,90,91,77,92,93,94,95,96,99,98,45])
+},{"hogan.js":18}]},{},[42,45,43,48,47,49,50,52,51,46,55,53,54,57,58,60,59,61,62,63,65,56,66,64,67,69,71,70,68,72,77,74,73,78,76,79,75,80,81,82,84,85,83,86,87,88,89,90,92,91,94,96,93,97,98,95,44])
 ;
