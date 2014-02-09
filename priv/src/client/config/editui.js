@@ -102,7 +102,9 @@ var formInputsInit = function (form) {
 var removeClass = function (item, className) {
   'use strict';
 
-  item.classList.remove(className);
+  if (item) {
+    item.classList.remove(className);
+  }
 
   return item;
 };
@@ -213,10 +215,10 @@ var isHTMLList = function (elem) {
 };
 
 // Is this the child of a `ul` list?
-var isChildOfHTMLULList = function (elem) {
+var isChildOfHTMLOLList = function (elem) {
   'use strict';
 
-  return isHTMLUList(elem.parentElement);
+  return isHTMLOList(elem.parentElement);
 };
 
 // Array elements don't have labels.
@@ -233,7 +235,7 @@ var maybeRemoveLabel = function (elem, targ) {
 };
 
 // Get the last child of this node.
-var lastChild = function (node) {
+var getLastChild = function (node) {
   'use strict';
 
   return Array.prototype.slice.call(node.children, -1)[0];
@@ -244,7 +246,7 @@ var markedIsHTMLList = function () {
   'use strict';
 
   var markedLine = getMark().line;
-  var lastChild = lastChild(markedLine);
+  var lastChild = getLastChild(markedLine);
 
   return isHTMLList(lastChild);
 };
@@ -262,7 +264,7 @@ var findTarget = function (asChild) {
     // When the item should be added as a child to another item.
     if (asChild) {
       if (markedIsHTMLList()) {
-        targ = lastChild(markedLine);
+        targ = getLastChild(markedLine);
       } else {
         // This is the wrong type of target element for adding a child
         // to.
@@ -542,14 +544,25 @@ var paste = function (asChild) {
   var tmp;
   var tmpForm;
   var tmpWrap;
+  var copiedChild;
   var json;
 
   if (copied !== null) {
     tmp = document.createElement('div');
     tmpForm = document.createElement('form');
     tmpWrap = document.createElement('ul');
-
     tmpWrap.innerHTML = copied.html;
+
+    if (copied.parentWasOL) {
+      copiedChild = tmpWrap.firstChild.firstChild;
+
+      if (isHTMLList(copiedChild)) {
+        copiedChild.setAttribute('title', '_blank_');
+      } else {
+        copiedChild.setAttribute('name', '_blank_');
+      }
+    }
+
     tmpForm.appendChild(tmpWrap);
     tmp.appendChild(tmpForm);
 
@@ -579,7 +592,7 @@ var copy = function () {
   var copyInfo = {
     _id: 'shimi-ima-copied',
     html: markedLine.outerHTML,
-    parenWasUL: isChildOfHTMLULList(markedLine)
+    parentWasOL: isChildOfHTMLOLList(markedLine)
   };
 
   sess.replace(copyInfo);
@@ -643,3 +656,7 @@ exports.addChildObjectElement = addChildObjectElement;
 exports.addChildArrayElement = addChildArrayElement;
 exports.addChildTextElement = addChildTextElement;
 exports.markLine = markLine;
+exports.copy = copy;
+exports.cut = cut;
+exports.paste = paste;
+exports.pasteChild = pasteChild;

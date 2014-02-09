@@ -123,6 +123,18 @@ var sender = function (message, arg) {
   case 'config-clear-form':
     retval = ceditui.init();
     break;
+  case 'config-copy':
+    retval = ceditui.copy();
+    break;
+  case 'config-cut':
+    retval = ceditui.cut();
+    break;
+  case 'config-paste':
+    retval = ceditui.paste();
+    break;
+  case 'config-paste-child':
+    retval = ceditui.pasteChild();
+    break;
   case 'config-mark-line':
     retval = ceditui.markLine(arg);
     break;

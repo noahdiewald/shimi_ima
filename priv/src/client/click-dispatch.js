@@ -104,6 +104,18 @@ var clickDispatch = function (e) {
     '#config-clear-form-button': function (t) {
       return defaultAction(t);
     },
+    '#config-copy-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-cut-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-child-button': function (t) {
+      return defaultAction(t);
+    },
     '#edit-form ol > li': function (t) {
       return S.sender('config-mark-line', t);
     },
