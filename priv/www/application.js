@@ -11809,6 +11809,12 @@ var clickDispatch = function (e) {
     '#config-paste-child-button': function (t) {
       return defaultAction(t);
     },
+    '#config-promote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-demote-button': function (t) {
+      return defaultAction(t);
+    },
     '#edit-form ol > li': function (t) {
       return S.sender('config-mark-line', t);
     },
@@ -12195,7 +12201,7 @@ var charseqTab = (function () {
 
 exports.charseqTab = charseqTab;
 
-},{"../ajax.js":42,"../store.js":98,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
+},{"../ajax.js":42,"../store.js":97,"./charseq-dialog.js":46,"./charseq-elems.js":47}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12637,7 +12643,7 @@ exports.touchDoctype = touchDoctype;
 exports.deleteDoctype = deleteDoctype;
 exports.addDoctype = addDoctype;
 
-},{"../path.js":91,"../store.js":98,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
+},{"../path.js":91,"../store.js":97,"./doctype-dialog.js":51,"./doctype-elems.js":52,"./field-dialog.js":56,"./field-elems.js":57,"./fieldset-dialog.js":58,"./fieldset-elems.js":59}],54:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12950,30 +12956,28 @@ var getLastChild = function (node) {
   return Array.prototype.slice.call(node.children, -1)[0];
 };
 
-// Predicate function to determine if marked item is a UL or OL.
-var markedIsHTMLList = function () {
+// Predicate function to determine if item is a UL or OL.
+var isLineHTMLList = function (targ) {
   'use strict';
 
-  var markedLine = getMark().line;
-  var lastChild = getLastChild(markedLine);
+  var lastChild = getLastChild(targ);
 
   return isHTMLList(lastChild);
 };
 
 // Find the target placement for a new element and return a function
 // that will place it there.
-var findTarget = function (asChild) {
+var getInserter = function (targ, asChild) {
   'use strict';
 
-  var markedLine = getMark().line;
-  var targ = markedLine.parentNode;
+  var insertPoint = targ.parentNode;
   var retval;
 
-  if (markedLine) {
+  if (targ) {
     // When the item should be added as a child to another item.
     if (asChild) {
-      if (markedIsHTMLList()) {
-        targ = getLastChild(markedLine);
+      if (isLineHTMLList(targ)) {
+        insertPoint = getLastChild(targ);
       } else {
         // This is the wrong type of target element for adding a child
         // to.
@@ -12982,13 +12986,15 @@ var findTarget = function (asChild) {
     }
 
     retval = function (elem) {
-      elem = maybeRemoveLabel(elem, targ);
+      elem = maybeRemoveLabel(elem, insertPoint);
 
-      if (markedLine.nextSibling && !asChild) {
-        targ.insertBefore(elem, markedLine.nextSibling);
+      if (targ.nextSibling && !asChild) {
+        insertPoint.insertBefore(elem, targ.nextSibling);
       } else {
-        targ.appendChild(elem);
+        insertPoint.appendChild(elem);
       }
+
+      return elem;
     };
   } else {
     retval = function (elem) {
@@ -12996,6 +13002,8 @@ var findTarget = function (asChild) {
 
       var firstObj = editForm().getElementsByTagName('ul')[0];
       firstObj.appendChild(elem);
+
+      return elem;
     };
   }
 
@@ -13003,19 +13011,18 @@ var findTarget = function (asChild) {
 };
 
 // Add an element given JSON.
-var addElement = function (json, asChild) {
+var addElement = function (targ, json, asChild) {
   'use strict';
 
-  var markedLine = getMark().line;
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, setDefaultOptions());
-  var targ = findTarget(asChild);
+  var inserter = getInserter(targ, asChild);
   var newElem;
 
   tmp.innerHTML = tmpForm;
   formInit(tmp);
   newElem = tmp.getElementsByTagName('li')[0];
-  targ(newElem);
+  return inserter(newElem);
 };
 
 var defaultToggle = function () {
@@ -13029,6 +13036,86 @@ var defaultToggle = function () {
   });
 
   return 'default-toggle-applied';
+};
+
+// Internal version of `elementDelete()`, which takes an argument instead
+// of using the marked line and returns the outer HTML of the deleted
+// element/node.
+var internalElementDelete = function (targ) {
+  'use strict';
+
+  var html = targ.outerHTML;
+
+  targ.parentElement.removeChild(targ);
+
+  return html;
+};
+
+// Internal version of `addObjectElement()`, which takes an arguement
+// instead of using the marked line and returns the HTML element added
+// instead of a message.
+var internalAddObjectElement = function (targ, asChild) {
+  'use strict';
+
+  return addElement(targ, '{"_blank_":{"_first_":""}}', asChild);
+};
+
+// Internal version of `copy()`, which takes an arguement instead of
+// using the marked line and  returns the node that was copied.
+var internalCopy = function (targ) {
+  'use strict';
+
+  var copyInfo = {
+    _id: 'shimi-ima-copied',
+    html: targ.outerHTML,
+    parentWasOL: isChildOfHTMLOLList(targ)
+  };
+
+  sess.replace(copyInfo);
+
+  return targ;
+};
+
+// Internal version of `cut()`, which takes an arguement instead of
+// using the marked line and  returns the HTML that was copied.
+var internalCut = function (targ) {
+  'use strict';
+
+  var copiedElement = internalCopy(targ);
+
+  return internalElementDelete(copiedElement);
+};
+
+// Internal version of `paste()` which takes an arguement instead of
+// using the marked line and returns the pasted node. The copied element
+// is also provided by an argument instead of by using sessionStorage.
+var internalPaste = function (targ, copied, asChild) {
+  'use strict';
+
+  var tmp = document.createElement('div');
+  var tmpForm = document.createElement('form');
+  var tmpWrap = document.createElement('ul');
+  var copiedChild;
+  var json;
+
+  tmpWrap.innerHTML = copied.html;
+
+  if (copied.parentWasOL) {
+    copiedChild = tmpWrap.firstChild.firstChild;
+
+    if (isHTMLList(copiedChild)) {
+      copiedChild.setAttribute('title', '_blank_');
+    } else {
+      copiedChild.setAttribute('name', '_blank_');
+    }
+  }
+
+  tmpForm.appendChild(tmpWrap);
+  tmp.appendChild(tmpForm);
+
+  json = formalize.fromForm(tmp.innerHTML);
+
+  return addElement(targ, json, asChild);
 };
 
 // ## Exported Functions
@@ -13156,7 +13243,7 @@ var elementDelete = function () {
 
   var targ = getMark().line;
 
-  targ.parentElement.removeChild(targ);
+  internalElementDelete(targ);
 
   return 'element-removed';
 };
@@ -13165,7 +13252,9 @@ var elementDelete = function () {
 var addObjectElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":{"_first_":""}}', asChild);
+  var targ = getMark().line;
+
+  internalAddObjectElement(targ, asChild);
 
   return 'object-element-added';
 };
@@ -13174,7 +13263,9 @@ var addObjectElement = function (asChild) {
 var addArrayElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":[""]}', asChild);
+  var targ = getMark().line;
+
+  addElement(targ, '{"_blank_":[""]}', asChild);
 
   return 'array-element-added';
 };
@@ -13183,7 +13274,9 @@ var addArrayElement = function (asChild) {
 var addTextElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":""}', asChild);
+  var targ = getMark().line;
+
+  addElement(targ, '{"_blank_":""}', asChild);
 
   return 'text-element-added';
 };
@@ -13249,35 +13342,11 @@ toggle = function (kind, node) {
 var paste = function (asChild) {
   'use strict';
 
+  var targ = getMark().line;
   var copied = sess.get('shimi-ima-copied');
-  var tmp;
-  var tmpForm;
-  var tmpWrap;
-  var copiedChild;
-  var json;
 
   if (copied !== null) {
-    tmp = document.createElement('div');
-    tmpForm = document.createElement('form');
-    tmpWrap = document.createElement('ul');
-    tmpWrap.innerHTML = copied.html;
-
-    if (copied.parentWasOL) {
-      copiedChild = tmpWrap.firstChild.firstChild;
-
-      if (isHTMLList(copiedChild)) {
-        copiedChild.setAttribute('title', '_blank_');
-      } else {
-        copiedChild.setAttribute('name', '_blank_');
-      }
-    }
-
-    tmpForm.appendChild(tmpWrap);
-    tmp.appendChild(tmpForm);
-
-    json = formalize.fromForm(tmp.innerHTML);
-
-    addElement(json, asChild);
+    internalPaste(targ, copied, asChild);
   }
 
   return 'pasted';
@@ -13298,13 +13367,8 @@ var copy = function () {
   'use strict';
 
   var markedLine = getMark().line;
-  var copyInfo = {
-    _id: 'shimi-ima-copied',
-    html: markedLine.outerHTML,
-    parentWasOL: isChildOfHTMLOLList(markedLine)
-  };
 
-  sess.replace(copyInfo);
+  internalCopy(markedLine);
 
   return 'copied';
 };
@@ -13313,8 +13377,9 @@ var copy = function () {
 var cut = function () {
   'use strict';
 
-  copy();
-  elementDelete();
+  var markedLine = getMark().line;
+
+  internalCut(markedLine);
 
   return 'cut';
 };
@@ -13329,6 +13394,19 @@ var promote = function () {
 // Move marked to a lower obj/UL tier.
 var demote = function () {
   'use strict';
+
+  var targ = getMark().line;
+  var oldCopied = sess.get('shimi-ima-copied');
+  var newObject = internalAddObjectElement(targ);
+  var newCopied;
+  var newElem;
+
+  internalCut(targ);
+  newCopied = sess.get('shimi-ima-copied');
+  newElem = internalPaste(newObject, newCopied, true);
+  internalElementDelete(newElem.previousSibling);
+  addMark(newElem, newElem.firstChild);
+  sess.replace(oldCopied);
 
   return 'demoted';
 };
@@ -13369,8 +13447,10 @@ exports.copy = copy;
 exports.cut = cut;
 exports.paste = paste;
 exports.pasteChild = pasteChild;
+exports.promote = promote;
+exports.demote = demote;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":96}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":95}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14286,7 +14366,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":94,"../store.js":97,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14639,7 +14719,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":98,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../form.js":75,"../store.js":97,"./documents.js":65,"./fieldsets.js":67,"./indexui.js":68,"./viewui.js":71,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -15147,7 +15227,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":98,"../utils.js":99,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":99,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15769,7 +15849,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":97,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16173,7 +16253,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16555,7 +16635,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":42,"../flash.js":74,"../store.js":98,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
+},{"../ajax.js":42,"../flash.js":74,"../store.js":97,"./editui.js":66,"./fieldsets.js":67,"./indexui.js":68,"templates.js":"3ddScq"}],72:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -18704,7 +18784,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19737,7 +19817,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":42,"./store.js":98}],92:[function(require,module,exports){
+},{"./ajax.js":42,"./store.js":97}],92:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -20014,6 +20094,12 @@ var sender = function (message, arg) {
   case 'config-paste-child':
     retval = ceditui.pasteChild();
     break;
+  case 'config-promote':
+    retval = ceditui.promote();
+    break;
+  case 'config-demote':
+    retval = ceditui.demote();
+    break;
   case 'config-mark-line':
     retval = ceditui.markLine(arg);
     break;
@@ -20024,9 +20110,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],96:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20075,7 +20159,7 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -20169,7 +20253,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -20302,7 +20386,9 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":99}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20544,5 +20630,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,45,46,44,47,48,49,52,50,53,51,54,55,56,57,60,61,62,63,65,64,67,58,59,66,68,69,71,72,70,73,74,75,76,78,77,79,80,82,81,83,84,85,86,88,87,89,90,91,92,93,94,96,97,99,98])
+},{"hogan.js":18}]},{},[42,44,47,43,48,49,50,51,45,52,53,46,54,55,56,58,59,60,61,62,63,64,57,65,66,67,68,69,70,71,72,73,74,75,77,76,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,99])
 ;

@@ -241,30 +241,28 @@ var getLastChild = function (node) {
   return Array.prototype.slice.call(node.children, -1)[0];
 };
 
-// Predicate function to determine if marked item is a UL or OL.
-var markedIsHTMLList = function () {
+// Predicate function to determine if item is a UL or OL.
+var isLineHTMLList = function (targ) {
   'use strict';
 
-  var markedLine = getMark().line;
-  var lastChild = getLastChild(markedLine);
+  var lastChild = getLastChild(targ);
 
   return isHTMLList(lastChild);
 };
 
 // Find the target placement for a new element and return a function
 // that will place it there.
-var findTarget = function (asChild) {
+var getInserter = function (targ, asChild) {
   'use strict';
 
-  var markedLine = getMark().line;
-  var targ = markedLine.parentNode;
+  var insertPoint = targ.parentNode;
   var retval;
 
-  if (markedLine) {
+  if (targ) {
     // When the item should be added as a child to another item.
     if (asChild) {
-      if (markedIsHTMLList()) {
-        targ = getLastChild(markedLine);
+      if (isLineHTMLList(targ)) {
+        insertPoint = getLastChild(targ);
       } else {
         // This is the wrong type of target element for adding a child
         // to.
@@ -273,13 +271,15 @@ var findTarget = function (asChild) {
     }
 
     retval = function (elem) {
-      elem = maybeRemoveLabel(elem, targ);
+      elem = maybeRemoveLabel(elem, insertPoint);
 
-      if (markedLine.nextSibling && !asChild) {
-        targ.insertBefore(elem, markedLine.nextSibling);
+      if (targ.nextSibling && !asChild) {
+        insertPoint.insertBefore(elem, targ.nextSibling);
       } else {
-        targ.appendChild(elem);
+        insertPoint.appendChild(elem);
       }
+
+      return elem;
     };
   } else {
     retval = function (elem) {
@@ -287,6 +287,8 @@ var findTarget = function (asChild) {
 
       var firstObj = editForm().getElementsByTagName('ul')[0];
       firstObj.appendChild(elem);
+
+      return elem;
     };
   }
 
@@ -294,19 +296,18 @@ var findTarget = function (asChild) {
 };
 
 // Add an element given JSON.
-var addElement = function (json, asChild) {
+var addElement = function (targ, json, asChild) {
   'use strict';
 
-  var markedLine = getMark().line;
   var tmp = document.createElement('div');
   var tmpForm = formalize.toForm(json, setDefaultOptions());
-  var targ = findTarget(asChild);
+  var inserter = getInserter(targ, asChild);
   var newElem;
 
   tmp.innerHTML = tmpForm;
   formInit(tmp);
   newElem = tmp.getElementsByTagName('li')[0];
-  targ(newElem);
+  return inserter(newElem);
 };
 
 var defaultToggle = function () {
@@ -320,6 +321,86 @@ var defaultToggle = function () {
   });
 
   return 'default-toggle-applied';
+};
+
+// Internal version of `elementDelete()`, which takes an argument instead
+// of using the marked line and returns the outer HTML of the deleted
+// element/node.
+var internalElementDelete = function (targ) {
+  'use strict';
+
+  var html = targ.outerHTML;
+
+  targ.parentElement.removeChild(targ);
+
+  return html;
+};
+
+// Internal version of `addObjectElement()`, which takes an arguement
+// instead of using the marked line and returns the HTML element added
+// instead of a message.
+var internalAddObjectElement = function (targ, asChild) {
+  'use strict';
+
+  return addElement(targ, '{"_blank_":{"_first_":""}}', asChild);
+};
+
+// Internal version of `copy()`, which takes an arguement instead of
+// using the marked line and  returns the node that was copied.
+var internalCopy = function (targ) {
+  'use strict';
+
+  var copyInfo = {
+    _id: 'shimi-ima-copied',
+    html: targ.outerHTML,
+    parentWasOL: isChildOfHTMLOLList(targ)
+  };
+
+  sess.replace(copyInfo);
+
+  return targ;
+};
+
+// Internal version of `cut()`, which takes an arguement instead of
+// using the marked line and  returns the HTML that was copied.
+var internalCut = function (targ) {
+  'use strict';
+
+  var copiedElement = internalCopy(targ);
+
+  return internalElementDelete(copiedElement);
+};
+
+// Internal version of `paste()` which takes an arguement instead of
+// using the marked line and returns the pasted node. The copied element
+// is also provided by an argument instead of by using sessionStorage.
+var internalPaste = function (targ, copied, asChild) {
+  'use strict';
+
+  var tmp = document.createElement('div');
+  var tmpForm = document.createElement('form');
+  var tmpWrap = document.createElement('ul');
+  var copiedChild;
+  var json;
+
+  tmpWrap.innerHTML = copied.html;
+
+  if (copied.parentWasOL) {
+    copiedChild = tmpWrap.firstChild.firstChild;
+
+    if (isHTMLList(copiedChild)) {
+      copiedChild.setAttribute('title', '_blank_');
+    } else {
+      copiedChild.setAttribute('name', '_blank_');
+    }
+  }
+
+  tmpForm.appendChild(tmpWrap);
+  tmp.appendChild(tmpForm);
+
+  json = formalize.fromForm(tmp.innerHTML);
+
+  return addElement(targ, json, asChild);
 };
 
 // ## Exported Functions
@@ -447,7 +528,7 @@ var elementDelete = function () {
 
   var targ = getMark().line;
 
-  targ.parentElement.removeChild(targ);
+  internalElementDelete(targ);
 
   return 'element-removed';
 };
@@ -456,7 +537,9 @@ var elementDelete = function () {
 var addObjectElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":{"_first_":""}}', asChild);
+  var targ = getMark().line;
+
+  internalAddObjectElement(targ, asChild);
 
   return 'object-element-added';
 };
@@ -465,7 +548,9 @@ var addObjectElement = function (asChild) {
 var addArrayElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":[""]}', asChild);
+  var targ = getMark().line;
+
+  addElement(targ, '{"_blank_":[""]}', asChild);
 
   return 'array-element-added';
 };
@@ -474,7 +559,9 @@ var addArrayElement = function (asChild) {
 var addTextElement = function (asChild) {
   'use strict';
 
-  addElement('{"_blank_":""}', asChild);
+  var targ = getMark().line;
+
+  addElement(targ, '{"_blank_":""}', asChild);
 
   return 'text-element-added';
 };
@@ -540,35 +627,11 @@ toggle = function (kind, node) {
 var paste = function (asChild) {
   'use strict';
 
+  var targ = getMark().line;
   var copied = sess.get('shimi-ima-copied');
-  var tmp;
-  var tmpForm;
-  var tmpWrap;
-  var copiedChild;
-  var json;
 
   if (copied !== null) {
-    tmp = document.createElement('div');
-    tmpForm = document.createElement('form');
-    tmpWrap = document.createElement('ul');
-    tmpWrap.innerHTML = copied.html;
-
-    if (copied.parentWasOL) {
-      copiedChild = tmpWrap.firstChild.firstChild;
-
-      if (isHTMLList(copiedChild)) {
-        copiedChild.setAttribute('title', '_blank_');
-      } else {
-        copiedChild.setAttribute('name', '_blank_');
-      }
-    }
-
-    tmpForm.appendChild(tmpWrap);
-    tmp.appendChild(tmpForm);
-
-    json = formalize.fromForm(tmp.innerHTML);
-
-    addElement(json, asChild);
+    internalPaste(targ, copied, asChild);
   }
 
   return 'pasted';
@@ -589,13 +652,8 @@ var copy = function () {
   'use strict';
 
   var markedLine = getMark().line;
-  var copyInfo = {
-    _id: 'shimi-ima-copied',
-    html: markedLine.outerHTML,
-    parentWasOL: isChildOfHTMLOLList(markedLine)
-  };
 
-  sess.replace(copyInfo);
+  internalCopy(markedLine);
 
   return 'copied';
 };
@@ -604,8 +662,9 @@ var copy = function () {
 var cut = function () {
   'use strict';
 
-  copy();
-  elementDelete();
+  var markedLine = getMark().line;
+
+  internalCut(markedLine);
 
   return 'cut';
 };
@@ -620,6 +679,19 @@ var promote = function () {
 // Move marked to a lower obj/UL tier.
 var demote = function () {
   'use strict';
+
+  var targ = getMark().line;
+  var oldCopied = sess.get('shimi-ima-copied');
+  var newObject = internalAddObjectElement(targ);
+  var newCopied;
+  var newElem;
+
+  internalCut(targ);
+  newCopied = sess.get('shimi-ima-copied');
+  newElem = internalPaste(newObject, newCopied, true);
+  internalElementDelete(newElem.previousSibling);
+  addMark(newElem, newElem.firstChild);
+  sess.replace(oldCopied);
 
   return 'demoted';
 };
@@ -660,3 +732,5 @@ exports.copy = copy;
 exports.cut = cut;
 exports.paste = paste;
 exports.pasteChild = pasteChild;
+exports.promote = promote;
+exports.demote = demote;

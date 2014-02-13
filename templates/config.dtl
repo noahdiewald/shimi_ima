@@ -61,8 +61,8 @@
         <a href="#" id="config-remove-element-button" class="small-control">Remove Element</a>
         <a href="#" id="config-move-up-button" class="small-control">Move Up</a>
         <a href="#" id="config-move-down-button" class="small-control">Move Down</a>
-        <a href="#" id="config-move-in-button" class="small-control">Move In</a>
-        <a href="#" id="config-move-out-button" class="small-control">Move Out</a>
+        <a href="#" id="config-demote-button" class="small-control">Demote</a>
+        <a href="#" id="config-promote-button" class="small-control">Promote</a>
         <a href="#" id="config-copy-button" class="small-control">Copy</a>
         <a href="#" id="config-cut-button" class="small-control">Cut</a>
         <a href="#" id="config-paste-button" class="small-control">Paste</a>

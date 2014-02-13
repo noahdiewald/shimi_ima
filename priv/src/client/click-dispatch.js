@@ -116,6 +116,12 @@ var clickDispatch = function (e) {
     '#config-paste-child-button': function (t) {
       return defaultAction(t);
     },
+    '#config-promote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-demote-button': function (t) {
+      return defaultAction(t);
+    },
     '#edit-form ol > li': function (t) {
       return S.sender('config-mark-line', t);
     },

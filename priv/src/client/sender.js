@@ -135,6 +135,12 @@ var sender = function (message, arg) {
   case 'config-paste-child':
     retval = ceditui.pasteChild();
     break;
+  case 'config-promote':
+    retval = ceditui.promote();
+    break;
+  case 'config-demote':
+    retval = ceditui.demote();
+    break;
   case 'config-mark-line':
     retval = ceditui.markLine(arg);
     break;
