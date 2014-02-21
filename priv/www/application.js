@@ -13450,7 +13450,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":95}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":96}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -18784,7 +18784,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -20110,7 +20110,9 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20159,8 +20161,6 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],97:[function(require,module,exports){
 // # Set operations
 //
@@ -20630,5 +20630,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,46,45,48,43,44,47,49,50,51,53,54,55,52,56,57,58,59,60,61,62,63,65,64,66,67,68,69,70,71,72,73,74,76,75,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,97,98,99])
+},{"hogan.js":18}]},{},[42,43,44,46,47,48,49,50,45,51,52,53,54,55,56,57,58,59,60,61,62,63,64,66,65,67,68,69,70,71,72,73,74,75,77,76,78,79,80,81,82,83,84,86,85,87,88,89,90,91,92,93,94,96,97,98,99])
 ;
