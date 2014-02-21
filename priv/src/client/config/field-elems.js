@@ -11,16 +11,14 @@ var utils = require('../utils.js');
 
 // Returns an object with references to add/edit fields dialog
 // field elements with helper functions.
-var fieldElems = (function ()
-{
+var fieldElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['name', 'label', 'order', 'description', 'subcategory', 'head', 'reversal', 'default', 'required', 'allowed', 'source', 'max', 'min', 'regex', 'doctype', 'fieldset', 'charseq', 'rev', 'field'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var fObj = {};
 
     fObj.attrs = mod.attrs;
@@ -28,41 +26,31 @@ var fieldElems = (function ()
     // These are fields that only some field subcategories use.
     // Below you'll see them being disabled and reenabled depending on the
     // chosen subcategory.
-    fObj.notDefault = function ()
-    {
+    fObj.notDefault = function () {
       return [fObj.charseq, fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
     };
 
-    fObj.disable = function ()
-    {
-      fObj.notDefault().forEach(function (field)
-      {
+    fObj.disable = function () {
+      fObj.notDefault().forEach(function (field) {
         field.attr('disabled', 'disabled');
       });
       return fObj;
     };
 
-    fObj.clearDisabled = function ()
-    {
-      fObj.notDefault().forEach(function (field)
-      {
-        if (field.attr('disabled'))
-        {
+    fObj.clearDisabled = function () {
+      fObj.notDefault().forEach(function (field) {
+        if (field.attr('disabled')) {
           field.val('');
         }
       });
       return fObj;
     };
 
-    fObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    fObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]'))
-        {
-          if (source[field] === 'true')
-          {
+        if (fObj[field].is('input[type=checkbox]')) {
+          if (source[field] === 'true') {
             fObj[field].prop('checked', true);
           }
         }
@@ -70,8 +58,7 @@ var fieldElems = (function ()
       return fObj;
     };
 
-    fObj.getFieldInputVals = function ()
-    {
+    fObj.getFieldInputVals = function () {
       var valObj = {
         'category': 'field',
         'name': fObj.name.val(),
@@ -95,41 +82,30 @@ var fieldElems = (function ()
       return valObj;
     };
 
-    fObj.clear = function ()
-    {
+    fObj.clear = function () {
       form.clear($('#field-dialog .input')).removeClass('ui-state-error');
       fObj.disable();
       return fObj;
     };
 
-    fObj.decodeBound = function (subcategory, bound)
-    {
-      if (subcategory === 'date')
-      {
+    fObj.decodeBound = function (subcategory, bound) {
+      if (subcategory === 'date') {
         return bound;
-      }
-      else
-      {
+      } else {
         return utils.stringToNumber(bound);
       }
     };
 
-    fObj.decodeSource = function (subcategory, source)
-    {
-      if (subcategory === 'file')
-      {
+    fObj.decodeSource = function (subcategory, source) {
+      if (subcategory === 'file') {
         return source.split('/').trimAll();
-      }
-      else
-      {
+      } else {
         return source;
       }
     };
 
-    fObj.decodeDefaults = function (subcategory, defaults)
-    {
-      switch (subcategory)
-      {
+    fObj.decodeDefaults = function (subcategory, defaults) {
+      switch (subcategory) {
       case 'docmultiselect':
       case 'multiselect':
         return defaults.split(',').trimAll();
@@ -140,10 +116,8 @@ var fieldElems = (function ()
       }
     };
 
-    fObj.displayFields = function (subcategory)
-    {
-      switch (subcategory)
-      {
+    fObj.displayFields = function (subcategory) {
+      switch (subcategory) {
       case 'select':
       case 'multiselect':
         fObj.disable();
@@ -173,16 +147,14 @@ var fieldElems = (function ()
       }
     };
 
-    fObj.attrs.forEach(function (item)
-    {
+    fObj.attrs.forEach(function (item) {
       fObj[item] = $('#field-' + item + '-input');
     });
 
     fObj.copyValues(values);
     fObj.displayFields(fObj.subcategory.val());
 
-    fObj.subcategory.change(function ()
-    {
+    fObj.subcategory.change(function () {
       fObj.displayFields(fObj.subcategory.val());
     });
 

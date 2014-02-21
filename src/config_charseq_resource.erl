@@ -30,14 +30,13 @@
          content_types_accepted/2,
          content_types_provided/2,
          delete_resource/2,
-         from_json/2,
-         id_html/2,
-         index_html/2,
          is_authorized/2,
          resource_exists/2,
          rest_init/2
         ]).
 -export([
+         from_json/2,
+         to_json/2,
          validate_authentication/3
         ]).
 
@@ -67,37 +66,18 @@ content_types_accepted(R, S) ->
 
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
-        index -> {[{{<<"text">>, <<"html">>, []}, index_html}], R, S};
-        identifier -> {[{{<<"text">>, <<"html">>, []}, id_html}], R, S}
+        index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
   
 delete_resource(R, S) ->
     h:delete(R, S).
-  
-index_html(R, S) ->
-    {Val, R1} = cowboy_req:qs_val(<<"as">>, R),
-    case Val of
-        undefined -> html_as_tabs(R1, S);
-        <<"options">> -> html_as_options(R1, S)
-    end.
-  
-html_as_options(R, S) ->
-    {{ok, Json}, R1} = q:charseqs(R, S),
-    {ok, Opts} = render:render(options_dtl, Json),
-    {Opts, R1, S}.
 
-html_as_tabs(R, S) ->
-    {{ok, Json}, R1} = q:charseqs(R, S),
-    {render:renderings(Json, config_charseq_list_elements_dtl), R1, S}.
-  
-id_html(R, S) ->
-    {{ok, Json}, R1} = h:id_data(R, S),
-    F = fun({Key, Value}) ->
-                {Key, jsn:to_base64(Value)}
-        end,
-    Json1 = lists:map(F, Json),
-    {ok, Html} = render:render(config_charseq_dtl, charseq:to_renderable(Json1)),
-    {Html, R1, S}.
+to_json(R, S) ->
+    case proplists:get_value(target, S) of
+        index -> json_index(R, S);
+        identifier -> json_charseq(R, S)
+    end.
 
 from_json(R, S) ->
   case proplists:get_value(target, S) of
@@ -105,9 +85,16 @@ from_json(R, S) ->
       identifier -> json_update(R, S)
   end.
 
+json_charseq(R, S) ->
+    {{ok, Json}, R1} = h:id_data(R, S),
+    {jsn:encode(Json), R1, S}.
+
 json_create(R, S) ->
     {R1, S1} = h:extract_create_data(R, S),
     h:create(proplists:get_value(posted_json, S1), R1, S1).
+
+json_index(R, S) ->
+    i:view(charseqs, R, S).
 
 json_update(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),
@@ -123,4 +110,3 @@ validate_authentication(Props, R, S) ->
         true -> {true, R, S};
         false -> {proplists:get_value(auth_head, S), R, S}
     end.
-

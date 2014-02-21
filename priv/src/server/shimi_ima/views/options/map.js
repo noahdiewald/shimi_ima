@@ -1,9 +1,7 @@
-function map(doc)
-{
+function map(doc) {
   'use strict';
 
-  if (doc.category === 'index')
-  {
+  if (doc.category === 'index') {
     emit([doc.doctype, doc.name]);
   }
 }

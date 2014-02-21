@@ -1,0 +1,205 @@
+{{#fields}}
+  <div 
+    class="field-container" 
+    data-field-field="{{ _id }}">
+    <label for="{{ name }}">
+      <span class="label-text">{{ label }}</span>
+      <span 
+        class="ui-icon ui-icon-help" 
+        title="{{#date}}Format date as: yyyy-mm-dd.{{/date}} {{ description }}"></span>
+    </label>
+    {{#text}}
+      <input 
+      class="field text ui-widget ui-corner-all" 
+      type="text"
+      {{#default_exists}}
+      value="{{ default }}"
+      data-field-default="{{ default }}"
+      {{/default_exists}}
+      {{^default_exists}}
+      value=""
+      {{/default_exists}}
+    {{/text}}
+    {{#integer}}
+      <input 
+      class="field number ui-widget ui-corner-all" 
+      type="text"
+      {{#default_exists}}
+      value="{{ default }}"
+      data-field-default="{{ default }}"
+      {{/default_exists}}
+      {{^default_exists}}
+      value=""
+      {{/default_exists}}
+    {{/integer}}
+    {{#rational}}
+      <input 
+      class="field number ui-widget ui-corner-all" 
+      type="text"
+      {{#default_exists}}
+      value="{{ default }}"
+      data-field-default="{{ default }}"
+      {{/default_exists}}
+      {{^default_exists}}
+      value=""
+      {{/default_exists}}
+    {{/rational}}
+    {{#date}}
+      <input 
+      class="field date field-text ui-widget ui-corner-all" 
+      type="text"
+      {{#default_exists}}
+      value="{{ default }}"
+      data-field-default="{{ default }}"
+      {{/default_exists}}
+      {{^default_exists}}
+      value=""
+      {{/default_exists}}
+    {{/date}}
+    {{#boolean}}
+      <input
+      class="boolean field ui-widget ui-corner-all"
+      type="checkbox"
+      {{#default_exists}}
+        checked
+      {{/default_exists}}
+    {{/boolean}}
+    {{#openboolean}}
+      <select 
+        class="field open-boolean ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/openboolean}}
+    {{#select}}
+      <select 
+        class="field select ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/select}}
+    {{#docselect}}
+      <select 
+        class="field select ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/docselect}}
+    {{#file}}
+      <select 
+        class="field file ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/file}}
+    {{#multiselect}}
+      <select 
+        multiple=true
+        class="field multiselect ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/multiselect}}
+    {{#docmultiselect}}
+      <select 
+        multiple=true
+        class="field multiselect ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/docmultiselect}}
+    {{#textarea}}
+      <textarea 
+        class="field textarea ui-widget ui-corner-all"
+        {{#default_exists}}
+          data-field-default="{{ default }}"
+        {{/default_exists}}
+    {{/textarea}}
+    name="{{ name }}" 
+    data-field-subcategory="{{ subcategory }}"
+    data-field-charseq="{{ charseq }}"
+    data-field-label="{{ label }}"
+    data-field-order="{{ order }}"
+    data-field-head="{{ head }}"
+    data-field-required="{{ required }}"
+    data-field-reversal="{{ reversal }}"
+    data-field-field="{{ _id }}"
+    data-field-name="{{ name }}"
+    data-field-min="{{ min }}"
+    data-field-max="{{ max }}"
+    data-field-regex="{{ regex }}"
+    data-field-instance="{{ instance_id }}"
+    data-group-id="{{ _id }}-{{ instance_id }}"
+    id="{{ _id }}-{{ instance_id }}"
+  {{#text}}
+    />
+  {{/text}}
+  {{#integer}}
+    />
+  {{/integer}}
+  {{#rational}}
+    />
+  {{/rational}}
+  {{#date}}
+    />
+  {{/date}}
+  {{#boolean}}
+    /> Check for true<br />
+  {{/boolean}}
+  {{#openboolean}}
+    >
+      <option value="null" {{#is_null}}selected=true{{/is_null}}></option>
+      <option value="false" {{#is_false}}selected=true{{/is_false}}>False</option>
+      <option value="true" {{#value}}selected=true{{/value}}>True</option>
+    </select>
+  {{/openboolean}}
+  {{#select}}
+    >
+    {{^required}}
+      <option value="" {{^default}}selected=true{{/default}}></option>
+    {{/required}}
+    {{#allowed}}
+      <option value="{{ value }}" {{#is_default}}selected=true{{/is_default}}>{{ value }}</option>
+    {{/allowed}}
+    </select>
+  {{/select}}
+  {{#docselect}}
+    >
+    {{^required}}
+      <option value="" {{^default}}selected=true{{/default}}></option>
+    {{/required}}
+    {{#allowed}}
+      <option value="{{ value }}" {{#is_default}}selected=true{{/is_default}}>{{ value }}</option>
+    {{/allowed}}
+    </select>
+  {{/docselect}}
+  {{#file}}
+    >
+    {{^required}}
+      <option value="" {{^default}}selected=true{{/default}}></option>
+    {{/required}}
+    {{#allowed}}
+      <option value="{{ key }}" {{#is_default}}selected=true{{/is_default}}>{{ key }}</option>
+    {{/allowed}}
+    </select>
+  {{/file}}
+  {{#multiselect}}
+    >
+    {{#allowed}}
+      <option value="{{ value }}" {{#is_default}}selected=true{{/is_default}}>{{ value }}</option>
+    {{/allowed}}
+    </select>
+  {{/multiselect}}
+  {{#docmultiselect}}
+    >
+    {{#allowed}}
+      <option value="{{ value }}" {{#is_default}}selected=true{{/is_default}}>{{ value }}</option>
+    {{/allowed}}
+    </select>
+  {{/docmultiselect}}
+  {{#textarea}}
+    >{{#default}}{{ default }}{{/default}}</textarea>
+    <span title="Expand/Shrink Text Box" class="expander" data-group-id="{{ _id }}-{{ instance_id }}"></span>
+  {{/textarea}}    
+  </div>
+{{/fields}}

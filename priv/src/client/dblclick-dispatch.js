@@ -12,48 +12,45 @@
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
 var searchui = require('./documents/searchui.js');
+var ceditui = require('./config/editui.js');
 var worksheetui = require('./documents/worksheetui.js');
 
 // ## Exported Functions
 
 // Given a click event, determine what action to take based on the
 // click target.
-var dblclickDispatch = function (e)
-{
+var dblclickDispatch = function (e) {
   'use strict';
 
-  var action = dispatcher(
-  {
-    '.search-result-field-id a': function (t)
-    {
+  var action = dispatcher({
+    '#edit-form span.span-title': function (t) {
+      ceditui.toggle('title', t);
+    },
+    '#edit-form ol > li': function (t) {
+      ceditui.toggle('array-elem', t);
+    },
+    '.search-result-field-id a': function (t) {
       searchui.addField($(t).parent('h5'));
     },
-    '.field-view b': function (t)
-    {
+    '.field-view b': function (t) {
       searchui.addField($(t).parent('li'));
     },
-    '.field-container label span': function (t)
-    {
+    '.field-container label span': function (t) {
       searchui.addField($(t).parent('label').parent('div'));
     },
-    '#index-index-input-label': function ()
-    {
+    '#index-index-input-label': function () {
       searchui.addIndex();
     },
-    '.panel > h2': function (t)
-    {
+    '.panel > h2': function (t) {
       panelToggler(t);
     },
-    '#toggle-handles': function (t)
-    {
+    '#toggle-handles': function (t) {
       worksheetui.hideHandles();
     },
-    '.fieldset-handle': function (t)
-    {
+    '.fieldset-handle': function (t) {
       worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
     },
-    '.field-handle': function (t)
-    {
+    '.field-handle': function (t) {
       worksheetui.hideField($(t).attr('data-field-field'));
     }
   });

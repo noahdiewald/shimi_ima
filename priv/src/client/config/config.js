@@ -8,37 +8,25 @@
 
 // ## Variable Definitions
 
-var doctypeTab = require('./doctype-tab.js');
-var charseqTab = require('./charseq-tab.js').charseqTab;
+var doctypeui = require('./doctypeui.js');
+var maintenanceui = require('./maintenanceui.js');
+var charsequi = require('./charsequi.js');
+var editui = require('./editui.js');
+
+// ## Internal Functions
 
 // ## Exported Functions
 
-// When the upgrade button is pressed in the configuration UI, this
-// will carry out the necessary action. It will make an empty `POST`
-// to the upgrade path and alert the user that this was done.
-//
-// TODO: This is basically here until the upgrad functionality is fleshed
-// out and gets its own module.
-var upgradeButton = function ()
-{
-  'use strict';
-
-  $.post('config/upgrade');
-  window.alert('Upgrade In Progress');
-};
-
 // Run initialization code for the configuration sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
-  doctypeTab.init();
-  $('#main-tabs').tabs();
-  charseqTab.init();
-  $('.simple-tabs').tabs();
+  editui.init();
+  doctypeui.init();
+  charsequi.init();
+  maintenanceui.init();
 
-  return true;
+  return 'config-initialized';
 };
 
-exports.upgradeButton = upgradeButton;
 exports.init = init;

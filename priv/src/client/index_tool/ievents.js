@@ -13,17 +13,14 @@ var h = require('./ihelpers.js');
 //
 
 // Set change events for doctype field
-var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
-{
+var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
   'use strict';
 
-  indexDoctype.change(function ()
-  {
+  indexDoctype.change(function () {
     var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 
@@ -34,25 +31,20 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback)
 };
 
 // Set change events for index field
-var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback)
-{
+var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexFieldset.change(function ()
-  {
+  indexFieldset.change(function () {
     var callback2;
 
-    if (typeof indexDoctype !== 'string')
-    {
+    if (typeof indexDoctype !== 'string') {
       indexDoctype = indexDoctype.val();
     }
 
-    if (indexFieldset.val())
-    {
+    if (indexFieldset.val()) {
       var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
 
-      if (callback)
-      {
+      if (callback) {
         callback2 = callback();
       }
 
@@ -64,25 +56,20 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 };
 
 // Set change events for field
-var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback)
-{
+var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexField.change(function ()
-  {
+  indexField.change(function () {
     var fieldId = indexField.val();
     var fieldsetId = indexFieldset.val();
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 
-    if (!(fieldId.isBlank()))
-    {
-      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data)
-      {
+    if (!(fieldId.isBlank())) {
+      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
         h.alterOpts(data, fieldId, callback2);
       });
     }
@@ -92,16 +79,13 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
 };
 
 // Set change events for the operator field.
-var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback)
-{
+var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
-  operatorField.change(function ()
-  {
+  operatorField.change(function () {
     var callback2;
 
-    if (callback)
-    {
+    if (callback) {
       callback2 = callback();
     }
 

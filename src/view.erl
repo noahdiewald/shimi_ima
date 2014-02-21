@@ -167,31 +167,8 @@ getv(Key, R) ->
 getv(Key, R, Default) ->
     case proplists:get_value(Key, R) of
         undefined -> Default;
-        Else -> decode_qs_value(Else)
+        Else -> jsn:decode(Else)
     end.
-
-% TODO: this could be more accurate and should probably go in the jsn
-% module itself. The big problem is cases where there are lists of
-% numbers that happen to coincide with characters.
--spec decode_qs_value(jsn:json_term()|list()) -> jsn:json_term().
-decode_qs_value(String = <<$",_/binary>>) ->
-    jsn:decode(String);
-decode_qs_value(List = <<$[,_/binary>>) ->
-    jsn:decode(List);
-decode_qs_value(Obj = <<${,_/binary>>) ->
-    jsn:decode(Obj);
-decode_qs_value(Num = <<F,_/binary>>) when F >= 48, F =< 57 ->
-    jsn:decode(Num);
-decode_qs_value(Num = <<$-,F,_/binary>>) when F >= 48, F =< 57 ->
-    jsn:decode(Num);
-decode_qs_value(<<"true">>) ->
-    true;
-decode_qs_value(<<"false">>) ->
-    false;
-decode_qs_value(<<"null">>) ->
-    null;
-decode_qs_value(NotJsonBin) ->
-    NotJsonBin.
 
 -spec encode(jsn:json_term()) -> string().
 encode(Term) ->

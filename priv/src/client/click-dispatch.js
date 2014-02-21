@@ -12,8 +12,6 @@
 var S = require('./sender.js');
 var dispatcher = require('./dispatcher.js').dispatcher;
 var panelToggler = require('./panel-toggle.js').panelToggler;
-var doctypeTab = require('./config/doctype-tab.js');
-var charseqTab = require('./config/charseq-tab').charseqTab;
 var editui = require('./documents/editui.js');
 var viewui = require('./documents/viewui.js');
 var indexui = require('./documents/indexui.js');
@@ -25,279 +23,266 @@ var ieditui = require('./index_tool/ieditui.js');
 var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
-var config = require('./config/config.js');
+var maintenanceui = require('./config/maintenanceui.js');
+var doctypeTab = require('./config/doctype-tab.js');
+var charseqTab = require('./config/charseq-tab').charseqTab;
+
+// ## Internal Functions
+
+// The calling of the default action will seem redundant for a while
+// until a more full refactor can be done and all actions are default.
+var defaultAction = function (t) {
+  'use strict';
+
+  return S.sender(t.id.slice(0, -7));
+};
 
 // ## Exported Functions
 
 // Given a click event, determine what action to take based on the
 // click target.
-var clickDispatch = function (e)
-{
+var clickDispatch = function (e) {
   'use strict';
 
-  var action = dispatcher(
-  {
+  var action = dispatcher({
     // ### Config
 
-    '.edit-field-button': function (t)
-    {
-      doctypeTab.editField(t);
+    '.edit-doctype-link': function (t) {
+      return S.sender('edit-doctype-requested', 'doctypes/' + t.getAttribute('href').slice(1));
     },
-    '.delete-field-button': function (t)
-    {
-      doctypeTab.deleteField(t);
-    },
-    '.add-field-button': function (t)
-    {
-      doctypeTab.addField(t);
-    },
-    '.edit-fieldset-button': function (t)
-    {
-      doctypeTab.editFieldset(t);
-    },
-    '.delete-fieldset-button': function (t)
-    {
-      doctypeTab.deleteFieldset(t);
-    },
-    '.add-fieldset-button': function (t)
-    {
-      doctypeTab.addFieldset(t);
-    },
-    '.delete-doctype-button': function (t)
-    {
-      doctypeTab.deleteDoctype(t);
-    },
-    '.edit-doctype-button': function (t)
-    {
-      doctypeTab.editDoctype(t);
-    },
-    '.touch-doctype-button': function (t)
-    {
+    '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctype-add-button': function (t)
-    {
-      doctypeTab.addDoctype(t);
+    '#doctypes-add-button': function (t) {
+      return defaultAction(t);
     },
-    '.delete-charseq-button': function (t)
-    {
+    '.delete-charseq-button': function (t) {
       charseqTab.del(t);
     },
-    '.edit-charseq-button': function (t)
-    {
-      charseqTab.edit(t);
-    },
-    '#charseq-add-button': function (t)
-    {
+    '#charseq-add-button': function (t) {
       charseqTab.add();
     },
-    '#maintenance-upgrade-button': function (t)
-    {
-      config.upgradeButton(t);
+    '#maintenance-upgrade-button': function (t) {
+      return maintenanceui.upgradeButton(t);
+    },
+    '#config-save-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-delete-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-create-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-move-up-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-move-down-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-remove-element-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-array-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-array-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-clear-form-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-copy-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-cut-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-child-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-promote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-demote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#edit-form ol > li': function (t) {
+      return S.sender('config-mark-line', t);
     },
 
     // ### Documents
 
-    '.add-button': function (t)
-    {
+    '.add-button': function (t) {
       fieldsets.initFieldset(t, false, true);
     },
-    '.remove-button': function (t)
-    {
+    '.remove-button': function (t) {
       fieldsets.removeFieldset(t);
     },
-    '#save-document-button': function (t)
-    {
+    '#save-document-button': function (t) {
       editui.save();
     },
-    '#create-document-button': function (t)
-    {
+    '#create-document-button': function (t) {
       editui.create();
     },
-    '#clear-document-button': function (t)
-    {
+    '#clear-document-button': function (t) {
       editui.clear();
     },
-    '.expander': function (t)
-    {
+    '.expander': function (t) {
       editui.toggleTextarea(t);
     },
-    'label span.ui-icon-help': function (t)
-    {
+    'label span.ui-icon-help': function (t) {
       editui.showHelpDialog(t);
     },
-    '#document-edit-button': function (t)
-    {
+    '#document-edit-button': function (t) {
       viewui.edit(t);
     },
-    '#document-delete-button': function (t)
-    {
+    '#document-delete-button': function (t) {
       viewui.confirmDelete();
     },
-    '#document-restore-button': function (t)
-    {
+    '#document-restore-button': function (t) {
       viewui.confirmRestore();
     },
-    '#document-view-tree > ul > li > b': function (t)
-    {
+    '#document-view-tree > ul > li > b': function (t) {
       viewui.collapseToggle(t);
     },
-    '.revision-link': function (t)
-    {
+    '.revision-link': function (t) {
       viewui.fetchRevision(t);
     },
-    '#search-all-fields-switch a': function ()
-    {
+    '#search-all-fields-switch a': function () {
       searchui.allFields();
     },
-    '.search-field-item': function (t)
-    {
+    '.search-field-item': function (t) {
       searchui.removeField(t);
     },
-    '.select-results': function (t)
-    {
+    '.select-results': function (t) {
       searchui.toggleSelection(t);
     },
-    '#save-search-results a': function ()
-    {
+    '#save-search-results a': function () {
       $('#new-set-target-input').val('search');
       $('#new-set-dialog').show();
     },
-    '#save-set-results a': function ()
-    {
+    '#save-set-results a': function () {
       $('#new-set-target-input').val('sets');
       $('#new-set-dialog').show();
     },
-    '#new-set-save-button': function ()
-    {
+    '#new-set-save-button': function () {
       S.sender('new-set-form-submit');
     },
-    '#select-all-set-elements': function (t)
-    {
+    '#select-all-set-elements': function (t) {
       setsui.toggleSelectAll(t);
     },
-    '.view-document-link span': function (t)
-    {
+    '.view-document-link span': function (t) {
       var parent = t[0].parentNode;
       indexui.load(parent);
     },
-    '.view-document-link': function (t)
-    {
+    '.view-document-link': function (t) {
       indexui.load(t);
     },
-    '.select-worksheet-column': function (t)
-    {
+    '.select-worksheet-column': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
       var field = target.attr('data-field-field');
       worksheetui.columnSelection(field, checked);
     },
-    '.select-worksheet-row': function (t)
-    {
+    '.select-worksheet-row': function (t) {
       var target = $(t);
       var checked = target.is(':checked');
       var row = target.attr('data-row');
       worksheetui.rowSelection(row, checked);
     },
-    '#select-all-worksheet-rows': function (t)
-    {
+    '#select-all-worksheet-rows': function (t) {
       var checked = $(t).is(':checked');
       worksheetui.selectAllRows(checked);
     },
-    '#toggle-handles': function (t)
-    {
+    '#toggle-handles': function (t) {
       worksheetui.showHandles();
     },
-    '.fieldset-handle': function (t)
-    {
+    '.fieldset-handle': function (t) {
       worksheetui.showFieldset($(t).attr('data-field-fieldset'));
     },
-    '.field-handle': function (t)
-    {
+    '.field-handle': function (t) {
       worksheetui.showField($(t).attr('data-field-field'));
     },
-    '.field-header': function (t)
-    {
+    '.field-header': function (t) {
       worksheetui.hideField($(t).attr('data-field-field'));
     },
 
     // ### Index Tool
 
-    '#new-index-button': function (t)
-    {
+    '#new-index-button': function (t) {
       ieditui.newCond();
     },
-    '.remove-condition-button': function (t)
-    {
+    '.remove-condition-button': function (t) {
       ieditui.remCond(t);
     },
-    '#delete-index-button': function (t)
-    {
+    '#delete-index-button': function (t) {
       ieditui.del();
     },
-    '#save-index-button': function (t)
-    {
+    '#save-index-button': function (t) {
       ieditui.save();
     },
-    '#replace-button': function (t)
-    {
+    '#replace-button': function (t) {
       ieditui.replace();
     },
-    '#add-index-condition-button': function (t)
-    {
+    '#add-index-condition-button': function (t) {
       ieditui.addCond();
     },
-    '#index-index-listing a': function (t)
-    {
+    '#index-index-listing a': function (t) {
       ieditui.init(t);
     },
 
     // ### Project
 
-    '#create-project': function ()
-    {
+    '#create-project': function () {
       projectui.add().dialog('open');
     },
-    '.project-delete-button': function (t)
-    {
+    '.project-delete-button': function (t) {
       projectui.del(t);
     },
 
     // ### File Manager
 
-    '#up-dir': function ()
-    {
+    '#up-dir': function () {
       fm.upDir();
     },
-    '#root-dir': function ()
-    {
+    '#root-dir': function () {
       fm.rootDir();
     },
-    '.dir': function (t)
-    {
+    '.dir': function (t) {
       fm.goDir(t);
     },
-    '.delete-file-button': function (t)
-    {
+    '.delete-file-button': function (t) {
       fm.deleteFile(t);
     },
-    '.edit-file-button': function (t)
-    {
+    '.edit-file-button': function (t) {
       fm.editFile(t);
     },
 
     // ### General
 
-    '.toggler': function (t)
-    {
+    '.toggler': function (t) {
       form.toggle(t);
     },
-    '.cancel-dialog': function (t)
-    {
+    '.cancel-dialog': function (t) {
       form.cancelDialog(t);
     },
-    '#panel-toggle li': function (t)
-    {
+    '#panel-toggle li': function (t) {
       panelToggler(t);
     }
   });

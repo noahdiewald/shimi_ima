@@ -18,8 +18,7 @@ var evs = require('./ievents.js');
 // Exported functions
 
 // The dialog for adding a new index.
-var initIndexNewDialog = function ()
-{
+var initIndexNewDialog = function () {
   'use strict';
 
   var indexDoctype = $('#index-doctype-input');
@@ -28,58 +27,46 @@ var initIndexNewDialog = function ()
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
 
-  var doctypeEvents = function ()
-  {
-    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function ()
-    {
+  var doctypeEvents = function () {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
       indexFieldset.inputDisable();
       indexField.inputDisable();
 
-      return function ()
-      {
+      return function () {
         indexFieldset.inputEnable();
       };
     });
   };
 
-  var fieldsetEvents = function ()
-  {
-    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function ()
-    {
+  var fieldsetEvents = function () {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
       indexField.inputDisable();
 
-      return function ()
-      {
+      return function () {
         indexField.inputEnable();
       };
     });
   };
 
-  var getLabelForVal = function (val)
-  {
+  var getLabelForVal = function (val) {
     return $('#index-new-dialog option[value="' + val + '"]').text();
   };
 
-  var getLabel = function ()
-  {
+  var getLabel = function () {
     return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
   };
 
-  var dialog = $('#index-new-dialog').dialog(
-  {
+  var dialog = $('#index-new-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Create': function ()
-      {
+    buttons: {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (checkResult)
-        {
+        if (checkResult) {
           var obj = {
             'category': 'index',
             'name': indexName.val(),
@@ -89,21 +76,18 @@ var initIndexNewDialog = function ()
             'fields_label': [getLabel()],
             'fields': [indexField.val()]
           },
-            complete = function (context)
-            {
+            complete = function (context) {
               ilistingui.init();
               $(context).dialog('close');
             };
           form.send('indexes', obj, 'POST', complete, this);
         }
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function ()
-    {
+    close: function () {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
       form.clear($('.input')).removeClass('ui-state-error');

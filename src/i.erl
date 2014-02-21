@@ -25,10 +25,12 @@
 -author('Noah Diewald <noah@diewald.me>').
 
 -export([
-    create/2,
-    update/2,
-    view/2
-    ]).
+         create/2,
+         update/2,
+         view/2,
+         view/3,
+         view_ret/4
+        ]).
 
 -spec create(h:req_data(), h:req_state()) -> {true, h:req_data(), h:req_state()} | h:req_data().
 create(R, S) ->
@@ -108,12 +110,16 @@ update_design(DocId, Project, S) ->
             Design2 = jsn:set_value(<<"_rev">>, Rev, Design),
             couch:update(DesignId, Design2, Project, [{admin, true}|S])
     end.
-    
+
+%% @doc Shorter form of view/3 for the case when Type is 'index'.
 -spec view(h:req_data(), h:req_state()) -> {iodata(), h:req_data(), h:req_state()} | h:req_data().
-view(R, S) ->
-    Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
-    Item = <<"Index">>,
-    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Item}]),
+view(R, S) -> view(index, R, S).
+
+%% @doc Retrieve values from a view index. If Type is 'index' this may
+%% be a user created index or a listing of documents described by
+%% doctypes. The Type should correspond to a function in the q module.
+-spec view(atom(), h:req_data(), h:req_state()) -> {iodata(), h:req_data(), h:req_state()} | h:req_data().
+view(index, R, S) ->
     {[Id, Index, Project, Doctype], R1} = h:g([id, index, project, doctype], R),
     {QsVals, R2} = cowboy_req:qs_vals(R1),
     Ret = case {Id, Index} of
@@ -127,12 +133,25 @@ view(R, S) ->
                   Qs = view:normalize_sortkey_vq(IndexId, QsVals, Project, S),
                   q:index(IndexId, Qs, Project, S)
           end,
+    view_ret(index, Ret, R2, S);
+view(Type, R, S) ->
+    {Project, R1} = h:project(R),
+    {QsVals, R2} = cowboy_req:qs_vals(R1),
+    Ret = q:Type(QsVals, Project, S),
+    view_ret(Type, Ret, R2, S).
+
+%% @doc What to do with the return value from the database when
+%% attempting to view an index. Handles a couple of error cases to
+%% provide user feedback.
+view_ret(Type, Ret, R, S) ->
+    Msg = <<"still building. Please wait 5 to 10 minutes and try again.">>,
+    Message = jsn:encode([{<<"message">>, Msg}, {<<"fieldname">>, Type}]),
     case Ret of
         {ok, Json} ->
-            {jsn:encode(Json), R2, S};
+            {jsn:encode(Json), R, S};
         {error, not_found} ->
-            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R2, S};
+            {jsn:encode([{<<"total">>, 0}, {<<"rows">>, []}]), R, S};
         {error, req_timedout} ->
-            {ok, R3} = cowboy_req:reply(504, [], Message, R2),
-            {halt, R3, S}
+            {ok, R1} = cowboy_req:reply(504, [], Message, R),
+            {halt, R1, S}
     end.

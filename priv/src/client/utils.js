@@ -4,23 +4,18 @@
 
 // safer(ish) string to number. The difference is that in this app
 // I am using '' if the string isn't a valid number.
-var stringToNumber = function (string)
-{
+var stringToNumber = function (string) {
   'use strict';
 
-  if (typeof string === 'string' && !isNaN(string) && string !== '')
-  {
+  if (typeof string === 'string' && !isNaN(string) && string !== '') {
     return string * 1;
-  }
-  else
-  {
+  } else {
     return '';
   }
 };
 
 // A predicate function to detect blankness of various object types.
-var isBlank = function (value)
-{
+var isBlank = function (value) {
   'use strict';
 
   return (((/^\s*$/).test(value)) || (value === null) || (value === undefined) || (typeof value === 'number' && isNaN(value)) || (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0));
@@ -28,8 +23,7 @@ var isBlank = function (value)
 
 // A predicate to test if the input is a string containing 32 characters
 // limited to hexidecimal digits.
-var validID = function (id)
-{
+var validID = function (id) {
   'use strict';
 
   return !!id.match(/^[a-f0-9]{32}$/);
@@ -42,8 +36,7 @@ var Base64 = {
   _keyStr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
 
   // public method for encoding
-  encode: function (input)
-  {
+  encode: function (input) {
     'use strict';
 
     var output = '';
@@ -52,8 +45,7 @@ var Base64 = {
 
     input = Base64._utf8_encode(input);
 
-    while (i < input.length)
-    {
+    while (i < input.length) {
 
       chr1 = input.charCodeAt(i++);
       chr2 = input.charCodeAt(i++);
@@ -64,12 +56,9 @@ var Base64 = {
       enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
       enc4 = chr3 & 63;
 
-      if (isNaN(chr2))
-      {
+      if (isNaN(chr2)) {
         enc3 = enc4 = 64;
-      }
-      else if (isNaN(chr3))
-      {
+      } else if (isNaN(chr3)) {
         enc4 = 64;
       }
 
@@ -81,8 +70,7 @@ var Base64 = {
   },
 
   // public method for decoding
-  decode: function (input)
-  {
+  decode: function (input) {
     'use strict';
 
     var output = '';
@@ -92,8 +80,7 @@ var Base64 = {
 
     input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
 
-    while (i < input.length)
-    {
+    while (i < input.length) {
 
       enc1 = this._keyStr.indexOf(input.charAt(i++));
       enc2 = this._keyStr.indexOf(input.charAt(i++));
@@ -106,12 +93,10 @@ var Base64 = {
 
       output = output + String.fromCharCode(chr1);
 
-      if (enc3 !== 64)
-      {
+      if (enc3 !== 64) {
         output = output + String.fromCharCode(chr2);
       }
-      if (enc4 !== 64)
-      {
+      if (enc4 !== 64) {
         output = output + String.fromCharCode(chr3);
       }
 
@@ -124,29 +109,22 @@ var Base64 = {
   },
 
   // private method for UTF-8 encoding
-  _utf8_encode: function (string)
-  {
+  _utf8_encode: function (string) {
     'use strict';
 
     string = string.replace(/\r\n/g, '\n');
     var utftext = '';
 
-    for (var n = 0; n < string.length; n++)
-    {
+    for (var n = 0; n < string.length; n++) {
 
       var c = string.charCodeAt(n);
 
-      if (c < 128)
-      {
+      if (c < 128) {
         utftext += String.fromCharCode(c);
-      }
-      else if ((c > 127) && (c < 2048))
-      {
+      } else if ((c > 127) && (c < 2048)) {
         utftext += String.fromCharCode((c >> 6) | 192);
         utftext += String.fromCharCode((c & 63) | 128);
-      }
-      else
-      {
+      } else {
         utftext += String.fromCharCode((c >> 12) | 224);
         utftext += String.fromCharCode(((c >> 6) & 63) | 128);
         utftext += String.fromCharCode((c & 63) | 128);
@@ -158,8 +136,7 @@ var Base64 = {
   },
 
   // private method for UTF-8 decoding
-  _utf8_decode: function (utftext)
-  {
+  _utf8_decode: function (utftext) {
     'use strict';
 
     var string = '';
@@ -169,24 +146,18 @@ var Base64 = {
     var c2 = 0;
     var c3 = 0;
 
-    while (i < utftext.length)
-    {
+    while (i < utftext.length) {
 
       c = utftext.charCodeAt(i);
 
-      if (c < 128)
-      {
+      if (c < 128) {
         string += String.fromCharCode(c);
         i++;
-      }
-      else if ((c > 191) && (c < 224))
-      {
+      } else if ((c > 191) && (c < 224)) {
         c2 = utftext.charCodeAt(i + 1);
         string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
         i += 2;
-      }
-      else
-      {
+      } else {
         c2 = utftext.charCodeAt(i + 1);
         c3 = utftext.charCodeAt(i + 2);
         string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));

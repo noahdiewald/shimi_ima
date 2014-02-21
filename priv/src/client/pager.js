@@ -1,6 +1,6 @@
 // # Paging List-like Info
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // This is basically semi-generic paging code.
 //
@@ -19,20 +19,19 @@
 
 // Variable Definitions
 
-var form = require('./form.js');
+var templates = require('templates.js');
+var ajax = require('./ajax.js');
 
 // Exported functions
 
 // Initialize the pager with an args object.
-var pager = function (args)
-{
+var pager = function (args) {
   'use strict';
 
   var mod = {};
   // If the 'prefix' used to automatically determine certain element
   // ID's is not set, set it to 'index'.
-  if (args.prefix === undefined)
-  {
+  if (args.prefix === undefined) {
     args.prefix = 'index';
   }
   // Special formatting or template code.
@@ -40,33 +39,30 @@ var pager = function (args)
   var prefix = args.prefix;
 
   // Escape a value and base64 encode it.
-  var escapeValue = function (value)
-  {
+  var escapeValue = function (value) {
     return window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(value))));
   };
 
   // The number of elements to display is given here. Note how `prefix`
   // is used.
-  var limitField = function ()
-  {
-    return $('#' + prefix + '-limit');
+  var limitField = function () {
+    return document.getElementById(prefix + '-limit');
   };
 
   // Get the first or next page. There won't be `prevkeys` or `previds`
   // if it is the first page. These accumulate during paging so that it
   // is possible to go backwards.
-  mod.get = function (startkey, startid, prevkeys, previds)
-  {
+  mod.get = function (startkey, startid, prevkeys, previds) {
     // The URL given as one of the original args.
     var url = args.url + '?';
     // This would be a custom index ID.
     var indexId = args.indexId;
     // The given limit.
-    var limit = limitField().val() * 1;
+    var limit = limitField().value * 1;
     // Where the next page will be displayed.
     var target = args.target;
     // The filter is used to constrain the values listed.
-    var filterVal = $('#' + prefix + '-filter').val();
+    var filterVal = document.getElementById(prefix + '-filter').value;
     var state = {
       sk: startkey,
       sid: startid,
@@ -74,81 +70,92 @@ var pager = function (args)
       pids: previds
     };
 
-    if (!state.pks)
-    {
+    if (!state.pks) {
+
+      if (args.filterMod) {
+        filterVal = args.filterMod(filterVal);
+      }
+
       state.sk = escapeValue(filterVal);
       state.pks = [];
       state.pids = [];
     }
 
-    if (state.sk)
-    {
+    if (state.sk) {
       url = url + 'startkey=' + window.escape(window.atob(state.sk));
-      if (state.sid)
-      {
+      if (state.sid) {
         url = url + '&startkey_docid=' + state.sid;
       }
     }
 
-    if (limit)
-    {
+    if (limit) {
       url = url + '&limit=' + (limit + 1);
-    }
-    else
-    {
-      limitField().val(25);
+    } else {
+      limitField().value = 25;
       url = url + '&limit=26';
     }
 
-    if (indexId)
-    {
+    if (indexId) {
       url = url + '&index=' + indexId;
     }
 
-    form.send(url, false, 'GET', function (context, req)
-    {
+    ajax.get(url, function (req) {
       mod.fill(req, state, target);
-    }, this);
+    });
 
     return mod;
   };
 
-  mod.fill = function (req, state, target)
-  {
-    var limit = limitField().val() * 1;
-
+  mod.fill = function (req, state, target) {
+    var limit = limitField().value * 1;
     var respJSON;
     var lastrow;
     var newRows;
 
-    if (format === undefined)
-    {
-      respJSON = JSON.parse(req.responseText);
-    }
-    else
-    {
-      respJSON = format(req.responseText);
+    var prevElem = function () {
+      return document.getElementById('previous-' + prefix + '-page');
+    };
+
+    var nextElem = function () {
+      return document.getElementById('next-' + prefix + '-page');
+    };
+
+    var prevHandler = function () {
+      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    };
+
+    var nextHandler = function () {
+      var firstElem = document.getElementById('first-' + prefix + '-element');
+      var nextkey = nextElem().getAttribute('data-startkey');
+      var nextid = nextElem().getAttribute('data-startid');
+      var prevkey = firstElem.getAttribute('data-first-key');
+      var previd = firstElem.getAttribute('data-first-id');
+      state.pks.push(prevkey);
+      state.pids.push(previd);
+
+      mod.get(nextkey, nextid, state.pks, state.pids);
+    };
+
+    if (format === undefined) {
+      respJSON = req.response;
+    } else {
+      respJSON = format(req.response);
     }
 
-    newRows = respJSON.rows.map(function (item, index, thisArray)
-    {
+    newRows = respJSON.rows.map(function (item, index, thisArray) {
       item.encoded_key = escapeValue(item.key);
       return item;
     });
 
     lastrow = newRows.slice(-1);
 
-    if (newRows[0])
-    {
+    if (newRows[0]) {
       newRows[0].firstrow = true;
     }
 
-    if (newRows.length > limit)
-    {
+    if (newRows.length > limit) {
       respJSON.rows = newRows.slice(0, -1);
-    }
-    else
-    {
+    } else {
       respJSON.rows = newRows;
       respJSON.lastpage = true;
     }
@@ -156,38 +163,21 @@ var pager = function (args)
     respJSON.lastrow = lastrow;
     respJSON.prefix = prefix;
 
-    target.html(templates['paged-listing'].render(respJSON,
-    {
-      'listed-element': templates[prefix + '-element']
-    }));
-
-    $('#previous-' + prefix + '-page').click(function ()
-    {
-      mod.get(state.pks.pop(), state.pids.pop(), state.pks, state.pids);
+    target.innerHTML = templates['paged-listing'](respJSON, {
+      'listed-element': templates.templates[prefix + '-element']
     });
 
-    $('#next-' + prefix + '-page').click(function ()
-    {
-      var nextkey = $('#next-' + prefix + '-page').attr('data-startkey');
-      var nextid = $('#next-' + prefix + '-page').attr('data-startid');
-      var prevkey = $('#first-' + prefix + '-element').attr('data-first-key');
-      var previd = $('#first-' + prefix + '-element').attr('data-first-id');
-      state.pks.push(prevkey);
-      state.pids.push(previd);
-
-      mod.get(nextkey, nextid, state.pks, state.pids);
-    });
+    nextElem().onclick = nextHandler;
+    prevElem().onclick = prevHandler;
 
     // Disable the previous button if we're at the beginning
-    if (state.pks.length === 0)
-    {
-      $('#previous-' + prefix + '-page').hide();
+    if (state.pks.length === 0) {
+      prevElem().classList.add('hidden');
     }
 
     // Disable the next button if we're at the end
-    if ($('#next-' + prefix + '-page').attr('data-last-page'))
-    {
-      $('#next-' + prefix + '-page').hide();
+    if (nextElem().getAttribute('data-last-page')) {
+      nextElem().classList.add('hidden');
     }
 
     return mod;

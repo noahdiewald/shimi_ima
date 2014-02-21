@@ -9,7 +9,7 @@
 
 // Variable Definitions
 
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 var refreshListings;
 
@@ -17,74 +17,59 @@ var refreshListings;
 
 // Get information subdirectories within a path. As an example
 // '/home/chuck/'.
-var getDirListing = function (path)
-{
+var getDirListing = function (path) {
   'use strict';
 
-  if (path === undefined)
-  {
+  if (path === undefined) {
     path = '';
   }
 
-  $.get('file_manager/list_dirs/' + path, function (data)
-  {
-    $('#file-paths').html(data);
+  ajax.legacyHTMLGet('file_manager/list_dirs/' + path, function (req) {
+    $('#file-paths').html(req.response);
   });
 };
 
 // Get the document information for documents with a certain path.
-var getFileListing = function (path)
-{
+var getFileListing = function (path) {
   'use strict';
 
-  if (path === undefined)
-  {
+  if (path === undefined) {
     path = '';
   }
 
-  $.get('file_manager/list_files/' + path, function (data)
-  {
-    $('#file-listing').html(data);
+  ajax.legacyHTMLGet('file_manager/list_files/' + path, function (req) {
+    $('#file-listing').html(req.response);
   });
 };
 
 // Open a dialog for editing a file path.
-var pathEditDialog = function (obj, path)
-{
+var pathEditDialog = function (obj, path) {
   'use strict';
 
   var pathInput = $('#file-path-input');
 
-  if (obj.path)
-  {
+  if (obj.path) {
     pathInput.val(obj.path.join('/'));
-  }
-  else
-  {
+  } else {
     pathInput.val('');
   }
 
-  var dialog = $('#edit-path-dialog').dialog(
-  {
+  var dialog = $('#edit-path-dialog').dialog({
     autoOpen: false,
     modal: true,
-    buttons:
-    {
-      'Move': function ()
-      {
+    buttons: {
+      'Move': function () {
         var url = 'file_manager/' + obj._id + '?rev=' + obj._rev;
-        var complete = function ()
-        {
+        var complete = function () {
           refreshListings(path);
           flash.highlight('Success', 'File Moved');
         };
 
         obj.path = pathInput.val().replace(/^\s*|\s*$/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').split('/');
-        form.send(url, obj, 'PUT', complete, dialog);
+        ajax.put(url, obj, complete);
         $(this).dialog('close');
       },
-      'Cancel': function ()
-      {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     }
@@ -96,35 +81,26 @@ var pathEditDialog = function (obj, path)
 // Exported functions
 
 // Initialize the sub-application.
-var init = function ()
-{
+var init = function () {
   'use strict';
 
   refreshListings();
-  $('#file-upload-target').load(function ()
-  {
+  $('#file-upload-target').load(function () {
     var encoded = $('#file-upload-target').contents().find('body pre').html();
-    var obj = function ()
-    {
-      if (encoded && encoded.length > 0)
-      {
+    var obj = function () {
+      if (encoded && encoded.length > 0) {
         return JSON.parse(encoded);
-      }
-      else
-      {
+      } else {
         return {
           message: false
         };
       }
     };
 
-    if (obj() && obj().message && obj().status !== 'success')
-    {
+    if (obj() && obj().message && obj().status !== 'success') {
       flash.error('Error', obj().message);
       refreshListings();
-    }
-    else if (obj().message)
-    {
+    } else if (obj().message) {
       flash.highlight('Success', obj().message);
       refreshListings();
     }
@@ -132,8 +108,7 @@ var init = function ()
 };
 
 // Handle the mouse click action that initiates going to a directory.
-var goDir = function (target)
-{
+var goDir = function (target) {
   'use strict';
 
   var newpath = $(target).attr('data-path');
@@ -144,8 +119,7 @@ var goDir = function (target)
 };
 
 // Return to the root directory.
-var rootDir = function ()
-{
+var rootDir = function () {
   'use strict';
 
   var path = window.sessionStorage.fmPath = '';
@@ -155,8 +129,7 @@ var rootDir = function ()
 };
 
 // Move up a directory.
-var upDir = function ()
-{
+var upDir = function () {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
@@ -172,45 +145,40 @@ var upDir = function ()
 
 // Handle the mouse click action that initiates editing a file by opening
 // a dialog to edit its path.
-var editFile = function (target)
-{
+var editFile = function (target) {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
   var fileId = target.attr('data-file-id');
   var url = 'file_manager/' + fileId;
 
-  $.getJSON(url, function (obj)
-  {
-    pathEditDialog(obj, path).dialog('open');
+  ajax.get(url, function (req) {
+    pathEditDialog(req.response, path).dialog('open');
   });
 
   return true;
 };
 
 // Handle the mouse click action that initiates deleting a file.
-var deleteFile = function (target)
-{
+var deleteFile = function (target) {
   'use strict';
 
   var path = window.sessionStorage.fmPath;
   var fileId = target.attr('data-file-id');
   var fileRev = target.attr('data-file-rev');
   var url = 'file_manager/' + fileId + '?rev=' + fileRev;
-  var complete = function ()
-  {
+  var complete = function () {
     refreshListings(path);
     flash.highlight('Success', 'File Deleted');
   };
 
-  form.send(url, null, 'DELETE', complete, target);
+  ajax.del(url, complete);
 
   return true;
 };
 
 // Refresh the file listing using the given path.
-refreshListings = function (path)
-{
+refreshListings = function (path) {
   'use strict';
 
   getDirListing(path);

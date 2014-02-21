@@ -1,38 +1,37 @@
 // # The worksheet user interface
 //
-// *Implicit depends:* DOM, JQuery, Hogan, templates, globals
+// *Implicit depends:* DOM, JQuery, globals
 // ([application.js](./application.html))
 //
 // Worksheet pane UI elements.
 
 // Variable Definitions
 
+var Hogan = require('hogan.js');
+var templates = require('templates.js');
 var setsui = require('./setsui.js');
 var documents = require('./documents.js');
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 
 // Internal functions
 
 // User interface element
-var worksheetsSet = function ()
-{
+var worksheetsSet = function () {
   'use strict';
 
   return $('#document-worksheets-set-input');
 };
 
 // User interface element
-var worksheetsArea = function ()
-{
+var worksheetsArea = function () {
   'use strict';
 
   return $('#worksheet-area');
 };
 
 // Name for the worksheet template.
-var worksheetName = function ()
-{
+var worksheetName = function () {
   'use strict';
 
   return documents.identifier() + '_worksheet-template';
@@ -41,17 +40,13 @@ var worksheetName = function ()
 // Exported functions
 
 // Select all the visible rows.
-var selectAllRows = function (select)
-{
+var selectAllRows = function (select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('#worksheet-table tbody tr').addClass('selected-row');
     $('#worksheet-table tbody tr input').prop('checked', true);
-  }
-  else
-  {
+  } else {
     $('#worksheet-table tbody tr').removeClass('selected-row');
     $('#worksheet-table tbody tr input:checked').prop('checked', false);
   }
@@ -60,17 +55,13 @@ var selectAllRows = function (select)
 };
 
 // Set the proper class for a selected row and unset the 'select all'
-var rowSelection = function (row, select)
-{
+var rowSelection = function (row, select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('#' + row).addClass('selected-row');
     $('#select-all-worksheet-rows').prop('checked', false);
-  }
-  else
-  {
+  } else {
     $('#' + row).removeClass('selected-row');
     $('#select-all-worksheet-rows').prop('checked', false);
   }
@@ -79,16 +70,12 @@ var rowSelection = function (row, select)
 };
 
 // Select a column.
-var columnSelection = function (column, select)
-{
+var columnSelection = function (column, select) {
   'use strict';
 
-  if (select)
-  {
+  if (select) {
     $('.field-column.' + column).addClass('selected-column');
-  }
-  else
-  {
+  } else {
     $('.field-column.' + column).removeClass('selected-column');
   }
 
@@ -96,8 +83,7 @@ var columnSelection = function (column, select)
 };
 
 // Show vertical headers for fields and fieldsets.
-var showHandles = function ()
-{
+var showHandles = function () {
   'use strict';
 
   $('#worksheet-table .handle-column.fieldset').show();
@@ -106,8 +92,7 @@ var showHandles = function ()
 };
 
 // Hide vertical headers for fields and fieldsets.
-var hideHandles = function ()
-{
+var hideHandles = function () {
   'use strict';
 
   $('#worksheet-table .handle-column.fieldset').hide();
@@ -116,8 +101,7 @@ var hideHandles = function ()
 };
 
 // Show the fieldset handle.
-var showFieldset = function (fsid)
-{
+var showFieldset = function (fsid) {
   'use strict';
 
   $('#worksheet-table .handle-column.field.' + fsid).show();
@@ -126,8 +110,7 @@ var showFieldset = function (fsid)
 };
 
 // Hide the fieldset handle.
-var hideFieldset = function (fsid)
-{
+var hideFieldset = function (fsid) {
   'use strict';
 
   $('#worksheet-table .handle-column.field.' + fsid).hide();
@@ -136,8 +119,7 @@ var hideFieldset = function (fsid)
 };
 
 // Show a field.
-var showField = function (fid)
-{
+var showField = function (fid) {
   'use strict';
 
   $('.field-column.' + fid).show();
@@ -146,8 +128,7 @@ var showField = function (fid)
 };
 
 // Hide a field.
-var hideField = function (fid)
-{
+var hideField = function (fid) {
   'use strict';
 
   $('.field-column.' + fid).hide();
@@ -157,46 +138,37 @@ var hideField = function (fid)
 
 // There are two layers of templating information in the
 // template. Activate the second layer.
-var buildTemplate = function ()
-{
+var buildTemplate = function () {
   'use strict';
 
   var doctypeInfo = documents.info();
-  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'].render(doctypeInfo);
+  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
   globals[worksheetName()] = Hogan.compile(metaTemp);
 
   return true;
 };
 
 // Render the worksheet.
-var fillWorksheet = function ()
-{
+var fillWorksheet = function () {
   'use strict';
 
   var setName = worksheetsSet().val();
   var url = 'worksheets';
-  var complete = function (_ignore, req)
-  {
-    var data = JSON.parse(req.responseText);
-    var ws = globals[worksheetName()].render(data);
+  var complete = function (req) {
+    var ws = globals[worksheetName()].render(req.response);
     worksheetsArea().html(ws);
   };
 
-  if (!setName.isBlank())
-  {
+  if (!setName.isBlank()) {
     var thisSet = setsui.getSet(setName)[1];
 
-    if (thisSet.length <= 250)
-    {
-      var setIds = thisSet.map(function (x)
-      {
+    if (thisSet.length <= 250) {
+      var setIds = thisSet.map(function (x) {
         return x[1];
       });
 
-      form.send(url, setIds, 'POST', complete);
-    }
-    else
-    {
+      ajax.post(url, setIds, complete);
+    } else {
       flash.error('Could not load worksheet', 'the current set size is limited to 250 items.');
     }
   }

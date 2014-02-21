@@ -6,8 +6,10 @@
     "blanket": "1.1.4",
     "chai": "1.6.0",
     "grunt": "0.4.1",
+    "grunt-jsbeautifier": "0.2.4",
     "grunt-browserify": "1.2.4",
     "grunt-contrib-concat": "0.3.0",
+    "grunt-contrib-copy": "0.4.1",
     "grunt-contrib-less": "0.5.0",
     "grunt-contrib-uglify": "0.2.0",
     "grunt-contrib-jshint": "0.4.3",
@@ -16,12 +18,18 @@
     "grunt-mocha-cov": "0.0.7",
     "grunt-rigger": "0.4.0",
     "hogan.js": "2.0.0",
+    "htmlparser2": "3.3.0",
     "less": "1.4.0-b2",
-    "tv4": "1.0.5"
+    "reactorjs": "0.0.2",
+    "tv4": "1.0.5",
+    "node-uuid": "1.4.1"
   },
   "scripts": {
     "blanket": {
-        "pattern": ["src/server/shimi_ima/"]
+      "pattern": [
+        "src/server/shimi_ima/",
+        "src/client/"
+      ]
     }
   }
 }

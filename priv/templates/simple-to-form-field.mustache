@@ -1,0 +1,39 @@
+<li>
+  {{#key}}
+    <label for="{{ key }}">{{ key }}</label>
+  {{/key}}
+  {{#text}}
+    <textarea {{#key}}name="{{ key }}"{{/key}}>{{ value }}</textarea>
+  {{/text}}
+  {{#string}}
+    <input type="text" {{#key}}name="{{ key }}"{{/key}} value="{{ value }}"/>
+  {{/string}}
+  {{#bool}}
+    <input type="text" {{#key}}name="{{ key }}"{{/key}} value="{{ value }}"/>
+  {{/bool}}
+  {{#number}}
+    <input type="number" {{#key}}name="{{ key }}"{{/key}} value="{{ value }}"/>
+  {{/number}}
+  {{#array}}
+    {{#key}}
+      <fieldset>
+        <legend>{{ key }}</legend>
+        {{> simple-to-form-array}}
+      </fieldset>
+    {{/key}}
+    {{#index}}
+      {{> simple-to-form-array}}
+    {{/index}}
+  {{/array}}
+  {{#object}}
+    {{#key}}
+      <fieldset>
+        <legend>{{ key }}</legend>
+        {{> simple-to-form-object}}
+      </fieldset>
+    {{/key}}
+    {{#index}}
+      {{> simple-to-form-object}}
+    {{/index}}
+  {{/object}}
+</li>

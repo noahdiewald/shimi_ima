@@ -10,29 +10,23 @@ var form = require('../form.js');
 
 // Returns an object with references to add/edit fieldset dialog
 // field elements with helper functions.
-var fieldsetElems = (function ()
-{
+var fieldsetElems = (function () {
   'use strict';
 
   var mod = {};
 
   mod.attrs = ['name', 'label', 'order', 'description', 'doctype', 'rev', 'multiple', 'collapse', 'fieldset'];
 
-  mod.get = function (values)
-  {
+  mod.get = function (values) {
     var fObj = {};
 
     fObj.attrs = mod.attrs;
 
-    fObj.copyValues = function (source)
-    {
-      Object.keys(source).forEach(function (field)
-      {
+    fObj.copyValues = function (source) {
+      Object.keys(source).forEach(function (field) {
         fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]'))
-        {
-          if (source[field] === 'true')
-          {
+        if (fObj[field].is('input[type=checkbox]')) {
+          if (source[field] === 'true') {
             fObj[field].attr('checked', true);
           }
         }
@@ -40,8 +34,7 @@ var fieldsetElems = (function ()
       return fObj;
     };
 
-    fObj.getFieldsetInputVals = function ()
-    {
+    fObj.getFieldsetInputVals = function () {
       var valObj = {
         'category': 'fieldset',
         'name': fObj.name.val(),
@@ -55,14 +48,12 @@ var fieldsetElems = (function ()
       return valObj;
     };
 
-    fObj.clear = function ()
-    {
+    fObj.clear = function () {
       form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
-    fObj.attrs.forEach(function (item)
-    {
+    fObj.attrs.forEach(function (item) {
       fObj[item] = $('#fieldset-' + item + '-input');
     });
 

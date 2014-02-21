@@ -1,0 +1,58 @@
+<h2 class="header">{{ title }}</h2>
+
+{{#has_rows}}
+  <div id="edit-document-form" class="ui-widget ui-corner-all">
+  
+    <div id="edit-tabs">
+      <div id="tabs-container">
+        <ul id="tab-list">
+          {{#fieldsets}}
+          <li>
+            <a href="#{{ _id }}">
+              {{ label }}
+            </a>
+          </li>
+          {{/fieldsets}}
+        </ul>
+      </div>
+      {{#fieldsets}}
+        <fieldset
+          id="{{ _id }}" 
+          class="ui-widget ui-widget-content ui-corner-all fieldset"
+          data-group-id="{{ _id }}"
+          data-field-fieldset="{{ _id }}" 
+          data-field-project="project-{{ project_id }}"
+          data-field-doctype="{{ doctype }}"
+          data-fieldset-fieldset="{{ _id }}" 
+          data-fieldset-multiple="{{ multiple }}"
+          data-fieldset-collapse="{{ collapse }}"
+          data-fieldset-name="{{ name }}"
+          data-fieldset-label="{{ label }}"
+          data-fieldset-order="{{ order }}"
+          data-fieldset-project="project-{{ project_id }}"
+          data-fieldset-doctype="{{ doctype_id }}">
+          <p>{{ description }}</p>
+          <div 
+            id="container-{{ _id }}" 
+            class="fieldset-container"
+            data-group-id="{{ _id }}"></div>
+            {{#multiple}}
+              <a 
+                class="add-button link-button" 
+                data-group-id="{{ _id }}">Add</a>
+            {{/multiple}}
+        </fieldset>
+      {{/fieldsets}}
+    </div>
+    <div id="submit-button-area">
+      <a id="clear-document-button" class="clear-button link-button">Clear Form</a>
+      <a data-group-id="all-document-container" id="create-document-button" class="create-button link-button">Create as New</a>
+      <a data-group-id="all-document-container" id="save-document-button" class="save-button link-button hidden">Save</a>
+    </div>
+  </div>
+{{/has_rows}}
+{{^has_rows}}
+<p>
+  You must add fields and fieldsets before you can create a document of this type.
+</p>
+{{/has_rows}}

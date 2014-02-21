@@ -12,42 +12,37 @@ var initReplaceDialog = require('./replace-dialog.js').initReplaceDialog;
 var ilistingui = require('./ilistingui.js');
 var ipreviewui = require('./ipreviewui.js');
 var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
+var ajax = require('../ajax.js');
 var flash = require('../flash.js');
 
 // Internal functions
 
 // User interface element
-var tableBody = function ()
-{
+var tableBody = function () {
   'use strict';
 
   return $('#index-conditions-listing tbody');
 };
 
 // User interface element
-var editingData = function ()
-{
+var editingData = function () {
   'use strict';
 
   return $('#index-editing-data');
 };
 
 // Make sure the arguments are of the correct type.
-var fixArgumentType = function (argument, subcategory, operator)
-{
+var fixArgumentType = function (argument, subcategory, operator) {
   'use strict';
 
-  switch (subcategory)
-  {
+  switch (subcategory) {
   case 'integer':
   case 'rational':
     argument = argument * 1;
     break;
   }
 
-  switch (operator)
-  {
+  switch (operator) {
   case 'hasExactly':
   case 'hasGreater':
   case 'hasLess':
@@ -60,65 +55,57 @@ var fixArgumentType = function (argument, subcategory, operator)
 
 // Use data in `data` attributes of HTML elements to produce an array
 // of conditions.
-var getIndexConditions = function (doctypeId, rows)
-{
+var getIndexConditions = function (doctypeId, rows) {
   'use strict';
 
   var conditions = rows.map(
 
-  function (index, row)
-  {
-    row = $(row);
-    var is_or = row.find('td.or-condition').attr('data-value') === 'true';
-    var paren = row.find('td.paren-condition').attr('data-value');
-    var condition;
+    function (index, row) {
+      row = $(row);
+      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
+      var paren = row.find('td.paren-condition').attr('data-value');
+      var condition;
 
-    if (is_or)
-    {
-      condition = {
-        'is_or': true,
-        'parens': false
-      };
-    }
-    else if (paren)
-    {
-      condition = {
-        'is_or': false,
-        'parens': paren
-      };
-    }
-    else
-    {
-      var fieldId = row.find('td.field-condition').attr('data-value');
-      var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-      var argument = row.find('td.argument-condition').attr('data-value');
-      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
-      var negate =
-        row.find('td.negate-condition').attr('data-value') === 'true';
-      var operator = row.find('td.operator-condition').attr('data-value');
+      if (is_or) {
+        condition = {
+          'is_or': true,
+          'parens': false
+        };
+      } else if (paren) {
+        condition = {
+          'is_or': false,
+          'parens': paren
+        };
+      } else {
+        var fieldId = row.find('td.field-condition').attr('data-value');
+        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
+        var argument = row.find('td.argument-condition').attr('data-value');
+        var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+        var negate =
+          row.find('td.negate-condition').attr('data-value') === 'true';
+        var operator = row.find('td.operator-condition').attr('data-value');
 
-      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
 
-      condition = {
-        'is_or': false,
-        'parens': false,
-        'negate': negate,
-        'fieldset': fieldsetId,
-        'field': fieldId,
-        'operator': operator,
-        'argument': argument
-      };
-    }
+        condition = {
+          'is_or': false,
+          'parens': false,
+          'negate': negate,
+          'fieldset': fieldsetId,
+          'field': fieldId,
+          'operator': operator,
+          'argument': argument
+        };
+      }
 
-    return condition;
-  }).toArray();
+      return condition;
+    }).toArray();
 
   return conditions;
 };
 
 // Initiate the save action.
-var saveIndex = function (buttonData, completeFunction)
-{
+var saveIndex = function (buttonData, completeFunction) {
   'use strict';
 
   var indexId = buttonData.attr('data-index-id');
@@ -137,51 +124,42 @@ var saveIndex = function (buttonData, completeFunction)
     'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
   };
 
-  if (buttonData.attr('data-index-replace_function'))
-  {
+  if (buttonData.attr('data-index-replace_function')) {
     obj.replace_function = buttonData.attr('data-index-replace_function');
   }
 
-  form.send(url, obj, 'PUT', completeFunction, this);
+  ajax.put(url, obj, 'PUT', completeFunction);
 
   return false;
 };
 
 // Initiate the delete action.
-var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction)
-{
+var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction) {
   'use strict';
 
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
   var title;
   var body;
 
-  $.ajax(
-  {
+  $.ajax({
     type: 'DELETE',
     url: url,
     dataType: 'json',
     contentType: 'application/json',
-    complete: function (req, status)
-    {
-      if (req.status === 204)
-      {
+    complete: function (req, status) {
+      if (req.status === 204) {
         title = 'Success';
         body = completeMessage;
 
         completeFunction();
 
         flash.highlight(title, body);
-      }
-      else if (req.status === 409)
-      {
+      } else if (req.status === 409) {
         body = JSON.parse(req.responseText);
         title = req.statusText;
 
         flash.error(title, body.message);
-      }
-      else if (req.status === 404)
-      {
+      } else if (req.status === 404) {
         body = 'Index appears to have been deleted already.';
         title = req.statusText;
 
@@ -196,17 +174,15 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
 // Exported functions
 
 // Initialize the index editing user interface.
-var init = function (target)
-{
+var init = function (target) {
   'use strict';
 
   var indexId = $(target).attr('data-index-id');
   var url = 'indexes/' + indexId;
   var htmlTarget = $('#index-conditions');
 
-  $.get(url, function (indexData)
-  {
-    htmlTarget.html(indexData);
+  ajax.legacyHTMLGet(url, function (req) {
+    htmlTarget.html(req.response);
     tableBody().sortable();
     ipreviewui.get();
   });
@@ -215,42 +191,33 @@ var init = function (target)
 };
 
 // Save the index.
-var save = function ()
-{
+var save = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
-    var completeFunction = function ()
-    {
+  if (bData.length !== 0) {
+    var completeFunction = function () {
       init(bData);
       flash.highlight('Success', 'Your index has been saved.');
     };
 
     saveIndex(bData, completeFunction);
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'No index has been chosen to save.');
   }
 };
 
 // Open the replace dialog, which allows the user to enter a function
 // that will replace the normal output of the index.
-var replace = function ()
-{
+var replace = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     initReplaceDialog.dialog('open');
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
 
@@ -258,18 +225,14 @@ var replace = function ()
 };
 
 // Add a condition using the index builder dialog.
-var addCond = function ()
-{
+var addCond = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     initIndexBuilderDialog(bData.attr('data-index-doctype')).dialog('open');
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
 
@@ -277,8 +240,7 @@ var addCond = function ()
 };
 
 // Handle the mouse click initiate action of removing a condition.
-var remCond = function (target)
-{
+var remCond = function (target) {
   'use strict';
 
   $(target).closest('tr').remove();
@@ -286,8 +248,7 @@ var remCond = function (target)
 };
 
 // Open the new index dialog.
-var newCond = function ()
-{
+var newCond = function () {
   'use strict';
 
   initIndexNewDialog().dialog('open');
@@ -295,30 +256,24 @@ var newCond = function ()
 };
 
 // Delete the current index.
-var del = function ()
-{
+var del = function () {
   'use strict';
 
   var bData = editingData();
 
-  if (bData.length !== 0)
-  {
+  if (bData.length !== 0) {
     var indexId = bData.attr('data-index-id');
     var indexRev = bData.attr('data-index-rev');
     var completeMessage = 'Your index has been deleted.';
-    var completeFunction = function ()
-    {
+    var completeFunction = function () {
       $('#index-conditions').empty();
       ilistingui.init();
     };
 
-    if (window.confirm('Are you sure?'))
-    {
+    if (window.confirm('Are you sure?')) {
       deleteIndex(indexId, indexRev, completeMessage, completeFunction);
     }
-  }
-  else
-  {
+  } else {
     flash.highlight('Info', 'No index has been chosen to delete.');
   }
 

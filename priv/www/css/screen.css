@@ -19,18 +19,11 @@ h1 {
   font-size: 12pt;
   margin: 0;
 }
-section {
-  display: block !important;
-}
 header {
-  display: block !important;
   padding-left: 0.5em;
   text-align: left;
   margin: 0;
   background: #ffffff;
-}
-nav {
-  display: block !important;
 }
 nav ul {
   padding: 0;
@@ -175,8 +168,110 @@ fieldset {
   border-color: #cccccc;
   margin: 1px;
 }
-.accordion-head {
-  padding-left: 25px;
+div#config-edit div#edit-form .marked {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form .lists {
+  padding-left: 1em;
+}
+div#config-edit div#edit-form .collapsable.collapsed:after {
+  content: ' ... ';
+}
+div#config-edit div#edit-form .list-elems .labels {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form .list-elems .labels:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems .labels:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form .list-elems label,
+div#config-edit div#edit-form .list-elems .span-label {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form .list-elems label:after,
+div#config-edit div#edit-form .list-elems .span-label:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems label:-moz-focusring,
+div#config-edit div#edit-form .list-elems .span-label:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form .list-elems span.span-title {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form .list-elems span.span-title:after {
+  content: ':';
+}
+div#config-edit div#edit-form .list-elems span.span-title:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form .list-elems span.span-title.collapsed:after {
+  content: ' ... ';
+}
+div#config-edit div#edit-form li .labels {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form li .labels:after {
+  content: ':';
+}
+div#config-edit div#edit-form li .labels:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form li label,
+div#config-edit div#edit-form li .span-label {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form li label:after,
+div#config-edit div#edit-form li .span-label:after {
+  content: ':';
+}
+div#config-edit div#edit-form li label:-moz-focusring,
+div#config-edit div#edit-form li .span-label:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form li span.span-title {
+  margin-right: 1em;
+}
+div#config-edit div#edit-form li span.span-title:after {
+  content: ':';
+}
+div#config-edit div#edit-form li span.span-title:-moz-focusring {
+  outline: none;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div#config-edit div#edit-form li span.span-title.collapsed:after {
+  content: ' ... ';
+}
+div#config-edit div#edit-form li.marked-line {
+  background-color: #f0a265;
+}
+div#config-edit div#edit-form ul {
+  padding-left: 1em;
+}
+div#config-edit div#edit-form ul > li {
+  list-style-type: none;
+}
+div#config-edit div#edit-form ol {
+  padding-left: 1em;
+  list-style-position: inside;
+}
+div#config-edit div#edit-form ol > li.collapsed:after {
+  content: ' ... ';
 }
 #notifications-main {
   top: 0;
@@ -188,6 +283,7 @@ fieldset {
 }
 #notifications-main div {
   padding: 0.5em;
+  display: none;
 }
 ul.head-elements {
   padding: 0;
@@ -207,8 +303,7 @@ ul.head-elements li:first-child:before {
   display: table;
   width: 100%;
 }
-#all-document-container,
-#all-index-container {
+#container > div {
   background: #ffffff;
   display: table-row;
 }
@@ -238,23 +333,13 @@ table td {
   display: table-cell;
   vertical-align: top;
   padding-top: 0;
-}
-.panel#document-index,
-.panel#index-preview {
   width: 25%;
 }
-.panel#document-index table,
-.panel#index-preview table {
+.panel table {
   width: 100%;
 }
 .panel#index-index {
   width: 10%;
-}
-.panel#index-index table {
-  width: 100%;
-}
-.panel#document-changelog table {
-  width: 100%;
 }
 .panel#document-changelog table tr.change-change th {
   font-weight: normal;
@@ -270,12 +355,6 @@ table td {
 .panel#document-changelog table tr.change-header th a,
 .panel#document-changelog table tr.change-header td a {
   font-weight: bold;
-}
-.panel#document-view {
-  width: 25%;
-}
-.panel#document-view table {
-  width: 100%;
 }
 .panel#document-view ul {
   padding-left: 1em;
@@ -302,12 +381,9 @@ table td {
   display: none;
 }
 .panel#document-edit,
-.panel#index-edit {
+.panel#index-edit,
+.panel#config-edit {
   width: 50%;
-}
-.panel#document-edit table,
-.panel#index-edit table {
-  width: 100%;
 }
 .panel#document-worksheets #worksheet-area {
   width: 100%;
@@ -383,8 +459,7 @@ table td {
 span.retain-white {
   white-space: pre-wrap;
 }
-#all-document-container h2,
-#all-index-container h2 {
+#container h2 {
   margin-top: 0;
   font-size: 1em;
   padding-left: 0.5em;
@@ -432,6 +507,7 @@ nav ul li,
   margin-left: -50px;
   left: 50%;
   top: 40%;
+  display: none;
 }
 #tabs-container {
   width: 100%;

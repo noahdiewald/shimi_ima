@@ -1,1 +1,0 @@
-<li><a href="config/doctypes/{{ key }}">{{ key }}</a></li>

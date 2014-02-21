@@ -80,7 +80,7 @@ create_id(Doctype, Timestamp) ->
  
 deleted(Data, Doctype, Project, S) ->
     create_change(deletion, Data, Doctype, Project, S).
-
+    
 restored(Data, Doctype, Project, S) ->
     create_change(restoration, Data, Doctype, Project, S).
 
