@@ -1,5 +1,5 @@
 <tr>
-  <td><a href="/projects/project-{{ id }}/doctypes">{{ doc.name|force_escape }}</a></td>
+  <td><a href="/projects/project-{{ id }}/doctypes/main">{{ doc.name|force_escape }}</a></td>
   <td>{{ doc.description|force_escape }}</td>
   <td>
     <a href="/projects/project-{{ id }}/config" 
