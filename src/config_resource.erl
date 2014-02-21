@@ -65,7 +65,7 @@ content_types_accepted(R, S) ->
 
 do_upgrade(R, S) ->
     {Project, R1} = cowboy_req:binding(project, R),
-    DatabaseUrl = utils:adb() ++ binary_to_list(Project),
+    DatabaseUrl = couch:adb(binary_to_list(Project)),
     spawn_link(project, upgrade, [DatabaseUrl]),
     {true, R1, S}.
 
