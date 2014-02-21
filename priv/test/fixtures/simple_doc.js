@@ -1,7 +1,7 @@
 exports.simple_doc = {
   '_id': '25250e2ead108a8f60213f2404007c91',
   '_rev': '1-6ec90301ac115fed382a77207e81a9ca',
-  'doctype': 'bim',
+  'doctype': 'http://example.com/project-db9b2f5a635078bf094b2a95931d0073/bim',
   'description': '',
   'fieldsets': [{
     'id': 'b9ad37ea17a58d9be32160f393770e5d',
@@ -24,8 +24,7 @@ exports.simple_doc = {
       'order': 50,
       'subcategory': 'date',
       'value': '1990-08-23'
-    },
-    {
+    }, {
       'id': '25250e2ead108a8f60213f240400248f',
       'name': 'ff',
       'label': 'FF',
@@ -39,8 +38,7 @@ exports.simple_doc = {
       'order': 50,
       'subcategory': 'integer',
       'value': ''
-    },
-    {
+    }, {
       'id': 'b9ad37ea17a58d9be32160f393771cdd',
       'name': 'yer',
       'label': 'Yer',

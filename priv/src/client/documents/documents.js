@@ -1,129 +1,251 @@
+// # Documents sub-application
+//
+// *Implicit depends:* DOM, JQuery
+//
 // Shared document editing stuff plus initialization.
-shimi.documents = (function() {
+
+// ## Variable Definitions
+
+var setsui = require('./setsui.js');
+var editui = require('./editui.js');
+var viewui = require('./viewui.js');
+var indexui = require('./indexui.js');
+var changeui = require('./changeui.js');
+var S = require('../sender.js');
+var store = require('../store.js').store;
+var ajax = require('../ajax.js');
+var identifier;
+
+// ## Internal functions
+
+// In practice this is the select listing of the user created indexes
+// which is triggering the change event.
+//
+// *TODO* put this with other change handlers.
+var indexForm = function () {
   'use strict';
 
-  var mod = {};
+  // TODO Remove JQuery
+  $('#index-filter-form select').change(function () {
+    indexui.get();
+  });
 
-  var indexForm = function() {
-    $('#index-filter-form select').change(function() {
-      shimi.indexui.get();
+  return true;
+};
+
+// If there is a hash at the end of the URL with a document ID specified,
+// this will pass the information on the correct funciont in `viewui`.
+var loadHash = function (urlHash) {
+  'use strict';
+
+  if (urlHash) {
+    viewui.get(urlHash);
+  }
+
+  return true;
+};
+
+// A user interface element.
+var allDocContainer = function () {
+  'use strict';
+
+  return document.getElementById('all-document-container');
+};
+
+// Key used in retrieving cached information from session storage.
+var versionKey = function () {
+  'use strict';
+
+  return identifier() + '_version';
+};
+
+// Key used in retrieving cached information from session storage.
+var infoKey = function () {
+  'use strict';
+
+  return identifier() + '_info';
+};
+
+// Key used in retrieving cached information from session storage.
+var labelsKey = function () {
+  'use strict';
+
+  return identifier() + '_labels';
+};
+
+// Store the doctype info in the session store.
+var storeDoctype = function (doctype) {
+  'use strict';
+
+  sessionStorage.setItem(infoKey(), doctype);
+
+  return S.sender('doctype-info-ready');
+};
+
+// Get the stored doctype version.
+var getVersion = function () {
+  'use strict';
+
+  return sessionStorage.getItem(versionKey());
+};
+
+// Get the most recent doctype version, which is placed in a `data`
+// attribute that is updated on page reloads.
+var getCurrentVersion = function () {
+  'use strict';
+
+  return store(allDocContainer()).d('version');
+};
+
+// Check if the stored doctype version matches the version found in the
+// `data` attribute.
+var isCurrentVersionStored = function () {
+  'use strict';
+
+  return (getVersion() && getVersion() === getCurrentVersion());
+};
+
+var isInfoStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(infoKey()) !== null;
+};
+
+var isLabelsStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(labelsKey()) !== null;
+};
+
+// Check the session state to ensure it is up to date and fully
+// loaded.
+var checkState = function () {
+  'use strict';
+
+  var retval;
+
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored()) {
+    retval = S.sender('labels-ready');
+  } else {
+    retval = S.sender('bad-session-state');
+  }
+
+  return retval;
+};
+
+// ## Exported functions
+
+// Get the project id
+var project = function () {
+  'use strict';
+
+  var container = document.getElementById('container');
+  return store(container).get('project-id');
+};
+
+// Reset the doctype version
+var setVersion = function () {
+  'use strict';
+
+  sessionStorage.setItem(versionKey(), getCurrentVersion());
+  S.sender('version-set');
+
+  return true;
+};
+
+// Clear the session storage
+var clearSession = function () {
+  'use strict';
+
+  sessionStorage.clear();
+  S.sender('session-cleared');
+
+  return true;
+};
+
+// Get the doctype name
+var doctypeId = function () {
+  'use strict';
+
+  return store(allDocContainer()).d('doctype');
+};
+
+// Identifier is a combination of the project and doctype name.
+identifier = function () {
+  'use strict';
+
+  return project() + '_' + doctypeId();
+};
+
+// Get information about doctype.
+var info = function () {
+  'use strict';
+
+  return JSON.parse(sessionStorage.getItem(infoKey()));
+};
+
+// Load the doctype document stored on the server.
+var loadDoctype = function () {
+  'use strict';
+
+  ajax.get('./', function (req) {
+    storeDoctype(JSON.stringify(req.response));
+  });
+
+  return true;
+};
+
+// Process the field and fieldset info to create a field label to field
+// id index.
+var makeLabels = function () {
+  'use strict';
+
+  var info1 = info();
+  var labels = {};
+
+  info1.fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
+      labels[field._id] = [fieldset.label, field.label];
     });
+  });
 
-    return mod;
-  };
-  var loadHash = function(urlHash) {
-    if (urlHash) {
-      shimi.viewui.get(urlHash);
-    }
+  sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
 
-    return mod;
-  };
-  var allDocContainer = function() {
-    return $('#all-document-container');
-  };
-  var versionKey = function() {
-    return mod.identifier() + '_version';
-  };
-  var infoKey = function() {
-    return mod.identifier() + '_info';
-  };
-  var labelsKey = function() {
-    return mod.identifier() + '_labels';
-  };
-  var storeDoctype = function(doctype) {
-    sessionStorage.setItem(infoKey(), doctype);
-    shimi.dispatch.send('doctype-info-ready');
+  return S.sender('labels-ready');
+};
 
-    return mod;
-  };
+// Initialize the documents sub-application.
+var init = function () {
+  'use strict';
 
-  mod.getVersion = function() {
-    return sessionStorage.getItem(versionKey());
-  };
+  // TODO Remove JQuery
+  $('form').on('submit', function () {
+    return false;
+  });
+  checkState();
+};
 
-  mod.getCurrentVersion = function() {
-    return shimi.store(allDocContainer()).d('version');
-  };
+// Initialization dependent on init.
+var init2 = function () {
+  'use strict';
 
-  mod.isCurrentVersionStored = function() {
-    return (mod.getVersion() && mod.getVersion() === mod.getCurrentVersion());
-  };
+  setsui.updateSelection();
+  indexui.iOpts();
+  indexui.get();
+  indexForm();
+  editui.init();
+  // TODO remove JQuery
+  loadHash($(location)[0].hash.split('#')[1]);
+  changeui.get();
+};
 
-  mod.setVersion = function() {
-    sessionStorage.setItem(versionKey(), mod.getCurrentVersion());
-    shimi.dispatch.send('version-set');
-
-    return mod;
-  };
-
-  mod.clearSession = function() {
-    sessionStorage.clear();
-    shimi.dispatch.send('session-cleared');
-
-    return mod;
-  };
-
-  mod.checkVersion = function() {
-    if (mod.isCurrentVersionStored()) {
-      shimi.dispatch.send('labels-ready');
-    } else {
-      shimi.dispatch.send('bad-session-state');
-    }
-
-    return mod;
-  };
-
-  mod.name = function() {
-    return shimi.store($('#all-document-container')).d('doctype');
-  };
-
-  mod.project = function() {
-    return shimi.store($('#container')).get('project-id');
-  };
-
-  mod.identifier = function() {
-    return mod.project() + '_' + mod.name();
-  };
-
-  mod.info = function() {
-    return JSON.parse(sessionStorage.getItem(infoKey()));
-  };
-
-  mod.loadDoctype = function() {
-    $.getJSON('./', function(data) {
-      storeDoctype(JSON.stringify(data));
-    });
-
-    return mod;
-  };
-
-  mod.makeLabels = function() {
-    var info = mod.info();
-    var labels = {};
-
-    info.fieldsets.forEach(function(fieldset) {
-      fieldset.fields.forEach(function(field) {
-        labels[field._id] = [fieldset.label, field.label];
-      });
-    });
-
-    sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-    shimi.dispatch.send('labels-ready');
-
-    return mod;
-  };
-
-  mod.init = function() {
-    $('form').on('submit', function() {
-      return false;
-    });
-    mod.checkVersion();
-    shimi.setsui.updateSelection();
-    shimi.indexui.iOpts().get();
-    indexForm();
-    shimi.editui.init();
-    loadHash($(location)[0].hash.split('#')[1]);
-  };
-
-  return mod;
-})();
+exports.setVersion = setVersion;
+exports.clearSession = clearSession;
+exports.doctypeId = doctypeId;
+exports.identifier = identifier;
+exports.info = info;
+exports.loadDoctype = loadDoctype;
+exports.makeLabels = makeLabels;
+exports.project = project;
+exports.init = init;
+exports.init2 = init2;

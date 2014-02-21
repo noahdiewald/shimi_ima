@@ -36,7 +36,7 @@
 -include_lib("include/types.hrl").
 
 %% @doc Get a sortkey for a string.
--spec get_sortkey({charseq(), binary()}) -> binary().
+-spec get_sortkey(charseq(), binary()) -> binary().
 get_sortkey(Charseq, Value) ->
     get_sortkey_helper(Charseq, Value).
 
@@ -167,4 +167,4 @@ apply_patterns([], Value) ->
 apply_patterns(_, <<>>) ->
     <<>>;
 apply_patterns([P|Rest], Value) ->
-    apply_patterns(Rest, re:replace(Value, P, <<>>, [unicode])).
+    apply_patterns(Rest, re:replace(Value, P, <<>>, [unicode, global])).

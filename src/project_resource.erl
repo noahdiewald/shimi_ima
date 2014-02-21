@@ -31,11 +31,11 @@
          content_types_provided/2,
          delete_resource/2,
          from_json/2,
-         index_html/2,
          is_authorized/2,
          main_html/2,
          resource_exists/2,
-         rest_init/2
+         rest_init/2,
+         to_json/2
         ]).
 -export([
          validate_authentication/3
@@ -64,21 +64,20 @@ content_types_accepted(R, S) ->
 content_types_provided(R, S) ->
     case proplists:get_value(target, S) of
         main -> {[{{<<"text">>, <<"html">>, []}, main_html}], R, S};
-        index -> {[{{<<"text">>, <<"html">>, []}, index_html}], R, S};
-        identifier -> {[{{<<"text">>, <<"html">>, []}, index_html}], R, S}
+        index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
   
 delete_resource(R, S) ->
     h:delete_project(R, S).
-  
-index_html(R, S) ->
-    Json = couch:get_dbs(),
-    {renderings(Json), R, S}.
-  
+
 main_html(R, S) ->
     User = proplists:get_value(user, S),
     {ok, Html} = render:render(projects_dtl, [{title, "Projects"}, {user, User}]),
     {Html, R, S}.
+
+to_json(R, S) ->  
+    {jsn:encode(project:all()), R, S}.
   
 from_json(R, S) ->
     {ok, Body, R1} = cowboy_req:body(R),
@@ -96,15 +95,3 @@ validate_authentication(Props, R, S) ->
         true -> {true, R, S};
         false -> {proplists:get_value(auth_head, S), R, S}
     end.
-
-% TODO: This is stupid. Fix it.
-renderings(Json) ->
-    Rows = jsn:get_value(<<"rows">>, Json),
-    F = fun (X) ->
-        jsn:get_value(<<"id">>, X) /= <<"_design/shimi_ima">>
-    end,
-    [render_row(Project) || Project <- lists:filter(F, Rows)].
-  
-render_row(Project) ->
-    {ok, Rendering} = render:render(project_list_elements_dtl, Project),
-    iolist_to_binary(Rendering).

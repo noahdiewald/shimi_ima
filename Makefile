@@ -1,9 +1,14 @@
 ERL ?= erl
 REBAR ?= ./rebar
-CUC ?= $(HOME)/.gem/ruby/2.0.0/bin/cucumber
+CURL ?= /usr/bin/curl
+CUC ?= /usr/bin/cucumber
 REDIS ?= /usr/bin/redis-server
 RCLIENT ?= /usr/bin/redis-cli
 GRUNT ?= /usr/bin/grunt
+NPM ?= /usr/bin/npm
+URL ?= http://tester:tester@127.0.0.1:5984
+APP_URL ?= $(URL)/shimi_ima
+ALL_URL ?= $(APP_URL)/_all_docs?include_docs=true
 APP := dictionary_maker
 
 all: build
@@ -23,8 +28,16 @@ depends:
 		$(REBAR) update-deps; \
 	fi
 
+jdepends:
+	$(NPM) install
+
 build: depends
 	$(REBAR) compile
+
+jbuild: jdepends
+	$(GRUNT)
+
+all: build jbuild
 
 eunit:
 	$(REBAR) eunit skip_deps=true
@@ -32,13 +45,23 @@ eunit:
 mocha:
 	$(GRUNT) test
 
-mocahcov:
+mochacov:
 	$(GRUNT) coverage
 
-cucumber:
+runcuc:
 	$(REDIS) > /dev/null &
 	/bin/bash -c 'pushd ./Cukes;$(CUC);popd'
 	echo "shutdown" | $(RCLIENT)
+
+cleancuc:
+	@for i in `$(CURL) -s $(ALL_URL)|awk -F\" '/__test/ {print $$4}'`; \
+	do \
+		revision=`$(CURL) -s $(APP_URL)/$$i|awk -F\" '{print $$8}'`; \
+		$(CURL) -X DELETE $(APP_URL)/$$i?rev=$$revision; \
+		$(CURL) -X DELETE $(URL)/project-$$i; \
+	done
+
+cucumber: runcuc cleancuc
 
 fasttest: eunit mocha
 

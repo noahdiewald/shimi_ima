@@ -1,119 +1,133 @@
-shimi.dispatcher = function (patterns) {
+// # Dispatching click events
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+//
+// Almost all click events that are handled by the system are listed
+// here. With [sender.js](./sender.html) and other dispatchers,
+// the hope is to centralize effects and interdependencies. At some
+// point I may use a more sophisticated approach.
+
+// ## Variable Definitions
+
+var S = require('./sender.js');
+var dispatcher = require('./dispatcher.js').dispatcher;
+var panelToggler = require('./panel-toggle.js').panelToggler;
+var editui = require('./documents/editui.js');
+var viewui = require('./documents/viewui.js');
+var indexui = require('./documents/indexui.js');
+var setsui = require('./documents/setsui.js');
+var searchui = require('./documents/searchui.js');
+var worksheetui = require('./documents/worksheetui.js');
+var fieldsets = require('./documents/fieldsets.js');
+var ieditui = require('./index_tool/ieditui.js');
+var form = require('./form.js');
+var projectui = require('./projects/projectui.js');
+var fm = require('./file_manager/fm.js');
+var maintenanceui = require('./config/maintenanceui.js');
+var doctypeTab = require('./config/doctype-tab.js');
+var charseqTab = require('./config/charseq-tab').charseqTab;
+
+// ## Internal Functions
+
+// The calling of the default action will seem redundant for a while
+// until a more full refactor can be done and all actions are default.
+var defaultAction = function (t) {
   'use strict';
 
-  var d = function (e) {
-    var target = $(e.target);
-
-    Object.keys(patterns).forEach(function (pattern) {
-      if (target.is(pattern)) {
-        var action = patterns[pattern];
-        action(target);
-      }
-    });
-  };
-
-  return d;
+  return S.sender(t.id.slice(0, -7));
 };
 
-shimi.dblclickDispatch = function (e) {
+// ## Exported Functions
+
+// Given a click event, determine what action to take based on the
+// click target.
+var clickDispatch = function (e) {
   'use strict';
 
-  var searchui = shimi.searchui;
-  var worksheetui = shimi.worksheetui;
+  var action = dispatcher({
+    // ### Config
 
-  var action = shimi.dispatcher({
-    '.search-result-field-id a': function (t) {
-      searchui.addField($(t).parent('h5'));
-    },
-    '.field-view b': function (t) {
-      searchui.addField($(t).parent('li'));
-    },
-    '.field-container label span': function (t) {
-      searchui.addField($(t).parent('label').parent('div'));
-    },
-    '#index-index-input-label': function () {
-      searchui.addIndex();
-    },
-    '.panel > h2': function (t) {
-      shimi.panelToggle.toggler(t);
-    },
-    '#toggle-handles': function (t) {
-      worksheetui.hideHandles();
-    },
-    '.fieldset-handle': function (t) {
-      worksheetui.hideFieldset($(t).attr('data-field-fieldset'));
-    },
-    '.field-handle': function (t) {
-      worksheetui.hideField($(t).attr('data-field-field'));
-    }
-  });
-
-  action(e);
-};
-
-shimi.clickDispatch = function (e) {
-  'use strict';
-
-  var doctypeTab = shimi.doctypeTab;
-  var charseqTab = shimi.charseqTab;
-  var editui = shimi.editui;
-  var viewui = shimi.viewui;
-  var indexui = shimi.indexui;
-  var setsui = shimi.setsui;
-  var searchui = shimi.searchui;
-  var worksheetui = shimi.worksheetui;
-  var fieldsets = shimi.fieldsets;
-  var ieditui = shimi.ieditui;
-  var form = shimi.form;
-  var projectui = shimi.projectui;
-  var fm = shimi.fm;
-
-  var action = shimi.dispatcher({
-    // Config
-    '.edit-field-button': function (t) {
-      doctypeTab.editField(t);
-    },
-    '.delete-field-button': function (t) {
-      doctypeTab.deleteField(t);
-    },
-    '.add-field-button': function (t) {
-      doctypeTab.addField(t);
-    },
-    '.edit-fieldset-button': function (t) {
-      doctypeTab.editFieldset(t);
-    },
-    '.delete-fieldset-button': function (t) {
-      doctypeTab.deleteFieldset(t);
-    },
-    '.add-fieldset-button': function (t) {
-      doctypeTab.addFieldset(t);
-    },
-    '.delete-doctype-button': function (t) {
-      doctypeTab.deleteDoctype(t);
-    },
-    '.edit-doctype-button': function (t) {
-      doctypeTab.editDoctype(t);
+    '.edit-doctype-link': function (t) {
+      return S.sender('edit-doctype-requested', 'doctypes/' + t.getAttribute('href').slice(1));
     },
     '.touch-doctype-button': function (t) {
       doctypeTab.touchDoctype(t);
     },
-    '#doctype-add-button': function (t) {
-      doctypeTab.addDoctype(t);
+    '#doctypes-add-button': function (t) {
+      return defaultAction(t);
     },
     '.delete-charseq-button': function (t) {
       charseqTab.del(t);
-    },
-    '.edit-charseq-button': function (t) {
-      charseqTab.edit(t);
     },
     '#charseq-add-button': function (t) {
       charseqTab.add();
     },
     '#maintenance-upgrade-button': function (t) {
-      shimi.upgradeButton(t);
+      return maintenanceui.upgradeButton(t);
+    },
+    '#config-save-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-delete-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-create-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-move-up-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-move-down-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-remove-element-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-array-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-text-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-object-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-add-child-array-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-clear-form-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-copy-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-cut-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-paste-child-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-promote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#config-demote-button': function (t) {
+      return defaultAction(t);
+    },
+    '#edit-form ol > li': function (t) {
+      return S.sender('config-mark-line', t);
     },
 
-    // Documents
+    // ### Documents
+
     '.add-button': function (t) {
       fieldsets.initFieldset(t, false, true);
     },
@@ -168,7 +182,7 @@ shimi.clickDispatch = function (e) {
       $('#new-set-dialog').show();
     },
     '#new-set-save-button': function () {
-      shimi.dispatch.send('new-set-form-submit');
+      S.sender('new-set-form-submit');
     },
     '#select-all-set-elements': function (t) {
       setsui.toggleSelectAll(t);
@@ -209,7 +223,8 @@ shimi.clickDispatch = function (e) {
       worksheetui.hideField($(t).attr('data-field-field'));
     },
 
-    // Index Tool
+    // ### Index Tool
+
     '#new-index-button': function (t) {
       ieditui.newCond();
     },
@@ -232,7 +247,8 @@ shimi.clickDispatch = function (e) {
       ieditui.init(t);
     },
 
-    // Project
+    // ### Project
+
     '#create-project': function () {
       projectui.add().dialog('open');
     },
@@ -240,7 +256,8 @@ shimi.clickDispatch = function (e) {
       projectui.del(t);
     },
 
-    // File Manager
+    // ### File Manager
+
     '#up-dir': function () {
       fm.upDir();
     },
@@ -257,7 +274,8 @@ shimi.clickDispatch = function (e) {
       fm.editFile(t);
     },
 
-    // General
+    // ### General
+
     '.toggler': function (t) {
       form.toggle(t);
     },
@@ -265,20 +283,11 @@ shimi.clickDispatch = function (e) {
       form.cancelDialog(t);
     },
     '#panel-toggle li': function (t) {
-      shimi.panelToggle.toggler(t);
+      panelToggler(t);
     }
-    //'.remove-button': function(t) {$(t).parent().remove();}
   });
 
   action(e);
 };
 
-$(function () {
-  'use strict';
-  $('body').click(function (e) {
-    shimi.clickDispatch(e);
-  });
-  $('body').dblclick(function (e) {
-    shimi.dblclickDispatch(e);
-  });
-});
+exports.clickDispatch = clickDispatch;

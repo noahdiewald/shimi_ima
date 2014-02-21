@@ -97,20 +97,20 @@ from_json(doc, Json) ->
 from_json(Json) ->
     FieldsJson = jsn:get_value(<<"fields">>, Json),
     Fields = case FieldsJson of
-        undefined -> undefined;
+        undefined -> [];
         _ -> lists:map(fun field:from_json/1, FieldsJson)
     end,
     #fieldset{
-           id = jsn:get_value(<<"_id">>, Json),
-           rev = jsn:get_value(<<"_rev">>, Json),
+           id = proplists:get_value(<<"_id">>, Json, <<>>),
+           rev = proplists:get_value(<<"_rev">>, Json, <<>>),
            category = fieldset,
-           description = jsn:get_value(<<"description">>, Json),
-           doctype = jsn:get_value(<<"doctype">>, Json),
-           label = jsn:get_value(<<"label">>, Json),
-           name = jsn:get_value(<<"name">>, Json),
-           order = jsn:get_value(<<"order">>, Json),
-           multiple = jsn:get_value(<<"multiple">>, Json),
-           collapse = jsn:get_value(<<"collapse">>, Json),
+           description = proplists:get_value(<<"description">>, Json, <<>>),
+           doctype = proplists:get_value(<<"doctype">>, Json, <<>>),
+           label = proplists:get_value(<<"label">>, Json, <<>>),
+           name = proplists:get_value(<<"name">>, Json, <<>>),
+           order = proplists:get_value(<<"order">>, Json, 0),
+           multiple = proplists:get_value(<<"multiple">>, Json, false),
+           collapse = proplists:get_value(<<"collapse">>, Json, true),
            fields = Fields
           }.
 

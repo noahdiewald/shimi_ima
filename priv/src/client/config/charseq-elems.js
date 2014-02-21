@@ -1,31 +1,19 @@
-/*
- * Copyright 2011 University of Wisconsin Madison Board of Regents.
- * 
- * This file is part of dictionary_maker.
- * 
- * dictionary_maker is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- * 
- * dictionary_maker is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
- * 
- * Author Noah Diewald <noah@diewald.me>
- * 
- * About this file
- * 
- * A charaseq is a collection of information used in definining properies
- * of a script, including some phonological information and information
- * used for collation of items written in the script.
-*/
+// # Working with elements of a charseq manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+//
+// A charaseq is a collection of information used in definining properies
+// of a script, including some phonological information and information
+// used for collation of items written in the script.
 
-shimi.charseqElems = (function () {
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
+// Return object for working with charseq elements
+var charseqElems = (function () {
   'use strict';
 
   var mod = {};
@@ -72,7 +60,7 @@ shimi.charseqElems = (function () {
     };
 
     cObj.clear = function () {
-      shimi.form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
       return cObj;
     };
 
@@ -89,3 +77,5 @@ shimi.charseqElems = (function () {
 
   return mod;
 })();
+
+exports.charseqElems = charseqElems;

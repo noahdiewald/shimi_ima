@@ -75,22 +75,31 @@ from_json(doc, Json) ->
        reverse = Reverse
       };
 from_json(Json, S) ->
-    Fieldsets = get_fieldsets(S),
+    Fieldsets = get_fieldsets(jsn:get_value(<<"fieldsets">>, Json), S),
+    Id = jsn:get_value(<<"_id">>, Json),
     #doctype{
-       id = jsn:get_value(<<"_id">>, Json),
+       id = Id,
        rev = jsn:get_value(<<"_rev">>, Json),
+       name = proplists:get_value(<<"name">>, Json, Id),
        category = <<"doctype">>,
-       description = jsn:get_value(<<"description">>, Json),
+       description = proplists:get_value(<<"description">>, Json, <<>>),
        fieldsets = Fieldsets
       }.
 
 %% @doc Get the fieldsets for the doctype.
--spec get_fieldsets(any()) -> [fieldset()].
-get_fieldsets(S) ->
+-spec get_fieldsets(undefined | [jsn:json_term()], any()) -> [fieldset()].
+get_fieldsets(undefined, S) ->
     {ok, RawFieldsets} = q:fieldset(proplists:get_value(doctype, S), proplists:get_value(project, S), S),
     Unsorted = process_fieldsets(jsn:get_value(<<"rows">>, RawFieldsets), []),
     Ordering = fun (A, B) -> A#fieldset.order =< B#fieldset.order end,
-    lists:sort(Ordering, Unsorted).
+    lists:sort(Ordering, Unsorted);
+get_fieldsets([], S) ->
+    get_fieldsets(undefined, S);
+get_fieldsets(Fieldsets, _S) ->
+    Ordering = fun (A, B) -> A#fieldset.order =< B#fieldset.order end,
+    Fieldsets2 = [fieldset:from_json(X) || X <- Fieldsets],
+    Fieldsets3 = lists:sort(Ordering, Fieldsets2),
+    Fieldsets3.
     
 %% @doc Convert a document() record to a jsn:json_term() document.
 -spec to_json(doc, document()) -> Json :: jsn:json_term().
@@ -118,6 +127,7 @@ to_json(D) ->
     Fieldsets = [fieldset:to_json(X) || X <- D#doctype.fieldsets],
     [{<<"_id">>, D#doctype.id},
      {<<"_rev">>, D#doctype.rev},
+     {<<"name">>, D#doctype.name},
      {<<"description">>, D#doctype.description},
      {<<"category">>, <<"doctype">>},
      {<<"fieldsets">>, Fieldsets}].

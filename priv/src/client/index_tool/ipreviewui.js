@@ -1,24 +1,54 @@
-shimi.ipreviewui = (function () {
+// # Paging For Index Listing
+//
+// *Implicit depends:* DOM, JSON
+//
+// Loads sample of the user index based on user suplied values.
+
+// Variable Definitions
+
+var pager = require('../pager.js').pager;
+
+// Exported Functions
+
+// Return the 'prefix' which is used in id and class names for
+// elements used to page through these values.
+var prefix = function () {
   'use strict';
 
-  var mod = {};
-  var index = shimi.index;
+  return 'preview';
+};
 
-  mod.get = function (startkey, startid, prevkeys, previds) {
-    var indexId = $('#index-editing-data').attr('data-index-id');
-    var url = 'indexes/' + indexId + '/view';
-    var target = $('#index-list-view');
-    var filterForm = $('#index-filter-form input');
+// Called by a keystroke event handler when user changes form values.
+var get = function () {
+  'use strict';
 
-    if (indexId) {
-      index({
-        url: url,
-        target: target
-      }).get(startkey, startid, prevkeys, previds);
-    }
+  var indexId = document.getElementById('index-editing-data').getAttribute('data-index-id');
+  var url = 'indexes/' + indexId + '/preview';
+  var target = document.getElementById(prefix() + '-list-view');
 
-    return mod;
+  var format = function (resp) {
+    resp.rows = resp.rows.map(function (item) {
+      item.display_key = item.key.map(function (k) {
+        return k[1];
+      });
+
+      return item;
+    });
+
+    return resp;
   };
 
-  return mod;
-})();
+  if (indexId) {
+    pager({
+      prefix: prefix(),
+      format: format,
+      url: url,
+      target: target
+    }).get();
+  }
+
+  return true;
+};
+
+exports.prefix = prefix;
+exports.get = get;

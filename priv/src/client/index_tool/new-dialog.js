@@ -1,4 +1,24 @@
-shimi.initIndexNewDialog = function() {
+// # New dialog
+//
+// *Implicit depends:* DOM, JQuery, JQuery UI
+//
+// Dialog for adding a new user created index.
+
+// TODO I would rather avoid having this as a JQuery plugin.
+
+require('../jquery-ui-input-state.js');
+
+// Variable Definitions
+
+var ihelpers = require('./ihelpers.js');
+var ilistingui = require('./ilistingui.js');
+var form = require('../form.js');
+var evs = require('./ievents.js');
+
+// Exported functions
+
+// The dialog for adding a new index.
+var initIndexNewDialog = function () {
   'use strict';
 
   var indexDoctype = $('#index-doctype-input');
@@ -6,34 +26,33 @@ shimi.initIndexNewDialog = function() {
   var indexField = $('#index-field-input').inputDisable();
   var indexName = $('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
-  var evs = shimi.ihelpers.evs;
 
-  var doctypeEvents = function() {
-    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function() {
+  var doctypeEvents = function () {
+    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
       indexFieldset.inputDisable();
       indexField.inputDisable();
 
-      return function() {
+      return function () {
         indexFieldset.inputEnable();
       };
     });
   };
 
-  var fieldsetEvents = function() {
-    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function() {
+  var fieldsetEvents = function () {
+    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
       indexField.inputDisable();
 
-      return function() {
+      return function () {
         indexField.inputEnable();
       };
     });
   };
 
-  var getLabelForVal = function(val) {
+  var getLabelForVal = function (val) {
     return $('#index-new-dialog option[value="' + val + '"]').text();
   };
 
-  var getLabel = function() {
+  var getLabel = function () {
     return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
   };
 
@@ -41,7 +60,7 @@ shimi.initIndexNewDialog = function() {
     autoOpen: false,
     modal: true,
     buttons: {
-      'Create': function() {
+      'Create': function () {
         $('.input').removeClass('ui-state-error');
 
         // place holder for client side validation
@@ -57,21 +76,21 @@ shimi.initIndexNewDialog = function() {
             'fields_label': [getLabel()],
             'fields': [indexField.val()]
           },
-          complete = function(context) {
-            shimi.ilistingui.init();
-            $(context).dialog('close');
-          };
-          shimi.form.send('indexes', obj, 'POST', complete, this);
+            complete = function (context) {
+              ilistingui.init();
+              $(context).dialog('close');
+            };
+          form.send('indexes', obj, 'POST', complete, this);
         }
       },
-      'Cancel': function() {
+      'Cancel': function () {
         $(this).dialog('close');
       }
     },
-    close: function() {
+    close: function () {
       indexFieldset.unbind('change');
       indexDoctype.unbind('change');
-      shimi.form.clear($('.input')).removeClass('ui-state-error');
+      form.clear($('.input')).removeClass('ui-state-error');
     }
   });
 
@@ -80,3 +99,5 @@ shimi.initIndexNewDialog = function() {
 
   return dialog;
 };
+
+exports.initIndexNewDialog = initIndexNewDialog;

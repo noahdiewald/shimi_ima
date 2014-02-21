@@ -25,8 +25,7 @@ exports.simple_doc3 = {
       'order': 50,
       'subcategory': 'date',
       'value': '1990-08-23'
-    },
-    {
+    }, {
       'id': '25250e2ead108a8f60213f240400248f',
       'name': 'ff',
       'label': 'FF',
@@ -40,8 +39,7 @@ exports.simple_doc3 = {
       'order': 50,
       'subcategory': 'integer',
       'value': 900
-    },
-    {
+    }, {
       'id': 'b9ad37ea17a58d9be32160f393771cdd',
       'name': 'yer',
       'label': 'Yer',

@@ -109,7 +109,10 @@ set_sortkeys(Fields, Project, S) ->
 %% @doc Convert a jsn:json_term() field to a field()
 -spec from_json(jsn:json_term()) -> docfield().
 from_json(Json) ->
-    Subcategory = get_subcategory(jsn:get_value(<<"subcategory">>, Json)),
+    Subcategory = case jsn:get_value(<<"subcategory">>, Json) of
+                      undefined -> text;
+                      SC -> get_subcategory(SC)
+                  end,
     #field{
             id = get_value(<<"_id">>, Json),
             rev = get_value(<<"_rev">>, Json),

@@ -48,7 +48,7 @@ rest_init(R, S) -> {ok, R, S}.
 resource_exists(R, S) ->
     case proplists:get_value(target, S) of
         identifier -> h:exists_id(R, S);
-        view -> h:exists_id(R, S);
+        preview -> h:exists_id(R, S);
         _ -> h:exists_unless_post(R, S)
     end. 
 
@@ -58,7 +58,7 @@ is_authorized(R, S) ->
 allowed_methods(R, S) ->
     case proplists:get_value(target, S) of
         index -> {[<<"HEAD">>, <<"GET">>, <<"POST">>], R, S};
-        view -> {[<<"HEAD">>, <<"GET">>], R, S};
+        preview -> {[<<"HEAD">>, <<"GET">>], R, S};
         condition -> {[<<"HEAD">>, <<"GET">>], R, S};
         identifier -> {[<<"HEAD">>, <<"GET">>, <<"PUT">>, <<"DELETE">>], R, S}
     end.
@@ -75,13 +75,12 @@ delete_resource(R, S) ->
 to_json(R, S) ->
     case proplists:get_value(target, S) of
         index -> json_index(R, S);
+        preview -> json_preview(R, S);
         _ -> to_html(R, S)
     end.
 
-%TODO: see document_resource about html_view  
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        view -> html_view(R, S);
         condition -> html_condition(R, S);
         identifier -> html_identifier(R, S)
     end.
@@ -104,6 +103,9 @@ json_update(R, S) ->
 json_index(R, S) ->
     {{ok, Json}, R1} = q:indexes_options(R, S),
     {jsn:encode(Json), R1, S}.
+  
+json_preview(R, S) ->
+    i:view(R, S).
 
 html_identifier(R, S) ->
     {{ok, Json}, R1} = h:id_data(R, S),
@@ -130,9 +132,6 @@ html_condition(R, S) ->
     {Vals, R1} = cowboy_req:qs_vals(R),
     {Html, R2} = render_conditions(Vals, R1, S),
     {Html, R2, S}.
-  
-html_view(R, S) ->
-    i:view(R, S).
     
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

@@ -4,6 +4,7 @@ priv/log/
 .eunit/
 .*\.dump
 scrap
+jsdocs/.*
 doc/.*\.html
 doc/erlang.png
 doc/.*\.css
@@ -25,4 +26,5 @@ node_modules
 priv/indexes/
 coverage\.html
 dump.rdb
+priv/www/application.tmp.js
 

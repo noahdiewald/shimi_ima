@@ -19,7 +19,7 @@
 %%% @copyright 2012 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% couch:get_view_json/5
+%%% @doc This is mostly abstractions to calls to couch:get_view_json/5
 
 -module(q).
 -author('Noah Diewald <noah@diewald.me>').
@@ -31,20 +31,19 @@
 all_docs(Qs, Keys, Project, S) ->
     couch:get_view_json(Qs, Keys, Project, S).
 
-charseqs(R, S) ->
-    {QsVals, R1} = cowboy_req:qs_vals(R),
-    {Project, R2} = h:project(R1),
+changelog(QsVals, Project, S) ->
     Qs = view:normalize_vq(QsVals),
-    {couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S), R2}.
+    all_docs(Qs, [], Project, S).
+    
+charseqs(QsVals, Project, S) ->
+    Qs = view:normalize_vq(QsVals),
+    couch:get_view_json("shimi_ima", "all_charseqs", Qs, Project, S).
 
 dirs(QsVals, Project, S) ->
     VQ = view:from_list(QsVals),
     Qs = view:to_string(VQ),
     couch:get_view_json("shimi_ima", "paths", Qs, Project, S).
 
-doctypes(true, Project, S) ->
-    Qs = view:to_string(#vq{include_docs = true}),
-    couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S);
 doctypes(QsVals, Project, S) ->
     Qs = view:normalize_vq(QsVals),
     couch:get_view_json("shimi_ima", "all_doctypes", Qs, Project, S).

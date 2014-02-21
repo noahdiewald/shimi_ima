@@ -7,23 +7,69 @@
 <em>{{ project_info.description }}</em>
 {% endblock %}
 
-{% block dialogs %}
-{% include 'config_doctype_dialog.dtl' %}
-{% include 'config_fieldset_dialog.dtl' %}
-{% include 'config_field_dialog.dtl' %}
-{% include 'config_charseq_dialog.dtl' %}
-{% endblock %}
-    
 {% block main_content %}
-<div id="configuration" class="hidden"></div>
-<div id="main-tabs">
-  <ul>
-    <li><a href="#doctypes">Document Types</a></li>
-    <li><a href="#charseqs">Character Sequences</a></li>
-    <li><a href="#maintenance">Maintenance</a></li>
-  </ul>
-{% include 'config_doctype_tab.dtl' %}
-{% include 'config_charseq_tab.dtl' %}
-{% include 'config_maintenance_tab.dtl' %}
-</div>
+<section id="main-content">
+  <div id="panel-toggle">
+    <ul>
+      <li data-panel="config-doctypes">Doctypes</li>
+      <li data-panel="config-charseqs">Charseqs</li>
+      <li data-panel="config-maintenance">Maintenance</li>
+      <li data-panel="config-edit">Edit</li>
+    </ul>
+  </div>
+  <div id="container">
+    <div id="all-config-container">
+      <div id="config-doctypes" class="panel">
+        <h2 class="header">Doctypes Listing</h2>
+        <a href="#" id="doctypes-add-button" class="link-button">Add Document Type</a>
+        <form id="doctypes-filter-form">
+          <label for="doctypes-filter">Filter</label>
+          <input id="doctypes-filter" type="text" name="doctypes-filter"></input>
+          <br></br>
+          <label for="doctypes-limit" type="text" name="doctypes-limit">Limit</label>
+          <input id="doctypes-limit" type="text" name="doctypes-limit"></input>
+        </form>
+        <div id="doctypes-listing"></div>
+      </div>
+      <div id="config-charseqs" class="panel">
+        <h2 class="header">Charseqs Listing</h2>
+        <form id="charseqs-filter-form">
+          <label for="charseqs-filter">Filter</label>
+          <input id="charseqs-filter" type="text" name="charseqs-filter"></input>
+          <br></br>
+          <label for="charseqs-limit" type="text" name="charseqs-limit">Limit</label>
+          <input id="charseqs-limit" type="text" name="charseqs-limit"></input>
+        </form>
+        <div id="charseqs-listing"></div>
+      </div>
+      <div id="config-maintenance" class="hidden panel">
+        <h2 class="header">Project Maintenance</h2>
+      </div>
+      <div id="config-edit" class="panel">
+        <h2 class="header">Editor</h2>
+        <a href="#" id="config-clear-form-button" class="link-button">Clear Form</a>
+        <a href="#" id="config-save-button" class="link-button">Save</a>
+        <a href="#" id="config-create-button" class="link-button">Create</a>
+        <a href="#" id="config-delete-button" class="link-button">Delete</a>
+        <br /><br />
+        <a href="#" id="config-add-object-button" class="small-control">Add Object</a>
+        <a href="#" id="config-add-array-button" class="small-control">Add Array</a>
+        <a href="#" id="config-add-text-button" class="small-control">Add Text</a>
+        <a href="#" id="config-add-child-object-button" class="small-control">Add Child Object</a>
+        <a href="#" id="config-add-child-array-button" class="small-control">Add Child Array</a>
+        <a href="#" id="config-add-child-text-button" class="small-control">Add Child Text</a>
+        <a href="#" id="config-remove-element-button" class="small-control">Remove Element</a>
+        <a href="#" id="config-move-up-button" class="small-control">Move Up</a>
+        <a href="#" id="config-move-down-button" class="small-control">Move Down</a>
+        <a href="#" id="config-demote-button" class="small-control">Demote</a>
+        <a href="#" id="config-promote-button" class="small-control">Promote</a>
+        <a href="#" id="config-copy-button" class="small-control">Copy</a>
+        <a href="#" id="config-cut-button" class="small-control">Cut</a>
+        <a href="#" id="config-paste-button" class="small-control">Paste</a>
+        <a href="#" id="config-paste-child-button" class="small-control">Paste Child</a>
+        <div id="edit-form"></div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

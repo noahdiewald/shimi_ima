@@ -1,0 +1,13 @@
+<tr id="{{ id }}">
+  <th
+    {{#firstrow}}
+      id="first-{{ prefix }}-element"
+      data-first-id="{{ id }}"
+      data-first-key="{{ encoded_key }}"
+    {{/firstrow}}>
+    <a href="#{{ id }}" class="edit-doctype-link">{{ key }}</a>
+  </th>
+  <td>
+    {{ value }}
+   </td>
+</tr>

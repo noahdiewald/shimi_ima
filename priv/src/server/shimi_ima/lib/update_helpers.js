@@ -1,19 +1,19 @@
-var get_head_values = function(d) {
+var get_head_values = function (d) {
   'use strict';
 
-  return d['head'].map(function(x) {
+  return d['head'].map(function (x) {
     var h = d.index[x];
     if (typeof h[0] === 'string') {
       return [JSON.stringify(h[1])];
     } else {
-      return h.map(function(y) {
+      return h.map(function (y) {
         return [JSON.stringify(y[1])];
       });
     }
   });
 };
 
-var stamp = function(newDoc, doc, req) {
+var stamp = function (newDoc, doc, req) {
   'use strict';
 
   var now = (new Date()).toUTCString();
@@ -54,7 +54,7 @@ var stamp = function(newDoc, doc, req) {
   };
 };
 
-var get_changes = function(newDoc, doc) {
+var get_changes = function (newDoc, doc) {
   'use strict';
 
   // This function is not implemented as efficiently as it could be but
@@ -69,7 +69,7 @@ var get_changes = function(newDoc, doc) {
       foldFields = require('lib/fields').fromFieldsetsFold;
     }
 
-    var makeChangeObject = function(field, fieldset) {
+    var makeChangeObject = function (field, fieldset) {
       var obj = {
         fieldset: fieldset.id,
         fieldsetLabel: fieldset.label,
@@ -80,16 +80,16 @@ var get_changes = function(newDoc, doc) {
 
       return obj;
     };
-    var oldInstances = foldFields(doc.fieldsets, function(acc, fields, fieldset) {
-      fields.forEach(function(field) {
+    var oldInstances = foldFields(doc.fieldsets, function (acc, fields, fieldset) {
+      fields.forEach(function (field) {
         var obj = makeChangeObject(field, fieldset);
         obj.originalValue = JSON.stringify(field.value);
         acc[field.instance] = obj;
       });
       return acc;
     }, {});
-    changes = foldFields(newDoc.fieldsets, function(acc, fields, fieldset) {
-      fields.forEach(function(field) {
+    changes = foldFields(newDoc.fieldsets, function (acc, fields, fieldset) {
+      fields.forEach(function (field) {
         var val = JSON.stringify(field.value);
         if (acc[field.instance] === undefined) {
           acc[field.instance] = makeChangeObject(field, fieldset);

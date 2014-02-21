@@ -8,7 +8,7 @@ function map(doc) {
           throw new TypeError('Object.keys called on non-object');
         }
         var ret = [],
-            p;
+          p;
         for (p in o) {
           if (Object.prototype.hasOwnProperty.call(o, p)) {
             ret.push(p);

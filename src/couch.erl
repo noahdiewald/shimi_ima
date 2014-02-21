@@ -196,9 +196,9 @@ get_json_helper(Url, Headers) ->
 
 -spec get_views(string()) -> [binary()].
 get_views(Project) ->
-    Qs = view:to_string(view:from_list([{<<"startkey">>, <<"_design/">>},
-                                        {<<"endkey">>, <<"_design0">>},
-                                        {<<"include_docs">>, true}])),
+    Qs = view:to_string(view:from_list([{<<"startkey">>, <<"\"_design/\"">>},
+                                        {<<"endkey">>, <<"\"_design0\"">>},
+                                        {<<"include_docs">>, <<"true">>}])),
     Url = adb(Project) ++ "_all_docs" ++ "?" ++ Qs,
     {ok, Json} = get_json_helper(Url, []),
     Designs = proplists:get_value(<<"rows">>, Json),
@@ -209,17 +209,13 @@ get_views(Project) ->
                      end
              end,
     lists:flatten(lists:filter(Filter, lists:map(fun get_view_path/1, Designs))).
-    
+
 -spec get_view_json(string(), string(), iolist(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Qs, Keys, Project, S) ->
     Headers = [{"Content-Type", "application/json"}|proplists:get_value(headers, S, [])],
     Url = ndb(Project),
     FullUrl = Url ++ "_all_docs" ++ "?" ++ Qs,
-    case post_json_helper(FullUrl, Keys, Headers) of
-        {error, req_timedout} -> {error, req_timedout};
-        {error, not_found} -> {error, not_found};
-        {ok, Json} -> {ok, Json}
-    end.
+    get_view_json_helper(FullUrl, Keys, Headers).
     
 -spec get_view_json(string(), string(), string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
 get_view_json(Id, Name, Qs, Project, S) ->
@@ -227,12 +223,14 @@ get_view_json(Id, Name, Qs, Project, S) ->
     Url = ndb(Project),
     Path = "_design/" ++ Id ++ "/_view/" ++ Name,
     FullUrl = Url ++ Path ++ "?" ++ Qs,
-    case get_json_helper(FullUrl, Headers) of
-        {error, req_timedout} -> {error, req_timedout};
-        {error, not_found} -> {error, not_found};
-        {ok, Json} -> {ok, Json}
-    end.
+    get_view_json_helper(FullUrl, [], Headers).
 
+-spec get_view_json_helper(string(), string(), string()) -> {ok, jsn:json_term()} | {error, atom()}.
+get_view_json_helper(Url, [], Headers) ->
+    guard_resp(get_json_helper(Url, Headers));
+get_view_json_helper(Url, Body, Headers) ->
+    guard_resp(post_json_helper(Url, Body, Headers)).
+    
 %% @doc Given a row from a query of all db design documents, find all
 %% the view paths for a given design document.
 -spec get_view_path(jsn:json_term()) -> [[binary()]].
@@ -248,6 +246,16 @@ get_view_path(Row) ->
         Views ->
             lists:foldl(F, [], Views)
     end.
+
+%% @doc This is here for no other reason than to localize the error if
+%% a bad response is given.
+-spec guard_resp({ok, jsn:json_term()} | {error, atom()}) -> {ok, jsn:json_term()} | {error, atom()}.
+guard_resp({error, req_timedout}) ->
+    {error, req_timedout};
+guard_resp({error, not_found}) ->
+    {error, not_found};
+guard_resp({ok, Json}) ->
+    {ok, Json}.
 
 %% @doc Make a new database
 -spec new_db(string()) -> {ok, newdb}.

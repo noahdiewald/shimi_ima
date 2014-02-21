@@ -1,7 +1,7 @@
-var user_indexes = function(doc, emit, testEnv) {
+var user_indexes = function (doc, emit, testEnv) {
   'use strict';
 
-/*
+  /*
     The end user is able to define view indexes both explicitly, using
     the index tool, and implicitly, using the configuration interface
     to create new doctypes. These views need to be generated using
@@ -231,16 +231,16 @@ var user_indexes = function(doc, emit, testEnv) {
             if (display_fields.lenghth > 1) {
               emit([
                 ['', formatted]
-              ], ['', head()]);
+              ], head());
             } else {
               if (doc.$replace_function_exists$) {
                 emit([
                   ['', formatted]
-                ], ['', head()]);
+                ], head());
               } else {
                 emit([
                   [fieldVal[0], formatted]
-                ], ['', head()]);
+                ], head());
               }
             }
           }

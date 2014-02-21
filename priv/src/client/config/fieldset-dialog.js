@@ -1,7 +1,19 @@
-shimi.fieldsetDialog = function (url, values) {
+// # Fieldset manipulation dialog
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
+var doctypeTab = require('./doctype-tab.js');
+
+// Exported functions
+
+// Dialog for manipulating fieldsets
+var fieldsetDialog = function (url, values) {
   'use strict';
 
-  var f = shimi.fieldsetElems.get(values);
+  var f = fieldsetElems.get(values);
 
   var dialog = $('#fieldset-dialog').dialog({
     autoOpen: false,
@@ -13,7 +25,7 @@ shimi.fieldsetDialog = function (url, values) {
           url.fieldset = false;
           url.rev = false;
 
-          shimi.doctypeTab.initFieldsets(url);
+          doctypeTab.initFieldsets(url);
           $(context).dialog('close');
         };
         if (!values.rev || values.rev.isBlank()) {
@@ -34,3 +46,5 @@ shimi.fieldsetDialog = function (url, values) {
 
   return dialog;
 };
+
+exports.fieldsetDialog = fieldsetDialog;

@@ -109,6 +109,7 @@
 -record(doctype, {
           id :: doctypeid(),
           rev :: rev(),
+          name :: bstring(),
           category :: doctype,
           description :: text(),
           fieldsets :: [fieldset()]

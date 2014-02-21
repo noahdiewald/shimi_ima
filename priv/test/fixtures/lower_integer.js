@@ -22,8 +22,7 @@ exports.lower_integer = {
       'order': 50,
       'subcategory': 'date',
       'value': '2009-09-20'
-    },
-    {
+    }, {
       'id': '25250e2ead108a8f60213f240400248f',
       'name': 'ff',
       'label': 'FF',
@@ -37,8 +36,7 @@ exports.lower_integer = {
       'order': 50,
       'subcategory': 'integer',
       'value': -6
-    },
-    {
+    }, {
       'id': 'b9ad37ea17a58d9be32160f393771cdd',
       'name': 'yer',
       'label': 'Yer',

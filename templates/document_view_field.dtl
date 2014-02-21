@@ -1,7 +1,0 @@
-<li 
-  class="field-view" 
-  data-field-field="{{ field.id}}"
-  data-field-value="{% include 'document_view_field_value.dtl' %}">
-  <b>{{ field.label|force_escape }}</b>:
-  {% include 'document_view_field_display.dtl' %} 
-</li>

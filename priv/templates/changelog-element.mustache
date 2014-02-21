@@ -1,0 +1,43 @@
+{{#doc}}
+<tr class="change-header" id="{{ id }}">
+  <th
+    {{#firstrow}}
+      id="first-{{ prefix }}-element"
+      data-first-id="{{ id }}"
+      data-first-key="{{ encoded_key }}"
+    {{/firstrow}}>
+    <a
+      href="#{{ document_id }}"
+      class="view-document-link">
+      {{#head_values}}{{ . }}{{/head_values}}
+    </a>
+  </th>
+  <td>
+    {{ change_type }}
+  </td>
+  <td>
+    {{ user }}
+  </td>
+  <td>
+    {{ timestamp }}
+  </td>
+</tr>
+{{#changes}}
+  <tr class="change-change">
+    <th>
+      {{ fieldsetLabel }}: {{ fieldLabel }}
+    </th>
+    <td colspan=3>
+      {{^originalValue}}
+      <b>Ø</b>
+      {{/originalValue}}
+      {{ originalValue }}
+      →
+      {{^newValue}}
+      <b>Ø</b>
+      {{/newValue}}
+      {{ newValue }}
+    </td>
+  </tr>
+{{/changes}}
+{{/doc}}

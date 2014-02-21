@@ -89,7 +89,7 @@ handle_cast(_Msg, S) ->
     {noreply, S}.
 
 handle_info(initialize, _S) ->
-    Json = couch:get_dbs(),
+    Json = project:all(),
     DBSeqs = make_seqs(Json),
     {noreply, DBSeqs}.
 
@@ -107,13 +107,9 @@ make_seqs(Json) ->
 get_all_dbs([], Acc) ->
     Acc;
 get_all_dbs([H|T], Acc) ->
-    case jsn:get_value(<<"id">>, H) of
-        <<"_design/shimi_ima">> -> 
-            get_all_dbs(T, Acc);
-        IdBin when is_binary(IdBin) ->
-            Id = binary_to_list(IdBin),
-            get_all_dbs(T, ["project-" ++ Id, "files-" ++ Id|Acc])
-    end.
+    IdBin = jsn:get_value(<<"id">>, H),
+    Id = binary_to_list(IdBin),
+    get_all_dbs(T, [Id|Acc]).
 
 set_seqs([], Acc) ->
     Acc;

@@ -9,7 +9,7 @@
  *
  * Original idea by:
  * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
-*/
+ */
 
 (function (jQuery) {
   'use strict';
@@ -101,7 +101,7 @@
     }
 
     var origHandler = handleObj.handler,
-        keys = handleObj.data.toLowerCase().split(' ');
+      keys = handleObj.data.toLowerCase().split(' ');
 
     handleObj.handler = function (event) {
       // Don't fire in text-accepting inputs that we didn't directly bind to
@@ -112,9 +112,9 @@
       //}
       // Keypress represents characters, not special keys
       var special = event.type !== 'keypress' && jQuery.hotkeys.specialKeys[event.which],
-          character = String.fromCharCode(event.which).toLowerCase(),
-          key, modif = '',
-          possible = {};
+        character = String.fromCharCode(event.which).toLowerCase(),
+        key, modif = '',
+        possible = {};
 
       // check combinations (alt|ctrl|shift+anything)
       if (event.altKey && special !== 'alt') {

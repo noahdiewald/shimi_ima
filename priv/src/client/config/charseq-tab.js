@@ -1,27 +1,41 @@
-shimi.charseqTab = (function () {
+// # Charseq tab initialization
+//
+// *Implicit depends:* DOM, JQuery, JQueryUI
+
+// Variable Definitions
+
+var charseqDialog = require('./charseq-dialog.js').charseqDialog;
+var charseqElems = require('./charseq-elems.js').charseqElems;
+var store = require('../store.js').store;
+var form = require('../ajax.js');
+
+// Exported functions
+
+// Object containing initialization and other functions.
+var charseqTab = (function () {
   'use strict';
 
   var mod = {};
 
   mod.add = function () {
-    shimi.charseqDialog().dialog('open');
+    charseqDialog().dialog('open');
     return mod;
   };
 
   mod.edit = function (target) {
     var oldobj = {};
-    var attrs = shimi.charseqElems.attrs;
+    var attrs = charseqElems.attrs;
 
     attrs.forEach(function (item) {
-      oldobj[item] = shimi.store(target).get64('charseq-' + item);
+      oldobj[item] = store(target).get64('charseq-' + item);
     });
-    shimi.charseqDialog(oldobj).dialog('open');
+    charseqDialog(oldobj).dialog('open');
 
     return mod;
   };
 
   mod.del = function (target) {
-    var s = shimi.store(target);
+    var s = store(target);
     var id = s.get('charseq-charseq');
     var rev = s.get('charseq-rev');
     var url = 'config/charseqs/' + id + '?rev=' + rev;
@@ -30,7 +44,7 @@ shimi.charseqTab = (function () {
     };
 
     if (window.confirm('Are you sure? This is permanent.')) {
-      shimi.form.send(url, {}, 'DELETE', complete, this);
+      form.send(url, {}, 'DELETE', complete, this);
     }
 
     return mod;
@@ -58,3 +72,5 @@ shimi.charseqTab = (function () {
 
   return mod;
 })();
+
+exports.charseqTab = charseqTab;

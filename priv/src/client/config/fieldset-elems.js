@@ -1,6 +1,16 @@
+// # Working with elements of a fieldset manipulation HTML form
+//
+// *Implicit depends:* DOM, JQuery
+
+// Variable Definitions
+
+var form = require('../form.js');
+
+// Exported functions
+
 // Returns an object with references to add/edit fieldset dialog
-// field elements with helper functions. 
-shimi.fieldsetElems = (function () {
+// field elements with helper functions.
+var fieldsetElems = (function () {
   'use strict';
 
   var mod = {};
@@ -39,7 +49,7 @@ shimi.fieldsetElems = (function () {
     };
 
     fObj.clear = function () {
-      shimi.form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
+      form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
       return fObj;
     };
 
@@ -54,3 +64,5 @@ shimi.fieldsetElems = (function () {
 
   return mod;
 })();
+
+exports.fieldsetElems = fieldsetElems;

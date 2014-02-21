@@ -32,7 +32,7 @@
 -spec find(string(), utils:req_data(), any()) -> [jsn:json_term()].
 find(Doctype, Project, S) ->
     F = fun (X, Acc) -> find_f(X, Acc, Doctype) end,
-    Qs = view:from_list([{<<"include_docs">>, true}]),
+    Qs = view:from_list([{<<"include_docs">>, <<"true">>}]),
     couch:fold_view("shimi_ima", "all_fieldsets", view:to_string(Qs), F, Project, S).
 
 -spec bump(string(), utils:req_data(), any()) -> ok.
