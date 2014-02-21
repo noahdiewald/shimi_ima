@@ -147,7 +147,6 @@
     </div>
     
     <div class="panel" id="document-view">
-      {% include "document_view_header.dtl" %}
     </div>
     
     <div class="panel" id="document-edit">
