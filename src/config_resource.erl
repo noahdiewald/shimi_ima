@@ -29,10 +29,11 @@
          allowed_methods/2,
          content_types_accepted/2,
          content_types_provided/2,
-         do_upgrade/2,
+         from_json/2,
          is_authorized/2, 
          resource_exists/2,
          to_html/2,
+         to_json/2,
          rest_init/2
         ]).
 -export([
@@ -55,17 +56,17 @@ allowed_methods(R, S) ->
     end.
 
 content_types_provided(R, S) ->
-    {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}.
-%    case proplists:get_value(target, S) of
-%        main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
-%    end.
+   case proplists:get_value(target, S) of
+       main -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S};
+       upgrade -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}
+   end.
   
-content_types_accepted(R, S) ->
-    {[{'*', do_upgrade}], R, S}.
+content_types_accepted(R, S) -> h:accept_json(R, S).
 
-do_upgrade(R, S) ->
+% Note that no actual JSON is expected here.
+from_json(R, S) ->
     {Project, R1} = cowboy_req:binding(project, R),
-    DatabaseUrl = utils:adb() ++ binary_to_list(Project),
+    DatabaseUrl = couch:adb(binary_to_list(Project)),
     spawn_link(project, upgrade, [DatabaseUrl]),
     {true, R1, S}.
 
@@ -75,6 +76,9 @@ to_html(R, S) ->
     Vals = [{<<"user">>, User},{<<"project_info">>, ProjectData}],
     {ok, Html} = render:render(config_dtl, Vals),
     {Html, R1, S}.
+
+to_json(R, S) ->
+    {<<"">>, R, S}.
 
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

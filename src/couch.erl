@@ -23,6 +23,7 @@
 -module(couch).
 
 -export([
+         adb/1,
          create/3,
          delete/4,
          exists/3,
