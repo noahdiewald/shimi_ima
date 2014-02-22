@@ -109,7 +109,6 @@ var init = function () {
 
   fs.fieldsets = info.fieldsets;
   fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
-  fs.title = (info.name ? info.name : info._id) + ' Edit';
   editArea.innerHTML = templates['document-edit'](fs);
   $('#edit-tabs').tabs();
   fieldsets.initFieldsets();

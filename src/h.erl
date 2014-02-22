@@ -27,7 +27,7 @@
 
 -export([
          accept_json/2,
-         basic_info/4,
+         basic_info/2,
          charseq/1,
          charseq_data/2,
          create/3,
@@ -83,16 +83,13 @@ accept_json(R, S) -> {[{{<<"application">>, <<"json">>, '*'}, from_json}], R, S}
 %% well.
 %%
 %% TODO: Remove the title stuff.
--spec basic_info(string(), string(), req_data(), req_state()) -> {jsn:json_term(), req_data()}.
-basic_info(Title1, Title2, R, S) ->
+-spec basic_info(req_data(), req_state()) -> {jsn:json_term(), req_data()}.
+basic_info(R, S) ->
     {{ok, ProjectData}, R1} = project_data(R, S),
     {{ok, DoctypeData}, R2} = doctype_data(R1, S),
-    % TODO: use the data above?
-    {Doctype, R3} = doctype(R2),
     {[{<<"project_info">>, ProjectData},
       {<<"doctype_info">>, DoctypeData},
-      {<<"title">>, list_to_binary(Title1 ++ Doctype ++ Title2)},
-      {<<"user">>, proplists:get_value(user, S)}], R3}.
+      {<<"user">>, proplists:get_value(user, S)}], R2}.
 
 %% @doc Return the value of the 'charseq' binding.
 -spec charseq(req_data()) -> {string(), req_data()}.
