@@ -41,7 +41,7 @@ end
 task :fcpdeploy, :roles => :fcp do
   run "cd /home/dictionary_maker/dictionary_maker &&
        /usr/bin/hg pull &&
-       /usr/bin/hg update production &&
+       /usr/bin/hg update default &&
        make distclean &&
        make build"
 end
