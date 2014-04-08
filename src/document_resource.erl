@@ -96,7 +96,6 @@ delete_resource(R, S) ->
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        edit -> html_edit(R, S);
         main -> html_documents(R, S);
         search -> html_search(R, S)
     end.
@@ -184,7 +183,7 @@ json_ws(R, S) ->
 
 json_document(R, S) ->
     {{ok, OrigJson}, R1} = h:id_data(R, [{revs_info, true}|S]),
-    {Info, R2} = h:basic_info("", "", R1, S),
+    {Info, R2} = h:basic_info(R1, S),
     [First|RevsInfo] = proplists:get_value(<<"_revs_info">>, OrigJson),
     F = fun (This=[{<<"rev">>, Rev}, {<<"status">>, Status}]) ->
         {_, [$-|Count]} = lists:split(32, lists:reverse(binary_to_list(Rev))),
@@ -211,18 +210,9 @@ json_revision(R, S) ->
     {jsn:encode(Json), R2, S}.
 
 html_documents(R, S) ->
-    {Info, R1} = h:basic_info("", " Documents", R, S),
+    {Info, R1} = h:basic_info(R, S),
     {ok, Html} = render:render(document_dtl, Info),
     {Html, R1, S}.
-
-html_edit(R, S) ->
-    {[Doctype, Project], R1} = h:g([doctype, project], R),
-    {Info, R2} = h:basic_info("Edit or Create ", "", R1, S),
-    {ok, Json} = q:fieldset(Doctype, Project, S),
-    Fieldsets = fieldset:arrange(jsn:get_value(<<"rows">>, Json), nofields),
-    Vals = [{<<"fieldsets">>, Fieldsets}|Info],
-    {ok, Html} = render:render(document_edit_dtl, Vals),
-    {Html, R2, S}.
 
 html_search(R, S) ->
     {Query, R1} = cowboy_req:qs_val(<<"q">>, R),

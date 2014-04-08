@@ -1,9 +1,9 @@
 {% extends "project_context.dtl" %}
 
-{% block page_title %}{{ project_info.name|escape }}: {{ title|escape }}{% endblock %}
+{% block page_title %}{{ project_info.name|escape }}: {{ doctype_info.name|escape }}{% endblock %}
 
 {% block header %}
-<h1>{{ project_info.name|escape }}: {{ title|escape }}</h1> 
+<h1>{{ project_info.name|escape }}: {{ doctype_info.name|escape|escape }}</h1> 
 <em>{{ doctype_info.description|escape }}</em>
 {% endblock %}
 
@@ -132,7 +132,7 @@
     </div>
 
     <div class="panel" id="document-index">
-      <h2 class="header">{{ doctype_info._id|escape }} Index</h2>
+      <h2 class="header">Index</h2>
   
       <form id="index-filter-form">
         <label id="index-index-input-label" 
