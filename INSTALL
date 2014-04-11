@@ -1,0 +1,9 @@
+= Installing Cucumber BDD Dependencies
+
+redis must be installed but does not need to already be running on your system.
+
+== Installing the Gems
+
+<pre>
+gem install cucumber redis watir-webdriver rspec
+</pre>

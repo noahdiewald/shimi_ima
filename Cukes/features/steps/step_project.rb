@@ -30,7 +30,7 @@ When /^I click the delete button$/ do
   lastProjectName = @redis.get('last_project_name')
   targ = {:text => lastProjectName}
   @browser.link(targ).wait_until_present(5)
-  projectId = @browser.link(targ).href.split("/")[-2].split("-").last
+  projectId = @browser.link(targ).href.split("/")[-3].split("-").last
   deleteButton = @browser.link(:id => projectId)
   deleteButton.click
   @browser.alert.ok
@@ -55,6 +55,6 @@ Then /^the validation text for project name is gone$/ do
 end
 
 Then /^the validation text will warn me of invalid project name input$/ do
-  @browser.p(:class => 'validate-tips').text.should match /Length of project name must be between 1 and 50./
+  @browser.span(:class => 'validation-error-message').text.should match /Length of project name must be between 1 and 50./
 end
 
