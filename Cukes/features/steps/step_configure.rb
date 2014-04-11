@@ -13,7 +13,7 @@ Given(/^I have created a project$/) do
   projectName = @redis.get('current_project_name')
   targ = {:text => projectName}
   @browser.link(targ).wait_until_present(5)
-  projectId = @browser.link(targ).href.split("/")[-2].split("-").last
+  projectId = @browser.link(targ).href.split("/")[-3].split("-").last
   @redis.set('current_project_id', projectId)
 end
 
@@ -190,7 +190,6 @@ When(/^I click the editor (\w+) button$/) do | bttn |
   if bttn == "delete"
     @browser.alert.ok
   end
-  @browser.div(:id => 'loading').wait_while_present
 end
 
 # Then(/^the (.+) fieldset exists$/) do | label |
@@ -207,6 +206,7 @@ end
 # end
 
 Then(/^the document type (\w+) has been deleted$/) do | name |
+  @browser.div(:id => 'loading').wait_while_present
   @browser.link(:text => name).should_not be_exists
 end
 

@@ -1,19 +1,19 @@
 @firefox
 Feature: Configuring Project
 
-# Scenario: Creating a document type
-#   Given I have created a project
-#   When I click the project Configure button
-#   And click the Add Document Type button
-#   And I fill in Popsicle in the name editor input
-#   And I click the editor create button
-#   Then there is a Popsicle document type
+Scenario: Creating a document type
+  Given I have created a project
+  When I click the project Configure button
+  And click the Add Document Type button
+  And I fill in Popsicle in the name editor input
+  And I click the editor create button
+  Then there is a Popsicle document type
 
-# Scenario: Deleting a document type
-#   Given I created the NoGood document type
-#   When I open the NoGood document type in the editor
-#   And I click the editor delete button
-#   Then the document type NoGood has been deleted
+Scenario: Deleting a document type
+  Given I created the NoGood document type
+  When I open the NoGood document type in the editor
+  And I click the editor delete button
+  Then the document type NoGood has been deleted
 
 # Scenario: Updating a document type
 #   Given I created the ExtraCorn document type
