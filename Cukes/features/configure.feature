@@ -15,30 +15,34 @@ Scenario: Deleting a document type
   And I click the editor delete button
   Then the document type NoGood has been deleted
 
-# Scenario: Updating a document type
-#   Given I created the ExtraCorn document type
-#   When I open the ExtraCorn document type in the editor
-#   And I fill in SampleCorn in the name editor input
-#   And I click the editor save button
-#   Then there is a SampleCorn document type
+Scenario: Updating a document type
+  Given I created the ExtraCorn document type
+  When I open the ExtraCorn document type in the editor
+  And I fill in SampleCorn in the name editor input
+  And I click the editor save button
+  Then there is a SampleCorn document type
 
-# Scenario Outline: Creating fieldsets
-#   Given the Popsicle document type is selected
-#   When I click the Popsicle add fieldset button
-#   And I give <name> as the fieldset name
-#   And I give <label> as the fieldset label
-#   And I give <collapse> as the fieldset collapse value
-#   And I give <multiple> as the fieldset multiple value
-#   And I give <order> as the fieldset order
-#   And I click the Fieldset Save button
-#   Then the <label> fieldset exists
+Scenario Outline: Creating fieldsets
+  Given the Popsicle document type is in the editor
+  When I click the top level element fieldsets
+  And I click the editor AddChildObject button
+  And I click the editor save button
+  And I double click the top level element fieldsets
+  And I double click the last fieldset
+  And I give <name> as the fieldset name value
+  And I give <label> as the fieldset label value
+  And I give <collapse> as the fieldset collapse value
+  And I give <multiple> as the fieldset multiple value
+  And I give <order> as the fieldset order value
+  And I click the editor save button
+  Then the <name> fieldset exists
 
-#   Examples:
-#   | name   | label                            | collapse | multiple | order |
-#   | movies | This Popscicle's Favorite Movies | true     | true     |   100 |
-#   | basic  | Basic Info                       | false    | false    |    10 |
-#   | lie    | Lie Told by Popscicle            | true     | false    |    50 |
-#   | oops   | Better Delete                    | true     | true     |   666 |
+  Examples:
+  | name   | label  | collapse | multiple | order |
+  | movies | Movies | true     | true     |   100 |
+  | basic  | Basic  | false    | false    |    10 |
+  | lie    | Lie    | true     | false    |    50 |
+  | oops   | Delete | true     | true     |   666 |
 
 # Scenario Outline: Creating fields
 #   Given the <fieldset> fieldset is selected in the Popscicle document type
