@@ -1,4 +1,4 @@
-Before('@firefox') do
+Before('@webbrowser') do
   @baseURL = "http://tester:tester@127.0.0.1:8000"
   @redis = Redis.new
   @browser = Watir::Browser.new :chrome
@@ -6,7 +6,7 @@ Before('@firefox') do
   @redis.set('current_project_name', @projectName)
 end
 
-After('@firefox') do |scenario|
+After('@webbrowser') do |scenario|
   @browser.close unless @inspect_window
   @redis.set('last_project_name', @projectName)
 end

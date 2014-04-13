@@ -1,4 +1,4 @@
-@firefox
+@webbrowser
 Feature: Manipulating Projects
 
 Scenario: Creating a project.

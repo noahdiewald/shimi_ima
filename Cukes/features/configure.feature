@@ -1,4 +1,4 @@
-@firefox
+@webbrowser
 Feature: Configuring Project
 
 Scenario: Creating a document type
