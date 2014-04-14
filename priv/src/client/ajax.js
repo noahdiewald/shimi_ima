@@ -39,7 +39,9 @@ var ajaxStop = function () {
 var makeMessage = function (response) {
   'use strict';
 
-  return response.fieldname + ' ' + response.message;
+  var retval = response.fieldname ? response.fieldname + ' ' : '';
+
+  return retval + response.message;
 };
 
 // Run on request completion with callback and default behavior in
@@ -58,6 +60,8 @@ var complete = function (req, callback) {
       msg = makeMessage(JSON.stringify(req.response));
     } else if (req.response && req.response instanceof Object) {
       msg = makeMessage(req.response);
+    } else if (req.status >= 404) {
+      msg = 'The document was not found on the server.';
     } else {
       msg = 'That is all.';
     }

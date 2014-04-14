@@ -100,11 +100,11 @@ Scenario: Editor provides suitable error when updating non-existing
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor save button
-  Then there is an error "This document has not been created yet."
+  Then there is an error "Likely attempt to update before properly creating."
 
 Scenario: Editor provides suitable error when deleting non-existing
   Given A project exists
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor delete button
-  Then there is an error "This document has not been created yet."
+  Then there is an error "The document was not found on the server."

@@ -95,6 +95,11 @@ update(R, S) ->
             Msg = <<"This document has been updated or deleted by another user.">>,
             Msg1 = jsn:encode([{<<"message">>, Msg}]),
             {ok, R3} = cowboy_req:reply(409, [], Msg1, R2),
+            {halt, R3, S};
+        {error, invalid_rev_format} ->
+            Msg = <<"Likely attempt to update before properly creating.">>,
+            Msg1 = jsn:encode([{<<"message">>, Msg}]),
+            {ok, R3} = cowboy_req:reply(400, [], Msg1, R2),
             {halt, R3, S}
     end.
 

@@ -351,7 +351,11 @@ update(Data, Url, Headers) ->
             Message = jsn:get_value(<<"reason">>, Resp),
             {forbidden, Message};
         {ok, "409", _, _} -> 
-            {error, conflict}
+            {error, conflict};
+        {ok, "400", _, Body} ->
+            Resp = jsn:decode(Body),
+            <<"Invalid rev format">> = jsn:get_value(<<"reason">>, Resp),
+            {error, invalid_rev_format}
     end.
 
 -spec update_raw(string(), iolist(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()} | {forbidden, binary()}.
