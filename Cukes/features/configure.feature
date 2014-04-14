@@ -4,7 +4,7 @@ Feature: Configuring Project
 Scenario: Creating a document type
   Given I have created a project
   When I click the project Configure button
-  And click the Add Document Type button
+  And I click the Add Document Type button
   And I fill in Popsicle in the name editor input
   And I click the editor create button
   Then there is a Popsicle document type
@@ -74,3 +74,10 @@ Scenario Outline: Creating fields
   | basic    | flavor      | Flavor      | text     | true  | false    |     5 |
   | basic    | sticks      | Double?     | boolean  | false | false    |    34 |
   | lie      | liefield    | Lie         | text     | false | true     |    78 |
+
+Scenario: Nameless document type
+  Given A project exists
+  When I click the Add Document Type button
+  And I fill in a19e3acc63248869400eb8b7632c0144 in the _id editor input
+  And I click the editor create button
+  Then there is a a19e3acc63248869400eb8b7632c0144 document type

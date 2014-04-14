@@ -10,10 +10,14 @@ Given(/^I have created a project$/) do
   @redis.set('current_project_id', projectId)
 end
 
-Given(/^I created the (\w+) document type$/) do | name |
+Given(/^A project exists$/) do
   projectId = @redis.get('current_project_id')
   @browser.goto("#{@baseURL}/projects/project-#{projectId}/config")
-  step("click the Add Document Type button")
+end
+
+Given(/^I created the (\w+) document type$/) do | name |
+  step("A project exists")
+  step("I click the Add Document Type button")
   step("I fill in #{name} in the name editor input")
   step("I click the editor create button")
   @browser.div(:id => 'loading').wait_while_present
@@ -36,7 +40,7 @@ When(/^I click the project Configure button$/) do
   configureButton.click
 end
 
-When(/^click the Add Document Type button$/) do
+When(/^I click the Add Document Type button$/) do
   button = @browser.link(:id => 'doctypes-add-button')
   button.wait_until_present
   button.click
