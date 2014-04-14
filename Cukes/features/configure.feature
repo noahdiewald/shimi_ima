@@ -72,5 +72,5 @@ Scenario Outline: Creating fields
   | movies   | stars       | Rating      | integer  | false | false    |    45 |
   | movies   | description | Description | textarea | false | false    |    99 |
   | basic    | flavor      | Flavor      | text     | true  | false    |     5 |
-  | basic    | sticks      | Double?     | select   | false | false    |    34 |
+  | basic    | sticks      | Double?     | boolean  | false | false    |    34 |
   | lie      | liefield    | Lie         | text     | false | true     |    78 |
