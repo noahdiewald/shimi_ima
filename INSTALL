@@ -5,5 +5,8 @@ redis must be installed but does not need to already be running on your system.
 == Installing the Gems
 
 <pre>
-gem install cucumber redis watir-webdriver rspec
+gem install cucumber redis watir-webdriver rspec headless
 </pre>
+
+Note that `headless` is only needed for headless webdriver tests. It
+requires Xvfb.

@@ -81,3 +81,30 @@ Scenario: Nameless document type
   And I fill in a19e3acc63248869400eb8b7632c0144 in the _id editor input
   And I click the editor create button
   Then there is a a19e3acc63248869400eb8b7632c0144 document type
+
+Scenario: Editor clears after document type creation
+  Given A project exists
+  When I click the Add Document Type button
+  And I fill in Dummy in the name editor input
+  And I click the editor create button
+  Then the editor area is blank
+
+Scenario: Editor clears after document type deletion
+  Given I created the NoGood2 document type
+  When I open the NoGood2 document type in the editor
+  And I click the editor delete button
+  Then the editor area is blank
+
+Scenario: Editor provides suitable error when updating non-existing
+  Given A project exists
+  When I click the Add Document Type button
+  And I fill in NotReady in the name editor input
+  And I click the editor save button
+  Then there is an error "This document has not been created yet."
+
+Scenario: Editor provides suitable error when deleting non-existing
+  Given A project exists
+  When I click the Add Document Type button
+  And I fill in NotReady in the name editor input
+  And I click the editor delete button
+  Then there is an error "This document has not been created yet."
