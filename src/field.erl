@@ -114,7 +114,7 @@ from_json(Json) ->
                       SC -> get_subcategory(SC)
                   end,
     #field{
-            id = get_value(<<"_id">>, Json),
+            id = proplists:get_value(<<"_id">>, Json, list_to_binary(utils:uuid())),
             rev = get_value(<<"_rev">>, Json),
             allowed = get_value(<<"allowed">>, Json),
             category = field,

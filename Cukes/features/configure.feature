@@ -36,6 +36,7 @@ Scenario Outline: Creating fieldsets
   And I give <order> as the fieldset order value
   And I click the editor save button
   Then the <name> fieldset exists
+  And the fieldset has an id
 
   Examples:
   | name   | label  | collapse | multiple | order |
@@ -64,6 +65,7 @@ Scenario Outline: Creating fields
   And I give <order> for <fieldset> field order value
   And I click the editor save button
   Then the <fieldset> <name> field exists
+  And the <fieldset> field has an id
 
   Examples:
   | fieldset | name        | label       | type     | head  | reversal | order |

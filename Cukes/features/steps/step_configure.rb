@@ -145,9 +145,19 @@ Then(/^the (\w+) fieldset exists$/) do | name |
   @browser.text_field(:css, "#edit-form ol[title='fieldsets'] > li:last-child [name='name']").value.should == name
 end
 
+Then(/^the fieldset has an id$/) do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.text_field(:css, "#edit-form ol[title='fieldsets'] > li:last-child [name='_id']").value.should =~ /^[a-z0-9]{32}$/
+end
+
 Then(/^the (\w+) (\w+) field exists$/) do | fieldset, name |
   @browser.div(:id => 'loading').wait_while_present
   @browser.element(:css, "#edit-form [value='#{fieldset}']").parent.parent.text_field(:css, "ol[title='fields'] > li:last-child [name='name']").value.should == name
+end
+
+Then(/^the (\w+) field has an id$/) do | fieldset |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:css, "#edit-form [value='#{fieldset}']").parent.parent.text_field(:css, "ol[title='fields'] > li:last-child [name='_id']").value.should =~ /^[a-z0-9]{32}$/
 end
 
 Then(/^the (\w+) fieldset is deleted$/) do | name |
