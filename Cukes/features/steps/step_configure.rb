@@ -154,3 +154,13 @@ Then(/^the (\w+) fieldset is deleted$/) do | name |
   @browser.div(:id => 'loading').wait_while_present
   @browser.text_field(:css, "#edit-form ol[title='fieldsets'] > li:last-child [value='#{name}']").should_not be_exists
 end
+
+Then(/^the editor area is blank$/) do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:id => 'edit-form').form.ul.text.should == ''
+end
+
+Then(/^there is an error "(.*?)"$/) do | msg |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:class => 'ui-state-error').span(:class => 'notification-message').text.should =~ /#{msg}/
+end

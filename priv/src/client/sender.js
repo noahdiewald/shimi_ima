@@ -87,6 +87,8 @@ var sender = function (message, arg) {
     break;
   case 'config-doctype-created':
   case 'config-doctype-deleted':
+    ceditui.fresh();
+    /* falls through */
   case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;

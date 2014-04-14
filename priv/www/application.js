@@ -13668,7 +13668,7 @@ var fieldElems = (function () {
 
 exports.fieldElems = fieldElems;
 
-},{"../form.js":75,"../utils.js":98}],58:[function(require,module,exports){
+},{"../form.js":75,"../utils.js":99}],58:[function(require,module,exports){
 // # Fieldset manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -15226,7 +15226,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":98,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
+},{"../ajax.js":42,"../path.js":91,"../store.js":97,"../utils.js":99,"./documents.js":65,"./editui.js":66,"templates.js":"3ddScq"}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15848,7 +15848,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":42,"../sets.js":96,"../utils.js":98,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
+},{"../ajax.js":42,"../sets.js":96,"../utils.js":99,"./documents.js":65,"./setsui.js":70,"templates.js":"3ddScq"}],70:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16252,7 +16252,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":98,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":94,"../sets.js":96,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -20045,6 +20045,8 @@ var sender = function (message, arg) {
     break;
   case 'config-doctype-created':
   case 'config-doctype-deleted':
+    ceditui.fresh();
+    /* falls through */
   case 'config-doctype-updated':
     retval = cdoctypeui.init();
     break;
@@ -20385,7 +20387,9 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":98}],98:[function(require,module,exports){
+},{"./recurse.js":93,"./utils.js":99}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20564,8 +20568,6 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -20629,5 +20631,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,44,46,45,47,49,50,51,52,54,53,48,55,57,56,58,60,59,61,62,63,65,64,68,66,67,69,70,71,72,73,76,75,77,78,79,74,80,81,82,83,84,85,86,87,88,89,90,91,93,94,92,95,96,97,98])
+},{"hogan.js":18}]},{},[42,45,44,43,46,47,48,49,50,51,52,53,55,54,57,56,58,60,59,61,62,63,64,66,65,67,68,69,70,72,71,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,91,90,92,93,94,95,97,96,99])
 ;
