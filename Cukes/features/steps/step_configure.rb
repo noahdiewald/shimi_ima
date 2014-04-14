@@ -25,6 +25,11 @@ Given(/^the (\w+) document type is in the editor$/) do | name |
   step("I open the #{name} document type in the editor")
 end
 
+Given(/^the (\w+) fieldset named (\w+) is selected$/) do | doctype, name |
+  step("the #{doctype} document type is in the editor")
+  step("I show the fieldset named #{name}")
+end
+
 When(/^I click the project Configure button$/) do
   projectId = @redis.get('current_project_id')
   configureButton = @browser.link(:href => "/projects/project-#{projectId}/config")
@@ -42,14 +47,52 @@ When(/^I click the top level element (\w+)$/) do | title |
   @browser.element(:css, "#edit-form > form > ul > li > span[title=#{title}]").click
 end
 
-When(/^I double click the top level element (\w+)$/) do | title |
+When(/^I click the fieldset (\w+) element (\w+)$/) do | name, title |
   @browser.div(:id => 'loading').wait_while_present
-  @browser.element(:css, "#edit-form > form > ul > li > span[title=#{title}]").double_click
+  step("I show the fieldset named #{name}")
+  @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.element(:css, "span[title='#{title}']").click
 end
 
-When(/^I double click the last fieldset$/) do
+When(/^I show the top level element (\w+)$/) do | title |
   @browser.div(:id => 'loading').wait_while_present
-  @browser.element(:css, "#edit-form > form > ul > li > span[title='fieldsets'] + ol > li:last-child").double_click
+  target = @browser.element(:css, "#edit-form > form > ul > li > span[title=#{title}]")
+  if @browser.element(:css, "li##{target.parent.id.escape_first_digit} > .hidden").exists?
+    target.double_click
+  end
+end
+
+When(/^I show the fieldset (\w+) element (\w+)$/) do | name, title |
+  @browser.div(:id => 'loading').wait_while_present
+  step("I show the fieldset named #{name}")
+  target = @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.element(:css, "span[title=#{title}]")
+  if @browser.element(:css, "li##{target.parent.id.escape_first_digit} > .hidden").exists?
+    target.double_click
+  end
+end
+
+When(/^I show the last fieldset$/) do
+  @browser.div(:id => 'loading').wait_while_present
+  target = @browser.element(:css, "#edit-form > form > ul > li > span[title='fieldsets'] + ol > li:last-child")
+  if @browser.element(:css, "li##{target.id.escape_first_digit} > .hidden").exists?
+    target.double_click
+  end
+end
+
+When(/^I show the fieldset (\w+) last field$/) do | name |
+  @browser.div(:id => 'loading').wait_while_present
+  step("I show the fieldset #{name} element fields")
+  target = @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.element(:css, "ol[title='fields'] > li:last-child")
+  if @browser.element(:css, "li##{target.id.escape_first_digit} > .hidden").exists?
+    target.double_click
+  end
+end
+
+When(/^I show the fieldset named (\w+)$/) do | name |
+  step("I show the top level element fieldsets")
+  target = @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.parent
+  if @browser.element(:css, "li##{target.id.escape_first_digit} > .hidden").exists?
+    target.double_click
+  end
 end
 
 When(/^I fill in (\w+) in the (\w+) editor input$/) do | data, input |
@@ -62,7 +105,13 @@ When(/^I give (.+) as the fieldset (\w+) value$/) do | data, input |
   inputField.set data
 end
 
+When(/^I give (.+) for (\w+) field (\w+) value$/) do | data, name, input |
+  inputField = @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.text_field(:css, "ol[title='fields'] > li:last-child > ul > li > [name='#{input}']")
+  inputField.set data
+end
+
 When(/^I open the (\w+) document type in the editor$/) do | name |
+  @browser.div(:id => 'doctypes-listing').wait_until_present
   @browser.div(:id => 'loading').wait_while_present
   @browser.link(:text => name).click
   @browser.div(:id => 'loading').wait_while_present
@@ -87,7 +136,17 @@ Then(/^there is a (\w+) document type$/) do | name |
   @browser.link(:text => name).should be_exists
 end
 
-Then(/^the (\w+) (\w+) exists$/) do | name, elem_type |
+Then(/^the (\w+) fieldset exists$/) do | name |
   @browser.div(:id => 'loading').wait_while_present
-  @browser.text_field(:css, "#edit-form ol[title='#{elem_type}s'] > li:last-child [name='name']").value.should == name
+  @browser.text_field(:css, "#edit-form ol[title='fieldsets'] > li:last-child [name='name']").value.should == name
+end
+
+Then(/^the (\w+) (\w+) field exists$/) do | fieldset, name |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:css, "#edit-form [value='#{fieldset}']").parent.parent.text_field(:css, "ol[title='fields'] > li:last-child [name='name']").value.should == name
+end
+
+Then(/^the (\w+) fieldset is deleted$/) do | name |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.text_field(:css, "#edit-form ol[title='fieldsets'] > li:last-child [value='#{name}']").should_not be_exists
 end
