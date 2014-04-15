@@ -1,9 +1,8 @@
 ERL ?= erl
 REBAR ?= ./rebar
 CURL ?= /usr/bin/curl
-CUC ?= /usr/bin/cucumber
-REDIS ?= /usr/bin/redis-server
-RCLIENT ?= /usr/bin/redis-cli
+CUCARG ?= ''
+CUC ?= /usr/bin/cucumber $(CUCARG)
 GRUNT ?= /usr/bin/grunt
 NPM ?= /usr/bin/npm
 URL ?= http://tester:tester@127.0.0.1:5984
