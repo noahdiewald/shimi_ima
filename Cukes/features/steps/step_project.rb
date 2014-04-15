@@ -11,6 +11,7 @@ Given /^the test database exists$/ do
   create_project
 end
 
+# TODO: combine with link clicking step in shared
 When /^I click the New Projects button$/ do
   @browser.link(:id, 'create-project').click
 end

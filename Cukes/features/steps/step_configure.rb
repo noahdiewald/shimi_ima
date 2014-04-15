@@ -1,13 +1,3 @@
-Given /^a project is ready$/ do
-  step "the test database exists"
-  step "I navigate to the projects page"
-end
-
-Given /^a project exists$/ do
-  step "the test database exists"
-  @browser.goto(@projectConfig)
-end
-
 Given(/^I created the (\w+) document type$/) do | name |
   step "the test database exists"
   step "I click the Add Document Type button"
@@ -15,17 +5,7 @@ Given(/^I created the (\w+) document type$/) do | name |
   step "I click the editor create button"
 end
 
-Given /^a doctype exists$/ do
-  step "the test database exists"
-  post_fixture "Popsicle_bare.json"
-  post_fixture "Popsicle_design.json"
-  @browser.goto(@projectConfig)
-end
-
-Given /^a doctype with (\w+) exists$/ do | fix |
-  step "the test database exists"
-  post_fixture "Popsicle_#{fix}.json"
-  post_fixture "Popsicle_design.json"
+Given /^I am on the configuration page$/ do
   @browser.goto(@projectConfig)
 end
 
@@ -49,11 +29,13 @@ Given /^the (\w+) fieldset named (\w+) is selected$/ do | doctype, name |
   step "I show the fieldset named #{name}"
 end
 
+# TODO: combine with link clicking step in shared
 When(/^I click the project Configure button$/) do
   @browser.div(:id => 'loading').wait_while_present
   @browser.link(:href => "/projects/project-#{@projectId}/config").click
 end
 
+# TODO: combine with link clicking step in shared
 When(/^I click the Add Document Type button$/) do
   button = @browser.link(:id => 'doctypes-add-button')
   button.wait_until_present
@@ -131,6 +113,7 @@ end
 When(/^I open the (\w+) document type in the editor$/) do | name |
   @browser.div(:id => 'doctypes-listing').wait_until_present
   @browser.div(:id => 'loading').wait_while_present
+  # TODO: combine with link clicking step in shared
   @browser.link(:text => name).click
   @browser.div(:id => 'loading').wait_while_present
 end

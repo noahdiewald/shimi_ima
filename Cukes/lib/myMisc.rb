@@ -40,10 +40,26 @@ def create_project
 end
 
 def post_fixture(fixture)
-  file = File.open("#{File.dirname(__FILE__)}/fixtures/#{fixture}", "rb")
-  json = file.read
+  post(URI(@projectURL), get_fixture_json(fixture))
+end
 
-  post(URI(@projectURL), json)
+def json_to_field_lookup(fixture)
+  json = JSON.parse(get_fixture_json(fixture))
+  if json['fieldsets'] && json['fieldsets'][0]['fields']
+    m = json['fieldsets'].map do | fs |
+      fs['fields'].map do | f |
+        [fs['lable'] + ':' + f['label'], f['_id']]
+      end
+    end.flatten
+    Hash[*m]
+  else
+    {}
+  end
+end
+
+def get_fixture_json(fixture)
+  file = File.open("#{File.dirname(__FILE__)}/fixtures/#{fixture}", "rb")
+  file.read
 end
 
 def create_project_document

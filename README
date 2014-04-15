@@ -1,0 +1,22 @@
+= Running Cucumber Tests
+
+== Run All Features in Foreground
+
+    make cucumber
+
+== Run All Features in Background
+
+    HEADLESS=true make cucumber
+
+== Run Single Scenario in Background
+
+    CUCARG=features/configure.feature:60 HEADLESS=true make cucumber
+
+== Run Single Scenario in Foreground Retaining Database State
+
+Normally the database state is cleared between most scenario runs. This
+will allow you to look at the result of the scenario run on the database
+if it is necessary.
+
+    CUCARG=features/configure.feature:60 make runcuc
+

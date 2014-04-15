@@ -11,12 +11,14 @@ Scenario: Creating a document type
 
 Scenario: Deleting a document type
   Given a doctype exists
+  And I am on the configuration page
   When I open the Popsicle document type in the editor
   And I click the editor delete button
   Then the document type Popsicle has been deleted
 
 Scenario: Updating a document type
   Given a doctype exists
+  And I am on the configuration page
   When I open the Popsicle document type in the editor
   And I fill in SampleCorn in the name editor input
   And I click the editor save button
@@ -24,6 +26,7 @@ Scenario: Updating a document type
 
 Scenario Outline: Creating fieldsets
   Given for <run> a doctype exists
+  And I am on the configuration page
   And the Popsicle document type is in the editor
   When I click the top level element fieldsets
   And I click the editor AddChildObject button
@@ -48,6 +51,7 @@ Scenario Outline: Creating fieldsets
 
 Scenario: Deleting a fieldset
   Given a doctype with fieldsets exists
+  And I am on the configuration page
   And the Popsicle fieldset named oops is selected
   When I click the editor RemoveElement button
   And I click the editor save button
@@ -55,6 +59,7 @@ Scenario: Deleting a fieldset
 
 Scenario Outline: Creating fields
   Given for <order> a doctype with fieldsets exists
+  And I am on the configuration page
   And the Popsicle fieldset named <fieldset> is selected
   When I click the fieldset <fieldset> element fields
   And I click the editor AddChildObject button
@@ -82,6 +87,7 @@ Scenario Outline: Creating fields
 
 Scenario: Nameless document type
   Given a project exists
+  And I am on the configuration page
   When I click the Add Document Type button
   And I fill in a19e3acc63248869400eb8b7632c0144 in the _id editor input
   And I click the editor create button
@@ -89,6 +95,7 @@ Scenario: Nameless document type
 
 Scenario: Editor clears after document type creation
   Given a project exists
+  And I am on the configuration page
   When I click the Add Document Type button
   And I fill in Dummy in the name editor input
   And I click the editor create button
@@ -96,12 +103,14 @@ Scenario: Editor clears after document type creation
 
 Scenario: Editor clears after document type deletion
   Given I created the NoGood2 document type
+  And I am on the configuration page
   When I open the NoGood2 document type in the editor
   And I click the editor delete button
   Then the editor area is blank
 
 Scenario: Editor provides suitable error when updating non-existing
   Given a project exists
+  And I am on the configuration page
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor save button
@@ -109,6 +118,7 @@ Scenario: Editor provides suitable error when updating non-existing
 
 Scenario: Editor provides suitable error when deleting non-existing
   Given a project exists
+  And I am on the configuration page
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor delete button

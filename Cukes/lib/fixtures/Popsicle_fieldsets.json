@@ -1,1 +1,61 @@
-{"_id":"f5cae2e2f8f54a608f4ad45e8f422110","name":"Popsicle","description":"","category":"doctype","fieldsets":[{"_id":"6ddc38c96d91d039914bcf39db1fde88","_rev":null,"category":"fieldset","description":null,"doctype":null,"name":"movies","label":"Movies","order":0,"multiple":true,"collapse":true,"fields":[]},{"_id":"c23452a9ddec3a9443a123d975103c70","_rev":null,"category":"fieldset","description":null,"doctype":null,"name":"basic","label":"Basic","order":0,"multiple":false,"collapse":false,"fields":[]},{"_id":"6183bd628096811b45aada87cf26571d","_rev":null,"category":"fieldset","description":null,"doctype":null,"name":"lie","label":"Lie","order":0,"multiple":false,"collapse":true,"fields":[]},{"_id":"c52da79c38bf4b6873d1fd226a562e0e","_rev":null,"category":"fieldset","description":null,"doctype":null,"name":"oops","label":"Delete","order":0,"multiple":true,"collapse":true,"fields":[]}],"updated_at_":"Tue, 15 Apr 2014 06:23:05 GMT","updated_by_":"tester","created_at_":"Tue, 15 Apr 2014 05:02:01 GMT","created_by_":"tester","prev_":"8-f20137cd87e378981b17683d089898c0"}
+{
+  "_id": "f5cae2e2f8f54a608f4ad45e8f422110",
+  "name": "Popsicle",
+  "description": "",
+  "category": "doctype",
+  "fieldsets": [{
+      "_id": "6ddc38c96d91d039914bcf39db1fde88",
+      "_rev": null,
+      "category": "fieldset",
+      "description": null,
+      "doctype": null,
+      "name": "movies",
+      "label": "Movies",
+      "order": 0,
+      "multiple": true,
+      "collapse": true,
+      "fields": []
+    }, {
+      "_id": "c23452a9ddec3a9443a123d975103c70",
+      "_rev": null,
+      "category": "fieldset",
+      "description": null,
+      "doctype": null,
+      "name": "basic",
+      "label": "Basic",
+      "order": 0,
+      "multiple": false,
+      "collapse": false,
+      "fields": []
+    }, {
+      "_id": "6183bd628096811b45aada87cf26571d",
+      "_rev": null,
+      "category": "fieldset",
+      "description": null,
+      "doctype": null,
+      "name": "lie",
+      "label": "Lie",
+      "order": 0,
+      "multiple": false,
+      "collapse": true,
+      "fields": []
+    }, {
+      "_id": "c52da79c38bf4b6873d1fd226a562e0e",
+      "_rev": null,
+      "category": "fieldset",
+      "description": null,
+      "doctype": null,
+      "name": "oops",
+      "label": "Delete",
+      "order": 0,
+      "multiple": true,
+      "collapse": true,
+      "fields": []
+    }
+  ],
+  "updated_at_": "Tue, 15 Apr 2014 06:23:05 GMT",
+  "updated_by_": "tester",
+  "created_at_": "Tue, 15 Apr 2014 05:02:01 GMT",
+  "created_by_": "tester",
+  "prev_": "8-f20137cd87e378981b17683d089898c0"
+}
