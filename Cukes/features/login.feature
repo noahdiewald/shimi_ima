@@ -1,3 +1,5 @@
+# Note, this requires that the database is set up correctly to
+# authenticate the tester user.
 Feature: Loging In
 
 Scenario Outline: Attempting to access the application.
@@ -7,6 +9,6 @@ Scenario Outline: Attempting to access the application.
 
   Examples:
   | userName | password | response |
-  | badUser | badPass | 401 |
-  | tester | tester | 200 |
+  | badUser  | badPass  |      401 |
+  | tester   | tester   |      200 |
 

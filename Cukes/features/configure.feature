@@ -2,7 +2,7 @@
 Feature: Configuring Project
 
 Scenario: Creating a document type
-  Given I have created a project
+  Given a project is ready
   When I click the project Configure button
   And I click the Add Document Type button
   And I fill in Popsicle in the name editor input
@@ -10,20 +10,21 @@ Scenario: Creating a document type
   Then there is a Popsicle document type
 
 Scenario: Deleting a document type
-  Given I created the NoGood document type
-  When I open the NoGood document type in the editor
+  Given a doctype exists
+  When I open the Popsicle document type in the editor
   And I click the editor delete button
-  Then the document type NoGood has been deleted
+  Then the document type Popsicle has been deleted
 
 Scenario: Updating a document type
-  Given I created the ExtraCorn document type
-  When I open the ExtraCorn document type in the editor
+  Given a doctype exists
+  When I open the Popsicle document type in the editor
   And I fill in SampleCorn in the name editor input
   And I click the editor save button
   Then there is a SampleCorn document type
 
 Scenario Outline: Creating fieldsets
-  Given the Popsicle document type is in the editor
+  Given for <run> a doctype exists
+  And the Popsicle document type is in the editor
   When I click the top level element fieldsets
   And I click the editor AddChildObject button
   And I click the editor save button
@@ -39,20 +40,22 @@ Scenario Outline: Creating fieldsets
   And the fieldset has an id
 
   Examples:
-  | name   | label  | collapse | multiple | order |
-  | movies | Movies | true     | true     |   100 |
-  | basic  | Basic  | false    | false    |    10 |
-  | lie    | Lie    | true     | false    |    50 |
-  | oops   | Delete | true     | true     |   666 |
+  | name   | label  | collapse | multiple | order | run |
+  | movies | Movies | true     | true     |   100 |   1 |
+  | basic  | Basic  | false    | false    |    10 |   2 |
+  | lie    | Lie    | true     | false    |    50 |   3 |
+  | oops   | Delete | true     | true     |   666 |   4 |
 
 Scenario: Deleting a fieldset
-  Given the Popsicle fieldset named oops is selected
+  Given a doctype with fieldsets exists
+  And the Popsicle fieldset named oops is selected
   When I click the editor RemoveElement button
   And I click the editor save button
   Then the oops fieldset is deleted
 
 Scenario Outline: Creating fields
-  Given the Popsicle fieldset named <fieldset> is selected
+  Given for <order> a doctype with fieldsets exists
+  And the Popsicle fieldset named <fieldset> is selected
   When I click the fieldset <fieldset> element fields
   And I click the editor AddChildObject button
   And I click the editor save button
@@ -69,7 +72,7 @@ Scenario Outline: Creating fields
 
   Examples:
   | fieldset | name        | label       | type     | head  | reversal | order |
-  | movies   | moviename   | Name        | text     | false | false    |     9 |
+  | movies   | moviename   | Name        | text     | false | false    |     1 |
   | movies   | date        | Date        | date     | false | false    |    27 |
   | movies   | stars       | Rating      | integer  | false | false    |    45 |
   | movies   | description | Description | textarea | false | false    |    99 |
@@ -78,14 +81,14 @@ Scenario Outline: Creating fields
   | lie      | liefield    | Lie         | text     | false | true     |    78 |
 
 Scenario: Nameless document type
-  Given A project exists
+  Given a project exists
   When I click the Add Document Type button
   And I fill in a19e3acc63248869400eb8b7632c0144 in the _id editor input
   And I click the editor create button
   Then there is a a19e3acc63248869400eb8b7632c0144 document type
 
 Scenario: Editor clears after document type creation
-  Given A project exists
+  Given a project exists
   When I click the Add Document Type button
   And I fill in Dummy in the name editor input
   And I click the editor create button
@@ -98,14 +101,14 @@ Scenario: Editor clears after document type deletion
   Then the editor area is blank
 
 Scenario: Editor provides suitable error when updating non-existing
-  Given A project exists
+  Given a project exists
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor save button
   Then there is an error "Likely attempt to update before properly creating."
 
 Scenario: Editor provides suitable error when deleting non-existing
-  Given A project exists
+  Given a project exists
   When I click the Add Document Type button
   And I fill in NotReady in the name editor input
   And I click the editor delete button

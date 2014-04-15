@@ -2,52 +2,45 @@ Given /^I navigate to the projects page$/ do
   @browser.goto "#{@baseURL}/projects"
 end
 
+Given /^the test database does not exist$/ do
+  delete_project
+end
+
+Given /^the test database exists$/ do
+  step "the test database does not exist"
+  create_project
+end
+
 When /^I click the New Projects button$/ do
-  newProjectButton = @browser.link(:id, 'create-project')
-  newProjectButton.click
+  @browser.link(:id, 'create-project').click
 end
 
 When /^I fill in the project name$/ do
-  projectNameField = @browser.text_field(:id, 'project-name')
-  projectNameField.set @projectName
-end
-
-When /^I fail to fill in the project name$/ do
-  true
+  @browser.text_field(:id, 'project-name').set @projectName
 end
 
 When /^I click the add project button$/ do
-  projectAddButton = @browser.span(:text, 'Add project')
-  projectAddButton.click
+  @browser.span(:text, 'Add project').click
 end
 
 When /^I click the cancel button$/ do
-  cancelButton = @browser.span(:text, 'Cancel')
-  cancelButton.click
+  @browser.span(:text, 'Cancel').click
 end
   
 When /^I click the delete button$/ do
-  lastProjectName = @redis.get('last_project_name')
-  targ = {:text => lastProjectName}
-  @browser.link(targ).wait_until_present(5)
-  projectId = @browser.link(targ).href.split("/")[-3].split("-").last
-  deleteButton = @browser.link(:id => projectId)
-  deleteButton.click
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.link(:id => @projectId).click
   @browser.alert.ok
 end
 
 Then /^there is a new project$/ do
-  projectName = @redis.get('current_project_name')
-  @browser.link(:text => projectName).wait_until_present(5)
-  true
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.link(:text, @projectName).should be_exists
 end
 
 Then /^the target project was deleted$/ do
-  lastProjectName = @redis.get('last_project_name')
-  targ = {:text => lastProjectName}
-  @browser.link(targ).wait_while_present(5)
-  @browser.link(:class => 'project-configure-button').wait_until_present(5)
-  @browser.link(targ).should_not be_exists
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.link(:text, @projectName).should_not be_exists
 end
 
 Then /^the validation text for project name is gone$/ do

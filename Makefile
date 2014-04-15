@@ -49,9 +49,7 @@ mochacov:
 	$(GRUNT) coverage
 
 runcuc:
-	$(REDIS) > /dev/null &
 	/bin/bash -c 'pushd ./Cukes;$(CUC);popd'
-	echo "shutdown" | $(RCLIENT)
 
 cleancuc:
 	@for i in `$(CURL) -s $(ALL_URL)|awk -F\" '/__test/ {print $$4}'`; \

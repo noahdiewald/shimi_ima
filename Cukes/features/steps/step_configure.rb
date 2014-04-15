@@ -1,43 +1,57 @@
-Given(/^I have created a project$/) do
+Given /^a project is ready$/ do
+  step "the test database exists"
   step "I navigate to the projects page"
-  step "I click the New Projects button"
-  step "I fill in the project name"
-  step "I click the add project button"
-  projectName = @redis.get('current_project_name')
-  targ = {:text => projectName}
-  @browser.link(targ).wait_until_present(5)
-  projectId = @browser.link(targ).href.split("/")[-3].split("-").last
-  @redis.set('current_project_id', projectId)
 end
 
-Given(/^A project exists$/) do
-  projectId = @redis.get('current_project_id')
-  @browser.goto("#{@baseURL}/projects/project-#{projectId}/config")
+Given /^a project exists$/ do
+  step "the test database exists"
+  @browser.goto(@projectConfig)
 end
 
 Given(/^I created the (\w+) document type$/) do | name |
-  step("A project exists")
-  step("I click the Add Document Type button")
-  step("I fill in #{name} in the name editor input")
-  step("I click the editor create button")
-  @browser.div(:id => 'loading').wait_while_present
+  step "the test database exists"
+  step "I click the Add Document Type button"
+  step "I fill in #{name} in the name editor input"
+  step "I click the editor create button"
 end
 
-Given(/^the (\w+) document type is in the editor$/) do | name |
-  projectId = @redis.get('current_project_id')
-  @browser.goto("#{@baseURL}/projects/project-#{projectId}/config")
-  step("I open the #{name} document type in the editor")
+Given /^a doctype exists$/ do
+  step "the test database exists"
+  post_fixture "Popsicle_bare.json"
+  post_fixture "Popsicle_design.json"
+  @browser.goto(@projectConfig)
 end
 
-Given(/^the (\w+) fieldset named (\w+) is selected$/) do | doctype, name |
-  step("the #{doctype} document type is in the editor")
-  step("I show the fieldset named #{name}")
+Given /^a doctype with (\w+) exists$/ do | fix |
+  step "the test database exists"
+  post_fixture "Popsicle_#{fix}.json"
+  post_fixture "Popsicle_design.json"
+  @browser.goto(@projectConfig)
+end
+
+# This is only supposed to happen the first time
+Given /^for (\d+) a doctype exists$/ do | r |
+  step "a doctype exists" if r == "1"
+end
+
+# This is only supposed to happen the first time
+Given /^for (\d+) a doctype with (\w+) exists$/ do | r, fix |
+  step "a doctype with #{fix} exists" if r == "1"
+end
+
+Given /^the (\w+) document type is in the editor$/ do | name |
+  @browser.goto(@projectConfig)
+  step "I open the #{name} document type in the editor"
+end
+
+Given /^the (\w+) fieldset named (\w+) is selected$/ do | doctype, name |
+  step "the #{doctype} document type is in the editor"
+  step "I show the fieldset named #{name}"
 end
 
 When(/^I click the project Configure button$/) do
-  projectId = @redis.get('current_project_id')
-  configureButton = @browser.link(:href => "/projects/project-#{projectId}/config")
-  configureButton.click
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.link(:href => "/projects/project-#{@projectId}/config").click
 end
 
 When(/^I click the Add Document Type button$/) do
