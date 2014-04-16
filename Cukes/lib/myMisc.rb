@@ -45,16 +45,18 @@ end
 
 def json_to_field_lookup(fixture)
   json = JSON.parse(get_fixture_json(fixture))
-  if json['fieldsets'] && json['fieldsets'][0]['fields']
-    m = json['fieldsets'].map do | fs |
-      fs['fields'].map do | f |
-        [fs['lable'] + ':' + f['label'], f['_id']]
-      end
-    end.flatten
-    Hash[*m]
-  else
-    {}
-  end
+  m = json['fieldsets'].map do | fs |
+    fs['fields'].map { | f |  [fs['label'] + ':' + f['label'], f['_id']] }
+  end.flatten
+  Hash[*m]
+end
+
+def json_to_fieldset_lookup(fixture)
+  json = JSON.parse(get_fixture_json(fixture))
+  m = json['fieldsets'].map do | fs |
+    [fs['label'], fs['_id']]
+  end.flatten
+  Hash[*m]
 end
 
 def get_fixture_json(fixture)
