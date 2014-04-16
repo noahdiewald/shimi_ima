@@ -129,8 +129,14 @@
     data-field-max="{{ max }}"
     data-field-regex="{{ regex }}"
     data-field-instance="{{ instance_id }}"
+    {{#instance_id}}
     data-group-id="{{ _id }}-{{ instance_id }}"
     id="{{ _id }}-{{ instance_id }}"
+    {{/instance_id}}
+    {{^instance_id}}
+    data-group-id="{{ _id }}"
+    id="{{ _id }}"
+    {{/instance_id}}
   {{#text}}
     />
   {{/text}}
@@ -199,7 +205,14 @@
   {{/docmultiselect}}
   {{#textarea}}
     >{{#default}}{{ default }}{{/default}}</textarea>
-    <span title="Expand/Shrink Text Box" class="expander" data-group-id="{{ _id }}-{{ instance_id }}"></span>
+    <span title="Expand/Shrink Text Box" class="expander" 
+    {{#instance_id}}
+      data-group-id="{{ _id }}-{{ instance_id }}"
+    {{/instance_id}}
+    {{^instance_id}}
+      data-group-id="{{ _id }}"
+    {{/instance_id}}
+    ></span>
   {{/textarea}}    
   </div>
 {{/fields}}

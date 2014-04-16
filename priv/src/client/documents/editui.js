@@ -15,6 +15,7 @@ var fieldsets = require('./fieldsets.js');
 var viewui = require('./viewui.js');
 var indexui = require('./indexui.js');
 var documents = require('./documents.js');
+var uuid = require('node-uuid');
 var afterRefresh;
 
 // Internal functions
@@ -63,34 +64,20 @@ var validationError = function (req) {
 var instances = function (addInstances) {
   'use strict';
 
-  var text = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
   var makeInstance = function () {
-    return text.map(function () {
-      return text[Math.floor(Math.random() * text.length)];
-    }).join('');
+    return uuid.v4().replace(/-/g, '');
   };
 
-  $('#last-added [data-field-instance]').each(function (index, item) {
-    var itemElem = $(item).first();
-    var oldInstance = itemElem.attr('data-field-instance');
-    var newInstance = oldInstance;
-
-    if (addInstances) {
-      newInstance = makeInstance();
+  Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
+    if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
+      var instance = makeInstance();
+      item.id = item.dataset.fieldField + '-' + instance;
+      item.dataset.groupId = item.id;
+      // Differences in Firefox and Chrome
+      item.nextSibling.dataset.groupId = item.id;
+      item.nextSibling.nextSibling.dataset.groupId = item.id;
     }
-
-    itemElem.attr('data-group-id', newInstance);
-    // TODO: This is a little redundant
-    itemElem.attr('id', newInstance);
-    itemElem.attr('data-field-instance', newInstance);
-    // Differences in Firefox and Chrome
-    itemElem.next('.expander').attr('data-group-id', newInstance);
-    itemElem.next().next('.expander').attr('data-group-id', newInstance);
   });
-
-  if (addInstances) {
-    $('#last-added').removeAttr('id');
-  }
 
   return true;
 };
