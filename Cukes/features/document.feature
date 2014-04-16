@@ -20,7 +20,8 @@ Scenario: Creating a document
   And I click the Movies link
   And I click the Add link
   And I input "harvey" in Movies Name field 1
-  And I click the "Create as New" link
+  Then the Movies Name field 1 has the correct identifier
+  When I click the "Create as New" link
   Then a document with head "horn" will exist in the index
   And a document with Basic Flavor "horn" will be displayed
   And in the editor Basic Flavor will be blank
