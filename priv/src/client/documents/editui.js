@@ -71,11 +71,14 @@ var instances = function (addInstances) {
   Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
     if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
       var instance = makeInstance();
+      var expander = item.parentElement.querySelector('.expander');
+
       item.id = item.dataset.fieldField + '-' + instance;
+      item.dataset.fieldInstance = instance;
       item.dataset.groupId = item.id;
-      // Differences in Firefox and Chrome
-      item.nextSibling.dataset.groupId = item.id;
-      item.nextSibling.nextSibling.dataset.groupId = item.id;
+      if (expander) {
+        expander.dataset.groupId = item.id;
+      }
     }
   });
 

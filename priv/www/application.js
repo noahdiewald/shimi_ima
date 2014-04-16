@@ -11989,7 +11989,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":94}],46:[function(require,module,exports){
+},{"./config/charseq-tab":48,"./config/doctype-tab.js":53,"./config/maintenanceui.js":60,"./dispatcher.js":62,"./documents/editui.js":66,"./documents/fieldsets.js":67,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/viewui.js":71,"./documents/worksheetui.js":72,"./file_manager/fm.js":73,"./form.js":75,"./index_tool/ieditui.js":79,"./panel-toggle.js":90,"./projects/projectui.js":92,"./sender.js":95}],46:[function(require,module,exports){
 // # Charseq manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -12716,7 +12716,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":89,"../sender.js":94,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
+},{"../pager.js":89,"../sender.js":95,"node-uuid":41,"templates.js":"3ddScq"}],55:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13454,7 +13454,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":95}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":95,"../sess.js":96}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14117,7 +14117,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":94,"./editui.js":66}],65:[function(require,module,exports){
+},{"../sender.js":95,"./editui.js":66}],65:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -14370,7 +14370,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":42,"../sender.js":94,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
+},{"../ajax.js":42,"../sender.js":95,"../store.js":98,"./changeui.js":63,"./editui.js":66,"./indexui.js":68,"./setsui.js":70,"./viewui.js":71}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14444,11 +14444,14 @@ var instances = function (addInstances) {
   Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
     if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
       var instance = makeInstance();
+      var expander = item.parentElement.querySelector('.expander');
+
       item.id = item.dataset.fieldField + '-' + instance;
+      item.dataset.fieldInstance = instance;
       item.dataset.groupId = item.id;
-      // Differences in Firefox and Chrome
-      item.nextSibling.dataset.groupId = item.id;
-      item.nextSibling.nextSibling.dataset.groupId = item.id;
+      if (expander) {
+        expander.dataset.groupId = item.id;
+      }
     }
   });
 
@@ -16243,7 +16246,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":74,"../sender.js":94,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
+},{"../flash.js":74,"../sender.js":95,"../sets.js":97,"../utils.js":99,"./documents.js":65,"templates.js":"3ddScq"}],71:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17933,7 +17936,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":93,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
+},{"./recurse.js":94,"htmlparser2":31,"node-uuid":41}],77:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -18774,7 +18777,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19391,7 +19394,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":94}],89:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":54,"./documents/changeui.js":63,"./documents/editui.js":66,"./documents/indexui.js":68,"./documents/searchui.js":69,"./documents/viewui.js":71,"./index_tool/ipreviewui.js":83,"./jquery.hotkeys.js":87,"./sender.js":95}],89:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19904,7 +19907,9 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],93:[function(require,module,exports){
+},{"../ajax.js":42,"../form.js":75,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],94:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -19946,7 +19951,7 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -20102,7 +20107,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20151,8 +20156,6 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],97:[function(require,module,exports){
 // # Set operations
 //
@@ -20380,7 +20383,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":93,"./utils.js":99}],99:[function(require,module,exports){
+},{"./recurse.js":94,"./utils.js":99}],99:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20622,5 +20625,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,44,46,43,47,45,48,49,52,50,51,54,55,53,56,57,58,59,60,61,62,64,65,63,66,68,67,69,70,71,72,73,74,75,76,77,79,78,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,97,95,98,99])
+},{"hogan.js":18}]},{},[42,44,43,47,46,49,50,45,51,52,53,48,56,54,55,57,58,59,60,61,62,63,64,66,65,68,67,69,70,71,72,73,74,75,76,77,78,81,83,79,84,85,86,87,88,80,82,89,91,92,90,94,95,96,97,98,99])
 ;
