@@ -39,3 +39,19 @@ Scenario: Updating a document
 Scenario: Deleting a document
   Given a doctype with fields exists
   And I am at the document page
+
+Scenario: Expanding and contracting text boxes
+  Given a doctype with fields exists
+  And I am at the document page
+  When I click the Movies link
+  And I click the Add link
+  And I click the Movies Description expander 1
+  Then the Movies Description field 1 is expanded
+  When I click the Movies Description expander 1
+  Then the Movies Description field 1 is not expanded
+  When I focus on Movies Description field 1
+  And perform the key sequence alt x
+  Then the Movies Description field 1 is expanded
+  When I focus on Movies Description field 1
+  And perform the key sequence alt x
+  Then the Movies Description field 1 is not expanded

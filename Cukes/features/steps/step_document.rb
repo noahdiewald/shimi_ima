@@ -18,6 +18,24 @@ When /^I input "(.*?)" in (\w+) (\w+) field (\d+)$/ do | data, fieldset, field, 
   @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].set data
 end
 
+When /^I focus on (\w+) (\w+) field (\d+)$/ do | fieldset, field, inst |
+  @browser.div(:id => 'loading').wait_while_present
+  fid = @popsicleFields[fieldset + ':' + field]
+  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].focus
+end
+
+When /^I click the (\w+) (\w+) expander (\d+)$/ do | fieldset, field, inst |
+  @browser.div(:id => 'loading').wait_while_present
+  fid = @popsicleFields[fieldset + ':' + field]
+  gid = @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].id
+  @browser.span(:data_group_id => gid).click
+end
+
+When(/^perform the key sequence (alt|control) (\w+)$/) do | mod, key |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:css, ':focus').send_keys [mod.to_sym, key]
+end
+
 Then /^I am taken to the document type listing$/ do
   @browser.div(:id => 'loading').wait_while_present
   @browser.h1.text.should match /All Document Types/
@@ -60,4 +78,16 @@ Then /^the (\w+) (\w+) field (\d+) has the correct identifier$/ do | fieldset, f
   @browser.div(:id => 'loading').wait_while_present
   fid = @popsicleFields[fieldset + ':' + field]
   @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].id.should match /#{fid}-[0-9a-f]{32}/
+end
+
+Then /^the (\w+) (\w+) field (\d+) is expanded$/ do | fieldset, field, inst |
+  @browser.div(:id => 'loading').wait_while_present
+  fid = @popsicleFields[fieldset + ':' + field]
+  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].attribute_value("class").should match /expanded/
+end
+
+Then /^the (\w+) (\w+) field (\d+) is not expanded$/ do | fieldset, field, inst |
+  @browser.div(:id => 'loading').wait_while_present
+  fid = @popsicleFields[fieldset + ':' + field]
+  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].attribute_value("class").should_not match /expanded/
 end

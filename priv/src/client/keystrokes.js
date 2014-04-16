@@ -134,7 +134,7 @@ var keystrokes = function () {
   });
 
   $(document).on('keydown', '#edit-document-form textarea', 'Alt+x', function (e) {
-    editui.toggleTextarea($(e.target));
+    editui.toggleTextarea(e.target);
     return false;
   });
 

@@ -315,14 +315,16 @@ var showHelpDialog = function (target) {
 var toggleTextarea = function (target) {
   'use strict';
 
-  var textarea = $('#' + target.attr('data-group-id'));
+  var textarea = document.getElementById(target.dataset.groupId);
 
-  if (target.attr('id') === textarea.attr('data-group-id')) {
-    textarea.toggleClass('expanded');
-    textarea.next().next('span').toggleClass('expanded');
+  if (target.id === textarea.dataset.groupId) {
+    // This is the key sequence case.
+    textarea.classList.toggle('expanded');
+    textarea.parentElement.querySelector('span.expander').classList.toggle('expanded');
   } else {
-    textarea.toggleClass('expanded');
-    target.toggleClass('expanded');
+    // This is the click case.
+    textarea.classList.toggle('expanded');
+    target.classList.toggle('expanded');
   }
 
   return true;
