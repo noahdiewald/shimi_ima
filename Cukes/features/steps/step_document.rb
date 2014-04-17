@@ -2,6 +2,11 @@ Given /^I am at the document page$/ do
   @browser.goto(@popsicleURL)
 end
 
+Given /^a doctype with two documents exists$/ do
+  step "a doctype with fields exists"
+  post_fixture "Popsicle_two_docs.json", true
+end
+
 When /^I click the test project link$/ do
   step "I click the #{@projectName} link"
 end

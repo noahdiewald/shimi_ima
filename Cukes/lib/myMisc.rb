@@ -41,8 +41,10 @@ def create_project
   replicate_project_code
 end
 
-def post_fixture(fixture)
-  post(URI(@projectURL), get_fixture_json(fixture))
+def post_fixture(fixture, bulk = false)
+  uri = @projectURL
+  uri = uri + '/_bulk_docs' if bulk
+  post(URI(uri), get_fixture_json(fixture))
 end
 
 def json_to_field_lookup(fixture)

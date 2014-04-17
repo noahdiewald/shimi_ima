@@ -29,15 +29,15 @@ Scenario: Creating a document
   And in the editor Movies will have no children
 
 Scenario: Selecting and viewing a document
-  Given a doctype with fields exists
+  Given a doctype with two documents exists
   And I am at the document page
 
 Scenario: Updating a document
-  Given a doctype with fields exists
+  Given a doctype with two documents exists
   And I am at the document page
 
 Scenario: Deleting a document
-  Given a doctype with fields exists
+  Given a doctype with two documents exists
   And I am at the document page
 
 Scenario: Expanding and contracting text boxes
