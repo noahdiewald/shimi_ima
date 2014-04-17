@@ -12,28 +12,30 @@ When /^I input "(.*?)" in the (\w+) (\w+) field$/ do | data, fieldset, field |
   @browser.text_field(:id => fid).set data
 end
 
-When /^I input "(.*?)" in (\w+) (\w+) field (\d+)$/ do | data, fieldset, field, inst |
+When /^I input "(.*?)" in (\w+) (\w+) field (\d+)$/ do | data, fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]
-  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].set data
+  multi_field(fieldset, field, index).set data
 end
 
-When /^I focus on (\w+) (\w+) field (\d+)$/ do | fieldset, field, inst |
+When /^I focus on (\w+) (\w+) field (\d+)$/ do | fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]
-  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].focus
+  multi_field(fieldset, field, index).focus
 end
 
-When /^I click the (\w+) (\w+) expander (\d+)$/ do | fieldset, field, inst |
+When /^I click the (\w+) (\w+) expander (\d+)$/ do | fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]
-  gid = @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].id
+  gid = multi_field(fieldset, field, index).id
   @browser.span(:data_group_id => gid).click
 end
 
 When(/^perform the key sequence (alt|control) (\w+)$/) do | mod, key |
   @browser.div(:id => 'loading').wait_while_present
   @browser.element(:css, ':focus').send_keys [mod.to_sym, key]
+end
+
+When(/^I click on the last day of the first week$/) do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:css, '#ui-datepicker-div > .ui-datepicker-calendar > tbody > tr:first-child > td:last-child > a').click
 end
 
 Then /^I am taken to the document type listing$/ do
@@ -74,20 +76,28 @@ Then /^in the editor (\w+) will have no children$/ do | fieldset |
   @browser.div(:id => "container-#{fsid}").elements.to_a.should be_empty
 end
 
-Then /^the (\w+) (\w+) field (\d+) has the correct identifier$/ do | fieldset, field, inst |
+Then /^the (\w+) (\w+) field (\d+) has the correct identifier$/ do | fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
   fid = @popsicleFields[fieldset + ':' + field]
-  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].id.should match /#{fid}-[0-9a-f]{32}/
+  multi_field(fieldset, field, index).id.should match /#{fid}-[0-9a-f]{32}/
 end
 
-Then /^the (\w+) (\w+) field (\d+) is expanded$/ do | fieldset, field, inst |
+Then /^the (\w+) (\w+) field (\d+) is expanded$/ do | fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]
-  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].attribute_value("class").should match /expanded/
+  multi_field(fieldset, field, index).attribute_value("class").should match /expanded/
 end
 
-Then /^the (\w+) (\w+) field (\d+) is not expanded$/ do | fieldset, field, inst |
+Then /^the (\w+) (\w+) field (\d+) is not expanded$/ do | fieldset, field, index |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]
-  @browser.text_fields(:data_field_field => fid)[inst.to_i - 1].attribute_value("class").should_not match /expanded/
+  multi_field(fieldset, field, index).attribute_value("class").should_not match /expanded/
+end
+
+Then /^there is a date in the (\w+) (\w+) field (\d+)$/ do | fieldset, field, index |
+  @browser.div(:id => 'loading').wait_while_present
+  multi_field(fieldset, field, index).value.should match /^\d{4}-\d{2}-\d{2}/
+end
+
+Then /^the date picker is present$/ do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:id, 'ui-datepicker-div').should be_present
 end

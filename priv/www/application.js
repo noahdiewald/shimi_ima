@@ -13454,7 +13454,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":95}],56:[function(require,module,exports){
+},{"../ajax.js":42,"../formalize.js":76,"../sender.js":94,"../sess.js":96}],56:[function(require,module,exports){
 // # Field manipulation dialog
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14528,8 +14528,8 @@ var afterEditRefresh = function () {
 afterRefresh = function (addInstances) {
   'use strict';
 
-  form.initDateFields();
   instances(addInstances);
+  form.initDateFields();
 
   return true;
 };
@@ -14688,7 +14688,6 @@ var showHelpDialog = function (target) {
 var toggleTextarea = function (target) {
   'use strict';
 
-  window.console.log(target.element);
   var textarea = document.getElementById(target.dataset.groupId);
 
   if (target.id === textarea.dataset.groupId) {
@@ -18780,7 +18779,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":42,"../sess.js":95}],82:[function(require,module,exports){
+},{"../ajax.js":42,"../sess.js":96}],82:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -20108,7 +20107,9 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],95:[function(require,module,exports){
+},{"./config/doctypeui.js":54,"./config/editui.js":55,"./documents/commands.js":64,"./documents/documents.js":65,"./documents/editui.js":66,"./documents/searchui.js":69,"./documents/setsui.js":70,"./documents/worksheetui.js":72}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],96:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20157,8 +20158,6 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
 },{}],97:[function(require,module,exports){
 // # Set operations
 //
@@ -20628,5 +20627,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":18}]},{},[42,43,45,46,44,47,48,49,51,50,52,53,54,56,58,55,57,59,60,61,62,63,64,65,66,68,67,70,69,71,73,72,75,74,77,76,78,79,80,82,81,84,83,85,86,87,88,90,89,91,92,94,93,97,95,98,99])
+},{"hogan.js":18}]},{},[42,44,43,46,47,45,49,50,51,48,55,53,52,54,56,57,59,58,60,61,62,63,64,66,67,68,69,70,65,71,72,73,75,74,76,77,78,79,80,81,82,84,83,85,86,88,87,89,91,90,92,93,96,97,94,98,99])
 ;

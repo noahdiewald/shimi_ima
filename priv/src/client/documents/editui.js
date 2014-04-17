@@ -155,8 +155,8 @@ var afterEditRefresh = function () {
 afterRefresh = function (addInstances) {
   'use strict';
 
-  form.initDateFields();
   instances(addInstances);
+  form.initDateFields();
 
   return true;
 };

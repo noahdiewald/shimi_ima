@@ -55,3 +55,13 @@ Scenario: Expanding and contracting text boxes
   When I focus on Movies Description field 1
   And perform the key sequence alt x
   Then the Movies Description field 1 is not expanded
+
+Scenario: Using the date picker
+  Given a doctype with fields exists
+  And I am at the document page
+  When I click the Movies link
+  And I click the Add link
+  And I focus on Movies Date field 1
+  Then the date picker is present
+  When I click on the last day of the first week
+  Then there is a date in the Movies Date field 1

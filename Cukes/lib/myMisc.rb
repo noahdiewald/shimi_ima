@@ -1,3 +1,5 @@
+# Required gems and helper functions are going here so far.
+
 require 'watir-webdriver'
 require 'net/http'
 require 'json'
@@ -125,4 +127,9 @@ end
 
 def request(req, data = nil)
   Net::HTTP.start(req.uri.hostname, req.uri.port) {|http| http.request(req, data) }
+end
+
+def multi_field(fieldset, field, index)
+  fid = @popsicleFields[fieldset + ':' + field]
+  @browser.text_fields(:data_field_field => fid)[index.to_i - 1]
 end
