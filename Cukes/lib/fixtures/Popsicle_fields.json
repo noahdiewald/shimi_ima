@@ -1,7 +1,7 @@
 {
   "_id": "f5cae2e2f8f54a608f4ad45e8f422110",
   "name": "Popsicle",
-  "description": "",
+  "description": "A heart-stoppingly cold treat",
   "category": "doctype",
   "fieldsets": [{
       "_id": "6ddc38c96d91d039914bcf39db1fde88",
@@ -189,23 +189,10 @@
           "subcategory": "text"
         }
       ]
-    }, {
-      "_id": "c52da79c38bf4b6873d1fd226a562e0e",
-      "_rev": null,
-      "category": "fieldset",
-      "description": null,
-      "doctype": null,
-      "name": "oops",
-      "label": "Delete",
-      "order": 0,
-      "multiple": true,
-      "collapse": true,
-      "fields": []
     }
   ],
   "updated_at_": "Tue, 15 Apr 2014 06:42:17 GMT",
   "updated_by_": "tester",
   "created_at_": "Tue, 15 Apr 2014 05:02:01 GMT",
-  "created_by_": "tester",
-  "prev_": "14-7261e14918e6dc4e60c35489fc930bba"
+  "created_by_": "tester"
 }
