@@ -24,8 +24,6 @@ var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
 var maintenanceui = require('./config/maintenanceui.js');
-var doctypeTab = require('./config/doctype-tab.js');
-var charseqTab = require('./config/charseq-tab').charseqTab;
 
 // ## Internal Functions
 
@@ -50,17 +48,8 @@ var clickDispatch = function (e) {
     '.edit-doctype-link': function (t) {
       return S.sender('edit-doctype-requested', 'doctypes/' + t.getAttribute('href').slice(1));
     },
-    '.touch-doctype-button': function (t) {
-      doctypeTab.touchDoctype(t);
-    },
     '#doctypes-add-button': function (t) {
       return defaultAction(t);
-    },
-    '.delete-charseq-button': function (t) {
-      charseqTab.del(t);
-    },
-    '#charseq-add-button': function (t) {
-      charseqTab.add();
     },
     '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);

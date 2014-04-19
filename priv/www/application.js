@@ -11785,7 +11785,7 @@ exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
 
-},{"./flash.js":77}],46:[function(require,module,exports){
+},{"./flash.js":67}],46:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM, JQuery
@@ -11918,7 +11918,7 @@ document.onreadystatechange = function () {
   }
 };
 
-},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":53,"./dblclick-dispatch.js":64,"./documents/documents.js":68,"./file_manager/fm.js":76,"./form.js":78,"./index_tool/ilistingui.js":85,"./jquery-ui-input-state.js":89,"./keystrokes.js":91,"./projects/projectui.js":95}],47:[function(require,module,exports){
+},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":50,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ilistingui.js":75,"./jquery-ui-input-state.js":79,"./keystrokes.js":81,"./projects/projectui.js":85}],47:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -11953,7 +11953,7 @@ var changes = function () {
 
 exports.changes = changes;
 
-},{"./documents/searchui.js":72}],48:[function(require,module,exports){
+},{"./documents/searchui.js":62}],48:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11980,8 +11980,6 @@ var form = require('./form.js');
 var projectui = require('./projects/projectui.js');
 var fm = require('./file_manager/fm.js');
 var maintenanceui = require('./config/maintenanceui.js');
-var doctypeTab = require('./config/doctype-tab.js');
-var charseqTab = require('./config/charseq-tab').charseqTab;
 
 // ## Internal Functions
 
@@ -12006,17 +12004,8 @@ var clickDispatch = function (e) {
     '.edit-doctype-link': function (t) {
       return S.sender('edit-doctype-requested', 'doctypes/' + t.getAttribute('href').slice(1));
     },
-    '.touch-doctype-button': function (t) {
-      doctypeTab.touchDoctype(t);
-    },
     '#doctypes-add-button': function (t) {
       return defaultAction(t);
-    },
-    '.delete-charseq-button': function (t) {
-      charseqTab.del(t);
-    },
-    '#charseq-add-button': function (t) {
-      charseqTab.add();
     },
     '#maintenance-upgrade-button': function (t) {
       return maintenanceui.upgradeButton(t);
@@ -12248,223 +12237,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/charseq-tab":51,"./config/doctype-tab.js":56,"./config/maintenanceui.js":63,"./dispatcher.js":65,"./documents/editui.js":69,"./documents/fieldsets.js":70,"./documents/indexui.js":71,"./documents/searchui.js":72,"./documents/setsui.js":73,"./documents/viewui.js":74,"./documents/worksheetui.js":75,"./file_manager/fm.js":76,"./form.js":78,"./index_tool/ieditui.js":82,"./panel-toggle.js":93,"./projects/projectui.js":95,"./sender.js":97}],49:[function(require,module,exports){
-// # Charseq manipulation dialog
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var charseqElems = require('./charseq-elems.js').charseqElems;
-var charseqTab = require('./charseq-tab.js').charseqTab;
-var form = require('../ajax.js');
-
-// Exported functions
-
-// Dialog for manipulating doctypes
-var charseqDialog = function (values) {
-  'use strict';
-  var f = charseqElems.get(values);
-
-  var dialog = $('#charseq-dialog').dialog({
-    width: 650,
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      'Save': function () {
-        var obj = f.getCharseqInputVals();
-        var url = 'config/charseqs';
-        var method = 'POST';
-        // The new callback stuff doesn't do context but the plan is
-        // to get rid of these dialogs.
-        var complete = function (context) {
-          charseqTab.init();
-          $(context).dialog('close');
-        };
-
-        if (values && values.rev) {
-          method = 'PUT';
-          url = 'config/charseqs/' + obj._id + '?rev=' + obj.rev;
-        }
-
-        form.send(url, obj, method, complete, this);
-      },
-      'Cancel': function () {
-        $(this).dialog('close');
-      }
-    },
-    close: function () {
-      f.clear();
-    }
-  });
-
-  return dialog;
-};
-
-exports.charseqDialog = charseqDialog;
-
-},{"../ajax.js":45,"./charseq-elems.js":50,"./charseq-tab.js":51}],50:[function(require,module,exports){
-// # Working with elements of a charseq manipulation HTML form
-//
-// *Implicit depends:* DOM, JQuery
-//
-// A charaseq is a collection of information used in definining properies
-// of a script, including some phonological information and information
-// used for collation of items written in the script.
-
-// Variable Definitions
-
-var form = require('../form.js');
-
-// Exported functions
-
-// Return object for working with charseq elements
-var charseqElems = (function () {
-  'use strict';
-
-  var mod = {};
-
-  mod.attrs = ['description', 'characters', 'name', 'sort_ignore', 'locale', 'tailoring', 'vowels', 'consonants', 'ietf_tag', 'iso639_tag', 'charseq', 'rev'];
-
-  mod.get = function (values) {
-    var cObj = {};
-
-    cObj.attrs = mod.attrs;
-
-    cObj.copyValues = function (source) {
-      Object.keys(source).forEach(function (field) {
-        cObj[field].val(source[field]);
-      });
-      return cObj;
-    };
-
-    cObj.getCharseqInputVals = function () {
-      var valObj = {
-        'category': 'charseq',
-        'description': cObj.description.val(),
-        'characters': cObj.parse(cObj.characters.val()),
-        'name': cObj.name.val(),
-        'sort_ignore': cObj.parse(cObj.sort_ignore.val()),
-        'locale': cObj.locale.val(),
-        'tailoring': cObj.tailoring.val(),
-        'vowels': cObj.parse(cObj.vowels.val()),
-        'consonants': cObj.parse(cObj.consonants.val()),
-        'ietf_tag': cObj.ietf_tag.val(),
-        'iso639_tag': cObj.iso639_tag.val(),
-        '_id': (cObj.charseq.val() || undefined),
-        'rev': (cObj.rev.val() || undefined)
-      };
-      return valObj;
-    };
-
-    cObj.parse = function (val) {
-      if (val && !val.isBlank()) {
-        return JSON.parse(val);
-      } else {
-        return [];
-      }
-    };
-
-    cObj.clear = function () {
-      form.clear($('#charseq-dialog .input')).removeClass('ui-state-error');
-      return cObj;
-    };
-
-    cObj.attrs.forEach(function (item) {
-      cObj[item] = $('#charseq-' + item + '-input');
-    });
-
-    if (values) {
-      cObj.copyValues(values);
-    }
-
-    return cObj;
-  };
-
-  return mod;
-})();
-
-exports.charseqElems = charseqElems;
-
-},{"../form.js":78}],51:[function(require,module,exports){
-// # Charseq tab initialization
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var charseqDialog = require('./charseq-dialog.js').charseqDialog;
-var charseqElems = require('./charseq-elems.js').charseqElems;
-var store = require('../store.js').store;
-var form = require('../ajax.js');
-
-// Exported functions
-
-// Object containing initialization and other functions.
-var charseqTab = (function () {
-  'use strict';
-
-  var mod = {};
-
-  mod.add = function () {
-    charseqDialog().dialog('open');
-    return mod;
-  };
-
-  mod.edit = function (target) {
-    var oldobj = {};
-    var attrs = charseqElems.attrs;
-
-    attrs.forEach(function (item) {
-      oldobj[item] = store(target).get64('charseq-' + item);
-    });
-    charseqDialog(oldobj).dialog('open');
-
-    return mod;
-  };
-
-  mod.del = function (target) {
-    var s = store(target);
-    var id = s.get('charseq-charseq');
-    var rev = s.get('charseq-rev');
-    var url = 'config/charseqs/' + id + '?rev=' + rev;
-    var complete = function () {
-      mod.init();
-    };
-
-    if (window.confirm('Are you sure? This is permanent.')) {
-      form.send(url, {}, 'DELETE', complete, this);
-    }
-
-    return mod;
-  };
-
-  mod.init = function () {
-    var tabs = $('#charseq-tabs');
-    var heads = $('#charseq-tabs-headings');
-    var url = 'config/charseqs';
-
-    tabs.tabs();
-
-    $.get(url, function (charseqs) {
-      heads.empty();
-      //$('#charseq-tabs-headings + .ui-tabs-panel').remove();
-      heads.find('.ui-tabs-panel').remove();
-      tabs.tabs('destroy');
-      heads.html(charseqs);
-
-      tabs.tabs();
-    });
-
-    return mod;
-  };
-
-  return mod;
-})();
-
-exports.charseqTab = charseqTab;
-
-},{"../ajax.js":45,"../store.js":101,"./charseq-dialog.js":49,"./charseq-elems.js":50}],52:[function(require,module,exports){
+},{"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":65,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ieditui.js":72,"./panel-toggle.js":83,"./projects/projectui.js":85,"./sender.js":87}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12512,7 +12285,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":92,"templates.js":"LJITg7"}],53:[function(require,module,exports){
+},{"../pager.js":82,"templates.js":"3ddScq"}],50:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -12546,367 +12319,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"./charsequi.js":52,"./doctypeui.js":57,"./editui.js":58,"./maintenanceui.js":63}],54:[function(require,module,exports){
-// # Doctype manipulation dialog
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var doctypeElems = require('./doctype-elems.js').doctypeElems;
-var doctypeTab = require('./doctype-tab.js');
-
-// Exported functions
-
-// Dialog for manipulating doctypes
-var doctypeDialog = function (url, values) {
-  'use strict';
-
-  var f = doctypeElems.get(values);
-
-  if (values.rev && !values.rev.isBlank()) {
-    f.doctype.attr('disabled', 'disabled');
-  } else {
-    f.doctype.removeAttr('disabled');
-  }
-
-  var dialog = $('#doctype-dialog').dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      'Save': function () {
-        var obj = f.getDoctypeInputVals();
-        var complete = function (context) {
-          doctypeTab.init();
-          $(context).dialog('close');
-        };
-
-        if (!values.rev || values.rev.isBlank()) {
-          url.post(obj, complete, this);
-        } else {
-          obj._id = url.doctype;
-          url.put(obj, complete, this);
-        }
-      },
-      'Cancel': function () {
-        $(this).dialog('close');
-      }
-    },
-    close: function () {
-      f.clear();
-    }
-  });
-
-  return dialog;
-};
-
-exports.doctypeDialog = doctypeDialog;
-
-},{"./doctype-elems.js":55,"./doctype-tab.js":56}],55:[function(require,module,exports){
-// # Working with elements of a doctype manipulation HTML form
-//
-// *Implicit depends:* DOM, JQuery
-
-// Variable Definitions
-
-var form = require('../form.js');
-
-// Exported functions
-
-// Returns an object with references to add/edit doctype dialog
-// field elements with helper functions.
-var doctypeElems = (function () {
-  'use strict';
-
-  var mod = {};
-
-  mod.attrs = ['description', 'doctype', 'rev'];
-
-  mod.get = function (values) {
-    var fObj = {};
-
-    fObj.copyValues = function (source) {
-      Object.keys(source).forEach(function (field) {
-        fObj[field].val(source[field]);
-      });
-      return fObj;
-    };
-
-    fObj.getDoctypeInputVals = function () {
-      var valObj = {
-        'category': 'doctype',
-        'description': fObj.description.val(),
-        '_id': fObj.doctype.val()
-      };
-      return valObj;
-    };
-
-    fObj.clear = function () {
-      form.clear($('#doctype-dialog .input')).removeClass('ui-state-error');
-      return fObj;
-    };
-
-    mod.attrs.forEach(function (item) {
-      fObj[item] = $('#doctype-' + item + '-input');
-    });
-
-    fObj.copyValues(values);
-
-    return fObj;
-  };
-
-  return mod;
-})();
-
-exports.doctypeElems = doctypeElems;
-
-},{"../form.js":78}],56:[function(require,module,exports){
-// # Doctype tab initialization
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var doctypeDialog = require('./doctype-dialog.js').doctypeDialog;
-var doctypeElems = require('./doctype-elems.js').doctypeElems;
-var fieldDialog = require('./field-dialog.js').fieldDialog;
-var fieldElems = require('./field-elems.js').fieldElems;
-var fieldsetDialog = require('./fieldset-dialog.js').fieldsetDialog;
-var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
-var store = require('../store.js').store;
-var path = require('../path.js').path;
-
-// Internal functions
-
-var cpath = function (source, category) {
-  'use strict';
-
-  return path(source, category, 'config');
-};
-
-// Exported functions
-
-// Populate the listing of fields
-var initFields = function (path) {
-  'use strict';
-
-  path.field = false;
-
-  $.get(path.toString(), function (fields) {
-    var fieldContainer = $('#fields-' + path.fieldset);
-    fieldContainer.empty();
-    fieldContainer.html(fields);
-  });
-
-  return true;
-};
-
-// Populate the listing of fieldsets
-var initFieldsets = function (url) {
-  'use strict';
-
-  $.get(url.toString(), function (fieldsets) {
-    var fieldsetContainer = $('#fieldsets-' + url.doctype);
-
-    fieldsetContainer.empty();
-    fieldsetContainer.accordion();
-    fieldsetContainer.accordion('destroy');
-    fieldsetContainer.html(fieldsets);
-
-    fieldsetContainer.accordion({
-      autoHeight: false,
-      collapsible: true,
-      active: false
-    });
-  });
-};
-
-// populate the tabs listing the doctypes
-var init = function () {
-  'use strict';
-
-  var url = 'config/doctypes';
-
-  $('#doctype-tabs').tabs();
-
-  $.get(url, function (doctypes) {
-    var fieldsetDoctype = $('#fieldset-doctype-input');
-
-    $('#doctype-tabs-headings').empty();
-    $('#doctype-tabs-headings + .ui-tabs-panel').remove();
-    $('#doctype-tabs').tabs('destroy');
-    $('#doctype-tabs-headings').html(doctypes);
-
-    var loadFun = function (event, ui) {
-      var source = $(ui.panel).children('div[data-fieldset-doctype]');
-      var fieldsetsPath = path(source, 'fieldset', 'config');
-      initFieldsets(fieldsetsPath);
-    };
-
-    $('#doctype-tabs').tabs({
-      load: function (e, ui) {
-        loadFun(e, ui);
-      }
-    });
-  });
-};
-
-// Button that opens a dialog for editing a field
-var editField = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'field');
-  var oldobj = {};
-  var attrs = fieldElems.attrs;
-  var charseqUrl = 'config/charseqs?as=options';
-
-  $.get(charseqUrl, function (charseqs) {
-    $('#field-charseq-input').html(charseqs);
-    attrs.forEach(function (item) {
-      oldobj[item] = store(target).get('field-' + item);
-    });
-    fieldDialog(url, oldobj).dialog('open');
-  });
-};
-
-// Button that opens a dialog for deleting a field
-var deleteField = function (target) {
-  'use strict';
-
-  var answer = window.confirm('Are you sure? This is permanent.');
-
-  if (answer) {
-    var url = cpath(target, 'field');
-    var complete = function () {
-      url.field = false;
-      url.rev = false;
-
-      initFields(url);
-    };
-    url.del(complete, this);
-  }
-};
-
-// Button that opens a dialog for adding a field
-var addField = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'field');
-  var charseqUrl = 'config/charseqs?as=options';
-
-  $.get(charseqUrl, function (charseqs) {
-    $('#field-charseq-input').html(charseqs);
-    fieldDialog(url, {
-      fieldset: url.fieldset,
-      doctype: url.doctype
-    }).dialog('open');
-  });
-};
-
-// Button that opens a dialog for editing a fieldset
-var editFieldset = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'fieldset');
-  var oldobj = {};
-  var attrs = fieldsetElems.attrs;
-
-  attrs.forEach(function (item) {
-    oldobj[item] = store(target).get('fieldset-' + item);
-  });
-
-  fieldsetDialog(url, oldobj).dialog('open');
-};
-
-// Button that opens a dialog for deleting a fieldset
-var deleteFieldset = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'fieldset');
-
-  var complete = function () {
-    url.fieldset = false;
-    url.rev = false;
-    initFieldsets(url);
-  };
-
-  if (window.confirm('Are you sure? This is permanent.')) {
-    url.del(complete, this);
-  }
-};
-
-// Button that opens a dialog for adding a fieldset.
-var addFieldset = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'fieldset');
-  fieldsetDialog(url, {
-    doctype: url.doctype
-  }).dialog('open');
-};
-
-// Button that opens a dialog for editing a doctype.
-var editDoctype = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'doctype');
-  var oldobj = {};
-  var attrs = doctypeElems.attrs;
-
-  attrs.forEach(function (item) {
-    oldobj[item] = store(target).get('doctype-' + item);
-  });
-  doctypeDialog(url, oldobj).dialog('open');
-};
-
-// Button for initiating the touch operation.
-var touchDoctype = function (target) {
-  'use strict';
-
-  var docid = store(target).get('doctype-doctype');
-  $.post('config/doctypes/' + docid + '/touch');
-  window.alert('Touch In Progress');
-};
-
-// Button for deleting a doctype.
-var deleteDoctype = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'doctype');
-  var complete = function () {
-    url.doctype = false;
-    url.rev = false;
-    init();
-  };
-
-  if (window.confirm('Are you sure? This is permanent.')) {
-    url.del(complete, this);
-  }
-};
-
-// Button for adding a doctype.
-var addDoctype = function (target) {
-  'use strict';
-
-  var url = cpath(target, 'doctype');
-  doctypeDialog(url, {}).dialog('open');
-};
-
-exports.initFields = initFields;
-exports.initFieldsets = initFieldsets;
-exports.init = init;
-exports.editField = editField;
-exports.deleteField = deleteField;
-exports.addField = addField;
-exports.editFieldset = editFieldset;
-exports.deleteFieldset = deleteFieldset;
-exports.addFieldset = addFieldset;
-exports.editDoctype = editDoctype;
-exports.touchDoctype = touchDoctype;
-exports.deleteDoctype = deleteDoctype;
-exports.addDoctype = addDoctype;
-
-},{"../path.js":94,"../store.js":101,"./doctype-dialog.js":54,"./doctype-elems.js":55,"./field-dialog.js":59,"./field-elems.js":60,"./fieldset-dialog.js":61,"./fieldset-elems.js":62}],57:[function(require,module,exports){
+},{"./charsequi.js":49,"./doctypeui.js":51,"./editui.js":52,"./maintenanceui.js":53}],51:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -12975,7 +12388,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":92,"../sender.js":97,"node-uuid":44,"templates.js":"LJITg7"}],58:[function(require,module,exports){
+},{"../pager.js":82,"../sender.js":87,"node-uuid":44,"templates.js":"3ddScq"}],52:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13713,347 +13126,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":45,"../formalize.js":79,"../sender.js":97,"../sess.js":98}],59:[function(require,module,exports){
-// # Field manipulation dialog
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var fieldElems = require('./field-elems.js').fieldElems;
-var doctypeTab = require('./doctype-tab.js');
-
-// Exported functions
-
-// Dialog for manipulating fields
-var fieldDialog = function (url, values) {
-  'use strict';
-
-  var f = fieldElems.get(values);
-
-  var dialog = $('#field-dialog').dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      'Save': function () {
-        var obj = f.clearDisabled().getFieldInputVals();
-        var complete = function (context) {
-          doctypeTab.initFields(url);
-          $(context).dialog('close');
-        };
-        if (!values.rev || values.rev.isBlank()) {
-          url.post(obj, complete, this);
-        } else {
-          obj._id = url.field;
-          url.put(obj, complete, this);
-        }
-      },
-      'Cancel': function () {
-        $(this).dialog('close');
-      }
-    },
-    close: function () {
-      f.clear();
-    }
-  });
-
-  return dialog;
-};
-
-exports.fieldDialog = fieldDialog;
-
-},{"./doctype-tab.js":56,"./field-elems.js":60}],60:[function(require,module,exports){
-// # Working with elements of a field manipulation HTML form
-//
-// *Implicit depends:* DOM, JQuery
-
-// Variable Definitions
-
-var form = require('../form.js');
-var utils = require('../utils.js');
-
-// Exported functions
-
-// Returns an object with references to add/edit fields dialog
-// field elements with helper functions.
-var fieldElems = (function () {
-  'use strict';
-
-  var mod = {};
-
-  mod.attrs = ['name', 'label', 'order', 'description', 'subcategory', 'head', 'reversal', 'default', 'required', 'allowed', 'source', 'max', 'min', 'regex', 'doctype', 'fieldset', 'charseq', 'rev', 'field'];
-
-  mod.get = function (values) {
-    var fObj = {};
-
-    fObj.attrs = mod.attrs;
-
-    // These are fields that only some field subcategories use.
-    // Below you'll see them being disabled and reenabled depending on the
-    // chosen subcategory.
-    fObj.notDefault = function () {
-      return [fObj.charseq, fObj.allowed, fObj.source, fObj.min, fObj.max, fObj.regex];
-    };
-
-    fObj.disable = function () {
-      fObj.notDefault().forEach(function (field) {
-        field.attr('disabled', 'disabled');
-      });
-      return fObj;
-    };
-
-    fObj.clearDisabled = function () {
-      fObj.notDefault().forEach(function (field) {
-        if (field.attr('disabled')) {
-          field.val('');
-        }
-      });
-      return fObj;
-    };
-
-    fObj.copyValues = function (source) {
-      Object.keys(source).forEach(function (field) {
-        fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] === 'true') {
-            fObj[field].prop('checked', true);
-          }
-        }
-      });
-      return fObj;
-    };
-
-    fObj.getFieldInputVals = function () {
-      var valObj = {
-        'category': 'field',
-        'name': fObj.name.val(),
-        'label': fObj.label.val(),
-        'default': fObj.decodeDefaults(fObj.subcategory.val(), fObj['default'].val()),
-        'head': fObj.head.is(':checked'),
-        'reversal': fObj.reversal.is(':checked'),
-        'required': fObj.required.is(':checked'),
-        'order': fObj.order.val() * 1,
-        'allowed': fObj.allowed.val().split(',').trimAll(),
-        'source': fObj.decodeSource(fObj.subcategory.val(), fObj.source.val()),
-        'min': fObj.decodeBound(fObj.subcategory.val(), fObj.min.val()),
-        'max': fObj.decodeBound(fObj.subcategory.val(), fObj.max.val()),
-        'regex': fObj.regex.val(),
-        'description': fObj.description.val(),
-        'charseq': fObj.charseq.val(),
-        'doctype': fObj.doctype.val(),
-        'fieldset': fObj.fieldset.val(),
-        'subcategory': fObj.subcategory.val()
-      };
-      return valObj;
-    };
-
-    fObj.clear = function () {
-      form.clear($('#field-dialog .input')).removeClass('ui-state-error');
-      fObj.disable();
-      return fObj;
-    };
-
-    fObj.decodeBound = function (subcategory, bound) {
-      if (subcategory === 'date') {
-        return bound;
-      } else {
-        return utils.stringToNumber(bound);
-      }
-    };
-
-    fObj.decodeSource = function (subcategory, source) {
-      if (subcategory === 'file') {
-        return source.split('/').trimAll();
-      } else {
-        return source;
-      }
-    };
-
-    fObj.decodeDefaults = function (subcategory, defaults) {
-      switch (subcategory) {
-      case 'docmultiselect':
-      case 'multiselect':
-        return defaults.split(',').trimAll();
-      case 'file':
-        return defaults.split('/').trimAll();
-      default:
-        return defaults;
-      }
-    };
-
-    fObj.displayFields = function (subcategory) {
-      switch (subcategory) {
-      case 'select':
-      case 'multiselect':
-        fObj.disable();
-        fObj.allowed.removeAttr('disabled');
-        break;
-      case 'docselect':
-      case 'docmultiselect':
-      case 'file':
-        fObj.disable();
-        fObj.source.removeAttr('disabled');
-        break;
-      case 'text':
-      case 'textarea':
-        fObj.disable();
-        fObj.charseq.removeAttr('disabled');
-        fObj.regex.removeAttr('disabled');
-        break;
-      case 'date':
-      case 'integer':
-      case 'rational':
-        fObj.disable();
-        fObj.min.removeAttr('disabled');
-        fObj.max.removeAttr('disabled');
-        break;
-      default:
-        fObj.disable();
-      }
-    };
-
-    fObj.attrs.forEach(function (item) {
-      fObj[item] = $('#field-' + item + '-input');
-    });
-
-    fObj.copyValues(values);
-    fObj.displayFields(fObj.subcategory.val());
-
-    fObj.subcategory.change(function () {
-      fObj.displayFields(fObj.subcategory.val());
-    });
-
-    return fObj;
-  };
-
-  return mod;
-})();
-
-exports.fieldElems = fieldElems;
-
-},{"../form.js":78,"../utils.js":102}],61:[function(require,module,exports){
-// # Fieldset manipulation dialog
-//
-// *Implicit depends:* DOM, JQuery, JQueryUI
-
-// Variable Definitions
-
-var fieldsetElems = require('./fieldset-elems.js').fieldsetElems;
-var doctypeTab = require('./doctype-tab.js');
-
-// Exported functions
-
-// Dialog for manipulating fieldsets
-var fieldsetDialog = function (url, values) {
-  'use strict';
-
-  var f = fieldsetElems.get(values);
-
-  var dialog = $('#fieldset-dialog').dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      'Save': function () {
-        var obj = f.getFieldsetInputVals();
-        var complete = function (context) {
-          url.fieldset = false;
-          url.rev = false;
-
-          doctypeTab.initFieldsets(url);
-          $(context).dialog('close');
-        };
-        if (!values.rev || values.rev.isBlank()) {
-          url.post(obj, complete, this);
-        } else {
-          obj._id = url.fieldset;
-          url.put(obj, complete, this);
-        }
-      },
-      'Cancel': function () {
-        $(this).dialog('close');
-      }
-    },
-    close: function () {
-      f.clear();
-    }
-  });
-
-  return dialog;
-};
-
-exports.fieldsetDialog = fieldsetDialog;
-
-},{"./doctype-tab.js":56,"./fieldset-elems.js":62}],62:[function(require,module,exports){
-// # Working with elements of a fieldset manipulation HTML form
-//
-// *Implicit depends:* DOM, JQuery
-
-// Variable Definitions
-
-var form = require('../form.js');
-
-// Exported functions
-
-// Returns an object with references to add/edit fieldset dialog
-// field elements with helper functions.
-var fieldsetElems = (function () {
-  'use strict';
-
-  var mod = {};
-
-  mod.attrs = ['name', 'label', 'order', 'description', 'doctype', 'rev', 'multiple', 'collapse', 'fieldset'];
-
-  mod.get = function (values) {
-    var fObj = {};
-
-    fObj.attrs = mod.attrs;
-
-    fObj.copyValues = function (source) {
-      Object.keys(source).forEach(function (field) {
-        fObj[field].val(source[field]);
-        if (fObj[field].is('input[type=checkbox]')) {
-          if (source[field] === 'true') {
-            fObj[field].attr('checked', true);
-          }
-        }
-      });
-      return fObj;
-    };
-
-    fObj.getFieldsetInputVals = function () {
-      var valObj = {
-        'category': 'fieldset',
-        'name': fObj.name.val(),
-        'label': fObj.label.val(),
-        'order': fObj.order.val() * 1,
-        'description': fObj.description.val(),
-        'doctype': fObj.doctype.val(),
-        'multiple': fObj.multiple.is(':checked'),
-        'collapse': fObj.collapse.is(':checked')
-      };
-      return valObj;
-    };
-
-    fObj.clear = function () {
-      form.clear($('#fieldset-dialog .input')).removeClass('ui-state-error');
-      return fObj;
-    };
-
-    fObj.attrs.forEach(function (item) {
-      fObj[item] = $('#fieldset-' + item + '-input');
-    });
-
-    fObj.copyValues(values);
-
-    return fObj;
-  };
-
-  return mod;
-})();
-
-exports.fieldsetElems = fieldsetElems;
-
-},{"../form.js":78}],63:[function(require,module,exports){
+},{"../ajax.js":45,"../formalize.js":69,"../sender.js":87,"../sess.js":88}],53:[function(require,module,exports){
 // # Maintenance User Interface
 //
 // *Implicit depends:* DOM
@@ -14094,7 +13167,7 @@ var init = function () {
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"../ajax.js":45,"../flash.js":77,"templates.js":"LJITg7"}],64:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67,"templates.js":"3ddScq"}],54:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14157,7 +13230,7 @@ var dblclickDispatch = function (e) {
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./config/editui.js":58,"./dispatcher.js":65,"./documents/searchui.js":72,"./documents/worksheetui.js":75,"./panel-toggle.js":93}],65:[function(require,module,exports){
+},{"./config/editui.js":52,"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":65,"./panel-toggle.js":83}],55:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -14187,7 +13260,7 @@ var dispatcher = function (patterns) {
 
 exports.dispatcher = dispatcher;
 
-},{}],66:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 // # Paging For Changes Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -14252,7 +13325,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":92,"./documents.js":68}],67:[function(require,module,exports){
+},{"../pager.js":82,"./documents.js":58}],57:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -14376,7 +13449,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":97,"./editui.js":69}],68:[function(require,module,exports){
+},{"../sender.js":87,"./editui.js":59}],58:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -14629,7 +13702,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":45,"../sender.js":97,"../store.js":101,"./changeui.js":66,"./editui.js":69,"./indexui.js":71,"./setsui.js":73,"./viewui.js":74}],69:[function(require,module,exports){
+},{"../ajax.js":45,"../sender.js":87,"../store.js":90,"./changeui.js":56,"./editui.js":59,"./indexui.js":61,"./setsui.js":63,"./viewui.js":64}],59:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14973,7 +14046,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":45,"../flash.js":77,"../form.js":78,"../store.js":101,"./documents.js":68,"./fieldsets.js":70,"./indexui.js":71,"./viewui.js":74,"node-uuid":44,"templates.js":"LJITg7"}],70:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67,"../form.js":68,"../store.js":90,"./documents.js":58,"./fieldsets.js":60,"./indexui.js":61,"./viewui.js":64,"node-uuid":44,"templates.js":"3ddScq"}],60:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -15481,7 +14554,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":45,"../path.js":94,"../store.js":101,"../utils.js":102,"./documents.js":68,"./editui.js":69,"templates.js":"LJITg7"}],71:[function(require,module,exports){
+},{"../ajax.js":45,"../path.js":84,"../store.js":90,"../utils.js":91,"./documents.js":58,"./editui.js":59,"templates.js":"3ddScq"}],61:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15580,7 +14653,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../ajax.js":45,"../pager.js":92,"./editui.js":69,"./viewui.js":74,"templates.js":"LJITg7"}],72:[function(require,module,exports){
+},{"../ajax.js":45,"../pager.js":82,"./editui.js":59,"./viewui.js":64,"templates.js":"3ddScq"}],62:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16103,7 +15176,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":45,"../sets.js":99,"../utils.js":102,"./documents.js":68,"./setsui.js":73,"templates.js":"LJITg7"}],73:[function(require,module,exports){
+},{"../ajax.js":45,"../sets.js":89,"../utils.js":91,"./documents.js":58,"./setsui.js":63,"templates.js":"3ddScq"}],63:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16507,7 +15580,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":77,"../sender.js":97,"../sets.js":99,"../utils.js":102,"./documents.js":68,"templates.js":"LJITg7"}],74:[function(require,module,exports){
+},{"../flash.js":67,"../sender.js":87,"../sets.js":89,"../utils.js":91,"./documents.js":58,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -16889,7 +15962,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":45,"../flash.js":77,"../store.js":101,"./editui.js":69,"./fieldsets.js":70,"./indexui.js":71,"templates.js":"LJITg7"}],75:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67,"../store.js":90,"./editui.js":59,"./fieldsets.js":60,"./indexui.js":61,"templates.js":"3ddScq"}],65:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -17080,7 +16153,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"../ajax.js":45,"../flash.js":77,"./documents.js":68,"./setsui.js":73,"hogan.js":17,"templates.js":"LJITg7"}],76:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67,"./documents.js":58,"./setsui.js":63,"hogan.js":17,"templates.js":"3ddScq"}],66:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17276,7 +16349,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"../ajax.js":45,"../flash.js":77}],77:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67}],67:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -17326,7 +16399,7 @@ var highlight = function (title, body) {
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],78:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -17461,7 +16534,7 @@ exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"./ajax.js":45}],79:[function(require,module,exports){
+},{"./ajax.js":45}],69:[function(require,module,exports){
 // # Formalize
 //
 // *implicit dependencies:* JSON
@@ -18197,7 +17270,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./recurse.js":96,"htmlparser2":30,"node-uuid":44}],80:[function(require,module,exports){
+},{"./recurse.js":86,"htmlparser2":30,"node-uuid":44}],70:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -18210,7 +17283,7 @@ exports.fromForm = fromForm;
 
 var globals = {};
 
-},{}],81:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18386,7 +17459,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":78,"../jquery-ui-input-state.js":89,"./ievents.js":83,"./ihelpers.js":84}],82:[function(require,module,exports){
+},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74}],72:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18677,7 +17750,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../ajax.js":45,"../flash.js":77,"./builder-dialog.js":81,"./ihelpers.js":84,"./ilistingui.js":85,"./ipreviewui.js":86,"./new-dialog.js":87,"./replace-dialog.js":88}],83:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":67,"./builder-dialog.js":71,"./ihelpers.js":74,"./ilistingui.js":75,"./ipreviewui.js":76,"./new-dialog.js":77,"./replace-dialog.js":78}],73:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18780,7 +17853,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":84}],84:[function(require,module,exports){
+},{"./ihelpers.js":74}],74:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19038,7 +18111,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":45,"../sess.js":98}],85:[function(require,module,exports){
+},{"../ajax.js":45,"../sess.js":88}],75:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -19070,7 +18143,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"../ajax.js":45,"templates.js":"LJITg7"}],86:[function(require,module,exports){
+},{"../ajax.js":45,"templates.js":"3ddScq"}],76:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -19126,7 +18199,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":92}],87:[function(require,module,exports){
+},{"../pager.js":82}],77:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19231,7 +18304,7 @@ var initIndexNewDialog = function () {
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":78,"../jquery-ui-input-state.js":89,"./ievents.js":83,"./ihelpers.js":84,"./ilistingui.js":85}],88:[function(require,module,exports){
+},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74,"./ilistingui.js":75}],78:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19303,7 +18376,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":78,"./ihelpers.js":84}],89:[function(require,module,exports){
+},{"../form.js":68,"./ihelpers.js":74}],79:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -19326,7 +18399,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],90:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -19492,7 +18565,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],91:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -19655,7 +18728,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":52,"./config/doctypeui.js":57,"./documents/changeui.js":66,"./documents/editui.js":69,"./documents/indexui.js":71,"./documents/searchui.js":72,"./documents/viewui.js":74,"./index_tool/ipreviewui.js":86,"./jquery.hotkeys.js":90,"./sender.js":97}],92:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":51,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":76,"./jquery.hotkeys.js":80,"./sender.js":87}],82:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19846,7 +18919,7 @@ var pager = function (args) {
 
 exports.pager = pager;
 
-},{"./ajax.js":45,"templates.js":"LJITg7"}],93:[function(require,module,exports){
+},{"./ajax.js":45,"templates.js":"3ddScq"}],83:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -19875,7 +18948,7 @@ var panelToggler = function (target) {
 
 exports.panelToggler = panelToggler;
 
-},{}],94:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 // # Path helper
 //
 // NOTE: This is only used by `config/doctype-tab.js` and
@@ -20071,7 +19144,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":45,"./store.js":101}],95:[function(require,module,exports){
+},{"./ajax.js":45,"./store.js":90}],85:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -20168,7 +19241,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":45,"../form.js":78,"templates.js":"LJITg7"}],96:[function(require,module,exports){
+},{"../ajax.js":45,"../form.js":68,"templates.js":"3ddScq"}],86:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -20210,7 +19283,7 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}],97:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -20366,7 +19439,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":57,"./config/editui.js":58,"./documents/commands.js":67,"./documents/documents.js":68,"./documents/editui.js":69,"./documents/searchui.js":72,"./documents/setsui.js":73,"./documents/worksheetui.js":75}],98:[function(require,module,exports){
+},{"./config/doctypeui.js":51,"./config/editui.js":52,"./documents/commands.js":57,"./documents/documents.js":58,"./documents/editui.js":59,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/worksheetui.js":65}],88:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -20415,7 +19488,7 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],99:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -20509,9 +19582,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('LJITg7');
-},{}],101:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -20644,7 +19715,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":96,"./utils.js":102}],102:[function(require,module,exports){
+},{"./recurse.js":86,"./utils.js":91}],91:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -20823,7 +19894,9 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"LJITg7":[function(require,module,exports){
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
   'changelog-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a");_.b("\n" + i);_.b("      href=\"#");_.b(_.v(_.f("document_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      class=\"view-document-link\">");_.b("\n" + i);_.b("      ");if(_.s(_.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.d(".",c,p,0)));});c.pop();}_.b("\n" + i);_.b("    </a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("change_type",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("user",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("timestamp",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n" + i);if(_.s(_.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <tr class=\"change-change\">");_.b("\n" + i);_.b("    <th>");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("fieldsetLabel",c,p,0)));_.b(": ");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("\n" + i);_.b("    </th>");_.b("\n" + i);_.b("    <td colspan=3>");_.b("\n" + i);if(!_.s(_.f("originalValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\n" + i);_.b("      →");_.b("\n" + i);if(!_.s(_.f("newValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("newValue",c,p,0)));_.b("\n" + i);_.b("    </td>");_.b("\n" + i);_.b("  </tr>");_.b("\n");});c.pop();}});c.pop();}return _.fl();;}),
@@ -20886,5 +19959,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":17}]},{},[45,47,46,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,74,73,75,76,77,78,79,80,81,83,82,84,85,86,88,87,89,90,91,92,93,94,95,96,97,98,99,101,102])
+},{"hogan.js":17}]},{},[45,46,49,47,50,51,48,52,53,54,55,56,57,58,59,61,60,63,62,64,66,67,68,69,70,71,72,65,74,75,76,73,77,78,79,80,81,82,85,84,83,86,87,89,88,90,91])
 ;
