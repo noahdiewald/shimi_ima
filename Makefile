@@ -1,5 +1,5 @@
 ERL ?= erl
-REBAR ?= ./rebar
+REBAR ?= /usr/bin/rebar
 CURL ?= /usr/bin/curl
 CUCARG ?= ''
 CUC ?= /usr/bin/cucumber $(CUCARG)

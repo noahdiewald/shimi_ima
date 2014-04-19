@@ -2,29 +2,25 @@ role :lingserver, "ling-staging-dictionary-maker", "fcp-dictionary-maker"
 role :production, "ling-production-dictionary-maker"
 
 task :init, :roles => :lingserver do
-  run "cd /home/dictionary_maker && /usr/bin/hg clone /hg/dictionary_maker && cd /home/dictionary_maker/dictionary_maker && ./rebar get-deps && ./rebar compile"
+  run "cd /home/dictionary_maker &&
+      /usr/bin/git clone ssh://repository.ling.wisc.edu/git/shimi_ima &&
+      cd /home/dictionary_maker/shimi_ima &&
+      rebar get-deps &&
+      rebar compile"
 end
 
 task :deploy, :roles => :lingserver do
-  run "cd /home/dictionary_maker/dictionary_maker && 
-       /usr/bin/hg pull && 
-       /usr/bin/hg update staging && 
+  run "cd /home/dictionary_maker/shimi_ima && 
+       /usr/bin/git pull && 
+       /usr/bin/git checkout staging && 
        make distclean &&
        make build"
 end
 
-task :prodinit, :roles => :production do
-  run "cd /home/dictionary_maker &&
-      /usr/bin/hg clone ssh://repository.ling.wisc.edu//hg/dictionary_maker &&
-      cd /home/dictionary_maker/dictionary_maker &&
-      ./rebar get-deps &&
-      ./rebar compile"
-end
-
 task :proddeploy, :roles => :production do
-  run "cd /home/dictionary_maker/dictionary_maker &&
-       /usr/bin/hg pull &&
-       /usr/bin/hg update production &&
+  run "cd /home/dictionary_maker/shimi_ima &&
+       /usr/bin/git pull &&
+       /usr/bin/git checkout production &&
        make distclean &&
        make build"
 end
