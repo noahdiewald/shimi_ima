@@ -15,6 +15,7 @@ Scenario: Deleting a document type
   When I open the Popsicle document type in the editor
   And I click the editor delete button
   Then the document type Popsicle has been deleted
+  And the editor area is blank
 
 Scenario: Updating a document type
   Given a doctype exists
@@ -99,13 +100,6 @@ Scenario: Editor clears after document type creation
   When I click the Add Document Type button
   And I fill in Dummy in the name editor input
   And I click the editor create button
-  Then the editor area is blank
-
-Scenario: Editor clears after document type deletion
-  Given I created the NoGood2 document type
-  And I am on the configuration page
-  When I open the NoGood2 document type in the editor
-  And I click the editor delete button
   Then the editor area is blank
 
 Scenario: Editor provides suitable error when updating non-existing
