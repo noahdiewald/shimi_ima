@@ -1,6 +1,7 @@
 var console = require('console');
 var should = require('chai').should();
-var recurse = require('../../src/client/recurse.js');
+// This has moved a couple of times.
+var recurse = require('../../src/server/shimi_ima/lib/recurse.js');
 
 describe('Tail recursion', function () {
   'use strict';

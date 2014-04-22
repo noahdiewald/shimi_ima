@@ -11785,7 +11785,7 @@ exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
 
-},{"./flash.js":67}],46:[function(require,module,exports){
+},{"./flash.js":68}],46:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM, JQuery
@@ -11918,7 +11918,7 @@ document.onreadystatechange = function () {
   }
 };
 
-},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":50,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ilistingui.js":75,"./jquery-ui-input-state.js":79,"./keystrokes.js":82,"./projects/projectui.js":86}],47:[function(require,module,exports){
+},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":50,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ilistingui.js":76,"./jquery-ui-input-state.js":80,"./keystrokes.js":82,"./projects/projectui.js":86}],47:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -12237,7 +12237,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":65,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ieditui.js":72,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":89}],49:[function(require,module,exports){
+},{"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":66,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ieditui.js":73,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":87}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12388,7 +12388,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":83,"../sender.js":89,"node-uuid":44,"templates.js":"3ddScq"}],52:[function(require,module,exports){
+},{"../pager.js":83,"../sender.js":87,"node-uuid":44,"templates.js":"3ddScq"}],52:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13126,7 +13126,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":45,"../formalize.js":69,"../sender.js":89,"../sess.js":90}],53:[function(require,module,exports){
+},{"../ajax.js":45,"../formalize.js":70,"../sender.js":87,"../sess.js":88}],53:[function(require,module,exports){
 // # Maintenance User Interface
 //
 // *Implicit depends:* DOM
@@ -13167,7 +13167,7 @@ var init = function () {
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"../ajax.js":45,"../flash.js":67,"templates.js":"3ddScq"}],54:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"templates.js":"3ddScq"}],54:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13230,7 +13230,7 @@ var dblclickDispatch = function (e) {
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./config/editui.js":52,"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":65,"./panel-toggle.js":84}],55:[function(require,module,exports){
+},{"./config/editui.js":52,"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":66,"./panel-toggle.js":84}],55:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -13449,7 +13449,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":89,"./editui.js":59}],58:[function(require,module,exports){
+},{"../sender.js":87,"./editui.js":59}],58:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -13702,7 +13702,7 @@ exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../ajax.js":45,"../sender.js":89,"../store.js":92,"./changeui.js":56,"./editui.js":59,"./indexui.js":61,"./setsui.js":63,"./viewui.js":64}],59:[function(require,module,exports){
+},{"../ajax.js":45,"../sender.js":87,"../store.js":90,"./changeui.js":56,"./editui.js":59,"./indexui.js":61,"./setsui.js":63,"./viewui.js":64}],59:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14046,7 +14046,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":45,"../flash.js":67,"../form.js":68,"../store.js":92,"./documents.js":58,"./fieldsets.js":60,"./indexui.js":61,"./viewui.js":64,"node-uuid":44,"templates.js":"3ddScq"}],60:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"../form.js":69,"../store.js":90,"./documents.js":58,"./fieldsets.js":60,"./indexui.js":61,"./viewui.js":64,"node-uuid":44,"templates.js":"3ddScq"}],60:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14554,7 +14554,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":45,"../path.js":85,"../store.js":92,"../utils.js":93,"./documents.js":58,"./editui.js":59,"templates.js":"3ddScq"}],61:[function(require,module,exports){
+},{"../ajax.js":45,"../path.js":85,"../store.js":90,"../utils.js":91,"./documents.js":58,"./editui.js":59,"templates.js":"3ddScq"}],61:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -15176,7 +15176,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"../ajax.js":45,"../sets.js":91,"../utils.js":93,"./documents.js":58,"./setsui.js":63,"templates.js":"3ddScq"}],63:[function(require,module,exports){
+},{"../ajax.js":45,"../sets.js":89,"../utils.js":91,"./documents.js":58,"./setsui.js":63,"templates.js":"3ddScq"}],63:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15580,7 +15580,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":67,"../sender.js":89,"../sets.js":91,"../utils.js":93,"./documents.js":58,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../flash.js":68,"../sender.js":87,"../sets.js":89,"../utils.js":91,"./documents.js":58,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15962,7 +15962,9 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":45,"../flash.js":67,"../store.js":92,"./editui.js":59,"./fieldsets.js":60,"./indexui.js":61,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"../store.js":90,"./editui.js":59,"./fieldsets.js":60,"./indexui.js":61,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],66:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -16153,7 +16155,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"../ajax.js":45,"../flash.js":67,"./documents.js":58,"./setsui.js":63,"hogan.js":17,"templates.js":"3ddScq"}],66:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"./documents.js":58,"./setsui.js":63,"hogan.js":17,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16349,7 +16351,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"../ajax.js":45,"../flash.js":67}],67:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68}],68:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -16399,7 +16401,7 @@ var highlight = function (title, body) {
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -16534,7 +16536,7 @@ exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"./ajax.js":45}],69:[function(require,module,exports){
+},{"./ajax.js":45}],70:[function(require,module,exports){
 // # Formalize
 //
 // *implicit dependencies:* JSON
@@ -16544,10 +16546,10 @@ exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
 // ## Variable Definitions
 
-var r = require('./recurse.js');
+var r = require('../server/shimi_ima/lib/recurse.js');
 var htmlparser = require('htmlparser2');
 var uuid = require('node-uuid');
-var jp = require('./json_parse.js');
+var jp = require('../server/shimi_ima/lib/json_parse.js');
 
 // ## Internal Functions
 
@@ -17113,7 +17115,7 @@ var descriptToHtml = function (obj, options) {
 var simpleToForm = function (obj, options) {
   'use strict';
 
-  var fields = jp.transform(obj, options);
+  var fields = jp.transform(obj);
 
   fields.obj = obj !== null;
 
@@ -17147,7 +17149,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"./json_parse.js":81,"./recurse.js":88,"htmlparser2":30,"node-uuid":44}],70:[function(require,module,exports){
+},{"../server/shimi_ima/lib/json_parse.js":92,"../server/shimi_ima/lib/recurse.js":93,"htmlparser2":30,"node-uuid":44}],71:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17160,7 +17162,7 @@ exports.fromForm = fromForm;
 
 var globals = {};
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17336,7 +17338,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74}],72:[function(require,module,exports){
+},{"../form.js":69,"../jquery-ui-input-state.js":80,"./ievents.js":74,"./ihelpers.js":75}],73:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17627,7 +17629,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../ajax.js":45,"../flash.js":67,"./builder-dialog.js":71,"./ihelpers.js":74,"./ilistingui.js":75,"./ipreviewui.js":76,"./new-dialog.js":77,"./replace-dialog.js":78}],73:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"./builder-dialog.js":72,"./ihelpers.js":75,"./ilistingui.js":76,"./ipreviewui.js":77,"./new-dialog.js":78,"./replace-dialog.js":79}],74:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17730,7 +17732,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":74}],74:[function(require,module,exports){
+},{"./ihelpers.js":75}],75:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17988,7 +17990,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":45,"../sess.js":90}],75:[function(require,module,exports){
+},{"../ajax.js":45,"../sess.js":88}],76:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18020,7 +18022,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"../ajax.js":45,"templates.js":"3ddScq"}],76:[function(require,module,exports){
+},{"../ajax.js":45,"templates.js":"3ddScq"}],77:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -18076,7 +18078,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":83}],77:[function(require,module,exports){
+},{"../pager.js":83}],78:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18181,7 +18183,7 @@ var initIndexNewDialog = function () {
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74,"./ilistingui.js":75}],78:[function(require,module,exports){
+},{"../form.js":69,"../jquery-ui-input-state.js":80,"./ievents.js":74,"./ihelpers.js":75,"./ilistingui.js":76}],79:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18253,7 +18255,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":68,"./ihelpers.js":74}],79:[function(require,module,exports){
+},{"../form.js":69,"./ihelpers.js":75}],80:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -18276,7 +18278,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -18442,162 +18444,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],81:[function(require,module,exports){
-// # Json Parse
-//
-// *implicit dependencies:* JSON
-//
-// Convert a subset of JSON to an abstract syntax.
-
-// ## Variable Definitions
-
-var r = require('./recurse.js');
-
-// ## Internal Functions
-
-// Get the 'type', which may not correspond to the JavaScript type.
-var getType = function (val) {
-  'use strict';
-
-  if (val === null || (typeof val === 'string' && val.length <= 32)) {
-    return 'string';
-  } else if (typeof val === 'string' && val.length > 32) {
-    return 'text';
-  } else if (typeof val === 'boolean') {
-    return 'boolean';
-  } else if (typeof val === 'number') {
-    return 'number';
-  } else if (val instanceof Array) {
-    return 'array';
-  } else if (val instanceof Object && !(val instanceof Array) && val !== null) {
-    return 'object';
-  }
-};
-
-// If v is null, return 'null', otherwise return v.
-var maybeNullToString = function (v) {
-  'use strict';
-
-  if (v === null) {
-    return 'null';
-  } else {
-    return v;
-  }
-};
-
-// Process key value pairs in an object and return an object that
-// describes the original object.
-var getKeyVals = function (o) {
-  'use strict';
-
-  return Object.keys(o).map(function (k) {
-    var val = o[k];
-
-    return {
-      key: (o instanceof Array) ? false : k,
-      index: (o instanceof Array) ? k * 1 : false,
-      type: getType(val),
-      value: maybeNullToString(val)
-    };
-  });
-};
-
-// ## External Functions
-
-// Simply a call to JSON.parse with some special error handling.
-var tryParseJSON = function (jsn) {
-  'use strict';
-
-  var obj;
-
-  try {
-    obj = JSON.parse(jsn);
-  } catch (e) {
-    switch (e.name) {
-    case 'SyntaxError':
-      e.message = 'invalid JSON: ' + JSON.stringify(jsn);
-      throw e;
-    default:
-      throw e;
-    }
-  }
-
-  // I've tested this and strangely enough JSON.parse(null) === null
-  if (jsn === null) {
-    throw new SyntaxError('invalid JSON: null');
-  }
-
-  return obj;
-};
-
-// Some types of valid JSON are not useful in this context..
-var validate = function (obj) {
-  'use strict';
-
-  var msg = 'cannot build form from: ';
-
-  if (typeof obj === 'string') {
-    throw msg + 'string';
-  } else if (typeof obj === 'number') {
-    throw msg + 'number';
-  } else if (obj !== null && obj.constructor === Array) {
-    throw msg + 'array';
-  }
-
-  return obj;
-};
-
-// Transform the object into an AST that should be easier to work with
-// in templating systems, etc.
-var transform = function (obj) {
-  'use strict';
-
-  var start = {
-    fields: []
-  };
-
-  var transform_ = function (o, rest, accObj, id) {
-    var result;
-    var keyVals = getKeyVals(o.object);
-
-    result = keyVals.reduce(function (acc, x) {
-      if (x.type === 'array' || x.type === 'object') {
-        return acc.concat({
-          object: x.value,
-          key: 'value',
-          parent: x
-        });
-      } else {
-        return acc;
-      }
-    }, []);
-
-    rest = rest.concat(result);
-    o.parent[o.key] = keyVals;
-
-    if (rest && rest.length !== 0) {
-      return transform_.r(rest[0], rest.slice(1), accObj, id);
-    } else {
-      return id.r(accObj);
-    }
-  };
-
-  if (obj === null) {
-    return {};
-  } else {
-    return transform_.t({
-      object: obj,
-      parent: start,
-      key: 'fields'
-    }, [], start, r.identity);
-  }
-};
-
-exports.tryParseJSON = tryParseJSON;
-exports.validate = validate;
-exports.transform = transform;
-
-},{"./recurse.js":88}],82:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -18760,7 +18607,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":51,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":76,"./jquery.hotkeys.js":80,"./sender.js":89}],83:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":51,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":77,"./jquery.hotkeys.js":81,"./sender.js":87}],83:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -19176,7 +19023,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":45,"./store.js":92}],86:[function(require,module,exports){
+},{"./ajax.js":45,"./store.js":90}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19273,51 +19120,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":45,"../form.js":68,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],88:[function(require,module,exports){
-// # Recursion
-//
-// Tail call optimization taken from Spencer Tipping's Javascript in Ten
-// Minutes.
-//
-// For more information see:
-// <https://github.com/spencertipping/js-in-ten-minutes>
-
-// ## Exported Functions
-
-// Identity function
-var identity = function (x) {
-  'use strict';
-
-  return x;
-};
-
-// Adds the prototype functions
-(function () {
-  'use strict';
-
-  // Return the values to apply
-  Function.prototype.r = function () {
-    return [this, arguments];
-  };
-
-  // Tail call function
-  Function.prototype.t = function () {
-    var c = [this, arguments];
-    var escape = arguments[arguments.length - 1];
-    while (c[0] !== escape) {
-      c = c[0].apply(this, c[1]);
-    }
-    return escape.apply(this, c[1]);
-  };
-
-  return true;
-})();
-
-exports.identity = identity;
-
-},{}],89:[function(require,module,exports){
+},{"../ajax.js":45,"../form.js":69,"templates.js":"3ddScq"}],87:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19473,7 +19276,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":51,"./config/editui.js":52,"./documents/commands.js":57,"./documents/documents.js":58,"./documents/editui.js":59,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/worksheetui.js":65}],90:[function(require,module,exports){
+},{"./config/doctypeui.js":51,"./config/editui.js":52,"./documents/commands.js":57,"./documents/documents.js":58,"./documents/editui.js":59,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/worksheetui.js":66}],88:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19522,7 +19325,7 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],91:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -19616,7 +19419,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],92:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -19627,7 +19430,7 @@ exports.symmetricDifference = symmetricDifference;
 // ## Variables
 
 var utils = require('./utils.js');
-var r = require('./recurse.js');
+var r = require('../server/shimi_ima/lib/recurse.js');
 
 // ## Internal functions
 
@@ -19749,7 +19552,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"./recurse.js":88,"./utils.js":93}],93:[function(require,module,exports){
+},{"../server/shimi_ima/lib/recurse.js":93,"./utils.js":91}],91:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -19928,6 +19731,203 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],92:[function(require,module,exports){
+// # Json Parse
+//
+// *implicit dependencies:* JSON
+//
+// Convert a subset of JSON to an abstract syntax.
+
+// ## Variable Definitions
+
+var r = require('./recurse.js');
+
+// ## Internal Functions
+
+// Get the 'type', which may not correspond to the JavaScript type.
+var getType = function (val) {
+  'use strict';
+
+  if (val === null || (typeof val === 'string' && val.length <= 32)) {
+    return 'string';
+  } else if (typeof val === 'string' && val.length > 32) {
+    return 'text';
+  } else if (typeof val === 'boolean') {
+    return 'boolean';
+  } else if (typeof val === 'number') {
+    return 'number';
+  } else if (val instanceof Array) {
+    return 'array';
+  } else if (val instanceof Object && !(val instanceof Array) && val !== null) {
+    return 'object';
+  }
+};
+
+// If v is null, return 'null', otherwise return v.
+var maybeNullToString = function (v) {
+  'use strict';
+
+  if (v === null) {
+    return 'null';
+  } else {
+    return v;
+  }
+};
+
+// Process key value pairs in an object and return an object that
+// describes the original object.
+var getKeyVals = function (o) {
+  'use strict';
+
+  return Object.keys(o).map(function (k) {
+    var val = o[k];
+
+    return {
+      key: (o instanceof Array) ? false : k,
+      index: (o instanceof Array) ? k * 1 : false,
+      type: getType(val),
+      value: maybeNullToString(val)
+    };
+  });
+};
+
+// ## External Functions
+
+// Simply a call to JSON.parse with some special error handling.
+var tryParseJSON = function (jsn) {
+  'use strict';
+
+  var obj;
+
+  try {
+    obj = JSON.parse(jsn);
+  } catch (e) {
+    switch (e.name) {
+    case 'SyntaxError':
+      e.message = 'invalid JSON: ' + JSON.stringify(jsn);
+      throw e;
+    default:
+      throw e;
+    }
+  }
+
+  // I've tested this and strangely enough JSON.parse(null) === null
+  if (jsn === null) {
+    throw new SyntaxError('invalid JSON: null');
+  }
+
+  return obj;
+};
+
+// Some types of valid JSON are not useful in this context..
+var validate = function (obj) {
+  'use strict';
+
+  var msg = 'cannot build form from: ';
+
+  if (typeof obj === 'string') {
+    throw msg + 'string';
+  } else if (typeof obj === 'number') {
+    throw msg + 'number';
+  } else if (obj !== null && obj.constructor === Array) {
+    throw msg + 'array';
+  }
+
+  return obj;
+};
+
+// Transform the object into an AST that should be easier to work with
+// in templating systems, etc.
+var transform = function (obj) {
+  'use strict';
+
+  var start = {
+    fields: []
+  };
+
+  var transform_ = function (o, rest, accObj, id) {
+    var result;
+    var keyVals = getKeyVals(o.object);
+
+    result = keyVals.reduce(function (acc, x) {
+      if (x.type === 'array' || x.type === 'object') {
+        return acc.concat({
+          object: x.value,
+          key: 'value',
+          parent: x
+        });
+      } else {
+        return acc;
+      }
+    }, []);
+
+    rest = rest.concat(result);
+    o.parent[o.key] = keyVals;
+
+    if (rest && rest.length !== 0) {
+      return transform_.r(rest[0], rest.slice(1), accObj, id);
+    } else {
+      return id.r(accObj);
+    }
+  };
+
+  if (obj === null) {
+    return {};
+  } else {
+    return transform_.t({
+      object: obj,
+      parent: start,
+      key: 'fields'
+    }, [], start, r.identity);
+  }
+};
+
+exports.tryParseJSON = tryParseJSON;
+exports.validate = validate;
+exports.transform = transform;
+
+},{"./recurse.js":93}],93:[function(require,module,exports){
+// # Recursion
+//
+// Tail call optimization taken from Spencer Tipping's Javascript in Ten
+// Minutes.
+//
+// For more information see:
+// <https://github.com/spencertipping/js-in-ten-minutes>
+
+// ## Exported Functions
+
+// Identity function
+var identity = function (x) {
+  'use strict';
+
+  return x;
+};
+
+// Adds the prototype functions
+(function () {
+  'use strict';
+
+  // Return the values to apply
+  Function.prototype.r = function () {
+    return [this, arguments];
+  };
+
+  // Tail call function
+  Function.prototype.t = function () {
+    var c = [this, arguments];
+    var escape = arguments[arguments.length - 1];
+    while (c[0] !== escape) {
+      c = c[0].apply(this, c[1]);
+    }
+    return escape.apply(this, c[1]);
+  };
+
+  return true;
+})();
+
+exports.identity = identity;
+
 },{}],"3ddScq":[function(require,module,exports){
 var Hogan = require('hogan.js');
 var t = {
@@ -19991,5 +19991,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":17}]},{},[45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,88,89,90,91,92,93])
+},{"hogan.js":17}]},{},[45,46,47,49,48,50,51,52,53,54,55,56,57,58,59,61,60,62,63,67,66,68,64,69,70,71,72,73,75,74,76,78,79,77,80,81,82,86,83,87,84,85,88,89,90,91])
 ;

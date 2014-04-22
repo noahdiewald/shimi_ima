@@ -7,10 +7,10 @@
 
 // ## Variable Definitions
 
-var r = require('./recurse.js');
+var r = require('../server/shimi_ima/lib/recurse.js');
 var htmlparser = require('htmlparser2');
 var uuid = require('node-uuid');
-var jp = require('./json_parse.js');
+var jp = require('../server/shimi_ima/lib/json_parse.js');
 
 // ## Internal Functions
 

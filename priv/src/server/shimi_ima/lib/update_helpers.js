@@ -63,6 +63,7 @@ var get_changes = function (newDoc, doc) {
   var changes = {};
 
   if (doc) {
+    // This is allows for the unit testing system to find the file.
     if (arguments[2] === true) {
       foldFields = require('./fields').fromFieldsetsFold;
     } else {
