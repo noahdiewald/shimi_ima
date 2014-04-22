@@ -1,3 +1,4 @@
+// So far this is just a test and will not always produce a valid CSV.
 exports.list = function (head, req, start, send, getRow) {
   'use strict';
 
@@ -7,26 +8,9 @@ exports.list = function (head, req, start, send, getRow) {
     }
   });
 
-  var csvVal = function (item) {
-    return item.replace(/"/g, '""').replace(/^(.*)$/, '"$1"');
-  };
-
-  var csvCell = function (item) {
-    if (item === null) {
-      return 'null';
-    } else {
-      return csvVal(item.toString());
-    }
-  };
-
-  var csvKey = function (item) {
-    csvVal(item);
-    //return csvCell(item.map(function (x) {
-    //  return x[1];
-    //}));
-  };
+  send(['ID', 'KEY', 'VALUE'].join(',') + '\n');
 
   for (var row = getRow(); row !== undefined; row = getRow()) {
-    send([csvCell(row.id), csvKey(row.key), csvCell(row.value)].join(',') + '\n');
+    send([JSON.stringify(row.id), JSON.stringify(row.key), JSON.stringify(row.value)].join(',') + '\n');
   }
 };
