@@ -12,14 +12,6 @@ var testCase = function (fun, arg) {
 describe('Converting JSON to an HTML form', function () {
   'use strict';
 
-  describe('when provided invalid JSON', function () {
-    it('should raise an exception', function () {
-      testCase(formalize.toForm, '').should.Throw(/invalid JSON: ""/);
-      testCase(formalize.toForm, undefined).should.Throw(/invalid JSON: undefined/);
-      testCase(formalize.toForm, {}).should.Throw(/invalid JSON: {}/);
-      testCase(formalize.toForm, null).should.Throw(/invalid JSON: null/);
-    });
-  });
   describe('when provided no arguments', function () {
     it('should raise an exception', function () {
       var myTestCase = function () {
@@ -31,9 +23,9 @@ describe('Converting JSON to an HTML form', function () {
   });
   describe('when provided invalid type of argument', function () {
     it('should raise an exception', function () {
-      testCase(formalize.toForm, '"string"').should.Throw(/cannot build form from: string/);
-      testCase(formalize.toForm, '[]').should.Throw(/cannot build form from: array/);
-      testCase(formalize.toForm, '1').should.Throw(/cannot build form from: number/);
+      testCase(formalize.toForm, '"string"').should.Throw(/cannot build AST from: string/);
+      testCase(formalize.toForm, '[]').should.Throw(/cannot build AST from: array/);
+      testCase(formalize.toForm, '1').should.Throw(/cannot build AST from: number/);
     });
   });
   describe('when provided null', function () {

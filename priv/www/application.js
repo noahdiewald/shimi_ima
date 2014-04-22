@@ -19823,7 +19823,7 @@ var tryParseJSON = function (jsn) {
 var validate = function (obj) {
   'use strict';
 
-  var msg = 'cannot build form from: ';
+  var msg = 'cannot build AST from: ';
 
   if (typeof obj === 'string') {
     throw msg + 'string';
@@ -19991,5 +19991,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":17}]},{},[45,46,47,49,48,50,51,52,53,54,55,56,57,58,59,61,60,62,63,67,66,68,64,69,70,71,72,73,75,74,76,78,79,77,80,81,82,86,83,87,84,85,88,89,90,91])
+},{"hogan.js":17}]},{},[45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,86,85,87,88,89,90,91])
 ;

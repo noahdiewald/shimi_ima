@@ -89,7 +89,7 @@ var tryParseJSON = function (jsn) {
 var validate = function (obj) {
   'use strict';
 
-  var msg = 'cannot build form from: ';
+  var msg = 'cannot build AST from: ';
 
   if (typeof obj === 'string') {
     throw msg + 'string';

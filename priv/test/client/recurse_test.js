@@ -1,6 +1,7 @@
 var console = require('console');
 var should = require('chai').should();
-// This has moved a couple of times.
+// This has moved a couple of times. I don't know if the current division
+// for unit tests between client and server is necessary.
 var recurse = require('../../src/server/shimi_ima/lib/recurse.js');
 
 describe('Tail recursion', function () {
