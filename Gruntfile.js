@@ -118,6 +118,7 @@ module.exports = function(grunt) {
         undef: true,
         globals: {
           $: true,
+          console: true,
           describe: true,
           emit: true,
           exports: true,
