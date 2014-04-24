@@ -11785,7 +11785,7 @@ exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
 
-},{"./flash.js":67}],46:[function(require,module,exports){
+},{"./flash.js":68}],46:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM, JQuery
@@ -11918,7 +11918,7 @@ document.onreadystatechange = function () {
   }
 };
 
-},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":50,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ilistingui.js":75,"./jquery-ui-input-state.js":79,"./keystrokes.js":81,"./projects/projectui.js":85}],47:[function(require,module,exports){
+},{"./changes.js":47,"./click-dispatch.js":48,"./config/config.js":50,"./dblclick-dispatch.js":54,"./documents/documents.js":58,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ilistingui.js":76,"./jquery-ui-input-state.js":80,"./keystrokes.js":82,"./projects/projectui.js":86}],47:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -12237,7 +12237,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":65,"./file_manager/fm.js":66,"./form.js":68,"./index_tool/ieditui.js":72,"./panel-toggle.js":83,"./projects/projectui.js":85,"./sender.js":87}],49:[function(require,module,exports){
+},{"./config/maintenanceui.js":53,"./dispatcher.js":55,"./documents/editui.js":59,"./documents/fieldsets.js":60,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/viewui.js":64,"./documents/worksheetui.js":66,"./file_manager/fm.js":67,"./form.js":69,"./index_tool/ieditui.js":73,"./panel-toggle.js":84,"./projects/projectui.js":86,"./sender.js":87}],49:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -12285,7 +12285,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"../pager.js":82,"templates.js":"3ddScq"}],50:[function(require,module,exports){
+},{"../pager.js":83,"templates.js":"3ddScq"}],50:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -12388,7 +12388,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../pager.js":82,"../sender.js":87,"node-uuid":44,"templates.js":"3ddScq"}],52:[function(require,module,exports){
+},{"../pager.js":83,"../sender.js":87,"node-uuid":44,"templates.js":"3ddScq"}],52:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -13126,7 +13126,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../ajax.js":45,"../formalize.js":69,"../sender.js":87,"../sess.js":88}],53:[function(require,module,exports){
+},{"../ajax.js":45,"../formalize.js":70,"../sender.js":87,"../sess.js":88}],53:[function(require,module,exports){
 // # Maintenance User Interface
 //
 // *Implicit depends:* DOM
@@ -13167,7 +13167,7 @@ var init = function () {
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"../ajax.js":45,"../flash.js":67,"templates.js":"3ddScq"}],54:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"templates.js":"3ddScq"}],54:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13230,7 +13230,7 @@ var dblclickDispatch = function (e) {
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"./config/editui.js":52,"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":65,"./panel-toggle.js":83}],55:[function(require,module,exports){
+},{"./config/editui.js":52,"./dispatcher.js":55,"./documents/searchui.js":62,"./documents/worksheetui.js":66,"./panel-toggle.js":84}],55:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -13325,7 +13325,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82,"./documents.js":58}],57:[function(require,module,exports){
+},{"../pager.js":83,"./documents.js":58}],57:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -14046,7 +14046,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../ajax.js":45,"../flash.js":67,"../form.js":68,"../store.js":90,"./documents.js":58,"./fieldsets.js":60,"./indexui.js":61,"./viewui.js":64,"node-uuid":44,"templates.js":"3ddScq"}],60:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"../form.js":69,"../store.js":90,"./documents.js":58,"./fieldsets.js":60,"./indexui.js":61,"./viewui.js":64,"node-uuid":44,"templates.js":"3ddScq"}],60:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM, JQuery
@@ -14554,7 +14554,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../ajax.js":45,"../path.js":84,"../store.js":90,"../utils.js":91,"./documents.js":58,"./editui.js":59,"templates.js":"3ddScq"}],61:[function(require,module,exports){
+},{"../ajax.js":45,"../path.js":85,"../store.js":90,"../utils.js":91,"./documents.js":58,"./editui.js":59,"templates.js":"3ddScq"}],61:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14653,7 +14653,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"../ajax.js":45,"../pager.js":82,"./editui.js":59,"./viewui.js":64,"templates.js":"3ddScq"}],62:[function(require,module,exports){
+},{"../ajax.js":45,"../pager.js":83,"./editui.js":59,"./viewui.js":64,"templates.js":"3ddScq"}],62:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15580,7 +15580,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../flash.js":67,"../sender.js":87,"../sets.js":89,"../utils.js":91,"./documents.js":58,"templates.js":"3ddScq"}],64:[function(require,module,exports){
+},{"../flash.js":68,"../sender.js":87,"../sets.js":89,"../utils.js":91,"./documents.js":58,"templates.js":"3ddScq"}],64:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -15962,7 +15962,9 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"../ajax.js":45,"../flash.js":67,"../store.js":90,"./editui.js":59,"./fieldsets.js":60,"./indexui.js":61,"templates.js":"3ddScq"}],65:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"../store.js":90,"./editui.js":59,"./fieldsets.js":60,"./indexui.js":61,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
+module.exports=require('3ddScq');
+},{}],66:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -16153,7 +16155,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"../ajax.js":45,"../flash.js":67,"./documents.js":58,"./setsui.js":63,"hogan.js":17,"templates.js":"3ddScq"}],66:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"./documents.js":58,"./setsui.js":63,"hogan.js":17,"templates.js":"3ddScq"}],67:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16349,7 +16351,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"../ajax.js":45,"../flash.js":67}],67:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68}],68:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -16399,7 +16401,7 @@ var highlight = function (title, body) {
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -16534,7 +16536,7 @@ exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"./ajax.js":45}],69:[function(require,module,exports){
+},{"./ajax.js":45}],70:[function(require,module,exports){
 // # Formalize
 //
 // *implicit dependencies:* JSON
@@ -17147,7 +17149,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"../server/shimi_ima/lib/json_parse.js":92,"../server/shimi_ima/lib/recurse.js":93,"htmlparser2":30,"node-uuid":44}],70:[function(require,module,exports){
+},{"../server/shimi_ima/lib/json_parse.js":92,"../server/shimi_ima/lib/recurse.js":93,"htmlparser2":30,"node-uuid":44}],71:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -17160,7 +17162,7 @@ exports.fromForm = fromForm;
 
 var globals = {};
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17336,7 +17338,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74}],72:[function(require,module,exports){
+},{"../form.js":69,"../jquery-ui-input-state.js":80,"./ievents.js":74,"./ihelpers.js":75}],73:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17627,7 +17629,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"../ajax.js":45,"../flash.js":67,"./builder-dialog.js":71,"./ihelpers.js":74,"./ilistingui.js":75,"./ipreviewui.js":76,"./new-dialog.js":77,"./replace-dialog.js":78}],73:[function(require,module,exports){
+},{"../ajax.js":45,"../flash.js":68,"./builder-dialog.js":72,"./ihelpers.js":75,"./ilistingui.js":76,"./ipreviewui.js":77,"./new-dialog.js":78,"./replace-dialog.js":79}],74:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17730,7 +17732,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"./ihelpers.js":74}],74:[function(require,module,exports){
+},{"./ihelpers.js":75}],75:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17988,7 +17990,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"../ajax.js":45,"../sess.js":88}],75:[function(require,module,exports){
+},{"../ajax.js":45,"../sess.js":88}],76:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -18020,7 +18022,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"../ajax.js":45,"templates.js":"3ddScq"}],76:[function(require,module,exports){
+},{"../ajax.js":45,"templates.js":"3ddScq"}],77:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -18076,7 +18078,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"../pager.js":82}],77:[function(require,module,exports){
+},{"../pager.js":83}],78:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18181,7 +18183,7 @@ var initIndexNewDialog = function () {
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"../form.js":68,"../jquery-ui-input-state.js":79,"./ievents.js":73,"./ihelpers.js":74,"./ilistingui.js":75}],78:[function(require,module,exports){
+},{"../form.js":69,"../jquery-ui-input-state.js":80,"./ievents.js":74,"./ihelpers.js":75,"./ilistingui.js":76}],79:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18253,7 +18255,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"../form.js":68,"./ihelpers.js":74}],79:[function(require,module,exports){
+},{"../form.js":69,"./ihelpers.js":75}],80:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -18276,7 +18278,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -18442,7 +18444,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -18605,7 +18607,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"./config/charsequi.js":49,"./config/doctypeui.js":51,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":76,"./jquery.hotkeys.js":80,"./sender.js":87}],82:[function(require,module,exports){
+},{"./config/charsequi.js":49,"./config/doctypeui.js":51,"./documents/changeui.js":56,"./documents/editui.js":59,"./documents/indexui.js":61,"./documents/searchui.js":62,"./documents/viewui.js":64,"./index_tool/ipreviewui.js":77,"./jquery.hotkeys.js":81,"./sender.js":87}],83:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -18796,7 +18798,7 @@ var pager = function (args) {
 
 exports.pager = pager;
 
-},{"./ajax.js":45,"templates.js":"3ddScq"}],83:[function(require,module,exports){
+},{"./ajax.js":45,"templates.js":"3ddScq"}],84:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -18825,7 +18827,7 @@ var panelToggler = function (target) {
 
 exports.panelToggler = panelToggler;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 // # Path helper
 //
 // NOTE: This is only used by `config/doctype-tab.js` and
@@ -19021,7 +19023,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"./ajax.js":45,"./store.js":90}],85:[function(require,module,exports){
+},{"./ajax.js":45,"./store.js":90}],86:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -19118,9 +19120,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"../ajax.js":45,"../form.js":68,"templates.js":"3ddScq"}],"templates.js":[function(require,module,exports){
-module.exports=require('3ddScq');
-},{}],87:[function(require,module,exports){
+},{"../ajax.js":45,"../form.js":69,"templates.js":"3ddScq"}],87:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -19276,7 +19276,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"./config/doctypeui.js":51,"./config/editui.js":52,"./documents/commands.js":57,"./documents/documents.js":58,"./documents/editui.js":59,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/worksheetui.js":65}],88:[function(require,module,exports){
+},{"./config/doctypeui.js":51,"./config/editui.js":52,"./documents/commands.js":57,"./documents/documents.js":58,"./documents/editui.js":59,"./documents/searchui.js":62,"./documents/setsui.js":63,"./documents/worksheetui.js":66}],88:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -19991,5 +19991,5 @@ module.exports = {
   'simple-to-form' : r('simple-to-form'),
   'worksheet' : r('worksheet')
 };
-},{"hogan.js":17}]},{},[45,47,48,46,49,50,51,52,53,54,55,56,57,58,59,60,62,63,64,61,66,65,67,68,69,70,72,71,73,74,75,76,77,78,79,80,81,82,83,85,84,87,88,89,90,91])
+},{"hogan.js":17}]},{},[45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91])
 ;
