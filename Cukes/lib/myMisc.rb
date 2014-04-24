@@ -3,7 +3,6 @@
 require 'watir-webdriver'
 require 'net/http'
 require 'json'
-require 'redis'
 
 if ENV['HEADLESS']
   require 'headless'
