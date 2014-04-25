@@ -16988,7 +16988,7 @@ var processDescriptField = function (fs, acc, options) {
       newArray(fs.key, acc, options);
     }
 
-    if (fs.type === 'text') {
+    if (fs.type === 'string' && fs.value.length > 32) {
       textarea(fs.key, fs.value, acc, options);
     } else if (fs.type !== 'object' && fs.type !== 'array') {
       inputarea(fs.key, fs.value, fs.type, acc, options);
@@ -19737,29 +19737,20 @@ var r = require('./recurse.js');
 var getType = function (val) {
   'use strict';
 
-  if (val === null || (typeof val === 'string' && val.length <= 32)) {
+  var retval;
+
+  if (typeof val === 'string') {
     return 'string';
-  } else if (typeof val === 'string' && val.length > 32) {
-    return 'text';
   } else if (typeof val === 'boolean') {
     return 'boolean';
   } else if (typeof val === 'number') {
     return 'number';
+  } else if (val === null) {
+    return 'null';
   } else if (val instanceof Array) {
     return 'array';
-  } else if (val instanceof Object && !(val instanceof Array) && val !== null) {
+  } else if (val instanceof Object) {
     return 'object';
-  }
-};
-
-// If v is null, return 'null', otherwise return v.
-var maybeNullToString = function (v) {
-  'use strict';
-
-  if (v === null) {
-    return 'null';
-  } else {
-    return v;
   }
 };
 
@@ -19775,7 +19766,7 @@ var getKeyVals = function (o) {
       key: (o instanceof Array) ? false : k,
       index: (o instanceof Array) ? k * 1 : false,
       type: getType(val),
-      value: maybeNullToString(val)
+      value: val
     };
   });
 };

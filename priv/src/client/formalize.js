@@ -449,7 +449,7 @@ var processDescriptField = function (fs, acc, options) {
       newArray(fs.key, acc, options);
     }
 
-    if (fs.type === 'text') {
+    if (fs.type === 'string' && fs.value.length > 32) {
       textarea(fs.key, fs.value, acc, options);
     } else if (fs.type !== 'object' && fs.type !== 'array') {
       inputarea(fs.key, fs.value, fs.type, acc, options);
