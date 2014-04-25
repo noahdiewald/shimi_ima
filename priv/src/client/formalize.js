@@ -572,28 +572,17 @@ var descriptToHtml = function (obj, options) {
   return acc.left + acc.right;
 };
 
-// Build an HTML form from JSON.
-var simpleToForm = function (obj, options) {
-  'use strict';
-
-  var fields = jp.transform(obj);
-
-  fields.obj = obj !== null;
-
-  return descriptToHtml(fields, options);
-};
-
 // ## External Functions
 
 var toForm = function (jsn, options) {
   'use strict';
 
   options = options ? options : {};
-  var obj = jp.tryParseJSON(jsn);
+  var ast = jp.parse(jsn);
 
-  jp.validate(obj);
+  ast.obj = jsn !== 'null';
 
-  return simpleToForm(obj, options);
+  return descriptToHtml(ast, options);
 };
 
 var fromForm = function (html) {

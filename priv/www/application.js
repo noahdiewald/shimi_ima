@@ -17111,28 +17111,17 @@ var descriptToHtml = function (obj, options) {
   return acc.left + acc.right;
 };
 
-// Build an HTML form from JSON.
-var simpleToForm = function (obj, options) {
-  'use strict';
-
-  var fields = jp.transform(obj);
-
-  fields.obj = obj !== null;
-
-  return descriptToHtml(fields, options);
-};
-
 // ## External Functions
 
 var toForm = function (jsn, options) {
   'use strict';
 
   options = options ? options : {};
-  var obj = jp.tryParseJSON(jsn);
+  var ast = jp.parse(jsn);
 
-  jp.validate(obj);
+  ast.obj = jsn !== 'null';
 
-  return simpleToForm(obj, options);
+  return descriptToHtml(ast, options);
 };
 
 var fromForm = function (html) {
@@ -19791,51 +19780,6 @@ var getKeyVals = function (o) {
   });
 };
 
-// ## External Functions
-
-// Simply a call to JSON.parse with some special error handling.
-var tryParseJSON = function (jsn) {
-  'use strict';
-
-  var obj;
-
-  try {
-    obj = JSON.parse(jsn);
-  } catch (e) {
-    switch (e.name) {
-    case 'SyntaxError':
-      e.message = 'invalid JSON: ' + JSON.stringify(jsn);
-      throw e;
-    default:
-      throw e;
-    }
-  }
-
-  // I've tested this and strangely enough JSON.parse(null) === null
-  if (jsn === null) {
-    throw new SyntaxError('invalid JSON: null');
-  }
-
-  return obj;
-};
-
-// Some types of valid JSON are not useful in this context..
-var validate = function (obj) {
-  'use strict';
-
-  var msg = 'cannot build AST from: ';
-
-  if (typeof obj === 'string') {
-    throw msg + 'string';
-  } else if (typeof obj === 'number') {
-    throw msg + 'number';
-  } else if (obj !== null && obj.constructor === Array) {
-    throw msg + 'array';
-  }
-
-  return obj;
-};
-
 // Transform the object into an AST that should be easier to work with
 // in templating systems, etc.
 var transform = function (obj) {
@@ -19882,9 +19826,62 @@ var transform = function (obj) {
   }
 };
 
-exports.tryParseJSON = tryParseJSON;
-exports.validate = validate;
-exports.transform = transform;
+// Simply a call to JSON.parse with some special error handling.
+var tryParseJSON = function (jsn) {
+  'use strict';
+
+  var obj;
+
+  try {
+    obj = JSON.parse(jsn);
+  } catch (e) {
+    switch (e.name) {
+    case 'SyntaxError':
+      e.message = 'invalid JSON: ' + JSON.stringify(jsn);
+      throw e;
+    default:
+      throw e;
+    }
+  }
+
+  // I've tested this and strangely enough JSON.parse(null) === null
+  if (jsn === null) {
+    throw new SyntaxError('invalid JSON: null');
+  }
+
+  return obj;
+};
+
+// Some types of valid JSON are not useful in this context..
+var validate = function (obj) {
+  'use strict';
+
+  var msg = 'cannot build AST from: ';
+
+  if (typeof obj === 'string') {
+    throw msg + 'string';
+  } else if (typeof obj === 'number') {
+    throw msg + 'number';
+  } else if (obj !== null && obj.constructor === Array) {
+    throw msg + 'array';
+  }
+
+  return obj;
+};
+
+// ## External Functions
+
+var parse = function (jsn) {
+  'use strict';
+
+  var obj = tryParseJSON(jsn);
+
+  obj = validate(obj);
+
+  return transform(obj);
+};
+
+exports.parse = parse;
 
 },{"./recurse.js":93}],93:[function(require,module,exports){
 // # Recursion
