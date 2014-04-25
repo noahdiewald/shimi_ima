@@ -1,3 +1,7 @@
+// TODO: This is not a complete set of test but there is enough
+// overlap with the formalize.js tests on the client side that I think
+// the coverage is sufficient.
+
 var should = require('chai').should();
 var json_parse = require('../../src/server/shimi_ima/lib/json_parse.js');
 
@@ -72,6 +76,27 @@ describe('Converting JSON to an AST', function () {
     });
     it('should have the correct value', function () {
       JSON.stringify(json_parse.parse('{"a":null}')).should.match(/"value":null/);
+    });
+  });
+  describe('when provided simple objects with an empty object value', function () {
+    it('should return an AST with a correctly labeled type', function () {
+      JSON.stringify(json_parse.parse('{"a":{}}')).should.match(/"type":"object"/);
+    });
+    it('should have the correct value', function () {
+      JSON.stringify(json_parse.parse('{"a":{}}')).should.match(/"value":\[\]/);
+    });
+  });
+  describe('when provided simple objects with an empty array value', function () {
+    it('should return an AST with a correctly labeled type', function () {
+      JSON.stringify(json_parse.parse('{"a":[]}')).should.match(/"type":"array"/);
+    });
+    it('should have the correct value', function () {
+      JSON.stringify(json_parse.parse('{"a":[]}')).should.match(/"value":\[\]/);
+    });
+  });
+  describe('when provided an object with an array value', function () {
+    it('should have false keys and proper index values', function () {
+      JSON.stringify(json_parse.parse('{"a":[1,2,3]}')).should.equal('{"fields":[{"key":"a","index":false,"type":"array","value":[{"key":false,"index":0,"type":"number","value":1},{"key":false,"index":1,"type":"number","value":2},{"key":false,"index":2,"type":"number","value":3}]}]}');
     });
   });
 });
