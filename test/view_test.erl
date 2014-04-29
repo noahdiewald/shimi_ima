@@ -35,9 +35,5 @@ creation_test_() ->
       {"From list with list JSON values",
        ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
                      view:from_list([{<<"startkey">>, <<"\"_design/\"">>}, 
-                                     {<<"endkey">>, <<"\"_design0\"">>}]))},
-      {"From list with decoded JSON values",
-       ?_assertEqual(#vq{startkey = <<"_design/">>, endkey = <<"_design0">>},
-                     view:from_list([{<<"startkey">>, <<"_design/">>}, 
-                                     {<<"endkey">>, <<"_design0">>}]))}
+                                     {<<"endkey">>, <<"\"_design0\"">>}]))}
      ]}.
