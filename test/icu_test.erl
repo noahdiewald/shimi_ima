@@ -26,24 +26,24 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
--define(TWO_RULES, "\"&e < é <<< É &h < ''\"").
+-define(TWO_RULES, "&e < é <<< É &h < ''").
 
 -define(COMPLEX_RULES, "\"&9<a,A<\\u0101,\\u0100<c,C<ae,AE<a\\u035ee,A\\u035eE<e,E<\\u0113,\\u0112<h,H<i,I<\\u012b,\\u012a<k,K<m,M<n,N<o,O<\\u014D,\\u014C<p,P<q,Q<r,R<s,S<t,T<u,U<\\u016B,\\u016A<w,W<y,Y\"").
 
--define(POTAWATOMI_RULES, "\"&9<a,A,'n#a','n#A'<b,B,'n#b','n#B'<ch,Ch,CH,'n#ch','n#Ch','n#CH'<d,D,'n#d','n#D'<e,E,'n#e','n#E'<é,É,'n#é','n#É'<g,G,'n#g','n#G'<h,H,'n#h','n#H'<'','n#'''<i,I,'n#i','n#I'<j,J,'n#j','n#J'<k,K,'n#k','n#K'<kw,Kw,KW,'n#kw','n#Kw','n#KW'<m,M,'n#m','n#M'<n,N,'n#n','n#N'<o,O,'n#o','n#O'<p,P,'n#p','n#P'<s,S,'n#s','n#S'<sh,Sh,SH,'n#sh','n#Sh','n#SH'<t,T,'n#t','n#T'<u,U,'n#u','n#U'<w,W,'n#w','n#W'<y,Y,'n#y','n#Y'<z,Z,'n#z','n#Z'<zh,Zh,ZH,'n#zh','n#Zh','n#ZH'\"").
+-define(POTAWATOMI_RULES, "&9<a,A,'n#a','n#A'<b,B,'n#b','n#B'<ch,Ch,CH,'n#ch','n#Ch','n#CH'<d,D,'n#d','n#D'<e,E,'n#e','n#E'<é,É,'n#é','n#É'<g,G,'n#g','n#G'<h,H,'n#h','n#H'<'','n#'''<i,I,'n#i','n#I'<j,J,'n#j','n#J'<k,K,'n#k','n#K'<kw,Kw,KW,'n#kw','n#Kw','n#KW'<m,M,'n#m','n#M'<n,N,'n#n','n#N'<o,O,'n#o','n#O'<p,P,'n#p','n#P'<s,S,'n#s','n#S'<sh,Sh,SH,'n#sh','n#Sh','n#SH'<t,T,'n#t','n#T'<u,U,'n#u','n#U'<w,W,'n#w','n#W'<y,Y,'n#y','n#Y'<z,Z,'n#z','n#Z'<zh,Zh,ZH,'n#zh','n#Zh','n#ZH'").
 
 -define(QUOTE_RULES, "\"&9<a,'n#a'<'','n#'''\"").
 
 -define(SIMPLE_RULES, "\"&9<e,E<a,A\"").
 
 trules() ->
-    ustring:new(jsn:decode(?TWO_RULES), utf8).
+    ustring:new(unicode:characters_to_binary(?TWO_RULES), utf8).
 
 qrules() ->
   ustring:new(jsn:decode(?QUOTE_RULES), utf8).
 
 potawatomi() ->
-  ustring:new(jsn:decode(?POTAWATOMI_RULES), utf8).
+  ustring:new(unicode:characters_to_binary(?POTAWATOMI_RULES), utf8).
 
 complex() ->
   ustring:new(jsn:decode(?COMPLEX_RULES), utf8).
@@ -118,7 +118,7 @@ rule_sortkey_test_() ->
 
  ?_assert(icu:sortkey(trules(), ustring:new(jsn:decode("\"hb\""), utf8)) < icu:sortkey(trules(), ustring:new(jsn:decode("\"'a\""), utf8))),
 
- ?_assert(icu:sortkey(trules(), ustring:new(jsn:decode("\"eb\""), utf8)) < icu:sortkey(trules(), ustring:new(jsn:decode("\"Éa\""), utf8))),
+ ?_assert(icu:sortkey(trules(), ustring:new(jsn:decode("\"eb\""), utf8)) < icu:sortkey(trules(), ustring:new(<<"Éa"/utf8>>, utf8))),
 
   % Various facts about Potawatomi
   ?_assert(icu:sortkey(potawatomi(), ustring:new(jsn:decode("\"a'p\""), utf8)) > icu:sortkey(potawatomi(), ustring:new(jsn:decode("\"aap\""), utf8))),
@@ -145,7 +145,7 @@ locale_sortkey_test_() ->
   ?_assertEqual(icu:sortkey("en_US", ustring:new(<<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>, latin1)), icu:sortkey("en_US", ustring:new(<<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>, latin1))),
   
   % The keys must always be the same
-  ?_assertEqual({ok, <<53,1,5,1,5,0>>}, icu:sortkey("en_US", ustring:new(<<"h">>, latin1))),
+  ?_assertEqual({ok, <<53,1,5,1,5,0>>}, icu:sortkey("en_US", ustring:new(<<"h">>, utf8))),
   
   % With larger data
   ?_assertEqual({ok, 
@@ -153,7 +153,7 @@ locale_sortkey_test_() ->
   28,30,32,34,36,24,20,22,24,26,28,30,32,34,36,26,20,22,24,26,28,30,32,34,36,
   28,20,22,24,26,28,30,32,34,36,28,20,22,24,26,28,30,32,34,36,30,20,22,24,26,
   28,30,32,34,36,32,20,22,24,26,28,30,32,34,36,34,20,22,24,26,28,30,32,34,36,1,
-  69,40,1,48,48,18,0>>}, icu:sortkey("en_US", ustring:new(<<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>, latin1))),
+  69,40,1,48,48,18,0>>}, icu:sortkey("en_US", ustring:new(<<"0123456789112345678921234567893123456789412345678951234567895123456789612345678971234567898123456789">>, utf8))),
   
   % Blank locale is ok
   ?_assertMatch({ok, _}, icu:sortkey("", ustring:new(<<"h">>, latin1))),
