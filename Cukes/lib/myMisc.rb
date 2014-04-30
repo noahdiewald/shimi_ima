@@ -1,11 +1,11 @@
 # Required gems and helper functions are going here so far.
-
-require 'watir-webdriver'
 require 'net/http'
 require 'json'
+require 'rubygems'
+require 'bundler/setup'
+Bundler.require
 
 if ENV['HEADLESS']
-  require 'headless'
   headless = Headless.new
   headless.start
   at_exit do
