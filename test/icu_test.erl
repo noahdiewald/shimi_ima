@@ -18,7 +18,12 @@
 %%% @copyright 2011 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
-%%% @doc This module contains unit tests for icu.
+%%% @doc This module contains unit tests for icu. Note that there is some
+%%% inconsistency in how unicode strings are dealt with. For example,
+%%% sometimes as JSON, sometimes with conversion and sometimes as
+%%% binaries, etc. This was due to the file existing over the transition
+%%% of a number of Erlang releases and should be made more consistent
+%%% in the future.
 
 -module(icu_test).
 
