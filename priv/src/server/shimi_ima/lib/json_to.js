@@ -2,8 +2,8 @@
 //
 // Convert JSON to something else.
 
-var r = require('./recurse.js');
-var json_parse = require('./json_parse.js');
+var r = require('lib/recurse');
+var json_parse = require('lib/json_parse');
 
 // ## Internal Functions
 
