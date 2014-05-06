@@ -2,8 +2,8 @@
 //
 // Convert JSON to something else.
 
-var r = require('../server/shimi_ima/lib/recurse.js');
-var json_parse = require('../server/shimi_ima/lib/json_parse.js');
+var r = require('./recurse.js');
+var json_parse = require('./json_parse.js');
 
 // ## Internal Functions
 

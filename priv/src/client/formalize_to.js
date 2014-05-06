@@ -4,7 +4,7 @@
 
 // ## Variable Definitions
 
-var json_to = require('./json_to.js');
+var json_to = require('../server/shimi_ima/lib/json_to.js');
 var uuid = require('node-uuid');
 
 // ## Internal Functions
