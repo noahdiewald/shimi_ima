@@ -6,8 +6,8 @@
 
 // Variable Definitions
 
-var s = require('../sess.js');
-var ajax = require('../ajax.js');
+var s = require('sess');
+var ajax = require('ajax');
 
 // Internal functions
 

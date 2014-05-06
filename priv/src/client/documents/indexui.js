@@ -8,11 +8,11 @@
 
 // ## Variable Definitions
 
-var templates = require('templates.js');
-var pager = require('../pager.js').pager;
-var ajax = require('../ajax.js');
-var viewui = require('./viewui.js');
-var editui = require('./editui.js');
+var templates = require('templates');
+var pager = require('pager').pager;
+var ajax = require('ajax');
+var viewui = require('documents/viewui');
+var editui = require('documents/editui');
 
 // ## Exported Functions
 

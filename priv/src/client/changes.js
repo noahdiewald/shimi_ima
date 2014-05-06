@@ -9,7 +9,7 @@
 
 // ## Variable Definitions
 
-var searchui = require('./documents/searchui.js');
+var searchui = require('documents/searchui');
 
 // ## Exported Functions
 

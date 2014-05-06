@@ -6,13 +6,13 @@
 
 // Variable Definitions
 
-var path = require('../path.js').path;
-var store = require('../store.js').store;
-var utils = require('../utils.js');
-var editui = require('./editui.js');
-var documents = require('./documents.js');
-var ajax = require('../ajax.js');
-var templates = require('templates.js');
+var path = require('path').path;
+var store = require('store').store;
+var utils = require('utils');
+var editui = require('documents/editui');
+var documents = require('documents/documents');
+var ajax = require('ajax');
+var templates = require('templates');
 var dateOrNumber;
 var getEncoded;
 var getFieldValue;

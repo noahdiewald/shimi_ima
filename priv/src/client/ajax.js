@@ -7,7 +7,7 @@
 
 // ## Variable Definitions
 
-var flash = require('./flash.js');
+var flash = require('flash');
 
 // ## Internal Functions
 

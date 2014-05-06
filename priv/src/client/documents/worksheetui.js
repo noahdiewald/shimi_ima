@@ -8,11 +8,11 @@
 // Variable Definitions
 
 var Hogan = require('hogan.js');
-var templates = require('templates.js');
-var setsui = require('./setsui.js');
-var documents = require('./documents.js');
-var ajax = require('../ajax.js');
-var flash = require('../flash.js');
+var templates = require('templates');
+var setsui = require('documents/setsui');
+var documents = require('documents/documents');
+var ajax = require('ajax');
+var flash = require('flash');
 
 // Internal functions
 

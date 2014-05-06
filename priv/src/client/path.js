@@ -93,8 +93,8 @@
 
 // Variable Definitions
 
-var store = require('./store.js').store;
-var ajax = require('./ajax.js');
+var store = require('store').store;
+var ajax = require('ajax');
 
 // Exported functions
 

@@ -6,14 +6,14 @@
 
 // ## Variable Definitions
 
-var setsui = require('./setsui.js');
-var editui = require('./editui.js');
-var viewui = require('./viewui.js');
-var indexui = require('./indexui.js');
-var changeui = require('./changeui.js');
-var S = require('../sender.js');
-var store = require('../store.js').store;
-var ajax = require('../ajax.js');
+var setsui = require('documents/setsui');
+var editui = require('documents/editui');
+var viewui = require('documents/viewui');
+var indexui = require('documents/indexui');
+var changeui = require('documents/changeui');
+var S = require('sender');
+var store = require('store').store;
+var ajax = require('ajax');
 var identifier;
 
 // ## Internal functions

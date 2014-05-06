@@ -10,16 +10,16 @@
 
 // ## Variable Definitions
 
-var hotkeys = require('./jquery.hotkeys.js');
-var S = require('./sender.js');
-var ipreviewui = require('./index_tool/ipreviewui.js');
-var indexui = require('./documents/indexui.js');
-var changeui = require('./documents/changeui.js');
-var editui = require('./documents/editui.js');
-var viewui = require('./documents/viewui.js');
-var searchui = require('./documents/searchui.js');
-var charsequi = require('./config/charsequi.js');
-var doctypeui = require('./config/doctypeui.js');
+var hotkeys = require('jquery.hotkeys');
+var S = require('sender');
+var ipreviewui = require('index_tool/ipreviewui');
+var indexui = require('documents/indexui');
+var changeui = require('documents/changeui');
+var editui = require('documents/editui');
+var viewui = require('documents/viewui');
+var searchui = require('documents/searchui');
+var charsequi = require('config/charsequi');
+var doctypeui = require('config/doctypeui');
 
 // # Exported Functions
 

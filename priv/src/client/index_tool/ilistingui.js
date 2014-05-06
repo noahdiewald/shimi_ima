@@ -6,8 +6,8 @@
 
 // Variable Definitions
 
-var templates = require('templates.js');
-var ajax = require('../ajax.js');
+var templates = require('templates');
+var ajax = require('ajax');
 
 // Exported functions
 

@@ -9,21 +9,21 @@
 
 // ## Variable Definitions
 
-var S = require('./sender.js');
-var dispatcher = require('./dispatcher.js').dispatcher;
-var panelToggler = require('./panel-toggle.js').panelToggler;
-var editui = require('./documents/editui.js');
-var viewui = require('./documents/viewui.js');
-var indexui = require('./documents/indexui.js');
-var setsui = require('./documents/setsui.js');
-var searchui = require('./documents/searchui.js');
-var worksheetui = require('./documents/worksheetui.js');
-var fieldsets = require('./documents/fieldsets.js');
-var ieditui = require('./index_tool/ieditui.js');
-var form = require('./form.js');
-var projectui = require('./projects/projectui.js');
-var fm = require('./file_manager/fm.js');
-var maintenanceui = require('./config/maintenanceui.js');
+var S = require('sender');
+var dispatcher = require('dispatcher').dispatcher;
+var panelToggler = require('panel-toggle').panelToggler;
+var editui = require('documents/editui');
+var viewui = require('documents/viewui');
+var indexui = require('documents/indexui');
+var setsui = require('documents/setsui');
+var searchui = require('documents/searchui');
+var worksheetui = require('documents/worksheetui');
+var fieldsets = require('documents/fieldsets');
+var ieditui = require('index_tool/ieditui');
+var form = require('form');
+var projectui = require('projects/projectui');
+var fm = require('file_manager/fm');
+var maintenanceui = require('config/maintenanceui');
 
 // ## Internal Functions
 

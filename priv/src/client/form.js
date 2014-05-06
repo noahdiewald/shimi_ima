@@ -7,7 +7,7 @@
 
 // ## Variable Definitions
 
-var ajax = require('./ajax.js');
+var ajax = require('ajax');
 var clear;
 
 // ## Internal Functions

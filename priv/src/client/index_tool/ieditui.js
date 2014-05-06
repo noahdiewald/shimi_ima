@@ -6,14 +6,14 @@
 
 // Variable Definitions
 
-var initIndexNewDialog = require('./new-dialog.js').initIndexNewDialog;
-var initIndexBuilderDialog = require('./builder-dialog.js').initIndexBuilderDialog;
-var initReplaceDialog = require('./replace-dialog.js').initReplaceDialog;
-var ilistingui = require('./ilistingui.js');
-var ipreviewui = require('./ipreviewui.js');
-var ihelpers = require('./ihelpers.js');
-var ajax = require('../ajax.js');
-var flash = require('../flash.js');
+var initIndexNewDialog = require('index_tool/new-dialog').initIndexNewDialog;
+var initIndexBuilderDialog = require('index_tool/builder-dialog').initIndexBuilderDialog;
+var initReplaceDialog = require('index_tool/replace-dialog').initReplaceDialog;
+var ilistingui = require('index_tool/ilistingui');
+var ipreviewui = require('index_tool/ipreviewui');
+var ihelpers = require('index_tool/ihelpers');
+var ajax = require('ajax');
+var flash = require('flash');
 
 // Internal functions
 

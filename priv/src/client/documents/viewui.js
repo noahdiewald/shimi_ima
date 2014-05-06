@@ -8,13 +8,13 @@
 
 // Variable Definitions
 
-var templates = require('templates.js');
-var store = require('../store.js').store;
-var indexui = require('./indexui.js');
-var flash = require('../flash.js');
-var editui = require('./editui.js');
-var fieldsets = require('./fieldsets.js');
-var ajax = require('../ajax.js');
+var templates = require('templates');
+var store = require('store').store;
+var indexui = require('documents/indexui');
+var flash = require('flash');
+var editui = require('documents/editui');
+var fieldsets = require('documents/fieldsets');
+var ajax = require('ajax');
 
 // Internal functions
 

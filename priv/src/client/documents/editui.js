@@ -6,15 +6,15 @@
 
 // Variable Definitions
 
-var templates = require('templates.js');
-var store = require('../store.js').store;
-var form = require('../form.js');
-var flash = require('../flash.js');
-var ajax = require('../ajax.js');
-var fieldsets = require('./fieldsets.js');
-var viewui = require('./viewui.js');
-var indexui = require('./indexui.js');
-var documents = require('./documents.js');
+var templates = require('templates');
+var store = require('store').store;
+var form = require('form');
+var flash = require('flash');
+var ajax = require('ajax');
+var fieldsets = require('documents/fieldsets');
+var viewui = require('documents/viewui');
+var indexui = require('documents/indexui');
+var documents = require('documents/documents');
 var uuid = require('node-uuid');
 var afterRefresh;
 

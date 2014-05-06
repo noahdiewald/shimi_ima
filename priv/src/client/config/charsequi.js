@@ -4,8 +4,8 @@
 //
 // Loads a listing of charseqs that can be edited.
 
-var templates = require('templates.js');
-var pager = require('../pager.js').pager;
+var templates = require('templates');
+var pager = require('pager').pager;
 
 // ## Exported Functions
 

@@ -6,9 +6,9 @@
 
 // Variable Definitions
 
-var form = require('../form.js');
-var ajax = require('../ajax.js');
-var templates = require('templates.js');
+var form = require('form');
+var ajax = require('ajax');
+var templates = require('templates');
 var init;
 
 // Internal functions

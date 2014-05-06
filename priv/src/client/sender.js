@@ -11,14 +11,14 @@
 
 // Variable Definitions
 
-var commands = require('./documents/commands.js');
-var documents = require('./documents/documents.js');
-var editui = require('./documents/editui.js');
-var searchui = require('./documents/searchui.js');
-var setsui = require('./documents/setsui.js');
-var worksheetui = require('./documents/worksheetui.js');
-var ceditui = require('./config/editui.js');
-var cdoctypeui = require('./config/doctypeui.js');
+var commands = require('documents/commands');
+var documents = require('documents/documents');
+var editui = require('documents/editui');
+var searchui = require('documents/searchui');
+var setsui = require('documents/setsui');
+var worksheetui = require('documents/worksheetui');
+var ceditui = require('config/editui');
+var cdoctypeui = require('config/doctypeui');
 
 // Exported functions
 

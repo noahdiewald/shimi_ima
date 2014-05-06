@@ -6,10 +6,10 @@
 
 // ## Variable Definitions
 
-var formalize = require('../formalize.js');
-var ajax = require('../ajax.js');
-var sess = require('../sess.js');
-var S = require('../sender.js');
+var formalize = require('formalize');
+var ajax = require('ajax');
+var sess = require('sess');
+var S = require('sender');
 var toggle;
 var init;
 

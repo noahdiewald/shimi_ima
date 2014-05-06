@@ -7,8 +7,8 @@
 
 // ## Variables
 
-var utils = require('./utils.js');
-var r = require('../server/shimi_ima/lib/recurse.js');
+var utils = require('utils');
+var r = require('lib/recurse');
 
 // ## Internal functions
 

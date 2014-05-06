@@ -4,8 +4,8 @@
 
 // ## Variable Definitions
 
-var formalize_from = require('./formalize_from.js');
-var formalize_to = require('./formalize_to.js');
+var formalize_from = require('formalize_from');
+var formalize_to = require('formalize_to');
 // ## External Functions
 
 var toForm = function (json, options) {

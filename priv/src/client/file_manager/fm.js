@@ -9,8 +9,8 @@
 
 // Variable Definitions
 
-var ajax = require('../ajax.js');
-var flash = require('../flash.js');
+var ajax = require('ajax');
+var flash = require('flash');
 var refreshListings;
 
 // Internal functions

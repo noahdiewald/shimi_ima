@@ -4,9 +4,9 @@
 //
 // Loads a listing of doctypes that can be edited.
 
-var templates = require('templates.js');
-var pager = require('../pager.js').pager;
-var S = require('../sender.js');
+var templates = require('templates');
+var pager = require('pager').pager;
+var S = require('sender');
 var uuid = require('node-uuid');
 
 // ## Exported Functions

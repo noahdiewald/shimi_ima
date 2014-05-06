@@ -8,10 +8,10 @@
 
 // ## Variable Definitions
 
-var doctypeui = require('./doctypeui.js');
-var maintenanceui = require('./maintenanceui.js');
-var charsequi = require('./charsequi.js');
-var editui = require('./editui.js');
+var doctypeui = require('config/doctypeui');
+var maintenanceui = require('config/maintenanceui');
+var charsequi = require('config/charsequi');
+var editui = require('config/editui');
 
 // ## Internal Functions
 

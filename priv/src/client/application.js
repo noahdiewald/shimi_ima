@@ -10,20 +10,20 @@
 
 var exports = module.exports;
 
-require('./jquery-ui-input-state.js');
+require('jquery-ui-input-state');
 
-var clickDispatch = require('./click-dispatch.js').clickDispatch;
-var dblclickDispatch = require('./dblclick-dispatch.js').dblclickDispatch;
-var changes = require('./changes.js').changes;
-var keystrokes = require('./keystrokes.js').keystrokes;
-var form = require('./form.js');
+var clickDispatch = require('click-dispatch').clickDispatch;
+var dblclickDispatch = require('dblclick-dispatch').dblclickDispatch;
+var changes = require('changes').changes;
+var keystrokes = require('keystrokes').keystrokes;
+var form = require('form');
 
 // These are the basic sub-application entry points.
-var documents = require('./documents/documents.js');
-var fm = require('./file_manager/fm.js');
-var ilistingui = require('./index_tool/ilistingui.js');
-var projectui = require('./projects/projectui.js');
-var config = require('./config/config.js');
+var documents = require('documents/documents');
+var fm = require('file_manager/fm');
+var ilistingui = require('index_tool/ilistingui');
+var projectui = require('projects/projectui');
+var config = require('config/config');
 
 // ## Extensions to String and Array Objects
 

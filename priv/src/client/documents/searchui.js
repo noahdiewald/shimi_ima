@@ -6,12 +6,12 @@
 
 // Variable Definitions
 
-var templates = require('templates.js');
-var utils = require('../utils.js');
-var sets = require('../sets.js');
-var setsui = require('./setsui.js');
-var documents = require('./documents.js');
-var ajax = require('../ajax.js');
+var templates = require('templates');
+var utils = require('utils');
+var sets = require('sets');
+var setsui = require('documents/setsui');
+var documents = require('documents/documents');
+var ajax = require('ajax');
 var multipleFields;
 var loadSearchVals;
 

@@ -7,8 +7,8 @@
 
 // Variable Definitions
 
-var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
+var ihelpers = require('index_tool/ihelpers');
+var form = require('form');
 
 // Exported functions
 

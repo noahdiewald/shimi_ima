@@ -20,7 +20,7 @@ module.exports = function(grunt) {
     },
     env: {
       all: {
-        NODE_PATH: 'priv/src/client:priv/src/server/shimi_ima'
+        NODE_PATH: 'priv/src/client:priv/src/server/shimi_ima:node_modules'
       }
     },
     browserify: {

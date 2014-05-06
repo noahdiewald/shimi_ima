@@ -6,13 +6,13 @@
 
 // TODO I would rather avoid having this as a JQuery plugin.
 
-require('../jquery-ui-input-state.js');
+require('jquery-ui-input-state');
 
 // Variable Definitions
 
-var ihelpers = require('./ihelpers.js');
-var form = require('../form.js');
-var evs = require('./ievents.js');
+var ihelpers = require('index_tool/ihelpers');
+var form = require('form');
+var evs = require('index_tool/ievents');
 
 // Exported functions
 

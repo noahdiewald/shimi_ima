@@ -9,11 +9,11 @@
 
 // ## Variable Definitions
 
-var dispatcher = require('./dispatcher.js').dispatcher;
-var panelToggler = require('./panel-toggle.js').panelToggler;
-var searchui = require('./documents/searchui.js');
-var ceditui = require('./config/editui.js');
-var worksheetui = require('./documents/worksheetui.js');
+var dispatcher = require('dispatcher').dispatcher;
+var panelToggler = require('panel-toggle').panelToggler;
+var searchui = require('documents/searchui');
+var ceditui = require('config/editui');
+var worksheetui = require('documents/worksheetui');
 
 // ## Exported Functions
 

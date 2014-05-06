@@ -6,7 +6,7 @@
 
 // Variable Definitions
 
-var h = require('./ihelpers.js');
+var h = require('index_tool/ihelpers');
 
 //
 // Exported Functions
