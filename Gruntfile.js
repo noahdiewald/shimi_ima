@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-
   grunt.loadNpmTasks('grunt-jsbeautifier');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -8,6 +7,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-docco');
+  grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-hogan');
   grunt.loadNpmTasks('grunt-mocha-cov');
 
@@ -17,6 +17,11 @@ module.exports = function(grunt) {
     meta: {
       version: '0.1.0',
       banner: '/*! Dictionary Maker - v<%= meta.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '* http://ling.wisc.edu/\n' + '* Copyright (c) <%= grunt.template.today("yyyy") %> ' + 'UW Madison Board of Regents; Licensed GNU GPLv3 */\n\n'
+    },
+    env: {
+      all: {
+        NODE_PATH: 'priv/src/client:priv/src/server/shimi_ima'
+      }
     },
     browserify: {
       client: {
@@ -147,7 +152,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('coverage', ['jshint', 'copy', 'mochacov:coverage']);
-  grunt.registerTask('test', ['jshint', 'copy', 'mochacov:unit']);
-  grunt.registerTask('default', ['less', 'hogan', 'jsbeautifier', 'jshint', 'copy', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
+  grunt.registerTask('coverage', ['env', 'jshint', 'copy', 'mochacov:coverage']);
+  grunt.registerTask('test', ['env', 'jshint', 'copy', 'mochacov:unit']);
+  grunt.registerTask('default', ['env', 'less', 'hogan', 'jsbeautifier', 'jshint', 'copy', 'mochacov:unit', 'browserify', 'concat', 'uglify']);
 };

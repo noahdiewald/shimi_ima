@@ -6,7 +6,7 @@
 
 // ## Variable Definitions
 
-var r = require('./recurse.js');
+var r = require('lib/recurse.js');
 
 // ## Internal Functions
 
