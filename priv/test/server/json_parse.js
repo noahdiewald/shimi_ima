@@ -46,8 +46,8 @@ describe('Converting JSON to an AST', function () {
     });
   });
   describe('when provided simple objects with a single string value', function () {
-    it('should have a top level key "fields"', function () {
-      JSON.stringify(json_parse.parse('{"a":"b"}')).should.match(/^{"fields":\[/);
+    it('should have a top level key "root"', function () {
+      JSON.stringify(json_parse.parse('{"a":"b"}')).should.match(/^{"root":\[/);
     });
     it('should return an AST with a correctly labeled type', function () {
       JSON.stringify(json_parse.parse('{"a":"b"}')).should.match(/"type":"string"/);
@@ -96,7 +96,7 @@ describe('Converting JSON to an AST', function () {
   });
   describe('when provided an object with an array value', function () {
     it('should have false keys and proper index values', function () {
-      JSON.stringify(json_parse.parse('{"a":[1,2,3]}')).should.equal('{"fields":[{"key":"a","index":false,"type":"array","value":[{"key":false,"index":0,"type":"number","value":1},{"key":false,"index":1,"type":"number","value":2},{"key":false,"index":2,"type":"number","value":3}]}]}');
+      JSON.stringify(json_parse.parse('{"a":[1,2,3]}')).should.equal('{"root":[{"key":"a","index":false,"type":"array","value":[{"key":false,"index":0,"type":"number","value":1},{"key":false,"index":1,"type":"number","value":2},{"key":false,"index":2,"type":"number","value":3}]}]}');
     });
   });
 });

@@ -54,7 +54,7 @@ var transform = function (obj) {
   'use strict';
 
   var start = {
-    fields: []
+    root: []
   };
 
   var transform_ = function (o, rest, accObj, id) {
@@ -84,12 +84,15 @@ var transform = function (obj) {
   };
 
   if (obj === null) {
+    // Note that this may seem like an odd choice but it is useful to
+    // have as a return value based on the assumptions of the software
+    // this module relies on.
     return {};
   } else {
     return transform_.t({
       object: obj,
       parent: start,
-      key: 'fields'
+      key: 'root'
     }, [], start, r.identity);
   }
 };

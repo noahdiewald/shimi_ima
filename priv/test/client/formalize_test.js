@@ -147,9 +147,11 @@ describe('Converting JSON to an HTML form', function () {
   describe('when provided complex values', function () {
     describe('and there is a center embeded object', function () {
       it('should return the correct form', function () {
-        // This could be more detailed but I feel it catches the
-        // essentials
-        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}').should.match(/ul [^>]*title="m">.*<li[^>]*><label for="b">b.*<\/li><\/ul><\/li><li[^>]*>.*sevent.*<\/li><\/ul><\/form>/);
+        formalize.toForm('{"test":null,"m":{"a":1,"b":true},"sevent":"ij"}', {
+          noElementIds: true,
+          noObjectIds: true,
+          noInputIds: true
+        }).should.equal('<form><ul><li><label for="test">test</label><input type="text" name="test" value="null"/></li><li><span title="m" class="span-title">m</span><ul title="m"><li><label for="a">a</label><input type="number" name="a" value="1"/></li><li><label for="b">b</label><input type="text" name="b" value="true"/></li></ul></li><li><label for="sevent">sevent</label><input type="text" name="sevent" value="ij"/></li></ul></form>');
       });
     });
   });
