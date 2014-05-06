@@ -77,8 +77,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set[0];
-  var arr = sets.unique(set[1], member);
+  var name = set [0];
+  var arr = sets.unique(set [1], member);
   var procSet = [name, arr];
   return procSet;
 };
@@ -251,7 +251,9 @@ selectedElementsToArray = function () {
     var anchor = $(elem).parent('td').next('td').find('a').first();
     var id = anchor.first().attr('href').replace(/^#/, '');
     var context = anchor.html().trim();
-    return [[context, id]];
+    return [
+      [context, id]
+    ];
   });
   return retval;
 };
@@ -266,7 +268,9 @@ selectedSaveResultsToArray = function () {
   retval = $.map(selected, function (elem) {
     var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
     var context = $(elem).find('td.search-result-context a').first().html().trim();
-    return [[context, id]];
+    return [
+      [context, id]
+    ];
   });
 
   return retval;
