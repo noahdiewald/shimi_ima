@@ -1,4 +1,3 @@
-# A sample Gemfile
 source "https://rubygems.org"
 
 gem 'watir-webdriver', '0.6.8'
