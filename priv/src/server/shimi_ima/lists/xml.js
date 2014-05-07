@@ -6,7 +6,7 @@ function list(head, req) {
 
   start({
     'headers': {
-      'Content-Type': 'text/x-tex'
+      'Content-Type': 'text/xml'
     }
   });
 

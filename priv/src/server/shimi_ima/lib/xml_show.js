@@ -3,7 +3,7 @@ var xml_shared = require('lib/xml_shared');
 var root = function (options) {
   'use strict';
 
-  return ['<row>', '</row>'];
+  return ['<doc>', '</doc>'];
 };
 
 var to_xml = function (json) {
