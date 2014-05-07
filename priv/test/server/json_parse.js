@@ -3,7 +3,7 @@
 // the coverage is sufficient.
 
 var should = require('chai').should();
-var json_parse = require('../../src/server/shimi_ima/lib/json_parse.js');
+var json_parse = require('lib/json_parse');
 
 var testCase = function (fun, arg) {
   'use strict';
@@ -92,6 +92,14 @@ describe('Converting JSON to an AST', function () {
     });
     it('should have the correct value', function () {
       JSON.stringify(json_parse.parse('{"a":[]}')).should.match(/"value":\[\]/);
+    });
+  });
+  describe('when provided a couchdb view index row', function () {
+    it('should transform it properly', function () {
+      var original = '{"id":"0fa67152efaca5482aa13c55af26fa91","key":"Config Refactor","value":"project-0fa67152efaca5482aa13c55af26fa91"}';
+      var transformed = '{"root":[{"key":"id","index":false,"type":"string","value":"0fa67152efaca5482aa13c55af26fa91"},{"key":"key","index":false,"type":"string","value":"Config Refactor"},{"key":"value","index":false,"type":"string","value":"project-0fa67152efaca5482aa13c55af26fa91"}]}';
+
+      JSON.stringify(json_parse.parse(original)).should.equal(transformed);
     });
   });
   describe('when provided an object with an array value', function () {

@@ -17781,7 +17781,7 @@ exports.symmetricDifference = symmetricDifference;
 // ## Variables
 
 var utils = require('utils');
-var r = require('lib/recurse.js');
+var r = require('lib/recurse');
 
 // ## Internal functions
 
@@ -17903,7 +17903,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"lib/recurse.js":152,"utils":149}],101:[function(require,module,exports){
+},{"lib/recurse":152,"utils":149}],101:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -18176,7 +18176,7 @@ module.exports=require(98)
 module.exports=require(99)
 },{}],148:[function(require,module,exports){
 module.exports=require(100)
-},{"lib/recurse.js":152,"utils":149}],149:[function(require,module,exports){
+},{"lib/recurse":152,"utils":149}],149:[function(require,module,exports){
 module.exports=require(101)
 },{}],150:[function(require,module,exports){
 // # Json Parse
