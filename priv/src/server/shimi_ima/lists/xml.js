@@ -1,8 +1,11 @@
 function list(head, req) {
   'use strict';
 
-  var xml_list = require('lib/xml_list');
+  var xml = require('lib/xml');
   var row;
+  var root = function () {
+    return ['<rows>', '</rows>'];
+  };
 
   start({
     'headers': {
@@ -14,7 +17,9 @@ function list(head, req) {
   send('<rows>');
 
   while (row = getRow()) {
-    send(xml_list.to_xml(JSON.stringify(row)));
+    send(xml.to_xml(JSON.stringify(row), {
+      root: root
+    }));
   }
 
   send('</rows>');

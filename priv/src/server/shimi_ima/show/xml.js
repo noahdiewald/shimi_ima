@@ -1,12 +1,18 @@
 function show(doc, req) {
   'use strict';
 
-  var xml_show = require('lib/xml_show');
+  var xml = require('lib/xml');
+  var root = function () {
+    return ['<doc>', '</doc>'];
+  };
+  var xmlString = xml.to_xml(JSON.stringify(doc), {
+    root: root
+  });
 
   return {
     headers: {
       'Content-Type': 'text/xml'
     },
-    body: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + xml_show.to_xml(JSON.stringify(doc))
+    body: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + xmlString
   };
 }

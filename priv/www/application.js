@@ -18082,11 +18082,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(53)
-},{"hogan.js":25}],104:[function(require,module,exports){
+},{"hogan.js":25}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
+},{}],104:[function(require,module,exports){
 module.exports=require(53)
 },{"hogan.js":25}],105:[function(require,module,exports){
 module.exports=require(54)
@@ -18187,7 +18187,7 @@ module.exports=require(101)
 
 // ## Variable Definitions
 
-var r = require('lib/recurse.js');
+var r = require('lib/recurse');
 
 // ## Internal Functions
 
@@ -18335,7 +18335,7 @@ var parse = function (jsn) {
 
 exports.parse = parse;
 
-},{"lib/recurse.js":152}],151:[function(require,module,exports){
+},{"lib/recurse":152}],151:[function(require,module,exports){
 // # JSON to
 //
 // Convert JSON to something else.
