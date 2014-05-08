@@ -9,7 +9,7 @@
 var formalize = require('formalize');
 var ajax = require('ajax');
 var sess = require('sess');
-var S = require('sender');
+var S = require('../sender.js');
 var toggle;
 var init;
 

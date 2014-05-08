@@ -7,11 +7,11 @@
 // ## Variable Definitions
 
 var setsui = require('documents/setsui');
-var editui = require('documents/editui');
+var editui = require('./editui.js');
 var viewui = require('documents/viewui');
 var indexui = require('documents/indexui');
 var changeui = require('documents/changeui');
-var S = require('sender');
+var S = require('../sender.js');
 var store = require('store').store;
 var ajax = require('ajax');
 var identifier;

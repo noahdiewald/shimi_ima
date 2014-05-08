@@ -8,7 +8,7 @@
 // Variable Definitions
 
 var editui = require('documents/editui');
-var S = require('sender');
+var S = require('../sender.js');
 
 // Internal functions
 

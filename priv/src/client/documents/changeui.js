@@ -7,7 +7,7 @@
 // Variable Definitions
 
 var pager = require('pager').pager;
-var documents = require('documents/documents');
+var documents = require('./documents.js');
 
 // Exported Functions
 

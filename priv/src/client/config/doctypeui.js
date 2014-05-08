@@ -6,7 +6,7 @@
 
 var templates = require('templates');
 var pager = require('pager').pager;
-var S = require('sender');
+var S = require('../sender.js');
 var uuid = require('node-uuid');
 
 // ## Exported Functions

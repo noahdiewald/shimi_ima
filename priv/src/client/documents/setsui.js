@@ -7,11 +7,11 @@
 // Variable Definitions
 
 var templates = require('templates');
-var S = require('sender');
+var S = require('../sender.js');
 var flash = require('flash');
 var sets = require('sets');
 var utils = require('utils');
-var documents = require('documents/documents');
+var documents = require('./documents.js');
 var removeSet;
 var setSets;
 var selectedElementsToArray;

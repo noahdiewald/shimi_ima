@@ -6,10 +6,10 @@
 
 // Variable Definitions
 
-var path = require('path').path;
+var path = require('../path.js').path;
 var store = require('store').store;
 var utils = require('utils');
-var editui = require('documents/editui');
+var editui = require('./editui.js');
 var documents = require('documents/documents');
 var ajax = require('ajax');
 var templates = require('templates');
