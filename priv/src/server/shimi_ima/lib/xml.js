@@ -27,6 +27,18 @@ var getKey = function (item) {
   return key;
 };
 
+var encodeXML = function (str) {
+  'use strict';
+
+  var value = str;
+
+  if (typeof str === 'string') {
+    value = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  }
+
+  return value;
+};
+
 var getIndex = function (item) {
   'use strict';
 
@@ -48,7 +60,7 @@ var y = function (item) {
 var simple = function (item, options) {
   'use strict';
 
-  return [x(item) + item.value + y(item), ''];
+  return [x(item) + encodeXML(item.value) + y(item), ''];
 };
 
 var complex = function (item, options) {

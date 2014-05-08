@@ -22,11 +22,19 @@ describe('Converting JSON to XML', function () {
   });
 
   describe('when avoiding invalid XML', function () {
+
     it('should prefix an underscore to invalid tag names', function () {
       var json = '{"1234":"ok"}';
       var xmlString = xml.to_xml(json);
 
       xmlString.should.equal('<row><_1234 type="string">ok</_1234></row>');
+    });
+
+    it('should escape reserved characters', function () {
+      var json = '{"a":"o<k>no&rrr"}';
+      var xmlString = xml.to_xml(json);
+
+      xmlString.should.equal('<row><a type="string">o&lt;k&gt;no&amp;rrr</a></row>');
     });
   });
 });
