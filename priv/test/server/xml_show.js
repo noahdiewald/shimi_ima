@@ -20,4 +20,13 @@ describe('Converting JSON to XML', function () {
 
     md5.should.equal('14e322740e470c0edcf20dc103ef397b');
   });
+
+  describe('when avoiding invalid XML', function () {
+    it('should prefix an underscore to invalid tag names', function () {
+      var json = '{"1234":"ok"}';
+      var xmlString = xml.to_xml(json);
+
+      xmlString.should.equal('<row><_1234 type="string">ok</_1234></row>');
+    });
+  });
 });

@@ -15,7 +15,16 @@ var root = function (options) {
 var getKey = function (item) {
   'use strict';
 
-  return (item.key ? item.key : 'item');
+  var key = item.key;
+
+  // This is more restrictive than the XML standard.
+  if (!key) {
+    key = 'item';
+  } else if (!key.match(/^[a-zA-Z_]/)) {
+    key = '_' + key;
+  }
+
+  return key;
 };
 
 var getIndex = function (item) {
@@ -50,6 +59,8 @@ var complex = function (item, options) {
 
 var to_xml = function (json, overrides) {
   'use strict';
+
+  overrides = overrides ? overrides : {};
 
   var funs = {
     context: overrides.context ? overrides.context : context,
