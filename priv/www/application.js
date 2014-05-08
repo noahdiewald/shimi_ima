@@ -12799,8 +12799,8 @@ exports.fillFieldsets = fillFieldsets;
 var templates = require('templates');
 var pager = require('pager').pager;
 var ajax = require('ajax');
-var viewui = require('documents/viewui');
-var editui = require('documents/editui');
+var viewui = require('./viewui.js');
+var editui = require('./editui.js');
 
 // ## Exported Functions
 
@@ -12884,7 +12884,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"ajax":104,"documents/editui":117,"documents/viewui":122,"pager":141,"templates":52}],70:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":72,"ajax":104,"pager":141,"templates":52}],70:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -17892,7 +17892,7 @@ module.exports=require(67)
 module.exports=require(68)
 },{"../path.js":94,"./editui.js":67,"ajax":104,"documents/documents":116,"store":147,"templates":103,"utils":148}],119:[function(require,module,exports){
 module.exports=require(69)
-},{"ajax":104,"documents/editui":117,"documents/viewui":122,"pager":141,"templates":103}],120:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":72,"ajax":104,"pager":141,"templates":103}],120:[function(require,module,exports){
 module.exports=require(70)
 },{"ajax":104,"documents/documents":116,"documents/setsui":121,"sets":146,"templates":103,"utils":148}],121:[function(require,module,exports){
 module.exports=require(71)

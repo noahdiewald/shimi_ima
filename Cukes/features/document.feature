@@ -31,6 +31,11 @@ Scenario: Creating a document
 Scenario: Selecting and viewing a document
   Given a doctype with two documents exists
   And I am at the document page
+  Then the data is loaded in the index pane
+  And document 31bb7974cd97a09997da637e4445a142 is listed in the index pane
+  When I click the view document link for 31bb7974cd97a09997da637e4445a142
+  Then document 31bb7974cd97a09997da637e4445a142 is displayed
+  And has value '"burn berry"' for field id 464aea16f338422cb5b1dab79d80c34a
 
 Scenario: Updating a document
   Given a doctype with two documents exists

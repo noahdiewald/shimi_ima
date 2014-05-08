@@ -43,6 +43,11 @@ When(/^I click on the last day of the first week$/) do
   @browser.element(:css, '#ui-datepicker-div > .ui-datepicker-calendar > tbody > tr:first-child > td:last-child > a').click
 end
 
+When /^I click the view document link for ([a-f0-9]{32})$/ do | docid |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.a(:href => "##{docid}").click
+end
+
 Then /^I am taken to the document type listing$/ do
   @browser.div(:id => 'loading').wait_while_present
   @browser.h1.text.should match /All Document Types/
@@ -105,4 +110,24 @@ end
 Then /^the date picker is present$/ do
   @browser.div(:id => 'loading').wait_while_present
   @browser.div(:id, 'ui-datepicker-div').should be_present
+end
+
+Then /^document ([a-f0-9]{32}) is displayed$/ do | docid |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:id => 'document-view-info').attribute_value('data-document-document').should == docid
+end
+
+Then /^has value '(.*?)' for field id ([a-f0-9]{32})$/ do | value, fieldid |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:css, "li.field-view[data-field-field='#{fieldid}']").attribute_value('data-field-value').should == value
+end
+
+Then /^the data is loaded in the index pane$/ do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:id => 'index-listing').should be_exists
+end
+
+Then /^document ([a-f0-9]{32}) is listed in the index pane$/ do | docid |
+  @browser.a(:href => "##{docid}").wait_until_present
+  @browser.a(:href => "##{docid}").should be_exists
 end

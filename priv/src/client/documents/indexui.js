@@ -11,8 +11,8 @@
 var templates = require('templates');
 var pager = require('pager').pager;
 var ajax = require('ajax');
-var viewui = require('documents/viewui');
-var editui = require('documents/editui');
+var viewui = require('./viewui.js');
+var editui = require('./editui.js');
 
 // ## Exported Functions
 
