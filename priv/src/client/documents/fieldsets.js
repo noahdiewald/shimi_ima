@@ -388,7 +388,11 @@ setFieldValue = function (field, value, instance) {
     field.val(value);
   }
 
-  field.attr('data-field-instance', instance);
+  if (instance && instance.length === 32) {
+    field.attr('data-field-instance', instance);
+    field.attr('data-group-id', field.attr('data-field-field') + '-' + instance);
+    field.attr('id', field.attr('data-field-field') + '-' + instance);
+  }
 };
 
 // Exported functions

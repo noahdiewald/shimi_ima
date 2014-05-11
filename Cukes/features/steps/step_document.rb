@@ -7,6 +7,17 @@ Given /^a doctype with two documents exists$/ do
   post_fixture "Popsicle_two_docs.json", true
 end
 
+Given /^the ([a-f0-9]{32}) document is in the view pane$/ do | identifier |
+  step "a doctype with two documents exists"
+  @browser.goto(@popsicleURL + '#' + identifier)
+  @browser.a(:text => 'Edit').wait_until_present
+end
+
+Given /^the ([a-f0-9]{32}) document is in the edit pane$/ do | identifier |
+  step "the #{identifier} document is in the view pane"
+  step "I click the Edit link"
+end
+
 When /^I click the test project link$/ do
   step "I click the #{@projectName} link"
 end
@@ -130,4 +141,9 @@ end
 Then /^document ([a-f0-9]{32}) is listed in the index pane$/ do | docid |
   @browser.a(:href => "##{docid}").wait_until_present
   @browser.a(:href => "##{docid}").should be_exists
+end
+
+Then /^the input with id ([a-f0-9]{32}-[a-f0-9]{32}) has the value "(.*?)"$/ do | identifier, value |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.input(:id => "#{identifier}").value.should == value
 end

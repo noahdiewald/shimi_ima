@@ -12,8 +12,8 @@ var templates = require('templates');
 var store = require('store').store;
 var indexui = require('documents/indexui');
 var flash = require('flash');
-var editui = require('documents/editui');
-var fieldsets = require('documents/fieldsets');
+var editui = require('./editui.js');
+var fieldsets = require('./fieldsets.js');
 var ajax = require('ajax');
 
 // Internal functions

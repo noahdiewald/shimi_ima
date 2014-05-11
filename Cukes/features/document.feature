@@ -38,12 +38,10 @@ Scenario: Selecting and viewing a document
   And has value '"burn berry"' for field id 464aea16f338422cb5b1dab79d80c34a
 
 Scenario: Updating a document
-  Given a doctype with two documents exists
-  And I am at the document page
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
 
 Scenario: Deleting a document
-  Given a doctype with two documents exists
-  And I am at the document page
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
 
 Scenario: Expanding and contracting text boxes
   Given a doctype with fields exists
@@ -70,3 +68,8 @@ Scenario: Using the date picker
   Then the date picker is present
   When I click on the last day of the first week
   Then there is a date in the Movies Date field 1
+
+Scenario: Multiple fieldset field identifiers
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
+  When I click the Edit link
+  Then the input with id 13fa990addce00feacc1dfb623315490-cb2e7a7b89fc47e08541f0ece532e865 has the value "Over the Tones"
