@@ -392,3 +392,4 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 exports.setInstanceInfo = setInstanceInfo;
+exports.showHelpDialog = showHelpDialog;

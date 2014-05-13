@@ -12363,6 +12363,7 @@ exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
 exports.setInstanceInfo = setInstanceInfo;
+exports.showHelpDialog = showHelpDialog;
 
 },{"./fieldsets.js":68,"ajax":104,"documents/documents":116,"documents/indexui":119,"documents/viewui":122,"flash":125,"form":126,"node-uuid":51,"store":147,"templates":52}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
