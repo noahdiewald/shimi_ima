@@ -203,30 +203,6 @@ afterRefresh = function (addInstances) {
   return true;
 };
 
-// Reset field values to defaults.
-var resetFields = function () {
-  'use strict';
-
-  Array.prototype.forEach.call(document.querySelectorAll('.field'), function (field, index) {
-    var thedefault = field.dataset.fieldDefault;
-
-    if (thedefault && thedefault !== '') {
-      if (field.classList.contains('multiselect')) {
-        field.value = thedefault.split(',');
-      } else if (field.classList.contains('boolean')) {
-        field.checked = thedefault === true;
-      } else {
-        field.value = thedefault;
-      }
-    } else {
-      field.value = '';
-      field.checked = false;
-    }
-  });
-
-  return true;
-};
-
 // Remove a class from some items.
 var clearErrorStates = function () {
   'use strict';
@@ -411,7 +387,6 @@ exports.selectInput = selectInput;
 exports.afterFreshRefresh = afterFreshRefresh;
 exports.afterEditRefresh = afterEditRefresh;
 exports.afterRefresh = afterRefresh;
-exports.resetFields = resetFields;
 exports.save = save;
 exports.create = create;
 exports.clear = clear;

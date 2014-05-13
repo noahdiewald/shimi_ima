@@ -308,7 +308,7 @@ var confirmIt = function (callback) {
 var edit = function () {
   'use strict';
 
-  editui.resetFields();
+  editui.clear();
   if ($('#document-view-tree').hasClass('oldrev')) {
     $('#save-document-button').addClass('oldrev');
   } else {
