@@ -21,7 +21,7 @@
           "category": "field",
           "charseq": null,
           "default": null,
-          "description": null,
+          "description": "Just enter a name!!!!",
           "doctype": null,
           "fieldset": null,
           "head": false,

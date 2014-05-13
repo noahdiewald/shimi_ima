@@ -59,6 +59,10 @@ When /^I click the view document link for ([a-f0-9]{32})$/ do | docid |
   @browser.a(:href => "##{docid}").click
 end
 
+When /^I click the first help icon$/ do
+  @browser.element(:css, "#container-6ddc38c96d91d039914bcf39db1fde88 > div:nth-child(1) > div:nth-child(1) > label:nth-child(1) > span:nth-child(2)").click
+end
+
 Then /^I am taken to the document type listing$/ do
   @browser.div(:id => 'loading').wait_while_present
   @browser.h1.text.should match /All Document Types/
@@ -146,4 +150,9 @@ end
 Then /^the input with id ([a-f0-9]{32}-[a-f0-9]{32}) has the value "(.*?)"$/ do | identifier, value |
   @browser.div(:id => 'loading').wait_while_present
   @browser.input(:id => "#{identifier}").value.should == value
+end
+
+Then /^the help dialog text is "(.*?)"$/ do | text |
+  @browser.p(:id => 'help-dialog-text').wait_until_present
+  @browser.p(:id => 'help-dialog-text').text.should == text
 end

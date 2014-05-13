@@ -86,3 +86,8 @@ Scenario: Multiple fieldset field identifiers
   Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
   When I click the Edit link
   Then the input with id 13fa990addce00feacc1dfb623315490-cb2e7a7b89fc47e08541f0ece532e865 has the value "Over the Tones"
+
+Scenario: Help dialogs
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
+  When I click the first help icon
+  Then the help dialog text is "Just enter a name!!!!"
