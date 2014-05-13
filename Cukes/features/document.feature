@@ -44,6 +44,19 @@ Scenario: Deleting a document
   Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
 
 Scenario: Expanding and contracting text boxes
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
+  When I click the Movies Description expander 1
+  Then the Movies Description field 1 is expanded
+  When I click the Movies Description expander 1
+  Then the Movies Description field 1 is not expanded
+  When I focus on Movies Description field 1
+  And perform the key sequence alt x
+  Then the Movies Description field 1 is expanded
+  When I focus on Movies Description field 1
+  And perform the key sequence alt x
+  Then the Movies Description field 1 is not expanded
+
+Scenario: Expanding and contracting text boxes for newly added fieldsets
   Given a doctype with fields exists
   And I am at the document page
   When I click the Movies link

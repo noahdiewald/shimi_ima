@@ -80,7 +80,8 @@ content_types_provided(R, S) ->
         identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         revision -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
-        _ -> {[{{<<"text">>, <<"html">>, []}, to_html}], R, S}
+        _ -> {[{{<<"text">>, <<"html">>, []}, to_html},
+                   {{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
   
 delete_resource(R, S) ->
@@ -102,6 +103,7 @@ to_html(R, S) ->
     
 to_json(R, S) ->
     case proplists:get_value(target, S) of
+        main -> json_index(R, S);
         index -> json_index(R, S);
         identifier -> json_document(R, S);
         revision -> json_revision(R, S)

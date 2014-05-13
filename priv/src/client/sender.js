@@ -34,9 +34,12 @@ var sender = function (message, arg) {
     retval = documents.clearSession();
     break;
   case 'doctype-info-ready':
+    retval = documents.makeFieldsetLookup();
+    break;
+  case 'fieldset-lookup-ready':
     retval = documents.makeLabels();
     break;
-  case 'labels-ready':
+  case 'doctype-cached-info-ready':
     documents.init2();
     retval = searchui.loadSearchVals();
     worksheetui.buildTemplate();

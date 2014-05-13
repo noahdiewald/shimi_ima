@@ -73,6 +73,13 @@ var labelsKey = function () {
   return identifier() + '_labels';
 };
 
+// Key used in retrieving cached information from session storage.
+var fieldsToFieldsetKey = function () {
+  'use strict';
+
+  return identifier() + '_fieldsToFieldset';
+};
+
 // Store the doctype info in the session store.
 var storeDoctype = function (doctype) {
   'use strict';
@@ -117,6 +124,12 @@ var isLabelsStored = function () {
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
+var isFieldsToFieldsetStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(fieldsToFieldsetKey()) !== null;
+};
+
 // Check the session state to ensure it is up to date and fully
 // loaded.
 var checkState = function () {
@@ -124,8 +137,8 @@ var checkState = function () {
 
   var retval;
 
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored()) {
-    retval = S.sender('labels-ready');
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored() && isFieldsToFieldsetStored()) {
+    retval = S.sender('doctype-cached-info-ready');
   } else {
     retval = S.sender('bad-session-state');
   }
@@ -195,8 +208,27 @@ var loadDoctype = function () {
   return true;
 };
 
-// Process the field and fieldset info to create a field label to field
+// Process the field and fieldset info to create a field id to fieldset
 // id index.
+var makeFieldsetLookup = function () {
+  'use strict';
+
+  var info1 = info();
+  var lookup = {};
+
+  info1.fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
+      lookup[field._id] = fieldset._id;
+    });
+  });
+
+  sessionStorage.setItem(fieldsToFieldsetKey(), JSON.stringify(lookup));
+
+  return S.sender('fieldset-lookup-ready');
+};
+
+// Process the field and fieldset info to create a field id to field
+// label index.
 var makeLabels = function () {
   'use strict';
 
@@ -211,17 +243,16 @@ var makeLabels = function () {
 
   sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
 
-  return S.sender('labels-ready');
+  return S.sender('doctype-cached-info-ready');
 };
 
 // Initialize the documents sub-application.
 var init = function () {
   'use strict';
 
-  // TODO Remove JQuery
-  $('form').on('submit', function () {
+  document.onsubmit = function () {
     return false;
-  });
+  };
   checkState();
 };
 
@@ -246,6 +277,7 @@ exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
+exports.makeFieldsetLookup = makeFieldsetLookup;
 exports.project = project;
 exports.init = init;
 exports.init2 = init2;

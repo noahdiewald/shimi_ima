@@ -1,6 +1,6 @@
 // # Fieldsets (and fields)
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Dealing with fields and fieldsets.
 
@@ -26,7 +26,7 @@ var initFieldset;
 var fsContainer = function (id) {
   'use strict';
 
-  return $('#container-' + id);
+  return document.getElementById('container-' + id);
 };
 
 // Get the doctype path.
@@ -159,13 +159,12 @@ var processFields = function (fieldset, callback) {
 var fieldsToObject = function (fields, index) {
   'use strict';
 
-  fields = fields.children('.field-container').children('.field');
+  fields = fields.querySelectorAll('.field-container .field');
   var obj = {
     fields: []
   };
 
-  fields.each(function (i, field) {
-    field = $(field);
+  Array.prototype.forEach.call(fields, function (field, i) {
     var s = store(field);
     var value = getFieldValue(field);
     var instance = s.f('instance');
@@ -242,15 +241,17 @@ var getNumber = function (value) {
 var getMultiple = function (value) {
   'use strict';
 
-  if (value) {
-    value = value.map(function (v) {
-      return getEncoded(v);
+  var retval;
+
+  if (value && value.length > 0) {
+    retval = Array.prototype.map.call(value, function (v) {
+      return getEncoded(v.value);
     });
   } else {
-    value = null;
+    retval = null;
   }
 
-  return value;
+  return retval;
 };
 
 // Items in select lists are URL encoded
@@ -269,25 +270,25 @@ getFieldValue = function (field) {
 
   switch (store(field).f('subcategory')) {
   case 'boolean':
-    value = field.is('input:checkbox:checked');
+    value = field.checked;
     break;
   case 'openboolean':
-    value = getOpenboolean(field.val());
+    value = getOpenboolean(field.value);
     break;
   case 'integer':
   case 'rational':
-    value = getNumber(field.val());
+    value = getNumber(field.value);
     break;
   case 'multiselect':
   case 'docmultiselect':
-    value = getMultiple(field.val());
+    value = getMultiple(field.selectedOptions);
     break;
   case 'select':
   case 'docselect':
-    value = getEncoded(field.val());
+    value = getEncoded(field.value);
     break;
   default:
-    value = field.val();
+    value = field.value;
   }
 
   return value;
@@ -298,12 +299,13 @@ var initFields = function (container, callback, addInstances) {
   'use strict';
 
   var url = dpath(container, 'field');
-  var section = container.children('.fields').last();
+  var allFields = container.querySelectorAll('.fields');
+  var section = allFields[allFields.length - 1];
   var prependIt = function (data) {
     if (addInstances) {
-      section.attr('id', 'last-added');
+      section.id = 'last-added';
     }
-    section.prepend(data);
+    section.insertAdjacentHTML('afterbegin', data);
     if (callback) {
       callback(section);
     }
@@ -330,16 +332,15 @@ var initFields = function (container, callback, addInstances) {
 var fillMultiFieldsets = function (vfieldset) {
   'use strict';
 
-  vfieldset = $(vfieldset);
   var id = store(vfieldset).fs('fieldset');
-  var container = $('#container-' + id);
+  var container = document.getElementById('container-' + id);
   var url = dpath(vfieldset, 'fieldset');
 
-  container.html('');
+  container.innerHtml = '';
 
-  vfieldset.find('.multifield').each(function (i, multifield) {
+  Array.prototype.forEach.call(document.querySelectorAll('.multifield'), function (multifield) {
     initFieldset(container, function (fieldset) {
-      fillFields($(multifield), fieldset);
+      fillFields(multifield, fieldset);
     });
   });
 };
@@ -348,51 +349,67 @@ var fillMultiFieldsets = function (vfieldset) {
 var fillNormalFieldsets = function (vfieldset) {
   'use strict';
 
-  fillFields($(vfieldset));
+  fillFields(vfieldset);
 };
 
 // Fill the fields with values taken from the view pane.
 fillFields = function (container, context) {
   'use strict';
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  $('#save-document-button').show();
+  var saveButton = document.getElementById('save-document-button');
 
-  container.find('.field-view').each(function (i, field) {
-    var valueJson = $(field).attr('data-field-value');
-    var id = $(field).attr('data-field-field');
-    var instance = $(field).attr('data-field-instance');
+  Array.prototype.forEach.call(document.querySelectorAll('#edit-document-form .ui-state-error'), function (item) {
+    item.removeClass('ui-state-error');
+  });
+
+  saveButton.classList.remove('hidden');
+  saveButton.removeAttribute('disabled');
+
+  Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
+    var valueJson = item.dataset.fieldValue;
+    var id = item.dataset.fieldField;
+    var instance = item.dataset.fieldInstance;
+    var field;
     var value;
 
+    // TODO: Here is where I could begin making all values be stored as JSON
     if (valueJson) {
       value = JSON.parse(valueJson);
     }
 
     if (!context) {
-      context = $('body');
+      context = document.body;
     }
 
-    setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
+    field = context.querySelector('.field[data-field-field="' + id + '"]');
+
+    if (field) {
+      setFieldValue(field, value, instance);
+    }
   });
+
+  return true;
 };
 
 // Properly set the value of the field.
 setFieldValue = function (field, value, instance) {
   'use strict';
 
-  if (field.is('input.boolean')) {
-    field.prop('checked', value);
-  } else if (value && field.is('select.open-boolean')) {
-    field.val(value.toString());
+  if (field.classList.contains('boolean')) {
+    field.checked = value;
+  } else if (value && field.classList.contains('open-boolean')) {
+    field.value = value.toString();
   } else {
-    field.val(value);
+    field.value = value;
   }
 
   if (instance && instance.length === 32) {
-    field.attr('data-field-instance', instance);
-    field.attr('data-group-id', field.attr('data-field-field') + '-' + instance);
-    field.attr('id', field.attr('data-field-field') + '-' + instance);
+    field.dataset.fieldInstance = instance;
+
+    editui.setInstanceInfo(field);
   }
+
+  return true;
 };
 
 // Exported functions
@@ -401,11 +418,11 @@ setFieldValue = function (field, value, instance) {
 initFieldset = function (fieldset, callback, addInstances) {
   'use strict';
 
-  var url = dpath($(fieldset), 'fieldset').toString();
-  var id = store($(fieldset)).fs('fieldset');
-  var container = $('#container-' + id);
+  var url = dpath(fieldset, 'fieldset').toString();
+  var id = store(fieldset).fs('fieldset');
+  var container = document.getElementById('container-' + id);
   var appendIt = function (data) {
-    container.append(data);
+    container.insertAdjacentHTML('beforeend', data);
     initFields(container, callback, addInstances);
   };
   var storeIt = function (data) {
@@ -428,11 +445,11 @@ var fieldsetsToObject = function (root) {
     fieldsets: []
   };
 
-  root.find('fieldset').each(function (i, fieldset) {
-    fieldset = $(fieldset);
+  Array.prototype.forEach.call(root.getElementsByTagName('fieldset'), function (fieldset, i) {
     var s = store(fieldset);
 
     var fields;
+    var newFsObj;
 
     var fsObj = {
       id: s.fs('fieldset'),
@@ -443,16 +460,17 @@ var fieldsetsToObject = function (root) {
       order: s.fs('order') * 1
     };
 
-    fields = fsContainer(fsObj.id).children('.fields');
+    fields = fsContainer(fsObj.id).querySelectorAll('.fields');
 
     if (!fsObj.multiple) {
-      $.extend(fsObj, fieldsToObject(fields.first()));
+      newFsObj = fieldsToObject(fields[0]);
+      Array.prototype.forEach.call(Object.keys(newFsObj), function (x) {
+        fsObj[x] = newFsObj[x];
+      });
     } else {
       fsObj.multifields = [];
 
-      fields.each(function (j, field) {
-        field = $(field);
-
+      Array.prototype.forEach.call(fields, function (field, j) {
         fsObj.multifields[j] = fieldsToObject(field, j);
       });
     }
@@ -467,8 +485,8 @@ var fieldsetsToObject = function (root) {
 var initFieldsets = function () {
   'use strict';
 
-  $('fieldset').each(function (i, fieldset) {
-    var fs = store($(fieldset));
+  Array.prototype.forEach.call(document.getElementsByTagName('fieldset'), function (fieldset, i) {
+    var fs = store(fieldset);
 
     if (fs.fs('multiple') === 'false') {
       initFieldset(fieldset, false);
@@ -480,18 +498,19 @@ var initFieldsets = function () {
 
 // Remove a multifieldset. This is done after the remove button is
 // pressed.
+// TODO: Move to editui
 var removeFieldset = function (target) {
   'use strict';
 
-  target.parent().remove();
+  target.parentNode.parentNode.removeChild(target.parentNode);
 };
 
 // Fill the fieldset with values from the view pane.
 var fillFieldsets = function () {
   'use strict';
 
-  $('.fieldset-view').each(function (i, fieldset) {
-    if (store($(fieldset)).fs('multiple') === 'true') {
+  Array.prototype.forEach.call(document.querySelectorAll('.fieldset-view'), function (fieldset) {
+    if (store(fieldset).fs('multiple') === 'true') {
       fillMultiFieldsets(fieldset);
     } else {
       fillNormalFieldsets(fieldset);

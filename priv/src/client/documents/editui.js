@@ -17,30 +17,65 @@ var indexui = require('documents/indexui');
 var documents = require('documents/documents');
 var uuid = require('node-uuid');
 var afterRefresh;
+var setInstanceInfo;
 
 // Internal functions
 
 // UI Element
+var root = function () {
+  'use strict';
+
+  return document.getElementById('edit-document-form');
+};
+
 var saveButton = function () {
   'use strict';
 
-  return $('#save-document-button');
+  return document.getElementById('save-document-button');
 };
 
 // UI Element
 var createButton = function () {
   'use strict';
 
-  return $('#create-document-button');
+  return document.getElementById('create-document-button');
 };
 
 // UI Element
 var editButton = function () {
   'use strict';
 
-  return $('#document-edit-button');
+  return document.getElementById('document-edit-button');
 };
 
+// Hide the button.
+var hideButton = function (button) {
+  'use strict';
+
+  button.classList.add('hidden');
+  button.setAttribute('disabled', 'disabled');
+
+  return true;
+};
+
+// Display the button.
+var showButton = function (button) {
+  'use strict';
+
+  button.classList.remove('hidden');
+  button.removeAttribute('disabled');
+
+  return true;
+};
+
+// Get the fieldset id for a field id.
+var getFieldsetId = function (fieldId) {
+  'use strict';
+
+  var lookup = JSON.parse(sessionStorage.getItem(documents.identifier() + '_fieldsToFieldset'));
+
+  return lookup[fieldId];
+};
 
 // Display validation error properly.
 var validationError = function (req) {
@@ -49,13 +84,27 @@ var validationError = function (req) {
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
 
-  var invalid = $('[data-field-instance=' + body.instance + ']');
-  var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+  var invalid = document.querySelector('[data-field-instance="' + body.instance + '"]');
+  var invalidTab = document.querySelector('[href="#' + getFieldsetId(invalid.dataset.fieldField) + '"]').parentElement;
 
-  invalidTab.addClass('ui-state-error');
-  invalid.addClass('ui-state-error');
+  invalidTab.classList.add('ui-state-error');
+  invalid.classList.add('ui-state-error');
 
   flash.error(title, body.fieldname + ' ' + body.message);
+
+  return true;
+};
+
+// The expander for textareas may need the proper information set for
+// multiple fieldsets
+var setExpander = function (item) {
+  'use strict';
+
+  var expander = item.parentElement.querySelector('.expander');
+
+  if (expander) {
+    expander.dataset.groupId = item.id;
+  }
 
   return true;
 };
@@ -71,14 +120,9 @@ var instances = function (addInstances) {
   Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
     if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
       var instance = makeInstance();
-      var expander = item.parentElement.querySelector('.expander');
 
-      item.id = item.dataset.fieldField + '-' + instance;
       item.dataset.fieldInstance = instance;
-      item.dataset.groupId = item.id;
-      if (expander) {
-        expander.dataset.groupId = item.id;
-      }
+      setInstanceInfo(item);
     }
   });
 
@@ -100,6 +144,7 @@ var init = function () {
   fs.fieldsets = info.fieldsets;
   fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
   editArea.innerHTML = templates['document-edit'](fs);
+  // TODO: replace tabs functionality.
   $('#edit-tabs').tabs();
   fieldsets.initFieldsets();
 
@@ -111,12 +156,9 @@ var selectInput = function () {
   'use strict';
 
   var inputable = 'input, select, textarea';
-  var t = function () {
-    return $('#edit-tabs');
-  };
+  var curId = document.querySelector('.ui-tabs-active a').getAttribute('href').slice(1, 33);
 
-  var cur = t().find('.ui-tabs-active a').attr('href');
-  $(cur).find(inputable).first().focus();
+  document.getElementById(curId).querySelector(inputable).focus();
 
   return true;
 };
@@ -141,10 +183,10 @@ var afterEditRefresh = function () {
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    saveButton().attr(elem, editButton().attr(elem));
+    saveButton().setAttribute(elem, editButton().getAttribute(elem));
   });
 
-  saveButton().show();
+  showButton(saveButton());
   afterRefresh();
 
   return true;
@@ -165,25 +207,55 @@ afterRefresh = function (addInstances) {
 var resetFields = function () {
   'use strict';
 
-  $('.field').each(function (index) {
-    var field = $(this);
-    var thedefault = field.attr('data-field-default');
+  Array.prototype.forEach.call(document.querySelectorAll('.field'), function (field, index) {
+    var thedefault = field.dataset.fieldDefault;
 
     if (thedefault && thedefault !== '') {
-      if (field.is('select.multiselect')) {
-        field.val(thedefault.split(','));
-      } else if (field.is('input.boolean')) {
-        field.attr('checked', thedefault === true);
+      if (field.classList.contains('multiselect')) {
+        field.value = thedefault.split(',');
+      } else if (field.classList.contains('boolean')) {
+        field.checked = thedefault === true;
       } else {
-        field.val(thedefault);
+        field.value = thedefault;
       }
     } else {
-      field.val('');
-      field.removeAttr('checked');
+      field.value = '';
+      field.checked = false;
     }
   });
 
   return true;
+};
+
+// Remove a class from some items.
+var clearErrorStates = function () {
+  'use strict';
+
+  Array.prototype.forEach.call(root().querySelectorAll('.ui-state-error'), function (item) {
+    item.classList.remove('ui-state-error');
+  });
+
+  return true;
+};
+
+// Remove all the fields.
+var removeFields = function () {
+  'use strict';
+
+  Array.prototype.forEach.call(document.querySelectorAll('.fields'), function (item) {
+    item.parentNode.removeChild(item);
+  });
+};
+
+// Combine two shallow objects.
+var extend = function (oldO, newO) {
+  'use strict';
+
+  Array.prototype.forEach.call(Object.keys(newO), function (key) {
+    oldO[key] = newO[key];
+  });
+
+  return oldO;
 };
 
 // To be run if the user chooses to save the form contents. This is an
@@ -191,7 +263,7 @@ var resetFields = function () {
 var save = function () {
   'use strict';
 
-  if (saveButton().hasClass('oldrev')) {
+  if (saveButton().classList.contains('oldrev')) {
     if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
@@ -200,48 +272,46 @@ var save = function () {
   var body;
   var title;
   var s = store(saveButton());
-  var root = $('#edit-document-form');
-  var document = s.d('document');
+  var doc = s.d('document');
   var rev = s.d('rev');
-  var url = './documents/' + document + '?rev=' + rev;
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
+  var url = './documents/' + doc + '?rev=' + rev;
+  var firstIndex = document.getElementById('first-index-element');
+  var skey = firstIndex.dataset.firstKey;
+  var sid = firstIndex.dataset.firstId;
+  var newObj;
   var obj = {
     doctype: s.d('doctype'),
     description: s.d('description')
   };
+  var statusCallbacks = [];
+  var success = function () {
+    title = 'Success';
+    body = 'Your document was saved.';
+    viewui.get(doc);
+    indexui.get(skey, sid);
+    flash.highlight(title, body);
+    saveButton().classList.remove('oldrev');
+    showButton(saveButton());
+  };
+  statusCallbacks[204] = success;
+  statusCallbacks[200] = success;
+  statusCallbacks[403] = function (req) {
+    validationError(req);
+    showButton(saveButton());
+  };
+  statusCallbacks[409] = function (req) {
+    body = JSON.parse(req.responseText);
+    title = req.statusText;
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  saveButton().hide();
-  $.extend(obj, fieldsets.fieldsetsToObject(root));
+    flash.error(title, body.message);
+    hideButton(saveButton());
+  };
 
-  $.ajax({
-    type: 'PUT',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function (req, status) {
-      if (req.status === 204 || req.status === 200) {
-        title = 'Success';
-        body = 'Your document was saved.';
-        viewui.get(document);
-        indexui.get(skey, sid);
-        flash.highlight(title, body);
-        saveButton().removeClass('oldrev').show();
-      } else if (req.status === 403) {
-        validationError(req);
-        saveButton().show();
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
-
-        flash.error(title, body.message);
-        saveButton().hide();
-      }
-    }
-  });
+  clearErrorStates();
+  hideButton(saveButton());
+  newObj = fieldsets.fieldsetsToObject(root());
+  obj = extend(obj, newObj);
+  ajax.put(url, obj, undefined, statusCallbacks);
 };
 
 // To be run if creating a new document.
@@ -249,52 +319,48 @@ var create = function () {
   'use strict';
 
   var s = store(createButton());
-  var root = $('#edit-document-form');
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
+  var url = 'documents';
+  var firstIndex = document.getElementById('first-index-element');
+  var skey = firstIndex ? firstIndex.dataset.firstKey : undefined;
+  var sid = firstIndex ? firstIndex.dataset.firstId : undefined;
+  var newObj;
   var obj = {
     doctype: s.d('doctype'),
     description: s.d('description')
   };
+  var statusCallbacks = [];
+  statusCallbacks[201] = function (req) {
+    var title = 'Success';
+    var body = 'Your document was created.';
+    var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  createButton().hide();
-  $.extend(obj, fieldsets.fieldsetsToObject(root));
+    hideButton(saveButton());
+    removeFields();
+    fieldsets.initFieldsets();
+    viewui.get(documentId);
+    indexui.get(skey, sid);
+    flash.highlight(title, body);
+    showButton(createButton());
+  };
+  statusCallbacks[403] = function (req) {
+    validationError(req);
+    showButton(createButton());
+  };
 
-  var postUrl = $.ajax({
-    type: 'POST',
-    dataType: 'json',
-    contentType: 'application/json',
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function (req, status) {
-      if (req.status === 201) {
-        var title = 'Success';
-        var body = 'Your document was created.';
-        var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-
-        saveButton().hide().attr('disabled', 'true');
-        $('.fields').remove();
-        fieldsets.initFieldsets();
-        viewui.get(documentId);
-        indexui.get(skey, sid);
-        flash.highlight(title, body);
-        createButton().show();
-      } else if (req.status === 403) {
-        validationError(req);
-        createButton().show();
-      }
-    }
-  });
+  clearErrorStates();
+  hideButton(createButton());
+  newObj = fieldsets.fieldsetsToObject(root());
+  obj = extend(obj, newObj);
+  ajax.post(url, obj, undefined, statusCallbacks);
 };
 
 // Clear the form.
 var clear = function () {
   'use strict';
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  saveButton().hide().attr('disabled', 'disabled');
-  $('.fields').remove();
+  clearErrorStates();
+  hideButton(saveButton());
+  removeFields();
   fieldsets.initFieldsets();
 };
 
@@ -302,11 +368,12 @@ var clear = function () {
 var showHelpDialog = function (target) {
   'use strict';
 
-  if (target.is('.label-text')) {
-    target = target.parent('label').find('.ui-icon-help');
+  if (target.classList.contains('.label-text')) {
+    target = target.parentElement.querySelector('.ui-icon-help');
   }
 
-  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+  // TODO: remove this JQuery UI dependency
+  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.getAttribute('title'));
 
   return true;
 };
@@ -330,6 +397,15 @@ var toggleTextarea = function (target) {
   return true;
 };
 
+// When the item has an instance, the id and group id must be reset.
+setInstanceInfo = function (item) {
+  'use strict';
+
+  item.id = item.dataset.fieldField + '-' + item.dataset.fieldInstance;
+  item.dataset.groupId = item.id;
+  setExpander(item);
+};
+
 exports.init = init;
 exports.selectInput = selectInput;
 exports.afterFreshRefresh = afterFreshRefresh;
@@ -340,3 +416,4 @@ exports.save = save;
 exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
+exports.setInstanceInfo = setInstanceInfo;

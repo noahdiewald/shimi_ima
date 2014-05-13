@@ -9889,11 +9889,13 @@ var makeMessage = function (response) {
 
 // Run on request completion with callback and default behavior in
 // case of common errors.
-var complete = function (req, callback) {
+var complete = function (req, success, statusCallbacks) {
   'use strict';
 
-  if (req.status >= 200 && req.status < 300 && callback) {
-    callback(req);
+  if (statusCallbacks && statusCallbacks[req.status]) {
+    statusCallbacks[req.status](req);
+  } else if (req.status >= 200 && req.status < 300 && success) {
+    success(req);
   } else if (req.status === 500) {
     flash.error('Unknown Server Error', 'Please report that you received this message');
   } else if (req.status >= 400) {
@@ -9901,9 +9903,10 @@ var complete = function (req, callback) {
 
     if (req.response && typeof req.response === 'string') {
       msg = makeMessage(JSON.stringify(req.response));
+      // TODO: determine if the following condition is needed.
     } else if (req.response && req.response instanceof Object) {
       msg = makeMessage(req.response);
-    } else if (req.status >= 404) {
+    } else if (req.status === 404) {
       msg = 'The document was not found on the server.';
     } else {
       msg = 'That is all.';
@@ -9916,7 +9919,7 @@ var complete = function (req, callback) {
 };
 
 // Returns an `onreadystatechange` handler.
-var stateChange = function (req, callback) {
+var stateChange = function (req, success, statusCallbacks) {
   'use strict';
 
   return function () {
@@ -9925,7 +9928,7 @@ var stateChange = function (req, callback) {
       return ajaxStart();
     case 4:
       ajaxStop();
-      return complete(req, callback);
+      return complete(req, success, statusCallbacks);
     default:
       return 'waiting';
     }
@@ -9949,13 +9952,13 @@ var processObject = function (obj) {
 
 // Perform an Ajax action with a URL, object to be translated to JSON,
 // an HTTP method and a function to be run on completion.
-var send = function (url, obj, method, callback) {
+var send = function (url, obj, method, success, statusCallbacks) {
   'use strict';
 
   var dataObj = processObject(obj);
   var req = new XMLHttpRequest();
 
-  req.onreadystatechange = stateChange(req, callback);
+  req.onreadystatechange = stateChange(req, success, statusCallbacks);
   req.open(method, url);
   req.responseType = 'json';
   req.setRequestHeader('Content-Type', 'application/json');
@@ -9967,31 +9970,31 @@ var send = function (url, obj, method, callback) {
 };
 
 // Simplified `send` for GET requests.
-var get = function (url, callback) {
+var get = function (url, success, statusCallbacks) {
   'use strict';
 
-  return send(url, false, 'GET', callback);
+  return send(url, false, 'GET', success, statusCallbacks);
 };
 
 // Simplified `send` for DELETE requests.
-var del = function (url, callback) {
+var del = function (url, success, statusCallbacks) {
   'use strict';
 
-  return send(url, false, 'DELETE', callback);
+  return send(url, false, 'DELETE', success, statusCallbacks);
 };
 
 // Simplified `send` for POST requests.
-var post = function (url, obj, callback) {
+var post = function (url, obj, success, statusCallbacks) {
   'use strict';
 
-  return send(url, obj, 'POST', callback);
+  return send(url, obj, 'POST', success, statusCallbacks);
 };
 
 // Simplified `send` for PUT requests.
-var put = function (url, obj, callback) {
+var put = function (url, obj, success, statusCallbacks) {
   'use strict';
 
-  return send(url, obj, 'PUT', callback);
+  return send(url, obj, 'PUT', success, statusCallbacks);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
@@ -11756,6 +11759,13 @@ var labelsKey = function () {
   return identifier() + '_labels';
 };
 
+// Key used in retrieving cached information from session storage.
+var fieldsToFieldsetKey = function () {
+  'use strict';
+
+  return identifier() + '_fieldsToFieldset';
+};
+
 // Store the doctype info in the session store.
 var storeDoctype = function (doctype) {
   'use strict';
@@ -11800,6 +11810,12 @@ var isLabelsStored = function () {
   return sessionStorage.getItem(labelsKey()) !== null;
 };
 
+var isFieldsToFieldsetStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(fieldsToFieldsetKey()) !== null;
+};
+
 // Check the session state to ensure it is up to date and fully
 // loaded.
 var checkState = function () {
@@ -11807,8 +11823,8 @@ var checkState = function () {
 
   var retval;
 
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored()) {
-    retval = S.sender('labels-ready');
+  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored() && isFieldsToFieldsetStored()) {
+    retval = S.sender('doctype-cached-info-ready');
   } else {
     retval = S.sender('bad-session-state');
   }
@@ -11878,8 +11894,27 @@ var loadDoctype = function () {
   return true;
 };
 
-// Process the field and fieldset info to create a field label to field
+// Process the field and fieldset info to create a field id to fieldset
 // id index.
+var makeFieldsetLookup = function () {
+  'use strict';
+
+  var info1 = info();
+  var lookup = {};
+
+  info1.fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
+      lookup[field._id] = fieldset._id;
+    });
+  });
+
+  sessionStorage.setItem(fieldsToFieldsetKey(), JSON.stringify(lookup));
+
+  return S.sender('fieldset-lookup-ready');
+};
+
+// Process the field and fieldset info to create a field id to field
+// label index.
 var makeLabels = function () {
   'use strict';
 
@@ -11894,17 +11929,16 @@ var makeLabels = function () {
 
   sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
 
-  return S.sender('labels-ready');
+  return S.sender('doctype-cached-info-ready');
 };
 
 // Initialize the documents sub-application.
 var init = function () {
   'use strict';
 
-  // TODO Remove JQuery
-  $('form').on('submit', function () {
+  document.onsubmit = function () {
     return false;
-  });
+  };
   checkState();
 };
 
@@ -11929,6 +11963,7 @@ exports.identifier = identifier;
 exports.info = info;
 exports.loadDoctype = loadDoctype;
 exports.makeLabels = makeLabels;
+exports.makeFieldsetLookup = makeFieldsetLookup;
 exports.project = project;
 exports.init = init;
 exports.init2 = init2;
@@ -11953,30 +11988,65 @@ var indexui = require('documents/indexui');
 var documents = require('documents/documents');
 var uuid = require('node-uuid');
 var afterRefresh;
+var setInstanceInfo;
 
 // Internal functions
 
 // UI Element
+var root = function () {
+  'use strict';
+
+  return document.getElementById('edit-document-form');
+};
+
 var saveButton = function () {
   'use strict';
 
-  return $('#save-document-button');
+  return document.getElementById('save-document-button');
 };
 
 // UI Element
 var createButton = function () {
   'use strict';
 
-  return $('#create-document-button');
+  return document.getElementById('create-document-button');
 };
 
 // UI Element
 var editButton = function () {
   'use strict';
 
-  return $('#document-edit-button');
+  return document.getElementById('document-edit-button');
 };
 
+// Hide the button.
+var hideButton = function (button) {
+  'use strict';
+
+  button.classList.add('hidden');
+  button.setAttribute('disabled', 'disabled');
+
+  return true;
+};
+
+// Display the button.
+var showButton = function (button) {
+  'use strict';
+
+  button.classList.remove('hidden');
+  button.removeAttribute('disabled');
+
+  return true;
+};
+
+// Get the fieldset id for a field id.
+var getFieldsetId = function (fieldId) {
+  'use strict';
+
+  var lookup = JSON.parse(sessionStorage.getItem(documents.identifier() + '_fieldsToFieldset'));
+
+  return lookup[fieldId];
+};
 
 // Display validation error properly.
 var validationError = function (req) {
@@ -11985,13 +12055,27 @@ var validationError = function (req) {
   var body = JSON.parse(req.responseText);
   var title = req.statusText;
 
-  var invalid = $('[data-field-instance=' + body.instance + ']');
-  var invalidTab = $('[href=#' + invalid.parents('fieldset').attr('id') + ']').parent('li');
+  var invalid = document.querySelector('[data-field-instance="' + body.instance + '"]');
+  var invalidTab = document.querySelector('[href="#' + getFieldsetId(invalid.dataset.fieldField) + '"]').parentElement;
 
-  invalidTab.addClass('ui-state-error');
-  invalid.addClass('ui-state-error');
+  invalidTab.classList.add('ui-state-error');
+  invalid.classList.add('ui-state-error');
 
   flash.error(title, body.fieldname + ' ' + body.message);
+
+  return true;
+};
+
+// The expander for textareas may need the proper information set for
+// multiple fieldsets
+var setExpander = function (item) {
+  'use strict';
+
+  var expander = item.parentElement.querySelector('.expander');
+
+  if (expander) {
+    expander.dataset.groupId = item.id;
+  }
 
   return true;
 };
@@ -12007,14 +12091,9 @@ var instances = function (addInstances) {
   Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
     if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
       var instance = makeInstance();
-      var expander = item.parentElement.querySelector('.expander');
 
-      item.id = item.dataset.fieldField + '-' + instance;
       item.dataset.fieldInstance = instance;
-      item.dataset.groupId = item.id;
-      if (expander) {
-        expander.dataset.groupId = item.id;
-      }
+      setInstanceInfo(item);
     }
   });
 
@@ -12036,6 +12115,7 @@ var init = function () {
   fs.fieldsets = info.fieldsets;
   fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
   editArea.innerHTML = templates['document-edit'](fs);
+  // TODO: replace tabs functionality.
   $('#edit-tabs').tabs();
   fieldsets.initFieldsets();
 
@@ -12047,12 +12127,9 @@ var selectInput = function () {
   'use strict';
 
   var inputable = 'input, select, textarea';
-  var t = function () {
-    return $('#edit-tabs');
-  };
+  var curId = document.querySelector('.ui-tabs-active a').getAttribute('href').slice(1, 33);
 
-  var cur = t().find('.ui-tabs-active a').attr('href');
-  $(cur).find(inputable).first().focus();
+  document.getElementById(curId).querySelector(inputable).focus();
 
   return true;
 };
@@ -12077,10 +12154,10 @@ var afterEditRefresh = function () {
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    saveButton().attr(elem, editButton().attr(elem));
+    saveButton().setAttribute(elem, editButton().getAttribute(elem));
   });
 
-  saveButton().show();
+  showButton(saveButton());
   afterRefresh();
 
   return true;
@@ -12101,25 +12178,55 @@ afterRefresh = function (addInstances) {
 var resetFields = function () {
   'use strict';
 
-  $('.field').each(function (index) {
-    var field = $(this);
-    var thedefault = field.attr('data-field-default');
+  Array.prototype.forEach.call(document.querySelectorAll('.field'), function (field, index) {
+    var thedefault = field.dataset.fieldDefault;
 
     if (thedefault && thedefault !== '') {
-      if (field.is('select.multiselect')) {
-        field.val(thedefault.split(','));
-      } else if (field.is('input.boolean')) {
-        field.attr('checked', thedefault === true);
+      if (field.classList.contains('multiselect')) {
+        field.value = thedefault.split(',');
+      } else if (field.classList.contains('boolean')) {
+        field.checked = thedefault === true;
       } else {
-        field.val(thedefault);
+        field.value = thedefault;
       }
     } else {
-      field.val('');
-      field.removeAttr('checked');
+      field.value = '';
+      field.checked = false;
     }
   });
 
   return true;
+};
+
+// Remove a class from some items.
+var clearErrorStates = function () {
+  'use strict';
+
+  Array.prototype.forEach.call(root().querySelectorAll('.ui-state-error'), function (item) {
+    item.classList.remove('ui-state-error');
+  });
+
+  return true;
+};
+
+// Remove all the fields.
+var removeFields = function () {
+  'use strict';
+
+  Array.prototype.forEach.call(document.querySelectorAll('.fields'), function (item) {
+    item.parentNode.removeChild(item);
+  });
+};
+
+// Combine two shallow objects.
+var extend = function (oldO, newO) {
+  'use strict';
+
+  Array.prototype.forEach.call(Object.keys(newO), function (key) {
+    oldO[key] = newO[key];
+  });
+
+  return oldO;
 };
 
 // To be run if the user chooses to save the form contents. This is an
@@ -12127,7 +12234,7 @@ var resetFields = function () {
 var save = function () {
   'use strict';
 
-  if (saveButton().hasClass('oldrev')) {
+  if (saveButton().classList.contains('oldrev')) {
     if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
@@ -12136,48 +12243,46 @@ var save = function () {
   var body;
   var title;
   var s = store(saveButton());
-  var root = $('#edit-document-form');
-  var document = s.d('document');
+  var doc = s.d('document');
   var rev = s.d('rev');
-  var url = './documents/' + document + '?rev=' + rev;
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
+  var url = './documents/' + doc + '?rev=' + rev;
+  var firstIndex = document.getElementById('first-index-element');
+  var skey = firstIndex.dataset.firstKey;
+  var sid = firstIndex.dataset.firstId;
+  var newObj;
   var obj = {
     doctype: s.d('doctype'),
     description: s.d('description')
   };
+  var statusCallbacks = [];
+  var success = function () {
+    title = 'Success';
+    body = 'Your document was saved.';
+    viewui.get(doc);
+    indexui.get(skey, sid);
+    flash.highlight(title, body);
+    saveButton().classList.remove('oldrev');
+    showButton(saveButton());
+  };
+  statusCallbacks[204] = success;
+  statusCallbacks[200] = success;
+  statusCallbacks[403] = function (req) {
+    validationError(req);
+    showButton(saveButton());
+  };
+  statusCallbacks[409] = function (req) {
+    body = JSON.parse(req.responseText);
+    title = req.statusText;
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  saveButton().hide();
-  $.extend(obj, fieldsets.fieldsetsToObject(root));
+    flash.error(title, body.message);
+    hideButton(saveButton());
+  };
 
-  $.ajax({
-    type: 'PUT',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function (req, status) {
-      if (req.status === 204 || req.status === 200) {
-        title = 'Success';
-        body = 'Your document was saved.';
-        viewui.get(document);
-        indexui.get(skey, sid);
-        flash.highlight(title, body);
-        saveButton().removeClass('oldrev').show();
-      } else if (req.status === 403) {
-        validationError(req);
-        saveButton().show();
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
-
-        flash.error(title, body.message);
-        saveButton().hide();
-      }
-    }
-  });
+  clearErrorStates();
+  hideButton(saveButton());
+  newObj = fieldsets.fieldsetsToObject(root());
+  obj = extend(obj, newObj);
+  ajax.put(url, obj, undefined, statusCallbacks);
 };
 
 // To be run if creating a new document.
@@ -12185,52 +12290,48 @@ var create = function () {
   'use strict';
 
   var s = store(createButton());
-  var root = $('#edit-document-form');
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
+  var url = 'documents';
+  var firstIndex = document.getElementById('first-index-element');
+  var skey = firstIndex ? firstIndex.dataset.firstKey : undefined;
+  var sid = firstIndex ? firstIndex.dataset.firstId : undefined;
+  var newObj;
   var obj = {
     doctype: s.d('doctype'),
     description: s.d('description')
   };
+  var statusCallbacks = [];
+  statusCallbacks[201] = function (req) {
+    var title = 'Success';
+    var body = 'Your document was created.';
+    var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  createButton().hide();
-  $.extend(obj, fieldsets.fieldsetsToObject(root));
+    hideButton(saveButton());
+    removeFields();
+    fieldsets.initFieldsets();
+    viewui.get(documentId);
+    indexui.get(skey, sid);
+    flash.highlight(title, body);
+    showButton(createButton());
+  };
+  statusCallbacks[403] = function (req) {
+    validationError(req);
+    showButton(createButton());
+  };
 
-  var postUrl = $.ajax({
-    type: 'POST',
-    dataType: 'json',
-    contentType: 'application/json',
-    processData: false,
-    data: JSON.stringify(obj),
-    complete: function (req, status) {
-      if (req.status === 201) {
-        var title = 'Success';
-        var body = 'Your document was created.';
-        var documentId = postUrl.getResponseHeader('Location').match(/[a-z0-9]*$/);
-
-        saveButton().hide().attr('disabled', 'true');
-        $('.fields').remove();
-        fieldsets.initFieldsets();
-        viewui.get(documentId);
-        indexui.get(skey, sid);
-        flash.highlight(title, body);
-        createButton().show();
-      } else if (req.status === 403) {
-        validationError(req);
-        createButton().show();
-      }
-    }
-  });
+  clearErrorStates();
+  hideButton(createButton());
+  newObj = fieldsets.fieldsetsToObject(root());
+  obj = extend(obj, newObj);
+  ajax.post(url, obj, undefined, statusCallbacks);
 };
 
 // Clear the form.
 var clear = function () {
   'use strict';
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  saveButton().hide().attr('disabled', 'disabled');
-  $('.fields').remove();
+  clearErrorStates();
+  hideButton(saveButton());
+  removeFields();
   fieldsets.initFieldsets();
 };
 
@@ -12238,11 +12339,12 @@ var clear = function () {
 var showHelpDialog = function (target) {
   'use strict';
 
-  if (target.is('.label-text')) {
-    target = target.parent('label').find('.ui-icon-help');
+  if (target.classList.contains('.label-text')) {
+    target = target.parentElement.querySelector('.ui-icon-help');
   }
 
-  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.attr('title'));
+  // TODO: remove this JQuery UI dependency
+  $('#help-dialog').dialog().dialog('open').find('#help-dialog-text').html(target.getAttribute('title'));
 
   return true;
 };
@@ -12266,6 +12368,15 @@ var toggleTextarea = function (target) {
   return true;
 };
 
+// When the item has an instance, the id and group id must be reset.
+setInstanceInfo = function (item) {
+  'use strict';
+
+  item.id = item.dataset.fieldField + '-' + item.dataset.fieldInstance;
+  item.dataset.groupId = item.id;
+  setExpander(item);
+};
+
 exports.init = init;
 exports.selectInput = selectInput;
 exports.afterFreshRefresh = afterFreshRefresh;
@@ -12276,11 +12387,12 @@ exports.save = save;
 exports.create = create;
 exports.clear = clear;
 exports.toggleTextarea = toggleTextarea;
+exports.setInstanceInfo = setInstanceInfo;
 
 },{"./fieldsets.js":68,"ajax":104,"documents/documents":116,"documents/indexui":119,"documents/viewui":122,"flash":125,"form":126,"node-uuid":51,"store":147,"templates":52}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Dealing with fields and fieldsets.
 
@@ -12306,7 +12418,7 @@ var initFieldset;
 var fsContainer = function (id) {
   'use strict';
 
-  return $('#container-' + id);
+  return document.getElementById('container-' + id);
 };
 
 // Get the doctype path.
@@ -12439,13 +12551,12 @@ var processFields = function (fieldset, callback) {
 var fieldsToObject = function (fields, index) {
   'use strict';
 
-  fields = fields.children('.field-container').children('.field');
+  fields = fields.querySelectorAll('.field-container .field');
   var obj = {
     fields: []
   };
 
-  fields.each(function (i, field) {
-    field = $(field);
+  Array.prototype.forEach.call(fields, function (field, i) {
     var s = store(field);
     var value = getFieldValue(field);
     var instance = s.f('instance');
@@ -12522,15 +12633,17 @@ var getNumber = function (value) {
 var getMultiple = function (value) {
   'use strict';
 
-  if (value) {
-    value = value.map(function (v) {
-      return getEncoded(v);
+  var retval;
+
+  if (value && value.length > 0) {
+    retval = Array.prototype.map.call(value, function (v) {
+      return getEncoded(v.value);
     });
   } else {
-    value = null;
+    retval = null;
   }
 
-  return value;
+  return retval;
 };
 
 // Items in select lists are URL encoded
@@ -12549,25 +12662,25 @@ getFieldValue = function (field) {
 
   switch (store(field).f('subcategory')) {
   case 'boolean':
-    value = field.is('input:checkbox:checked');
+    value = field.checked;
     break;
   case 'openboolean':
-    value = getOpenboolean(field.val());
+    value = getOpenboolean(field.value);
     break;
   case 'integer':
   case 'rational':
-    value = getNumber(field.val());
+    value = getNumber(field.value);
     break;
   case 'multiselect':
   case 'docmultiselect':
-    value = getMultiple(field.val());
+    value = getMultiple(field.selectedOptions);
     break;
   case 'select':
   case 'docselect':
-    value = getEncoded(field.val());
+    value = getEncoded(field.value);
     break;
   default:
-    value = field.val();
+    value = field.value;
   }
 
   return value;
@@ -12578,12 +12691,13 @@ var initFields = function (container, callback, addInstances) {
   'use strict';
 
   var url = dpath(container, 'field');
-  var section = container.children('.fields').last();
+  var allFields = container.querySelectorAll('.fields');
+  var section = allFields[allFields.length - 1];
   var prependIt = function (data) {
     if (addInstances) {
-      section.attr('id', 'last-added');
+      section.id = 'last-added';
     }
-    section.prepend(data);
+    section.insertAdjacentHTML('afterbegin', data);
     if (callback) {
       callback(section);
     }
@@ -12610,16 +12724,15 @@ var initFields = function (container, callback, addInstances) {
 var fillMultiFieldsets = function (vfieldset) {
   'use strict';
 
-  vfieldset = $(vfieldset);
   var id = store(vfieldset).fs('fieldset');
-  var container = $('#container-' + id);
+  var container = document.getElementById('container-' + id);
   var url = dpath(vfieldset, 'fieldset');
 
-  container.html('');
+  container.innerHtml = '';
 
-  vfieldset.find('.multifield').each(function (i, multifield) {
+  Array.prototype.forEach.call(document.querySelectorAll('.multifield'), function (multifield) {
     initFieldset(container, function (fieldset) {
-      fillFields($(multifield), fieldset);
+      fillFields(multifield, fieldset);
     });
   });
 };
@@ -12628,51 +12741,67 @@ var fillMultiFieldsets = function (vfieldset) {
 var fillNormalFieldsets = function (vfieldset) {
   'use strict';
 
-  fillFields($(vfieldset));
+  fillFields(vfieldset);
 };
 
 // Fill the fields with values taken from the view pane.
 fillFields = function (container, context) {
   'use strict';
 
-  $('#edit-document-form .ui-state-error').removeClass('ui-state-error');
-  $('#save-document-button').show();
+  var saveButton = document.getElementById('save-document-button');
 
-  container.find('.field-view').each(function (i, field) {
-    var valueJson = $(field).attr('data-field-value');
-    var id = $(field).attr('data-field-field');
-    var instance = $(field).attr('data-field-instance');
+  Array.prototype.forEach.call(document.querySelectorAll('#edit-document-form .ui-state-error'), function (item) {
+    item.removeClass('ui-state-error');
+  });
+
+  saveButton.classList.remove('hidden');
+  saveButton.removeAttribute('disabled');
+
+  Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
+    var valueJson = item.dataset.fieldValue;
+    var id = item.dataset.fieldField;
+    var instance = item.dataset.fieldInstance;
+    var field;
     var value;
 
+    // TODO: Here is where I could begin making all values be stored as JSON
     if (valueJson) {
       value = JSON.parse(valueJson);
     }
 
     if (!context) {
-      context = $('body');
+      context = document.body;
     }
 
-    setFieldValue(context.find('.field[data-field-field=' + id + ']'), value, instance);
+    field = context.querySelector('.field[data-field-field="' + id + '"]');
+
+    if (field) {
+      setFieldValue(field, value, instance);
+    }
   });
+
+  return true;
 };
 
 // Properly set the value of the field.
 setFieldValue = function (field, value, instance) {
   'use strict';
 
-  if (field.is('input.boolean')) {
-    field.prop('checked', value);
-  } else if (value && field.is('select.open-boolean')) {
-    field.val(value.toString());
+  if (field.classList.contains('boolean')) {
+    field.checked = value;
+  } else if (value && field.classList.contains('open-boolean')) {
+    field.value = value.toString();
   } else {
-    field.val(value);
+    field.value = value;
   }
 
   if (instance && instance.length === 32) {
-    field.attr('data-field-instance', instance);
-    field.attr('data-group-id', field.attr('data-field-field') + '-' + instance);
-    field.attr('id', field.attr('data-field-field') + '-' + instance);
+    field.dataset.fieldInstance = instance;
+
+    editui.setInstanceInfo(field);
   }
+
+  return true;
 };
 
 // Exported functions
@@ -12681,11 +12810,11 @@ setFieldValue = function (field, value, instance) {
 initFieldset = function (fieldset, callback, addInstances) {
   'use strict';
 
-  var url = dpath($(fieldset), 'fieldset').toString();
-  var id = store($(fieldset)).fs('fieldset');
-  var container = $('#container-' + id);
+  var url = dpath(fieldset, 'fieldset').toString();
+  var id = store(fieldset).fs('fieldset');
+  var container = document.getElementById('container-' + id);
   var appendIt = function (data) {
-    container.append(data);
+    container.insertAdjacentHTML('beforeend', data);
     initFields(container, callback, addInstances);
   };
   var storeIt = function (data) {
@@ -12708,11 +12837,11 @@ var fieldsetsToObject = function (root) {
     fieldsets: []
   };
 
-  root.find('fieldset').each(function (i, fieldset) {
-    fieldset = $(fieldset);
+  Array.prototype.forEach.call(root.getElementsByTagName('fieldset'), function (fieldset, i) {
     var s = store(fieldset);
 
     var fields;
+    var newFsObj;
 
     var fsObj = {
       id: s.fs('fieldset'),
@@ -12723,16 +12852,17 @@ var fieldsetsToObject = function (root) {
       order: s.fs('order') * 1
     };
 
-    fields = fsContainer(fsObj.id).children('.fields');
+    fields = fsContainer(fsObj.id).querySelectorAll('.fields');
 
     if (!fsObj.multiple) {
-      $.extend(fsObj, fieldsToObject(fields.first()));
+      newFsObj = fieldsToObject(fields[0]);
+      Array.prototype.forEach.call(Object.keys(newFsObj), function (x) {
+        fsObj[x] = newFsObj[x];
+      });
     } else {
       fsObj.multifields = [];
 
-      fields.each(function (j, field) {
-        field = $(field);
-
+      Array.prototype.forEach.call(fields, function (field, j) {
         fsObj.multifields[j] = fieldsToObject(field, j);
       });
     }
@@ -12747,8 +12877,8 @@ var fieldsetsToObject = function (root) {
 var initFieldsets = function () {
   'use strict';
 
-  $('fieldset').each(function (i, fieldset) {
-    var fs = store($(fieldset));
+  Array.prototype.forEach.call(document.getElementsByTagName('fieldset'), function (fieldset, i) {
+    var fs = store(fieldset);
 
     if (fs.fs('multiple') === 'false') {
       initFieldset(fieldset, false);
@@ -12760,18 +12890,19 @@ var initFieldsets = function () {
 
 // Remove a multifieldset. This is done after the remove button is
 // pressed.
+// TODO: Move to editui
 var removeFieldset = function (target) {
   'use strict';
 
-  target.parent().remove();
+  target.parentNode.parentNode.removeChild(target.parentNode);
 };
 
 // Fill the fieldset with values from the view pane.
 var fillFieldsets = function () {
   'use strict';
 
-  $('.fieldset-view').each(function (i, fieldset) {
-    if (store($(fieldset)).fs('multiple') === 'true') {
+  Array.prototype.forEach.call(document.querySelectorAll('.fieldset-view'), function (fieldset) {
+    if (store(fieldset).fs('multiple') === 'true') {
       fillMultiFieldsets(fieldset);
     } else {
       fillNormalFieldsets(fieldset);
@@ -17284,9 +17415,12 @@ var sender = function (message, arg) {
     retval = documents.clearSession();
     break;
   case 'doctype-info-ready':
+    retval = documents.makeFieldsetLookup();
+    break;
+  case 'fieldset-lookup-ready':
     retval = documents.makeLabels();
     break;
-  case 'labels-ready':
+  case 'doctype-cached-info-ready':
     documents.init2();
     retval = searchui.loadSearchVals();
     worksheetui.buildTemplate();

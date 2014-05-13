@@ -46,11 +46,13 @@ var makeMessage = function (response) {
 
 // Run on request completion with callback and default behavior in
 // case of common errors.
-var complete = function (req, callback) {
+var complete = function (req, success, statusCallbacks) {
   'use strict';
 
-  if (req.status >= 200 && req.status < 300 && callback) {
-    callback(req);
+  if (statusCallbacks && statusCallbacks[req.status]) {
+    statusCallbacks[req.status](req);
+  } else if (req.status >= 200 && req.status < 300 && success) {
+    success(req);
   } else if (req.status === 500) {
     flash.error('Unknown Server Error', 'Please report that you received this message');
   } else if (req.status >= 400) {
@@ -58,9 +60,10 @@ var complete = function (req, callback) {
 
     if (req.response && typeof req.response === 'string') {
       msg = makeMessage(JSON.stringify(req.response));
+      // TODO: determine if the following condition is needed.
     } else if (req.response && req.response instanceof Object) {
       msg = makeMessage(req.response);
-    } else if (req.status >= 404) {
+    } else if (req.status === 404) {
       msg = 'The document was not found on the server.';
     } else {
       msg = 'That is all.';
@@ -73,7 +76,7 @@ var complete = function (req, callback) {
 };
 
 // Returns an `onreadystatechange` handler.
-var stateChange = function (req, callback) {
+var stateChange = function (req, success, statusCallbacks) {
   'use strict';
 
   return function () {
@@ -82,7 +85,7 @@ var stateChange = function (req, callback) {
       return ajaxStart();
     case 4:
       ajaxStop();
-      return complete(req, callback);
+      return complete(req, success, statusCallbacks);
     default:
       return 'waiting';
     }
@@ -106,13 +109,13 @@ var processObject = function (obj) {
 
 // Perform an Ajax action with a URL, object to be translated to JSON,
 // an HTTP method and a function to be run on completion.
-var send = function (url, obj, method, callback) {
+var send = function (url, obj, method, success, statusCallbacks) {
   'use strict';
 
   var dataObj = processObject(obj);
   var req = new XMLHttpRequest();
 
-  req.onreadystatechange = stateChange(req, callback);
+  req.onreadystatechange = stateChange(req, success, statusCallbacks);
   req.open(method, url);
   req.responseType = 'json';
   req.setRequestHeader('Content-Type', 'application/json');
@@ -124,31 +127,31 @@ var send = function (url, obj, method, callback) {
 };
 
 // Simplified `send` for GET requests.
-var get = function (url, callback) {
+var get = function (url, success, statusCallbacks) {
   'use strict';
 
-  return send(url, false, 'GET', callback);
+  return send(url, false, 'GET', success, statusCallbacks);
 };
 
 // Simplified `send` for DELETE requests.
-var del = function (url, callback) {
+var del = function (url, success, statusCallbacks) {
   'use strict';
 
-  return send(url, false, 'DELETE', callback);
+  return send(url, false, 'DELETE', success, statusCallbacks);
 };
 
 // Simplified `send` for POST requests.
-var post = function (url, obj, callback) {
+var post = function (url, obj, success, statusCallbacks) {
   'use strict';
 
-  return send(url, obj, 'POST', callback);
+  return send(url, obj, 'POST', success, statusCallbacks);
 };
 
 // Simplified `send` for PUT requests.
-var put = function (url, obj, callback) {
+var put = function (url, obj, success, statusCallbacks) {
   'use strict';
 
-  return send(url, obj, 'PUT', callback);
+  return send(url, obj, 'PUT', success, statusCallbacks);
 };
 
 // Perform an Ajax GET action, expecting HTML, which is the old way.
