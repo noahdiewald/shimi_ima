@@ -13,6 +13,7 @@
 
 var commands = require('documents/commands');
 var documents = require('documents/documents');
+var dinfo = require('documents/information');
 var editui = require('documents/editui');
 var searchui = require('documents/searchui');
 var setsui = require('documents/setsui');
@@ -30,14 +31,17 @@ var sender = function (message, arg) {
   var retval;
 
   switch (message) {
+  case 'document-init-stage-1':
+    retval = dinfo.checkState();
+    break;
   case 'bad-session-state':
-    retval = documents.clearSession();
+    retval = dinfo.clearSession();
     break;
   case 'doctype-info-ready':
-    retval = documents.makeFieldsetLookup();
+    retval = dinfo.makeFieldsetLookup();
     break;
   case 'fieldset-lookup-ready':
-    retval = documents.makeLabels();
+    retval = dinfo.makeLabels();
     break;
   case 'doctype-cached-info-ready':
     documents.init2();
@@ -54,8 +58,8 @@ var sender = function (message, arg) {
     retval = setsui.performOp();
     break;
   case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
+    dinfo.setVersion();
+    retval = dinfo.loadDoctype();
     break;
   case 'worksheet-form-submit':
     retval = worksheetui.fillWorksheet();

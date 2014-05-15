@@ -10019,7 +10019,7 @@ exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
 
-},{"flash":125}],54:[function(require,module,exports){
+},{"flash":129}],54:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM, JQuery
@@ -10152,7 +10152,7 @@ document.onreadystatechange = function () {
   }
 };
 
-},{"changes":105,"click-dispatch":106,"config/config":108,"dblclick-dispatch":112,"documents/documents":116,"file_manager/fm":124,"form":126,"index_tool/ilistingui":134,"jquery-ui-input-state":138,"keystrokes":140,"projects/projectui":143}],55:[function(require,module,exports){
+},{"changes":107,"click-dispatch":108,"config/config":110,"dblclick-dispatch":114,"documents/documents":118,"file_manager/fm":128,"form":130,"index_tool/ilistingui":138,"jquery-ui-input-state":142,"keystrokes":144,"projects/projectui":147}],55:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery
@@ -10187,7 +10187,7 @@ var changes = function () {
 
 exports.changes = changes;
 
-},{"documents/searchui":120}],56:[function(require,module,exports){
+},{"documents/searchui":123}],56:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -10471,7 +10471,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"config/maintenanceui":111,"dispatcher":113,"documents/editui":117,"documents/fieldsets":118,"documents/indexui":119,"documents/searchui":120,"documents/setsui":121,"documents/viewui":122,"documents/worksheetui":123,"file_manager/fm":124,"form":126,"index_tool/ieditui":131,"panel-toggle":142,"projects/projectui":143,"sender":144}],57:[function(require,module,exports){
+},{"config/maintenanceui":113,"dispatcher":115,"documents/editui":119,"documents/fieldsets":120,"documents/indexui":121,"documents/searchui":123,"documents/setsui":124,"documents/viewui":126,"documents/worksheetui":127,"file_manager/fm":128,"form":130,"index_tool/ieditui":135,"panel-toggle":146,"projects/projectui":147,"sender":148}],57:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -10519,7 +10519,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"pager":141,"templates":52}],58:[function(require,module,exports){
+},{"pager":145,"templates":52}],58:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM, JQuery
@@ -10553,7 +10553,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"config/charsequi":107,"config/doctypeui":109,"config/editui":110,"config/maintenanceui":111}],59:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"config/editui":112,"config/maintenanceui":113}],59:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -10622,7 +10622,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../sender.js":96,"node-uuid":51,"pager":141,"templates":52}],60:[function(require,module,exports){
+},{"../sender.js":98,"node-uuid":51,"pager":145,"templates":52}],60:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -11360,7 +11360,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../sender.js":96,"ajax":104,"formalize":127,"sess":145}],61:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"formalize":131,"sess":149}],61:[function(require,module,exports){
 // # Maintenance User Interface
 //
 // *Implicit depends:* DOM
@@ -11401,7 +11401,7 @@ var init = function () {
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"ajax":104,"flash":125,"templates":52}],62:[function(require,module,exports){
+},{"ajax":106,"flash":129,"templates":52}],62:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11464,7 +11464,7 @@ var dblclickDispatch = function (e) {
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"config/editui":110,"dispatcher":113,"documents/searchui":120,"documents/worksheetui":123,"panel-toggle":142}],63:[function(require,module,exports){
+},{"config/editui":112,"dispatcher":115,"documents/searchui":123,"documents/worksheetui":127,"panel-toggle":146}],63:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -11504,7 +11504,7 @@ exports.dispatcher = dispatcher;
 // Variable Definitions
 
 var pager = require('pager').pager;
-var documents = require('./documents.js');
+var info = require('documents/information');
 
 // Exported Functions
 
@@ -11536,7 +11536,7 @@ var get = function () {
   };
 
   var filterMod = function (filterVal) {
-    var retval = documents.doctypeId() + '-';
+    var retval = info.doctypeId() + '-';
 
     if (filterVal && filterVal !== '') {
       retval = retval + filterVal.replace(/\D/, '');
@@ -11559,7 +11559,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"./documents.js":66,"pager":141}],65:[function(require,module,exports){
+},{"documents/information":122,"pager":145}],65:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -11683,7 +11683,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":96,"documents/editui":117}],66:[function(require,module,exports){
+},{"../sender.js":98,"documents/editui":119}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -11692,13 +11692,14 @@ exports.dialogClose = dialogClose;
 
 // ## Variable Definitions
 
+var ui = require('documents/ui-shared');
+var info = require('documents/information');
 var setsui = require('documents/setsui');
 var editui = require('./editui.js');
 var viewui = require('documents/viewui');
 var indexui = require('documents/indexui');
 var changeui = require('documents/changeui');
 var S = require('../sender.js');
-var store = require('store').store;
 var ajax = require('ajax');
 var identifier;
 
@@ -11731,215 +11732,20 @@ var loadHash = function (urlHash) {
   return true;
 };
 
-// A user interface element.
-var allDocContainer = function () {
-  'use strict';
-
-  return document.getElementById('all-document-container');
-};
-
-// Key used in retrieving cached information from session storage.
-var versionKey = function () {
-  'use strict';
-
-  return identifier() + '_version';
-};
-
-// Key used in retrieving cached information from session storage.
-var infoKey = function () {
-  'use strict';
-
-  return identifier() + '_info';
-};
-
-// Key used in retrieving cached information from session storage.
-var labelsKey = function () {
-  'use strict';
-
-  return identifier() + '_labels';
-};
-
-// Key used in retrieving cached information from session storage.
-var fieldsToFieldsetKey = function () {
-  'use strict';
-
-  return identifier() + '_fieldsToFieldset';
-};
-
-// Store the doctype info in the session store.
-var storeDoctype = function (doctype) {
-  'use strict';
-
-  sessionStorage.setItem(infoKey(), doctype);
-
-  return S.sender('doctype-info-ready');
-};
-
-// Get the stored doctype version.
-var getVersion = function () {
-  'use strict';
-
-  return sessionStorage.getItem(versionKey());
-};
-
-// Get the most recent doctype version, which is placed in a `data`
-// attribute that is updated on page reloads.
-var getCurrentVersion = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('version');
-};
-
-// Check if the stored doctype version matches the version found in the
-// `data` attribute.
-var isCurrentVersionStored = function () {
-  'use strict';
-
-  return (getVersion() && getVersion() === getCurrentVersion());
-};
-
-var isInfoStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(infoKey()) !== null;
-};
-
-var isLabelsStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(labelsKey()) !== null;
-};
-
-var isFieldsToFieldsetStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(fieldsToFieldsetKey()) !== null;
-};
-
-// Check the session state to ensure it is up to date and fully
-// loaded.
-var checkState = function () {
-  'use strict';
-
-  var retval;
-
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored() && isFieldsToFieldsetStored()) {
-    retval = S.sender('doctype-cached-info-ready');
-  } else {
-    retval = S.sender('bad-session-state');
-  }
-
-  return retval;
-};
-
 // ## Exported functions
-
-// Get the project id
-var project = function () {
-  'use strict';
-
-  var container = document.getElementById('container');
-  return store(container).get('project-id');
-};
-
-// Reset the doctype version
-var setVersion = function () {
-  'use strict';
-
-  sessionStorage.setItem(versionKey(), getCurrentVersion());
-  S.sender('version-set');
-
-  return true;
-};
-
-// Clear the session storage
-var clearSession = function () {
-  'use strict';
-
-  sessionStorage.clear();
-  S.sender('session-cleared');
-
-  return true;
-};
-
-// Get the doctype name
-var doctypeId = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('doctype');
-};
-
-// Identifier is a combination of the project and doctype name.
-identifier = function () {
-  'use strict';
-
-  return project() + '_' + doctypeId();
-};
-
-// Get information about doctype.
-var info = function () {
-  'use strict';
-
-  return JSON.parse(sessionStorage.getItem(infoKey()));
-};
-
-// Load the doctype document stored on the server.
-var loadDoctype = function () {
-  'use strict';
-
-  ajax.get('./', function (req) {
-    storeDoctype(JSON.stringify(req.response));
-  });
-
-  return true;
-};
-
-// Process the field and fieldset info to create a field id to fieldset
-// id index.
-var makeFieldsetLookup = function () {
-  'use strict';
-
-  var info1 = info();
-  var lookup = {};
-
-  info1.fieldsets.forEach(function (fieldset) {
-    fieldset.fields.forEach(function (field) {
-      lookup[field._id] = fieldset._id;
-    });
-  });
-
-  sessionStorage.setItem(fieldsToFieldsetKey(), JSON.stringify(lookup));
-
-  return S.sender('fieldset-lookup-ready');
-};
-
-// Process the field and fieldset info to create a field id to field
-// label index.
-var makeLabels = function () {
-  'use strict';
-
-  var info1 = info();
-  var labels = {};
-
-  info1.fieldsets.forEach(function (fieldset) {
-    fieldset.fields.forEach(function (field) {
-      labels[field._id] = [fieldset.label, field.label];
-    });
-  });
-
-  sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-
-  return S.sender('doctype-cached-info-ready');
-};
 
 // Initialize the documents sub-application.
 var init = function () {
   'use strict';
 
+  // TODO: there should be a better place for this.
   document.onsubmit = function () {
     return false;
   };
-  checkState();
+
+  S.sender('document-init-stage-1');
+
+  return true;
 };
 
 // Initialization dependent on init.
@@ -11951,24 +11757,14 @@ var init2 = function () {
   indexui.get();
   indexForm();
   editui.init();
-  // TODO remove JQuery
-  loadHash($(location)[0].hash.split('#')[1]);
+  loadHash(window.location.hash.split('#')[1]);
   changeui.get();
 };
 
-exports.setVersion = setVersion;
-exports.clearSession = clearSession;
-exports.doctypeId = doctypeId;
-exports.identifier = identifier;
-exports.info = info;
-exports.loadDoctype = loadDoctype;
-exports.makeLabels = makeLabels;
-exports.makeFieldsetLookup = makeFieldsetLookup;
-exports.project = project;
 exports.init = init;
 exports.init2 = init2;
 
-},{"../sender.js":96,"./editui.js":67,"ajax":104,"documents/changeui":114,"documents/indexui":119,"documents/setsui":121,"documents/viewui":122,"store":147}],67:[function(require,module,exports){
+},{"../sender.js":98,"./editui.js":67,"ajax":106,"documents/changeui":116,"documents/indexui":121,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"documents/viewui":126}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -11985,65 +11781,19 @@ var ajax = require('ajax');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('documents/viewui');
 var indexui = require('documents/indexui');
-var documents = require('documents/documents');
+var info = require('documents/information');
+var ui = require('documents/ui-shared');
 var uuid = require('node-uuid');
 var afterRefresh;
 var setInstanceInfo;
 
 // Internal functions
 
-// UI Element
-var root = function () {
-  'use strict';
-
-  return document.getElementById('edit-document-form');
-};
-
-var saveButton = function () {
-  'use strict';
-
-  return document.getElementById('save-document-button');
-};
-
-// UI Element
-var createButton = function () {
-  'use strict';
-
-  return document.getElementById('create-document-button');
-};
-
-// UI Element
-var editButton = function () {
-  'use strict';
-
-  return document.getElementById('document-edit-button');
-};
-
-// Hide the button.
-var hideButton = function (button) {
-  'use strict';
-
-  button.classList.add('hidden');
-  button.setAttribute('disabled', 'disabled');
-
-  return true;
-};
-
-// Display the button.
-var showButton = function (button) {
-  'use strict';
-
-  button.classList.remove('hidden');
-  button.removeAttribute('disabled');
-
-  return true;
-};
-
 // Get the fieldset id for a field id.
 var getFieldsetId = function (fieldId) {
   'use strict';
 
-  var lookup = JSON.parse(sessionStorage.getItem(documents.identifier() + '_fieldsToFieldset'));
+  var lookup = JSON.parse(sessionStorage.getItem(ui.identifier() + '_fieldsToFieldset'));
 
   return lookup[fieldId];
 };
@@ -12103,16 +11853,15 @@ var instances = function (addInstances) {
 // Exported functions
 
 // Initialize the editing pane.
-// TODO: refactor taking advantage of documents.info(). Old code used
+// TODO: refactor taking advantage of information.info(). Old code used
 // ajax calls and server rendered HTML.
 var init = function () {
   'use strict';
 
   var fs = {};
   var editArea = document.getElementById('document-edit');
-  var info = documents.info();
 
-  fs.fieldsets = info.fieldsets;
+  fs.fieldsets = info.info().fieldsets;
   fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
   editArea.innerHTML = templates['document-edit'](fs);
   // TODO: replace tabs functionality.
@@ -12154,10 +11903,10 @@ var afterEditRefresh = function () {
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    saveButton().setAttribute(elem, editButton().getAttribute(elem));
+    ui.saveButton().setAttribute(elem, ui.editButton().getAttribute(elem));
   });
 
-  showButton(saveButton());
+  ui.showButton(ui.saveButton());
   afterRefresh();
 
   return true;
@@ -12178,7 +11927,7 @@ afterRefresh = function (addInstances) {
 var clearErrorStates = function () {
   'use strict';
 
-  Array.prototype.forEach.call(root().querySelectorAll('.ui-state-error'), function (item) {
+  Array.prototype.forEach.call(ui.editForm().querySelectorAll('.ui-state-error'), function (item) {
     item.classList.remove('ui-state-error');
   });
 
@@ -12210,7 +11959,7 @@ var extend = function (oldO, newO) {
 var save = function () {
   'use strict';
 
-  if (saveButton().classList.contains('oldrev')) {
+  if (ui.saveButton().classList.contains('oldrev')) {
     if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
@@ -12218,13 +11967,11 @@ var save = function () {
 
   var body;
   var title;
-  var s = store(saveButton());
+  var s = store(ui.saveButton());
   var doc = s.d('document');
   var rev = s.d('rev');
   var url = './documents/' + doc + '?rev=' + rev;
   var firstIndex = document.getElementById('first-index-element');
-  var skey = firstIndex.dataset.firstKey;
-  var sid = firstIndex.dataset.firstId;
   var newObj;
   var obj = {
     doctype: s.d('doctype'),
@@ -12235,28 +11982,28 @@ var save = function () {
     title = 'Success';
     body = 'Your document was saved.';
     viewui.get(doc);
-    indexui.get(skey, sid);
+    indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    saveButton().classList.remove('oldrev');
-    showButton(saveButton());
+    ui.saveButton().classList.remove('oldrev');
+    ui.showButton(ui.saveButton());
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    showButton(saveButton());
+    ui.showButton(ui.saveButton());
   };
   statusCallbacks[409] = function (req) {
     body = JSON.parse(req.responseText);
     title = req.statusText;
 
     flash.error(title, body.message);
-    hideButton(saveButton());
+    ui.hideButton(ui.saveButton());
   };
 
   clearErrorStates();
-  hideButton(saveButton());
-  newObj = fieldsets.fieldsetsToObject(root());
+  ui.hideButton(ui.saveButton());
+  newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.put(url, obj, undefined, statusCallbacks);
 };
@@ -12265,11 +12012,8 @@ var save = function () {
 var create = function () {
   'use strict';
 
-  var s = store(createButton());
+  var s = store(ui.createButton());
   var url = 'documents';
-  var firstIndex = document.getElementById('first-index-element');
-  var skey = firstIndex ? firstIndex.dataset.firstKey : undefined;
-  var sid = firstIndex ? firstIndex.dataset.firstId : undefined;
   var newObj;
   var obj = {
     doctype: s.d('doctype'),
@@ -12281,22 +12025,22 @@ var create = function () {
     var body = 'Your document was created.';
     var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-    hideButton(saveButton());
+    ui.hideButton(ui.saveButton());
     removeFields();
     fieldsets.initFieldsets();
     viewui.get(documentId);
-    indexui.get(skey, sid);
+    indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    showButton(createButton());
+    ui.showButton(ui.createButton());
   };
   statusCallbacks[403] = function (req) {
     validationError(req);
-    showButton(createButton());
+    ui.showButton(ui.createButton());
   };
 
   clearErrorStates();
-  hideButton(createButton());
-  newObj = fieldsets.fieldsetsToObject(root());
+  ui.hideButton(ui.createButton());
+  newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.post(url, obj, undefined, statusCallbacks);
 };
@@ -12306,7 +12050,7 @@ var clear = function () {
   'use strict';
 
   clearErrorStates();
-  hideButton(saveButton());
+  ui.hideButton(ui.saveButton());
   removeFields();
   fieldsets.initFieldsets();
 };
@@ -12365,7 +12109,7 @@ exports.toggleTextarea = toggleTextarea;
 exports.setInstanceInfo = setInstanceInfo;
 exports.showHelpDialog = showHelpDialog;
 
-},{"./fieldsets.js":68,"ajax":104,"documents/documents":116,"documents/indexui":119,"documents/viewui":122,"flash":125,"form":126,"node-uuid":51,"store":147,"templates":52}],68:[function(require,module,exports){
+},{"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/information":122,"documents/ui-shared":125,"documents/viewui":126,"flash":129,"form":130,"node-uuid":51,"store":151,"templates":52}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM
@@ -12378,7 +12122,7 @@ var path = require('../path.js').path;
 var store = require('store').store;
 var utils = require('utils');
 var editui = require('./editui.js');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var templates = require('templates');
 var dateOrNumber;
@@ -12418,15 +12162,13 @@ var ifStoredElse = function (key, success, otherwise) {
   var item;
   var id = key.replace(/^fieldsets\/([^/]*)(\/fields)*$/, '$1');
   var fieldset;
-  var info;
 
   item = sessionStorage.getItem(key);
 
   if (item) {
     success(item);
   } else {
-    info = documents.info();
-    fieldset = info.fieldsets.filter(function (x) {
+    fieldset = info.info().fieldsets.filter(function (x) {
       return x._id === id;
     })[0];
 
@@ -12448,7 +12190,7 @@ var getFileAllowed = function (field, callback) {
 var getAllowed = function (field, callback) {
   'use strict';
 
-  var url = '/projects/project-' + documents.project() + '/doctypes/' + field.source + '/documents/index';
+  var url = '/projects/project-' + info.project() + '/doctypes/' + field.source + '/documents/index';
 
   return function () {
     ajax.get(url, function (req) {
@@ -12896,7 +12638,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":94,"./editui.js":67,"ajax":104,"documents/documents":116,"store":147,"templates":52,"utils":148}],69:[function(require,module,exports){
+},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"store":151,"templates":52,"utils":152}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -12995,7 +12737,283 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"./editui.js":67,"./viewui.js":72,"ajax":104,"pager":141,"templates":52}],70:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"pager":145,"templates":52}],70:[function(require,module,exports){
+// # Document Information
+//
+// *Implicit depends:* DOM
+//
+// Store and retrieve global information about doctypes and context.
+
+// ## Imported Modules
+
+var S = require('../sender.js');
+var ajax = require('ajax');
+var store = require('store').store;
+var ui = require('documents/ui-shared');
+
+// ## Exported Function Names
+
+var checkState;
+var clearSession;
+var doctypeId;
+var identifier;
+var info;
+var loadDoctype;
+var makeFieldsetLookup;
+var makeLabels;
+var project;
+var setsKey;
+var setVersion;
+var worksheetName;
+
+// ## Internal Function Names
+
+var fieldsToFieldsetKey;
+var getCurrentVersion;
+var getVersion;
+var infoKey;
+var isAllDataStored;
+var isCurrentVersionStored;
+var isFieldsToFieldsetStored;
+var isInfoStored;
+var isLabelsStored;
+var labelsKey;
+var storeDoctype;
+var versionKey;
+
+// ## Internal Functions
+
+// Key used in retrieving cached information from session storage.
+fieldsToFieldsetKey = function () {
+  'use strict';
+
+  return identifier() + '_fieldsToFieldset';
+};
+
+// Get the most recent doctype version, which is placed in a `data`
+// attribute that is updated on page reloads.
+getCurrentVersion = function () {
+  'use strict';
+
+  return store(ui.allDocContainer()).d('version');
+};
+
+// Get the stored doctype version.
+getVersion = function () {
+  'use strict';
+
+  return sessionStorage.getItem(versionKey());
+};
+
+// Key used in retrieving cached information from session storage.
+infoKey = function () {
+  'use strict';
+
+  return identifier() + '_info';
+};
+
+// True if the data that should be stored is stored.
+isAllDataStored = function () {
+  'use strict';
+
+  return isCurrentVersionStored() && isInfoStored() && isLabelsStored() && isFieldsToFieldsetStored();
+};
+
+// Check if the stored doctype version matches the version found in the
+// `data` attribute.
+isCurrentVersionStored = function () {
+  'use strict';
+
+  return (getVersion() && getVersion() === getCurrentVersion());
+};
+
+// Is the field to fieldsets index stored?
+isFieldsToFieldsetStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(fieldsToFieldsetKey()) !== null;
+};
+
+// Is the doctype information stored?
+isInfoStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(infoKey()) !== null;
+};
+
+// Is the field plus fieldset to labels index stored?
+isLabelsStored = function () {
+  'use strict';
+
+  return sessionStorage.getItem(labelsKey()) !== null;
+};
+
+// Key used in retrieving cached information from session storage.
+labelsKey = function () {
+  'use strict';
+
+  return identifier() + '_labels';
+};
+
+// Store the doctype info in the session store.
+storeDoctype = function (doctype) {
+  'use strict';
+
+  sessionStorage.setItem(infoKey(), doctype);
+
+  return S.sender('doctype-info-ready');
+};
+
+// Key used in retrieving cached information from session storage.
+versionKey = function () {
+  'use strict';
+
+  return identifier() + '_version';
+};
+
+// ## Exported Functions
+
+// Check the session state to ensure it is up to date and fully
+// loaded.
+checkState = function () {
+  'use strict';
+
+  var retval;
+
+  if (isAllDataStored()) {
+    retval = S.sender('doctype-cached-info-ready');
+  } else {
+    retval = S.sender('bad-session-state');
+  }
+
+  return retval;
+};
+
+// Clear the session storage
+clearSession = function () {
+  'use strict';
+
+  sessionStorage.clear();
+  S.sender('session-cleared');
+
+  return true;
+};
+
+// Get the doctype name
+doctypeId = function () {
+  'use strict';
+
+  return store(ui.allDocContainer()).d('doctype');
+};
+
+// Identifier is a combination of the project and doctype name.
+identifier = function () {
+  'use strict';
+
+  return project() + '_' + doctypeId();
+};
+
+// Get information about doctype.
+info = function () {
+  'use strict';
+
+  var documentInfo = JSON.parse(sessionStorage.getItem(infoKey()));
+
+  return documentInfo;
+};
+
+// Load the doctype document stored on the server.
+loadDoctype = function () {
+  'use strict';
+
+  ajax.get('./', function (req) {
+    storeDoctype(JSON.stringify(req.response));
+  });
+
+  return true;
+};
+
+// Process the field and fieldset info to create a field id to fieldset
+// id index.
+makeFieldsetLookup = function () {
+  'use strict';
+
+  var lookup = {};
+
+  info().fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
+      lookup[field._id] = fieldset._id;
+    });
+  });
+
+  sessionStorage.setItem(fieldsToFieldsetKey(), JSON.stringify(lookup));
+
+  return S.sender('fieldset-lookup-ready');
+};
+
+// Process the field and fieldset info to create a field id to field
+// label index.
+makeLabels = function () {
+  'use strict';
+
+  var labels = {};
+
+  info().fieldsets.forEach(function (fieldset) {
+    fieldset.fields.forEach(function (field) {
+      labels[field._id] = [fieldset.label, field.label];
+    });
+  });
+
+  sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
+
+  return S.sender('doctype-cached-info-ready');
+};
+
+// Get the project id
+project = function () {
+  'use strict';
+
+  return store(ui.container()).get('project-id');
+};
+
+// Get the key that stores sets.
+setsKey = function () {
+  'use strict';
+
+  return identifier() + '_sets';
+};
+
+// Reset the doctype version
+setVersion = function () {
+  'use strict';
+
+  sessionStorage.setItem(versionKey(), getCurrentVersion());
+  S.sender('version-set');
+
+  return true;
+};
+
+// Name for the worksheet template.
+var worksheetName = function () {
+  'use strict';
+
+  return identifier() + '_worksheet-template';
+};
+
+exports.checkState = checkState;
+exports.clearSession = clearSession;
+exports.doctypeId = doctypeId;
+exports.identifier = identifier;
+exports.info = info;
+exports.loadDoctype = loadDoctype;
+exports.makeFieldsetLookup = makeFieldsetLookup;
+exports.makeLabels = makeLabels;
+exports.project = project;
+exports.setsKey = setsKey;
+exports.setVersion = setVersion;
+exports.worksheetName = worksheetName;
+
+},{"../sender.js":98,"ajax":106,"documents/ui-shared":125,"store":151}],71:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -13008,7 +13026,7 @@ var templates = require('templates');
 var utils = require('utils');
 var sets = require('sets');
 var setsui = require('documents/setsui');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var multipleFields;
 var loadSearchVals;
@@ -13082,7 +13100,7 @@ var searchListing = function () {
 var getIdentifier = function () {
   'use strict';
 
-  return documents.identifier();
+  return info.identifier();
 };
 
 // All the form elements.
@@ -13518,7 +13536,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.loadSearchVals = loadSearchVals;
 exports.toggleSelection = toggleSelection;
 
-},{"ajax":104,"documents/documents":116,"documents/setsui":121,"sets":146,"templates":52,"utils":148}],71:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"sets":150,"templates":52,"utils":152}],72:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -13532,7 +13550,7 @@ var S = require('../sender.js');
 var flash = require('flash');
 var sets = require('sets');
 var utils = require('utils');
-var documents = require('./documents.js');
+var info = require('documents/information');
 var removeSet;
 var setSets;
 var selectedElementsToArray;
@@ -13582,7 +13600,7 @@ var setListing = function () {
 var sessionKey = function () {
   'use strict';
 
-  return documents.identifier() + '_sets';
+  return info.setsKey();
 };
 
 // Custom member function to use with [sets.js](./sets.html).
@@ -13926,10 +13944,156 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../sender.js":96,"./documents.js":66,"flash":125,"sets":146,"templates":52,"utils":148}],72:[function(require,module,exports){
+},{"../sender.js":98,"documents/information":122,"flash":129,"sets":150,"templates":52,"utils":152}],73:[function(require,module,exports){
+// # UI Shared
+//
+// *Implicit depends:* DOM
+//
+// UI elements and helper functions.
+
+// ## Exported functions
+
+// User interface element
+var container = function () {
+  'use strict';
+
+  return document.getElementById('container');
+};
+
+// User interface element
+var allDocContainer = function () {
+  'use strict';
+
+  return document.getElementById('all-document-container');
+};
+
+// User interface element
+var createButton = function () {
+  'use strict';
+
+  return document.getElementById('create-document-button');
+};
+
+// User interface element
+var editForm = function () {
+  'use strict';
+
+  return document.getElementById('edit-document-form');
+};
+
+// User interface element
+var saveButton = function () {
+  'use strict';
+
+  return document.getElementById('save-document-button');
+};
+
+// User interface element
+var restoreButton = function () {
+  'use strict';
+
+  return document.getElementById('document-restore-button');
+};
+
+// User interface element
+var deleteButton = function () {
+  'use strict';
+
+  return document.getElementById('document-delete-button');
+};
+
+// User interface element
+var editButton = function () {
+  'use strict';
+
+  return document.getElementById('document-edit-button');
+};
+
+// User interface element
+var firstIndex = function () {
+  'use strict';
+
+  return document.getElementById('first-index-element');
+};
+
+var skey = function () {
+  'use strict';
+
+  var fi;
+
+  return fi ? fi.dataset.firstKey : undefined;
+};
+
+var sid = function () {
+  'use strict';
+
+  var fi;
+
+  return fi ? fi.dataset.firstId : undefined;
+};
+
+// User interface element
+var dv = function () {
+  'use strict';
+
+  return document.getElementById('document-view');
+};
+
+// User interface element
+var dvt = function () {
+  'use strict';
+
+  return document.getElementById('document-view-tree');
+};
+
+// User interface element
+var viewInfo = function () {
+  'use strict';
+
+  return document.getElementById('document-view-info');
+};
+
+// Hide the button.
+var hideButton = function (button) {
+  'use strict';
+
+  button.classList.add('hidden');
+  button.setAttribute('disabled', 'disabled');
+
+  return true;
+};
+
+// Display the button.
+var showButton = function (button) {
+  'use strict';
+
+  button.classList.remove('hidden');
+  button.removeAttribute('disabled');
+
+  return true;
+};
+
+exports.allDocContainer = allDocContainer;
+exports.container = container;
+exports.createButton = createButton;
+exports.deleteButton = deleteButton;
+exports.dv = dv;
+exports.dvt = dvt;
+exports.editButton = editButton;
+exports.editForm = editForm;
+exports.firstIndex = firstIndex;
+exports.hideButton = hideButton;
+exports.restoreButton = restoreButton;
+exports.saveButton = saveButton;
+exports.showButton = showButton;
+exports.sid = sid;
+exports.skey = skey;
+exports.viewInfo = viewInfo;
+
+},{}],74:[function(require,module,exports){
 // # The view user interface
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // View pane UI elements.
 //
@@ -13941,32 +14105,12 @@ var templates = require('templates');
 var store = require('store').store;
 var indexui = require('documents/indexui');
 var flash = require('flash');
+var ui = require('documents/ui-shared');
 var editui = require('./editui.js');
 var fieldsets = require('./fieldsets.js');
 var ajax = require('ajax');
 
 // Internal functions
-
-// User interface element
-var dv = function () {
-  'use strict';
-
-  return $('#document-view');
-};
-
-// User interface element
-var dvt = function () {
-  'use strict';
-
-  return $('#document-view-tree');
-};
-
-// User interface element
-var viewInfo = function () {
-  'use strict';
-
-  return $('#document-view-info');
-};
 
 // Make an object where fieldsets with deletions are identified.
 var getDeletions = function (changes) {
@@ -14062,14 +14206,12 @@ var processIncoming = function (docJson, rev) {
 var formatTimestamps = function () {
   'use strict';
 
-  $('.timestamp').each(
-
-    function (i, item) {
-      var newDate = (new Date($(item).text())).toLocaleString();
-      if (newDate !== 'Invalid Date') {
-        $(item).text(newDate);
-      }
-    });
+  Array.prototype.forEach.call(document.querySelectorAll('.timestamp'), function (item) {
+    var newDate = (new Date(item.textContent)).toLocaleString();
+    if (newDate !== 'Invalid Date') {
+      item.textContent = newDate;
+    }
+  });
 
   return true;
 };
@@ -14079,12 +14221,12 @@ var get = function (id, rev, callback) {
   'use strict';
 
   var url = 'documents/' + id;
-  var htmlTarget = dv();
+  var htmlTarget = ui.dv();
   var tmpl;
 
   if (rev) {
     url = url + '/' + rev;
-    htmlTarget = dvt();
+    htmlTarget = ui.dvt();
     tmpl = function (docJson) {
       return templates['document-view-tree'](docJson);
     };
@@ -14101,25 +14243,21 @@ var get = function (id, rev, callback) {
 
     processIncoming(docJson, rev);
     documentHtml = tmpl(docJson);
-    htmlTarget.html(documentHtml);
+    htmlTarget.innerHTML = documentHtml;
     window.location.hash = id;
     formatTimestamps();
-    dv().fadeTo('slow', 1);
+    ui.dv().style.opacity = 1;
     if (callback) {
       callback();
     }
 
     if (rev) {
-      $('#document-view-tree').addClass('oldrev');
+      ui.dvt().classList.add('oldrev');
     } else {
-      var restoreButton = $('#document-restore-button');
-      var editButton = $('#document-edit-button');
-      var deleteButton = $('#document-delete-button');
-
-      if (store(restoreButton).d('deleted') === 'true') {
-        editButton.hide();
-        deleteButton.hide();
-        restoreButton.show();
+      if (store(ui.restoreButton()).d('deleted') === 'true') {
+        //ui.hideButton(ui.editButton());
+        ui.hideButton(ui.deleteButton());
+        ui.showButton(ui.restoreButton());
       }
     }
   });
@@ -14132,40 +14270,29 @@ var restore = function (id, rev) {
   'use strict';
 
   var url = './documents/' + id + '?rev=' + rev;
-  var restoreButton = $('#document-restore-button');
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
   var body;
   var title;
+  var statusCallbacks = [];
+  statusCallbacks[200] = function (req) {
+    title = 'Success';
+    body = 'Your document was restored.';
 
-  $.ajax({
-    type: 'DELETE',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    complete: function (req, status) {
-      if (req.status === 200) {
-        title = 'Success';
-        body = 'Your document was restored.';
+    get(id, null, function () {
+      ui.dv().style.opacity = 1;
+      indexui.get(ui.skey(), ui.sid());
+    });
+    flash.highlight(title, body);
+  };
+  var errorCallback = function (req) {
+    body = JSON.parse(req.responseText);
+    title = req.statusText;
 
-        get(id, null, function () {
-          dv().fadeTo('slow', 1);
-          indexui.get(skey, sid);
-        });
-        flash.highlight(title, body);
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
+    flash.error(title, body.message);
+  };
+  statusCallbacks[409] = errorCallback;
+  statusCallbacks[404] = errorCallback;
 
-        flash.error(title, body.message);
-      } else if (req.status === 404) {
-        body = 'Document was erased and cannot be restored.';
-        title = req.statusText;
-
-        flash.error(title, body);
-      }
-    }
-  });
+  ajax.del(url, undefined, statusCallbacks);
 
   return true;
 };
@@ -14175,45 +14302,33 @@ var del = function (id, rev) {
   'use strict';
 
   var url = './documents/' + id + '?rev=' + rev;
-  var restoreButton = $('#document-restore-button');
-  var skey = $('#first-index-element').attr('data-first-key');
-  var sid = $('#first-index-element').attr('data-first-id');
   var body;
   var title;
+  var statusCallbacks = [];
+  statusCallbacks[200] = function (req) {
+    title = 'Success';
+    body = 'Your document was deleted.';
 
-  $.ajax({
-    type: 'DELETE',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    complete: function (req, status) {
-      if (req.status === 200) {
-        title = 'Success';
-        body = 'Your document was deleted.';
-        var response = JSON.parse(req.responseText);
+    store(ui.restoreButton()).put('document-rev', req.response.rev);
 
-        store(restoreButton).put('document-rev', response.rev);
+    ui.hideButton(ui.deleteButton());
+    ui.hideButton(ui.editButton());
+    ui.showButton(ui.restoreButton());
+    ui.dv().style.opacity = 0.5;
 
-        $('#document-delete-button').hide();
-        $('#document-edit-button').hide();
-        restoreButton.show();
-        dv().fadeTo('slow', 0.5);
+    indexui.get(ui.skey(), ui.sid());
+    flash.highlight(title, body);
+  };
+  var errorCallback = function (req) {
+    body = JSON.parse(req.responseText);
+    title = req.statusText;
 
-        indexui.get(skey, sid);
-        flash.highlight(title, body);
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
+    flash.error(title, body.message);
+  };
+  statusCallbacks[409] = errorCallback;
+  statusCallbacks[404] = errorCallback;
 
-        flash.error(title, body.message);
-      } else if (req.status === 404) {
-        body = 'Document appears to have been deleted already.';
-        title = req.statusText;
-
-        flash.error(title, body);
-      }
-    }
-  });
+  ajax.del(url, undefined, statusCallbacks);
 
   return true;
 };
@@ -14223,7 +14338,7 @@ var confirmIt = function (callback) {
   'use strict';
 
   if (window.confirm('Are you sure?')) {
-    var s = store(viewInfo());
+    var s = store(ui.viewInfo());
     var id = s.d('document');
     var rev = s.d('rev');
 
@@ -14238,10 +14353,10 @@ var edit = function () {
   'use strict';
 
   editui.clear();
-  if ($('#document-view-tree').hasClass('oldrev')) {
-    $('#save-document-button').addClass('oldrev');
+  if (ui.dvt().classList.contains('oldrev')) {
+    ui.saveButton().classList.add('oldrev');
   } else {
-    $('#save-document-button').removeClass('oldrev');
+    ui.saveButton().classList.remove('oldrev');
   }
   fieldsets.fillFieldsets();
 
@@ -14252,9 +14367,10 @@ var edit = function () {
 var confirmDelete = function () {
   'use strict';
 
-  var s = store(viewInfo());
+  var s = store(ui.viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
+
   return confirmIt(function () {
     del(id, rev);
   });
@@ -14264,9 +14380,10 @@ var confirmDelete = function () {
 var confirmRestore = function () {
   'use strict';
 
-  var s = store(viewInfo());
+  var s = store(ui.viewInfo());
   var id = s.d('document');
   var rev = s.d('rev');
+
   return confirmIt(function () {
     restore(id, rev);
   });
@@ -14276,7 +14393,7 @@ var confirmRestore = function () {
 var collapseToggle = function (target) {
   'use strict';
 
-  $(target).parent('li').toggleClass('collapsed');
+  target.parentElement.classList.toggle('collapsed');
 
   return true;
 };
@@ -14285,12 +14402,15 @@ var collapseToggle = function (target) {
 var fetchRevision = function (target) {
   'use strict';
 
-  var s = store($(target));
+  var s = store(target);
   var id = s.d('document');
   var oldrev = s.d('oldrev');
 
-  $('.revision-link').removeClass('selected-revision');
-  $(target).addClass('selected-revision');
+  Array.prototype.forEach.call(document.getElementsByClassName('revision-link'), function (item) {
+    item.classList.remove('selected-revision');
+  });
+
+  target.classList.add('selected-revision');
 
   get(id, oldrev);
 
@@ -14308,7 +14428,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"./editui.js":67,"./fieldsets.js":68,"ajax":104,"documents/indexui":119,"flash":125,"store":147,"templates":52}],73:[function(require,module,exports){
+},{"./editui.js":67,"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/ui-shared":125,"flash":129,"store":151,"templates":52}],75:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -14321,7 +14441,7 @@ exports.fetchRevision = fetchRevision;
 var Hogan = require('hogan.js');
 var templates = require('templates');
 var setsui = require('documents/setsui');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var flash = require('flash');
 
@@ -14339,13 +14459,6 @@ var worksheetsArea = function () {
   'use strict';
 
   return $('#worksheet-area');
-};
-
-// Name for the worksheet template.
-var worksheetName = function () {
-  'use strict';
-
-  return documents.identifier() + '_worksheet-template';
 };
 
 // Exported functions
@@ -14452,9 +14565,9 @@ var hideField = function (fid) {
 var buildTemplate = function () {
   'use strict';
 
-  var doctypeInfo = documents.info();
+  var doctypeInfo = info.info();
   var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
-  globals[worksheetName()] = Hogan.compile(metaTemp);
+  globals[info.worksheetName()] = Hogan.compile(metaTemp);
 
   return true;
 };
@@ -14466,7 +14579,7 @@ var fillWorksheet = function () {
   var setName = worksheetsSet().val();
   var url = 'worksheets';
   var complete = function (req) {
-    var ws = globals[worksheetName()].render(req.response);
+    var ws = globals[info.worksheetName()].render(req.response);
     worksheetsArea().html(ws);
   };
 
@@ -14499,7 +14612,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"ajax":104,"documents/documents":116,"documents/setsui":121,"flash":125,"hogan.js":24,"templates":52}],74:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"flash":129,"hogan.js":24,"templates":52}],76:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14695,7 +14808,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"ajax":104,"flash":125}],75:[function(require,module,exports){
+},{"ajax":106,"flash":129}],77:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -14745,7 +14858,7 @@ var highlight = function (title, body) {
 exports.error = error;
 exports.highlight = highlight;
 
-},{}],76:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 // # HTML Form Helpers
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -14880,7 +14993,7 @@ exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 
-},{"ajax":104}],77:[function(require,module,exports){
+},{"ajax":106}],79:[function(require,module,exports){
 // # Formalize
 //
 // Convert JSON to and from an HTML form.
@@ -14906,7 +15019,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"formalize_from":128,"formalize_to":129}],78:[function(require,module,exports){
+},{"formalize_from":132,"formalize_to":133}],80:[function(require,module,exports){
 // # Form from
 //
 // Convert an HTML form to JSON.
@@ -15218,7 +15331,7 @@ var transform = function (html) {
 
 exports.transform = transform;
 
-},{"htmlparser2":37}],79:[function(require,module,exports){
+},{"htmlparser2":37}],81:[function(require,module,exports){
 // # Form to
 //
 // Convert JSON to an HTML form.
@@ -15383,7 +15496,7 @@ var transform = function (json, options) {
 
 exports.transform = transform;
 
-},{"lib/json_to":150,"node-uuid":51}],80:[function(require,module,exports){
+},{"lib/json_to":154,"node-uuid":51}],82:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -15396,7 +15509,7 @@ exports.transform = transform;
 
 var globals = {};
 
-},{}],81:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 // # Builder dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15572,7 +15685,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"form":126,"index_tool/ievents":132,"index_tool/ihelpers":133,"jquery-ui-input-state":138}],82:[function(require,module,exports){
+},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],84:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15863,7 +15976,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"ajax":104,"flash":125,"index_tool/builder-dialog":130,"index_tool/ihelpers":133,"index_tool/ilistingui":134,"index_tool/ipreviewui":135,"index_tool/new-dialog":136,"index_tool/replace-dialog":137}],83:[function(require,module,exports){
+},{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],85:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15966,7 +16079,7 @@ exports.setIndexFieldEvents = setIndexFieldEvents;
 exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
 exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
-},{"index_tool/ihelpers":133}],84:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],86:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16224,7 +16337,7 @@ exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"ajax":104,"sess":145}],85:[function(require,module,exports){
+},{"ajax":106,"sess":149}],87:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM, JQuery
@@ -16256,7 +16369,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"ajax":104,"templates":52}],86:[function(require,module,exports){
+},{"ajax":106,"templates":52}],88:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -16312,7 +16425,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"pager":141}],87:[function(require,module,exports){
+},{"pager":145}],89:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16417,7 +16530,7 @@ var initIndexNewDialog = function () {
 
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"form":126,"index_tool/ievents":132,"index_tool/ihelpers":133,"index_tool/ilistingui":134,"jquery-ui-input-state":138}],88:[function(require,module,exports){
+},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"jquery-ui-input-state":142}],90:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16489,7 +16602,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"form":126,"index_tool/ihelpers":133}],89:[function(require,module,exports){
+},{"form":130,"index_tool/ihelpers":137}],91:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -16512,7 +16625,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -16678,7 +16791,7 @@ exports.initReplaceDialog = initReplaceDialog;
 
 })(jQuery);
 
-},{}],91:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -16841,7 +16954,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"config/charsequi":107,"config/doctypeui":109,"documents/changeui":114,"documents/editui":117,"documents/indexui":119,"documents/searchui":120,"documents/viewui":122,"index_tool/ipreviewui":135,"jquery.hotkeys":139,"sender":144}],92:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"documents/changeui":116,"documents/editui":119,"documents/indexui":121,"documents/searchui":123,"documents/viewui":126,"index_tool/ipreviewui":139,"jquery.hotkeys":143,"sender":148}],94:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -17032,7 +17145,7 @@ var pager = function (args) {
 
 exports.pager = pager;
 
-},{"ajax":104,"templates":52}],93:[function(require,module,exports){
+},{"ajax":106,"templates":52}],95:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -17061,7 +17174,7 @@ var panelToggler = function (target) {
 
 exports.panelToggler = panelToggler;
 
-},{}],94:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 // # Path helper
 //
 // NOTE: This is only used by `config/doctype-tab.js` and
@@ -17257,7 +17370,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"ajax":104,"store":147}],95:[function(require,module,exports){
+},{"ajax":106,"store":151}],97:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17354,7 +17467,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"ajax":104,"form":126,"templates":52}],96:[function(require,module,exports){
+},{"ajax":106,"form":130,"templates":52}],98:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -17370,6 +17483,7 @@ exports.init = init;
 
 var commands = require('documents/commands');
 var documents = require('documents/documents');
+var dinfo = require('documents/information');
 var editui = require('documents/editui');
 var searchui = require('documents/searchui');
 var setsui = require('documents/setsui');
@@ -17387,14 +17501,17 @@ var sender = function (message, arg) {
   var retval;
 
   switch (message) {
+  case 'document-init-stage-1':
+    retval = dinfo.checkState();
+    break;
   case 'bad-session-state':
-    retval = documents.clearSession();
+    retval = dinfo.clearSession();
     break;
   case 'doctype-info-ready':
-    retval = documents.makeFieldsetLookup();
+    retval = dinfo.makeFieldsetLookup();
     break;
   case 'fieldset-lookup-ready':
-    retval = documents.makeLabels();
+    retval = dinfo.makeLabels();
     break;
   case 'doctype-cached-info-ready':
     documents.init2();
@@ -17411,8 +17528,8 @@ var sender = function (message, arg) {
     retval = setsui.performOp();
     break;
   case 'session-cleared':
-    documents.setVersion();
-    retval = documents.loadDoctype();
+    dinfo.setVersion();
+    retval = dinfo.loadDoctype();
     break;
   case 'worksheet-form-submit':
     retval = worksheetui.fillWorksheet();
@@ -17513,7 +17630,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"config/doctypeui":109,"config/editui":110,"documents/commands":115,"documents/documents":116,"documents/editui":117,"documents/searchui":120,"documents/setsui":121,"documents/worksheetui":123}],97:[function(require,module,exports){
+},{"config/doctypeui":111,"config/editui":112,"documents/commands":117,"documents/documents":118,"documents/editui":119,"documents/information":122,"documents/searchui":123,"documents/setsui":124,"documents/worksheetui":127}],99:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -17562,7 +17679,7 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],98:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -17656,7 +17773,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -17673,17 +17790,12 @@ var r = require('lib/recurse');
 
 // ## External functions
 
-// Takes a JQuery element and returns an object with helper methods for
+// Takes an Element and returns an object with helper methods for
 // getting and putting custom data attribute values.
 var store = function (elem) {
   'use strict';
 
   var mod = {};
-
-  // TODO: Remove this when fieldsets.js has JQuery dependency removed
-  if (elem.dataset === undefined) {
-    elem = elem[0];
-  }
 
   // This funtion takes a key that corresponds to the name of the data
   // attribute without the `data-` prefix. The element is expected to have
@@ -17789,7 +17901,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"lib/recurse":151,"utils":148}],100:[function(require,module,exports){
+},{"lib/recurse":155,"utils":152}],102:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -17968,103 +18080,107 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],103:[function(require,module,exports){
+},{"hogan.js":24}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
+},{}],105:[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],104:[function(require,module,exports){
+},{"hogan.js":24}],106:[function(require,module,exports){
 module.exports=require(53)
-},{"flash":125}],105:[function(require,module,exports){
+},{"flash":129}],107:[function(require,module,exports){
 module.exports=require(55)
-},{"documents/searchui":120}],106:[function(require,module,exports){
+},{"documents/searchui":123}],108:[function(require,module,exports){
 module.exports=require(56)
-},{"config/maintenanceui":111,"dispatcher":113,"documents/editui":117,"documents/fieldsets":118,"documents/indexui":119,"documents/searchui":120,"documents/setsui":121,"documents/viewui":122,"documents/worksheetui":123,"file_manager/fm":124,"form":126,"index_tool/ieditui":131,"panel-toggle":142,"projects/projectui":143,"sender":144}],107:[function(require,module,exports){
+},{"config/maintenanceui":113,"dispatcher":115,"documents/editui":119,"documents/fieldsets":120,"documents/indexui":121,"documents/searchui":123,"documents/setsui":124,"documents/viewui":126,"documents/worksheetui":127,"file_manager/fm":128,"form":130,"index_tool/ieditui":135,"panel-toggle":146,"projects/projectui":147,"sender":148}],109:[function(require,module,exports){
 module.exports=require(57)
-},{"pager":141,"templates":103}],108:[function(require,module,exports){
+},{"pager":145,"templates":105}],110:[function(require,module,exports){
 module.exports=require(58)
-},{"config/charsequi":107,"config/doctypeui":109,"config/editui":110,"config/maintenanceui":111}],109:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"config/editui":112,"config/maintenanceui":113}],111:[function(require,module,exports){
 module.exports=require(59)
-},{"../sender.js":96,"node-uuid":51,"pager":141,"templates":103}],110:[function(require,module,exports){
+},{"../sender.js":98,"node-uuid":51,"pager":145,"templates":105}],112:[function(require,module,exports){
 module.exports=require(60)
-},{"../sender.js":96,"ajax":104,"formalize":127,"sess":145}],111:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"formalize":131,"sess":149}],113:[function(require,module,exports){
 module.exports=require(61)
-},{"ajax":104,"flash":125,"templates":103}],112:[function(require,module,exports){
+},{"ajax":106,"flash":129,"templates":105}],114:[function(require,module,exports){
 module.exports=require(62)
-},{"config/editui":110,"dispatcher":113,"documents/searchui":120,"documents/worksheetui":123,"panel-toggle":142}],113:[function(require,module,exports){
+},{"config/editui":112,"dispatcher":115,"documents/searchui":123,"documents/worksheetui":127,"panel-toggle":146}],115:[function(require,module,exports){
 module.exports=require(63)
-},{}],114:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module.exports=require(64)
-},{"./documents.js":66,"pager":141}],115:[function(require,module,exports){
+},{"documents/information":122,"pager":145}],117:[function(require,module,exports){
 module.exports=require(65)
-},{"../sender.js":96,"documents/editui":117}],116:[function(require,module,exports){
+},{"../sender.js":98,"documents/editui":119}],118:[function(require,module,exports){
 module.exports=require(66)
-},{"../sender.js":96,"./editui.js":67,"ajax":104,"documents/changeui":114,"documents/indexui":119,"documents/setsui":121,"documents/viewui":122,"store":147}],117:[function(require,module,exports){
+},{"../sender.js":98,"./editui.js":67,"ajax":106,"documents/changeui":116,"documents/indexui":121,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"documents/viewui":126}],119:[function(require,module,exports){
 module.exports=require(67)
-},{"./fieldsets.js":68,"ajax":104,"documents/documents":116,"documents/indexui":119,"documents/viewui":122,"flash":125,"form":126,"node-uuid":51,"store":147,"templates":103}],118:[function(require,module,exports){
+},{"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/information":122,"documents/ui-shared":125,"documents/viewui":126,"flash":129,"form":130,"node-uuid":51,"store":151,"templates":105}],120:[function(require,module,exports){
 module.exports=require(68)
-},{"../path.js":94,"./editui.js":67,"ajax":104,"documents/documents":116,"store":147,"templates":103,"utils":148}],119:[function(require,module,exports){
+},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"store":151,"templates":105,"utils":152}],121:[function(require,module,exports){
 module.exports=require(69)
-},{"./editui.js":67,"./viewui.js":72,"ajax":104,"pager":141,"templates":103}],120:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"pager":145,"templates":105}],122:[function(require,module,exports){
 module.exports=require(70)
-},{"ajax":104,"documents/documents":116,"documents/setsui":121,"sets":146,"templates":103,"utils":148}],121:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"documents/ui-shared":125,"store":151}],123:[function(require,module,exports){
 module.exports=require(71)
-},{"../sender.js":96,"./documents.js":66,"flash":125,"sets":146,"templates":103,"utils":148}],122:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"sets":150,"templates":105,"utils":152}],124:[function(require,module,exports){
 module.exports=require(72)
-},{"./editui.js":67,"./fieldsets.js":68,"ajax":104,"documents/indexui":119,"flash":125,"store":147,"templates":103}],123:[function(require,module,exports){
+},{"../sender.js":98,"documents/information":122,"flash":129,"sets":150,"templates":105,"utils":152}],125:[function(require,module,exports){
 module.exports=require(73)
-},{"ajax":104,"documents/documents":116,"documents/setsui":121,"flash":125,"hogan.js":24,"templates":103}],124:[function(require,module,exports){
-module.exports=require(74)
-},{"ajax":104,"flash":125}],125:[function(require,module,exports){
-module.exports=require(75)
 },{}],126:[function(require,module,exports){
+module.exports=require(74)
+},{"./editui.js":67,"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/ui-shared":125,"flash":129,"store":151,"templates":105}],127:[function(require,module,exports){
+module.exports=require(75)
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"flash":129,"hogan.js":24,"templates":105}],128:[function(require,module,exports){
 module.exports=require(76)
-},{"ajax":104}],127:[function(require,module,exports){
+},{"ajax":106,"flash":129}],129:[function(require,module,exports){
 module.exports=require(77)
-},{"formalize_from":128,"formalize_to":129}],128:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 module.exports=require(78)
-},{"htmlparser2":37}],129:[function(require,module,exports){
+},{"ajax":106}],131:[function(require,module,exports){
 module.exports=require(79)
-},{"lib/json_to":150,"node-uuid":51}],130:[function(require,module,exports){
+},{"formalize_from":132,"formalize_to":133}],132:[function(require,module,exports){
+module.exports=require(80)
+},{"htmlparser2":37}],133:[function(require,module,exports){
 module.exports=require(81)
-},{"form":126,"index_tool/ievents":132,"index_tool/ihelpers":133,"jquery-ui-input-state":138}],131:[function(require,module,exports){
-module.exports=require(82)
-},{"ajax":104,"flash":125,"index_tool/builder-dialog":130,"index_tool/ihelpers":133,"index_tool/ilistingui":134,"index_tool/ipreviewui":135,"index_tool/new-dialog":136,"index_tool/replace-dialog":137}],132:[function(require,module,exports){
+},{"lib/json_to":154,"node-uuid":51}],134:[function(require,module,exports){
 module.exports=require(83)
-},{"index_tool/ihelpers":133}],133:[function(require,module,exports){
+},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],135:[function(require,module,exports){
 module.exports=require(84)
-},{"ajax":104,"sess":145}],134:[function(require,module,exports){
+},{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],136:[function(require,module,exports){
 module.exports=require(85)
-},{"ajax":104,"templates":103}],135:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],137:[function(require,module,exports){
 module.exports=require(86)
-},{"pager":141}],136:[function(require,module,exports){
+},{"ajax":106,"sess":149}],138:[function(require,module,exports){
 module.exports=require(87)
-},{"form":126,"index_tool/ievents":132,"index_tool/ihelpers":133,"index_tool/ilistingui":134,"jquery-ui-input-state":138}],137:[function(require,module,exports){
+},{"ajax":106,"templates":105}],139:[function(require,module,exports){
 module.exports=require(88)
-},{"form":126,"index_tool/ihelpers":133}],138:[function(require,module,exports){
+},{"pager":145}],140:[function(require,module,exports){
 module.exports=require(89)
-},{}],139:[function(require,module,exports){
+},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"jquery-ui-input-state":142}],141:[function(require,module,exports){
 module.exports=require(90)
-},{}],140:[function(require,module,exports){
+},{"form":130,"index_tool/ihelpers":137}],142:[function(require,module,exports){
 module.exports=require(91)
-},{"config/charsequi":107,"config/doctypeui":109,"documents/changeui":114,"documents/editui":117,"documents/indexui":119,"documents/searchui":120,"documents/viewui":122,"index_tool/ipreviewui":135,"jquery.hotkeys":139,"sender":144}],141:[function(require,module,exports){
-module.exports=require(92)
-},{"ajax":104,"templates":103}],142:[function(require,module,exports){
-module.exports=require(93)
 },{}],143:[function(require,module,exports){
+module.exports=require(92)
+},{}],144:[function(require,module,exports){
+module.exports=require(93)
+},{"config/charsequi":109,"config/doctypeui":111,"documents/changeui":116,"documents/editui":119,"documents/indexui":121,"documents/searchui":123,"documents/viewui":126,"index_tool/ipreviewui":139,"jquery.hotkeys":143,"sender":148}],145:[function(require,module,exports){
+module.exports=require(94)
+},{"ajax":106,"templates":105}],146:[function(require,module,exports){
 module.exports=require(95)
-},{"ajax":104,"form":126,"templates":103}],144:[function(require,module,exports){
-module.exports=require(96)
-},{"config/doctypeui":109,"config/editui":110,"documents/commands":115,"documents/documents":116,"documents/editui":117,"documents/searchui":120,"documents/setsui":121,"documents/worksheetui":123}],145:[function(require,module,exports){
-module.exports=require(97)
-},{}],146:[function(require,module,exports){
-module.exports=require(98)
 },{}],147:[function(require,module,exports){
+module.exports=require(97)
+},{"ajax":106,"form":130,"templates":105}],148:[function(require,module,exports){
+module.exports=require(98)
+},{"config/doctypeui":111,"config/editui":112,"documents/commands":117,"documents/documents":118,"documents/editui":119,"documents/information":122,"documents/searchui":123,"documents/setsui":124,"documents/worksheetui":127}],149:[function(require,module,exports){
 module.exports=require(99)
-},{"lib/recurse":151,"utils":148}],148:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 module.exports=require(100)
-},{}],149:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
+module.exports=require(101)
+},{"lib/recurse":155,"utils":152}],152:[function(require,module,exports){
+module.exports=require(102)
+},{}],153:[function(require,module,exports){
 // # Json Parse
 //
 // *implicit dependencies:* JSON
@@ -18221,7 +18337,7 @@ var parse = function (jsn) {
 
 exports.parse = parse;
 
-},{"lib/recurse":151}],150:[function(require,module,exports){
+},{"lib/recurse":155}],154:[function(require,module,exports){
 // # JSON to
 //
 // Convert JSON to something else.
@@ -18400,7 +18516,7 @@ var transform = function (json, funs, options) {
 
 exports.transform = transform;
 
-},{"lib/json_parse":149,"lib/recurse":151}],151:[function(require,module,exports){
+},{"lib/json_parse":153,"lib/recurse":155}],155:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -18442,4 +18558,4 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}]},{},[53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100])
+},{}]},{},[53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102])

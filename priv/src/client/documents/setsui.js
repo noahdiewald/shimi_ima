@@ -11,7 +11,7 @@ var S = require('../sender.js');
 var flash = require('flash');
 var sets = require('sets');
 var utils = require('utils');
-var documents = require('./documents.js');
+var info = require('documents/information');
 var removeSet;
 var setSets;
 var selectedElementsToArray;
@@ -61,7 +61,7 @@ var setListing = function () {
 var sessionKey = function () {
   'use strict';
 
-  return documents.identifier() + '_sets';
+  return info.setsKey();
 };
 
 // Custom member function to use with [sets.js](./sets.html).

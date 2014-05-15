@@ -10,7 +10,7 @@ var path = require('../path.js').path;
 var store = require('store').store;
 var utils = require('utils');
 var editui = require('./editui.js');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var templates = require('templates');
 var dateOrNumber;
@@ -50,15 +50,13 @@ var ifStoredElse = function (key, success, otherwise) {
   var item;
   var id = key.replace(/^fieldsets\/([^/]*)(\/fields)*$/, '$1');
   var fieldset;
-  var info;
 
   item = sessionStorage.getItem(key);
 
   if (item) {
     success(item);
   } else {
-    info = documents.info();
-    fieldset = info.fieldsets.filter(function (x) {
+    fieldset = info.info().fieldsets.filter(function (x) {
       return x._id === id;
     })[0];
 
@@ -80,7 +78,7 @@ var getFileAllowed = function (field, callback) {
 var getAllowed = function (field, callback) {
   'use strict';
 
-  var url = '/projects/project-' + documents.project() + '/doctypes/' + field.source + '/documents/index';
+  var url = '/projects/project-' + info.project() + '/doctypes/' + field.source + '/documents/index';
 
   return function () {
     ajax.get(url, function (req) {

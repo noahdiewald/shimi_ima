@@ -14,65 +14,19 @@ var ajax = require('ajax');
 var fieldsets = require('./fieldsets.js');
 var viewui = require('documents/viewui');
 var indexui = require('documents/indexui');
-var documents = require('documents/documents');
+var info = require('documents/information');
+var ui = require('documents/ui-shared');
 var uuid = require('node-uuid');
 var afterRefresh;
 var setInstanceInfo;
 
 // Internal functions
 
-// UI Element
-var root = function () {
-  'use strict';
-
-  return document.getElementById('edit-document-form');
-};
-
-var saveButton = function () {
-  'use strict';
-
-  return document.getElementById('save-document-button');
-};
-
-// UI Element
-var createButton = function () {
-  'use strict';
-
-  return document.getElementById('create-document-button');
-};
-
-// UI Element
-var editButton = function () {
-  'use strict';
-
-  return document.getElementById('document-edit-button');
-};
-
-// Hide the button.
-var hideButton = function (button) {
-  'use strict';
-
-  button.classList.add('hidden');
-  button.setAttribute('disabled', 'disabled');
-
-  return true;
-};
-
-// Display the button.
-var showButton = function (button) {
-  'use strict';
-
-  button.classList.remove('hidden');
-  button.removeAttribute('disabled');
-
-  return true;
-};
-
 // Get the fieldset id for a field id.
 var getFieldsetId = function (fieldId) {
   'use strict';
 
-  var lookup = JSON.parse(sessionStorage.getItem(documents.identifier() + '_fieldsToFieldset'));
+  var lookup = JSON.parse(sessionStorage.getItem(ui.identifier() + '_fieldsToFieldset'));
 
   return lookup[fieldId];
 };
@@ -132,16 +86,15 @@ var instances = function (addInstances) {
 // Exported functions
 
 // Initialize the editing pane.
-// TODO: refactor taking advantage of documents.info(). Old code used
+// TODO: refactor taking advantage of information.info(). Old code used
 // ajax calls and server rendered HTML.
 var init = function () {
   'use strict';
 
   var fs = {};
   var editArea = document.getElementById('document-edit');
-  var info = documents.info();
 
-  fs.fieldsets = info.fieldsets;
+  fs.fieldsets = info.info().fieldsets;
   fs.has_rows = fs.fieldsets ? (fs.fieldsets.length > 0) : false;
   editArea.innerHTML = templates['document-edit'](fs);
   // TODO: replace tabs functionality.
@@ -183,10 +136,10 @@ var afterEditRefresh = function () {
   var sharedAttrs = ['data-document-id', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    saveButton().setAttribute(elem, editButton().getAttribute(elem));
+    ui.saveButton().setAttribute(elem, ui.editButton().getAttribute(elem));
   });
 
-  showButton(saveButton());
+  ui.showButton(ui.saveButton());
   afterRefresh();
 
   return true;
@@ -207,7 +160,7 @@ afterRefresh = function (addInstances) {
 var clearErrorStates = function () {
   'use strict';
 
-  Array.prototype.forEach.call(root().querySelectorAll('.ui-state-error'), function (item) {
+  Array.prototype.forEach.call(ui.editForm().querySelectorAll('.ui-state-error'), function (item) {
     item.classList.remove('ui-state-error');
   });
 
@@ -239,7 +192,7 @@ var extend = function (oldO, newO) {
 var save = function () {
   'use strict';
 
-  if (saveButton().classList.contains('oldrev')) {
+  if (ui.saveButton().classList.contains('oldrev')) {
     if (!window.confirm('This data is from an older version of this document. Are you sure you want to restore it?')) {
       return false;
     }
@@ -247,13 +200,11 @@ var save = function () {
 
   var body;
   var title;
-  var s = store(saveButton());
+  var s = store(ui.saveButton());
   var doc = s.d('document');
   var rev = s.d('rev');
   var url = './documents/' + doc + '?rev=' + rev;
   var firstIndex = document.getElementById('first-index-element');
-  var skey = firstIndex.dataset.firstKey;
-  var sid = firstIndex.dataset.firstId;
   var newObj;
   var obj = {
     doctype: s.d('doctype'),
@@ -264,28 +215,28 @@ var save = function () {
     title = 'Success';
     body = 'Your document was saved.';
     viewui.get(doc);
-    indexui.get(skey, sid);
+    indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    saveButton().classList.remove('oldrev');
-    showButton(saveButton());
+    ui.saveButton().classList.remove('oldrev');
+    ui.showButton(ui.saveButton());
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    showButton(saveButton());
+    ui.showButton(ui.saveButton());
   };
   statusCallbacks[409] = function (req) {
     body = JSON.parse(req.responseText);
     title = req.statusText;
 
     flash.error(title, body.message);
-    hideButton(saveButton());
+    ui.hideButton(ui.saveButton());
   };
 
   clearErrorStates();
-  hideButton(saveButton());
-  newObj = fieldsets.fieldsetsToObject(root());
+  ui.hideButton(ui.saveButton());
+  newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.put(url, obj, undefined, statusCallbacks);
 };
@@ -294,11 +245,8 @@ var save = function () {
 var create = function () {
   'use strict';
 
-  var s = store(createButton());
+  var s = store(ui.createButton());
   var url = 'documents';
-  var firstIndex = document.getElementById('first-index-element');
-  var skey = firstIndex ? firstIndex.dataset.firstKey : undefined;
-  var sid = firstIndex ? firstIndex.dataset.firstId : undefined;
   var newObj;
   var obj = {
     doctype: s.d('doctype'),
@@ -310,22 +258,22 @@ var create = function () {
     var body = 'Your document was created.';
     var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-    hideButton(saveButton());
+    ui.hideButton(ui.saveButton());
     removeFields();
     fieldsets.initFieldsets();
     viewui.get(documentId);
-    indexui.get(skey, sid);
+    indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    showButton(createButton());
+    ui.showButton(ui.createButton());
   };
   statusCallbacks[403] = function (req) {
     validationError(req);
-    showButton(createButton());
+    ui.showButton(ui.createButton());
   };
 
   clearErrorStates();
-  hideButton(createButton());
-  newObj = fieldsets.fieldsetsToObject(root());
+  ui.hideButton(ui.createButton());
+  newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.post(url, obj, undefined, statusCallbacks);
 };
@@ -335,7 +283,7 @@ var clear = function () {
   'use strict';
 
   clearErrorStates();
-  hideButton(saveButton());
+  ui.hideButton(ui.saveButton());
   removeFields();
   fieldsets.initFieldsets();
 };

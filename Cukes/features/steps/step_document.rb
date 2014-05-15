@@ -13,6 +13,13 @@ Given /^the ([a-f0-9]{32}) document is in the view pane$/ do | identifier |
   @browser.a(:text => 'Edit').wait_until_present
 end
 
+Given /^the deleted document is in the view pane$/ do
+  step "a doctype with fields exists"
+  post_fixture "Popsicle_two_docs_one_deleted.json", true
+  @browser.goto(@popsicleURL + '#0e834d0dd8b47706bd4aa0d74ce3f8ab')
+  @browser.a(:text => 'Restore').wait_until_present
+end
+
 Given /^the ([a-f0-9]{32}) document is in the edit pane$/ do | identifier |
   step "the #{identifier} document is in the view pane"
   step "I click the Edit link"
@@ -61,6 +68,10 @@ end
 
 When /^I click the first help icon$/ do
   @browser.element(:css, "#container-6ddc38c96d91d039914bcf39db1fde88 > div:nth-child(1) > div:nth-child(1) > label:nth-child(1) > span:nth-child(2)").click
+end
+
+When /^I click ok$/ do
+  @browser.alert.ok
 end
 
 Then /^I am taken to the document type listing$/ do
@@ -143,8 +154,17 @@ Then /^the data is loaded in the index pane$/ do
 end
 
 Then /^document ([a-f0-9]{32}) is listed in the index pane$/ do | docid |
-  @browser.a(:href => "##{docid}").wait_until_present
-  @browser.a(:href => "##{docid}").should be_exists
+  @browser.tr(:id => docid).wait_until_present
+  @browser.tr(:id => docid).should be_exists
+end
+
+Then /^document ([a-f0-9]{32}) is not listed in the index pane$/ do | docid |
+  @browser.tr(:id => docid).wait_while_present
+  @browser.tr(:id => docid).should_not be_exists
+end
+
+Then /^the (\w+) link is visible$/ do | text |
+  @browser.a(:text => text).should be_visible
 end
 
 Then /^the input with id ([a-f0-9]{32}-[a-f0-9]{32}) has the value "(.*?)"$/ do | identifier, value |

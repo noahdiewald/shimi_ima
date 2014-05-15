@@ -6,13 +6,14 @@
 
 // ## Variable Definitions
 
+var ui = require('documents/ui-shared');
+var info = require('documents/information');
 var setsui = require('documents/setsui');
 var editui = require('./editui.js');
 var viewui = require('documents/viewui');
 var indexui = require('documents/indexui');
 var changeui = require('documents/changeui');
 var S = require('../sender.js');
-var store = require('store').store;
 var ajax = require('ajax');
 var identifier;
 
@@ -45,215 +46,20 @@ var loadHash = function (urlHash) {
   return true;
 };
 
-// A user interface element.
-var allDocContainer = function () {
-  'use strict';
-
-  return document.getElementById('all-document-container');
-};
-
-// Key used in retrieving cached information from session storage.
-var versionKey = function () {
-  'use strict';
-
-  return identifier() + '_version';
-};
-
-// Key used in retrieving cached information from session storage.
-var infoKey = function () {
-  'use strict';
-
-  return identifier() + '_info';
-};
-
-// Key used in retrieving cached information from session storage.
-var labelsKey = function () {
-  'use strict';
-
-  return identifier() + '_labels';
-};
-
-// Key used in retrieving cached information from session storage.
-var fieldsToFieldsetKey = function () {
-  'use strict';
-
-  return identifier() + '_fieldsToFieldset';
-};
-
-// Store the doctype info in the session store.
-var storeDoctype = function (doctype) {
-  'use strict';
-
-  sessionStorage.setItem(infoKey(), doctype);
-
-  return S.sender('doctype-info-ready');
-};
-
-// Get the stored doctype version.
-var getVersion = function () {
-  'use strict';
-
-  return sessionStorage.getItem(versionKey());
-};
-
-// Get the most recent doctype version, which is placed in a `data`
-// attribute that is updated on page reloads.
-var getCurrentVersion = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('version');
-};
-
-// Check if the stored doctype version matches the version found in the
-// `data` attribute.
-var isCurrentVersionStored = function () {
-  'use strict';
-
-  return (getVersion() && getVersion() === getCurrentVersion());
-};
-
-var isInfoStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(infoKey()) !== null;
-};
-
-var isLabelsStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(labelsKey()) !== null;
-};
-
-var isFieldsToFieldsetStored = function () {
-  'use strict';
-
-  return sessionStorage.getItem(fieldsToFieldsetKey()) !== null;
-};
-
-// Check the session state to ensure it is up to date and fully
-// loaded.
-var checkState = function () {
-  'use strict';
-
-  var retval;
-
-  if (isCurrentVersionStored() && isInfoStored() && isLabelsStored() && isFieldsToFieldsetStored()) {
-    retval = S.sender('doctype-cached-info-ready');
-  } else {
-    retval = S.sender('bad-session-state');
-  }
-
-  return retval;
-};
-
 // ## Exported functions
-
-// Get the project id
-var project = function () {
-  'use strict';
-
-  var container = document.getElementById('container');
-  return store(container).get('project-id');
-};
-
-// Reset the doctype version
-var setVersion = function () {
-  'use strict';
-
-  sessionStorage.setItem(versionKey(), getCurrentVersion());
-  S.sender('version-set');
-
-  return true;
-};
-
-// Clear the session storage
-var clearSession = function () {
-  'use strict';
-
-  sessionStorage.clear();
-  S.sender('session-cleared');
-
-  return true;
-};
-
-// Get the doctype name
-var doctypeId = function () {
-  'use strict';
-
-  return store(allDocContainer()).d('doctype');
-};
-
-// Identifier is a combination of the project and doctype name.
-identifier = function () {
-  'use strict';
-
-  return project() + '_' + doctypeId();
-};
-
-// Get information about doctype.
-var info = function () {
-  'use strict';
-
-  return JSON.parse(sessionStorage.getItem(infoKey()));
-};
-
-// Load the doctype document stored on the server.
-var loadDoctype = function () {
-  'use strict';
-
-  ajax.get('./', function (req) {
-    storeDoctype(JSON.stringify(req.response));
-  });
-
-  return true;
-};
-
-// Process the field and fieldset info to create a field id to fieldset
-// id index.
-var makeFieldsetLookup = function () {
-  'use strict';
-
-  var info1 = info();
-  var lookup = {};
-
-  info1.fieldsets.forEach(function (fieldset) {
-    fieldset.fields.forEach(function (field) {
-      lookup[field._id] = fieldset._id;
-    });
-  });
-
-  sessionStorage.setItem(fieldsToFieldsetKey(), JSON.stringify(lookup));
-
-  return S.sender('fieldset-lookup-ready');
-};
-
-// Process the field and fieldset info to create a field id to field
-// label index.
-var makeLabels = function () {
-  'use strict';
-
-  var info1 = info();
-  var labels = {};
-
-  info1.fieldsets.forEach(function (fieldset) {
-    fieldset.fields.forEach(function (field) {
-      labels[field._id] = [fieldset.label, field.label];
-    });
-  });
-
-  sessionStorage.setItem(labelsKey(), JSON.stringify(labels));
-
-  return S.sender('doctype-cached-info-ready');
-};
 
 // Initialize the documents sub-application.
 var init = function () {
   'use strict';
 
+  // TODO: there should be a better place for this.
   document.onsubmit = function () {
     return false;
   };
-  checkState();
+
+  S.sender('document-init-stage-1');
+
+  return true;
 };
 
 // Initialization dependent on init.
@@ -265,19 +71,9 @@ var init2 = function () {
   indexui.get();
   indexForm();
   editui.init();
-  // TODO remove JQuery
-  loadHash($(location)[0].hash.split('#')[1]);
+  loadHash(window.location.hash.split('#')[1]);
   changeui.get();
 };
 
-exports.setVersion = setVersion;
-exports.clearSession = clearSession;
-exports.doctypeId = doctypeId;
-exports.identifier = identifier;
-exports.info = info;
-exports.loadDoctype = loadDoctype;
-exports.makeLabels = makeLabels;
-exports.makeFieldsetLookup = makeFieldsetLookup;
-exports.project = project;
 exports.init = init;
 exports.init2 = init2;

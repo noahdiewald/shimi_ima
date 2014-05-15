@@ -14,17 +14,12 @@ var r = require('lib/recurse');
 
 // ## External functions
 
-// Takes a JQuery element and returns an object with helper methods for
+// Takes an Element and returns an object with helper methods for
 // getting and putting custom data attribute values.
 var store = function (elem) {
   'use strict';
 
   var mod = {};
-
-  // TODO: Remove this when fieldsets.js has JQuery dependency removed
-  if (elem.dataset === undefined) {
-    elem = elem[0];
-  }
 
   // This funtion takes a key that corresponds to the name of the data
   // attribute without the `data-` prefix. The element is expected to have

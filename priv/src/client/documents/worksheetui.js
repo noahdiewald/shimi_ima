@@ -10,7 +10,7 @@
 var Hogan = require('hogan.js');
 var templates = require('templates');
 var setsui = require('documents/setsui');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var flash = require('flash');
 
@@ -28,13 +28,6 @@ var worksheetsArea = function () {
   'use strict';
 
   return $('#worksheet-area');
-};
-
-// Name for the worksheet template.
-var worksheetName = function () {
-  'use strict';
-
-  return documents.identifier() + '_worksheet-template';
 };
 
 // Exported functions
@@ -141,9 +134,9 @@ var hideField = function (fid) {
 var buildTemplate = function () {
   'use strict';
 
-  var doctypeInfo = documents.info();
+  var doctypeInfo = info.info();
   var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
-  globals[worksheetName()] = Hogan.compile(metaTemp);
+  globals[info.worksheetName()] = Hogan.compile(metaTemp);
 
   return true;
 };
@@ -155,7 +148,7 @@ var fillWorksheet = function () {
   var setName = worksheetsSet().val();
   var url = 'worksheets';
   var complete = function (req) {
-    var ws = globals[worksheetName()].render(req.response);
+    var ws = globals[info.worksheetName()].render(req.response);
     worksheetsArea().html(ws);
   };
 

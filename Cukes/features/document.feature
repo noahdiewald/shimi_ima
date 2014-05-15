@@ -42,6 +42,26 @@ Scenario: Updating a document
 
 Scenario: Deleting a document
   Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
+  When I click the Delete link
+  And I click ok
+  Then document 31bb7974cd97a09997da637e4445a142 is not listed in the index pane
+  And the Restore link is visible
+
+Scenario: Restoring a document immmediately after deleting
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
+  When I click the Delete link
+  And I click ok
+  Then document 31bb7974cd97a09997da637e4445a142 is not listed in the index pane
+  When I click the Restore link
+  And I click ok
+  Then document 31bb7974cd97a09997da637e4445a142 is listed in the index pane
+  And the Delete link is visible
+
+Scenario: Restoring a previously deleted document
+  Given the deleted document is in the view pane
+  When I click the Restore link
+  And I click ok
+  Then document 0e834d0dd8b47706bd4aa0d74ce3f8ab is listed in the index pane
 
 Scenario: Expanding and contracting text boxes
   Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane

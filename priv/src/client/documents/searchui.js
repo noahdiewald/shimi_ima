@@ -10,7 +10,7 @@ var templates = require('templates');
 var utils = require('utils');
 var sets = require('sets');
 var setsui = require('documents/setsui');
-var documents = require('documents/documents');
+var info = require('documents/information');
 var ajax = require('ajax');
 var multipleFields;
 var loadSearchVals;
@@ -84,7 +84,7 @@ var searchListing = function () {
 var getIdentifier = function () {
   'use strict';
 
-  return documents.identifier();
+  return info.identifier();
 };
 
 // All the form elements.
