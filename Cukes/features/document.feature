@@ -39,6 +39,8 @@ Scenario: Selecting and viewing a document
 
 Scenario: Updating a document
   Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
+  When I click save
+  Then the updated date is not blank
 
 Scenario: Deleting a document
   Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
@@ -111,3 +113,10 @@ Scenario: Help dialogs
   Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
   When I click the first help icon
   Then the help dialog text is "Just enter a name!!!!"
+
+Scenario: Updating a document twice in a row
+  Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
+  When I click save
+  Then the updated date is not blank
+  When I click save
+  Then the updated date is different

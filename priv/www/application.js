@@ -11900,10 +11900,10 @@ var afterFreshRefresh = function (addInstances) {
 var afterEditRefresh = function () {
   'use strict';
 
-  var sharedAttrs = ['data-document-id', 'data-document-rev'];
+  var sharedAttrs = ['data-document-document', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    ui.saveButton().setAttribute(elem, ui.editButton().getAttribute(elem));
+    ui.saveButton().setAttribute(elem, ui.viewInfo().getAttribute(elem));
   });
 
   ui.showButton(ui.saveButton());
@@ -11965,9 +11965,8 @@ var save = function () {
     }
   }
 
-  var body;
-  var title;
-  var s = store(ui.saveButton());
+  var sb = ui.saveButton();
+  var s = store(sb);
   var doc = s.d('document');
   var rev = s.d('rev');
   var url = './documents/' + doc + '?rev=' + rev;
@@ -11978,27 +11977,23 @@ var save = function () {
     description: s.d('description')
   };
   var statusCallbacks = [];
-  var success = function () {
-    title = 'Success';
-    body = 'Your document was saved.';
+  var success = function (req) {
     viewui.get(doc);
     indexui.get(ui.skey(), ui.sid());
-    flash.highlight(title, body);
-    ui.saveButton().classList.remove('oldrev');
-    ui.showButton(ui.saveButton());
+    flash.highlight('Success', 'Your document was saved.');
+    sb.classList.remove('oldrev');
+    sb.dataset.documentRev = req.response.rev;
+    ui.showButton(sb);
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(ui.saveButton());
+    ui.showButton(sb);
   };
   statusCallbacks[409] = function (req) {
-    body = JSON.parse(req.responseText);
-    title = req.statusText;
-
-    flash.error(title, body.message);
-    ui.hideButton(ui.saveButton());
+    flash.error(req.statusText, req.response.message);
+    ui.hideButton(sb);
   };
 
   clearErrorStates();
@@ -12123,6 +12118,7 @@ var store = require('store').store;
 var utils = require('utils');
 var editui = require('./editui.js');
 var info = require('documents/information');
+var ui = require('documents/ui-shared');
 var ajax = require('ajax');
 var templates = require('templates');
 var dateOrNumber;
@@ -12443,7 +12439,7 @@ var fillMultiFieldsets = function (vfieldset) {
   'use strict';
 
   var id = store(vfieldset).fs('fieldset');
-  var container = document.getElementById('container-' + id);
+  var container = fsContainer(id);
   var url = dpath(vfieldset, 'fieldset');
 
   container.innerHtml = '';
@@ -12466,14 +12462,11 @@ var fillNormalFieldsets = function (vfieldset) {
 fillFields = function (container, context) {
   'use strict';
 
-  var saveButton = document.getElementById('save-document-button');
-
   Array.prototype.forEach.call(document.querySelectorAll('#edit-document-form .ui-state-error'), function (item) {
     item.removeClass('ui-state-error');
   });
 
-  saveButton.classList.remove('hidden');
-  saveButton.removeAttribute('disabled');
+  ui.showButton(ui.saveButton());
 
   Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;
@@ -12530,7 +12523,7 @@ initFieldset = function (fieldset, callback, addInstances) {
 
   var url = dpath(fieldset, 'fieldset').toString();
   var id = store(fieldset).fs('fieldset');
-  var container = document.getElementById('container-' + id);
+  var container = fsContainer(id);
   var appendIt = function (data) {
     container.insertAdjacentHTML('beforeend', data);
     initFields(container, callback, addInstances);
@@ -12638,7 +12631,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"store":151,"templates":52,"utils":152}],69:[function(require,module,exports){
+},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":52,"utils":152}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON, JQuery
@@ -14255,7 +14248,7 @@ var get = function (id, rev, callback) {
       ui.dvt().classList.add('oldrev');
     } else {
       if (store(ui.restoreButton()).d('deleted') === 'true') {
-        //ui.hideButton(ui.editButton());
+        ui.hideButton(ui.editButton());
         ui.hideButton(ui.deleteButton());
         ui.showButton(ui.restoreButton());
       }
@@ -14352,11 +14345,13 @@ var confirmIt = function (callback) {
 var edit = function () {
   'use strict';
 
+  var sb = ui.saveButton();
+
   editui.clear();
   if (ui.dvt().classList.contains('oldrev')) {
-    ui.saveButton().classList.add('oldrev');
+    sb.classList.add('oldrev');
   } else {
-    ui.saveButton().classList.remove('oldrev');
+    sb.classList.remove('oldrev');
   }
   fieldsets.fillFieldsets();
 
@@ -18116,7 +18111,7 @@ module.exports=require(66)
 module.exports=require(67)
 },{"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/information":122,"documents/ui-shared":125,"documents/viewui":126,"flash":129,"form":130,"node-uuid":51,"store":151,"templates":105}],120:[function(require,module,exports){
 module.exports=require(68)
-},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"store":151,"templates":105,"utils":152}],121:[function(require,module,exports){
+},{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":105,"utils":152}],121:[function(require,module,exports){
 module.exports=require(69)
 },{"./editui.js":67,"./viewui.js":74,"ajax":106,"pager":145,"templates":105}],122:[function(require,module,exports){
 module.exports=require(70)

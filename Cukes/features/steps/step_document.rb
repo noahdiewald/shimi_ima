@@ -23,6 +23,11 @@ end
 Given /^the ([a-f0-9]{32}) document is in the edit pane$/ do | identifier |
   step "the #{identifier} document is in the view pane"
   step "I click the Edit link"
+  @browser.a(:id => 'save-document-button').wait_until_present
+end
+
+When /^I click save$/ do
+  @browser.a(:id => 'save-document-button').click
 end
 
 When /^I click the test project link$/ do
@@ -175,4 +180,15 @@ end
 Then /^the help dialog text is "(.*?)"$/ do | text |
   @browser.p(:id => 'help-dialog-text').wait_until_present
   @browser.p(:id => 'help-dialog-text').text.should == text
+end
+
+Then /^the updated date is not blank$/ do
+  @browser.div(:id => 'loading').wait_while_present
+  @updated_date = @browser.element(:xpath => '/html/body/section/div[2]/div/div[6]/div[2]/div/dl/dd[3]').text
+  @updated_date.should_not == ''
+end
+
+Then /^the updated date is different$/ do
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.element(:xpath => '/html/body/section/div[2]/div/div[6]/div[2]/div/dl/dd[3]').text.should_not == @updated_date
 end

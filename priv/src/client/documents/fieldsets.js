@@ -11,6 +11,7 @@ var store = require('store').store;
 var utils = require('utils');
 var editui = require('./editui.js');
 var info = require('documents/information');
+var ui = require('documents/ui-shared');
 var ajax = require('ajax');
 var templates = require('templates');
 var dateOrNumber;
@@ -331,7 +332,7 @@ var fillMultiFieldsets = function (vfieldset) {
   'use strict';
 
   var id = store(vfieldset).fs('fieldset');
-  var container = document.getElementById('container-' + id);
+  var container = fsContainer(id);
   var url = dpath(vfieldset, 'fieldset');
 
   container.innerHtml = '';
@@ -354,14 +355,11 @@ var fillNormalFieldsets = function (vfieldset) {
 fillFields = function (container, context) {
   'use strict';
 
-  var saveButton = document.getElementById('save-document-button');
-
   Array.prototype.forEach.call(document.querySelectorAll('#edit-document-form .ui-state-error'), function (item) {
     item.removeClass('ui-state-error');
   });
 
-  saveButton.classList.remove('hidden');
-  saveButton.removeAttribute('disabled');
+  ui.showButton(ui.saveButton());
 
   Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;
@@ -418,7 +416,7 @@ initFieldset = function (fieldset, callback, addInstances) {
 
   var url = dpath(fieldset, 'fieldset').toString();
   var id = store(fieldset).fs('fieldset');
-  var container = document.getElementById('container-' + id);
+  var container = fsContainer(id);
   var appendIt = function (data) {
     container.insertAdjacentHTML('beforeend', data);
     initFields(container, callback, addInstances);

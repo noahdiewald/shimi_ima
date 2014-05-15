@@ -259,11 +259,13 @@ var confirmIt = function (callback) {
 var edit = function () {
   'use strict';
 
+  var sb = ui.saveButton();
+
   editui.clear();
   if (ui.dvt().classList.contains('oldrev')) {
-    ui.saveButton().classList.add('oldrev');
+    sb.classList.add('oldrev');
   } else {
-    ui.saveButton().classList.remove('oldrev');
+    sb.classList.remove('oldrev');
   }
   fieldsets.fillFieldsets();
 

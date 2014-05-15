@@ -133,10 +133,10 @@ var afterFreshRefresh = function (addInstances) {
 var afterEditRefresh = function () {
   'use strict';
 
-  var sharedAttrs = ['data-document-id', 'data-document-rev'];
+  var sharedAttrs = ['data-document-document', 'data-document-rev'];
 
   sharedAttrs.forEach(function (elem) {
-    ui.saveButton().setAttribute(elem, ui.editButton().getAttribute(elem));
+    ui.saveButton().setAttribute(elem, ui.viewInfo().getAttribute(elem));
   });
 
   ui.showButton(ui.saveButton());
@@ -198,9 +198,8 @@ var save = function () {
     }
   }
 
-  var body;
-  var title;
-  var s = store(ui.saveButton());
+  var sb = ui.saveButton();
+  var s = store(sb);
   var doc = s.d('document');
   var rev = s.d('rev');
   var url = './documents/' + doc + '?rev=' + rev;
@@ -211,27 +210,23 @@ var save = function () {
     description: s.d('description')
   };
   var statusCallbacks = [];
-  var success = function () {
-    title = 'Success';
-    body = 'Your document was saved.';
+  var success = function (req) {
     viewui.get(doc);
     indexui.get(ui.skey(), ui.sid());
-    flash.highlight(title, body);
-    ui.saveButton().classList.remove('oldrev');
-    ui.showButton(ui.saveButton());
+    flash.highlight('Success', 'Your document was saved.');
+    sb.classList.remove('oldrev');
+    sb.dataset.documentRev = req.response.rev;
+    ui.showButton(sb);
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(ui.saveButton());
+    ui.showButton(sb);
   };
   statusCallbacks[409] = function (req) {
-    body = JSON.parse(req.responseText);
-    title = req.statusText;
-
-    flash.error(title, body.message);
-    ui.hideButton(ui.saveButton());
+    flash.error(req.statusText, req.response.message);
+    ui.hideButton(sb);
   };
 
   clearErrorStates();
