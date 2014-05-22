@@ -8,4 +8,6 @@ Scenario: Simple general search
   Then the search panel is visible
   When I enter "burn" as the search term
   Then the loading message is displayed
-  And the 31bb7974cd97a09997da637e4445a142 is listed under Basic Flavor
+  And there are 1 results for Basic Flavor
+  When I click the search header for Basic Flavor
+  Then the 31bb7974cd97a09997da637e4445a142 document is listed under Basic Flavor
