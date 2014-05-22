@@ -4,10 +4,18 @@ Given /^the search pane is open$/ do
   step "I click the search panel menu item"
 end
 
-When /^I click the search header for (\w+) (\w+) do | fieldset, field |
+When /^I click the search header for (\w+) (\w+)$/ do | fieldset, field |
   @browser.div(:id => 'loading').wait_while_present
   fid = @popsicleFields[fieldset + ':' + field]
   @browser.h5(:'data-field-field' => fid).click
+end
+
+When /^I enter "(.*?)" as the search term$/ do | term |
+  @browser.text_field(:id => 'document-search-term').set term
+end
+
+When /^I execute the search$/ do
+  @browser.input(:id => 'document-search-term').send_keys [:enter]
 end
 
 Then /^there are (\d+) results for (\w+) (\w+)$/ do | num, fieldset, field |

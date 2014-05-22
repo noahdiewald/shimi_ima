@@ -40,8 +40,8 @@ Given /^the ([a-f0-9]{32}) document is in the edit pane$/ do | identifier |
   @browser.a(:id => 'save-document-button').wait_until_present
 end
 
-When /^I click the (\w+) panel menu item$" do | pane |
-  @browser.li(:'data-panel' => "document-#{panel}").click
+When /^I click the (\w+) panel menu item$/ do | panel |
+  @browser.li(:data_panel => "document-#{panel}").click
 end
  
 When /^I click the (\w+) link$/ do | text |
@@ -51,4 +51,12 @@ end
 When /^I click the "(.*?)" link$/ do | text |
   @browser.div(:id => 'loading').wait_while_present
   @browser.link(:text, text).click
+end
+
+Then /^the (\w+) panel is visible$/ do | panel |
+  @browser.div(:id => "document-#{panel}").should be_visible
+end
+
+Then /^the loading message is displayed$/ do
+  @browser.div(:id => "loading").should be_visible
 end
