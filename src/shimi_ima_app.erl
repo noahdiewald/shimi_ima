@@ -53,7 +53,6 @@ start(_Type, _StartArgs) ->
              {"/projects/:project/doctypes/:doctype/documents", document_resource, [{target, main}|Opts]},
              {"/projects/:project/doctypes/:doctype/documents/index", document_resource, [{target, index}|Opts]},
              {"/projects/:project/doctypes/:doctype/documents/search", document_resource, [{target, search}|Opts]},
-             {"/projects/:project/doctypes/:doctype/documents/edit", document_resource, [{target, edit}|Opts]},
              {"/projects/:project/doctypes/:doctype/documents/:id", document_resource, [{target, identifier}|Opts]},
              {"/projects/:project/doctypes/:doctype/documents/:id/:rev", document_resource, [{target, revision}|Opts]},
              {"/projects/:project/doctypes/:doctype/worksheets", document_resource, [{target, worksheets_get}|Opts]},

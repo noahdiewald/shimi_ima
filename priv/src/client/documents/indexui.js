@@ -1,6 +1,6 @@
 // # Index Listing
 //
-// *Implicit depends:* DOM, JSON, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads index based on user suplied values. It also loads some other
 // preliminary data, such as the listing of user created indexes. The
@@ -11,6 +11,7 @@
 var templates = require('templates');
 var pager = require('pager').pager;
 var ajax = require('ajax');
+var ui = require('ui-shared');
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 
@@ -70,7 +71,7 @@ var iOpts = function () {
     var data = req.response;
 
     options = templates['index-options'](data);
-    $('#index-index-input').html(options);
+    ui.indexIndexInput.innerHTML = options;
   });
 
   return true;
@@ -83,8 +84,8 @@ var iOpts = function () {
 var load = function (target) {
   'use strict';
 
-  var id = $(target).attr('href').slice(1);
-  $('#document-view').html('<em>Loading...</em>');
+  var id = target.getAttribute('href').slice(1);
+  ui.dv.innerHTML = '<em>Loading...</em>';
   editui.clear();
   viewui.get(id);
 

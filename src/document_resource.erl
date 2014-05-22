@@ -65,7 +65,6 @@ allowed_methods(R, S) ->
         index -> {[<<"HEAD">>, <<"GET">>], R, S};
         identifier -> {[<<"HEAD">>, <<"GET">>, <<"PUT">>, <<"DELETE">>], R, S};
         revision -> {[<<"HEAD">>, <<"GET">>], R, S};
-        edit -> {[<<"HEAD">>, <<"GET">>], R, S};
         search -> {[<<"HEAD">>, <<"GET">>], R, S};
         worksheets_get -> {[<<"HEAD">>, <<"POST">>], R, S};
         worksheets_put -> {[<<"HEAD">>, <<"GET">>], R, S}
@@ -80,6 +79,7 @@ content_types_provided(R, S) ->
         identifier -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         revision -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         index -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
+        search -> {[{{<<"application">>, <<"json">>, []}, to_json}], R, S};
         _ -> {[{{<<"text">>, <<"html">>, []}, to_html},
                    {{<<"application">>, <<"json">>, []}, to_json}], R, S}
     end.
@@ -97,14 +97,14 @@ delete_resource(R, S) ->
   
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        main -> html_documents(R, S);
-        search -> html_search(R, S)
+        main -> html_documents(R, S)
     end.
     
 to_json(R, S) ->
     case proplists:get_value(target, S) of
         main -> json_index(R, S);
         index -> json_index(R, S);
+        search -> json_search(R, S);
         identifier -> json_document(R, S);
         revision -> json_revision(R, S)
     end.
@@ -211,12 +211,7 @@ json_revision(R, S) ->
     Json = [{<<"previous_revision">>, Prev}|Requested],
     {jsn:encode(Json), R2, S}.
 
-html_documents(R, S) ->
-    {Info, R1} = h:basic_info(R, S),
-    {ok, Html} = render:render(document_dtl, Info),
-    {Html, R1, S}.
-
-html_search(R, S) ->
+json_search(R, S) ->
     {Query, R1} = cowboy_req:qs_val(<<"q">>, R),
     {Exclude, R2} = cowboy_req:qs_val(<<"exclude">>, R1),
     {Invert, R3} = cowboy_req:qs_val(<<"invert">>, R2),
@@ -236,8 +231,12 @@ html_search(R, S) ->
         qs = Query
     },
     Results = search:values(Params, Project, S),
-    {ok, Html} = render:render(document_search_dtl, Results),
-    {Html, R4, S}.
+    {jsn:encode(Results), R4, S}.
+
+html_documents(R, S) ->
+    {Info, R1} = h:basic_info(R, S),
+    {ok, Html} = render:render(document_dtl, Info),
+    {Html, R1, S}.
 
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),

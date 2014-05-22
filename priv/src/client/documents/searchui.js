@@ -10,6 +10,7 @@ var templates = require('templates');
 var utils = require('utils');
 var sets = require('sets');
 var setsui = require('documents/setsui');
+var ui = require('documents/ui-shared');
 var info = require('documents/information');
 var ajax = require('ajax');
 var multipleFields;
@@ -21,63 +22,63 @@ var loadSearchVals;
 var searchIndex = function () {
   'use strict';
 
-  return $('#document-search-index');
+  return document.getElementById('document-search-index');
 };
 
 // User interface element
 var searchIndexLabel = function () {
   'use strict';
 
-  return $('#search-index-label');
+  return document.getElementById('search-index-label');
 };
 
 // User interface element
 var searchTerm = function () {
   'use strict';
 
-  return $('#document-search-term');
+  return document.getElementById('document-search-term');
 };
 
 // User interface element
 var searchFields = function () {
   'use strict';
 
-  return $('#document-search-field');
+  return document.getElementById('document-search-field');
 };
 
 // User interface element
 var searchFieldsLabel = function () {
   'use strict';
 
-  return $('#search-field-label');
+  return document.getElementById('document-search-label');
 };
 
 // User interface element
 var searchExclude = function () {
   'use strict';
 
-  return $('#document-search-exclude');
+  return document.getElementById('document-search-exclude');
 };
 
 // User interface element
 var searchInvert = function () {
   'use strict';
 
-  return $('#document-search-invert');
+  return document.getElementById('document-search-invert');
 };
 
 // User interface element
 var searchAll = function () {
   'use strict';
 
-  return $('#search-all-fields-switch');
+  return document.getElementById('search-all-fields-switch');
 };
 
 // User interface element
 var searchListing = function () {
   'use strict';
 
-  return $('#search-listing');
+  return document.getElementById('search-listing');
 };
 
 // User interface element
@@ -95,7 +96,8 @@ var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel,
 var indexVal = function () {
   'use strict';
 
-  var val = $('#index-index-input').val();
+  var val = ui.indexIndexInput().value;
+
   if (val.length === 0) {
     return null;
   } else {
@@ -132,12 +134,12 @@ var clearVals = function () {
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type')) {
+    switch (elem.getAttribute('type')) {
     case 'hidden':
-      elem.val('');
+      elem.value = '';
       break;
     case 'checkbox':
-      elem.prop('checked', false);
+      elem.checked = false;
       break;
     }
   });
@@ -149,14 +151,14 @@ var hideElems = function () {
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type')) {
+    switch (elem.getAttribute('type')) {
     case 'hidden':
       break;
     case 'checkbox':
-      elem.parent('div').hide();
+      ui.hide(elem.parentElement);
       break;
     default:
-      elem.hide();
+      ui.hide(elem);
     }
   });
 };
@@ -189,14 +191,14 @@ var setFields = function (fields) {
   var sfls = searchFieldsLabel();
   var ident = getIdentifier();
 
-  searchFields().val(jFields);
+  searchFields().value = jFields;
   localStorage.setItem(ident + '_searchFields', jFields);
 
   var linkLabels = fields.map(function (x) {
     return searchFieldItem(x, fLabels[x].join(': '));
   });
 
-  sfls.html(linkLabels.join(' '));
+  sfls.innerHTML = linkLabels.join(' ');
 
   return true;
 };
@@ -210,6 +212,7 @@ var allFields = function () {
   clearStore();
   hideElems();
   clearVals();
+
   return true;
 };
 
@@ -218,7 +221,8 @@ var singleField = function (fields) {
   'use strict';
 
   multipleFields(fields);
-  searchInvert().parent().show();
+  ui.show(searchInvert().parentElement);
+
   return true;
 };
 
@@ -229,8 +233,9 @@ var singleFieldInverse = function (fields) {
 
   var ident = getIdentifier();
   singleField(fields);
-  searchInvert().prop('checked', true);
+  searchInvert().checked = true;
   localStorage.setItem(ident + '_searchInvert', true);
+
   return true;
 };
 
@@ -240,9 +245,10 @@ multipleFields = function (fields) {
 
   allFields();
   setFields(fields);
-  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
-    x.show();
+  [searchAll(), searchFieldsLabel(), searchExclude().parentElement].forEach(function (x) {
+    ui.show(x);
   });
+
   return true;
 };
 
@@ -251,13 +257,16 @@ var excludedFields = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
+
   if (fields.length > 1) {
     multipleFields(fields);
   } else {
     singleField(fields);
   }
-  searchExclude().prop('checked', true);
+
+  searchExclude().checked = true;
   localStorage.setItem(ident + '_searchExclude', true);
+
   return true;
 };
 
@@ -266,14 +275,17 @@ var indexOnly = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
+
   allFields();
   localStorage.setItem(ident + '_searchIndex', index);
   localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
-  searchIndex().val(index);
-  searchIndexLabel().html(indexLabel);
-  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
-    x.show();
+  searchIndex().value = index;
+  searchIndexLabel().innerHTML = indexLabel;
+
+  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parentElement].forEach(function (x) {
+    ui.show(x);
   });
+
   return true;
 };
 
@@ -283,9 +295,11 @@ var indexInverse = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
+
   indexOnly(index, indexLabel);
-  searchInvert().prop('checked', true);
+  searchInvert().checked = true;
   localStorage.setItem(ident + '_searchInvert', true);
+
   return true;
 };
 
@@ -293,12 +307,12 @@ var indexInverse = function (index, indexLabel) {
 var getSearch = function () {
   'use strict';
 
-  var query = searchTerm().val();
+  var query = searchTerm().value;
   var url = 'documents/search?q=' + window.encodeURIComponent(query);
-  var field = searchFields().val();
-  var exclude = searchExclude().is(':checked');
-  var invert = searchInvert().is(':checked');
-  var index = searchIndex().val();
+  var field = searchFields().value;
+  var exclude = searchExclude().checked;
+  var invert = searchInvert().checked;
+  var index = searchIndex().value;
   var fieldlabels = fieldLabels();
 
   if (index) {
@@ -315,29 +329,30 @@ var getSearch = function () {
     url = url + '&invert=true';
   }
 
-  searchListing().hide();
+  ui.hide(searchListing());
 
   ajax.legacyHTMLGet(url, function (req) {
-    searchListing().html(req.response);
+    searchListing().innerHTML = req.response;
 
-    $('.search-result-field-id').each(function (index, item) {
-      var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
-      var target = $(item).children('a').first();
-      target.html(label);
-      target.attr('data-search-label', label);
+    Array.prototype.forEach.call(document.getElementsByClassName('search-result-field-id'), function (item) {
+      var label = fieldlabels[item.dataset.fieldField].join(': ');
+      var target = item.firstChild;
+
+      target.innerHTML = label;
+      target.dataset.searchLabel = label;
     });
 
     if (!invert) {
-      $('.search-results th').each(function (index, item) {
-        var itemText = $.trim($(item).children('a').html());
+      Array.prototype.forEach.call(document.querySelectorAll('.search-results th'), function (item) {
+        var itemText = item.firstChild.innerHTML.replace(/(^\s|\s$)/g, '');
         var re = new RegExp('(' + query + ')', 'g');
         var newText = itemText.replace(re, '<span class="highlight">$1</span>');
-        $(item).children('a').html(newText);
+
+        item.firstChild.innerHTML = newText;
       });
     }
 
-    searchListing().show();
-
+    show(searchListing());
   });
 
   return true;
@@ -353,7 +368,7 @@ var removeField = function (t) {
   var newSearchFields;
   var fields = JSON.parse(searchFields);
   var newFields;
-  var id = $(t).attr('data-field-field');
+  var id = t.dataset.fieldField;
 
   if (fields !== null) {
     newFields = fields.filter(function (x) {
@@ -378,7 +393,7 @@ var addField = function (t) {
   var newSearchFields;
   var fields = JSON.parse(searchFields);
   var newFields;
-  var id = $(t).attr('data-field-field');
+  var id = t.dataset.fieldField;
 
   if (fields === null) {
     fields = [];
@@ -415,7 +430,8 @@ var toggleInversion = function () {
   'use strict';
 
   var ident = getIdentifier();
-  localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
+
+  localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().checked));
   localStorage.setItem(ident + '_searchExclude', null);
   loadSearchVals();
 
@@ -427,7 +443,8 @@ var toggleExclusion = function () {
   'use strict';
 
   var ident = getIdentifier();
-  localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
+
+  localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().checked));
   localStorage.getItem(ident + '_searchInvert', null);
   loadSearchVals();
 
@@ -490,32 +507,30 @@ loadSearchVals = function () {
 };
 
 // Toggle selection of result to save to set.
-var toggleSelection = function (t) {
+var toggleSelection = function (target) {
   'use strict';
 
-  var target = $(t);
-
-  if (target.is(':checked')) {
-    target.next('label').next('table').addClass('selected-for-save');
+  if (target.checked) {
+    target.nextSibling.nextSibling.classList.add('selected-for-save');
   } else {
-    target.next('label').next('table').removeClass('selected-for-save');
+    target.nextSibling.nextSibling.classList.remove('selected-for-save');
   }
 
   return true;
 };
 
-exports.allFields = allFields;
-exports.singleField = singleField;
-exports.singleFieldInverse = singleFieldInverse;
-exports.multipleFields = multipleFields;
-exports.excludedFields = excludedFields;
-exports.indexOnly = indexOnly;
-exports.indexInverse = indexInverse;
-exports.getSearch = getSearch;
-exports.removeField = removeField;
 exports.addField = addField;
 exports.addIndex = addIndex;
-exports.toggleInversion = toggleInversion;
-exports.toggleExclusion = toggleExclusion;
+exports.allFields = allFields;
+exports.excludedFields = excludedFields;
+exports.getSearch = getSearch;
+exports.indexInverse = indexInverse;
+exports.indexOnly = indexOnly;
 exports.loadSearchVals = loadSearchVals;
+exports.multipleFields = multipleFields;
+exports.removeField = removeField;
+exports.singleField = singleField;
+exports.singleFieldInverse = singleFieldInverse;
+exports.toggleExclusion = toggleExclusion;
+exports.toggleInversion = toggleInversion;
 exports.toggleSelection = toggleSelection;
