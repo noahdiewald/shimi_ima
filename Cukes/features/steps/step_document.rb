@@ -1,29 +1,8 @@
-Given /^I am at the document page$/ do
-  @browser.goto(@popsicleURL)
-end
-
-Given /^a doctype with two documents exists$/ do
-  step "a doctype with fields exists"
-  post_fixture "Popsicle_two_docs.json", true
-end
-
-Given /^the ([a-f0-9]{32}) document is in the view pane$/ do | identifier |
-  step "a doctype with two documents exists"
-  @browser.goto(@popsicleURL + '#' + identifier)
-  @browser.a(:text => 'Edit').wait_until_present
-end
-
 Given /^the deleted document is in the view pane$/ do
   step "a doctype with fields exists"
   post_fixture "Popsicle_two_docs_one_deleted.json", true
   @browser.goto(@popsicleURL + '#0e834d0dd8b47706bd4aa0d74ce3f8ab')
   @browser.a(:text => 'Restore').wait_until_present
-end
-
-Given /^the ([a-f0-9]{32}) document is in the edit pane$/ do | identifier |
-  step "the #{identifier} document is in the view pane"
-  step "I click the Edit link"
-  @browser.a(:id => 'save-document-button').wait_until_present
 end
 
 When /^I click save$/ do

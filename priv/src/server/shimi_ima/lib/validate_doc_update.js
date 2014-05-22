@@ -517,7 +517,7 @@ exports.validate_doc_update = function (newDoc, saveDoc, userCtx, testEnv) {
   } else if (newDoc.category === 'index') {
     userIndex(newDoc, saveDoc, userCtx);
     return 'ok';
-  } else if (!newDoc.category && !!newDoc.doctype && !newDoc.deleted_) {
+  } else if (!newDoc.category && !! newDoc.doctype && !newDoc.deleted_) {
     documents(newDoc, saveDoc, userCtx);
     return 'ok';
   }

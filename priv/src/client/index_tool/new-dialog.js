@@ -68,14 +68,14 @@ var initIndexNewDialog = function () {
 
         if (checkResult) {
           var obj = {
-              'category': 'index',
-              'name': indexName.val(),
-              'show_deleted': indexShowDeleted.is(':checked'),
-              'conditions': [],
-              'doctype': indexDoctype.val(),
-              'fields_label': [getLabel()],
-              'fields': [indexField.val()]
-            },
+            'category': 'index',
+            'name': indexName.val(),
+            'show_deleted': indexShowDeleted.is(':checked'),
+            'conditions': [],
+            'doctype': indexDoctype.val(),
+            'fields_label': [getLabel()],
+            'fields': [indexField.val()]
+          },
             complete = function (context) {
               ilistingui.init();
               $(context).dialog('close');

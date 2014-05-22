@@ -1996,7 +1996,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -2223,8 +2226,11 @@ process.argv = [];
 function noop() {}
 
 process.on = noop;
+process.addListener = noop;
 process.once = noop;
 process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
 process.emit = noop;
 
 process.binding = function (name) {
@@ -3474,8 +3480,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":14,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./index.js":14,"FWaASH":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4858,8 +4864,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":21,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"inherits":11}],23:[function(require,module,exports){
+}).call(this,require("FWaASH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":21,"FWaASH":12,"inherits":11}],23:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -7586,8 +7592,8 @@ function forEach (xs, f) {
   }
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./_stream_readable":43,"./_stream_writable":45,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./_stream_readable":43,"./_stream_writable":45,"FWaASH":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8597,8 +8603,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"FWaASH":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9200,8 +9206,8 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./_stream_duplex":41,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./_stream_duplex":41,"FWaASH":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13609,8 +13615,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set [0];
-  var arr = sets.unique(set [1], member);
+  var name = set[0];
+  var arr = sets.unique(set[1], member);
   var procSet = [name, arr];
   return procSet;
 };
@@ -16491,14 +16497,14 @@ var initIndexNewDialog = function () {
 
         if (checkResult) {
           var obj = {
-              'category': 'index',
-              'name': indexName.val(),
-              'show_deleted': indexShowDeleted.is(':checked'),
-              'conditions': [],
-              'doctype': indexDoctype.val(),
-              'fields_label': [getLabel()],
-              'fields': [indexField.val()]
-            },
+            'category': 'index',
+            'name': indexName.val(),
+            'show_deleted': indexShowDeleted.is(':checked'),
+            'conditions': [],
+            'doctype': indexDoctype.val(),
+            'fields_label': [getLabel()],
+            'fields': [indexField.val()]
+          },
             complete = function (context) {
               ilistingui.init();
               $(context).dialog('close');
