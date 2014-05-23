@@ -69,9 +69,7 @@ get_fields(Doctype, ExFields, Project, S) ->
                 end
         end,
     {ok, Json} = q:fieldset(Doctype, false, Project, S),
-    Retval = lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)),
-    io:format("~p~n", [Retval]),
-    Retval.
+    lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
 
 %% @doc filter for searches on indexes
 index_filter([], _RE, Acc) ->
