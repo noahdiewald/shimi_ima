@@ -1,16 +1,23 @@
 function map(doc) {
   'use strict';
 
-  if (doc.category === 'fieldset') {
-    emit([doc.doctype, doc._id, 'fieldset', doc.order], [doc.name, doc.label]);
-  } else if (doc.category === 'field') {
-    emit([doc.doctype, doc.fieldset, 'fieldset-field', -doc.order], [doc.name, doc.label]);
-    if (doc.head) {
-      if (doc.charseq) {
-        emit(['_head-charseq', doc.doctype, doc.order], {
-          '_id': doc.charseq
-        });
-      }
+  if (doc.category === 'doctype') {
+    if (doc.fieldsets) {
+      doc.fieldsets.forEach(function (fieldset) {
+        emit([doc._id, fieldset._id, 'fieldset', fieldset.order], [fieldset.name, fieldset.label]);
+
+        if (fieldset.fields) {
+          fieldset.fields.forEach(function (field) {
+            emit([doc._id, fieldset._id, 'fieldset-field', -field.order], [field.name, field.label, field._id]);
+
+            if (field.head && field.charseq) {
+              emit(['_head-charseq', doc._id, field.order], {
+                '_id': field.charseq
+              });
+            }
+          });
+        };
+      });
     }
   }
 }

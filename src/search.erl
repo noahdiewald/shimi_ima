@@ -59,16 +59,19 @@ filter([H|T], RE, Acc) ->
 %% fields.
 get_fields(Doctype, ExFields, Project, S) ->
     F = fun(X, Acc) ->
-                [_, _, Type, _] = jsn:get_value(<<"key">>, X),
-                Id = jsn:get_value(<<"id">>, X),
-                case(Type =:= <<"fieldset-field">>) and 
-                    not (lists:member(Id, ExFields)) of
-                    true -> [Id|Acc];
+                case jsn:get_value(<<"value">>, X) of
+                    [_, _, Id] ->
+                        case not lists:member(Id, ExFields) of
+                            true -> [Id|Acc];
+                            _ -> Acc
+                        end;
                     _ -> Acc
                 end
         end,
     {ok, Json} = q:fieldset(Doctype, false, Project, S),
-    lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)).
+    Retval = lists:foldl(F, [], jsn:get_value(<<"rows">>, Json)),
+    io:format("~p~n", [Retval]),
+    Retval.
 
 %% @doc filter for searches on indexes
 index_filter([], _RE, Acc) ->
