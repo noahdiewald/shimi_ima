@@ -11,7 +11,7 @@
 var templates = require('templates');
 var pager = require('pager').pager;
 var ajax = require('ajax');
-var ui = require('ui-shared');
+var ui = require('documents/ui-shared');
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 

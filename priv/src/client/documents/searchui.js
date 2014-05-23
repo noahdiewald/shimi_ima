@@ -331,12 +331,28 @@ var getSearch = function () {
 
   ui.hide(searchListing());
 
-  ajax.legacyHTMLGet(url, function (req) {
-    searchListing().innerHTML = req.response;
+  ajax.get(url, function (req) {
+    var results = req.response;
+    var html;
+
+    results.are_results = results.rows && results.rows.length > 0;
+
+    if (results.index_listing) {
+      results.rows = results.rows.map(function (row) {
+        row.key = row.key.map(function (x) {
+          return x[1];
+        }).join(',');
+
+        return row;
+      });
+    }
+
+    html = templates['document-search'](results);
+    searchListing().innerHTML = html;
 
     Array.prototype.forEach.call(document.getElementsByClassName('search-result-field-id'), function (item) {
       var label = fieldlabels[item.dataset.fieldField].join(': ');
-      var target = item.firstChild;
+      var target = item.children[0];
 
       target.innerHTML = label;
       target.dataset.searchLabel = label;
@@ -344,15 +360,15 @@ var getSearch = function () {
 
     if (!invert) {
       Array.prototype.forEach.call(document.querySelectorAll('.search-results th'), function (item) {
-        var itemText = item.firstChild.innerHTML.replace(/(^\s|\s$)/g, '');
+        var itemText = item.children[0].innerHTML.replace(/(^\s|\s$)/g, '');
         var re = new RegExp('(' + query + ')', 'g');
         var newText = itemText.replace(re, '<span class="highlight">$1</span>');
 
-        item.firstChild.innerHTML = newText;
+        item.children[0].innerHTML = newText;
       });
     }
 
-    show(searchListing());
+    ui.show(searchListing());
   });
 
   return true;

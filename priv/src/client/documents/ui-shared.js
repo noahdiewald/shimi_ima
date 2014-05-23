@@ -113,7 +113,7 @@ var saveButton = function () {
 var show = function (elem) {
   'use strict';
 
-  button.classList.remove('hidden');
+  elem.classList.remove('hidden');
 
   return document;
 };

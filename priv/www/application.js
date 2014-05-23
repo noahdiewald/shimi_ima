@@ -1996,10 +1996,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
+      console.trace();
     }
   }
 
@@ -2226,11 +2223,8 @@ process.argv = [];
 function noop() {}
 
 process.on = noop;
-process.addListener = noop;
 process.once = noop;
 process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
 process.emit = noop;
 
 process.binding = function (name) {
@@ -3480,8 +3474,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("FWaASH"))
-},{"./index.js":14,"FWaASH":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./index.js":14,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4864,8 +4858,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("FWaASH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":21,"FWaASH":12,"inherits":11}],23:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":21,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"inherits":11}],23:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -7592,8 +7586,8 @@ function forEach (xs, f) {
   }
 }
 
-}).call(this,require("FWaASH"))
-},{"./_stream_readable":43,"./_stream_writable":45,"FWaASH":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./_stream_readable":43,"./_stream_writable":45,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8603,8 +8597,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("FWaASH"))
-},{"FWaASH":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9206,8 +9200,8 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,require("FWaASH"))
-},{"./_stream_duplex":41,"FWaASH":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./_stream_duplex":41,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -9791,6 +9785,8 @@ var t = {
   'config-maintenance' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div id=\"maintenance\">");_.b("\n" + i);_.b("  <h3>Upgrade Project</h3>");_.b("\n" + i);_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Clicking the button below will initiate an upgrade of the project");_.b("\n" + i);_.b("    core design document to the latest version available on your");_.b("\n" + i);_.b("    system.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Be aware that this may cause significant slowness on your system");_.b("\n" + i);_.b("    while view indexes are rebuilt.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("\n" + i);_.b("  <a id=\"maintenance-upgrade-button\" class=\"maintenance-upgrade-button link-button\">Upgrade</a>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
   'doctypes-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,42,157,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"edit-doctype-link\">");_.b(_.v(_.f("key",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n" + i);_.b("   </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
   'document-edit' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<h2 class=\"header\">Edit</h2>");_.b("\n" + i);_.b("\n" + i);if(_.s(_.f("has_rows",c,p,1),c,p,0,43,1862,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"edit-document-form\" class=\"ui-widget ui-corner-all\">");_.b("\n" + i);_.b("  ");_.b("\n" + i);_.b("    <div id=\"edit-tabs\">");_.b("\n" + i);_.b("      <div id=\"tabs-container\">");_.b("\n" + i);_.b("        <ul id=\"tab-list\">");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,219,338,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <li>");_.b("\n" + i);_.b("            <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("              ");_.b(_.v(_.f("label",c,p,0)));_.b("\n" + i);_.b("            </a>");_.b("\n" + i);_.b("          </li>");_.b("\n");});c.pop();}_.b("        </ul>");_.b("\n" + i);_.b("      </div>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,400,1448,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <fieldset");_.b("\n" + i);_.b("          id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          class=\"ui-widget ui-widget-content ui-corner-all fieldset\"");_.b("\n" + i);_.b("          data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-field-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          data-field-project=\"project-");_.b(_.v(_.f("project_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-field-doctype=\"");_.b(_.v(_.f("doctype",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          data-fieldset-multiple=\"");_.b(_.v(_.f("multiple",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-collapse=\"");_.b(_.v(_.f("collapse",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-label=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-order=\"");_.b(_.v(_.f("order",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-project=\"project-");_.b(_.v(_.f("project_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-doctype=\"");_.b(_.v(_.f("doctype_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("          <p>");_.b(_.v(_.f("description",c,p,0)));_.b("</p>");_.b("\n" + i);_.b("          <div ");_.b("\n" + i);_.b("            id=\"container-");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("            class=\"fieldset-container\"");_.b("\n" + i);_.b("            data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"></div>");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,1279,1408,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("              <a ");_.b("\n" + i);_.b("                class=\"add-button link-button\" ");_.b("\n" + i);_.b("                data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">Add</a>");_.b("\n");});c.pop();}_.b("        </fieldset>");_.b("\n");});c.pop();}_.b("    </div>");_.b("\n" + i);_.b("    <div id=\"submit-button-area\">");_.b("\n" + i);_.b("      <a id=\"clear-document-button\" class=\"clear-button link-button\">Clear Form</a>");_.b("\n" + i);_.b("      <a data-group-id=\"all-document-container\" id=\"create-document-button\" class=\"create-button link-button\">Create as New</a>");_.b("\n" + i);_.b("      <a data-group-id=\"all-document-container\" id=\"save-document-button\" class=\"save-button link-button hidden\">Save</a>");_.b("\n" + i);_.b("    </div>");_.b("\n" + i);_.b("  </div>");_.b("\n");});c.pop();}if(!_.s(_.f("has_rows",c,p,1),c,p,1,0,0,"")){_.b("<p>");_.b("\n" + i);_.b("  You must add fields and fieldsets before you can create a document of this type.");_.b("\n" + i);_.b("</p>");_.b("\n");};return _.fl();;}),
+  'document-search-results' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr>");_.b("\n" + i);_.b("  <th>");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"view-document-link\">");_.b(_.v(_.f("key",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td class=\"search-result-context\">");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"view-document-link\">");_.b(_.v(_.f("value",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
+  'document-search' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("are_results",c,p,1),c,p,0,16,1213,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div class=\"total-rows-info\">");_.b("\n" + i);_.b("    <b>Total</b>: ");_.b(_.v(_.f("total_rows",c,p,0)));_.b("\n" + i);_.b("  </div>");_.b("\n" + i);_.b("  <div id=\"save-search-results\">");_.b("\n" + i);_.b("    <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("  </div>");_.b("\n" + i);if(_.s(_.f("index_listing",c,p,1),c,p,0,191,477,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <div class=\"search-results\">");_.b("\n" + i);_.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results\" />");_.b("\n" + i);_.b("      <label for=\"select-results\">Select Results</label>");_.b("\n" + i);_.b("      <table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,390,439,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-search-results",c,p,"          "));});c.pop();}_.b("      </table>");_.b("\n" + i);_.b("    </div>");_.b("\n");});c.pop();}if(!_.s(_.f("index_listing",c,p,1),c,p,1,0,0,"")){if(_.s(_.f("rows",c,p,1),c,p,0,530,1182,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <h5 class=\"search-result-field-id toggler\"");_.b("\n" + i);_.b("        data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("        data-target=\"results-for-field-");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("        title=\"Click to display\">");_.b("\n" + i);_.b("      <a href=\"#\" title=\"Double click to add as search option\">");_.b("\n" + i);_.b("        ");_.b(_.v(_.f("id",c,p,0)));_.b("\n" + i);_.b("      </a> ");_.b("\n" + i);_.b("      (");_.b(_.v(_.f("total_rows",c,p,0)));_.b(")");_.b("\n" + i);_.b("    </h5>");_.b("\n" + i);_.b("    ");_.b("\n" + i);_.b("    <div class=\"search-results\"");_.b("\n" + i);_.b("         id=\"results-for-field-");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results-");_.b(_.v(_.d("field.id",c,p,0)));_.b("\" />");_.b("\n" + i);_.b("      <label for=\"select-results-");_.b(_.v(_.f("id",c,p,0)));_.b("\">Select Results</label>");_.b("\n" + i);_.b("      <table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,1093,1142,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-search-results",c,p,"          "));});c.pop();}_.b("      </table>");_.b("\n" + i);_.b("    </div>");_.b("\n");});c.pop();}};});c.pop();}if(!_.s(_.f("are_results",c,p,1),c,p,1,0,0,"")){_.b("  <em>No Results</em>");_.b("\n");};return _.fl();;}),
   'document-view-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li ");_.b("\n" + i);_.b("  class=\"field-view ");_.b("\n" + i);_.b("    ");if(_.s(_.f("changed",c,p,1),c,p,0,42,49,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("  data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("instance",c,p,1),c,p,0,108,150,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b("  data-field-value=\"");_.b(_.v(_.f("json_value",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("changed",c,p,1),c,p,0,235,343,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("newfield",c,p,1),c,p,1,0,0,"")){_.b("<span class=\"small-control view-field-change\" title=\"");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\">→</span>");};});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("is_textarea",c,p,1),c,p,0,375,426,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <span class=\"retain-white\">");_.b(_.v(_.f("value",c,p,0)));_.b("</span>");_.b("\n");});c.pop();}if(!_.s(_.f("is_textarea",c,p,1),c,p,1,0,0,"")){_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n");};_.b("</li>");_.b("\n");return _.fl();;}),
   'document-view-tree' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("previous_revision",c,p,1),c,p,0,22,76,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"revision-message\">Previous Revision</div>");_.b("\n");});c.pop();}_.b("\n" + i);if(_.s(_.f("deleted_",c,p,1),c,p,0,113,163,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"deleted-message\"><b>Deleted</b></div>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<ul>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,197,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <li");_.b("\n" + i);_.b("    class=\"fieldset-view");_.b("\n" + i);_.b("      ");if(_.s(_.f("collapse",c,p,1),c,p,0,248,257,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapsed");});c.pop();}_.b("\n" + i);_.b("      ");if(_.s(_.f("altered",c,p,1),c,p,0,289,296,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("    data-fieldset-fieldset=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("addition",c,p,1),c,p,0,414,468,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset added\" class=\"addition\">+</span>");});c.pop();}if(_.s(_.f("removal",c,p,1),c,p,0,493,548,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset removed\" class=\"removal\">−</span>");});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,579,818,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <ol>");_.b("\n" + i);if(_.s(_.f("multifields",c,p,1),c,p,0,613,785,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <ul class=\"multifield\">");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,684,737,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"              "));});c.pop();}_.b("          </ul>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("      </ol>");_.b("\n");});c.pop();}if(!_.s(_.f("multiple",c,p,1),c,p,1,0,0,"")){_.b("      <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,880,925,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"          "));});c.pop();}_.b("      </ul>");_.b("\n");};_.b("  </li>");_.b("\n");});c.pop();}_.b("</ul>");_.b("\n" + i);_.b("\n" + i);_.b("<div class=\"timestamps\">");_.b("\n" + i);_.b("  <dl>");_.b("\n" + i);_.b("    <dt>Created At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("created_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Created By</dt><dd>");_.b(_.v(_.f("created_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("updated_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated By</dt><dd>");_.b(_.v(_.f("updated_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>ID</dt><dd>");_.b(_.v(_.f("_id",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("  </dl>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
   'document-view' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doctype_info",c,p,1),c,p,0,17,187,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <h2 class=\"header\">View</h2>");_.b("\n" + i);_.b("\n" + i);_.b("  <form id=\"view-jump\">");_.b("\n" + i);_.b("    <label for=\"view-jump-id\">Id</label>");_.b("\n" + i);_.b("    <input type=\"text\" id=\"view-jump-id\" name=\"view-jump-id\">");_.b("\n" + i);_.b("  </form>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<div id=\"document-view-info\"");_.b("\n" + i);_.b("     data-document-deleted=\"");_.b(_.v(_.f("deleted_",c,p,0)));_.b("\"");_.b("\n" + i);_.b("     data-document-document=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("     data-document-rev=\"");_.b(_.v(_.f("_rev",c,p,0)));_.b("\"></div>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-restore-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button hidden\">Restore</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-edit-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Edit</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-delete-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Delete</a>");_.b("\n" + i);_.b("\n" + i);_.b("<nav id=\"history\">");_.b("\n" + i);if(_.s(_.f("revs_info",c,p,1),c,p,0,716,991,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("status",c,p,1),c,p,0,732,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("         class=\"revision-link\"");_.b("\n" + i);_.b("         data-group-id=\"document-view-info\"");_.b("\n" + i);if(_.s(_.f("first",c,p,1),c,p,0,854,900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("         id=\"current-revision-link\"");_.b("\n");});c.pop();}_.b("         data-document-oldrev=\"");_.b(_.v(_.f("rev",c,p,0)));_.b("\">");_.b(_.v(_.f("count",c,p,0)));_.b("</a>");_.b("\n");});c.pop();}});c.pop();}_.b("</nav>");_.b("\n" + i);_.b("\n" + i);_.b("<div id=\"document-view-tree\">");_.b("\n" + i);_.b(_.rp("document-view-tree",c,p,"  "));_.b("</div>");_.b("\n");return _.fl();;}),
@@ -9825,6 +9821,8 @@ module.exports = {
   'config-maintenance' : r('config-maintenance'),
   'doctypes-element' : r('doctypes-element'),
   'document-edit' : r('document-edit'),
+  'document-search-results' : r('document-search-results'),
+  'document-search' : r('document-search'),
   'document-view-field' : r('document-view-field'),
   'document-view-tree' : r('document-view-tree'),
   'document-view' : r('document-view'),
@@ -12640,7 +12638,7 @@ exports.fillFieldsets = fillFieldsets;
 },{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":52,"utils":152}],69:[function(require,module,exports){
 // # Index Listing
 //
-// *Implicit depends:* DOM, JSON, JQuery
+// *Implicit depends:* DOM, JSON
 //
 // Loads index based on user suplied values. It also loads some other
 // preliminary data, such as the listing of user created indexes. The
@@ -12651,6 +12649,7 @@ exports.fillFieldsets = fillFieldsets;
 var templates = require('templates');
 var pager = require('pager').pager;
 var ajax = require('ajax');
+var ui = require('documents/ui-shared');
 var viewui = require('./viewui.js');
 var editui = require('./editui.js');
 
@@ -12710,7 +12709,7 @@ var iOpts = function () {
     var data = req.response;
 
     options = templates['index-options'](data);
-    $('#index-index-input').html(options);
+    ui.indexIndexInput.innerHTML = options;
   });
 
   return true;
@@ -12723,8 +12722,8 @@ var iOpts = function () {
 var load = function (target) {
   'use strict';
 
-  var id = $(target).attr('href').slice(1);
-  $('#document-view').html('<em>Loading...</em>');
+  var id = target.getAttribute('href').slice(1);
+  ui.dv.innerHTML = '<em>Loading...</em>';
   editui.clear();
   viewui.get(id);
 
@@ -12736,7 +12735,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"./editui.js":67,"./viewui.js":74,"ajax":106,"pager":145,"templates":52}],70:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"documents/ui-shared":125,"pager":145,"templates":52}],70:[function(require,module,exports){
 // # Document Information
 //
 // *Implicit depends:* DOM
@@ -13025,6 +13024,7 @@ var templates = require('templates');
 var utils = require('utils');
 var sets = require('sets');
 var setsui = require('documents/setsui');
+var ui = require('documents/ui-shared');
 var info = require('documents/information');
 var ajax = require('ajax');
 var multipleFields;
@@ -13036,63 +13036,63 @@ var loadSearchVals;
 var searchIndex = function () {
   'use strict';
 
-  return $('#document-search-index');
+  return document.getElementById('document-search-index');
 };
 
 // User interface element
 var searchIndexLabel = function () {
   'use strict';
 
-  return $('#search-index-label');
+  return document.getElementById('search-index-label');
 };
 
 // User interface element
 var searchTerm = function () {
   'use strict';
 
-  return $('#document-search-term');
+  return document.getElementById('document-search-term');
 };
 
 // User interface element
 var searchFields = function () {
   'use strict';
 
-  return $('#document-search-field');
+  return document.getElementById('document-search-field');
 };
 
 // User interface element
 var searchFieldsLabel = function () {
   'use strict';
 
-  return $('#search-field-label');
+  return document.getElementById('document-search-label');
 };
 
 // User interface element
 var searchExclude = function () {
   'use strict';
 
-  return $('#document-search-exclude');
+  return document.getElementById('document-search-exclude');
 };
 
 // User interface element
 var searchInvert = function () {
   'use strict';
 
-  return $('#document-search-invert');
+  return document.getElementById('document-search-invert');
 };
 
 // User interface element
 var searchAll = function () {
   'use strict';
 
-  return $('#search-all-fields-switch');
+  return document.getElementById('search-all-fields-switch');
 };
 
 // User interface element
 var searchListing = function () {
   'use strict';
 
-  return $('#search-listing');
+  return document.getElementById('search-listing');
 };
 
 // User interface element
@@ -13110,7 +13110,8 @@ var formElems = [searchIndex, searchIndexLabel, searchFields, searchFieldsLabel,
 var indexVal = function () {
   'use strict';
 
-  var val = $('#index-index-input').val();
+  var val = ui.indexIndexInput().value;
+
   if (val.length === 0) {
     return null;
   } else {
@@ -13147,12 +13148,12 @@ var clearVals = function () {
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type')) {
+    switch (elem.getAttribute('type')) {
     case 'hidden':
-      elem.val('');
+      elem.value = '';
       break;
     case 'checkbox':
-      elem.prop('checked', false);
+      elem.checked = false;
       break;
     }
   });
@@ -13164,14 +13165,14 @@ var hideElems = function () {
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.attr('type')) {
+    switch (elem.getAttribute('type')) {
     case 'hidden':
       break;
     case 'checkbox':
-      elem.parent('div').hide();
+      ui.hide(elem.parentElement);
       break;
     default:
-      elem.hide();
+      ui.hide(elem);
     }
   });
 };
@@ -13204,14 +13205,14 @@ var setFields = function (fields) {
   var sfls = searchFieldsLabel();
   var ident = getIdentifier();
 
-  searchFields().val(jFields);
+  searchFields().value = jFields;
   localStorage.setItem(ident + '_searchFields', jFields);
 
   var linkLabels = fields.map(function (x) {
     return searchFieldItem(x, fLabels[x].join(': '));
   });
 
-  sfls.html(linkLabels.join(' '));
+  sfls.innerHTML = linkLabels.join(' ');
 
   return true;
 };
@@ -13225,6 +13226,7 @@ var allFields = function () {
   clearStore();
   hideElems();
   clearVals();
+
   return true;
 };
 
@@ -13233,7 +13235,8 @@ var singleField = function (fields) {
   'use strict';
 
   multipleFields(fields);
-  searchInvert().parent().show();
+  ui.show(searchInvert().parentElement);
+
   return true;
 };
 
@@ -13244,8 +13247,9 @@ var singleFieldInverse = function (fields) {
 
   var ident = getIdentifier();
   singleField(fields);
-  searchInvert().prop('checked', true);
+  searchInvert().checked = true;
   localStorage.setItem(ident + '_searchInvert', true);
+
   return true;
 };
 
@@ -13255,9 +13259,10 @@ multipleFields = function (fields) {
 
   allFields();
   setFields(fields);
-  [searchAll(), searchFieldsLabel(), searchExclude().parent()].forEach(function (x) {
-    x.show();
+  [searchAll(), searchFieldsLabel(), searchExclude().parentElement].forEach(function (x) {
+    ui.show(x);
   });
+
   return true;
 };
 
@@ -13266,13 +13271,16 @@ var excludedFields = function (fields) {
   'use strict';
 
   var ident = getIdentifier();
+
   if (fields.length > 1) {
     multipleFields(fields);
   } else {
     singleField(fields);
   }
-  searchExclude().prop('checked', true);
+
+  searchExclude().checked = true;
   localStorage.setItem(ident + '_searchExclude', true);
+
   return true;
 };
 
@@ -13281,14 +13289,17 @@ var indexOnly = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
+
   allFields();
   localStorage.setItem(ident + '_searchIndex', index);
   localStorage.setItem(ident + '_searchIndexLabel', indexLabel);
-  searchIndex().val(index);
-  searchIndexLabel().html(indexLabel);
-  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parent()].forEach(function (x) {
-    x.show();
+  searchIndex().value = index;
+  searchIndexLabel().innerHTML = indexLabel;
+
+  [searchAll(), searchIndex(), searchIndexLabel(), searchInvert().parentElement].forEach(function (x) {
+    ui.show(x);
   });
+
   return true;
 };
 
@@ -13298,9 +13309,11 @@ var indexInverse = function (index, indexLabel) {
   'use strict';
 
   var ident = getIdentifier();
+
   indexOnly(index, indexLabel);
-  searchInvert().prop('checked', true);
+  searchInvert().checked = true;
   localStorage.setItem(ident + '_searchInvert', true);
+
   return true;
 };
 
@@ -13308,12 +13321,12 @@ var indexInverse = function (index, indexLabel) {
 var getSearch = function () {
   'use strict';
 
-  var query = searchTerm().val();
+  var query = searchTerm().value;
   var url = 'documents/search?q=' + window.encodeURIComponent(query);
-  var field = searchFields().val();
-  var exclude = searchExclude().is(':checked');
-  var invert = searchInvert().is(':checked');
-  var index = searchIndex().val();
+  var field = searchFields().value;
+  var exclude = searchExclude().checked;
+  var invert = searchInvert().checked;
+  var index = searchIndex().value;
   var fieldlabels = fieldLabels();
 
   if (index) {
@@ -13330,29 +13343,46 @@ var getSearch = function () {
     url = url + '&invert=true';
   }
 
-  searchListing().hide();
+  ui.hide(searchListing());
 
-  ajax.legacyHTMLGet(url, function (req) {
-    searchListing().html(req.response);
+  ajax.get(url, function (req) {
+    var results = req.response;
+    var html;
 
-    $('.search-result-field-id').each(function (index, item) {
-      var label = fieldlabels[$(item).attr('data-field-field')].join(': ');
-      var target = $(item).children('a').first();
-      target.html(label);
-      target.attr('data-search-label', label);
-    });
+    results.are_results = results.rows && results.rows.length > 0;
 
-    if (!invert) {
-      $('.search-results th').each(function (index, item) {
-        var itemText = $.trim($(item).children('a').html());
-        var re = new RegExp('(' + query + ')', 'g');
-        var newText = itemText.replace(re, '<span class="highlight">$1</span>');
-        $(item).children('a').html(newText);
+    if (results.index_listing) {
+      results.rows = results.rows.map(function (row) {
+        row.key = row.key.map(function (x) {
+          return x[1];
+        }).join(',');
+
+        return row;
       });
     }
 
-    searchListing().show();
+    html = templates['document-search'](results);
+    searchListing().innerHTML = html;
 
+    Array.prototype.forEach.call(document.getElementsByClassName('search-result-field-id'), function (item) {
+      var label = fieldlabels[item.dataset.fieldField].join(': ');
+      var target = item.children[0];
+
+      target.innerHTML = label;
+      target.dataset.searchLabel = label;
+    });
+
+    if (!invert) {
+      Array.prototype.forEach.call(document.querySelectorAll('.search-results th'), function (item) {
+        var itemText = item.children[0].innerHTML.replace(/(^\s|\s$)/g, '');
+        var re = new RegExp('(' + query + ')', 'g');
+        var newText = itemText.replace(re, '<span class="highlight">$1</span>');
+
+        item.children[0].innerHTML = newText;
+      });
+    }
+
+    ui.show(searchListing());
   });
 
   return true;
@@ -13368,7 +13398,7 @@ var removeField = function (t) {
   var newSearchFields;
   var fields = JSON.parse(searchFields);
   var newFields;
-  var id = $(t).attr('data-field-field');
+  var id = t.dataset.fieldField;
 
   if (fields !== null) {
     newFields = fields.filter(function (x) {
@@ -13393,7 +13423,7 @@ var addField = function (t) {
   var newSearchFields;
   var fields = JSON.parse(searchFields);
   var newFields;
-  var id = $(t).attr('data-field-field');
+  var id = t.dataset.fieldField;
 
   if (fields === null) {
     fields = [];
@@ -13430,7 +13460,8 @@ var toggleInversion = function () {
   'use strict';
 
   var ident = getIdentifier();
-  localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().is(':checked')));
+
+  localStorage.setItem(ident + '_searchInvert', maybeTrue(searchInvert().checked));
   localStorage.setItem(ident + '_searchExclude', null);
   loadSearchVals();
 
@@ -13442,7 +13473,8 @@ var toggleExclusion = function () {
   'use strict';
 
   var ident = getIdentifier();
-  localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().is(':checked')));
+
+  localStorage.setItem(ident + '_searchExclude', maybeTrue(searchExclude().checked));
   localStorage.getItem(ident + '_searchInvert', null);
   loadSearchVals();
 
@@ -13505,37 +13537,35 @@ loadSearchVals = function () {
 };
 
 // Toggle selection of result to save to set.
-var toggleSelection = function (t) {
+var toggleSelection = function (target) {
   'use strict';
 
-  var target = $(t);
-
-  if (target.is(':checked')) {
-    target.next('label').next('table').addClass('selected-for-save');
+  if (target.checked) {
+    target.nextSibling.nextSibling.classList.add('selected-for-save');
   } else {
-    target.next('label').next('table').removeClass('selected-for-save');
+    target.nextSibling.nextSibling.classList.remove('selected-for-save');
   }
 
   return true;
 };
 
-exports.allFields = allFields;
-exports.singleField = singleField;
-exports.singleFieldInverse = singleFieldInverse;
-exports.multipleFields = multipleFields;
-exports.excludedFields = excludedFields;
-exports.indexOnly = indexOnly;
-exports.indexInverse = indexInverse;
-exports.getSearch = getSearch;
-exports.removeField = removeField;
 exports.addField = addField;
 exports.addIndex = addIndex;
-exports.toggleInversion = toggleInversion;
-exports.toggleExclusion = toggleExclusion;
+exports.allFields = allFields;
+exports.excludedFields = excludedFields;
+exports.getSearch = getSearch;
+exports.indexInverse = indexInverse;
+exports.indexOnly = indexOnly;
 exports.loadSearchVals = loadSearchVals;
+exports.multipleFields = multipleFields;
+exports.removeField = removeField;
+exports.singleField = singleField;
+exports.singleFieldInverse = singleFieldInverse;
+exports.toggleExclusion = toggleExclusion;
+exports.toggleInversion = toggleInversion;
 exports.toggleSelection = toggleSelection;
 
-},{"ajax":106,"documents/information":122,"documents/setsui":124,"sets":150,"templates":52,"utils":152}],72:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"sets":150,"templates":52,"utils":152}],72:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -13615,8 +13645,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set[0];
-  var arr = sets.unique(set[1], member);
+  var name = set [0];
+  var arr = sets.unique(set [1], member);
   var procSet = [name, arr];
   return procSet;
 };
@@ -13953,17 +13983,17 @@ exports.toggleSelectAll = toggleSelectAll;
 // ## Exported functions
 
 // User interface element
-var container = function () {
-  'use strict';
-
-  return document.getElementById('container');
-};
-
-// User interface element
 var allDocContainer = function () {
   'use strict';
 
   return document.getElementById('all-document-container');
+};
+
+// User interface element
+var container = function () {
+  'use strict';
+
+  return document.getElementById('container');
 };
 
 // User interface element
@@ -13974,61 +14004,10 @@ var createButton = function () {
 };
 
 // User interface element
-var editForm = function () {
-  'use strict';
-
-  return document.getElementById('edit-document-form');
-};
-
-// User interface element
-var saveButton = function () {
-  'use strict';
-
-  return document.getElementById('save-document-button');
-};
-
-// User interface element
-var restoreButton = function () {
-  'use strict';
-
-  return document.getElementById('document-restore-button');
-};
-
-// User interface element
 var deleteButton = function () {
   'use strict';
 
   return document.getElementById('document-delete-button');
-};
-
-// User interface element
-var editButton = function () {
-  'use strict';
-
-  return document.getElementById('document-edit-button');
-};
-
-// User interface element
-var firstIndex = function () {
-  'use strict';
-
-  return document.getElementById('first-index-element');
-};
-
-var skey = function () {
-  'use strict';
-
-  var fi;
-
-  return fi ? fi.dataset.firstKey : undefined;
-};
-
-var sid = function () {
-  'use strict';
-
-  var fi;
-
-  return fi ? fi.dataset.firstId : undefined;
 };
 
 // User interface element
@@ -14046,30 +14025,106 @@ var dvt = function () {
 };
 
 // User interface element
-var viewInfo = function () {
+var editButton = function () {
   'use strict';
 
-  return document.getElementById('document-view-info');
+  return document.getElementById('document-edit-button');
+};
+
+// User interface element
+var editForm = function () {
+  'use strict';
+
+  return document.getElementById('edit-document-form');
+};
+
+// User interface element
+var firstIndex = function () {
+  'use strict';
+
+  return document.getElementById('first-index-element');
+};
+
+// Hide an element
+var hide = function (elem) {
+  'use strict';
+
+  elem.classList.add('hidden');
+
+  return document;
 };
 
 // Hide the button.
 var hideButton = function (button) {
   'use strict';
 
-  button.classList.add('hidden');
+  hide(button);
   button.setAttribute('disabled', 'disabled');
 
   return true;
+};
+
+// User interface element
+var indexIndexInput = function () {
+  'use strict';
+
+  return document.getElementById('index-index-input');
+};
+
+// User interface element
+var restoreButton = function () {
+  'use strict';
+
+  return document.getElementById('document-restore-button');
+};
+
+// User interface element
+var saveButton = function () {
+  'use strict';
+
+  return document.getElementById('save-document-button');
+};
+
+// Display the element.
+var show = function (elem) {
+  'use strict';
+
+  elem.classList.remove('hidden');
+
+  return document;
 };
 
 // Display the button.
 var showButton = function (button) {
   'use strict';
 
-  button.classList.remove('hidden');
+  show(button);
   button.removeAttribute('disabled');
 
   return true;
+};
+
+var sid = function () {
+  'use strict';
+
+  var fi;
+
+  return fi ? fi.dataset.firstId : undefined;
+};
+
+var skey = function () {
+  'use strict';
+
+  var fi;
+
+  return fi ? fi.dataset.firstKey : undefined;
+};
+
+// User interface element
+var viewInfo = function () {
+  'use strict';
+
+  return document.getElementById('document-view-info');
 };
 
 exports.allDocContainer = allDocContainer;
@@ -14081,9 +14136,12 @@ exports.dvt = dvt;
 exports.editButton = editButton;
 exports.editForm = editForm;
 exports.firstIndex = firstIndex;
+exports.hide = hide;
 exports.hideButton = hideButton;
+exports.indexIndexInput = indexIndexInput;
 exports.restoreButton = restoreButton;
 exports.saveButton = saveButton;
+exports.show = show;
 exports.showButton = showButton;
 exports.sid = sid;
 exports.skey = skey;
@@ -16497,14 +16555,14 @@ var initIndexNewDialog = function () {
 
         if (checkResult) {
           var obj = {
-            'category': 'index',
-            'name': indexName.val(),
-            'show_deleted': indexShowDeleted.is(':checked'),
-            'conditions': [],
-            'doctype': indexDoctype.val(),
-            'fields_label': [getLabel()],
-            'fields': [indexField.val()]
-          },
+              'category': 'index',
+              'name': indexName.val(),
+              'show_deleted': indexShowDeleted.is(':checked'),
+              'conditions': [],
+              'doctype': indexDoctype.val(),
+              'fields_label': [getLabel()],
+              'fields': [indexField.val()]
+            },
             complete = function (context) {
               ilistingui.init();
               $(context).dialog('close');
@@ -18081,11 +18139,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],105:[function(require,module,exports){
+},{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],106:[function(require,module,exports){
 module.exports=require(53)
@@ -18119,11 +18177,11 @@ module.exports=require(67)
 module.exports=require(68)
 },{"../path.js":96,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":105,"utils":152}],121:[function(require,module,exports){
 module.exports=require(69)
-},{"./editui.js":67,"./viewui.js":74,"ajax":106,"pager":145,"templates":105}],122:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"documents/ui-shared":125,"pager":145,"templates":105}],122:[function(require,module,exports){
 module.exports=require(70)
 },{"../sender.js":98,"ajax":106,"documents/ui-shared":125,"store":151}],123:[function(require,module,exports){
 module.exports=require(71)
-},{"ajax":106,"documents/information":122,"documents/setsui":124,"sets":150,"templates":105,"utils":152}],124:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"sets":150,"templates":105,"utils":152}],124:[function(require,module,exports){
 module.exports=require(72)
 },{"../sender.js":98,"documents/information":122,"flash":129,"sets":150,"templates":105,"utils":152}],125:[function(require,module,exports){
 module.exports=require(73)

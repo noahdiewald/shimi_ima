@@ -77,8 +77,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set[0];
-  var arr = sets.unique(set[1], member);
+  var name = set [0];
+  var arr = sets.unique(set [1], member);
   var procSet = [name, arr];
   return procSet;
 };
