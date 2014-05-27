@@ -15,7 +15,7 @@
   </ul>
 </div>
 
-<div id="container">
+<div data-project-id="{{ project_info._id }}" id="container">
   
   <div id="all-index-container">
     <div class="panel" id="index-index">

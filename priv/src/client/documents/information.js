@@ -233,7 +233,7 @@ makeLabels = function () {
 project = function () {
   'use strict';
 
-  return store(ui.container()).get('project-id');
+  return ui.container().dataset.projectId;
 };
 
 // Get the key that stores sets.
