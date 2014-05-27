@@ -1,6 +1,6 @@
 // # Index listing.
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Displays a listing of user created indexes.
 
@@ -16,12 +16,12 @@ var init = function () {
   'use strict';
 
   var url = 'indexes';
-  var target = $('#index-index-listing');
+  var target = document.getElementByID('index-index-listing');
   var listing;
 
   ajax.get(url, function (req) {
     listing = templates['index-listing'](req.response);
-    target.html(listing);
+    target.innerHTML = listing;
   });
 
   return true;
