@@ -94,7 +94,7 @@ var checkLength = function (o, n, min, max, tips) {
 var initDateFields = function () {
   'use strict';
 
-  $('.date').datepicker({
+  $('input[type="date"]').datepicker({
     dateFormat: 'yy-mm-dd'
   });
 
