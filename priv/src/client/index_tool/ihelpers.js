@@ -8,6 +8,7 @@
 
 var s = require('sess');
 var ajax = require('ajax');
+var form = require('form');
 
 // Internal functions
 
@@ -15,10 +16,12 @@ var ajax = require('ajax');
 var disableOptions = function (options, disables) {
   'use strict';
 
-  options.children().show();
+  Array.prototype.forEach.call(options.childNodes, function (node) {
+    node.classList.remove('hidden');
+  });
 
   disables.forEach(function (item) {
-    options.children('option:contains(' + item + ')').hide();
+    options.querySelector('option:contains(' + item + ')').classList.add('hidden');
   });
 
   return false;
@@ -28,7 +31,7 @@ var disableOptions = function (options, disables) {
 var disableOperatorOptions = function (fieldDoc) {
   'use strict';
 
-  var options = $('#builder-operator-input');
+  var options = document.getElementByID('builder-operator-input');
 
   switch (fieldDoc.subcategory) {
   case 'select':
@@ -63,28 +66,27 @@ var alterArg = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
   var fieldDoc = function () {
-    return s.get(fieldField.val());
+    return s.get(fieldField.value);
   };
 
   callback();
 
+  // TODO: remove Jquery UI dep.
   try {
     // Destroy these if initialized already
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
+    $(argumentField).removeAttr('disabled').datepicker('destroy');
+    $(argumentField).removeAttr('disabled').autocomplete('destroy');
   } catch (err) {
     window.console.log(err.message);
   }
 
   var dateOrText = function (argumentField, fdoc) {
     if (fdoc.subcategory === 'date') {
-      argumentField.removeAttr('disabled');
-      argumentField.datepicker({
+      $(argumentField).removeAttr('disabled').datepicker({
         dateFormat: 'yy-mm-dd'
       });
     } else {
-      argumentField.removeAttr('disabled');
-      argumentField.autocomplete({
+      $(argumentField).removeAttr('disabled').autocomplete({
         source: fdoc.allowed
       });
     }
@@ -95,11 +97,11 @@ var alterArg = function (argumentField, operatorField, fieldField, callback) {
   var fdoc = fieldDoc();
 
   if (fdoc) {
-    switch (operatorField.val()) {
+    switch (operatorField.value) {
     case 'true':
     case 'isDefined':
     case 'blank':
-      argumentField.attr('disabled', 'disabled').val('');
+      argumentField.setAttribute('disabled', 'disabled').value = '';
       break;
     case 'equal':
     case 'member':
@@ -127,21 +129,6 @@ var alterOpts = function (fieldDoc, fieldId, callback) {
   return true;
 };
 
-// Get the fields that the user may choose from.
-var fOpts = function (url, selectElement, callback) {
-  'use strict';
-
-  ajax.legacyHTMLGet(url, function (req) {
-    selectElement.html(req.response);
-
-    if (callback) {
-      callback();
-    }
-  });
-
-  return true;
-};
-
 // Get the document holding the field information.
 var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
   'use strict';
@@ -155,15 +142,10 @@ var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
     }
     return fieldDoc;
   } else {
-    $.ajax({
-      url: url,
-      async: false,
-      dataType: 'json',
-      success: function (data) {
-        s.put(data);
-        if (callback) {
-          callback(s.get(fieldId));
-        }
+    ajax.get(url, function (req) {
+      s.put(req.response);
+      if (callback) {
+        callback(s.get(fieldId));
       }
     });
 
@@ -186,38 +168,38 @@ var evs = function () {
         callback2 = callback();
       }
 
-      fOpts(url, indexFieldset, callback2);
+      form.fillOptionsFromUrl(url, indexFieldset, callback2);
     });
 
     return false;
   };
 
   mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexFieldset.change(function () {
+    indexFieldset.onchange = function () {
       var callback2;
 
       if (typeof indexDoctype !== 'string') {
-        indexDoctype = indexDoctype.val();
+        indexDoctype = indexDoctype.value;
       }
 
-      if (indexFieldset.val()) {
-        var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+      if (indexFieldset.value) {
+        var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
 
         if (callback) {
           callback2 = callback();
         }
 
-        fOpts(url, indexField, callback2);
+        form.fillOptionsFromUrl(url, indexField, callback2);
       }
-    });
+    };
 
     return mod;
   };
 
   mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexField.change(function () {
-      var fieldId = indexField.val();
-      var fieldsetId = indexFieldset.val();
+    indexField.onchange = function () {
+      var fieldId = indexField.value;
+      var fieldsetId = indexFieldset.value;
       var callback2;
 
       if (callback) {
@@ -229,13 +211,13 @@ var evs = function () {
           alterOpts(data, fieldId, callback2);
         });
       }
-    });
+    };
 
     return mod;
   };
 
   mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
-    operatorField.change(function () {
+    operatorField.onchange = function () {
       var callback2;
 
       if (callback) {
@@ -243,7 +225,7 @@ var evs = function () {
       }
 
       alterArg(argumentField, operatorField, fieldField, callback2);
-    });
+    };
 
     return mod;
   };
@@ -251,6 +233,5 @@ var evs = function () {
 
 exports.alterArg = alterArg;
 exports.alterOpts = alterOpts;
-exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
