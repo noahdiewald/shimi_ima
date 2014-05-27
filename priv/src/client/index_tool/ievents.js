@@ -1,6 +1,6 @@
 // # Dialog Events
 //
-// *Implicit depends:* DOM, JQuery, JQuery UI
+// *Implicit depends:* DOM
 //
 // These are change events triggered in the dialogs.
 
@@ -16,8 +16,8 @@ var h = require('index_tool/ihelpers');
 var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
   'use strict';
 
-  indexDoctype.change(function () {
-    var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
+  indexDoctype.onchange = function () {
+    var url = 'doctypes/' + indexDoctype.value + '/fieldsets';
     var callback2;
 
     if (callback) {
@@ -25,7 +25,7 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
     }
 
     h.fOpts(url, indexFieldset, callback2);
-  });
+  };
 
   return false;
 };
@@ -34,15 +34,15 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
 var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexFieldset.change(function () {
+  indexFieldset.onchange = function () {
     var callback2;
 
     if (typeof indexDoctype !== 'string') {
-      indexDoctype = indexDoctype.val();
+      indexDoctype = indexDoctype.value;
     }
 
-    if (indexFieldset.val()) {
-      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+    if (indexFieldset.value) {
+      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
 
       if (callback) {
         callback2 = callback();
@@ -50,7 +50,7 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 
       h.fOpts(url, indexField, callback2);
     }
-  });
+  };
 
   return true;
 };
@@ -59,9 +59,9 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexField.change(function () {
-    var fieldId = indexField.val();
-    var fieldsetId = indexFieldset.val();
+  indexField.onchange = function () {
+    var fieldId = indexField.value;
+    var fieldsetId = indexFieldset.value;
     var callback2;
 
     if (callback) {
@@ -73,7 +73,7 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
         h.alterOpts(data, fieldId, callback2);
       });
     }
-  });
+  };
 
   return true;
 };
@@ -82,7 +82,7 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
 var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
-  operatorField.change(function () {
+  operatorField.onchange = function () {
     var callback2;
 
     if (callback) {
@@ -90,7 +90,7 @@ var setIndexOperatorEvents = function (argumentField, operatorField, fieldField,
     }
 
     h.alterArg(argumentField, operatorField, fieldField, callback2);
-  });
+  };
 
   return true;
 };

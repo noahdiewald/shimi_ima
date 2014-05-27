@@ -2,8 +2,9 @@
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
 //
-// The are slightly specialized toward form elements using JQueryUI in
-// some way.
+// Some form helpers.
+// TODO: find non-JQueryUI implementations. Only the date picker needs
+// JQuery or JQueryUI.
 
 // ## Variable Definitions
 
@@ -16,49 +17,38 @@ var clear;
 var updateTips = function (t, tips) {
   'use strict';
 
-  tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
+  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
+  tips.classList.add('ui-state-highlight');
   setTimeout(function () {
-    tips.removeClass('ui-state-highlight', 1500);
+    tips.classList.remove('ui-state-highlight', 1500);
   }, 500);
 
-  return true;
+  return tips;
 };
 
 // ## Exported Functions
 
-// Generic element toggler. The idea being that a clicked or otherwise
-// 'stimulated' element has a `data-target` attribute with a value the
-// ID of an element to be toggled.
-var toggle = function (t) {
+// Generic element toggler.
+var toggle = function (target) {
   'use strict';
 
-  var toggleElem;
-  var target = $(t);
+  var toggleElem = document.getElementById(target.dataset.target);
 
-  if (target.attr('data-target')) {
-    toggleElem = $('#' + target.attr('data-target'));
-    toggleElem.toggle();
-  }
+  toggleElem.classList.toggle('hidden');
 
-  return true;
+  return target;
 };
 
 // Generic dialog canceling code
-var cancelDialog = function (t) {
+var cancelDialog = function (target) {
   'use strict';
 
-  var target = $(t);
-  var toggleElem;
-  var elemId;
+  var toggleElem = document.getElementById(target.dataset.target);
 
-  if (target.attr('data-target')) {
-    elemId = '#' + target.attr('data-target');
-    toggleElem = $(elemId);
-    toggleElem.hide();
-    clear(undefined, toggleElem.find('form'));
-  }
+  toggleElem.classList.add('hidden');
+  clear(undefined, toggleElem.querySelector('form'));
 
-  return true;
+  return target;
 };
 
 // Generic dialog form clearing code
@@ -66,18 +56,18 @@ clear = function (inputFields, form) {
   'use strict';
 
   if (inputFields === undefined) {
-    inputFields = $(form).find('input, select, textarea');
+    inputFields = form.querySelectorAll('input, select, textarea');
   }
-  inputFields.each(function (index, elem) {
-    var inputField = $(elem);
 
-    if (!inputField.attr('data-retain')) {
-      if (inputField.is(':checked')) {
-        inputField.attr('checked', false);
+  Array.prototype.forEach.call(inputFields, function (elem) {
+    if (!elem.dataset.retain) {
+      if (elem.checked) {
+        elem.checked = false;
       }
-      inputField.val('');
+      elem.value = '';
     }
   });
+
   return inputFields;
 };
 
@@ -89,7 +79,7 @@ clear = function (inputFields, form) {
 var checkLength = function (o, n, min, max, tips) {
   'use strict';
 
-  if (o.val().length > max || o.val().length < min) {
+  if (o.value.length > max || o.value.length < min) {
     o.addClass('ui-state-error');
     updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
     return false;
@@ -115,14 +105,14 @@ var initDateFields = function () {
 var fillOptionsFromUrl = function (url, selectElement, callback) {
   'use strict';
 
-  ajax.legacyHTMLGet(url, function (req) {
-    selectElement.html(req.response);
+  ajax.get(url, function (req) {
+    selectElement.innerHTML = templates['options'](req.response);
     if (callback) {
       callback();
     }
   });
 
-  return false;
+  return selectElement;
 };
 
 exports.toggle = toggle;

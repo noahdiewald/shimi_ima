@@ -21,39 +21,42 @@ var evs = require('index_tool/ievents');
 var initIndexNewDialog = function () {
   'use strict';
 
-  var indexDoctype = $('#index-doctype-input');
-  var indexFieldset = $('#index-fieldset-input').inputDisable();
-  var indexField = $('#index-field-input').inputDisable();
-  var indexName = $('#index-name-input');
+  var indexDoctype = document.getElementByID('index-doctype-input');
+  var indexFieldset = document.getElementByID('index-fieldset-input');
+  var indexField = document.getElementByID('index-field-input');
+  var indexName = document.getElementByID('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
+
+  indexFieldset.setAttribute('disabled', 'disabled');
+  indexField.setAttribute('disabled', 'disabled');
 
   var doctypeEvents = function () {
     evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
-      indexFieldset.inputDisable();
-      indexField.inputDisable();
+      indexFieldset.setAttribute('disabled', 'disabled');
+      indexField.setAttribute('disabled', 'disabled');
 
       return function () {
-        indexFieldset.inputEnable();
+        indexFieldset.removeAttribute('disabled');
       };
     });
   };
 
   var fieldsetEvents = function () {
     evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
-      indexField.inputDisable();
+      indexField.setAttribute('disabled', 'disabled');
 
       return function () {
-        indexField.inputEnable();
+        indexField.removeAttribute('disabled');
       };
     });
   };
 
   var getLabelForVal = function (val) {
-    return $('#index-new-dialog option[value="' + val + '"]').text();
+    return document.querySelector('#index-new-dialog option[value="' + val + '"]').innerHTML;
   };
 
   var getLabel = function () {
-    return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
+    return [getLabelForVal(indexFieldset.value), getLabelForVal(indexField.value)].join(':');
   };
 
   var dialog = $('#index-new-dialog').dialog({
@@ -61,7 +64,9 @@ var initIndexNewDialog = function () {
     modal: true,
     buttons: {
       'Create': function () {
-        $('.input').removeClass('ui-state-error');
+        Array.prototype.forEach.call(document.querySelectorAll('.input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
@@ -69,12 +74,12 @@ var initIndexNewDialog = function () {
         if (checkResult) {
           var obj = {
             'category': 'index',
-            'name': indexName.val(),
-            'show_deleted': indexShowDeleted.is(':checked'),
+            'name': indexName.value,
+            'show_deleted': indexShowDeleted.checked,
             'conditions': [],
-            'doctype': indexDoctype.val(),
+            'doctype': indexDoctype.value,
             'fields_label': [getLabel()],
-            'fields': [indexField.val()]
+            'fields': [indexField.value]
           },
             complete = function (context) {
               ilistingui.init();
@@ -88,9 +93,12 @@ var initIndexNewDialog = function () {
       }
     },
     close: function () {
-      indexFieldset.unbind('change');
-      indexDoctype.unbind('change');
-      form.clear($('.input')).removeClass('ui-state-error');
+      indexFieldset.onchange = undefined;
+      indexDoctype.onchange = undefined;
+      var cleared = form.clear(document.querySelectorAll('.input'));
+      Array.prototype.forEach.call(cleared, function (item) {
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 
