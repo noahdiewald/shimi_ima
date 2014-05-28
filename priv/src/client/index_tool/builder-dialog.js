@@ -12,6 +12,7 @@ require('jquery-ui-input-state');
 
 var ihelpers = require('index_tool/ihelpers');
 var form = require('form');
+var ajax = require('ajax');
 var evs = require('index_tool/ievents');
 
 // Exported functions
@@ -64,15 +65,15 @@ var initIndexBuilderDialog = function (indexDoctype) {
     }
   };
 
-  builderParen.change(function () {
-    if (builderParen.value) {
+  builderParenInput.onchange = function () {
+    if (builderParenInput.value) {
       builderConditions.classList.add('hidden');
       builderOr.classList.add('hidden');
     } else {
       builderConditions.classList.remove('hidden');
       builderOr.classList.remove('hidden');
     }
-  });
+  };
 
   var fieldsetEvents = function () {
     evs.setIndexFieldsetEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
@@ -140,7 +141,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
               appendCondition(req);
             });
           } else {
-            ajax.get(condition_url  + '?is_or=false&parens=false&negate=' + builderNegateInput.checked.toString() + '&fieldset=' + builderFieldsetInput.value + '&field=' + builderFieldInput.value + '&operator=' + builderOperatorInput.value + '&argument=' + builderArgumentInput.value, function (req) {
+            ajax.get(condition_url + '?is_or=false&parens=false&negate=' + builderNegateInput.checked.toString() + '&fieldset=' + builderFieldsetInput.value + '&field=' + builderFieldInput.value + '&operator=' + builderOperatorInput.value + '&argument=' + builderArgumentInput.value, function (req) {
               appendCondition(req);
             });
           }

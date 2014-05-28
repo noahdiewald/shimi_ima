@@ -21,12 +21,9 @@ var initReplaceDialog = function () {
   var remove = document.getElementById('index-remove_function-input');
   var dialogElem = document.getElementById('index-replace-dialog');
   var message = document.getElementById('replace-function-message');
-  var irf = function () {
-    return indexData.dataset.indexReplace_function;
-  };
 
-  if (irf()) {
-    replaceFunction.value = irf();
+  if (indexData.dataset.indexReplace_function) {
+    replaceFunction.value = indexData.dataset.indexReplace_function;
   } else {
     replaceFunction = '';
     replaceFunction.classList.remove('ui-state-error');
@@ -53,7 +50,7 @@ var initReplaceDialog = function () {
           }
 
           if (checkResult) {
-            irf() = replaceFunction.value;
+            indexData.dataset.indexReplace_function = replaceFunction.value;
             message.innerHTML = 'This index has a replacement function.';
           }
         } else {

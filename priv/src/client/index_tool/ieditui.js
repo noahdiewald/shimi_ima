@@ -239,7 +239,6 @@ var remCond = function (target) {
 
   //$(target).closest('tr').remove();
   throw 'intentional error';
-  return true;
 };
 
 // Open the new index dialog.

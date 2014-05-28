@@ -9796,7 +9796,7 @@ var t = {
   'document-view-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li ");_.b("\n" + i);_.b("  class=\"field-view ");_.b("\n" + i);_.b("    ");if(_.s(_.f("changed",c,p,1),c,p,0,42,49,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("  data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("instance",c,p,1),c,p,0,108,150,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b("  data-field-value=\"");_.b(_.v(_.f("json_value",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("changed",c,p,1),c,p,0,235,343,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("newfield",c,p,1),c,p,1,0,0,"")){_.b("<span class=\"small-control view-field-change\" title=\"");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\">→</span>");};});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("is_textarea",c,p,1),c,p,0,375,426,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <span class=\"retain-white\">");_.b(_.v(_.f("value",c,p,0)));_.b("</span>");_.b("\n");});c.pop();}if(!_.s(_.f("is_textarea",c,p,1),c,p,1,0,0,"")){_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n");};_.b("</li>");_.b("\n");return _.fl();;}),
   'document-view-tree' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("previous_revision",c,p,1),c,p,0,22,76,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"revision-message\">Previous Revision</div>");_.b("\n");});c.pop();}_.b("\n" + i);if(_.s(_.f("deleted_",c,p,1),c,p,0,113,163,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"deleted-message\"><b>Deleted</b></div>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<ul>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,197,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <li");_.b("\n" + i);_.b("    class=\"fieldset-view");_.b("\n" + i);_.b("      ");if(_.s(_.f("collapse",c,p,1),c,p,0,248,257,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapsed");});c.pop();}_.b("\n" + i);_.b("      ");if(_.s(_.f("altered",c,p,1),c,p,0,289,296,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("    data-fieldset-fieldset=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("addition",c,p,1),c,p,0,414,468,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset added\" class=\"addition\">+</span>");});c.pop();}if(_.s(_.f("removal",c,p,1),c,p,0,493,548,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset removed\" class=\"removal\">−</span>");});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,579,818,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <ol>");_.b("\n" + i);if(_.s(_.f("multifields",c,p,1),c,p,0,613,785,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <ul class=\"multifield\">");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,684,737,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"              "));});c.pop();}_.b("          </ul>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("      </ol>");_.b("\n");});c.pop();}if(!_.s(_.f("multiple",c,p,1),c,p,1,0,0,"")){_.b("      <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,880,925,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"          "));});c.pop();}_.b("      </ul>");_.b("\n");};_.b("  </li>");_.b("\n");});c.pop();}_.b("</ul>");_.b("\n" + i);_.b("\n" + i);_.b("<div class=\"timestamps\">");_.b("\n" + i);_.b("  <dl>");_.b("\n" + i);_.b("    <dt>Created At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("created_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Created By</dt><dd>");_.b(_.v(_.f("created_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("updated_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated By</dt><dd>");_.b(_.v(_.f("updated_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>ID</dt><dd>");_.b(_.v(_.f("_id",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("  </dl>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
   'document-view' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doctype_info",c,p,1),c,p,0,17,187,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <h2 class=\"header\">View</h2>");_.b("\n" + i);_.b("\n" + i);_.b("  <form id=\"view-jump\">");_.b("\n" + i);_.b("    <label for=\"view-jump-id\">Id</label>");_.b("\n" + i);_.b("    <input type=\"text\" id=\"view-jump-id\" name=\"view-jump-id\">");_.b("\n" + i);_.b("  </form>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<div id=\"document-view-info\"");_.b("\n" + i);_.b("     data-document-deleted=\"");_.b(_.v(_.f("deleted_",c,p,0)));_.b("\"");_.b("\n" + i);_.b("     data-document-document=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("     data-document-rev=\"");_.b(_.v(_.f("_rev",c,p,0)));_.b("\"></div>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-restore-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button hidden\">Restore</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-edit-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Edit</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-delete-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Delete</a>");_.b("\n" + i);_.b("\n" + i);_.b("<nav id=\"history\">");_.b("\n" + i);if(_.s(_.f("revs_info",c,p,1),c,p,0,716,991,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("status",c,p,1),c,p,0,732,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("         class=\"revision-link\"");_.b("\n" + i);_.b("         data-group-id=\"document-view-info\"");_.b("\n" + i);if(_.s(_.f("first",c,p,1),c,p,0,854,900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("         id=\"current-revision-link\"");_.b("\n");});c.pop();}_.b("         data-document-oldrev=\"");_.b(_.v(_.f("rev",c,p,0)));_.b("\">");_.b(_.v(_.f("count",c,p,0)));_.b("</a>");_.b("\n");});c.pop();}});c.pop();}_.b("</nav>");_.b("\n" + i);_.b("\n" + i);_.b("<div id=\"document-view-tree\">");_.b("\n" + i);_.b(_.rp("document-view-tree",c,p,"  "));_.b("</div>");_.b("\n");return _.fl();;}),
-  'fields' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("fields",c,p,1),c,p,0,11,5710,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div ");_.b("\n" + i);_.b("    class=\"field-container\" ");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <label for=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\">");_.b("\n" + i);_.b("      <span class=\"label-text\">");_.b(_.v(_.f("label",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("      <span ");_.b("\n" + i);_.b("        class=\"ui-icon ui-icon-help\" ");_.b("\n" + i);_.b("        title=\"");if(_.s(_.f("date",c,p,1),c,p,0,237,264,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("Format date as: yyyy-mm-dd.");});c.pop();}_.b(" ");_.b(_.v(_.f("description",c,p,0)));_.b("\"></span>");_.b("\n" + i);_.b("    </label>");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,327,602,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,435,511,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,628,905,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,738,814,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,935,1212,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1045,1121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,1239,1525,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field date field-text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1358,1434,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,1551,1711,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input");_.b("\n" + i);_.b("      class=\"boolean field ui-widget ui-corner-all\"");_.b("\n" + i);_.b("      type=\"checkbox\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1664,1687,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        checked");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,1744,1924,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field open-boolean ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1846,1900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,1956,2130,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2052,2106,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,2160,2334,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2256,2310,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,2362,2534,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field file ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2456,2510,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,2564,2765,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2687,2741,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,2805,3006,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2928,2982,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,3043,3221,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <textarea ");_.b("\n" + i);_.b("        class=\"field textarea ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,3143,3197,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}_.b("    name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-field-subcategory=\"");_.b(_.v(_.f("subcategory",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-charseq=\"");_.b(_.v(_.f("charseq",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-label=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-order=\"");_.b(_.v(_.f("order",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-head=\"");_.b(_.v(_.f("head",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-required=\"");_.b(_.v(_.f("required",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-reversal=\"");_.b(_.v(_.f("reversal",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-min=\"");_.b(_.v(_.f("min",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-max=\"");_.b(_.v(_.f("max",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-regex=\"");_.b(_.v(_.f("regex",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,3793,3803,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,3827,3837,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,3865,3875,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,3900,3910,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,3934,3965,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    /> Check for true<br />");_.b("\n");});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,3996,4252,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);_.b("      <option value=\"null\" ");if(_.s(_.f("is_null",c,p,1),c,p,0,4042,4055,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b("></option>");_.b("\n" + i);_.b("      <option value=\"false\" ");if(_.s(_.f("is_false",c,p,1),c,p,0,4119,4132,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">False</option>");_.b("\n" + i);_.b("      <option value=\"true\" ");if(_.s(_.f("value",c,p,1),c,p,0,4198,4211,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">True</option>");_.b("\n" + i);_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,4282,4545,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4412,4516,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4462,4475,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,4573,4836,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4703,4807,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4753,4766,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,4862,5121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4992,5092,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5040,5053,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("key",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,5149,5305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5172,5276,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5222,5235,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,5343,5499,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5366,5470,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5416,5429,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,5534,5683,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");if(_.s(_.f("default",c,p,1),c,p,0,5552,5565,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("default",c,p,0)));});c.pop();}_.b("</textarea>");_.b("\n" + i);_.b("    <span title=\"Expand/Shrink Text Box\" class=\"expander\" data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"></span>");_.b("\n");});c.pop();}_.b("  </div>");_.b("\n");});c.pop();}return _.fl();;}),
+  'fields' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("fields",c,p,1),c,p,0,11,5710,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div ");_.b("\n" + i);_.b("    class=\"field-container\" ");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <label for=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\">");_.b("\n" + i);_.b("      <span class=\"label-text\">");_.b(_.v(_.f("label",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("      <span ");_.b("\n" + i);_.b("        class=\"ui-icon ui-icon-help\" ");_.b("\n" + i);_.b("        title=\"");if(_.s(_.f("date",c,p,1),c,p,0,237,264,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("Format date as: yyyy-mm-dd.");});c.pop();}_.b(" ");_.b(_.v(_.f("description",c,p,0)));_.b("\"></span>");_.b("\n" + i);_.b("    </label>");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,327,602,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,435,511,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,628,905,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,738,814,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,935,1212,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1045,1121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,1239,1525,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field date field-text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"date\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1358,1434,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,1551,1711,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input");_.b("\n" + i);_.b("      class=\"boolean field ui-widget ui-corner-all\"");_.b("\n" + i);_.b("      type=\"checkbox\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1664,1687,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        checked");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,1744,1924,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field open-boolean ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1846,1900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,1956,2130,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2052,2106,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,2160,2334,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2256,2310,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,2362,2534,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field file ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2456,2510,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,2564,2765,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2687,2741,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,2805,3006,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2928,2982,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,3043,3221,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <textarea ");_.b("\n" + i);_.b("        class=\"field textarea ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,3143,3197,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}_.b("    name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-field-subcategory=\"");_.b(_.v(_.f("subcategory",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-charseq=\"");_.b(_.v(_.f("charseq",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-label=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-order=\"");_.b(_.v(_.f("order",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-head=\"");_.b(_.v(_.f("head",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-required=\"");_.b(_.v(_.f("required",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-reversal=\"");_.b(_.v(_.f("reversal",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-min=\"");_.b(_.v(_.f("min",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-max=\"");_.b(_.v(_.f("max",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-regex=\"");_.b(_.v(_.f("regex",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,3793,3803,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,3827,3837,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,3865,3875,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,3900,3910,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,3934,3965,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    /> Check for true<br />");_.b("\n");});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,3996,4252,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);_.b("      <option value=\"null\" ");if(_.s(_.f("is_null",c,p,1),c,p,0,4042,4055,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b("></option>");_.b("\n" + i);_.b("      <option value=\"false\" ");if(_.s(_.f("is_false",c,p,1),c,p,0,4119,4132,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">False</option>");_.b("\n" + i);_.b("      <option value=\"true\" ");if(_.s(_.f("value",c,p,1),c,p,0,4198,4211,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">True</option>");_.b("\n" + i);_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,4282,4545,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4412,4516,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4462,4475,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,4573,4836,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4703,4807,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4753,4766,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,4862,5121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4992,5092,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5040,5053,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("key",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,5149,5305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5172,5276,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5222,5235,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,5343,5499,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5366,5470,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5416,5429,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,5534,5683,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");if(_.s(_.f("default",c,p,1),c,p,0,5552,5565,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("default",c,p,0)));});c.pop();}_.b("</textarea>");_.b("\n" + i);_.b("    <span title=\"Expand/Shrink Text Box\" class=\"expander\" data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"></span>");_.b("\n");});c.pop();}_.b("  </div>");_.b("\n");});c.pop();}return _.fl();;}),
   'fieldset' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div ");_.b("\n" + i);_.b("  data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("  class=\"fields ui-widget ui-widget-content ui-corner-all padded\">");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,116,181,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <a href=\"#\" class=\"remove-button link-button\">Remove</a >");_.b("\n");});c.pop();}_.b("</div>");_.b("\n");return _.fl();;}),
   'index-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <ul class=\"head-elements\">");_.b("\n" + i);if(_.s(_.f("display_key",c,p,1),c,p,0,247,362,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("            class=\"view-document-link\">");_.b(_.v(_.d(".",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <ul class=\"reversal-elements\">");_.b("\n" + i);if(_.s(_.f("value",c,p,1),c,p,0,455,487,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b(_.v(_.d(".",c,p,0)));_.b("</li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
   'index-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<table>");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <th>Name</th>");_.b("\n" + i);_.b("    <th>Doctype</th>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,91,210,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <th><a href=\"#\" data-index-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("</a></th> ");_.b("\n" + i);_.b("      <td>");_.b(_.v(_.d("key.0",c,p,0)));_.b("</td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");return _.fl();;}),
@@ -14928,8 +14928,9 @@ exports.highlight = highlight;
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
 //
-// The are slightly specialized toward form elements using JQueryUI in
-// some way.
+// Some form helpers.
+// TODO: find non-JQueryUI implementations. Only the date picker needs
+// JQuery or JQueryUI.
 
 // ## Variable Definitions
 
@@ -14942,49 +14943,38 @@ var clear;
 var updateTips = function (t, tips) {
   'use strict';
 
-  tips.append('<span class="validation-error-message">' + t + '</span>').addClass('ui-state-highlight');
+  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
+  tips.classList.add('ui-state-highlight');
   setTimeout(function () {
-    tips.removeClass('ui-state-highlight', 1500);
+    tips.classList.remove('ui-state-highlight', 1500);
   }, 500);
 
-  return true;
+  return tips;
 };
 
 // ## Exported Functions
 
-// Generic element toggler. The idea being that a clicked or otherwise
-// 'stimulated' element has a `data-target` attribute with a value the
-// ID of an element to be toggled.
-var toggle = function (t) {
+// Generic element toggler.
+var toggle = function (target) {
   'use strict';
 
-  var toggleElem;
-  var target = $(t);
+  var toggleElem = document.getElementById(target.dataset.target);
 
-  if (target.attr('data-target')) {
-    toggleElem = $('#' + target.attr('data-target'));
-    toggleElem.toggle();
-  }
+  toggleElem.classList.toggle('hidden');
 
-  return true;
+  return target;
 };
 
 // Generic dialog canceling code
-var cancelDialog = function (t) {
+var cancelDialog = function (target) {
   'use strict';
 
-  var target = $(t);
-  var toggleElem;
-  var elemId;
+  var toggleElem = document.getElementById(target.dataset.target);
 
-  if (target.attr('data-target')) {
-    elemId = '#' + target.attr('data-target');
-    toggleElem = $(elemId);
-    toggleElem.hide();
-    clear(undefined, toggleElem.find('form'));
-  }
+  toggleElem.classList.add('hidden');
+  clear(undefined, toggleElem.querySelector('form'));
 
-  return true;
+  return target;
 };
 
 // Generic dialog form clearing code
@@ -14992,18 +14982,18 @@ clear = function (inputFields, form) {
   'use strict';
 
   if (inputFields === undefined) {
-    inputFields = $(form).find('input, select, textarea');
+    inputFields = form.querySelectorAll('input, select, textarea');
   }
-  inputFields.each(function (index, elem) {
-    var inputField = $(elem);
 
-    if (!inputField.attr('data-retain')) {
-      if (inputField.is(':checked')) {
-        inputField.attr('checked', false);
+  Array.prototype.forEach.call(inputFields, function (elem) {
+    if (!elem.dataset.retain) {
+      if (elem.checked) {
+        elem.checked = false;
       }
-      inputField.val('');
+      elem.value = '';
     }
   });
+
   return inputFields;
 };
 
@@ -15015,7 +15005,7 @@ clear = function (inputFields, form) {
 var checkLength = function (o, n, min, max, tips) {
   'use strict';
 
-  if (o.val().length > max || o.val().length < min) {
+  if (o.value.length > max || o.value.length < min) {
     o.addClass('ui-state-error');
     updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
     return false;
@@ -15030,7 +15020,7 @@ var checkLength = function (o, n, min, max, tips) {
 var initDateFields = function () {
   'use strict';
 
-  $('.date').datepicker({
+  $('input[type="date"]').datepicker({
     dateFormat: 'yy-mm-dd'
   });
 
@@ -15041,14 +15031,14 @@ var initDateFields = function () {
 var fillOptionsFromUrl = function (url, selectElement, callback) {
   'use strict';
 
-  ajax.legacyHTMLGet(url, function (req) {
-    selectElement.html(req.response);
+  ajax.get(url, function (req) {
+    selectElement.innerHTML = templates['options'](req.response);
     if (callback) {
       callback();
     }
   });
 
-  return false;
+  return selectElement;
 };
 
 exports.toggle = toggle;
@@ -15589,6 +15579,7 @@ require('jquery-ui-input-state');
 
 var ihelpers = require('index_tool/ihelpers');
 var form = require('form');
+var ajax = require('ajax');
 var evs = require('index_tool/ievents');
 
 // Exported functions
@@ -15597,131 +15588,128 @@ var evs = require('index_tool/ievents');
 var initIndexBuilderDialog = function (indexDoctype) {
   'use strict';
 
-  var builderOr = $('#builder-or-input');
-  var builderParen = $('#builder-paren-input');
-  var builderNegate = $('#builder-negate-input');
-  var builderOperator = $('#builder-operator-input').inputDisable();
-  var builderArgument = $('#builder-argument-input').inputDisable();
-  var builderFieldset = $('#builder-fieldset-input').inputDisable();
-  var builderField = $('#builder-field-input').inputDisable();
-  var notBlank = [builderOperator, builderFieldset, builderField];
+  var builderOrInput = document.getElementById('builder-or-input');
+  var builderParenInput = document.getElementById('builder-paren-input');
+  var builderNegateInput = document.getElementById('builder-negate-input');
+  var builderOperatorInput = document.getElementById('builder-operator-input');
+  var builderArgumentInput = document.getElementById('builder-argument-input');
+  var builderFieldsetInput = document.getElementById('builder-fieldset-input');
+  var builderFieldInput = document.getElementById('builder-field-input');
+  var builderConditions = document.getElementById('builder-conditions');
+  var builderParens = document.getElementById('builder-parens');
+  var builderOr = document.getElementById('builder-or');
+  var dialogElem = document.getElementById('index-builder-dialog');
+  var tableBody = document.getElementById('index-conditions-listing').getElementByTagName('tbody');
+  var notBlank = [builderOperatorInput, builderFieldsetInput, builderFieldInput];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
 
-  $('.ui-helper-reset div').show();
+  builderOperatorInput.setAttribute('disable', 'disable');
+  builderArgumentInput.setAttribute('disable', 'disable');
+  builderFieldsetInput.setAttribute('disable', 'disable');
+  builderFieldInput.setAttribute('disable', 'disable');
+  document.querySelector('.ui-helper-reset div').classList.remove('hidden');
 
   var appendCondition = function (builderRow) {
-    var tableBody = $('#index-conditions-listing tbody');
-    tableBody.append(builderRow);
-    tableBody.sortable();
+    tableBody.insertAdjacentHTML('beforeend', builderRow);
+    // TODO: allow for arranging rows some other way.
+    $(tableBody).sortable();
 
     return false;
   };
 
-  ihelpers.fOpts(fieldset_url, builderFieldset, function () {
-    builderFieldset.inputEnable();
+  ihelpers.fOpts(fieldset_url, builderFieldsetInput, function () {
+    builderFieldsetInput.removeAttribute('disable');
   });
 
-  builderOr.change(function () {
-    if (builderOr.is(':checked')) {
-      $('#builder-conditions').hide();
-      $('#builder-parens').hide();
+  builderOrInput.onchange = function () {
+    if (builderOrInput.checked) {
+      builderConditions.classList.add('hidden');
+      builderParens.classList.add('hidden');
     } else {
-      $('#builder-conditions').show();
-      $('#builder-parens').show();
+      builderConditions.classList.remove('hidden');
+      builderParens.classList.remove('hidden');
     }
-  });
+  };
 
-  builderParen.change(function () {
-    if (builderParen.val()) {
-      $('#builder-or').hide();
-      $('#builder-conditions').hide();
+  builderParenInput.onchange = function () {
+    if (builderParenInput.value) {
+      builderConditions.classList.add('hidden');
+      builderOr.classList.add('hidden');
     } else {
-      $('#builder-or').show();
-      $('#builder-conditions').show();
+      builderConditions.classList.remove('hidden');
+      builderOr.classList.remove('hidden');
     }
-  });
+  };
 
   var fieldsetEvents = function () {
-    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function () {
-      builderOperator.inputDisable();
-      builderField.inputDisable();
-      builderArgument.inputDisable();
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderFieldInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderField.inputEnable();
+        builderFieldInput.removeAttribute('disable');
       };
     });
   };
 
   var fieldEvents = function () {
-    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function () {
-      builderOperator.inputDisable();
-      builderArgument.inputDisable();
+    evs.setIndexFieldEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderOperator.inputEnable();
+        builderOperatorInput.removeAttribute('disable');
       };
     });
   };
 
   var operatorEvents = function () {
-    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function () {
-      builderArgument.inputDisable();
+    evs.setIndexOperatorEvents(builderArgumentInput, builderOperatorInput, builderFieldInput, function () {
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderArgument.inputEnable();
+        builderArgumentInput.removeAttribute('disable');
       };
     });
   };
 
-  var dialog = $('#index-builder-dialog').dialog({
+  var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Create': function () {
-        $('.input').removeClass('ui-state-error');
+        Array.prototype.forEach.call(document.querySelectorAll('.input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!builderOr.is(':checked') && !builderParen.val()) {
+        if (!builderOrInput.checked && !builderParenInput.value) {
           notBlank.forEach(function (item) {
-            if (item.val().isBlank()) {
-              item.addClass('ui-state-error');
+            if (item.value.isBlank()) {
+              item.classList.add('ui-state-error');
               checkResult = false;
             } else {
-              item.removeClass('ui-state-error');
+              item.classList.remove('ui-state-error');
             }
           });
         }
 
         if (checkResult) {
-          if (builderOr.is(':checked')) {
-            $.get(condition_url, {
-              'is_or': true
-            }, function (data) {
-              appendCondition(data);
+          if (builderOrInput.checked) {
+            ajax.get(condition_url + '?is_or=true', function (req) {
+              appendCondition(req);
             });
-          } else if (builderParen.val()) {
-            $.get(condition_url, {
-              'is_or': false,
-              'parens': builderParen.val(),
-              'negate': false
-            }, function (data) {
-              appendCondition(data);
+          } else if (builderParenInput.value) {
+            ajax.get(condition_url + '?is_or=false&parens=' + builderParenInput.value + '&negate=false', function (req) {
+              appendCondition(req);
             });
           } else {
-            $.get(condition_url, {
-              'is_or': false,
-              'parens': false,
-              'negate': builderNegate.is(':checked'),
-              'fieldset': builderFieldset.val(),
-              'field': builderField.val(),
-              'operator': builderOperator.val(),
-              'argument': builderArgument.val()
-            }, function (data) {
-              appendCondition(data);
+            ajax.get(condition_url + '?is_or=false&parens=false&negate=' + builderNegateInput.checked.toString() + '&fieldset=' + builderFieldsetInput.value + '&field=' + builderFieldInput.value + '&operator=' + builderOperatorInput.value + '&argument=' + builderArgumentInput.value, function (req) {
+              appendCondition(req);
             });
           }
 
@@ -15733,11 +15721,14 @@ var initIndexBuilderDialog = function (indexDoctype) {
       }
     },
     close: function () {
-      $('#builder-conditions').show();
-      builderFieldset.unbind('change');
-      builderField.unbind('change');
-      builderOperator.unbind('change');
-      form.clear($('.input')).removeClass('ui-state-error');
+      builderConditions.classList.remove('hidden');
+      builderFieldsetInput.onchange = undefined;
+      builderFieldInput.onchange = undefined;
+      builderOperatorInput.onchange = undefined;
+      form.clear(document.getElementsByClassName('input'));
+      Array.prototype.forEach.call(document.getElementsByClassName('input'), function (item) {
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 
@@ -15750,7 +15741,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],84:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],84:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -15774,14 +15765,15 @@ var flash = require('flash');
 var tableBody = function () {
   'use strict';
 
-  return $('#index-conditions-listing tbody');
+  return document.getElementById('index-conditions-listing').getElementByTagName('tbody');
+
 };
 
 // User interface element
 var editingData = function () {
   'use strict';
 
-  return $('#index-editing-data');
+  return document.getElementById('index-editing-data');
 };
 
 // Make sure the arguments are of the correct type.
@@ -15811,48 +15803,44 @@ var fixArgumentType = function (argument, subcategory, operator) {
 var getIndexConditions = function (doctypeId, rows) {
   'use strict';
 
-  var conditions = rows.map(
+  var conditions = Array.prototype.map.call(rows, function (row) {
+    var is_or = row.querySelector('td.or-condition').dataset.value === 'true';
+    var paren = row.querySelector('td.paren-condition').dataset.value;
+    var condition;
 
-    function (index, row) {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
-      var paren = row.find('td.paren-condition').attr('data-value');
-      var condition;
+    if (is_or) {
+      condition = {
+        'is_or': true,
+        'parens': false
+      };
+    } else if (paren) {
+      condition = {
+        'is_or': false,
+        'parens': paren
+      };
+    } else {
+      var fieldId = row.querySelector('td.field-condition').dataset.value;
+      var fieldsetId = row.querySelector('td.fieldset-condition').dataset.value;
+      var argument = row.querySelector('td.argument-condition').dataset.value;
+      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+      var negate = row.querySelector('td.negate-condition').dataset.value === 'true';
+      var operator = row.querySelector('td.operator-condition').dataset.value;
 
-      if (is_or) {
-        condition = {
-          'is_or': true,
-          'parens': false
-        };
-      } else if (paren) {
-        condition = {
-          'is_or': false,
-          'parens': paren
-        };
-      } else {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate =
-          row.find('td.negate-condition').attr('data-value') === 'true';
-        var operator = row.find('td.operator-condition').attr('data-value');
+      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
 
-        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+      condition = {
+        'is_or': false,
+        'parens': false,
+        'negate': negate,
+        'fieldset': fieldsetId,
+        'field': fieldId,
+        'operator': operator,
+        'argument': argument
+      };
+    }
 
-        condition = {
-          'is_or': false,
-          'parens': false,
-          'negate': negate,
-          'fieldset': fieldsetId,
-          'field': fieldId,
-          'operator': operator,
-          'argument': argument
-        };
-      }
-
-      return condition;
-    }).toArray();
+    return condition;
+  });
 
   return conditions;
 };
@@ -15861,24 +15849,24 @@ var getIndexConditions = function (doctypeId, rows) {
 var saveIndex = function (buttonData, completeFunction) {
   'use strict';
 
-  var indexId = buttonData.attr('data-index-id');
-  var indexRev = buttonData.attr('data-index-rev');
+  var indexId = buttonData.dataset.indexId;
+  var indexRev = buttonData.dataset.indexRev;
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
-  var doctype = buttonData.attr('data-index-doctype');
+  var doctype = buttonData.dataset.indexDoctype;
 
   var obj = {
     '_id': indexId,
     'category': 'index',
     'doctype': doctype,
-    'show_deleted': buttonData.attr('data-index-show_deleted') === 'true',
-    'fields': JSON.parse(buttonData.attr('data-index-fields')),
-    'fields_label': JSON.parse(buttonData.attr('data-index-fields_label')),
-    'name': buttonData.attr('data-index-name'),
-    'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+    'show_deleted': buttonData.dataset.indexShow_deleted === 'true',
+    'fields': JSON.parse(buttonData.dataset.indexFields),
+    'fields_label': JSON.parse(buttonData.dataset.indexFields_label),
+    'name': buttonData.dataset.indexName,
+    'conditions': getIndexConditions(doctype, document.querySelectorAll('#index-conditions-listing tbody tr'))
   };
 
-  if (buttonData.attr('data-index-replace_function')) {
-    obj.replace_function = buttonData.attr('data-index-replace_function');
+  if (buttonData.dataset.indexReplace_function) {
+    obj.replace_function = buttonData.dataset.indexReplace_function;
   }
 
   ajax.put(url, obj, 'PUT', completeFunction);
@@ -15893,33 +15881,30 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
   var title;
   var body;
+  var statusCallbacks = [];
 
-  $.ajax({
-    type: 'DELETE',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    complete: function (req, status) {
-      if (req.status === 204) {
-        title = 'Success';
-        body = completeMessage;
+  statusCallbacks[204] = function () {
+    title = 'Success';
+    body = completeMessage;
 
-        completeFunction();
+    completeFunction();
 
-        flash.highlight(title, body);
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
+    flash.highlight(title, body);
+  };
+  statusCallbacks[409] = function (req) {
+    body = req.response.message;
+    title = req.statusText;
 
-        flash.error(title, body.message);
-      } else if (req.status === 404) {
-        body = 'Index appears to have been deleted already.';
-        title = req.statusText;
+    flash.error(title, body);
+  };
+  statusCallbacks[404] = function (req) {
+    body = 'Index appears to have been deleted already.';
+    title = req.statusText;
 
-        flash.error(title, body);
-      }
-    }
-  });
+    flash.error(title, body);
+  };
+
+  ajax.del(url, undefined, statusCallbacks);
 
   return false;
 };
@@ -15930,13 +15915,13 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
 var init = function (target) {
   'use strict';
 
-  var indexId = $(target).attr('data-index-id');
+  var indexId = target.dataset.indexId;
   var url = 'indexes/' + indexId;
-  var htmlTarget = $('#index-conditions');
+  var htmlTarget = document.getElementById('index-conditions');
 
-  ajax.legacyHTMLGet(url, function (req) {
-    htmlTarget.html(req.response);
-    tableBody().sortable();
+  ajax.get(url, function (req) {
+    htmlTarget.innerHTML = templates['index-conditions'](req.response);
+    $(tableBody()).sortable();
     ipreviewui.get();
   });
 
@@ -15984,7 +15969,7 @@ var addCond = function () {
   var bData = editingData();
 
   if (bData.length !== 0) {
-    initIndexBuilderDialog(bData.attr('data-index-doctype')).dialog('open');
+    initIndexBuilderDialog(bData.dataset.indexDoctype).dialog('open');
   } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
@@ -15996,8 +15981,8 @@ var addCond = function () {
 var remCond = function (target) {
   'use strict';
 
-  $(target).closest('tr').remove();
-  return true;
+  //$(target).closest('tr').remove();
+  throw 'intentional error';
 };
 
 // Open the new index dialog.
@@ -16015,11 +16000,11 @@ var del = function () {
   var bData = editingData();
 
   if (bData.length !== 0) {
-    var indexId = bData.attr('data-index-id');
-    var indexRev = bData.attr('data-index-rev');
+    var indexId = bData.dataset.indexId;
+    var indexRev = bData.dataset.indexRev;
     var completeMessage = 'Your index has been deleted.';
     var completeFunction = function () {
-      $('#index-conditions').empty();
+      document.getElementById('index-conditions').innerHTML = '';
       ilistingui.init();
     };
 
@@ -16044,7 +16029,7 @@ exports.del = del;
 },{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],85:[function(require,module,exports){
 // # Dialog Events
 //
-// *Implicit depends:* DOM, JQuery, JQuery UI
+// *Implicit depends:* DOM
 //
 // These are change events triggered in the dialogs.
 
@@ -16060,8 +16045,8 @@ var h = require('index_tool/ihelpers');
 var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
   'use strict';
 
-  indexDoctype.change(function () {
-    var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
+  indexDoctype.onchange = function () {
+    var url = 'doctypes/' + indexDoctype.value + '/fieldsets';
     var callback2;
 
     if (callback) {
@@ -16069,7 +16054,7 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
     }
 
     h.fOpts(url, indexFieldset, callback2);
-  });
+  };
 
   return false;
 };
@@ -16078,15 +16063,15 @@ var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
 var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexFieldset.change(function () {
+  indexFieldset.onchange = function () {
     var callback2;
 
     if (typeof indexDoctype !== 'string') {
-      indexDoctype = indexDoctype.val();
+      indexDoctype = indexDoctype.value;
     }
 
-    if (indexFieldset.val()) {
-      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+    if (indexFieldset.value) {
+      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
 
       if (callback) {
         callback2 = callback();
@@ -16094,7 +16079,7 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 
       h.fOpts(url, indexField, callback2);
     }
-  });
+  };
 
   return true;
 };
@@ -16103,9 +16088,9 @@ var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, 
 var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
   'use strict';
 
-  indexField.change(function () {
-    var fieldId = indexField.val();
-    var fieldsetId = indexFieldset.val();
+  indexField.onchange = function () {
+    var fieldId = indexField.value;
+    var fieldsetId = indexFieldset.value;
     var callback2;
 
     if (callback) {
@@ -16117,7 +16102,7 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
         h.alterOpts(data, fieldId, callback2);
       });
     }
-  });
+  };
 
   return true;
 };
@@ -16126,7 +16111,7 @@ var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, cal
 var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
-  operatorField.change(function () {
+  operatorField.onchange = function () {
     var callback2;
 
     if (callback) {
@@ -16134,7 +16119,7 @@ var setIndexOperatorEvents = function (argumentField, operatorField, fieldField,
     }
 
     h.alterArg(argumentField, operatorField, fieldField, callback2);
-  });
+  };
 
   return true;
 };
@@ -16155,6 +16140,7 @@ exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
 var s = require('sess');
 var ajax = require('ajax');
+var form = require('form');
 
 // Internal functions
 
@@ -16162,10 +16148,12 @@ var ajax = require('ajax');
 var disableOptions = function (options, disables) {
   'use strict';
 
-  options.children().show();
+  Array.prototype.forEach.call(options.childNodes, function (node) {
+    node.classList.remove('hidden');
+  });
 
   disables.forEach(function (item) {
-    options.children('option:contains(' + item + ')').hide();
+    options.querySelector('option:contains(' + item + ')').classList.add('hidden');
   });
 
   return false;
@@ -16175,7 +16163,7 @@ var disableOptions = function (options, disables) {
 var disableOperatorOptions = function (fieldDoc) {
   'use strict';
 
-  var options = $('#builder-operator-input');
+  var options = document.getElementById('builder-operator-input');
 
   switch (fieldDoc.subcategory) {
   case 'select':
@@ -16210,28 +16198,27 @@ var alterArg = function (argumentField, operatorField, fieldField, callback) {
   'use strict';
 
   var fieldDoc = function () {
-    return s.get(fieldField.val());
+    return s.get(fieldField.value);
   };
 
   callback();
 
+  // TODO: remove Jquery UI dep.
   try {
     // Destroy these if initialized already
-    argumentField.removeAttr('disabled').datepicker('destroy');
-    argumentField.removeAttr('disabled').autocomplete('destroy');
+    $(argumentField).removeAttr('disabled').datepicker('destroy');
+    $(argumentField).removeAttr('disabled').autocomplete('destroy');
   } catch (err) {
     window.console.log(err.message);
   }
 
   var dateOrText = function (argumentField, fdoc) {
     if (fdoc.subcategory === 'date') {
-      argumentField.removeAttr('disabled');
-      argumentField.datepicker({
+      $(argumentField).removeAttr('disabled').datepicker({
         dateFormat: 'yy-mm-dd'
       });
     } else {
-      argumentField.removeAttr('disabled');
-      argumentField.autocomplete({
+      $(argumentField).removeAttr('disabled').autocomplete({
         source: fdoc.allowed
       });
     }
@@ -16242,11 +16229,11 @@ var alterArg = function (argumentField, operatorField, fieldField, callback) {
   var fdoc = fieldDoc();
 
   if (fdoc) {
-    switch (operatorField.val()) {
+    switch (operatorField.value) {
     case 'true':
     case 'isDefined':
     case 'blank':
-      argumentField.attr('disabled', 'disabled').val('');
+      argumentField.setAttribute('disabled', 'disabled').value = '';
       break;
     case 'equal':
     case 'member':
@@ -16274,21 +16261,6 @@ var alterOpts = function (fieldDoc, fieldId, callback) {
   return true;
 };
 
-// Get the fields that the user may choose from.
-var fOpts = function (url, selectElement, callback) {
-  'use strict';
-
-  ajax.legacyHTMLGet(url, function (req) {
-    selectElement.html(req.response);
-
-    if (callback) {
-      callback();
-    }
-  });
-
-  return true;
-};
-
 // Get the document holding the field information.
 var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
   'use strict';
@@ -16302,15 +16274,10 @@ var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
     }
     return fieldDoc;
   } else {
-    $.ajax({
-      url: url,
-      async: false,
-      dataType: 'json',
-      success: function (data) {
-        s.put(data);
-        if (callback) {
-          callback(s.get(fieldId));
-        }
+    ajax.get(url, function (req) {
+      s.put(req.response);
+      if (callback) {
+        callback(s.get(fieldId));
       }
     });
 
@@ -16333,38 +16300,38 @@ var evs = function () {
         callback2 = callback();
       }
 
-      fOpts(url, indexFieldset, callback2);
+      form.fillOptionsFromUrl(url, indexFieldset, callback2);
     });
 
     return false;
   };
 
   mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexFieldset.change(function () {
+    indexFieldset.onchange = function () {
       var callback2;
 
       if (typeof indexDoctype !== 'string') {
-        indexDoctype = indexDoctype.val();
+        indexDoctype = indexDoctype.value;
       }
 
-      if (indexFieldset.val()) {
-        var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.val() + '/fields?as=options';
+      if (indexFieldset.value) {
+        var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
 
         if (callback) {
           callback2 = callback();
         }
 
-        fOpts(url, indexField, callback2);
+        form.fillOptionsFromUrl(url, indexField, callback2);
       }
-    });
+    };
 
     return mod;
   };
 
   mod.setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-    indexField.change(function () {
-      var fieldId = indexField.val();
-      var fieldsetId = indexFieldset.val();
+    indexField.onchange = function () {
+      var fieldId = indexField.value;
+      var fieldsetId = indexFieldset.value;
       var callback2;
 
       if (callback) {
@@ -16376,13 +16343,13 @@ var evs = function () {
           alterOpts(data, fieldId, callback2);
         });
       }
-    });
+    };
 
     return mod;
   };
 
   mod.setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
-    operatorField.change(function () {
+    operatorField.onchange = function () {
       var callback2;
 
       if (callback) {
@@ -16390,7 +16357,7 @@ var evs = function () {
       }
 
       alterArg(argumentField, operatorField, fieldField, callback2);
-    });
+    };
 
     return mod;
   };
@@ -16398,14 +16365,13 @@ var evs = function () {
 
 exports.alterArg = alterArg;
 exports.alterOpts = alterOpts;
-exports.fOpts = fOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"ajax":106,"sess":149}],87:[function(require,module,exports){
+},{"ajax":106,"form":130,"sess":149}],87:[function(require,module,exports){
 // # Index listing.
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Displays a listing of user created indexes.
 
@@ -16421,12 +16387,12 @@ var init = function () {
   'use strict';
 
   var url = 'indexes';
-  var target = $('#index-index-listing');
+  var target = document.getElementById('index-index-listing');
   var listing;
 
   ajax.get(url, function (req) {
     listing = templates['index-listing'](req.response);
-    target.html(listing);
+    target.innerHTML = listing;
   });
 
   return true;
@@ -16514,39 +16480,42 @@ var evs = require('index_tool/ievents');
 var initIndexNewDialog = function () {
   'use strict';
 
-  var indexDoctype = $('#index-doctype-input');
-  var indexFieldset = $('#index-fieldset-input').inputDisable();
-  var indexField = $('#index-field-input').inputDisable();
-  var indexName = $('#index-name-input');
+  var indexDoctype = document.getElementById('index-doctype-input');
+  var indexFieldset = document.getElementById('index-fieldset-input');
+  var indexField = document.getElementById('index-field-input');
+  var indexName = document.getElementById('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
+
+  indexFieldset.setAttribute('disabled', 'disabled');
+  indexField.setAttribute('disabled', 'disabled');
 
   var doctypeEvents = function () {
     evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
-      indexFieldset.inputDisable();
-      indexField.inputDisable();
+      indexFieldset.setAttribute('disabled', 'disabled');
+      indexField.setAttribute('disabled', 'disabled');
 
       return function () {
-        indexFieldset.inputEnable();
+        indexFieldset.removeAttribute('disabled');
       };
     });
   };
 
   var fieldsetEvents = function () {
     evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
-      indexField.inputDisable();
+      indexField.setAttribute('disabled', 'disabled');
 
       return function () {
-        indexField.inputEnable();
+        indexField.removeAttribute('disabled');
       };
     });
   };
 
   var getLabelForVal = function (val) {
-    return $('#index-new-dialog option[value="' + val + '"]').text();
+    return document.querySelector('#index-new-dialog option[value="' + val + '"]').innerHTML;
   };
 
   var getLabel = function () {
-    return [getLabelForVal(indexFieldset.val()), getLabelForVal(indexField.val())].join(':');
+    return [getLabelForVal(indexFieldset.value), getLabelForVal(indexField.value)].join(':');
   };
 
   var dialog = $('#index-new-dialog').dialog({
@@ -16554,7 +16523,9 @@ var initIndexNewDialog = function () {
     modal: true,
     buttons: {
       'Create': function () {
-        $('.input').removeClass('ui-state-error');
+        Array.prototype.forEach.call(document.querySelectorAll('.input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
@@ -16562,12 +16533,12 @@ var initIndexNewDialog = function () {
         if (checkResult) {
           var obj = {
             'category': 'index',
-            'name': indexName.val(),
-            'show_deleted': indexShowDeleted.is(':checked'),
+            'name': indexName.value,
+            'show_deleted': indexShowDeleted.checked,
             'conditions': [],
-            'doctype': indexDoctype.val(),
+            'doctype': indexDoctype.value,
             'fields_label': [getLabel()],
-            'fields': [indexField.val()]
+            'fields': [indexField.value]
           },
             complete = function (context) {
               ilistingui.init();
@@ -16581,9 +16552,12 @@ var initIndexNewDialog = function () {
       }
     },
     close: function () {
-      indexFieldset.unbind('change');
-      indexDoctype.unbind('change');
-      form.clear($('.input')).removeClass('ui-state-error');
+      indexFieldset.onchange = undefined;
+      indexDoctype.onchange = undefined;
+      var cleared = form.clear(document.querySelectorAll('.input'));
+      Array.prototype.forEach.call(cleared, function (item) {
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 
@@ -16606,7 +16580,6 @@ exports.initIndexNewDialog = initIndexNewDialog;
 // Variable Definitions
 
 var ihelpers = require('index_tool/ihelpers');
-var form = require('form');
 
 // Exported functions
 
@@ -16615,40 +16588,46 @@ var form = require('form');
 var initReplaceDialog = function () {
   'use strict';
 
-  var replaceFunction = $('#index-replace_function-input');
-  var indexData = $('#index-editing-data');
-  var remove = $('#index-remove_function-input');
+  var replaceFunction = document.getElementById('index-replace_function-input');
+  var indexData = document.getElementById('index-editing-data');
+  var remove = document.getElementById('index-remove_function-input');
+  var dialogElem = document.getElementById('index-replace-dialog');
+  var message = document.getElementById('replace-function-message');
 
-  if (indexData.attr('data-index-replace_function')) {
-    replaceFunction.val(indexData.attr('data-index-replace_function'));
+  if (indexData.dataset.indexReplace_function) {
+    replaceFunction.value = indexData.dataset.indexReplace_function;
   } else {
-    form.clear(replaceFunction).removeClass('ui-state-error');
+    replaceFunction = '';
+    replaceFunction.classList.remove('ui-state-error');
   }
 
-  var dialog = $('#index-replace-dialog').dialog({
+  var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Save': function () {
-        $('.input').removeClass('ui-state-error');
+
+        Array.prototype.forEach.call(document.getElementsByClassName('input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!remove.is(':checked')) {
-          if (replaceFunction.val().isBlank()) {
-            replaceFunction.addClass('ui-state-error');
+        if (!remove.checked) {
+          if (replaceFunction.value.isBlank()) {
+            replaceFunction.classList.add('ui-state-error');
           } else {
-            replaceFunction.removeClass('ui-state-error');
+            replaceFunction.classList.remove('ui-state-error');
           }
 
           if (checkResult) {
-            indexData.attr('data-index-replace_function', replaceFunction.val());
-            $('#replace-function-message').text('This index has a replacement function.');
+            indexData.dataset.indexReplace_function = replaceFunction.value;
+            message.innerHTML = 'This index has a replacement function.';
           }
         } else {
           indexData.removeAttr('data-index-replace_function');
-          $('#replace-function-message').empty();
+          message.innerHTML = '';
         }
 
         $(this).dialog('close');
@@ -16658,7 +16637,8 @@ var initReplaceDialog = function () {
       }
     },
     close: function () {
-      form.clear(replaceFunction).removeClass('ui-state-error');
+      replaceFunction.value = '';
+      replaceFunction.classList.remove('ui-state-error');
     }
   });
 
@@ -16667,7 +16647,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"form":130,"index_tool/ihelpers":137}],91:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],91:[function(require,module,exports){
 /*
  Simple plugin for manipulating input.
 */
@@ -18145,11 +18125,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],105:[function(require,module,exports){
+},{"hogan.js":24}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
+},{}],105:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],106:[function(require,module,exports){
 module.exports=require(53)
@@ -18209,13 +18189,13 @@ module.exports=require(80)
 module.exports=require(81)
 },{"lib/json_to":154,"node-uuid":51}],134:[function(require,module,exports){
 module.exports=require(83)
-},{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],135:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"jquery-ui-input-state":142}],135:[function(require,module,exports){
 module.exports=require(84)
 },{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],136:[function(require,module,exports){
 module.exports=require(85)
 },{"index_tool/ihelpers":137}],137:[function(require,module,exports){
 module.exports=require(86)
-},{"ajax":106,"sess":149}],138:[function(require,module,exports){
+},{"ajax":106,"form":130,"sess":149}],138:[function(require,module,exports){
 module.exports=require(87)
 },{"ajax":106,"templates":105}],139:[function(require,module,exports){
 module.exports=require(88)
@@ -18223,7 +18203,7 @@ module.exports=require(88)
 module.exports=require(89)
 },{"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"jquery-ui-input-state":142}],141:[function(require,module,exports){
 module.exports=require(90)
-},{"form":130,"index_tool/ihelpers":137}],142:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],142:[function(require,module,exports){
 module.exports=require(91)
 },{}],143:[function(require,module,exports){
 module.exports=require(92)
