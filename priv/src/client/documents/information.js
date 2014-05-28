@@ -8,7 +8,6 @@
 
 var S = require('../sender.js');
 var ajax = require('ajax');
-var store = require('store').store;
 var ui = require('documents/ui-shared');
 
 // ## Exported Function Names
@@ -55,7 +54,7 @@ fieldsToFieldsetKey = function () {
 getCurrentVersion = function () {
   'use strict';
 
-  return store(ui.allDocContainer()).d('version');
+  return ui.allDocContainer().dataset.documentVersion;
 };
 
 // Get the stored doctype version.
@@ -163,7 +162,7 @@ clearSession = function () {
 doctypeId = function () {
   'use strict';
 
-  return store(ui.allDocContainer()).d('doctype');
+  return ui.allDocContainer().dataset.documentDoctype;
 };
 
 // Identifier is a combination of the project and doctype name.
