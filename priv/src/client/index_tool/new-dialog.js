@@ -21,10 +21,10 @@ var evs = require('index_tool/ievents');
 var initIndexNewDialog = function () {
   'use strict';
 
-  var indexDoctype = document.getElementByID('index-doctype-input');
-  var indexFieldset = document.getElementByID('index-fieldset-input');
-  var indexField = document.getElementByID('index-field-input');
-  var indexName = document.getElementByID('#index-name-input');
+  var indexDoctype = document.getElementById('index-doctype-input');
+  var indexFieldset = document.getElementById('index-fieldset-input');
+  var indexField = document.getElementById('index-field-input');
+  var indexName = document.getElementById('#index-name-input');
   var indexShowDeleted = $('#index-show_deleted-input');
 
   indexFieldset.setAttribute('disabled', 'disabled');

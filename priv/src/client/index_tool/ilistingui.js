@@ -16,7 +16,7 @@ var init = function () {
   'use strict';
 
   var url = 'indexes';
-  var target = document.getElementByID('index-index-listing');
+  var target = document.getElementById('index-index-listing');
   var listing;
 
   ajax.get(url, function (req) {

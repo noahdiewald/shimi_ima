@@ -21,14 +21,15 @@ var flash = require('flash');
 var tableBody = function () {
   'use strict';
 
-  return $('#index-conditions-listing tbody');
+  return document.getElementById('index-conditions-listing').getElementByTagName('tbody');
+
 };
 
 // User interface element
 var editingData = function () {
   'use strict';
 
-  return $('#index-editing-data');
+  return document.getElementById('index-editing-data');
 };
 
 // Make sure the arguments are of the correct type.
@@ -58,48 +59,44 @@ var fixArgumentType = function (argument, subcategory, operator) {
 var getIndexConditions = function (doctypeId, rows) {
   'use strict';
 
-  var conditions = rows.map(
+  var conditions = Array.prototype.map.call(rows, function (row) {
+    var is_or = row.querySelector('td.or-condition').dataset.value === 'true';
+    var paren = row.querySelector('td.paren-condition').dataset.value;
+    var condition;
 
-    function (index, row) {
-      row = $(row);
-      var is_or = row.find('td.or-condition').attr('data-value') === 'true';
-      var paren = row.find('td.paren-condition').attr('data-value');
-      var condition;
+    if (is_or) {
+      condition = {
+        'is_or': true,
+        'parens': false
+      };
+    } else if (paren) {
+      condition = {
+        'is_or': false,
+        'parens': paren
+      };
+    } else {
+      var fieldId = row.querySelector('td.field-condition').dataset.value;
+      var fieldsetId = row.querySelector('td.fieldset-condition').dataset.value;
+      var argument = row.querySelector('td.argument-condition').dataset.value;
+      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+      var negate = row.querySelector('td.negate-condition').dataset.value === 'true';
+      var operator = row.querySelector('td.operator-condition').dataset.value;
 
-      if (is_or) {
-        condition = {
-          'is_or': true,
-          'parens': false
-        };
-      } else if (paren) {
-        condition = {
-          'is_or': false,
-          'parens': paren
-        };
-      } else {
-        var fieldId = row.find('td.field-condition').attr('data-value');
-        var fieldsetId = row.find('td.fieldset-condition').attr('data-value');
-        var argument = row.find('td.argument-condition').attr('data-value');
-        var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
-        var negate =
-          row.find('td.negate-condition').attr('data-value') === 'true';
-        var operator = row.find('td.operator-condition').attr('data-value');
+      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
 
-        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+      condition = {
+        'is_or': false,
+        'parens': false,
+        'negate': negate,
+        'fieldset': fieldsetId,
+        'field': fieldId,
+        'operator': operator,
+        'argument': argument
+      };
+    }
 
-        condition = {
-          'is_or': false,
-          'parens': false,
-          'negate': negate,
-          'fieldset': fieldsetId,
-          'field': fieldId,
-          'operator': operator,
-          'argument': argument
-        };
-      }
-
-      return condition;
-    }).toArray();
+    return condition;
+  });
 
   return conditions;
 };
@@ -108,24 +105,24 @@ var getIndexConditions = function (doctypeId, rows) {
 var saveIndex = function (buttonData, completeFunction) {
   'use strict';
 
-  var indexId = buttonData.attr('data-index-id');
-  var indexRev = buttonData.attr('data-index-rev');
+  var indexId = buttonData.dataset.indexId;
+  var indexRev = buttonData.dataset.indexRev;
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
-  var doctype = buttonData.attr('data-index-doctype');
+  var doctype = buttonData.dataset.indexDoctype;
 
   var obj = {
     '_id': indexId,
     'category': 'index',
     'doctype': doctype,
-    'show_deleted': buttonData.attr('data-index-show_deleted') === 'true',
-    'fields': JSON.parse(buttonData.attr('data-index-fields')),
-    'fields_label': JSON.parse(buttonData.attr('data-index-fields_label')),
-    'name': buttonData.attr('data-index-name'),
-    'conditions': getIndexConditions(doctype, $('#index-conditions-listing tbody tr'))
+    'show_deleted': buttonData.dataset.indexShow_deleted === 'true',
+    'fields': JSON.parse(buttonData.dataset.indexFields),
+    'fields_label': JSON.parse(buttonData.dataset.indexFields_label),
+    'name': buttonData.dataset.indexName,
+    'conditions': getIndexConditions(doctype, document.querySelectorAll('#index-conditions-listing tbody tr'))
   };
 
-  if (buttonData.attr('data-index-replace_function')) {
-    obj.replace_function = buttonData.attr('data-index-replace_function');
+  if (buttonData.dataset.indexReplace_function) {
+    obj.replace_function = buttonData.dataset.indexReplace_function;
   }
 
   ajax.put(url, obj, 'PUT', completeFunction);
@@ -140,33 +137,30 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
   var url = 'indexes/' + indexId + '?rev=' + indexRev;
   var title;
   var body;
+  var statusCallbacks = [];
 
-  $.ajax({
-    type: 'DELETE',
-    url: url,
-    dataType: 'json',
-    contentType: 'application/json',
-    complete: function (req, status) {
-      if (req.status === 204) {
-        title = 'Success';
-        body = completeMessage;
+  statusCallbacks[204] = function () {
+    title = 'Success';
+    body = completeMessage;
 
-        completeFunction();
+    completeFunction();
 
-        flash.highlight(title, body);
-      } else if (req.status === 409) {
-        body = JSON.parse(req.responseText);
-        title = req.statusText;
+    flash.highlight(title, body);
+  };
+  statusCallbacks[409] = function (req) {
+    body = req.response.message;
+    title = req.statusText;
 
-        flash.error(title, body.message);
-      } else if (req.status === 404) {
-        body = 'Index appears to have been deleted already.';
-        title = req.statusText;
+    flash.error(title, body);
+  };
+  statusCallbacks[404] = function (req) {
+    body = 'Index appears to have been deleted already.';
+    title = req.statusText;
 
-        flash.error(title, body);
-      }
-    }
-  });
+    flash.error(title, body);
+  };
+
+  ajax.del(url, undefined, statusCallbacks);
 
   return false;
 };
@@ -177,13 +171,13 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
 var init = function (target) {
   'use strict';
 
-  var indexId = $(target).attr('data-index-id');
+  var indexId = target.dataset.indexId;
   var url = 'indexes/' + indexId;
-  var htmlTarget = $('#index-conditions');
+  var htmlTarget = document.getElementById('index-conditions');
 
-  ajax.legacyHTMLGet(url, function (req) {
-    htmlTarget.html(req.response);
-    tableBody().sortable();
+  ajax.get(url, function (req) {
+    htmlTarget.innerHTML = templates['index-conditions'](req.response);
+    $(tableBody()).sortable();
     ipreviewui.get();
   });
 
@@ -231,7 +225,7 @@ var addCond = function () {
   var bData = editingData();
 
   if (bData.length !== 0) {
-    initIndexBuilderDialog(bData.attr('data-index-doctype')).dialog('open');
+    initIndexBuilderDialog(bData.dataset.indexDoctype).dialog('open');
   } else {
     flash.highlight('Info', 'You must choose an index first.');
   }
@@ -243,7 +237,8 @@ var addCond = function () {
 var remCond = function (target) {
   'use strict';
 
-  $(target).closest('tr').remove();
+  //$(target).closest('tr').remove();
+  throw 'intentional error';
   return true;
 };
 
@@ -262,11 +257,11 @@ var del = function () {
   var bData = editingData();
 
   if (bData.length !== 0) {
-    var indexId = bData.attr('data-index-id');
-    var indexRev = bData.attr('data-index-rev');
+    var indexId = bData.dataset.indexId;
+    var indexRev = bData.dataset.indexRev;
     var completeMessage = 'Your index has been deleted.';
     var completeFunction = function () {
-      $('#index-conditions').empty();
+      document.getElementById('index-conditions').innerHTML = '';
       ilistingui.init();
     };
 

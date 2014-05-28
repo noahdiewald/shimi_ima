@@ -31,7 +31,7 @@ var disableOptions = function (options, disables) {
 var disableOperatorOptions = function (fieldDoc) {
   'use strict';
 
-  var options = document.getElementByID('builder-operator-input');
+  var options = document.getElementById('builder-operator-input');
 
   switch (fieldDoc.subcategory) {
   case 'select':

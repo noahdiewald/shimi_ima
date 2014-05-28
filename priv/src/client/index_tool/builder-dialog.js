@@ -20,131 +20,128 @@ var evs = require('index_tool/ievents');
 var initIndexBuilderDialog = function (indexDoctype) {
   'use strict';
 
-  var builderOr = $('#builder-or-input');
-  var builderParen = $('#builder-paren-input');
-  var builderNegate = $('#builder-negate-input');
-  var builderOperator = $('#builder-operator-input').inputDisable();
-  var builderArgument = $('#builder-argument-input').inputDisable();
-  var builderFieldset = $('#builder-fieldset-input').inputDisable();
-  var builderField = $('#builder-field-input').inputDisable();
-  var notBlank = [builderOperator, builderFieldset, builderField];
+  var builderOrInput = document.getElementById('builder-or-input');
+  var builderParenInput = document.getElementById('builder-paren-input');
+  var builderNegateInput = document.getElementById('builder-negate-input');
+  var builderOperatorInput = document.getElementById('builder-operator-input');
+  var builderArgumentInput = document.getElementById('builder-argument-input');
+  var builderFieldsetInput = document.getElementById('builder-fieldset-input');
+  var builderFieldInput = document.getElementById('builder-field-input');
+  var builderConditions = document.getElementById('builder-conditions');
+  var builderParens = document.getElementById('builder-parens');
+  var builderOr = document.getElementById('builder-or');
+  var dialogElem = document.getElementById('index-builder-dialog');
+  var tableBody = document.getElementById('index-conditions-listing').getElementByTagName('tbody');
+  var notBlank = [builderOperatorInput, builderFieldsetInput, builderFieldInput];
   var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
   var condition_url = 'indexes/condition';
 
-  $('.ui-helper-reset div').show();
+  builderOperatorInput.setAttribute('disable', 'disable');
+  builderArgumentInput.setAttribute('disable', 'disable');
+  builderFieldsetInput.setAttribute('disable', 'disable');
+  builderFieldInput.setAttribute('disable', 'disable');
+  document.querySelector('.ui-helper-reset div').classList.remove('hidden');
 
   var appendCondition = function (builderRow) {
-    var tableBody = $('#index-conditions-listing tbody');
-    tableBody.append(builderRow);
-    tableBody.sortable();
+    tableBody.insertAdjacentHTML('beforeend', builderRow);
+    // TODO: allow for arranging rows some other way.
+    $(tableBody).sortable();
 
     return false;
   };
 
-  ihelpers.fOpts(fieldset_url, builderFieldset, function () {
-    builderFieldset.inputEnable();
+  ihelpers.fOpts(fieldset_url, builderFieldsetInput, function () {
+    builderFieldsetInput.removeAttribute('disable');
   });
 
-  builderOr.change(function () {
-    if (builderOr.is(':checked')) {
-      $('#builder-conditions').hide();
-      $('#builder-parens').hide();
+  builderOrInput.onchange = function () {
+    if (builderOrInput.checked) {
+      builderConditions.classList.add('hidden');
+      builderParens.classList.add('hidden');
     } else {
-      $('#builder-conditions').show();
-      $('#builder-parens').show();
+      builderConditions.classList.remove('hidden');
+      builderParens.classList.remove('hidden');
     }
-  });
+  };
 
   builderParen.change(function () {
-    if (builderParen.val()) {
-      $('#builder-or').hide();
-      $('#builder-conditions').hide();
+    if (builderParen.value) {
+      builderConditions.classList.add('hidden');
+      builderOr.classList.add('hidden');
     } else {
-      $('#builder-or').show();
-      $('#builder-conditions').show();
+      builderConditions.classList.remove('hidden');
+      builderOr.classList.remove('hidden');
     }
   });
 
   var fieldsetEvents = function () {
-    evs.setIndexFieldsetEvents(indexDoctype, builderFieldset, builderField, function () {
-      builderOperator.inputDisable();
-      builderField.inputDisable();
-      builderArgument.inputDisable();
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderFieldInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderField.inputEnable();
+        builderFieldInput.removeAttribute('disable');
       };
     });
   };
 
   var fieldEvents = function () {
-    evs.setIndexFieldEvents(indexDoctype, builderFieldset, builderField, function () {
-      builderOperator.inputDisable();
-      builderArgument.inputDisable();
+    evs.setIndexFieldEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderOperator.inputEnable();
+        builderOperatorInput.removeAttribute('disable');
       };
     });
   };
 
   var operatorEvents = function () {
-    evs.setIndexOperatorEvents(builderArgument, builderOperator, builderField, function () {
-      builderArgument.inputDisable();
+    evs.setIndexOperatorEvents(builderArgumentInput, builderOperatorInput, builderFieldInput, function () {
+      builderArgumentInput.setAttribute('disable', 'disable');
 
       return function () {
-        builderArgument.inputEnable();
+        builderArgumentInput.removeAttribute('disable');
       };
     });
   };
 
-  var dialog = $('#index-builder-dialog').dialog({
+  var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Create': function () {
-        $('.input').removeClass('ui-state-error');
+        Array.prototype.forEach.call(document.querySelectorAll('.input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!builderOr.is(':checked') && !builderParen.val()) {
+        if (!builderOrInput.checked && !builderParenInput.value) {
           notBlank.forEach(function (item) {
-            if (item.val().isBlank()) {
-              item.addClass('ui-state-error');
+            if (item.value.isBlank()) {
+              item.classList.add('ui-state-error');
               checkResult = false;
             } else {
-              item.removeClass('ui-state-error');
+              item.classList.remove('ui-state-error');
             }
           });
         }
 
         if (checkResult) {
-          if (builderOr.is(':checked')) {
-            $.get(condition_url, {
-              'is_or': true
-            }, function (data) {
-              appendCondition(data);
+          if (builderOrInput.checked) {
+            ajax.get(condition_url + '?is_or=true', function (req) {
+              appendCondition(req);
             });
-          } else if (builderParen.val()) {
-            $.get(condition_url, {
-              'is_or': false,
-              'parens': builderParen.val(),
-              'negate': false
-            }, function (data) {
-              appendCondition(data);
+          } else if (builderParenInput.value) {
+            ajax.get(condition_url + '?is_or=false&parens=' + builderParenInput.value + '&negate=false', function (req) {
+              appendCondition(req);
             });
           } else {
-            $.get(condition_url, {
-              'is_or': false,
-              'parens': false,
-              'negate': builderNegate.is(':checked'),
-              'fieldset': builderFieldset.val(),
-              'field': builderField.val(),
-              'operator': builderOperator.val(),
-              'argument': builderArgument.val()
-            }, function (data) {
-              appendCondition(data);
+            ajax.get(condition_url  + '?is_or=false&parens=false&negate=' + builderNegateInput.checked.toString() + '&fieldset=' + builderFieldsetInput.value + '&field=' + builderFieldInput.value + '&operator=' + builderOperatorInput.value + '&argument=' + builderArgumentInput.value, function (req) {
+              appendCondition(req);
             });
           }
 
@@ -156,11 +153,14 @@ var initIndexBuilderDialog = function (indexDoctype) {
       }
     },
     close: function () {
-      $('#builder-conditions').show();
-      builderFieldset.unbind('change');
-      builderField.unbind('change');
-      builderOperator.unbind('change');
-      form.clear($('.input')).removeClass('ui-state-error');
+      builderConditions.classList.remove('hidden');
+      builderFieldsetInput.onchange = undefined;
+      builderFieldInput.onchange = undefined;
+      builderOperatorInput.onchange = undefined;
+      form.clear(document.getElementsByClassName('input'));
+      Array.prototype.forEach.call(document.getElementsByClassName('input'), function (item) {
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 

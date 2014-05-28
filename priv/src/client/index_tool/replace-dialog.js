@@ -8,7 +8,6 @@
 // Variable Definitions
 
 var ihelpers = require('index_tool/ihelpers');
-var form = require('form');
 
 // Exported functions
 
@@ -17,40 +16,49 @@ var form = require('form');
 var initReplaceDialog = function () {
   'use strict';
 
-  var replaceFunction = $('#index-replace_function-input');
-  var indexData = $('#index-editing-data');
-  var remove = $('#index-remove_function-input');
+  var replaceFunction = document.getElementById('index-replace_function-input');
+  var indexData = document.getElementById('index-editing-data');
+  var remove = document.getElementById('index-remove_function-input');
+  var dialogElem = document.getElementById('index-replace-dialog');
+  var message = document.getElementById('replace-function-message');
+  var irf = function () {
+    return indexData.dataset.indexReplace_function;
+  };
 
-  if (indexData.attr('data-index-replace_function')) {
-    replaceFunction.val(indexData.attr('data-index-replace_function'));
+  if (irf()) {
+    replaceFunction.value = irf();
   } else {
-    form.clear(replaceFunction).removeClass('ui-state-error');
+    replaceFunction = '';
+    replaceFunction.classList.remove('ui-state-error');
   }
 
-  var dialog = $('#index-replace-dialog').dialog({
+  var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Save': function () {
-        $('.input').removeClass('ui-state-error');
+
+        Array.prototype.forEach.call(document.getElementsByClassName('input'), function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
         // place holder for client side validation
         var checkResult = true;
 
-        if (!remove.is(':checked')) {
-          if (replaceFunction.val().isBlank()) {
-            replaceFunction.addClass('ui-state-error');
+        if (!remove.checked) {
+          if (replaceFunction.value.isBlank()) {
+            replaceFunction.classList.add('ui-state-error');
           } else {
-            replaceFunction.removeClass('ui-state-error');
+            replaceFunction.classList.remove('ui-state-error');
           }
 
           if (checkResult) {
-            indexData.attr('data-index-replace_function', replaceFunction.val());
-            $('#replace-function-message').text('This index has a replacement function.');
+            irf() = replaceFunction.value;
+            message.innerHTML = 'This index has a replacement function.';
           }
         } else {
           indexData.removeAttr('data-index-replace_function');
-          $('#replace-function-message').empty();
+          message.innerHTML = '';
         }
 
         $(this).dialog('close');
@@ -60,7 +68,8 @@ var initReplaceDialog = function () {
       }
     },
     close: function () {
-      form.clear(replaceFunction).removeClass('ui-state-error');
+      replaceFunction.value = '';
+      replaceFunction.classList.remove('ui-state-error');
     }
   });
 
