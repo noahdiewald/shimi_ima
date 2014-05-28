@@ -33,8 +33,8 @@
         id="index-doctype-input" 
         class="ui-widget-content ui-corner-all input">
         <option></option>
-        {% for row in doctypes.rows %}
-        <option>{{ row.key|escape }}</option>
+        {% for doctype in doctypes.rows %}
+        <option value="{{ doctype.id }}">{{ doctype.key|escape }}</option>
         {% endfor %}
       </select><br />
     
@@ -44,6 +44,12 @@
         id="index-fieldset-input" 
         disabled="disabled"
         class="ui-widget-content ui-corner-all input">
+        <option></option>
+        {% for doctype in doctypes.rows %}
+          {% for fieldset in doctype.doc.fieldsets %}
+          <option class="{{ doctype.id }}" value="{{ fieldset._id }}">{{ fieldset.label|escape }}</option>
+          {% endfor %}
+        {% endfor %}
       </select><br />
     
       <label for="index-field-input">Field</label><br />
@@ -52,6 +58,14 @@
         id="index-field-input" 
         disabled="disabled"
         class="ui-widget-content ui-corner-all input">
+        <option></option>
+        {% for doctype in doctypes.rows %}
+          {% for fieldset in doctype.doc.fieldsets %}
+            {% for field in fieldset.fields %}
+              <option class="{{ fieldset._id }}" value="{{ field._id }}">{{ field.label|escape }}</option>
+            {% endfor %}
+          {% endfor %}
+        {% endfor %}
       </select>
       
     </fieldset>

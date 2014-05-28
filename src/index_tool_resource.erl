@@ -54,7 +54,7 @@ to_html(R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),
     {QsVals, R2} = cowboy_req:qs_vals(R1),
     {Project, R3} = h:project(R2),
-    {ok, Doctypes} = q:doctypes(QsVals, Project, S),
+    {ok, Doctypes} = q:doctypes([{<<"include_docs">>, <<"true">>}|QsVals], Project, S),
     Vals = [{<<"project_info">>, ProjectData},
         {<<"doctypes">>, Doctypes},
         {<<"user">>, proplists:get_value(user, S)}],

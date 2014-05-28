@@ -1,6 +1,6 @@
 // # The Client Code Entry Point
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // This is the entry point for the client side code. This is where
 // basic initializations take place and helper functions are added to
@@ -9,9 +9,6 @@
 // ## Variable Definitions
 
 var exports = module.exports;
-
-require('jquery-ui-input-state');
-
 var clickDispatch = require('click-dispatch').clickDispatch;
 var dblclickDispatch = require('dblclick-dispatch').dblclickDispatch;
 var changes = require('changes').changes;

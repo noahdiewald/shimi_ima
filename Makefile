@@ -10,7 +10,12 @@ APP_URL ?= $(URL)/shimi_ima
 ALL_URL ?= $(APP_URL)/_all_docs?include_docs=true
 APP := dictionary_maker
 
-all: build
+all: build jbuild
+
+cleantemplates:
+	rm -rf ebin/*_dtl.beam
+
+templates: cleantemplates build
 
 clean:
 	$(REBAR) clean
@@ -35,8 +40,6 @@ build: depends
 
 jbuild: jdepends
 	$(GRUNT)
-
-all: build jbuild
 
 eunit:
 	$(REBAR) eunit skip_deps=true

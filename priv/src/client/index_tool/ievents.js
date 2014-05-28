@@ -13,69 +13,29 @@ var h = require('index_tool/ihelpers');
 //
 
 // Set change events for doctype field
-var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
+var setChangeEvent = function (changed, dependent) {
   'use strict';
 
   indexDoctype.onchange = function () {
-    var url = 'doctypes/' + indexDoctype.value + '/fieldsets';
-    var callback2;
+    if (changed.value && !changed.value.isBlank()) {
+      dependent.removeAttribute('disabled');
 
-    if (callback) {
-      callback2 = callback();
+      Array.prototype.forEach.call(dependent.getElementsByTagName('option'), function (item) {
+        if (item.classList.contains(changed.value)) {
+          item.classList.remove('hidden');
+          item.removeAttribute('disabled');
+        } else {
+          item.classList.add('hidden');
+          item.setAttribute('disabled', 'disabled');
+        }
+      });
+    } else {
+      dependent.value = '';
+      dependent.setAttribute('disabled', 'disabled');
     }
-
-    h.fOpts(url, indexFieldset, callback2);
   };
 
   return false;
-};
-
-// Set change events for index field
-var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-  'use strict';
-
-  indexFieldset.onchange = function () {
-    var callback2;
-
-    if (typeof indexDoctype !== 'string') {
-      indexDoctype = indexDoctype.value;
-    }
-
-    if (indexFieldset.value) {
-      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
-
-      if (callback) {
-        callback2 = callback();
-      }
-
-      h.fOpts(url, indexField, callback2);
-    }
-  };
-
-  return true;
-};
-
-// Set change events for field
-var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-  'use strict';
-
-  indexField.onchange = function () {
-    var fieldId = indexField.value;
-    var fieldsetId = indexFieldset.value;
-    var callback2;
-
-    if (callback) {
-      callback2 = callback();
-    }
-
-    if (!(fieldId.isBlank())) {
-      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
-        h.alterOpts(data, fieldId, callback2);
-      });
-    }
-  };
-
-  return true;
 };
 
 // Set change events for the operator field.
