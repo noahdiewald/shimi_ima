@@ -4,10 +4,6 @@
 //
 // Dialog for adding a new user created index.
 
-// TODO I would rather avoid having this as a JQuery plugin.
-
-require('jquery-ui-input-state');
-
 // Variable Definitions
 
 var ihelpers = require('index_tool/ihelpers');
