@@ -28,6 +28,44 @@ var updateTips = function (t, tips) {
 
 // ## Exported Functions
 
+// Hide an element
+var hide = function (elem) {
+  'use strict';
+
+  elem.classList.add('hidden');
+
+  return document;
+};
+
+// Hide the button.
+var hideDisable = function (elem) {
+  'use strict';
+
+  hide(elem);
+  elem.setAttribute('disabled', 'disabled');
+
+  return true;
+};
+
+// Display the element.
+var show = function (elem) {
+  'use strict';
+
+  elem.classList.remove('hidden');
+
+  return document;
+};
+
+// Display the button.
+var showEnable = function (elem) {
+  'use strict';
+
+  show(elem);
+  elem.removeAttribute('disabled');
+
+  return true;
+};
+
 // Generic element toggler.
 var toggle = function (target) {
   'use strict';
@@ -121,3 +159,7 @@ exports.clear = clear;
 exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
+exports.hide = hide;
+exports.hideDisable = hideDisable;
+exports.show = show;
+exports.showEnable = showEnable;
