@@ -19,14 +19,6 @@ end
 When /^I fill in the project name$/ do
   @browser.text_field(:id, 'project-name').set @projectName
 end
-
-When /^I click the add project button$/ do
-  @browser.span(:text, 'Add project').click
-end
-
-When /^I click the cancel button$/ do
-  @browser.span(:text, 'Cancel').click
-end
   
 When /^I click the delete button$/ do
   @browser.div(:id => 'loading').wait_while_present

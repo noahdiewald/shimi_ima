@@ -53,6 +53,10 @@ When /^I click the "(.*?)" link$/ do | text |
   @browser.link(:text, text).click
 end
 
+When /^I click the "(.*?)" button$/ do | name |
+  @browser.span(:text, name).click
+end
+
 Then /^the (\w+) panel is visible$/ do | panel |
   @browser.div(:id => "document-#{panel}").should be_visible
 end

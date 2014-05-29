@@ -1,15 +1,15 @@
 // # Change Event Handling
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Like [`click-dispatch.js`](./click-dispatch.html) I would like
 // to centralize the 'change' events. This is a start and a bit of
-// an experiment. It uses the JQuery `on()` function, which was not
-// available when I first began programming this application.
+// an experiment to isolate and route input.
 
 // ## Variable Definitions
 
 var searchui = require('documents/searchui');
+var newDialog = require('index_tool/new-dialog');
 
 // ## Exported Functions
 
@@ -17,17 +17,45 @@ var searchui = require('documents/searchui');
 var changes = function () {
   'use strict';
 
+  var changeTargets = [];
+
   // ### Search UI Change Events
 
-  $(document).on('change', '#document-search-exclude', function (e) {
+  changeTargets['document-search-exclude'] = function (e) {
     searchui.toggleExclusion();
-    return true;
-  });
 
-  $(document).on('change', '#document-search-invert', function (e) {
+    return e;
+  };
+
+  changeTargets['document-search-invert'] = function (e) {
     searchui.toggleInversion();
-    return true;
-  });
+
+    return e;
+  };
+
+  // ### New index
+
+  changeTargets['index-doctype-input'] = function (e) {
+    newDialog.doctypeInputChange();
+
+    return e;
+  };
+
+  changeTargets['index-fieldset-input'] = function (e) {
+    newDialog.fieldsetInputChange();
+
+    return e;
+  };
+
+  document.onchange = function (e) {
+    if (e.target && changeTargets[e.target.id]) {
+      changeTargets[e.target.id](e);
+    }
+
+    return e;
+  };
+
+  return document;
 };
 
 exports.changes = changes;

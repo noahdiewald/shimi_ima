@@ -1996,10 +1996,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
+      console.trace();
     }
   }
 
@@ -2226,11 +2223,8 @@ process.argv = [];
 function noop() {}
 
 process.on = noop;
-process.addListener = noop;
 process.once = noop;
 process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
 process.emit = noop;
 
 process.binding = function (name) {
@@ -3480,8 +3474,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("FWaASH"))
-},{"./index.js":14,"FWaASH":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./index.js":14,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4864,8 +4858,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("FWaASH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":21,"FWaASH":12,"inherits":11}],23:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":21,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"inherits":11}],23:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -7592,8 +7586,8 @@ function forEach (xs, f) {
   }
 }
 
-}).call(this,require("FWaASH"))
-},{"./_stream_readable":43,"./_stream_writable":45,"FWaASH":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./_stream_readable":43,"./_stream_writable":45,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8603,8 +8597,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("FWaASH"))
-},{"FWaASH":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9206,8 +9200,8 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,require("FWaASH"))
-},{"./_stream_duplex":41,"FWaASH":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
+}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./_stream_duplex":41,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -10162,16 +10156,16 @@ document.onreadystatechange = function () {
 },{"changes":106,"click-dispatch":107,"config/config":109,"dblclick-dispatch":113,"documents/documents":117,"file_manager/fm":127,"form":129,"index_tool/ilistingui":137,"keystrokes":142,"projects/projectui":145}],55:[function(require,module,exports){
 // # Change Event Handling
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Like [`click-dispatch.js`](./click-dispatch.html) I would like
 // to centralize the 'change' events. This is a start and a bit of
-// an experiment. It uses the JQuery `on()` function, which was not
-// available when I first began programming this application.
+// an experiment to isolate and route input.
 
 // ## Variable Definitions
 
 var searchui = require('documents/searchui');
+var newDialog = require('index_tool/new-dialog');
 
 // ## Exported Functions
 
@@ -10179,22 +10173,50 @@ var searchui = require('documents/searchui');
 var changes = function () {
   'use strict';
 
+  var changeTargets = [];
+
   // ### Search UI Change Events
 
-  $(document).on('change', '#document-search-exclude', function (e) {
+  changeTargets['document-search-exclude'] = function (e) {
     searchui.toggleExclusion();
-    return true;
-  });
 
-  $(document).on('change', '#document-search-invert', function (e) {
+    return e;
+  };
+
+  changeTargets['document-search-invert'] = function (e) {
     searchui.toggleInversion();
-    return true;
-  });
+
+    return e;
+  };
+
+  // ### New index
+
+  changeTargets['index-doctype-input'] = function (e) {
+    newDialog.doctypeInputChange();
+
+    return e;
+  };
+
+  changeTargets['index-fieldset-input'] = function (e) {
+    newDialog.fieldsetInputChange();
+
+    return e;
+  };
+
+  document.onchange = function (e) {
+    if (e.target && changeTargets[e.target.id]) {
+      changeTargets[e.target.id](e);
+    }
+
+    return e;
+  };
+
+  return document;
 };
 
 exports.changes = changes;
 
-},{"documents/searchui":122}],56:[function(require,module,exports){
+},{"documents/searchui":122,"index_tool/new-dialog":139}],56:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -13647,8 +13669,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set[0];
-  var arr = sets.unique(set[1], member);
+  var name = set [0];
+  var arr = sets.unique(set [1], member);
   var procSet = [name, arr];
   return procSet;
 };
@@ -16025,93 +16047,11 @@ exports.del = del;
 //
 // These are change events triggered in the dialogs.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var h = require('index_tool/ihelpers');
 
-//
-// Exported Functions
-//
-
-// Set change events for doctype field
-var setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
-  'use strict';
-
-  indexDoctype.onchange = function () {
-    var url = 'doctypes/' + indexDoctype.value + '/fieldsets';
-    var callback2;
-
-    if (callback) {
-      callback2 = callback();
-    }
-
-    if (indexDoctype.value && !indexDoctype.value.isBlank()) {
-      indexFieldset.removeAttribute('disabled');
-
-      Array.prototype.forEach.call(indexFieldset.getElementsByTagName('option'), function (item) {
-        if (item.classList.contains(indexDoctype.value)) {
-          item.classList.remove('hidden');
-          item.removeAttribute('disabled');
-        } else {
-          item.classList.add('hidden');
-          item.setAttribute('disabled', 'disabled');
-        }
-      });
-    } else {
-      indexFieldset.setAttribute('disabled');
-    }
-  };
-
-  return false;
-};
-
-// Set change events for index field
-var setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-  'use strict';
-
-  indexFieldset.onchange = function () {
-    var callback2;
-
-    if (typeof indexDoctype !== 'string') {
-      indexDoctype = indexDoctype.value;
-    }
-
-    if (indexFieldset.value) {
-      var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
-
-      if (callback) {
-        callback2 = callback();
-      }
-
-      h.fOpts(url, indexField, callback2);
-    }
-  };
-
-  return true;
-};
-
-// Set change events for field
-var setIndexFieldEvents = function (indexDoctype, indexFieldset, indexField, callback) {
-  'use strict';
-
-  indexField.onchange = function () {
-    var fieldId = indexField.value;
-    var fieldsetId = indexFieldset.value;
-    var callback2;
-
-    if (callback) {
-      callback2 = callback();
-    }
-
-    if (!(fieldId.isBlank())) {
-      h.getFieldDoc(fieldId, fieldsetId, indexDoctype, function (data) {
-        h.alterOpts(data, fieldId, callback2);
-      });
-    }
-  };
-
-  return true;
-};
+// ## Exported Functions
 
 // Set change events for the operator field.
 var setIndexOperatorEvents = function (argumentField, operatorField, fieldField, callback) {
@@ -16131,9 +16071,6 @@ var setIndexOperatorEvents = function (argumentField, operatorField, fieldField,
 };
 
 exports.setIndexOperatorEvents = setIndexOperatorEvents;
-exports.setIndexFieldEvents = setIndexFieldEvents;
-exports.setIndexFieldsetEvents = setIndexFieldsetEvents;
-exports.setIndexDoctypeEvents = setIndexDoctypeEvents;
 
 },{"index_tool/ihelpers":136}],86:[function(require,module,exports){
 // # Index tool helpers.
@@ -16469,56 +16406,81 @@ exports.get = get;
 //
 // Dialog for adding a new user created index.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var ihelpers = require('index_tool/ihelpers');
 var ilistingui = require('index_tool/ilistingui');
+var ajax = require('ajax');
 var form = require('form');
-var evs = require('index_tool/ievents');
 
-// Exported functions
+// ## Internal Functions
+
+var indexDoctype = function () {
+  'use strict';
+
+  return document.getElementById('index-doctype-input');
+};
+
+var indexFieldset = function () {
+  'use strict';
+
+  return document.getElementById('index-fieldset-input');
+};
+
+var indexField = function () {
+  'use strict';
+
+  return document.getElementById('index-field-input');
+};
+
+var handleChange = function (changed, dependent) {
+  'use strict';
+
+  if (changed.value && !changed.value.isBlank()) {
+    dependent[0].removeAttribute('disabled');
+
+    Array.prototype.forEach.call(dependent[0].getElementsByTagName('option'), function (item) {
+      if (item.classList.contains(changed.value)) {
+        item.classList.remove('hidden');
+        item.removeAttribute('disabled');
+      } else {
+        item.classList.add('hidden');
+        item.setAttribute('disabled', 'disabled');
+      }
+    });
+  } else {
+    dependent.forEach(function (item) {
+      item.value = '';
+      item.setAttribute('disabled', 'disabled');
+    });
+  }
+
+  return changed;
+};
+
+var getLabelForVal = function (val) {
+  'use strict';
+
+  return document.querySelector('#index-new-dialog option[value="' + val + '"]').innerHTML;
+};
+
+var getLabel = function (indexFieldset, indexField) {
+  'use strict';
+
+  return [getLabelForVal(indexFieldset.value), getLabelForVal(indexField.value)].join(':');
+};
+
+// ## Exported Functions
 
 // The dialog for adding a new index.
 var initIndexNewDialog = function () {
   'use strict';
 
-  var indexDoctype = document.getElementById('index-doctype-input');
-  var indexFieldset = document.getElementById('index-fieldset-input');
-  var indexField = document.getElementById('index-field-input');
-  var indexName = document.getElementById('#index-name-input');
-  var indexShowDeleted = $('#index-show_deleted-input');
+  var indexName = document.getElementById('index-name-input');
+  var indexShowDeleted = document.getElementById('index-show_deleted-input');
 
-  indexFieldset.setAttribute('disabled', 'disabled');
-  indexField.setAttribute('disabled', 'disabled');
-
-  var doctypeEvents = function () {
-    evs.setIndexDoctypeEvents(indexDoctype, indexFieldset, function () {
-      indexFieldset.setAttribute('disabled', 'disabled');
-      indexField.setAttribute('disabled', 'disabled');
-
-      return function () {
-        indexFieldset.removeAttribute('disabled');
-      };
-    });
-  };
-
-  var fieldsetEvents = function () {
-    evs.setIndexFieldsetEvents(indexDoctype, indexFieldset, indexField, function () {
-      indexField.setAttribute('disabled', 'disabled');
-
-      return function () {
-        indexField.removeAttribute('disabled');
-      };
-    });
-  };
-
-  var getLabelForVal = function (val) {
-    return document.querySelector('#index-new-dialog option[value="' + val + '"]').innerHTML;
-  };
-
-  var getLabel = function () {
-    return [getLabelForVal(indexFieldset.value), getLabelForVal(indexField.value)].join(':');
-  };
+  indexFieldset().setAttribute('disabled', 'disabled');
+  indexField().setAttribute('disabled', 'disabled');
 
   var dialog = $('#index-new-dialog').dialog({
     autoOpen: false,
@@ -16538,15 +16500,16 @@ var initIndexNewDialog = function () {
             'name': indexName.value,
             'show_deleted': indexShowDeleted.checked,
             'conditions': [],
-            'doctype': indexDoctype.value,
-            'fields_label': [getLabel()],
-            'fields': [indexField.value]
-          },
-            complete = function (context) {
-              ilistingui.init();
-              $(context).dialog('close');
-            };
-          form.send('indexes', obj, 'POST', complete, this);
+            'doctype': indexDoctype().value,
+            'fields_label': [getLabel(indexFieldset(), indexField())],
+            'fields': [indexField().value]
+          };
+          var complete = function () {
+            ilistingui.init();
+            dialog.dialog('close');
+          };
+
+          ajax.post('indexes', obj, complete);
         }
       },
       'Cancel': function () {
@@ -16554,8 +16517,6 @@ var initIndexNewDialog = function () {
       }
     },
     close: function () {
-      indexFieldset.onchange = undefined;
-      indexDoctype.onchange = undefined;
       var cleared = form.clear(document.querySelectorAll('.input'));
       Array.prototype.forEach.call(cleared, function (item) {
         item.classList.remove('ui-state-error');
@@ -16563,15 +16524,26 @@ var initIndexNewDialog = function () {
     }
   });
 
-  doctypeEvents();
-  fieldsetEvents();
-
   return dialog;
 };
 
+var doctypeInputChange = function () {
+  'use strict';
+
+  return handleChange(indexDoctype(), [indexFieldset(), indexField()]);
+};
+
+var fieldsetInputChange = function () {
+  'use strict';
+
+  return handleChange(indexFieldset(), [indexField()]);
+};
+
+exports.doctypeInputChange = doctypeInputChange;
+exports.fieldsetInputChange = fieldsetInputChange;
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"form":129,"index_tool/ievents":135,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],90:[function(require,module,exports){
+},{"ajax":105,"form":129,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],90:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -18104,17 +18076,17 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],104:[function(require,module,exports){
+},{"hogan.js":24}],104:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(53)
 },{"flash":128}],106:[function(require,module,exports){
 module.exports=require(55)
-},{"documents/searchui":122}],107:[function(require,module,exports){
+},{"documents/searchui":122,"index_tool/new-dialog":139}],107:[function(require,module,exports){
 module.exports=require(56)
 },{"config/maintenanceui":112,"dispatcher":114,"documents/editui":118,"documents/fieldsets":119,"documents/indexui":120,"documents/searchui":122,"documents/setsui":123,"documents/viewui":125,"documents/worksheetui":126,"file_manager/fm":127,"form":129,"index_tool/ieditui":134,"panel-toggle":144,"projects/projectui":145,"sender":146}],108:[function(require,module,exports){
 module.exports=require(57)
@@ -18180,7 +18152,7 @@ module.exports=require(87)
 module.exports=require(88)
 },{"pager":143}],139:[function(require,module,exports){
 module.exports=require(89)
-},{"form":129,"index_tool/ievents":135,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],140:[function(require,module,exports){
+},{"ajax":105,"form":129,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],140:[function(require,module,exports){
 module.exports=require(90)
 },{"index_tool/ihelpers":136}],141:[function(require,module,exports){
 module.exports=require(91)
