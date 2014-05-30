@@ -515,7 +515,6 @@ loadSearchVals = function () {
       indexInverse(index, indexLabel);
     }
   } catch (e) {
-    window.console.log(e);
     allFields();
   }
 

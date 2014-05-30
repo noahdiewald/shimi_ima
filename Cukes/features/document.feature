@@ -94,16 +94,6 @@ Scenario: Expanding and contracting text boxes for newly added fieldsets
   And perform the key sequence alt x
   Then the Movies Description field 1 is not expanded
 
-Scenario: Using the date picker
-  Given a doctype with fields exists
-  And I am at the document page
-  When I click the Movies link
-  And I click the Add link
-  And I focus on Movies Date field 1
-  Then the date picker is present
-  When I click on the last day of the first week
-  Then there is a date in the Movies Date field 1
-
 Scenario: Multiple fieldset field identifiers
   Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
   When I click the Edit link
@@ -118,5 +108,5 @@ Scenario: Updating a document twice in a row
   Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
   When I click save
   Then the updated date is not blank
-  When I click save
+  When I click save a second time
   Then the updated date is different

@@ -359,7 +359,7 @@ fillFields = function (container, context) {
     item.removeClass('ui-state-error');
   });
 
-  ui.showButton(ui.saveButton());
+  ui.showEnable(ui.saveButton());
 
   Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;

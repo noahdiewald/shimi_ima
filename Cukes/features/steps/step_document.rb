@@ -9,6 +9,11 @@ When /^I click save$/ do
   @browser.a(:id => 'save-document-button').click
 end
 
+When /^I click save a second time$/ do
+  sleep(1)
+  @browser.a(:id => 'save-document-button').click
+end
+
 When /^I click the test project link$/ do
   step "I click the #{@projectName} link"
 end
@@ -41,8 +46,7 @@ When(/^perform the key sequence (alt|control) (\w+)$/) do | mod, key |
 end
 
 When(/^I click on the last day of the first week$/) do
-  @browser.div(:id => 'loading').wait_while_present
-  @browser.element(:css, '#ui-datepicker-div > .ui-datepicker-calendar > tbody > tr:first-child > td:last-child > a').click
+  @browser.link(:css, '#ui-datepicker-div > .ui-datepicker-calendar > tbody > tr:first-child > td:last-child > a').click
 end
 
 When /^I click the view document link for ([a-f0-9]{32})$/ do | docid |
@@ -117,9 +121,8 @@ Then /^there is a date in the (\w+) (\w+) field (\d+)$/ do | fieldset, field, in
   multi_field(fieldset, field, index).value.should match /^\d{4}-\d{2}-\d{2}/
 end
 
-Then /^the date picker is present$/ do
-  @browser.div(:id => 'loading').wait_while_present
-  @browser.div(:id, 'ui-datepicker-div').should be_present
+Then /^the date picker is visible$/ do
+  @browser.div(:id, 'ui-datepicker-div').should be_visible
 end
 
 Then /^document ([a-f0-9]{32}) is displayed$/ do | docid |

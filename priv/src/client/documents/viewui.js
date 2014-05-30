@@ -162,9 +162,9 @@ var get = function (id, rev, callback) {
       ui.dvt().classList.add('oldrev');
     } else {
       if (store(ui.restoreButton()).d('deleted') === 'true') {
-        ui.hideButton(ui.editButton());
-        ui.hideButton(ui.deleteButton());
-        ui.showButton(ui.restoreButton());
+        ui.hideDisable(ui.editButton());
+        ui.hideDisable(ui.deleteButton());
+        ui.showEnable(ui.restoreButton());
       }
     }
   });
@@ -218,9 +218,9 @@ var del = function (id, rev) {
 
     store(ui.restoreButton()).put('document-rev', req.response.rev);
 
-    ui.hideButton(ui.deleteButton());
-    ui.hideButton(ui.editButton());
-    ui.showButton(ui.restoreButton());
+    ui.hideDisable(ui.deleteButton());
+    ui.hideDisable(ui.editButton());
+    ui.showEnable(ui.restoreButton());
     ui.dv().style.opacity = 0.5;
 
     indexui.get(ui.skey(), ui.sid());

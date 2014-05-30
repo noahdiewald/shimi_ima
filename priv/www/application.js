@@ -11935,7 +11935,7 @@ var afterEditRefresh = function () {
     ui.saveButton().setAttribute(elem, ui.viewInfo().getAttribute(elem));
   });
 
-  ui.showButton(ui.saveButton());
+  ui.showEnable(ui.saveButton());
   afterRefresh();
 
   return true;
@@ -12012,21 +12012,21 @@ var save = function () {
     flash.highlight('Success', 'Your document was saved.');
     sb.classList.remove('oldrev');
     sb.dataset.documentRev = req.response.rev;
-    ui.showButton(sb);
+    ui.showEnable(sb);
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(sb);
+    ui.showEnable(sb);
   };
   statusCallbacks[409] = function (req) {
     flash.error(req.statusText, req.response.message);
-    ui.hideButton(sb);
+    ui.hideDisable(sb);
   };
 
   clearErrorStates();
-  ui.hideButton(ui.saveButton());
+  ui.hideDisable(ui.saveButton());
   newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.put(url, obj, undefined, statusCallbacks);
@@ -12049,21 +12049,21 @@ var create = function () {
     var body = 'Your document was created.';
     var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-    ui.hideButton(ui.saveButton());
+    ui.hideDisable(ui.saveButton());
     removeFields();
     fieldsets.initFieldsets();
     viewui.get(documentId);
     indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    ui.showButton(ui.createButton());
+    ui.showEnable(ui.createButton());
   };
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(ui.createButton());
+    ui.showEnable(ui.createButton());
   };
 
   clearErrorStates();
-  ui.hideButton(ui.createButton());
+  ui.hideDisable(ui.createButton());
   newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.post(url, obj, undefined, statusCallbacks);
@@ -12074,7 +12074,7 @@ var clear = function () {
   'use strict';
 
   clearErrorStates();
-  ui.hideButton(ui.saveButton());
+  ui.hideDisable(ui.saveButton());
   removeFields();
   fieldsets.initFieldsets();
 };
@@ -12495,7 +12495,7 @@ fillFields = function (container, context) {
     item.removeClass('ui-state-error');
   });
 
-  ui.showButton(ui.saveButton());
+  ui.showEnable(ui.saveButton());
 
   Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;
@@ -13553,7 +13553,6 @@ loadSearchVals = function () {
       indexInverse(index, indexLabel);
     }
   } catch (e) {
-    window.console.log(e);
     allFields();
   }
 
@@ -14004,6 +14003,8 @@ exports.toggleSelectAll = toggleSelectAll;
 //
 // UI elements and helper functions.
 
+var form = require('form');
+
 // ## Exported functions
 
 // User interface element
@@ -14069,25 +14070,6 @@ var firstIndex = function () {
   return document.getElementById('first-index-element');
 };
 
-// Hide an element
-var hide = function (elem) {
-  'use strict';
-
-  elem.classList.add('hidden');
-
-  return document;
-};
-
-// Hide the button.
-var hideButton = function (button) {
-  'use strict';
-
-  hide(button);
-  button.setAttribute('disabled', 'disabled');
-
-  return true;
-};
-
 // User interface element
 var indexIndexInput = function () {
   'use strict';
@@ -14107,25 +14089,6 @@ var saveButton = function () {
   'use strict';
 
   return document.getElementById('save-document-button');
-};
-
-// Display the element.
-var show = function (elem) {
-  'use strict';
-
-  elem.classList.remove('hidden');
-
-  return document;
-};
-
-// Display the button.
-var showButton = function (button) {
-  'use strict';
-
-  show(button);
-  button.removeAttribute('disabled');
-
-  return true;
 };
 
 var sid = function () {
@@ -14160,18 +14123,19 @@ exports.dvt = dvt;
 exports.editButton = editButton;
 exports.editForm = editForm;
 exports.firstIndex = firstIndex;
-exports.hide = hide;
-exports.hideButton = hideButton;
 exports.indexIndexInput = indexIndexInput;
 exports.restoreButton = restoreButton;
 exports.saveButton = saveButton;
-exports.show = show;
-exports.showButton = showButton;
 exports.sid = sid;
 exports.skey = skey;
 exports.viewInfo = viewInfo;
 
-},{}],74:[function(require,module,exports){
+exports.hide = form.hide;
+exports.hideDisable = form.hideDisable;
+exports.show = form.show;
+exports.showEnable = form.showEnable;
+
+},{"form":129}],74:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM
@@ -14336,9 +14300,9 @@ var get = function (id, rev, callback) {
       ui.dvt().classList.add('oldrev');
     } else {
       if (store(ui.restoreButton()).d('deleted') === 'true') {
-        ui.hideButton(ui.editButton());
-        ui.hideButton(ui.deleteButton());
-        ui.showButton(ui.restoreButton());
+        ui.hideDisable(ui.editButton());
+        ui.hideDisable(ui.deleteButton());
+        ui.showEnable(ui.restoreButton());
       }
     }
   });
@@ -14392,9 +14356,9 @@ var del = function (id, rev) {
 
     store(ui.restoreButton()).put('document-rev', req.response.rev);
 
-    ui.hideButton(ui.deleteButton());
-    ui.hideButton(ui.editButton());
-    ui.showButton(ui.restoreButton());
+    ui.hideDisable(ui.deleteButton());
+    ui.hideDisable(ui.editButton());
+    ui.showEnable(ui.restoreButton());
     ui.dv().style.opacity = 0.5;
 
     indexui.get(ui.skey(), ui.sid());
@@ -14955,22 +14919,45 @@ exports.highlight = highlight;
 var ajax = require('ajax');
 var clear;
 
-// ## Internal Functions
+// ## Exported Functions
 
-// Show a brief validation message.
-var updateTips = function (t, tips) {
+// Hide an element
+var hide = function (elem) {
   'use strict';
 
-  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
-  tips.classList.add('ui-state-highlight');
-  setTimeout(function () {
-    tips.classList.remove('ui-state-highlight', 1500);
-  }, 500);
+  elem.classList.add('hidden');
 
-  return tips;
+  return document;
 };
 
-// ## Exported Functions
+// Hide the button.
+var hideDisable = function (elem) {
+  'use strict';
+
+  hide(elem);
+  elem.setAttribute('disabled', 'disabled');
+
+  return true;
+};
+
+// Display the element.
+var show = function (elem) {
+  'use strict';
+
+  elem.classList.remove('hidden');
+
+  return document;
+};
+
+// Display the button.
+var showEnable = function (elem) {
+  'use strict';
+
+  show(elem);
+  elem.removeAttribute('disabled');
+
+  return true;
+};
 
 // Generic element toggler.
 var toggle = function (target) {
@@ -15015,32 +15002,17 @@ clear = function (inputFields, form) {
   return inputFields;
 };
 
-// ### Validation
-
-// Client side validation of string length.
-//
-// NOTE: Used only by [`projectui.js`](./projects/projectui.html)
-var checkLength = function (o, n, min, max, tips) {
-  'use strict';
-
-  if (o.value.length > max || o.value.length < min) {
-    o.addClass('ui-state-error');
-    updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
-    return false;
-  } else {
-    return true;
-  }
-};
-
 // ### Form element manipulation
 
 // Init JqueryUI datepicker widgets
 var initDateFields = function () {
   'use strict';
 
-  $('input[type="date"]').datepicker({
-    dateFormat: 'yy-mm-dd'
-  });
+  if (navigator.userAgent.match(/Firefox/)) {
+    $('input[type="date"]').datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+  }
 
   return true;
 };
@@ -15062,9 +15034,12 @@ var fillOptionsFromUrl = function (url, selectElement, callback) {
 exports.toggle = toggle;
 exports.cancelDialog = cancelDialog;
 exports.clear = clear;
-exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
+exports.hide = hide;
+exports.hideDisable = hideDisable;
+exports.show = show;
+exports.showEnable = showEnable;
 
 },{"ajax":105}],79:[function(require,module,exports){
 // # Formalize
@@ -17375,12 +17350,38 @@ exports.path = path;
 
 // Variable Definitions
 
-var form = require('form');
 var ajax = require('ajax');
 var templates = require('templates');
 var init;
 
-// Internal functions
+// ## Internal functions
+
+// Show a brief validation message.
+var updateTips = function (t, tips) {
+  'use strict';
+
+  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
+  tips.classList.add('ui-state-highlight');
+  setTimeout(function () {
+    tips.classList.remove('ui-state-highlight', 1500);
+  }, 500);
+
+  return tips;
+};
+
+// Client side validation of string length.
+// TODO: use HTML 5 validation
+var checkLength = function (o, n, min, max, tips) {
+  'use strict';
+
+  if (o.value.length > max || o.value.length < min) {
+    o.classList.add('ui-state-error');
+    updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
+    return false;
+  } else {
+    return true;
+  }
+};
 
 // Delete the project with the given ID.
 var deleteProject = function (id) {
@@ -17391,31 +17392,38 @@ var deleteProject = function (id) {
   }
 };
 
-// Exported functions
+// ## Exported functions
 
 // Add a project.
 var add = function () {
   'use strict';
 
-  var projectName = $('#project-name');
-  var projectDescription = $('#project-description');
-  var tips = $('.validate-tips');
-  var allFields = $([]).add(projectName).add(projectDescription);
+  var projectName = document.getElementById('project-name');
+  var projectDescription = document.getElementById('project-description');
+  var tips = document.getElementsByClassName('validate-tips')[0];
+  var validationErrors = document.getElementsByClassName('validation-error-message')[0];
+  var allFields = [projectName, projectDescription];
+  var checkResult;
 
   var dialog = $('#add-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Add project': function () {
-        allFields.removeClass('ui-state-error');
-        $('.validation-error-message').remove();
+        Array.prototype.forEach.call(allFields, function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
-        var checkResult = form.checkLength(projectName, 'project name', 1, 50, tips);
+        if (validationErrors) {
+          validationErrors.parentNode.removeChild(validationErrors);
+        }
+
+        checkResult = checkLength(projectName, 'project name', 1, 50, tips);
 
         if (checkResult) {
           var data = {
-            name: projectName.val(),
-            description: projectDescription.val()
+            name: projectName.value,
+            description: projectDescription.value
           };
 
           ajax.post('projects/index', data, init);
@@ -17428,7 +17436,10 @@ var add = function () {
       }
     },
     close: function () {
-      allFields.val('').removeClass('ui-state-error');
+      Array.prototype.forEach.call(allFields, function (item) {
+        item.value = '';
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 
@@ -17463,7 +17474,7 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"ajax":105,"form":129,"templates":52}],97:[function(require,module,exports){
+},{"ajax":105,"templates":52}],97:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
 // This is essentially an experiment in attempting to perform actions
@@ -18122,7 +18133,7 @@ module.exports=require(71)
 module.exports=require(72)
 },{"../sender.js":97,"documents/information":121,"flash":128,"sets":148,"templates":104,"utils":150}],124:[function(require,module,exports){
 module.exports=require(73)
-},{}],125:[function(require,module,exports){
+},{"form":129}],125:[function(require,module,exports){
 module.exports=require(74)
 },{"./editui.js":67,"./fieldsets.js":68,"ajax":105,"documents/indexui":120,"documents/ui-shared":124,"flash":128,"store":149,"templates":104}],126:[function(require,module,exports){
 module.exports=require(75)
@@ -18164,7 +18175,7 @@ module.exports=require(93)
 module.exports=require(94)
 },{}],145:[function(require,module,exports){
 module.exports=require(96)
-},{"ajax":105,"form":129,"templates":104}],146:[function(require,module,exports){
+},{"ajax":105,"templates":104}],146:[function(require,module,exports){
 module.exports=require(97)
 },{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/information":121,"documents/searchui":122,"documents/setsui":123,"documents/worksheetui":126}],147:[function(require,module,exports){
 module.exports=require(98)

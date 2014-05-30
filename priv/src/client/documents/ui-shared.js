@@ -4,6 +4,8 @@
 //
 // UI elements and helper functions.
 
+var form = require('form');
+
 // ## Exported functions
 
 // User interface element
@@ -128,3 +130,8 @@ exports.saveButton = saveButton;
 exports.sid = sid;
 exports.skey = skey;
 exports.viewInfo = viewInfo;
+
+exports.hide = form.hide;
+exports.hideDisable = form.hideDisable;
+exports.show = form.show;
+exports.showEnable = form.showEnable;

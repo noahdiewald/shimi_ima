@@ -11,21 +11,6 @@
 var ajax = require('ajax');
 var clear;
 
-// ## Internal Functions
-
-// Show a brief validation message.
-var updateTips = function (t, tips) {
-  'use strict';
-
-  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
-  tips.classList.add('ui-state-highlight');
-  setTimeout(function () {
-    tips.classList.remove('ui-state-highlight', 1500);
-  }, 500);
-
-  return tips;
-};
-
 // ## Exported Functions
 
 // Hide an element
@@ -109,32 +94,17 @@ clear = function (inputFields, form) {
   return inputFields;
 };
 
-// ### Validation
-
-// Client side validation of string length.
-//
-// NOTE: Used only by [`projectui.js`](./projects/projectui.html)
-var checkLength = function (o, n, min, max, tips) {
-  'use strict';
-
-  if (o.value.length > max || o.value.length < min) {
-    o.addClass('ui-state-error');
-    updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
-    return false;
-  } else {
-    return true;
-  }
-};
-
 // ### Form element manipulation
 
 // Init JqueryUI datepicker widgets
 var initDateFields = function () {
   'use strict';
 
-  $('input[type="date"]').datepicker({
-    dateFormat: 'yy-mm-dd'
-  });
+  if (navigator.userAgent.match(/Firefox/)) {
+    $('input[type="date"]').datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+  }
 
   return true;
 };
@@ -156,7 +126,6 @@ var fillOptionsFromUrl = function (url, selectElement, callback) {
 exports.toggle = toggle;
 exports.cancelDialog = cancelDialog;
 exports.clear = clear;
-exports.checkLength = checkLength;
 exports.initDateFields = initDateFields;
 exports.fillOptionsFromUrl = fillOptionsFromUrl;
 exports.hide = hide;

@@ -19,7 +19,7 @@ Scenario: Validation Error
   Given the test database exists
   And I navigate to the projects page
   When I click the New Projects button
-  And I click the add project button
+  And I click the "Add project" button
   Then the validation text will warn me of invalid project name input
   When I click the "Cancel" button
   And I click the New Projects button

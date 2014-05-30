@@ -6,12 +6,38 @@
 
 // Variable Definitions
 
-var form = require('form');
 var ajax = require('ajax');
 var templates = require('templates');
 var init;
 
-// Internal functions
+// ## Internal functions
+
+// Show a brief validation message.
+var updateTips = function (t, tips) {
+  'use strict';
+
+  tips.insertAdjacentHTML('beforeend', '<span class="validation-error-message">' + t + '</span>');
+  tips.classList.add('ui-state-highlight');
+  setTimeout(function () {
+    tips.classList.remove('ui-state-highlight', 1500);
+  }, 500);
+
+  return tips;
+};
+
+// Client side validation of string length.
+// TODO: use HTML 5 validation
+var checkLength = function (o, n, min, max, tips) {
+  'use strict';
+
+  if (o.value.length > max || o.value.length < min) {
+    o.classList.add('ui-state-error');
+    updateTips('Length of ' + n + ' must be between ' + min + ' and ' + max + '.', tips);
+    return false;
+  } else {
+    return true;
+  }
+};
 
 // Delete the project with the given ID.
 var deleteProject = function (id) {
@@ -22,31 +48,38 @@ var deleteProject = function (id) {
   }
 };
 
-// Exported functions
+// ## Exported functions
 
 // Add a project.
 var add = function () {
   'use strict';
 
-  var projectName = $('#project-name');
-  var projectDescription = $('#project-description');
-  var tips = $('.validate-tips');
-  var allFields = $([]).add(projectName).add(projectDescription);
+  var projectName = document.getElementById('project-name');
+  var projectDescription = document.getElementById('project-description');
+  var tips = document.getElementsByClassName('validate-tips')[0];
+  var validationErrors = document.getElementsByClassName('validation-error-message')[0];
+  var allFields = [projectName, projectDescription];
+  var checkResult;
 
   var dialog = $('#add-dialog').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       'Add project': function () {
-        allFields.removeClass('ui-state-error');
-        $('.validation-error-message').remove();
+        Array.prototype.forEach.call(allFields, function (item) {
+          item.classList.remove('ui-state-error');
+        });
 
-        var checkResult = form.checkLength(projectName, 'project name', 1, 50, tips);
+        if (validationErrors) {
+          validationErrors.parentNode.removeChild(validationErrors);
+        }
+
+        checkResult = checkLength(projectName, 'project name', 1, 50, tips);
 
         if (checkResult) {
           var data = {
-            name: projectName.val(),
-            description: projectDescription.val()
+            name: projectName.value,
+            description: projectDescription.value
           };
 
           ajax.post('projects/index', data, init);
@@ -59,7 +92,10 @@ var add = function () {
       }
     },
     close: function () {
-      allFields.val('').removeClass('ui-state-error');
+      Array.prototype.forEach.call(allFields, function (item) {
+        item.value = '';
+        item.classList.remove('ui-state-error');
+      });
     }
   });
 

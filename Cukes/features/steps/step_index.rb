@@ -11,7 +11,7 @@ When /^I select (\w+) for the (\w+) (\w+)$/ do | val, form, name |
   @browser.select(:id => "#{form}-#{name}-input").select val
 end
 
-Then /^the (\w+) (\w+) is blank$/ do | form, name |
+Then /^the input (\w+) (\w+) is blank$/ do | form, name |
   @browser.select(:id => "#{form}-#{name}-input").value == ''
 end
 

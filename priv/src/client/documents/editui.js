@@ -139,7 +139,7 @@ var afterEditRefresh = function () {
     ui.saveButton().setAttribute(elem, ui.viewInfo().getAttribute(elem));
   });
 
-  ui.showButton(ui.saveButton());
+  ui.showEnable(ui.saveButton());
   afterRefresh();
 
   return true;
@@ -216,21 +216,21 @@ var save = function () {
     flash.highlight('Success', 'Your document was saved.');
     sb.classList.remove('oldrev');
     sb.dataset.documentRev = req.response.rev;
-    ui.showButton(sb);
+    ui.showEnable(sb);
   };
   statusCallbacks[204] = success;
   statusCallbacks[200] = success;
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(sb);
+    ui.showEnable(sb);
   };
   statusCallbacks[409] = function (req) {
     flash.error(req.statusText, req.response.message);
-    ui.hideButton(sb);
+    ui.hideDisable(sb);
   };
 
   clearErrorStates();
-  ui.hideButton(ui.saveButton());
+  ui.hideDisable(ui.saveButton());
   newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.put(url, obj, undefined, statusCallbacks);
@@ -253,21 +253,21 @@ var create = function () {
     var body = 'Your document was created.';
     var documentId = req.getResponseHeader('Location').match(/[a-z0-9]*$/);
 
-    ui.hideButton(ui.saveButton());
+    ui.hideDisable(ui.saveButton());
     removeFields();
     fieldsets.initFieldsets();
     viewui.get(documentId);
     indexui.get(ui.skey(), ui.sid());
     flash.highlight(title, body);
-    ui.showButton(ui.createButton());
+    ui.showEnable(ui.createButton());
   };
   statusCallbacks[403] = function (req) {
     validationError(req);
-    ui.showButton(ui.createButton());
+    ui.showEnable(ui.createButton());
   };
 
   clearErrorStates();
-  ui.hideButton(ui.createButton());
+  ui.hideDisable(ui.createButton());
   newObj = fieldsets.fieldsetsToObject(ui.editForm());
   obj = extend(obj, newObj);
   ajax.post(url, obj, undefined, statusCallbacks);
@@ -278,7 +278,7 @@ var clear = function () {
   'use strict';
 
   clearErrorStates();
-  ui.hideButton(ui.saveButton());
+  ui.hideDisable(ui.saveButton());
   removeFields();
   fieldsets.initFieldsets();
 };

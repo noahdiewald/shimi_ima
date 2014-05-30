@@ -21,9 +21,9 @@ Scenario: New dialog change events
   When I select blank for the index doctype
   Then the index doctype select list is enabled 
   And the index fieldset select list is disabled
-  And the index fieldset is blank
+  And the input index fieldset is blank
   And the index field select list is disabled 
-  And the index field is blank
+  And the input index field is blank
 
 Scenario: Creating document index
   Given a doctype with fields exists
