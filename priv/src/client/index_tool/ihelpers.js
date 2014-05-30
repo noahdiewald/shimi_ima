@@ -17,11 +17,11 @@ var disableOptions = function (options, disables) {
   'use strict';
 
   Array.prototype.forEach.call(options.childNodes, function (node) {
-    node.classList.remove('hidden');
+    form.show(node);
   });
 
   disables.forEach(function (item) {
-    options.querySelector('option:contains(' + item + ')').classList.add('hidden');
+    form.hide(options.querySelector('option:contains(' + item + ')'));
   });
 
   return false;

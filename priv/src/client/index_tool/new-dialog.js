@@ -39,11 +39,9 @@ var handleChange = function (changed, dependent) {
 
     Array.prototype.forEach.call(dependent[0].getElementsByTagName('option'), function (item) {
       if (item.classList.contains(changed.value)) {
-        item.classList.remove('hidden');
-        item.removeAttribute('disabled');
+        form.showEnable(item);
       } else {
-        item.classList.add('hidden');
-        item.setAttribute('disabled', 'disabled');
+        form.hideDisable(item);
       }
     });
   } else {

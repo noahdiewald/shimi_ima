@@ -37,7 +37,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
   builderArgumentInput.setAttribute('disable', 'disable');
   builderFieldsetInput.setAttribute('disable', 'disable');
   builderFieldInput.setAttribute('disable', 'disable');
-  document.querySelector('.ui-helper-reset div').classList.remove('hidden');
+  form.show(document.querySelector('.ui-helper-reset div'));
 
   var appendCondition = function (builderRow) {
     tableBody.insertAdjacentHTML('beforeend', builderRow);
@@ -53,21 +53,21 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
   builderOrInput.onchange = function () {
     if (builderOrInput.checked) {
-      builderConditions.classList.add('hidden');
-      builderParens.classList.add('hidden');
+      form.hide(builderConditions);
+      form.hide(builderParens);
     } else {
-      builderConditions.classList.remove('hidden');
-      builderParens.classList.remove('hidden');
+      form.show(builderConditions);
+      form.show(builderParens);
     }
   };
 
   builderParenInput.onchange = function () {
     if (builderParenInput.value) {
-      builderConditions.classList.add('hidden');
-      builderOr.classList.add('hidden');
+      form.hide(builderConditions);
+      form.hide(builderOr);
     } else {
-      builderConditions.classList.remove('hidden');
-      builderOr.classList.remove('hidden');
+      form.show(builderConditions);
+      form.show(builderOr);
     }
   };
 
@@ -150,7 +150,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
       }
     },
     close: function () {
-      builderConditions.classList.remove('hidden');
+      form.show(builderConditions);
       builderFieldsetInput.onchange = undefined;
       builderFieldInput.onchange = undefined;
       builderOperatorInput.onchange = undefined;
