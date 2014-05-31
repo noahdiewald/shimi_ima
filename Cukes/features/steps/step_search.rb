@@ -20,8 +20,10 @@ end
 
 Then /^there are (\d+) results for (\w+) (\w+)$/ do | num, fieldset, field |
   @browser.div(:id => 'loading').wait_while_present
-  fid = @popsicleFields[fieldset + ':' + field]  
-  @browser.h5(:data_field_field => fid).text.should match(/\(#{num}\)/)
+  fid = @popsicleFields[fieldset + ':' + field]
+  totals = @browser.h5(:data_field_field => fid)
+  totals.wait_until_present
+  totals.text.should match(/\(#{num}\)/)
 end
 
 Then /^the ([a-f0-9]{32}) document is listed under (\w+) (\w+)$/ do | document, fieldset, field |
