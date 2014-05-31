@@ -1,6 +1,6 @@
 // # Config Sub-App Init
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Initialization of the sub-application used to configure the system and
 // define doctypes. It also includes code for the upgrade button element,

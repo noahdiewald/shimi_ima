@@ -30,6 +30,13 @@ module.exports = function(grunt) {
         options: {
           alias: ['priv/templates/compiled/templates.js:templates.js']
         }
+      },
+      reporter: {
+        src: ['priv/src/reporter/**/*.js'],
+        dest: 'priv/www/reporter.js',
+        options: {
+          alias: ['priv/templates/compiled/templates.js:templates.js']
+        }
       }
     },
     concat: {
@@ -134,6 +141,7 @@ module.exports = function(grunt) {
           jQuery: true,
           module: true,
           require: true,
+          self: true,
           send: true,
           start: true,
           templates: true

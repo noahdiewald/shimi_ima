@@ -97,6 +97,7 @@ end
 
 When(/^I fill in (\w+) in the (\w+) editor input$/) do | data, input |
   inputField = @browser.text_field(:name => input)
+  inputField.wait_until_present
   inputField.set data
 end
 
@@ -122,6 +123,7 @@ When(/^I click the editor (\w+) button$/) do | bttn |
   @browser.div(:id => 'loading').wait_while_present
   @browser.link(:id => "config-#{bttn.to_dash}-button").click
   if bttn == "delete"
+    sleep 0.25
     @browser.alert.ok
   end
   @browser.div(:id => 'loading').wait_while_present

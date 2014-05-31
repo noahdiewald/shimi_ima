@@ -9,7 +9,7 @@
 // The idea is to make something like this into a worker to achieve
 // concurrency.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var commands = require('documents/commands');
 var documents = require('documents/documents');
@@ -21,11 +21,9 @@ var worksheetui = require('documents/worksheetui');
 var ceditui = require('config/editui');
 var cdoctypeui = require('config/doctypeui');
 
-// Exported functions
+// ## Internal Functions
 
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg) {
+var reporter = function (message, arg) {
   'use strict';
 
   var retval;
@@ -156,6 +154,25 @@ var sender = function (message, arg) {
   }
 
   return retval;
+};
+
+// ## Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg) {
+  'use strict';
+
+  var worker = new Worker('/reporter.js');
+
+  worker.onmessage = function (e) {
+    return reporter(e.data.message, e.data.arg);
+  };
+
+  return worker.postMessage({
+    message: message,
+    arg: arg
+  });
 };
 
 exports.sender = sender;

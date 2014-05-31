@@ -10551,7 +10551,7 @@ exports.prefix = prefix;
 },{"pager":143,"templates":52}],58:[function(require,module,exports){
 // # Config Sub-App Init
 //
-// *Implicit depends:* DOM, JQuery
+// *Implicit depends:* DOM
 //
 // Initialization of the sub-application used to configure the system and
 // define doctypes. It also includes code for the upgrade button element,
@@ -15597,7 +15597,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
   builderArgumentInput.setAttribute('disable', 'disable');
   builderFieldsetInput.setAttribute('disable', 'disable');
   builderFieldInput.setAttribute('disable', 'disable');
-  document.querySelector('.ui-helper-reset div').classList.remove('hidden');
+  form.show(document.querySelector('.ui-helper-reset div'));
 
   var appendCondition = function (builderRow) {
     tableBody.insertAdjacentHTML('beforeend', builderRow);
@@ -15613,21 +15613,21 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
   builderOrInput.onchange = function () {
     if (builderOrInput.checked) {
-      builderConditions.classList.add('hidden');
-      builderParens.classList.add('hidden');
+      form.hide(builderConditions);
+      form.hide(builderParens);
     } else {
-      builderConditions.classList.remove('hidden');
-      builderParens.classList.remove('hidden');
+      form.show(builderConditions);
+      form.show(builderParens);
     }
   };
 
   builderParenInput.onchange = function () {
     if (builderParenInput.value) {
-      builderConditions.classList.add('hidden');
-      builderOr.classList.add('hidden');
+      form.hide(builderConditions);
+      form.hide(builderOr);
     } else {
-      builderConditions.classList.remove('hidden');
-      builderOr.classList.remove('hidden');
+      form.show(builderConditions);
+      form.show(builderOr);
     }
   };
 
@@ -15710,7 +15710,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
       }
     },
     close: function () {
-      builderConditions.classList.remove('hidden');
+      form.show(builderConditions);
       builderFieldsetInput.onchange = undefined;
       builderFieldInput.onchange = undefined;
       builderOperatorInput.onchange = undefined;
@@ -16067,11 +16067,11 @@ var disableOptions = function (options, disables) {
   'use strict';
 
   Array.prototype.forEach.call(options.childNodes, function (node) {
-    node.classList.remove('hidden');
+    form.show(node);
   });
 
   disables.forEach(function (item) {
-    options.querySelector('option:contains(' + item + ')').classList.add('hidden');
+    form.hide(options.querySelector('option:contains(' + item + ')'));
   });
 
   return false;
@@ -16416,11 +16416,9 @@ var handleChange = function (changed, dependent) {
 
     Array.prototype.forEach.call(dependent[0].getElementsByTagName('option'), function (item) {
       if (item.classList.contains(changed.value)) {
-        item.classList.remove('hidden');
-        item.removeAttribute('disabled');
+        form.showEnable(item);
       } else {
-        item.classList.add('hidden');
-        item.setAttribute('disabled', 'disabled');
+        form.hideDisable(item);
       }
     });
   } else {
@@ -17486,7 +17484,7 @@ exports.init = init;
 // The idea is to make something like this into a worker to achieve
 // concurrency.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var commands = require('documents/commands');
 var documents = require('documents/documents');
@@ -17498,11 +17496,9 @@ var worksheetui = require('documents/worksheetui');
 var ceditui = require('config/editui');
 var cdoctypeui = require('config/doctypeui');
 
-// Exported functions
+// ## Internal Functions
 
-// This is called by functions when the actions they have performed
-// result in a paticular state.
-var sender = function (message, arg) {
+var reporter = function (message, arg) {
   'use strict';
 
   var retval;
@@ -17633,6 +17629,25 @@ var sender = function (message, arg) {
   }
 
   return retval;
+};
+
+// ## Exported functions
+
+// This is called by functions when the actions they have performed
+// result in a paticular state.
+var sender = function (message, arg) {
+  'use strict';
+
+  var worker = new Worker('/reporter.js');
+
+  worker.onmessage = function (e) {
+    return reporter(e.data.message, e.data.arg);
+  };
+
+  return worker.postMessage({
+    message: message,
+    arg: arg
+  });
 };
 
 exports.sender = sender;
