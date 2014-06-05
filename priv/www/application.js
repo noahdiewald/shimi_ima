@@ -10040,6 +10040,7 @@ var dblclickDispatch = require('dblclick-dispatch').dblclickDispatch;
 var changes = require('changes').changes;
 var keystrokes = require('keystrokes').keystrokes;
 var form = require('form');
+var r = require('receiver');
 
 // These are the basic sub-application entry points.
 var documents = require('documents/documents');
@@ -10148,12 +10149,17 @@ var init = function () {
 document.onreadystatechange = function () {
   'use strict';
 
+  globals.reporter = new Worker('/reporter.js');
+  globals.reporter.onmessage = function (e) {
+    return r.receiver(e.data.message, e.data.arg);
+  };
+
   if (document.readyState === 'complete') {
     init();
   }
 };
 
-},{"changes":107,"click-dispatch":108,"config/config":110,"dblclick-dispatch":114,"documents/documents":118,"file_manager/fm":128,"form":130,"index_tool/ilistingui":138,"keystrokes":143,"projects/projectui":146}],55:[function(require,module,exports){
+},{"changes":107,"click-dispatch":108,"config/config":110,"dblclick-dispatch":114,"documents/documents":118,"file_manager/fm":128,"form":130,"index_tool/ilistingui":138,"keystrokes":143,"projects/projectui":146,"receiver":147}],55:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM
@@ -17475,8 +17481,8 @@ exports.init = init;
 },{"ajax":106,"templates":52}],97:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
-// This is the onmessage function for the `reporter.js` worker. See also
-// `sender.js`.
+// This provides the onmessage function for the `reporter.js` worker. See
+// also `sender.js`.
 
 // ## Variable Definitions
 
@@ -17633,10 +17639,6 @@ exports.receiver = receiver;
 // This has a single function which starts a web work and sends it
 // a message.
 
-// ## Variable Definitions
-
-var r = require('receiver');
-
 // ## Exported functions
 
 // This is called by functions when the actions they have performed
@@ -17644,13 +17646,7 @@ var r = require('receiver');
 var sender = function (message, arg) {
   'use strict';
 
-  var worker = new Worker('/reporter.js');
-
-  worker.onmessage = function (e) {
-    return r.receiver(e.data.message, e.data.arg);
-  };
-
-  return worker.postMessage({
+  return globals.reporter.postMessage({
     message: message,
     arg: arg
   });
@@ -17658,7 +17654,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"receiver":147}],99:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -18108,11 +18104,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],105:[function(require,module,exports){
+},{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],106:[function(require,module,exports){
 module.exports=require(53)
@@ -18200,7 +18196,7 @@ module.exports=require(96)
 module.exports=require(97)
 },{"config/doctypeui":111,"config/editui":112,"documents/commands":117,"documents/documents":118,"documents/editui":119,"documents/information":122,"documents/searchui":123,"documents/setsui":124,"documents/worksheetui":127}],148:[function(require,module,exports){
 module.exports=require(98)
-},{"receiver":147}],149:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 module.exports=require(99)
 },{}],150:[function(require,module,exports){
 module.exports=require(100)

@@ -14,6 +14,7 @@ var dblclickDispatch = require('dblclick-dispatch').dblclickDispatch;
 var changes = require('changes').changes;
 var keystrokes = require('keystrokes').keystrokes;
 var form = require('form');
+var r = require('receiver');
 
 // These are the basic sub-application entry points.
 var documents = require('documents/documents');
@@ -121,6 +122,11 @@ var init = function () {
 
 document.onreadystatechange = function () {
   'use strict';
+
+  globals.reporter = new Worker('/reporter.js');
+  globals.reporter.onmessage = function (e) {
+    return r.receiver(e.data.message, e.data.arg);
+  };
 
   if (document.readyState === 'complete') {
     init();

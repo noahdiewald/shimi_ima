@@ -613,7 +613,6 @@ self.onmessage = function (e) {
   'use strict';
 
   self.postMessage(e.data);
-  self.close();
 };
 
 },{}],"mkFiG5":[function(require,module,exports){

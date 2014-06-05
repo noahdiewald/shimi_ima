@@ -3,10 +3,6 @@
 // This has a single function which starts a web work and sends it
 // a message.
 
-// ## Variable Definitions
-
-var r = require('receiver');
-
 // ## Exported functions
 
 // This is called by functions when the actions they have performed
@@ -14,13 +10,7 @@ var r = require('receiver');
 var sender = function (message, arg) {
   'use strict';
 
-  var worker = new Worker('/reporter.js');
-
-  worker.onmessage = function (e) {
-    return r.receiver(e.data.message, e.data.arg);
-  };
-
-  return worker.postMessage({
+  return globals.reporter.postMessage({
     message: message,
     arg: arg
   });
