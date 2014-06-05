@@ -13,6 +13,7 @@ end
 
 # TODO: combine with link clicking step in shared
 When /^I click the New Projects button$/ do
+  @browser.div(:id => 'loading').wait_while_present
   @browser.link(:id, 'create-project').click
 end
 

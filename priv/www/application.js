@@ -10023,7 +10023,7 @@ exports.del = del;
 exports.get = get;
 exports.legacyHTMLGet = legacyHTMLGet;
 
-},{"flash":128}],54:[function(require,module,exports){
+},{"flash":129}],54:[function(require,module,exports){
 // # The Client Code Entry Point
 //
 // *Implicit depends:* DOM
@@ -10153,7 +10153,7 @@ document.onreadystatechange = function () {
   }
 };
 
-},{"changes":106,"click-dispatch":107,"config/config":109,"dblclick-dispatch":113,"documents/documents":117,"file_manager/fm":127,"form":129,"index_tool/ilistingui":137,"keystrokes":142,"projects/projectui":145}],55:[function(require,module,exports){
+},{"changes":107,"click-dispatch":108,"config/config":110,"dblclick-dispatch":114,"documents/documents":118,"file_manager/fm":128,"form":130,"index_tool/ilistingui":138,"keystrokes":143,"projects/projectui":146}],55:[function(require,module,exports){
 // # Change Event Handling
 //
 // *Implicit depends:* DOM
@@ -10216,7 +10216,7 @@ var changes = function () {
 
 exports.changes = changes;
 
-},{"documents/searchui":122,"index_tool/new-dialog":139}],56:[function(require,module,exports){
+},{"documents/searchui":123,"index_tool/new-dialog":140}],56:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -10500,7 +10500,7 @@ var clickDispatch = function (e) {
 
 exports.clickDispatch = clickDispatch;
 
-},{"config/maintenanceui":112,"dispatcher":114,"documents/editui":118,"documents/fieldsets":119,"documents/indexui":120,"documents/searchui":122,"documents/setsui":123,"documents/viewui":125,"documents/worksheetui":126,"file_manager/fm":127,"form":129,"index_tool/ieditui":134,"panel-toggle":144,"projects/projectui":145,"sender":146}],57:[function(require,module,exports){
+},{"config/maintenanceui":113,"dispatcher":115,"documents/editui":119,"documents/fieldsets":120,"documents/indexui":121,"documents/searchui":123,"documents/setsui":124,"documents/viewui":126,"documents/worksheetui":127,"file_manager/fm":128,"form":130,"index_tool/ieditui":135,"panel-toggle":145,"projects/projectui":146,"sender":148}],57:[function(require,module,exports){
 // # Charseq Listing
 //
 // *Implicit depends:* DOM
@@ -10548,7 +10548,7 @@ exports.init = init;
 exports.get = get;
 exports.prefix = prefix;
 
-},{"pager":143,"templates":52}],58:[function(require,module,exports){
+},{"pager":144,"templates":52}],58:[function(require,module,exports){
 // # Config Sub-App Init
 //
 // *Implicit depends:* DOM
@@ -10582,7 +10582,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"config/charsequi":108,"config/doctypeui":110,"config/editui":111,"config/maintenanceui":112}],59:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"config/editui":112,"config/maintenanceui":113}],59:[function(require,module,exports){
 // # Doctype Listing
 //
 // *Implicit depends:* DOM
@@ -10651,7 +10651,7 @@ exports.get = get;
 exports.prefix = prefix;
 exports.addDoctype = addDoctype;
 
-},{"../sender.js":97,"node-uuid":51,"pager":143,"templates":52}],60:[function(require,module,exports){
+},{"../sender.js":98,"node-uuid":51,"pager":144,"templates":52}],60:[function(require,module,exports){
 // # Config Editor
 //
 // *Implicit depends:* DOM
@@ -11389,7 +11389,7 @@ exports.pasteChild = pasteChild;
 exports.promote = promote;
 exports.demote = demote;
 
-},{"../sender.js":97,"ajax":105,"formalize":130,"sess":147}],61:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"formalize":131,"sess":149}],61:[function(require,module,exports){
 // # Maintenance User Interface
 //
 // *Implicit depends:* DOM
@@ -11430,7 +11430,7 @@ var init = function () {
 exports.init = init;
 exports.upgradeButton = upgradeButton;
 
-},{"ajax":105,"flash":128,"templates":52}],62:[function(require,module,exports){
+},{"ajax":106,"flash":129,"templates":52}],62:[function(require,module,exports){
 // # Dispatching double click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11493,7 +11493,7 @@ var dblclickDispatch = function (e) {
 
 exports.dblclickDispatch = dblclickDispatch;
 
-},{"config/editui":111,"dispatcher":114,"documents/searchui":122,"documents/worksheetui":126,"panel-toggle":144}],63:[function(require,module,exports){
+},{"config/editui":112,"dispatcher":115,"documents/searchui":123,"documents/worksheetui":127,"panel-toggle":145}],63:[function(require,module,exports){
 // # Dispatcher for clicks and double clicks
 //
 // *Implicit depends:* DOM
@@ -11588,7 +11588,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"documents/information":121,"pager":143}],65:[function(require,module,exports){
+},{"documents/information":122,"pager":144}],65:[function(require,module,exports){
 // # Keyboard shortcuts
 //
 // *Implicit depends:* DOM, JQuery
@@ -11712,7 +11712,7 @@ exports.execute = execute;
 exports.dialogOpen = dialogOpen;
 exports.dialogClose = dialogClose;
 
-},{"../sender.js":97,"documents/editui":118}],66:[function(require,module,exports){
+},{"../sender.js":98,"documents/editui":119}],66:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery
@@ -11793,7 +11793,7 @@ var init2 = function () {
 exports.init = init;
 exports.init2 = init2;
 
-},{"../sender.js":97,"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/indexui":120,"documents/information":121,"documents/setsui":123,"documents/ui-shared":124,"documents/viewui":125}],67:[function(require,module,exports){
+},{"../sender.js":98,"./editui.js":67,"ajax":106,"documents/changeui":116,"documents/indexui":121,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"documents/viewui":126}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -12133,7 +12133,7 @@ exports.toggleTextarea = toggleTextarea;
 exports.setInstanceInfo = setInstanceInfo;
 exports.showHelpDialog = showHelpDialog;
 
-},{"./fieldsets.js":68,"ajax":105,"documents/indexui":120,"documents/information":121,"documents/ui-shared":124,"documents/viewui":125,"flash":128,"form":129,"node-uuid":51,"store":149,"templates":52}],68:[function(require,module,exports){
+},{"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/information":122,"documents/ui-shared":125,"documents/viewui":126,"flash":129,"form":130,"node-uuid":51,"store":151,"templates":52}],68:[function(require,module,exports){
 // # Fieldsets (and fields)
 //
 // *Implicit depends:* DOM
@@ -12660,7 +12660,7 @@ exports.initFieldsets = initFieldsets;
 exports.removeFieldset = removeFieldset;
 exports.fillFieldsets = fillFieldsets;
 
-},{"../path.js":95,"./editui.js":67,"ajax":105,"documents/information":121,"documents/ui-shared":124,"store":149,"templates":52,"utils":150}],69:[function(require,module,exports){
+},{"../path.js":95,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":52,"utils":152}],69:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -12760,7 +12760,7 @@ exports.get = get;
 exports.iOpts = iOpts;
 exports.load = load;
 
-},{"./editui.js":67,"./viewui.js":74,"ajax":105,"documents/ui-shared":124,"pager":143,"templates":52}],70:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"documents/ui-shared":125,"pager":144,"templates":52}],70:[function(require,module,exports){
 // # Document Information
 //
 // *Implicit depends:* DOM
@@ -13035,7 +13035,7 @@ exports.setsKey = setsKey;
 exports.setVersion = setVersion;
 exports.worksheetName = worksheetName;
 
-},{"../sender.js":97,"ajax":105,"documents/ui-shared":124}],71:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"documents/ui-shared":125}],71:[function(require,module,exports){
 // # The search user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -13588,7 +13588,7 @@ exports.toggleExclusion = toggleExclusion;
 exports.toggleInversion = toggleInversion;
 exports.toggleSelection = toggleSelection;
 
-},{"ajax":105,"documents/information":121,"documents/setsui":123,"documents/ui-shared":124,"sets":148,"templates":52,"utils":150}],72:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"sets":150,"templates":52,"utils":152}],72:[function(require,module,exports){
 // # The sets user interface
 //
 // *Implicit depends:* DOM, JQuery
@@ -13996,7 +13996,7 @@ exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
 
-},{"../sender.js":97,"documents/information":121,"flash":128,"sets":148,"templates":52,"utils":150}],73:[function(require,module,exports){
+},{"../sender.js":98,"documents/information":122,"flash":129,"sets":150,"templates":52,"utils":152}],73:[function(require,module,exports){
 // # UI Shared
 //
 // *Implicit depends:* DOM
@@ -14135,7 +14135,7 @@ exports.hideDisable = form.hideDisable;
 exports.show = form.show;
 exports.showEnable = form.showEnable;
 
-},{"form":129}],74:[function(require,module,exports){
+},{"form":130}],74:[function(require,module,exports){
 // # The view user interface
 //
 // *Implicit depends:* DOM
@@ -14475,7 +14475,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"./editui.js":67,"./fieldsets.js":68,"ajax":105,"documents/indexui":120,"documents/ui-shared":124,"flash":128,"store":149,"templates":52}],75:[function(require,module,exports){
+},{"./editui.js":67,"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/ui-shared":125,"flash":129,"store":151,"templates":52}],75:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -14659,7 +14659,7 @@ exports.hideField = hideField;
 exports.buildTemplate = buildTemplate;
 exports.fillWorksheet = fillWorksheet;
 
-},{"ajax":105,"documents/information":121,"documents/setsui":123,"flash":128,"hogan.js":24,"templates":52}],76:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"flash":129,"hogan.js":24,"templates":52}],76:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -14855,7 +14855,7 @@ exports.editFile = editFile;
 exports.deleteFile = deleteFile;
 exports.refreshListings = refreshListings;
 
-},{"ajax":105,"flash":128}],77:[function(require,module,exports){
+},{"ajax":106,"flash":129}],77:[function(require,module,exports){
 // # Brief Notification Messages
 //
 // *Implicit depends:* DOM, JQuery
@@ -15041,7 +15041,7 @@ exports.hideDisable = hideDisable;
 exports.show = show;
 exports.showEnable = showEnable;
 
-},{"ajax":105}],79:[function(require,module,exports){
+},{"ajax":106}],79:[function(require,module,exports){
 // # Formalize
 //
 // Convert JSON to and from an HTML form.
@@ -15067,7 +15067,7 @@ var fromForm = function (html) {
 exports.toForm = toForm;
 exports.fromForm = fromForm;
 
-},{"formalize_from":131,"formalize_to":132}],80:[function(require,module,exports){
+},{"formalize_from":132,"formalize_to":133}],80:[function(require,module,exports){
 // # Form from
 //
 // Convert an HTML form to JSON.
@@ -15544,7 +15544,7 @@ var transform = function (json, options) {
 
 exports.transform = transform;
 
-},{"lib/json_to":152,"node-uuid":51}],82:[function(require,module,exports){
+},{"lib/json_to":154,"node-uuid":51}],82:[function(require,module,exports){
 // # Globals object
 //
 // A place to temporarily store global objects. Sometimes this is more
@@ -15730,7 +15730,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
 exports.initIndexBuilderDialog = initIndexBuilderDialog;
 
-},{"ajax":105,"form":129,"index_tool/ievents":135,"index_tool/ihelpers":136}],84:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137}],84:[function(require,module,exports){
 // # The file manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16015,7 +16015,7 @@ exports.remCond = remCond;
 exports.newCond = newCond;
 exports.del = del;
 
-},{"ajax":105,"flash":128,"index_tool/builder-dialog":133,"index_tool/ihelpers":136,"index_tool/ilistingui":137,"index_tool/ipreviewui":138,"index_tool/new-dialog":139,"index_tool/replace-dialog":140}],85:[function(require,module,exports){
+},{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],85:[function(require,module,exports){
 // # Dialog Events
 //
 // *Implicit depends:* DOM
@@ -16047,7 +16047,7 @@ var setIndexOperatorEvents = function (argumentField, operatorField, fieldField,
 
 exports.setIndexOperatorEvents = setIndexOperatorEvents;
 
-},{"index_tool/ihelpers":136}],86:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],86:[function(require,module,exports){
 // # Index tool helpers.
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16286,7 +16286,7 @@ exports.alterOpts = alterOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
 
-},{"ajax":105,"form":129,"sess":147}],87:[function(require,module,exports){
+},{"ajax":106,"form":130,"sess":149}],87:[function(require,module,exports){
 // # Index listing.
 //
 // *Implicit depends:* DOM
@@ -16318,7 +16318,7 @@ var init = function () {
 
 exports.init = init;
 
-},{"ajax":105,"templates":52}],88:[function(require,module,exports){
+},{"ajax":106,"templates":52}],88:[function(require,module,exports){
 // # Paging For Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -16374,7 +16374,7 @@ var get = function () {
 exports.prefix = prefix;
 exports.get = get;
 
-},{"pager":143}],89:[function(require,module,exports){
+},{"pager":144}],89:[function(require,module,exports){
 // # New dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16516,7 +16516,7 @@ exports.doctypeInputChange = doctypeInputChange;
 exports.fieldsetInputChange = fieldsetInputChange;
 exports.initIndexNewDialog = initIndexNewDialog;
 
-},{"ajax":105,"form":129,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],90:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ihelpers":137,"index_tool/ilistingui":138}],90:[function(require,module,exports){
 // # Replace dialog
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -16594,7 +16594,7 @@ var initReplaceDialog = function () {
 
 exports.initReplaceDialog = initReplaceDialog;
 
-},{"index_tool/ihelpers":136}],91:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],91:[function(require,module,exports){
 /*
  * jQuery Hotkeys Plugin
  * Copyright 2010, John Resig
@@ -16923,7 +16923,7 @@ var keystrokes = function () {
 
 exports.keystrokes = keystrokes;
 
-},{"config/charsequi":108,"config/doctypeui":110,"documents/changeui":115,"documents/editui":118,"documents/indexui":120,"documents/searchui":122,"documents/viewui":125,"index_tool/ipreviewui":138,"jquery.hotkeys":141,"sender":146}],93:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"documents/changeui":116,"documents/editui":119,"documents/indexui":121,"documents/searchui":123,"documents/viewui":126,"index_tool/ipreviewui":139,"jquery.hotkeys":142,"sender":148}],93:[function(require,module,exports){
 // # Paging List-like Info
 //
 // *Implicit depends:* DOM, JSON
@@ -17114,7 +17114,7 @@ var pager = function (args) {
 
 exports.pager = pager;
 
-},{"ajax":105,"templates":52}],94:[function(require,module,exports){
+},{"ajax":106,"templates":52}],94:[function(require,module,exports){
 // # Panel Toggler
 //
 // Interface elements called panels can be visible or hidden.
@@ -17339,7 +17339,7 @@ var path = function (source, category, section) {
 
 exports.path = path;
 
-},{"ajax":105,"store":149}],96:[function(require,module,exports){
+},{"ajax":106,"store":151}],96:[function(require,module,exports){
 // # The project manager
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -17472,17 +17472,11 @@ exports.add = add;
 exports.del = del;
 exports.init = init;
 
-},{"ajax":105,"templates":52}],97:[function(require,module,exports){
+},{"ajax":106,"templates":52}],97:[function(require,module,exports){
 // # Take actions depending on reported state.
 //
-// This is essentially an experiment in attempting to perform actions
-// based on the state of the application. It is an idea that I'm still
-// working on but the idea is to avoid having functions directly call
-// other functions to initiate new actions but to instead simply report
-// their state and have some central authority decide what to do next.
-//
-// The idea is to make something like this into a worker to achieve
-// concurrency.
+// This is the onmessage function for the `reporter.js` worker. See also
+// `sender.js`.
 
 // ## Variable Definitions
 
@@ -17496,9 +17490,9 @@ var worksheetui = require('documents/worksheetui');
 var ceditui = require('config/editui');
 var cdoctypeui = require('config/doctypeui');
 
-// ## Internal Functions
+// ## External Functions
 
-var reporter = function (message, arg) {
+var receiver = function (message, arg) {
   'use strict';
 
   var retval;
@@ -17631,6 +17625,18 @@ var reporter = function (message, arg) {
   return retval;
 };
 
+exports.receiver = receiver;
+
+},{"config/doctypeui":111,"config/editui":112,"documents/commands":117,"documents/documents":118,"documents/editui":119,"documents/information":122,"documents/searchui":123,"documents/setsui":124,"documents/worksheetui":127}],98:[function(require,module,exports){
+// # Send message to `reporter.js` worker.
+//
+// This has a single function which starts a web work and sends it
+// a message.
+
+// ## Variable Definitions
+
+var r = require('receiver');
+
 // ## Exported functions
 
 // This is called by functions when the actions they have performed
@@ -17641,7 +17647,7 @@ var sender = function (message, arg) {
   var worker = new Worker('/reporter.js');
 
   worker.onmessage = function (e) {
-    return reporter(e.data.message, e.data.arg);
+    return r.receiver(e.data.message, e.data.arg);
   };
 
   return worker.postMessage({
@@ -17652,7 +17658,7 @@ var sender = function (message, arg) {
 
 exports.sender = sender;
 
-},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/information":121,"documents/searchui":122,"documents/setsui":123,"documents/worksheetui":126}],98:[function(require,module,exports){
+},{"receiver":147}],99:[function(require,module,exports){
 // # Session storage helpers
 //
 // *Implicit depends:* DOM
@@ -17701,7 +17707,7 @@ exports.replace = replace;
 exports.put = put;
 exports.get = get;
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 // # Set operations
 //
 // The 'set' is a one dimensional Array by default but by replacing the
@@ -17795,7 +17801,7 @@ exports.intersection = intersection;
 exports.relativeComplement = relativeComplement;
 exports.symmetricDifference = symmetricDifference;
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 // # Data Attribute Storage and Retrieval Helpers
 //
 // *Implicit depends:* DOM
@@ -17923,7 +17929,7 @@ var store = function (elem) {
 
 exports.store = store;
 
-},{"lib/recurse":153,"utils":150}],101:[function(require,module,exports){
+},{"lib/recurse":155,"utils":152}],102:[function(require,module,exports){
 // # Misc
 
 // Exported functions
@@ -18102,105 +18108,107 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
-},{}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],104:[function(require,module,exports){
+},{"hogan.js":24}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
+},{}],105:[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],105:[function(require,module,exports){
+},{"hogan.js":24}],106:[function(require,module,exports){
 module.exports=require(53)
-},{"flash":128}],106:[function(require,module,exports){
+},{"flash":129}],107:[function(require,module,exports){
 module.exports=require(55)
-},{"documents/searchui":122,"index_tool/new-dialog":139}],107:[function(require,module,exports){
+},{"documents/searchui":123,"index_tool/new-dialog":140}],108:[function(require,module,exports){
 module.exports=require(56)
-},{"config/maintenanceui":112,"dispatcher":114,"documents/editui":118,"documents/fieldsets":119,"documents/indexui":120,"documents/searchui":122,"documents/setsui":123,"documents/viewui":125,"documents/worksheetui":126,"file_manager/fm":127,"form":129,"index_tool/ieditui":134,"panel-toggle":144,"projects/projectui":145,"sender":146}],108:[function(require,module,exports){
+},{"config/maintenanceui":113,"dispatcher":115,"documents/editui":119,"documents/fieldsets":120,"documents/indexui":121,"documents/searchui":123,"documents/setsui":124,"documents/viewui":126,"documents/worksheetui":127,"file_manager/fm":128,"form":130,"index_tool/ieditui":135,"panel-toggle":145,"projects/projectui":146,"sender":148}],109:[function(require,module,exports){
 module.exports=require(57)
-},{"pager":143,"templates":104}],109:[function(require,module,exports){
+},{"pager":144,"templates":105}],110:[function(require,module,exports){
 module.exports=require(58)
-},{"config/charsequi":108,"config/doctypeui":110,"config/editui":111,"config/maintenanceui":112}],110:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"config/editui":112,"config/maintenanceui":113}],111:[function(require,module,exports){
 module.exports=require(59)
-},{"../sender.js":97,"node-uuid":51,"pager":143,"templates":104}],111:[function(require,module,exports){
+},{"../sender.js":98,"node-uuid":51,"pager":144,"templates":105}],112:[function(require,module,exports){
 module.exports=require(60)
-},{"../sender.js":97,"ajax":105,"formalize":130,"sess":147}],112:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"formalize":131,"sess":149}],113:[function(require,module,exports){
 module.exports=require(61)
-},{"ajax":105,"flash":128,"templates":104}],113:[function(require,module,exports){
+},{"ajax":106,"flash":129,"templates":105}],114:[function(require,module,exports){
 module.exports=require(62)
-},{"config/editui":111,"dispatcher":114,"documents/searchui":122,"documents/worksheetui":126,"panel-toggle":144}],114:[function(require,module,exports){
+},{"config/editui":112,"dispatcher":115,"documents/searchui":123,"documents/worksheetui":127,"panel-toggle":145}],115:[function(require,module,exports){
 module.exports=require(63)
-},{}],115:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module.exports=require(64)
-},{"documents/information":121,"pager":143}],116:[function(require,module,exports){
+},{"documents/information":122,"pager":144}],117:[function(require,module,exports){
 module.exports=require(65)
-},{"../sender.js":97,"documents/editui":118}],117:[function(require,module,exports){
+},{"../sender.js":98,"documents/editui":119}],118:[function(require,module,exports){
 module.exports=require(66)
-},{"../sender.js":97,"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/indexui":120,"documents/information":121,"documents/setsui":123,"documents/ui-shared":124,"documents/viewui":125}],118:[function(require,module,exports){
+},{"../sender.js":98,"./editui.js":67,"ajax":106,"documents/changeui":116,"documents/indexui":121,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"documents/viewui":126}],119:[function(require,module,exports){
 module.exports=require(67)
-},{"./fieldsets.js":68,"ajax":105,"documents/indexui":120,"documents/information":121,"documents/ui-shared":124,"documents/viewui":125,"flash":128,"form":129,"node-uuid":51,"store":149,"templates":104}],119:[function(require,module,exports){
+},{"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/information":122,"documents/ui-shared":125,"documents/viewui":126,"flash":129,"form":130,"node-uuid":51,"store":151,"templates":105}],120:[function(require,module,exports){
 module.exports=require(68)
-},{"../path.js":95,"./editui.js":67,"ajax":105,"documents/information":121,"documents/ui-shared":124,"store":149,"templates":104,"utils":150}],120:[function(require,module,exports){
+},{"../path.js":95,"./editui.js":67,"ajax":106,"documents/information":122,"documents/ui-shared":125,"store":151,"templates":105,"utils":152}],121:[function(require,module,exports){
 module.exports=require(69)
-},{"./editui.js":67,"./viewui.js":74,"ajax":105,"documents/ui-shared":124,"pager":143,"templates":104}],121:[function(require,module,exports){
+},{"./editui.js":67,"./viewui.js":74,"ajax":106,"documents/ui-shared":125,"pager":144,"templates":105}],122:[function(require,module,exports){
 module.exports=require(70)
-},{"../sender.js":97,"ajax":105,"documents/ui-shared":124}],122:[function(require,module,exports){
+},{"../sender.js":98,"ajax":106,"documents/ui-shared":125}],123:[function(require,module,exports){
 module.exports=require(71)
-},{"ajax":105,"documents/information":121,"documents/setsui":123,"documents/ui-shared":124,"sets":148,"templates":104,"utils":150}],123:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"documents/ui-shared":125,"sets":150,"templates":105,"utils":152}],124:[function(require,module,exports){
 module.exports=require(72)
-},{"../sender.js":97,"documents/information":121,"flash":128,"sets":148,"templates":104,"utils":150}],124:[function(require,module,exports){
+},{"../sender.js":98,"documents/information":122,"flash":129,"sets":150,"templates":105,"utils":152}],125:[function(require,module,exports){
 module.exports=require(73)
-},{"form":129}],125:[function(require,module,exports){
+},{"form":130}],126:[function(require,module,exports){
 module.exports=require(74)
-},{"./editui.js":67,"./fieldsets.js":68,"ajax":105,"documents/indexui":120,"documents/ui-shared":124,"flash":128,"store":149,"templates":104}],126:[function(require,module,exports){
+},{"./editui.js":67,"./fieldsets.js":68,"ajax":106,"documents/indexui":121,"documents/ui-shared":125,"flash":129,"store":151,"templates":105}],127:[function(require,module,exports){
 module.exports=require(75)
-},{"ajax":105,"documents/information":121,"documents/setsui":123,"flash":128,"hogan.js":24,"templates":104}],127:[function(require,module,exports){
+},{"ajax":106,"documents/information":122,"documents/setsui":124,"flash":129,"hogan.js":24,"templates":105}],128:[function(require,module,exports){
 module.exports=require(76)
-},{"ajax":105,"flash":128}],128:[function(require,module,exports){
+},{"ajax":106,"flash":129}],129:[function(require,module,exports){
 module.exports=require(77)
-},{}],129:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 module.exports=require(78)
-},{"ajax":105}],130:[function(require,module,exports){
+},{"ajax":106}],131:[function(require,module,exports){
 module.exports=require(79)
-},{"formalize_from":131,"formalize_to":132}],131:[function(require,module,exports){
+},{"formalize_from":132,"formalize_to":133}],132:[function(require,module,exports){
 module.exports=require(80)
-},{"htmlparser2":37}],132:[function(require,module,exports){
+},{"htmlparser2":37}],133:[function(require,module,exports){
 module.exports=require(81)
-},{"lib/json_to":152,"node-uuid":51}],133:[function(require,module,exports){
+},{"lib/json_to":154,"node-uuid":51}],134:[function(require,module,exports){
 module.exports=require(83)
-},{"ajax":105,"form":129,"index_tool/ievents":135,"index_tool/ihelpers":136}],134:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ievents":136,"index_tool/ihelpers":137}],135:[function(require,module,exports){
 module.exports=require(84)
-},{"ajax":105,"flash":128,"index_tool/builder-dialog":133,"index_tool/ihelpers":136,"index_tool/ilistingui":137,"index_tool/ipreviewui":138,"index_tool/new-dialog":139,"index_tool/replace-dialog":140}],135:[function(require,module,exports){
+},{"ajax":106,"flash":129,"index_tool/builder-dialog":134,"index_tool/ihelpers":137,"index_tool/ilistingui":138,"index_tool/ipreviewui":139,"index_tool/new-dialog":140,"index_tool/replace-dialog":141}],136:[function(require,module,exports){
 module.exports=require(85)
-},{"index_tool/ihelpers":136}],136:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],137:[function(require,module,exports){
 module.exports=require(86)
-},{"ajax":105,"form":129,"sess":147}],137:[function(require,module,exports){
+},{"ajax":106,"form":130,"sess":149}],138:[function(require,module,exports){
 module.exports=require(87)
-},{"ajax":105,"templates":104}],138:[function(require,module,exports){
+},{"ajax":106,"templates":105}],139:[function(require,module,exports){
 module.exports=require(88)
-},{"pager":143}],139:[function(require,module,exports){
+},{"pager":144}],140:[function(require,module,exports){
 module.exports=require(89)
-},{"ajax":105,"form":129,"index_tool/ihelpers":136,"index_tool/ilistingui":137}],140:[function(require,module,exports){
+},{"ajax":106,"form":130,"index_tool/ihelpers":137,"index_tool/ilistingui":138}],141:[function(require,module,exports){
 module.exports=require(90)
-},{"index_tool/ihelpers":136}],141:[function(require,module,exports){
+},{"index_tool/ihelpers":137}],142:[function(require,module,exports){
 module.exports=require(91)
-},{}],142:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 module.exports=require(92)
-},{"config/charsequi":108,"config/doctypeui":110,"documents/changeui":115,"documents/editui":118,"documents/indexui":120,"documents/searchui":122,"documents/viewui":125,"index_tool/ipreviewui":138,"jquery.hotkeys":141,"sender":146}],143:[function(require,module,exports){
+},{"config/charsequi":109,"config/doctypeui":111,"documents/changeui":116,"documents/editui":119,"documents/indexui":121,"documents/searchui":123,"documents/viewui":126,"index_tool/ipreviewui":139,"jquery.hotkeys":142,"sender":148}],144:[function(require,module,exports){
 module.exports=require(93)
-},{"ajax":105,"templates":104}],144:[function(require,module,exports){
+},{"ajax":106,"templates":105}],145:[function(require,module,exports){
 module.exports=require(94)
-},{}],145:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 module.exports=require(96)
-},{"ajax":105,"templates":104}],146:[function(require,module,exports){
+},{"ajax":106,"templates":105}],147:[function(require,module,exports){
 module.exports=require(97)
-},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/information":121,"documents/searchui":122,"documents/setsui":123,"documents/worksheetui":126}],147:[function(require,module,exports){
+},{"config/doctypeui":111,"config/editui":112,"documents/commands":117,"documents/documents":118,"documents/editui":119,"documents/information":122,"documents/searchui":123,"documents/setsui":124,"documents/worksheetui":127}],148:[function(require,module,exports){
 module.exports=require(98)
-},{}],148:[function(require,module,exports){
+},{"receiver":147}],149:[function(require,module,exports){
 module.exports=require(99)
-},{}],149:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 module.exports=require(100)
-},{"lib/recurse":153,"utils":150}],150:[function(require,module,exports){
-module.exports=require(101)
 },{}],151:[function(require,module,exports){
+module.exports=require(101)
+},{"lib/recurse":155,"utils":152}],152:[function(require,module,exports){
+module.exports=require(102)
+},{}],153:[function(require,module,exports){
 // # Json Parse
 //
 // *implicit dependencies:* JSON
@@ -18357,7 +18365,7 @@ var parse = function (jsn) {
 
 exports.parse = parse;
 
-},{"lib/recurse":153}],152:[function(require,module,exports){
+},{"lib/recurse":155}],154:[function(require,module,exports){
 // # JSON to
 //
 // Convert JSON to something else.
@@ -18536,7 +18544,7 @@ var transform = function (json, funs, options) {
 
 exports.transform = transform;
 
-},{"lib/json_parse":151,"lib/recurse":153}],153:[function(require,module,exports){
+},{"lib/json_parse":153,"lib/recurse":155}],155:[function(require,module,exports){
 // # Recursion
 //
 // Tail call optimization taken from Spencer Tipping's Javascript in Ten
@@ -18578,4 +18586,4 @@ var identity = function (x) {
 
 exports.identity = identity;
 
-},{}]},{},[53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101])
+},{}]},{},[53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102])
