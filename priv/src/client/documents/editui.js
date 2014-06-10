@@ -242,13 +242,14 @@ fieldsToObject = function (fields, index) {
 fillFields = function (container, context) {
   'use strict';
 
-  Array.prototype.forEach.call(document.querySelectorAll('#edit-document-form .ui-state-error'), function (item) {
-    item.removeClass('ui-state-error');
-  });
+  if (!context) {
+    context = document.body;
+  }
 
+  clearErrorStates();
   ui.showEnable(ui.saveButton());
 
-  Array.prototype.forEach.call(document.querySelectorAll('.field-view'), function (item) {
+  Array.prototype.forEach.call(container.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;
     var id = item.dataset.fieldField;
     var instance = item.dataset.fieldInstance;
@@ -258,10 +259,6 @@ fillFields = function (container, context) {
     // TODO: Here is where I could begin making all values be stored as JSON
     if (valueJson) {
       value = JSON.parse(valueJson);
-    }
-
-    if (!context) {
-      context = document.body;
     }
 
     field = context.querySelector('.field[data-field-field="' + id + '"]');
@@ -476,6 +473,8 @@ initFields = function (container, callback, addInstances) {
       section.id = 'last-added';
     }
     section.insertAdjacentHTML('afterbegin', data);
+    // The purpose of the callback is generally to fill the fields using
+    // a function like `fillFields`.
     if (callback) {
       callback(section);
     }

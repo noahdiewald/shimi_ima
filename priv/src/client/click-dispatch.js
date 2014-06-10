@@ -18,7 +18,6 @@ var indexui = require('documents/indexui');
 var setsui = require('documents/setsui');
 var searchui = require('documents/searchui');
 var worksheetui = require('documents/worksheetui');
-var fieldsets = require('documents/fieldsets');
 var ieditui = require('index_tool/ieditui');
 var form = require('form');
 var projectui = require('projects/projectui');
