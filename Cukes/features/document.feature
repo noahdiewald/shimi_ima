@@ -95,9 +95,10 @@ Scenario: Expanding and contracting text boxes for newly added fieldsets
   Then the Movies Description field 1 is not expanded
 
 Scenario: Multiple fieldset field identifiers
-  Given the 31bb7974cd97a09997da637e4445a142 document is in the view pane
+  Given the 0e834d0dd8b47706bd4aa0d74ce3f8ab document is in the view pane
   When I click the Edit link
-  Then the input with id 13fa990addce00feacc1dfb623315490-cb2e7a7b89fc47e08541f0ece532e865 has the value "Over the Tones"
+  Then the input with id 13fa990addce00feacc1dfb623315490-89c94bf96b79418295b2cf05c9b97688 has the value "Quadrillion Dollar Baby"
+  And the input with id 13fa990addce00feacc1dfb623315490-835af33919734fb0ab5af5abc681186e has the value "What the film is this?"
 
 Scenario: Help dialogs
   Given the 31bb7974cd97a09997da637e4445a142 document is in the edit pane
