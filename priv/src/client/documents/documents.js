@@ -11,28 +11,12 @@ var info = require('documents/information');
 var setsui = require('documents/setsui');
 var editui = require('./editui.js');
 var viewui = require('documents/viewui');
-var indexui = require('documents/indexui');
 var changeui = require('documents/changeui');
-var S = require('../sender.js');
+var S = require('sender');
 var ajax = require('ajax');
 var identifier;
 
 // ## Internal functions
-
-// In practice this is the select listing of the user created indexes
-// which is triggering the change event.
-//
-// *TODO* put this with other change handlers.
-var indexForm = function () {
-  'use strict';
-
-  // TODO Remove JQuery
-  $('#index-filter-form select').change(function () {
-    indexui.get();
-  });
-
-  return true;
-};
 
 // If there is a hash at the end of the URL with a document ID specified,
 // this will pass the information on the correct funciont in `viewui`.
@@ -67,9 +51,7 @@ var init2 = function () {
   'use strict';
 
   setsui.updateSelection();
-  indexui.iOpts();
-  indexui.get();
-  indexForm();
+  S.sender('documents-ready');
   editui.init();
   loadHash(window.location.hash.split('#')[1]);
   changeui.get();

@@ -8,6 +8,7 @@
 
 // ## Variable Definitions
 
+var S = require('sender');
 var searchui = require('documents/searchui');
 var newDialog = require('index_tool/new-dialog');
 
@@ -18,6 +19,12 @@ var changes = function () {
   'use strict';
 
   var changeTargets = [];
+
+  // ### Document Index
+
+  changeTargets['index-filter-form select'] = function () {
+    S.sender('documents-altered');
+  };
 
   // ### Search UI Change Events
 

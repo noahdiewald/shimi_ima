@@ -10170,6 +10170,7 @@ document.onreadystatechange = function () {
 
 // ## Variable Definitions
 
+var S = require('sender');
 var searchui = require('documents/searchui');
 var newDialog = require('index_tool/new-dialog');
 
@@ -10180,6 +10181,12 @@ var changes = function () {
   'use strict';
 
   var changeTargets = [];
+
+  // ### Document Index
+
+  changeTargets['index-filter-form select'] = function () {
+    S.sender('documents-altered');
+  };
 
   // ### Search UI Change Events
 
@@ -10222,7 +10229,7 @@ var changes = function () {
 
 exports.changes = changes;
 
-},{"documents/searchui":121,"index_tool/new-dialog":138}],56:[function(require,module,exports){
+},{"documents/searchui":121,"index_tool/new-dialog":138,"sender":146}],56:[function(require,module,exports){
 // # Dispatching click events
 //
 // *Implicit depends:* DOM, JQuery, JQueryUI
@@ -11731,28 +11738,12 @@ var info = require('documents/information');
 var setsui = require('documents/setsui');
 var editui = require('./editui.js');
 var viewui = require('documents/viewui');
-var indexui = require('documents/indexui');
 var changeui = require('documents/changeui');
-var S = require('../sender.js');
+var S = require('sender');
 var ajax = require('ajax');
 var identifier;
 
 // ## Internal functions
-
-// In practice this is the select listing of the user created indexes
-// which is triggering the change event.
-//
-// *TODO* put this with other change handlers.
-var indexForm = function () {
-  'use strict';
-
-  // TODO Remove JQuery
-  $('#index-filter-form select').change(function () {
-    indexui.get();
-  });
-
-  return true;
-};
 
 // If there is a hash at the end of the URL with a document ID specified,
 // this will pass the information on the correct funciont in `viewui`.
@@ -11787,9 +11778,7 @@ var init2 = function () {
   'use strict';
 
   setsui.updateSelection();
-  indexui.iOpts();
-  indexui.get();
-  indexForm();
+  S.sender('documents-ready');
   editui.init();
   loadHash(window.location.hash.split('#')[1]);
   changeui.get();
@@ -11798,7 +11787,7 @@ var init2 = function () {
 exports.init = init;
 exports.init2 = init2;
 
-},{"../sender.js":97,"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/indexui":119,"documents/information":120,"documents/setsui":122,"documents/ui-shared":123,"documents/viewui":124}],67:[function(require,module,exports){
+},{"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/information":120,"documents/setsui":122,"documents/ui-shared":123,"documents/viewui":124,"sender":146}],67:[function(require,module,exports){
 // # Documents sub-application
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
@@ -11812,9 +11801,9 @@ exports.init2 = init2;
 var ajax = require('ajax');
 var flash = require('flash');
 var form = require('form');
-var indexui = require('documents/indexui');
 var info = require('documents/information');
 var path = require('../path.js').path;
+var S = require('sender');
 var store = require('store').store;
 var templates = require('templates');
 var ui = require('documents/ui-shared');
@@ -12490,7 +12479,7 @@ create = function () {
     removeFields();
     initFieldsets();
     viewui.get(documentId);
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight(title, body);
     ui.showEnable(ui.createButton());
   };
@@ -12597,7 +12586,7 @@ save = function () {
   var statusCallbacks = [];
   var success = function (req) {
     viewui.get(doc);
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight('Success', 'Your document was saved.');
     sb.classList.remove('oldrev');
     sb.dataset.documentRev = req.response.rev;
@@ -12677,7 +12666,7 @@ exports.selectInput = selectInput;
 exports.showHelpDialog = showHelpDialog;
 exports.toggleTextarea = toggleTextarea;
 
-},{"../path.js":94,"ajax":105,"documents/indexui":119,"documents/information":120,"documents/ui-shared":123,"documents/viewui":124,"flash":127,"form":128,"node-uuid":51,"store":149,"templates":52,"utils":150}],68:[function(require,module,exports){
+},{"../path.js":94,"ajax":105,"documents/information":120,"documents/ui-shared":123,"documents/viewui":124,"flash":127,"form":128,"node-uuid":51,"sender":146,"store":149,"templates":52,"utils":150}],68:[function(require,module,exports){
 // # Index Listing
 //
 // *Implicit depends:* DOM, JSON
@@ -14165,8 +14154,8 @@ exports.showEnable = form.showEnable;
 
 var templates = require('templates');
 var store = require('store').store;
-var indexui = require('documents/indexui');
 var flash = require('flash');
+var S = require('sender');
 var ui = require('documents/ui-shared');
 var editui = require('./editui.js');
 var ajax = require('ajax');
@@ -14340,7 +14329,7 @@ var restore = function (id, rev) {
 
     get(id, null, function () {
       ui.dv().style.opacity = 1;
-      indexui.get(ui.skey(), ui.sid());
+      S.sender('documents-altered', [ui.skey(), ui.sid()]);
     });
     flash.highlight(title, body);
   };
@@ -14377,7 +14366,7 @@ var del = function (id, rev) {
     ui.showEnable(ui.restoreButton());
     ui.dv().style.opacity = 0.5;
 
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight(title, body);
   };
   var errorCallback = function (req) {
@@ -14491,7 +14480,7 @@ exports.confirmRestore = confirmRestore;
 exports.collapseToggle = collapseToggle;
 exports.fetchRevision = fetchRevision;
 
-},{"./editui.js":67,"ajax":105,"documents/indexui":119,"documents/ui-shared":123,"flash":127,"store":149,"templates":52}],74:[function(require,module,exports){
+},{"./editui.js":67,"ajax":105,"documents/ui-shared":123,"flash":127,"sender":146,"store":149,"templates":52}],74:[function(require,module,exports){
 // # The worksheet user interface
 //
 // *Implicit depends:* DOM, JQuery, globals
@@ -17500,6 +17489,7 @@ var commands = require('documents/commands');
 var documents = require('documents/documents');
 var dinfo = require('documents/information');
 var editui = require('documents/editui');
+var dindexui = require('documents/indexui');
 var searchui = require('documents/searchui');
 var setsui = require('documents/setsui');
 var worksheetui = require('documents/worksheetui');
@@ -17514,6 +17504,13 @@ var receiver = function (message, arg) {
   var retval;
 
   switch (message) {
+  case 'documents-ready':
+    dindexui.iOpts();
+    retval = dindexui.get();
+    break;
+  case 'documents-altered':
+    retval = dindexui.get(arg[0], arg[1]);
+    break;
   case 'document-init-stage-1':
     retval = dinfo.checkState();
     break;
@@ -17643,7 +17640,7 @@ var receiver = function (message, arg) {
 
 exports.receiver = receiver;
 
-},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/information":120,"documents/searchui":121,"documents/setsui":122,"documents/worksheetui":125}],97:[function(require,module,exports){
+},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/indexui":119,"documents/information":120,"documents/searchui":121,"documents/setsui":122,"documents/worksheetui":125}],97:[function(require,module,exports){
 // # Send message to `reporter.js` worker.
 //
 // This has a single function which starts a web work and sends it
@@ -18114,17 +18111,17 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],104:[function(require,module,exports){
+},{"hogan.js":24}],104:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(53)
 },{"flash":127}],106:[function(require,module,exports){
 module.exports=require(55)
-},{"documents/searchui":121,"index_tool/new-dialog":138}],107:[function(require,module,exports){
+},{"documents/searchui":121,"index_tool/new-dialog":138,"sender":146}],107:[function(require,module,exports){
 module.exports=require(56)
 },{"config/maintenanceui":112,"dispatcher":114,"documents/editui":118,"documents/indexui":119,"documents/searchui":121,"documents/setsui":122,"documents/viewui":124,"documents/worksheetui":125,"file_manager/fm":126,"form":128,"index_tool/ieditui":133,"panel-toggle":143,"projects/projectui":144,"sender":146}],108:[function(require,module,exports){
 module.exports=require(57)
@@ -18146,9 +18143,9 @@ module.exports=require(64)
 module.exports=require(65)
 },{"../sender.js":97,"documents/editui":118}],117:[function(require,module,exports){
 module.exports=require(66)
-},{"../sender.js":97,"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/indexui":119,"documents/information":120,"documents/setsui":122,"documents/ui-shared":123,"documents/viewui":124}],118:[function(require,module,exports){
+},{"./editui.js":67,"ajax":105,"documents/changeui":115,"documents/information":120,"documents/setsui":122,"documents/ui-shared":123,"documents/viewui":124,"sender":146}],118:[function(require,module,exports){
 module.exports=require(67)
-},{"../path.js":94,"ajax":105,"documents/indexui":119,"documents/information":120,"documents/ui-shared":123,"documents/viewui":124,"flash":127,"form":128,"node-uuid":51,"store":149,"templates":104,"utils":150}],119:[function(require,module,exports){
+},{"../path.js":94,"ajax":105,"documents/information":120,"documents/ui-shared":123,"documents/viewui":124,"flash":127,"form":128,"node-uuid":51,"sender":146,"store":149,"templates":104,"utils":150}],119:[function(require,module,exports){
 module.exports=require(68)
 },{"./editui.js":67,"./viewui.js":73,"ajax":105,"documents/ui-shared":123,"pager":142,"templates":104}],120:[function(require,module,exports){
 module.exports=require(69)
@@ -18160,7 +18157,7 @@ module.exports=require(71)
 module.exports=require(72)
 },{"form":128}],124:[function(require,module,exports){
 module.exports=require(73)
-},{"./editui.js":67,"ajax":105,"documents/indexui":119,"documents/ui-shared":123,"flash":127,"store":149,"templates":104}],125:[function(require,module,exports){
+},{"./editui.js":67,"ajax":105,"documents/ui-shared":123,"flash":127,"sender":146,"store":149,"templates":104}],125:[function(require,module,exports){
 module.exports=require(74)
 },{"ajax":105,"documents/information":120,"documents/setsui":122,"flash":127,"hogan.js":24,"templates":104}],126:[function(require,module,exports){
 module.exports=require(75)
@@ -18202,7 +18199,7 @@ module.exports=require(93)
 module.exports=require(95)
 },{"ajax":105,"templates":104}],145:[function(require,module,exports){
 module.exports=require(96)
-},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/information":120,"documents/searchui":121,"documents/setsui":122,"documents/worksheetui":125}],146:[function(require,module,exports){
+},{"config/doctypeui":110,"config/editui":111,"documents/commands":116,"documents/documents":117,"documents/editui":118,"documents/indexui":119,"documents/information":120,"documents/searchui":121,"documents/setsui":122,"documents/worksheetui":125}],146:[function(require,module,exports){
 module.exports=require(97)
 },{}],147:[function(require,module,exports){
 module.exports=require(98)

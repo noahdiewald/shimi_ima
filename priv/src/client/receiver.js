@@ -9,6 +9,7 @@ var commands = require('documents/commands');
 var documents = require('documents/documents');
 var dinfo = require('documents/information');
 var editui = require('documents/editui');
+var dindexui = require('documents/indexui');
 var searchui = require('documents/searchui');
 var setsui = require('documents/setsui');
 var worksheetui = require('documents/worksheetui');
@@ -23,6 +24,13 @@ var receiver = function (message, arg) {
   var retval;
 
   switch (message) {
+  case 'documents-ready':
+    dindexui.iOpts();
+    retval = dindexui.get();
+    break;
+  case 'documents-altered':
+    retval = dindexui.get(arg[0], arg[1]);
+    break;
   case 'document-init-stage-1':
     retval = dinfo.checkState();
     break;

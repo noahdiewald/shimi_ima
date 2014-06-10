@@ -11,9 +11,9 @@
 var ajax = require('ajax');
 var flash = require('flash');
 var form = require('form');
-var indexui = require('documents/indexui');
 var info = require('documents/information');
 var path = require('../path.js').path;
+var S = require('sender');
 var store = require('store').store;
 var templates = require('templates');
 var ui = require('documents/ui-shared');
@@ -689,7 +689,7 @@ create = function () {
     removeFields();
     initFieldsets();
     viewui.get(documentId);
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight(title, body);
     ui.showEnable(ui.createButton());
   };
@@ -796,7 +796,7 @@ save = function () {
   var statusCallbacks = [];
   var success = function (req) {
     viewui.get(doc);
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight('Success', 'Your document was saved.');
     sb.classList.remove('oldrev');
     sb.dataset.documentRev = req.response.rev;

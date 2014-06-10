@@ -10,8 +10,8 @@
 
 var templates = require('templates');
 var store = require('store').store;
-var indexui = require('documents/indexui');
 var flash = require('flash');
+var S = require('sender');
 var ui = require('documents/ui-shared');
 var editui = require('./editui.js');
 var ajax = require('ajax');
@@ -185,7 +185,7 @@ var restore = function (id, rev) {
 
     get(id, null, function () {
       ui.dv().style.opacity = 1;
-      indexui.get(ui.skey(), ui.sid());
+      S.sender('documents-altered', [ui.skey(), ui.sid()]);
     });
     flash.highlight(title, body);
   };
@@ -222,7 +222,7 @@ var del = function (id, rev) {
     ui.showEnable(ui.restoreButton());
     ui.dv().style.opacity = 0.5;
 
-    indexui.get(ui.skey(), ui.sid());
+    S.sender('documents-altered', [ui.skey(), ui.sid()]);
     flash.highlight(title, body);
   };
   var errorCallback = function (req) {
