@@ -33,10 +33,7 @@ module.exports = function(grunt) {
       },
       reporter: {
         src: ['priv/src/reporter/**/*.js'],
-        dest: 'priv/www/reporter.js',
-        options: {
-          alias: ['priv/templates/compiled/templates.js:templates.js']
-        }
+        dest: 'priv/www/reporter.js'
       }
     },
     concat: {

@@ -28,5 +28,7 @@ end
 
 Then /^the ([a-f0-9]{32}) document is listed under (\w+) (\w+)$/ do | document, fieldset, field |
   fid = @popsicleFields[fieldset + ':' + field]
-  @browser.element(:css => "#results-for-field-#{fid} > table > tbody > tr > th > a[href='##{document}']").should be_exists
+  result = @browser.element(:css => "#results-for-field-#{fid} > table > tbody > tr > th > a[href='##{document}']")
+  result.wait_until_present
+  result.should be_visible
 end

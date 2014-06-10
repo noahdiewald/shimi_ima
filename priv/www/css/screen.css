@@ -519,7 +519,6 @@ h5 {
 }
 h5 + .search-results {
   max-height: 50ex;
-  display: none;
 }
 h5 a {
   color: #ba5d12;
