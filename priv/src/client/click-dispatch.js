@@ -118,10 +118,10 @@ var clickDispatch = function (e) {
     // ### Documents
 
     '.add-button': function (t) {
-      fieldsets.initFieldset(t, false, true);
+      editui.initFieldset(t, false, true);
     },
     '.remove-button': function (t) {
-      fieldsets.removeFieldset(t);
+      editui.removeFieldset(t);
     },
     '#save-document-button': function (t) {
       editui.save();

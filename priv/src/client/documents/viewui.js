@@ -14,7 +14,6 @@ var indexui = require('documents/indexui');
 var flash = require('flash');
 var ui = require('documents/ui-shared');
 var editui = require('./editui.js');
-var fieldsets = require('./fieldsets.js');
 var ajax = require('ajax');
 
 // Internal functions
@@ -267,7 +266,7 @@ var edit = function () {
   } else {
     sb.classList.remove('oldrev');
   }
-  fieldsets.fillFieldsets();
+  editui.fillFieldsets();
 
   return true;
 };
