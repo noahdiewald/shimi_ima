@@ -36,3 +36,10 @@ Scenario: Creating document index
   And I select Flavor for the index field
   And I click the "Create" button
   Then whatever exists in the indexes listing
+
+Scenario: Add an index condition
+  Given the bare whatever index exists
+  And I am at the indexes page
+  When I select whatever from the indexes listing
+  And I click the "Add Condition" link
+  Then the "Index Builder" dialog is visible

@@ -1,3 +1,9 @@
+Given /^the (\w+) (\w+) index exists$/ do | x, y |
+  step "a doctype with fields exists"
+  post_fixture("#{x}_#{y}.json")
+  post_fixture("#{x}_#{y}_design.json")
+end
+
 Given /^I am at the indexes page$/ do
   @browser.goto(@projectIndexes)
 end
@@ -9,6 +15,11 @@ end
 When /^I select (\w+) for the (\w+) (\w+)$/ do | val, form, name |
   val = '' if val == 'blank'
   @browser.select(:id => "#{form}-#{name}-input").select val
+end
+
+When /^I select (\w+) from the indexes listing$/ do | name |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.a(:text => name).click
 end
 
 Then /^the input (\w+) (\w+) is blank$/ do | form, name |

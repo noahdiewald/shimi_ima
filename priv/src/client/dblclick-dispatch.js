@@ -33,10 +33,10 @@ var dblclickDispatch = function (e) {
       searchui.addField(t.parentElement);
     },
     '.field-view b': function (t) {
-      searchui.addField($(t).parent('li'));
+      searchui.addField(t.parentElement);
     },
     '.field-container label span': function (t) {
-      searchui.addField($(t).parent('label').parent('div'));
+      searchui.addField(t.parentElement.parentElement);
     },
     '#index-index-input-label': function () {
       searchui.addIndex();

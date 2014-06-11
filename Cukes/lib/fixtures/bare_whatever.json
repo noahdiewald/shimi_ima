@@ -1,0 +1,17 @@
+{
+   "_id": "3f59b4bbf1d07fe3d202b2493f356aa9",
+   "category": "index",
+   "name": "whatever",
+   "show_deleted": false,
+   "conditions": [
+   ],
+   "doctype": "f5cae2e2f8f54a608f4ad45e8f422110",
+   "fields_label": [
+       "Basic:Flavor"
+   ],
+   "fields": [
+       "464aea16f338422cb5b1dab79d80c34a"
+   ],
+   "created_at_": "Wed, 11 Jun 2014 22:00:40 GMT",
+   "created_by_": "tester"
+}
