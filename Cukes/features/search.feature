@@ -12,3 +12,8 @@ Scenario: Simple general search
   And there are 1 results for Basic Flavor
   When I click the search header for Basic Flavor
   Then the 31bb7974cd97a09997da637e4445a142 document is listed under Basic Flavor
+
+Scenario: Narrow results to single field
+  Given I have searched for "burn"
+  When I double click the search result header for Basic Flavor
+  Then the search form will be restricted to Basic Flavor

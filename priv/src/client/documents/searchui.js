@@ -4,7 +4,9 @@
 //
 // Handles the search user interface.
 
-// Variable Definitions
+// ## Variable Definitions
+
+// ### Imported Modules
 
 var templates = require('templates');
 var utils = require('utils');
@@ -13,10 +15,13 @@ var setsui = require('documents/setsui');
 var ui = require('documents/ui-shared');
 var info = require('documents/information');
 var ajax = require('ajax');
+
+// ### Function Names
+
 var multipleFields;
 var loadSearchVals;
 
-// Internal functions
+// ## Internal functions
 
 // User interface element
 var searchIndex = function () {
@@ -50,7 +55,7 @@ var searchFields = function () {
 var searchFieldsLabel = function () {
   'use strict';
 
-  return document.getElementById('document-search-label');
+  return document.getElementById('search-field-label');
 };
 
 // User interface element
@@ -128,20 +133,38 @@ var clearStore = function () {
   localStorage.setItem(ident + '_searchInvert', null);
 };
 
-// Clear the search form.
-var clearVals = function () {
+// Do something with the formElems base on their type.
+var forEachInputType = function (hidden, checkbox, def) {
   'use strict';
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.getAttribute('type')) {
-    case 'hidden':
-      elem.value = '';
-      break;
-    case 'checkbox':
-      elem.checked = false;
-      break;
+
+    if (elem) {
+      switch (elem.getAttribute('type')) {
+      case 'hidden':
+        hidden(elem);
+        break;
+      case 'checkbox':
+        checkbox(elem);
+        break;
+      default:
+        def(elem);
+      }
     }
+  });
+};
+
+// Clear the search form.
+var clearVals = function () {
+  'use strict';
+
+  forEachInputType(function (elem) {
+    elem.value = '';
+  }, function (elem) {
+    elem.checked = false;
+  }, function () {
+    return;
   });
 };
 
@@ -149,17 +172,12 @@ var clearVals = function () {
 var hideElems = function () {
   'use strict';
 
-  formElems.forEach(function (x) {
-    var elem = x();
-    switch (elem.getAttribute('type')) {
-    case 'hidden':
-      break;
-    case 'checkbox':
-      ui.hide(elem.parentElement);
-      break;
-    default:
-      ui.hide(elem);
-    }
+  forEachInputType(function () {
+    return;
+  }, function (elem) {
+    ui.hide(elem.parentElement);
+  }, function (elem) {
+    ui.hide(elem);
   });
 };
 

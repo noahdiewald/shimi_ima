@@ -30,7 +30,7 @@ var dblclickDispatch = function (e) {
       ceditui.toggle('array-elem', t);
     },
     '.search-result-field-id a': function (t) {
-      searchui.addField($(t).parent('h5'));
+      searchui.addField(t.parentElement);
     },
     '.field-view b': function (t) {
       searchui.addField($(t).parent('li'));

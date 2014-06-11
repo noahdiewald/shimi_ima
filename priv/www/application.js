@@ -1996,7 +1996,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -2223,8 +2226,11 @@ process.argv = [];
 function noop() {}
 
 process.on = noop;
+process.addListener = noop;
 process.once = noop;
 process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
 process.emit = noop;
 
 process.binding = function (name) {
@@ -3474,8 +3480,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":14,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./index.js":14,"FWaASH":12,"buffer":1,"events":10,"inherits":11,"process/browser.js":15,"string_decoder":20}],18:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4858,8 +4864,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":21,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"inherits":11}],23:[function(require,module,exports){
+}).call(this,require("FWaASH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":21,"FWaASH":12,"inherits":11}],23:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -7586,8 +7592,8 @@ function forEach (xs, f) {
   }
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./_stream_readable":43,"./_stream_writable":45,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./_stream_readable":43,"./_stream_writable":45,"FWaASH":12,"core-util-is":46,"inherits":47}],42:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8597,8 +8603,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"FWaASH":12,"buffer":1,"core-util-is":46,"events":10,"inherits":47,"isarray":48,"stream":14,"string_decoder/":49}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9200,8 +9206,8 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,require("/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./_stream_duplex":41,"/home/noah/Projects/shimi_ima/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
+}).call(this,require("FWaASH"))
+},{"./_stream_duplex":41,"FWaASH":12,"buffer":1,"core-util-is":46,"inherits":47,"stream":14}],46:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -11475,7 +11481,7 @@ var dblclickDispatch = function (e) {
       ceditui.toggle('array-elem', t);
     },
     '.search-result-field-id a': function (t) {
-      searchui.addField($(t).parent('h5'));
+      searchui.addField(t.parentElement);
     },
     '.field-view b': function (t) {
       searchui.addField($(t).parent('li'));
@@ -13048,7 +13054,9 @@ exports.worksheetName = worksheetName;
 //
 // Handles the search user interface.
 
-// Variable Definitions
+// ## Variable Definitions
+
+// ### Imported Modules
 
 var templates = require('templates');
 var utils = require('utils');
@@ -13057,10 +13065,13 @@ var setsui = require('documents/setsui');
 var ui = require('documents/ui-shared');
 var info = require('documents/information');
 var ajax = require('ajax');
+
+// ### Function Names
+
 var multipleFields;
 var loadSearchVals;
 
-// Internal functions
+// ## Internal functions
 
 // User interface element
 var searchIndex = function () {
@@ -13094,7 +13105,7 @@ var searchFields = function () {
 var searchFieldsLabel = function () {
   'use strict';
 
-  return document.getElementById('document-search-label');
+  return document.getElementById('search-field-label');
 };
 
 // User interface element
@@ -13172,20 +13183,38 @@ var clearStore = function () {
   localStorage.setItem(ident + '_searchInvert', null);
 };
 
-// Clear the search form.
-var clearVals = function () {
+// Do something with the formElems base on their type.
+var forEachInputType = function (hidden, checkbox, def) {
   'use strict';
 
   formElems.forEach(function (x) {
     var elem = x();
-    switch (elem.getAttribute('type')) {
-    case 'hidden':
-      elem.value = '';
-      break;
-    case 'checkbox':
-      elem.checked = false;
-      break;
+
+    if (elem) {
+      switch (elem.getAttribute('type')) {
+      case 'hidden':
+        hidden(elem);
+        break;
+      case 'checkbox':
+        checkbox(elem);
+        break;
+      default:
+        def(elem);
+      }
     }
+  });
+};
+
+// Clear the search form.
+var clearVals = function () {
+  'use strict';
+
+  forEachInputType(function (elem) {
+    elem.value = '';
+  }, function (elem) {
+    elem.checked = false;
+  }, function () {
+    return;
   });
 };
 
@@ -13193,17 +13222,12 @@ var clearVals = function () {
 var hideElems = function () {
   'use strict';
 
-  formElems.forEach(function (x) {
-    var elem = x();
-    switch (elem.getAttribute('type')) {
-    case 'hidden':
-      break;
-    case 'checkbox':
-      ui.hide(elem.parentElement);
-      break;
-    default:
-      ui.hide(elem);
-    }
+  forEachInputType(function () {
+    return;
+  }, function (elem) {
+    ui.hide(elem.parentElement);
+  }, function (elem) {
+    ui.hide(elem);
   });
 };
 
@@ -13674,8 +13698,8 @@ var member = function (arr, x) {
 var processSet = function (set) {
   'use strict';
 
-  var name = set [0];
-  var arr = sets.unique(set [1], member);
+  var name = set[0];
+  var arr = sets.unique(set[1], member);
   var procSet = [name, arr];
   return procSet;
 };
