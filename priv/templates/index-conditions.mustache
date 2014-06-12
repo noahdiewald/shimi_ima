@@ -1,0 +1,46 @@
+<div 
+   id="index-editing-data" 
+   data-index-doctype="{{ doctype }}" 
+   data-index-fields_label="{{ fields_label }}"
+   data-index-fields="{{ fields }}"
+   data-index-name="{{ name }}"
+   data-index-show_deleted="{{ show_deleted }}"
+   {{#replace_function}}
+   data-index-replace_function="{{ replace_function }}"
+   {{/replace_function}}
+   data-index-id="{{ _id }}" 
+   data-index-rev="{{ _rev }}">
+  <p>
+    <em>{{ name }}</em>
+    will list
+    <b>{{ doctype }}</b>
+    documents. They will be listed by 
+    <b>{{ label }}</b>.
+    <span id="replace-function-message">
+    {{#replace_function}}
+    This index has a replacement function.
+    {{/replace_function}}
+    </span>
+  </p>
+</div>
+
+<div id="index-conditions-listing">
+<table>
+  <thead>
+    <tr class="header">
+      <td></td>
+      <th>Negate</th>
+      <th>Fieldset</th>
+      <th>Field</th>
+      <th>Condition</th>
+      <th>Value</th>
+      <td></td>
+    </tr>
+  </thead>
+  <tbody>
+  {{#conditions}}
+    {{>index-condition}}
+  {{/conditions}}
+  </tbody>
+</table>
+</div>

@@ -12,6 +12,7 @@ var initReplaceDialog = require('index_tool/replace-dialog').initReplaceDialog;
 var ilistingui = require('index_tool/ilistingui');
 var ipreviewui = require('index_tool/ipreviewui');
 var ihelpers = require('index_tool/ihelpers');
+var templates = require('templates');
 var ajax = require('ajax');
 var flash = require('flash');
 
@@ -21,7 +22,7 @@ var flash = require('flash');
 var tableBody = function () {
   'use strict';
 
-  return document.getElementById('index-conditions-listing').getElementByTagName('tbody');
+  return document.getElementById('index-conditions-listing').getElementsByTagName('tbody')[0];
 
 };
 
