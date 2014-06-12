@@ -59,7 +59,6 @@ allowed_methods(R, S) ->
     case proplists:get_value(target, S) of
         index -> {[<<"HEAD">>, <<"GET">>, <<"POST">>], R, S};
         preview -> {[<<"HEAD">>, <<"GET">>], R, S};
-        condition -> {[<<"HEAD">>, <<"GET">>], R, S};
         identifier -> {[<<"HEAD">>, <<"GET">>, <<"PUT">>, <<"DELETE">>], R, S}
     end.
   
@@ -81,7 +80,6 @@ to_json(R, S) ->
 
 to_html(R, S) ->
     case proplists:get_value(target, S) of
-        condition -> html_condition(R, S);
         identifier -> html_identifier(R, S)
     end.
   
@@ -126,11 +124,6 @@ html_identifier(R, S) ->
             |Json2],
   
     {ok, Html} = render:render(index_edit_dtl, Vals),
-    {Html, R2, S}.
-
-html_condition(R, S) ->
-    {Vals, R1} = cowboy_req:qs_vals(R),
-    {Html, R2} = render_conditions(Vals, R1, S),
     {Html, R2, S}.
     
 validate_authentication(Props, R, S) ->

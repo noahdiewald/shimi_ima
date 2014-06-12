@@ -40,7 +40,6 @@ start(_Type, _StartArgs) ->
              {"/projects/:id", project_resource, [{target, identifier}|Opts]},
              {"/projects/:project/index_tool", index_tool_resource, [{target, main}|Opts]},
              {"/projects/:project/indexes", index_resource, [{target, index}|Opts]},
-             {"/projects/:project/indexes/condition", index_resource, [{target, condition}|Opts]},
              {"/projects/:project/indexes/:id", index_resource, [{target, identifier}|Opts]},
              {"/projects/:project/indexes/:id/preview", index_resource, [{target, preview}|Opts]},
              {"/projects/:project/config", config_resource, [{target, main}|Opts]},
