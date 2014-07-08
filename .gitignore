@@ -1,6 +1,7 @@
 ebin
 deps
 .eunit/
+.rebar/
 *.dump
 scrap
 jsdocs
