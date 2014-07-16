@@ -3,7 +3,7 @@ role :production, "ling-production-dictionary-maker"
 
 task :init, :roles => :lingserver do
   run "cd /home/dictionary_maker &&
-      /usr/bin/git clone ssh://repository.ling.wisc.edu/git/shimi_ima &&
+      /usr/bin/git clone git@bitbucket.org:noahdiewald/shimi_ima.git &&
       cd /home/dictionary_maker/shimi_ima &&
       rebar get-deps &&
       rebar compile"
