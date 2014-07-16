@@ -45,3 +45,8 @@ Then /^the (\w+) (\w+) select list is (enabled|disabled)$/ do | form, name, stat
     selection_state.should == 'true'
   end
 end
+
+Then /^the text "(.*?)" will be displayed$/ do | text |
+  @browser.div(:id => 'loading').wait_while_present
+  @browser.div(:id => 'index-editing-data').p.text.should =~ /#{text}/
+end

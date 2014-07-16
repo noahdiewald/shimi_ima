@@ -37,6 +37,12 @@ Scenario: Creating document index
   And I click the "Create" button
   Then whatever exists in the indexes listing
 
+Scenario: The index description is correct
+  Given the bare whatever index exists
+  And I am at the indexes page
+  When I select whatever from the indexes listing
+  Then the text "whatever will list Popsicle documents. They will be listed by Basic Flavor." will be displayed
+
 Scenario: Add an index condition
   Given the bare whatever index exists
   And I am at the indexes page

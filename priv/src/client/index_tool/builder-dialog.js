@@ -4,14 +4,14 @@
 //
 // Dialog for adding conditions to user created indexes.
 
-// Variable Definitions
+// ## Variable Definitions
 
 var ihelpers = require('index_tool/ihelpers');
 var form = require('form');
 var ajax = require('ajax');
 var evs = require('index_tool/ievents');
 
-// Exported functions
+// ## Exported functions
 
 // The dialog for adding a condition to an index.
 var initIndexBuilderDialog = function (indexDoctype) {
