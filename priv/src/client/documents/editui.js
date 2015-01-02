@@ -71,6 +71,12 @@ var validationError;
 
 // ## Internal functions
 
+var forEach = function (x, y) {
+  'use strict';
+
+  return Array.prototype.forEach.call(x, y);
+};
+
 // Run after the edit button in the view UI is clicked.
 afterEditRefresh = function () {
   'use strict';
@@ -115,7 +121,7 @@ afterRefresh = function (addInstances) {
 clearErrorStates = function () {
   'use strict';
 
-  Array.prototype.forEach.call(ui.editForm().querySelectorAll('.ui-state-error'), function (item) {
+  forEach(ui.editForm().querySelectorAll('.ui-state-error'), function (item) {
     item.classList.remove('ui-state-error');
   });
 
@@ -147,7 +153,7 @@ dpath = function (source, category) {
 extend = function (oldO, newO) {
   'use strict';
 
-  Array.prototype.forEach.call(Object.keys(newO), function (key) {
+  forEach(Object.keys(newO), function (key) {
     oldO[key] = newO[key];
   });
 
@@ -163,7 +169,7 @@ fieldsetsToObject = function (root) {
     fieldsets: []
   };
 
-  Array.prototype.forEach.call(root.getElementsByTagName('fieldset'), function (fieldset, i) {
+  forEach(root.getElementsByTagName('fieldset'), function (fieldset, i) {
     var s = store(fieldset);
 
     var fields;
@@ -182,13 +188,13 @@ fieldsetsToObject = function (root) {
 
     if (!fsObj.multiple) {
       newFsObj = fieldsToObject(fields[0]);
-      Array.prototype.forEach.call(Object.keys(newFsObj), function (x) {
+      forEach(Object.keys(newFsObj), function (x) {
         fsObj[x] = newFsObj[x];
       });
     } else {
       fsObj.multifields = [];
 
-      Array.prototype.forEach.call(fields, function (field, j) {
+      forEach(fields, function (field, j) {
         fsObj.multifields[j] = fieldsToObject(field, j);
       });
     }
@@ -208,7 +214,7 @@ fieldsToObject = function (fields, index) {
     fields: []
   };
 
-  Array.prototype.forEach.call(fields, function (field, i) {
+  forEach(fields, function (field, i) {
     var s = store(field);
     var value = getFieldValue(field);
     var instance = s.f('instance');
@@ -249,7 +255,7 @@ fillFields = function (container, context) {
   clearErrorStates();
   ui.showEnable(ui.saveButton());
 
-  Array.prototype.forEach.call(container.querySelectorAll('.field-view'), function (item) {
+  forEach(container.querySelectorAll('.field-view'), function (item) {
     var valueJson = item.dataset.fieldValue;
     var id = item.dataset.fieldField;
     var instance = item.dataset.fieldInstance;
@@ -281,7 +287,7 @@ fillMultiFieldsets = function (vfieldset) {
 
   container.innerHtml = '';
 
-  Array.prototype.forEach.call(document.querySelectorAll('.multifield'), function (multifield) {
+  forEach(vfieldset.querySelectorAll('.multifield'), function (multifield) {
     initFieldset(container, function (fieldset) {
       fillFields(multifield, fieldset);
     });
@@ -501,7 +507,9 @@ initFields = function (container, callback, addInstances) {
 initFieldsets = function () {
   'use strict';
 
-  Array.prototype.forEach.call(document.getElementsByTagName('fieldset'), function (fieldset, i) {
+  var fieldsetElements = document.getElementsByTagName('fieldset');
+
+  forEach(fieldsetElements, function (fieldset, i) {
     var fs = store(fieldset);
 
     if (fs.fs('multiple') === 'false') {
@@ -520,7 +528,7 @@ instances = function (addInstances) {
     return uuid.v4().replace(/-/g, '');
   };
 
-  Array.prototype.forEach.call(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
+  forEach(document.querySelectorAll('#last-added [data-field-instance]'), function (item) {
     if (!item.dataset.fieldInstance || item.dataset.fieldInstance.length === '') {
       var instance = makeInstance();
 
@@ -589,7 +597,7 @@ processFields = function (fieldset, callback) {
 removeFields = function () {
   'use strict';
 
-  Array.prototype.forEach.call(document.querySelectorAll('.fields'), function (item) {
+  forEach(document.querySelectorAll('.fields'), function (item) {
     item.parentNode.removeChild(item);
   });
 };
@@ -709,7 +717,7 @@ create = function () {
 fillFieldsets = function () {
   'use strict';
 
-  Array.prototype.forEach.call(document.querySelectorAll('.fieldset-view'), function (fieldset) {
+  forEach(document.querySelectorAll('.fieldset-view'), function (fieldset) {
     if (store(fieldset).fs('multiple') === 'true') {
       fillMultiFieldsets(fieldset);
     } else {
