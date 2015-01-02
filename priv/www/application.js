@@ -10345,7 +10345,7 @@ var clickDispatch = function (e) {
       return defaultAction(t);
     },
     '#edit-form ol > li': function (t) {
-      return S.sender('config-mark-line', t);
+      return S.sender('config-mark-line', t.id);
     },
 
     // ### Documents
@@ -11266,7 +11266,8 @@ var addChildTextElement = function () {
 var markLine = function (line) {
   'use strict';
 
-  addMark(line, line);
+  var elem = document.getElementById(line);
+  addMark(elem, elem);
 
   return 'line-marked';
 };
@@ -18140,11 +18141,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],104:[function(require,module,exports){
+},{"hogan.js":24}],104:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(53)

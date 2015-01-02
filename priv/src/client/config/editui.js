@@ -598,7 +598,8 @@ var addChildTextElement = function () {
 var markLine = function (line) {
   'use strict';
 
-  addMark(line, line);
+  var elem = document.getElementById(line);
+  addMark(elem, elem);
 
   return 'line-marked';
 };

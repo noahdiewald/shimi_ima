@@ -111,7 +111,7 @@ var clickDispatch = function (e) {
       return defaultAction(t);
     },
     '#edit-form ol > li': function (t) {
-      return S.sender('config-mark-line', t);
+      return S.sender('config-mark-line', t.id);
     },
 
     // ### Documents
