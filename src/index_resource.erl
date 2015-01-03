@@ -112,8 +112,6 @@ json_identifier(R, S) ->
         end,
     {R2, ProcessedConditions} = lists:foldl(F, {R1, []}, Conditions),
 
-    io:format("------~n~p~n---------", [ProcessedConditions]),
-
     Json3 = 
         jsn:set_value(<<"conditions">>, ProcessedConditions, jsn:set_value(<<"label">>, jsn:get_value(<<"fields_label">>, Json2), Json2)),
   
