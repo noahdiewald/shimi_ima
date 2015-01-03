@@ -40,6 +40,7 @@
     <a class="remove-condition-button link-button">Remove</a>
   </td>
   {{/paren_open}}
+  {{^is_or}}
   {{^parens}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td class="negate-condition" data-value="{{ negate }}">
@@ -61,4 +62,5 @@
     <a href="#" class="remove-condition-button link-button">Remove</a>
   </td>
   {{/parens}}
+  {{/is_or}}
 </tr>
