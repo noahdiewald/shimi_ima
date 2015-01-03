@@ -130,7 +130,7 @@ validate_authentication(Props, R, S) ->
 process_conditions(Arg, R, S) ->
     case is_true(jsn:get_value(<<"is_or">>, Arg)) of
         true -> 
-            {index_condition_dtl:render([{<<"is_or">>, true}]), R};
+            {[{<<"is_or">>, true}], R};
         _ ->
             Negate = jsn:get_value(<<"negate">>, Arg),
             {Vals, R0} = 
