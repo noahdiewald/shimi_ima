@@ -166,6 +166,24 @@ var deleteIndex = function (indexId, indexRev, completeMessage, completeFunction
   return false;
 };
 
+var processConditions = function (obj) {
+  'use strict';
+
+  var conditions = obj.conditions;
+
+  conditions.map(function (condition) {
+    var parenVal = condition.parens;
+
+    if (parenVal) {
+      condition['paren_' + parenVal] = true;
+    }
+
+    return condition;
+  });
+
+  return obj;
+};
+
 // Exported functions
 
 // Initialize the index editing user interface.
@@ -177,7 +195,8 @@ var init = function (target) {
   var htmlTarget = document.getElementById('index-conditions');
 
   ajax.get(url, function (req) {
-    htmlTarget.innerHTML = templates['index-conditions'](req.response);
+    var indexData = processConditions(req.response);
+    htmlTarget.innerHTML = templates['index-conditions'](indexData);
     $(tableBody()).sortable();
     ipreviewui.get();
   });

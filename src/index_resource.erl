@@ -34,7 +34,6 @@
          is_authorized/2,
          resource_exists/2,
          rest_init/2,
-         to_html/2,
          to_json/2
         ]).
 -export([
@@ -66,7 +65,7 @@ content_types_accepted(R, S) ->
     h:accept_json(R, S).
 
 content_types_provided(R, S) ->
-    {[{{<<"text">>, <<"html">>, []}, to_html}, {{<<"application">>, <<"json">>, []}, to_json}], R, S}.
+    {[{{<<"application">>, <<"json">>, []}, to_json}], R, S}.
   
 delete_resource(R, S) ->
     h:delete(R, S).
@@ -75,12 +74,7 @@ to_json(R, S) ->
     case proplists:get_value(target, S) of
         index -> json_index(R, S);
         preview -> json_preview(R, S);
-        _ -> to_html(R, S)
-    end.
-
-to_html(R, S) ->
-    case proplists:get_value(target, S) of
-        identifier -> html_identifier(R, S)
+        identifier -> json_identifier(R, S)
     end.
   
 from_json(R, S) ->
@@ -105,7 +99,7 @@ json_index(R, S) ->
 json_preview(R, S) ->
     i:view(R, S).
 
-html_identifier(R, S) ->
+json_identifier(R, S) ->
     {{ok, Json}, R1} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
     Fields = iolist_to_binary(jsn:encode(jsn:get_value(<<"fields">>, Json))),
@@ -113,18 +107,17 @@ html_identifier(R, S) ->
     Labels = jsn:get_value(<<"fields_label">>, Json1),
     Json2 = jsn:set_value(<<"fields_label">>, iolist_to_binary(jsn:encode(Labels)), Json1),
     F = fun(X, {RX, Acc}) -> 
-                {Html, RY} = render_conditions(X, RX, S),
-                {RY, [Html|Acc]}
+                {Pconds, RY} = process_conditions(X, RX, S),
+                {RY, [Pconds|Acc]}
         end,
-    {R2, RenderedConditions} = lists:foldl(F, {R1, []}, Conditions),
+    {R2, ProcessedConditions} = lists:foldl(F, {R1, []}, Conditions),
+
+    io:format("------~n~p~n---------", [ProcessedConditions]),
+
+    Json3 = 
+        jsn:set_value(<<"conditions">>, ProcessedConditions, jsn:set_value(<<"label">>, jsn:get_value(<<"fields_label">>, Json2), Json2)),
   
-    Vals = [
-            {<<"rendered_conditions">>, lists:reverse(RenderedConditions)},
-            {<<"label">>, jsn:get_value(<<"fields_label">>, Json)}
-            |Json2],
-  
-    {ok, Html} = render:render(index_edit_dtl, Vals),
-    {Html, R2, S}.
+    {jsn:encode(Json3), R2, S}.
     
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),
@@ -136,42 +129,40 @@ validate_authentication(Props, R, S) ->
         false -> {proplists:get_value(auth_head, S), R1, S}
     end.
 
-render_conditions(Arg, R, S) ->
-    {{ok, Html}, R1} = 
-        case is_true(jsn:get_value(<<"is_or">>, Arg)) of
-            true -> 
-                {index_condition_dtl:render([{<<"is_or">>, true}]), R};
-            _ ->
-                Negate = jsn:get_value(<<"negate">>, Arg),
-                {Vals, R0} = 
-                    case to_binary(jsn:get_value(<<"parens">>, Arg)) of
-                        <<"open">> -> 
-                            {[{<<"is_or">>, false},
-                              {<<"parens">>, <<"open">>}], R};
-                        <<"close">> -> 
-                            {[{<<"is_or">>, false},
-                              {<<"parens">>, <<"close">>}], R};
-                        <<"exopen">> -> 
-                            {[{<<"is_or">>, false},
-                              {<<"parens">>, <<"exopen">>}], R};
-                        <<"exclose">> -> 
-                            {[{<<"is_or">>, false},
-                              {<<"parens">>, <<"exclose">>}], R};
-                        _ -> 
-                            {FSLabel, R2} = get_label(jsn:get_value(<<"fieldset">>, Arg), R, S),
-                            {FLabel, R3} = get_label(jsn:get_value(<<"field">>, Arg), R2, S),
-                            {[{<<"is_or">>, false},
-                              {<<"negate">>, (Negate =:= true) or (Negate =:= <<"true">>)},
-                              {<<"fieldset">>, jsn:get_value(<<"fieldset">>, Arg)},
-                              {<<"field">>, jsn:get_value(<<"field">>, Arg)},
-                              {<<"operator">>, jsn:get_value(<<"operator">>, Arg)},
-                              {<<"argument">>, jsn:get_value(<<"argument">>, Arg)},
-                              {<<"fieldset_label">>, FSLabel},
-                              {<<"field_label">>, FLabel}], R3}
-                    end,
-                {index_condition_dtl:render(Vals), R0}
-        end,
-    {Html, R1}.
+process_conditions(Arg, R, S) ->
+    case is_true(jsn:get_value(<<"is_or">>, Arg)) of
+        true -> 
+            {index_condition_dtl:render([{<<"is_or">>, true}]), R};
+        _ ->
+            Negate = jsn:get_value(<<"negate">>, Arg),
+            {Vals, R0} = 
+                case to_binary(jsn:get_value(<<"parens">>, Arg)) of
+                    <<"open">> -> 
+                        {[{<<"is_or">>, false},
+                          {<<"parens">>, <<"open">>}], R};
+                    <<"close">> -> 
+                        {[{<<"is_or">>, false},
+                          {<<"parens">>, <<"close">>}], R};
+                    <<"exopen">> -> 
+                        {[{<<"is_or">>, false},
+                          {<<"parens">>, <<"exopen">>}], R};
+                    <<"exclose">> -> 
+                        {[{<<"is_or">>, false},
+                          {<<"parens">>, <<"exclose">>}], R};
+                    _ -> 
+                        {FSLabel, R2} = get_label(jsn:get_value(<<"fieldset">>, Arg), R, S),
+                        {FLabel, R3} = get_label(jsn:get_value(<<"field">>, Arg), R2, S),
+                        {[{<<"is_or">>, false},
+                          {<<"negate">>, (Negate =:= true) or (Negate =:= <<"true">>)},
+                          {<<"fieldset">>, jsn:get_value(<<"fieldset">>, Arg)},
+                          {<<"field">>, jsn:get_value(<<"field">>, Arg)},
+                          {<<"operator">>, jsn:get_value(<<"operator">>, Arg)},
+                          {<<"argument">>, jsn:get_value(<<"argument">>, Arg)},
+                          {<<"fieldset_label">>, FSLabel},
+                          {<<"field_label">>, FLabel}], R3}
+                end,
+            {Vals, R0}
+    end.
 
 get_label(<<"metadata">>, R, _S) ->
     {<<"Metadata">>, R};

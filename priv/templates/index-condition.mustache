@@ -1,20 +1,20 @@
 <tr class="ui-state-default ui-corner-all">
-  {% if is_or %}
+  {{#is_or}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="or-condition" data-value="true">OR</td>
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>
   </td>
-  {% else %}
-  {% if parens %}
-  {% if parens == 'close' %}
+  {{/is_or}}
+  {{#paren_close}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition normal" data-value="close">
     <div title="normal closing parenthesis"></div>
   </td>
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a></td>
-  {% elif parens == 'exclose' %}
+  {{/paren_close}}
+  {{#paren_exclose}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition existential" data-value="exclose">
     <div title="existential closing paranthesis">∃</div>
@@ -22,14 +22,16 @@
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>
   </td>
-  {% elif parens == 'exopen' %}
+  {{/paren_exclose}}
+  {{#paren_exopen}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition existential" data-value="exopen">
     <div title="existential opening parenthesis">∃</td>
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>
   </td>
-  {% else %}
+  {{/paren_exopen}}
+  {{#paren_open}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td colspan=5 class="paren-condition normal" data-value="open">
     <div title="normal opening parenthesis"></div>
@@ -37,11 +39,11 @@
   <td class="remove-condition-button-cell">
     <a class="remove-condition-button link-button">Remove</a>
   </td>
-  {% endif %}
-  {% else %}
+  {{/paren_open}}
+  {{^parens}}
   <td><span class="ui-icon ui-icon-arrowthick-2-n-s"></span></td>
   <td class="negate-condition" data-value="{{ negate }}">
-    {% if negate %}NOT{% endif %}
+    {{#negate}}NOT{{/negate}}
   </td>
   <td class="fieldset-condition" data-value="{{ fieldset }}">
     {{ fieldset_label }}
@@ -52,12 +54,11 @@
   <td class="operator-condition" data-value="{{ operator }}">
     {{ operator }}
   </td>
-  <td class="argument-condition" data-value="{{ argument|force_escape }}">
-    {{ argument|force_escape }}
+  <td class="argument-condition" data-value="{{ argument }}">
+    {{ argument }}
   </td>
   <td class="remove-condition-button-cell">
     <a href="#" class="remove-condition-button link-button">Remove</a>
   </td>
-  {% endif %}
-  {% endif %}
+  {{/parens}}
 </tr>
