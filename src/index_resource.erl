@@ -102,20 +102,14 @@ json_preview(R, S) ->
 json_identifier(R, S) ->
     {{ok, Json}, R1} = h:id_data(R, S),
     Conditions = jsn:get_value(<<"conditions">>, Json),
-    Fields = iolist_to_binary(jsn:encode(jsn:get_value(<<"fields">>, Json))),
-    Json1 = jsn:set_value(<<"fields">>, Fields, Json),
-    Labels = jsn:get_value(<<"fields_label">>, Json1),
-    Json2 = jsn:set_value(<<"fields_label">>, iolist_to_binary(jsn:encode(Labels)), Json1),
+
     F = fun(X, {RX, Acc}) -> 
                 {Pconds, RY} = process_conditions(X, RX, S),
                 {RY, [Pconds|Acc]}
         end,
     {R2, ProcessedConditions} = lists:foldl(F, {R1, []}, Conditions),
-
-    Json3 = 
-        jsn:set_value(<<"conditions">>, ProcessedConditions, jsn:set_value(<<"label">>, jsn:get_value(<<"fields_label">>, Json2), Json2)),
   
-    {jsn:encode(Json3), R2, S}.
+    {jsn:encode(jsn:set_value(<<"conditions">>, lists:reverse(ProcessedConditions), Json)), R2, S}.
     
 validate_authentication(Props, R, S) ->
     {{ok, ProjectData}, R1} = h:project_data(R, S),
