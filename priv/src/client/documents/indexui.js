@@ -71,7 +71,7 @@ var iOpts = function () {
     var data = req.response;
 
     options = templates['index-options'](data);
-    ui.indexIndexInput.innerHTML = options;
+    ui.indexIndexInput().innerHTML = options;
   });
 
   return true;

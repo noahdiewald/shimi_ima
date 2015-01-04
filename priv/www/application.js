@@ -10188,8 +10188,10 @@ var changes = function () {
 
   // ### Document Index
 
-  changeTargets['index-filter-form select'] = function () {
+  changeTargets['index-index-input'] = function (e) {
     S.sender('documents-altered');
+
+    return e;
   };
 
   // ### Search UI Change Events
@@ -12753,7 +12755,7 @@ var iOpts = function () {
     var data = req.response;
 
     options = templates['index-options'](data);
-    ui.indexIndexInput.innerHTML = options;
+    ui.indexIndexInput().innerHTML = options;
   });
 
   return true;
@@ -17560,7 +17562,8 @@ var receiver = function (message, arg) {
     retval = dindexui.get();
     break;
   case 'documents-altered':
-    retval = dindexui.get(arg[0], arg[1]);
+    //retval = dindexui.get(arg[0], arg[1]);
+    retval = dindexui.get();
     break;
   case 'document-init-stage-1':
     retval = dinfo.checkState();

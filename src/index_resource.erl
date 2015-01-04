@@ -94,7 +94,8 @@ json_update(R, S) ->
   
 json_index(R, S) ->
     {{ok, Json}, R1} = q:indexes_options(R, S),
-    {jsn:encode(Json), R1, S}.
+    Json2 = jsn:set_value(<<"rows">>, lists:reverse(jsn:get_value(<<"rows">>, Json)), Json),
+    {jsn:encode(Json2), R1, S}.
   
 json_preview(R, S) ->
     i:view(R, S).

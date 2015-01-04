@@ -29,7 +29,8 @@ var receiver = function (message, arg) {
     retval = dindexui.get();
     break;
   case 'documents-altered':
-    retval = dindexui.get(arg[0], arg[1]);
+    //retval = dindexui.get(arg[0], arg[1]);
+    retval = dindexui.get();
     break;
   case 'document-init-stage-1':
     retval = dinfo.checkState();

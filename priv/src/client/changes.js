@@ -22,8 +22,10 @@ var changes = function () {
 
   // ### Document Index
 
-  changeTargets['index-filter-form select'] = function () {
+  changeTargets['index-index-input'] = function (e) {
     S.sender('documents-altered');
+
+    return e;
   };
 
   // ### Search UI Change Events
