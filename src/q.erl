@@ -104,9 +104,8 @@ indexes_options(R, S) ->
              undefined ->
                  view:normalize_vq(QsVals);
              Doctype ->
-                 VQ = #vq{startkey = [list_to_binary(Doctype), []],
-                          endkey = [list_to_binary(Doctype), <<"">>],
-                          descending = true},
+                 VQ = #vq{endkey = [list_to_binary(Doctype), []],
+                          startkey = [list_to_binary(Doctype), <<"">>]},
                  view:to_string(VQ)
          end,
     {couch:get_view_json("shimi_ima", "options", Qs, Project, S), R2}.
