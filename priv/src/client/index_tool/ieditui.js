@@ -1,4 +1,4 @@
-// # The file manager
+// # The Index Condition Editor
 //
 // *Implicit depends:* DOM, JQuery, JQuery UI
 //
@@ -55,14 +55,29 @@ var fixArgumentType = function (argument, subcategory, operator) {
   return argument;
 };
 
+var getRowValue = function (row, rowType) {
+  'use strict';
+
+  var retval;
+  var possibleRow = row.querySelector('td.' + rowType + '-condition');
+
+  if (possibleRow) {
+    retval = possibleRow.dataset.value;
+  } else {
+    retval = false;
+  }
+
+  return retval;
+};
+
 // Use data in `data` attributes of HTML elements to produce an array
 // of conditions.
 var getIndexConditions = function (doctypeId, rows) {
   'use strict';
 
   var conditions = Array.prototype.map.call(rows, function (row) {
-    var is_or = row.querySelector('td.or-condition').dataset.value === 'true';
-    var paren = row.querySelector('td.paren-condition').dataset.value;
+    var is_or = getRowValue(row, 'or') === 'true';
+    var paren = getRowValue(row, 'paren');
     var condition;
 
     if (is_or) {
@@ -116,8 +131,8 @@ var saveIndex = function (buttonData, completeFunction) {
     'category': 'index',
     'doctype': doctype,
     'show_deleted': buttonData.dataset.indexShow_deleted === 'true',
-    'fields': JSON.parse(buttonData.dataset.indexFields),
-    'fields_label': JSON.parse(buttonData.dataset.indexFields_label),
+    'fields': buttonData.dataset.indexFields,
+    'fields_label': buttonData.dataset.indexFields_label,
     'name': buttonData.dataset.indexName,
     'conditions': getIndexConditions(doctype, document.querySelectorAll('#index-conditions-listing tbody tr'))
   };
