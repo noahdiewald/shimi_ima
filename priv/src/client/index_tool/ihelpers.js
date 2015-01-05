@@ -9,6 +9,7 @@
 var s = require('sess');
 var ajax = require('ajax');
 var form = require('form');
+var templates = require('templates');
 
 // Internal functions
 
@@ -78,6 +79,40 @@ var getFieldPart = function (doctype, fieldsetId, fieldId) {
   }
 
   return field[0];
+};
+
+// Fill select options from a URL using Ajax
+var fillOptionsFromUrl = function (doctypeId, fieldsetId, elem, callback) {
+  'use strict';
+
+  var doctype = s.get(doctypeId);
+  var url = 'doctypes/' + doctypeId;
+  var fieldOpts = '';
+  var fieldset;
+  var doWork = function (d) {
+    s.put(d);
+    fieldset = d.fieldsets.filter(function (fs) {
+      return fs._id === fieldsetId;
+    });
+    fieldOpts = templates['field-options'](fieldset[0]);
+    elem.innerHTML = fieldOpts;
+
+    if (callback) {
+      callback();
+    }
+
+    return fieldOpts;
+  };
+
+  if (doctype) {
+    doWork(doctype);
+  } else {
+    ajax.get(url, function (req) {
+      return doWork(req.response);
+    });
+  }
+
+  return true;
 };
 
 // Exported functions
@@ -182,26 +217,40 @@ var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
   }
 };
 
+var fsOpts = function (doctypeId, elem, callback) {
+  'use strict';
+
+  var doctype = s.get(doctypeId);
+  var url = 'doctypes/' + doctypeId;
+  var fieldsetOpts = '';
+  var doWork = function (d) {
+    s.put(d);
+    fieldsetOpts = templates['fieldset-options'](d);
+    elem.innerHTML = fieldsetOpts;
+
+    if (callback) {
+      callback(fieldsetOpts);
+    }
+
+    return fieldsetOpts;
+  };
+
+  if (doctype) {
+    doWork(doctype);
+  } else {
+    ajax.get(url, function (req) {
+      return doWork(req.response);
+    });
+  }
+
+  return true;
+};
+
 // Return an object containing methods for working with common events.
 var evs = function () {
   'use strict';
 
   var mod = {};
-
-  mod.setIndexDoctypeEvents = function (indexDoctype, indexFieldset, callback) {
-    indexDoctype.change(function () {
-      var url = 'doctypes/' + indexDoctype.val() + '/fieldsets';
-      var callback2;
-
-      if (callback) {
-        callback2 = callback();
-      }
-
-      form.fillOptionsFromUrl(url, indexFieldset, callback2);
-    });
-
-    return false;
-  };
 
   mod.setIndexFieldsetEvents = function (indexDoctype, indexFieldset, indexField, callback) {
     indexFieldset.onchange = function () {
@@ -212,13 +261,11 @@ var evs = function () {
       }
 
       if (indexFieldset.value) {
-        var url = 'doctypes/' + indexDoctype + '/fieldsets/' + indexFieldset.value + '/fields?as=options';
-
         if (callback) {
           callback2 = callback();
         }
 
-        form.fillOptionsFromUrl(url, indexField, callback2);
+        fillOptionsFromUrl(indexDoctype, indexFieldset.value, indexField, callback2);
       }
     };
 
@@ -258,9 +305,12 @@ var evs = function () {
 
     return mod;
   };
+
+  return mod;
 };
 
 exports.alterArg = alterArg;
 exports.alterOpts = alterOpts;
 exports.getFieldDoc = getFieldDoc;
 exports.evs = evs;
+exports.fsOpts = fsOpts;

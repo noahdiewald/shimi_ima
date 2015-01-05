@@ -9,7 +9,10 @@
 var ihelpers = require('index_tool/ihelpers');
 var form = require('form');
 var ajax = require('ajax');
-var evs = require('index_tool/ievents');
+//var evs = require('index_tool/ievents');
+var templates = require('templates');
+
+var evs = ihelpers.evs();
 
 // ## Exported functions
 
@@ -30,8 +33,6 @@ var initIndexBuilderDialog = function (indexDoctype) {
   var dialogElem = document.getElementById('index-builder-dialog');
   var tableBody = document.getElementById('index-conditions-listing').getElementsByTagName('tbody')[0];
   var notBlank = [builderOperatorInput, builderFieldsetInput, builderFieldInput];
-  var fieldset_url = 'doctypes/' + indexDoctype + '/fieldsets';
-  var condition_url = 'indexes/condition';
 
   builderOperatorInput.setAttribute('disable', 'disable');
   builderArgumentInput.setAttribute('disable', 'disable');
@@ -47,9 +48,9 @@ var initIndexBuilderDialog = function (indexDoctype) {
     return false;
   };
 
-  //ihelpers.fOpts(fieldset_url, builderFieldsetInput, function () {
-  //  builderFieldsetInput.removeAttribute('disable');
-  //});
+  ihelpers.fsOpts(indexDoctype, builderFieldsetInput, function () {
+    builderFieldsetInput.removeAttribute('disable');
+  });
 
   builderOrInput.onchange = function () {
     if (builderOrInput.checked) {
@@ -72,36 +73,36 @@ var initIndexBuilderDialog = function (indexDoctype) {
   };
 
   var fieldsetEvents = function () {
-    // evs.setIndexFieldsetEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
-    //   builderOperatorInput.setAttribute('disable', 'disable');
-    //   builderFieldInput.setAttribute('disable', 'disable');
-    //   builderArgumentInput.setAttribute('disable', 'disable');
+    evs.setIndexFieldsetEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderFieldInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
-    //   return function () {
-    //     builderFieldInput.removeAttribute('disable');
-    //   };
-    // });
+      return function () {
+        builderFieldInput.removeAttribute('disable');
+      };
+    });
   };
 
   var fieldEvents = function () {
-    // evs.setIndexFieldEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
-    //   builderOperatorInput.setAttribute('disable', 'disable');
-    //   builderArgumentInput.setAttribute('disable', 'disable');
+    evs.setIndexFieldEvents(indexDoctype, builderFieldsetInput, builderFieldInput, function () {
+      builderOperatorInput.setAttribute('disable', 'disable');
+      builderArgumentInput.setAttribute('disable', 'disable');
 
-    //   return function () {
-    //     builderOperatorInput.removeAttribute('disable');
-    //   };
-    // });
+      return function () {
+        builderOperatorInput.removeAttribute('disable');
+      };
+    });
   };
 
   var operatorEvents = function () {
-    // evs.setIndexOperatorEvents(builderArgumentInput, builderOperatorInput, builderFieldInput, function () {
-    //   builderArgumentInput.setAttribute('disable', 'disable');
+    evs.setIndexOperatorEvents(builderArgumentInput, builderOperatorInput, builderFieldInput, function () {
+      builderArgumentInput.setAttribute('disable', 'disable');
 
-    //   return function () {
-    //     builderArgumentInput.removeAttribute('disable');
-    //   };
-    // });
+      return function () {
+        builderArgumentInput.removeAttribute('disable');
+      };
+    });
   };
 
   var dialog = $(dialogElem).dialog({
@@ -115,6 +116,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
         // place holder for client side validation
         var checkResult = true;
+        var cond = {};
 
         if (!builderOrInput.checked && !builderParenInput.value) {
           notBlank.forEach(function (item) {
@@ -129,17 +131,25 @@ var initIndexBuilderDialog = function (indexDoctype) {
 
         if (checkResult) {
           if (builderOrInput.checked) {
-            ajax.get(condition_url + '?is_or=true', function (req) {
-              appendCondition(req);
-            });
+            cond['is_or'] = true;
+
+            appendCondition(templates['index-condition'](cond));
           } else if (builderParenInput.value) {
-            ajax.get(condition_url + '?is_or=false&parens=' + builderParenInput.value + '&negate=false', function (req) {
-              appendCondition(req);
-            });
+            cond['is_or'] = false;
+            cond['paren_' + builderParenInput.value] = true;
+
+            appendCondition(templates['index-condition'](cond));
           } else {
-            ajax.get(condition_url + '?is_or=false&parens=false&negate=' + builderNegateInput.checked.toString() + '&fieldset=' + builderFieldsetInput.value + '&field=' + builderFieldInput.value + '&operator=' + builderOperatorInput.value + '&argument=' + builderArgumentInput.value, function (req) {
-              appendCondition(req);
-            });
+            cond = {
+              is_or: false,
+              negate: builderNegateInput.checked,
+              fieldset: builderFieldsetInput.value,
+              field: builderFieldInput.value,
+              operator: builderOperatorInput.value,
+              argument: builderArgumentInput.value
+            };
+
+            appendCondition(templates['index-condition'](cond));
           }
 
           $(this).dialog('close');

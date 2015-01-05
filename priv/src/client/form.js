@@ -109,25 +109,10 @@ var initDateFields = function () {
   return true;
 };
 
-// Fill select options from a URL using Ajax
-var fillOptionsFromUrl = function (url, selectElement, callback) {
-  'use strict';
-
-  ajax.get(url, function (req) {
-    selectElement.innerHTML = templates['options'](req.response);
-    if (callback) {
-      callback();
-    }
-  });
-
-  return selectElement;
-};
-
 exports.toggle = toggle;
 exports.cancelDialog = cancelDialog;
 exports.clear = clear;
 exports.initDateFields = initDateFields;
-exports.fillOptionsFromUrl = fillOptionsFromUrl;
 exports.hide = hide;
 exports.hideDisable = hideDisable;
 exports.show = show;
