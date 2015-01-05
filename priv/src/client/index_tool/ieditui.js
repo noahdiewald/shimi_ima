@@ -94,11 +94,14 @@ var getIndexConditions = function (doctypeId, rows) {
       var fieldId = row.querySelector('td.field-condition').dataset.value;
       var fieldsetId = row.querySelector('td.fieldset-condition').dataset.value;
       var argument = row.querySelector('td.argument-condition').dataset.value;
-      var fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
       var negate = row.querySelector('td.negate-condition').dataset.value === 'true';
       var operator = row.querySelector('td.operator-condition').dataset.value;
+      var fieldDoc;
 
-      argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+      if (fieldsetId !== 'metadata') {
+        fieldDoc = ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+        argument = fixArgumentType(argument, fieldDoc.subcategory, operator);
+      }
 
       condition = {
         'is_or': false,

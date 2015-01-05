@@ -58,6 +58,28 @@ var disableOperatorOptions = function (fieldDoc) {
   return false;
 };
 
+// With the switch to a unified doctype definition, this is used to
+// allow functions that assume a separate field document to work with
+// minimal changes.
+var getFieldPart = function (doctype, fieldsetId, fieldId) {
+  'use strict';
+
+  var field;
+  var fieldset;
+
+  fieldset = doctype.fieldsets.filter(function (fs) {
+    return fs._id === fieldsetId;
+  });
+
+  if (fieldset[0]) {
+    field = fieldset[0].fields.filter(function (f) {
+      return f._id === fieldId;
+    });
+  }
+
+  return field[0];
+};
+
 // Exported functions
 
 // Handles an input field that presents different behavior depending on
@@ -134,21 +156,28 @@ var getFieldDoc = function (fieldId, fieldsetId, doctypeId, callback) {
   'use strict';
 
   var fieldDoc = s.get(fieldId);
-  var url = 'doctypes/' + doctypeId + '/fieldsets/' + fieldsetId + '/fields/' + fieldId + '?format=json';
+  var url = 'doctypes/' + doctypeId;
 
   if (fieldDoc) {
     if (callback) {
       callback(fieldDoc);
     }
+
     return fieldDoc;
   } else {
     ajax.get(url, function (req) {
-      s.put(req.response);
-      if (callback) {
-        callback(s.get(fieldId));
+      var fieldPart = getFieldPart(req.response, fieldsetId, fieldId);
+
+      if (fieldPart) {
+        s.put(fieldPart);
+
+        if (callback) {
+          callback(s.get(fieldId));
+        }
       }
     });
 
+    // TODO: Hopefully this is just intended as a throw-away.
     return s.get(fieldId);
   }
 };
