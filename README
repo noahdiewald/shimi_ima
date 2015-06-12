@@ -1,5 +1,9 @@
 = Running Cucumber Tests
 
+Before running cucumber tests you must have ruby and bundler
+installed. Then you may run 'bundle install' to install the
+dependencies.
+
 == Run All Features in Foreground
 
     make cucumber

@@ -1,4 +1,4 @@
-Given(/^I created the (\w+) document type$/) do | name |
+Given /^I created the (\w+) document type$/ do | name |
   step "the test database exists"
   step "I click the Add Document Type button"
   step "I fill in #{name} in the name editor input"
@@ -30,30 +30,30 @@ Given /^the (\w+) fieldset named (\w+) is selected$/ do | doctype, name |
 end
 
 # TODO: combine with link clicking step in shared
-When(/^I click the project Configure button$/) do
+When /^I click the project Configure button$/ do
   @browser.div(:id => 'loading').wait_while_present
   @browser.link(:href => "/projects/project-#{@projectId}/config").click
 end
 
 # TODO: combine with link clicking step in shared
-When(/^I click the Add Document Type button$/) do
+When /^I click the Add Document Type button$/ do
   button = @browser.link(:id => 'doctypes-add-button')
   button.wait_until_present
   button.click
 end
 
-When(/^I click the top level element (\w+)$/) do | title |
+When /^I click the top level element (\w+)$/ do | title |
   @browser.div(:id => 'loading').wait_while_present
   @browser.element(:css, "#edit-form > form > ul > li > span[title=#{title}]").click
 end
 
-When(/^I click the fieldset (\w+) element (\w+)$/) do | name, title |
+When /^I click the fieldset (\w+) element (\w+)$/ do | name, title |
   @browser.div(:id => 'loading').wait_while_present
   step("I show the fieldset named #{name}")
   @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.element(:css, "span[title='#{title}']").click
 end
 
-When(/^I show the top level element (\w+)$/) do | title |
+When /^I show the top level element (\w+)$/ do | title |
   @browser.div(:id => 'loading').wait_while_present
   target = @browser.element(:css, "#edit-form > form > ul > li > span[title=#{title}]")
   if @browser.element(:css, "li##{target.parent.id.escape_first_digit} > .hidden").exists?
@@ -61,7 +61,7 @@ When(/^I show the top level element (\w+)$/) do | title |
   end
 end
 
-When(/^I show the fieldset (\w+) element (\w+)$/) do | name, title |
+When /^I show the fieldset (\w+) element (\w+)$/ do | name, title |
   @browser.div(:id => 'loading').wait_while_present
   step("I show the fieldset named #{name}")
   target = @browser.element(:css, "#edit-form > form > ul > li > ol[title='fieldsets'] > li > ul > li > [value='#{name}']").parent.parent.element(:css, "span[title=#{title}]")
