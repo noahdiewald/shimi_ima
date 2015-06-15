@@ -12479,6 +12479,14 @@ setFieldValue = function (field, value, instance) {
     field.checked = value;
   } else if (value && field.classList.contains('open-boolean')) {
     field.value = value.toString();
+  } else if (field.multiple) {
+    forEach(field.options, function (opt) {
+      if (value && value.indexOf(opt.value) !== -1) {
+        opt.selected = true;
+      }
+
+      return true;
+    });
   } else {
     field.value = value;
   }
