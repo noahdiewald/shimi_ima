@@ -10472,7 +10472,7 @@ var clickDispatch = function (e) {
       setsui.toggleSelectAll(t);
     },
     '.view-document-link span': function (t) {
-      var parent = t[0].parentNode;
+      var parent = t.parentNode;
       indexui.load(parent);
     },
     '.view-document-link': function (t) {
