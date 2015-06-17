@@ -162,12 +162,10 @@ var clickDispatch = function (e) {
       searchui.toggleSelection(t);
     },
     '#save-search-results a': function () {
-      $('#new-set-target-input').val('search');
-      $('#new-set-dialog').show();
+      setsui.displayNewSetDialog('search');
     },
     '#save-set-results a': function () {
-      $('#new-set-target-input').val('sets');
-      $('#new-set-dialog').show();
+      setsui.displayNewSetDialog('sets');
     },
     '#new-set-save-button': function () {
       S.sender('new-set-form-submit');

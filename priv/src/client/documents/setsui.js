@@ -8,6 +8,7 @@
 
 var templates = require('templates');
 var S = require('../sender.js');
+var form = require('form');
 var flash = require('flash');
 var sets = require('sets');
 var utils = require('utils');
@@ -22,39 +23,74 @@ var getSet;
 
 // Internal functions
 
+// Generic map function
+var map = function (x, y) {
+  'use strict';
+
+  return Array.prototype.map.call(x, y);
+};
+
+// User interface element
+var selectedSearchResults = function () {
+  'use strict';
+
+  return document.querySelectorAll('input.select-results:checked + label + table tr');
+};
+
+// User interface element
+var nameInput = function () {
+  'use strict';
+
+  return document.getElementById('new-set-input');
+};
+
+// User interface element
+var targetInput = function () {
+  'use strict';
+
+  return document.getElementById('new-set-target-input');
+};
+
+// User interface element
+var newSetDialog = function () {
+  'use strict';
+
+  return document.getElementById('new-set-dialog');
+};
+
 // User interface element
 var setA = function () {
   'use strict';
 
-  return $('#document-set-a-input');
+  return document.getElementById('document-set-a-input');
 };
 
 // User interface element
 var setB = function () {
   'use strict';
 
-  return $('#document-set-b-input');
+  return document.getElementById('document-set-b-input');
 };
 
 // User interface element
 var worksheetsSet = function () {
   'use strict';
 
-  return $('#document-worksheets-set-input');
+  return document.getElementById('document-worksheets-set-input');
 };
 
 // User interface element
 var op = function () {
   'use strict';
 
-  return $('#document-set-operation-input');
+  return document.getElementById('document-set-operation-input');
 };
 
 // User interface element
 var setListing = function () {
   'use strict';
 
-  return $('#set-listing');
+  return document.getElementById('set-listing');
 };
 
 // User interface element
@@ -251,9 +287,7 @@ selectedElementsToArray = function () {
     var anchor = $(elem).parent('td').next('td').find('a').first();
     var id = anchor.first().attr('href').replace(/^#/, '');
     var context = anchor.html().trim();
-    return [
-      [context, id]
-    ];
+    return [context, id];
   });
   return retval;
 };
@@ -263,14 +297,11 @@ selectedSaveResultsToArray = function () {
   'use strict';
 
   var retval;
-  var selected = $('table.selected-for-save tr');
 
-  retval = $.map(selected, function (elem) {
-    var id = $(elem).find('th a').first().attr('href').replace(/^#/, '');
-    var context = $(elem).find('td.search-result-context a').first().html().trim();
-    return [
-      [context, id]
-    ];
+  retval = map(selectedSearchResults(), function (elem) {
+    var id = elem.querySelector('th a').getAttribute('href').replace(/^#/, '');
+    var context = elem.querySelector('td.search-result-context a').innerHTML.trim();
+    return [context, id];
   });
 
   return retval;
@@ -291,7 +322,7 @@ render = function (setElems) {
     elements: elems,
     total: total
   });
-  setListing().html(listing);
+  setListing().innerHTML = listing;
   return true;
 };
 
@@ -306,6 +337,7 @@ var getSet = function (setName) {
   retval = curr.filter(function (x) {
     return x[0] === setName;
   })[0];
+
   return retval;
 };
 
@@ -313,33 +345,33 @@ var getSet = function (setName) {
 var performOp = function () {
   'use strict';
 
-  switch (op().val()) {
+  switch (op().value) {
   case 'view-a':
-    view(setA().val());
+    view(setA().value);
     break;
   case 'view-b':
-    view(setB().val());
+    view(setB().value);
     break;
   case 'remove-a':
-    remove(setA().val());
+    remove(setA().value);
     break;
   case 'remove-b':
-    remove(setB().val());
+    remove(setB().value);
     break;
   case 'union':
-    union(setA().val(), setB().val());
+    union(setA().value, setB().value);
     break;
   case 'intersection':
-    intersection(setA().val(), setB().val());
+    intersection(setA().value, setB().value);
     break;
   case 'symmetric-difference':
-    symmetricDifference(setA().val(), setB().val());
+    symmetricDifference(setA().value, setB().value);
     break;
   case 'relative-complement-b-in-a':
-    relativeComplement(setA().val(), setB().val());
+    relativeComplement(setA().value, setB().value);
     break;
   case 'relative-complement-a-in-b':
-    relativeComplement(setB().val(), setA().val());
+    relativeComplement(setB().value, setA().value);
     break;
   default:
     break;
@@ -355,9 +387,20 @@ var updateSelection = function () {
   var newOptions = templates['set-options']({
     names: currNames
   });
-  setA().html(newOptions);
-  setB().html(newOptions);
-  worksheetsSet().html(newOptions);
+
+  setA().innerHTML = newOptions;
+  setB().innerHTML = newOptions;
+  worksheetsSet().innerHTML = newOptions;
+
+  return true;
+};
+
+// Display the dialog of saving new sets.
+var displayNewSetDialog = function (target) {
+  'use strict';
+
+  targetInput().value = target;
+  form.show(newSetDialog());
 
   return true;
 };
@@ -366,18 +409,16 @@ var updateSelection = function () {
 var saveSelected = function () {
   'use strict';
 
-  var dialog = $('#new-set-dialog');
-  var name = $('#new-set-input').val();
-  var target = $('#new-set-target-input').val();
+  var name = nameInput().value;
   var selected;
   var newSet;
 
   if (!utils.isBlank(name)) {
-    dialog.hide();
-    selected = selectedToArray(target);
+    form.hide(newSetDialog());
+    selected = selectedToArray(targetInput().value);
     newSet = [name, selected];
     setSet(newSet);
-    $('#new-set-input').val('');
+    nameInput().value = '';
     S.sender('sets-changed');
     flash.highlight('Success:', 'Set "' + name + '" saved.');
   } else {
@@ -404,3 +445,4 @@ exports.performOp = performOp;
 exports.updateSelection = updateSelection;
 exports.saveSelected = saveSelected;
 exports.toggleSelectAll = toggleSelectAll;
+exports.displayNewSetDialog = displayNewSetDialog;
