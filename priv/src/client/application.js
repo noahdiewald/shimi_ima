@@ -79,10 +79,10 @@ if (Element.prototype.mozMatchesSelector) {
 var init = function () {
   'use strict';
 
-  // All clicks handled centraly
+  // All clicks handled centrally
   document.body.onclick = clickDispatch;
 
-  // All double clicks handled centraly
+  // All double clicks handled centrally
   document.body.ondblclick = dblclickDispatch;
 
   // Other event handling
