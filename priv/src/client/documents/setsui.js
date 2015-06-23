@@ -38,6 +38,13 @@ var selectedSearchResults = function () {
 };
 
 // User interface element
+var selectedSetResults = function () {
+  'use strict';
+
+  return document.querySelectorAll('input.set-element-selection:checked');
+};
+
+// User interface element
 var nameInput = function () {
   'use strict';
 
@@ -280,16 +287,9 @@ var selectedToArray = function (target) {
 selectedElementsToArray = function () {
   'use strict';
 
-  var retval;
-  var selected = $('input.set-element-selection:checked');
-
-  retval = $.map(selected, function (elem) {
-    var anchor = $(elem).parent('td').next('td').find('a').first();
-    var id = anchor.first().attr('href').replace(/^#/, '');
-    var context = anchor.html().trim();
-    return [context, id];
+  return map(selectedSetResults(), function (elem) {
+    return [elem.dataset.context, elem.value];
   });
-  return retval;
 };
 
 // Convert selected search results to an array.

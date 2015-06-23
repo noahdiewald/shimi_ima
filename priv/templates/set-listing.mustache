@@ -19,7 +19,7 @@
     {{#elements}}
     <tr>
       <td>
-        <input type="checkbox" class="set-element-selection" title="Click to select element" />
+        <input type="checkbox" class="set-element-selection" title="Click to select element" value="{{ id }}" data-context="{{ context }}" />
       </td>
       <td>
         <a class="view-document-link" href="#{{ id }}">{{ context }}</a>
