@@ -105,6 +105,10 @@ var initIndexBuilderDialog = function (indexDoctype) {
     });
   };
 
+  var getLabel = function (elem) {
+    return elem.querySelector('[value=' + elem.value + ']').innerHTML.trim();
+  };
+
   var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
@@ -144,7 +148,9 @@ var initIndexBuilderDialog = function (indexDoctype) {
               is_or: false,
               negate: builderNegateInput.checked,
               fieldset: builderFieldsetInput.value,
+              fieldset_label: getLabel(builderFieldsetInput),
               field: builderFieldInput.value,
+              field_label: getLabel(builderFieldInput),
               operator: builderOperatorInput.value,
               argument: builderArgumentInput.value
             };

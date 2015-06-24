@@ -17,12 +17,12 @@ var templates = require('templates');
 var disableOptions = function (options, disables) {
   'use strict';
 
-  Array.prototype.forEach.call(options.childNodes, function (node) {
+  Array.prototype.forEach.call(options.children, function (node) {
     form.show(node);
   });
 
   disables.forEach(function (item) {
-    form.hide(options.querySelector('option:contains(' + item + ')'));
+    form.hide(options.querySelector('option[value="' + item + '"]'));
   });
 
   return false;
@@ -94,6 +94,7 @@ var fillOptionsFromUrl = function (doctypeId, fieldsetId, elem, callback) {
     fieldset = d.fieldsets.filter(function (fs) {
       return fs._id === fieldsetId;
     });
+
     fieldOpts = templates['field-options'](fieldset[0]);
     elem.innerHTML = fieldOpts;
 

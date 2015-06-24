@@ -10167,10 +10167,10 @@ if (Element.prototype.mozMatchesSelector) {
 var init = function () {
   'use strict';
 
-  // All clicks handled centraly
+  // All clicks handled centrally
   document.body.onclick = clickDispatch;
 
-  // All double clicks handled centraly
+  // All double clicks handled centrally
   document.body.ondblclick = dblclickDispatch;
 
   // Other event handling
@@ -15794,6 +15794,10 @@ var initIndexBuilderDialog = function (indexDoctype) {
     });
   };
 
+  var getLabel = function (elem) {
+    return elem.querySelector('[value=' + elem.value + ']').innerHTML.trim();
+  };
+
   var dialog = $(dialogElem).dialog({
     autoOpen: false,
     modal: true,
@@ -15833,7 +15837,9 @@ var initIndexBuilderDialog = function (indexDoctype) {
               is_or: false,
               negate: builderNegateInput.checked,
               fieldset: builderFieldsetInput.value,
+              fieldset_label: getLabel(builderFieldsetInput),
               field: builderFieldInput.value,
+              field_label: getLabel(builderFieldInput),
               operator: builderOperatorInput.value,
               argument: builderArgumentInput.value
             };
@@ -16244,12 +16250,12 @@ var templates = require('templates');
 var disableOptions = function (options, disables) {
   'use strict';
 
-  Array.prototype.forEach.call(options.childNodes, function (node) {
+  Array.prototype.forEach.call(options.children, function (node) {
     form.show(node);
   });
 
   disables.forEach(function (item) {
-    form.hide(options.querySelector('option:contains(' + item + ')'));
+    form.hide(options.querySelector('option[value="' + item + '"]'));
   });
 
   return false;
@@ -16321,6 +16327,7 @@ var fillOptionsFromUrl = function (doctypeId, fieldsetId, elem, callback) {
     fieldset = d.fieldsets.filter(function (fs) {
       return fs._id === fieldsetId;
     });
+
     fieldOpts = templates['field-options'](fieldset[0]);
     elem.innerHTML = fieldOpts;
 
