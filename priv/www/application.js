@@ -10327,7 +10327,9 @@ var maintenanceui = require('config/maintenanceui');
 var defaultAction = function (t) {
   'use strict';
 
-  return S.sender(t.id.slice(0, -7));
+  var message = t.id.slice(0, -7);
+
+  return S.sender(message);
 };
 
 // ## Exported Functions
@@ -16153,8 +16155,9 @@ var addCond = function () {
 var remCond = function (target) {
   'use strict';
 
-  //$(target).closest('tr').remove();
-  throw 'intentional error';
+  tableBody().removeChild(target.parentElement.parentElement);
+
+  return true;
 };
 
 // Open the new index dialog.

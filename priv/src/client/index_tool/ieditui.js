@@ -275,8 +275,9 @@ var addCond = function () {
 var remCond = function (target) {
   'use strict';
 
-  //$(target).closest('tr').remove();
-  throw 'intentional error';
+  tableBody().removeChild(target.parentElement.parentElement);
+
+  return true;
 };
 
 // Open the new index dialog.
