@@ -15,7 +15,7 @@
 %%% You should have received a copy of the GNU General Public License
 %%% along with dictionary_maker. If not, see <http://www.gnu.org/licenses/>.
 
-%%% @copyright 2011 University of Wisconsin Madison Board of Regents.
+%%% @copyright 2015 University of Wisconsin Madison Board of Regents.
 %%% @version {@version}
 %%% @author Noah Diewald <noah@diewald.me>
 %%% @doc Loop through the views continuously making get requests so
@@ -44,7 +44,7 @@
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
--spec init(dict()) -> {ok, dict()}.
+-spec init(dict:dict()) -> {ok, dict:dict()}.
 init([]) ->
     % Sometimes load can be quite large on slow machines and couchdb
     % runs out of resources. This just sets a delay at startup to
