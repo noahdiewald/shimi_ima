@@ -260,9 +260,7 @@ var user_indexes = function (doc, emit, testEnv) {
           }
         };
 
-        display_fields.forEach(function (item) {
-          emitForField(item);
-        });
+        emitForField(display_fields);
 
         return 'passed initial if clause';
       }

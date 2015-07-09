@@ -15842,6 +15842,8 @@ var templates = require('templates');
 var ajax = require('ajax');
 var flash = require('flash');
 
+var saveIndex2;
+
 // Internal functions
 
 // User interface element
@@ -15857,6 +15859,13 @@ var editingData = function () {
   'use strict';
 
   return document.getElementById('index-editing-data');
+};
+
+// User interface element
+var indexConditions = function () {
+  'use strict';
+
+  return document.querySelectorAll('#index-conditions-listing tbody tr');
 };
 
 // Make sure the arguments are of the correct type.
@@ -15946,8 +15955,57 @@ var getIndexConditions = function (doctypeId, rows) {
   return conditions;
 };
 
-// Initiate the save action.
+// Make sure the fieldocs are available. This, like a number of other
+// quick fixes found here is super hacky.
+var getFieldDocs = function (doctypeId, rows, bd, cf) {
+  'use strict';
+
+  Array.prototype.forEach.call(rows, function (row, index) {
+    var is_or = getRowValue(row, 'or') === 'true';
+    var paren = getRowValue(row, 'paren');
+    var condition;
+
+    if (is_or) {
+      return true;
+    } else if (paren) {
+      return true;
+    } else {
+      var fieldId = row.querySelector('td.field-condition').dataset.value;
+      var fieldsetId = row.querySelector('td.fieldset-condition').dataset.value;
+      var fieldDoc;
+
+      if (fieldsetId !== 'metadata' && index !== (rows.length - 1)) {
+        ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId);
+      } else if (index === (rows.length - 1)) {
+        ihelpers.getFieldDoc(fieldId, fieldsetId, doctypeId, function () {
+          saveIndex2(bd, cf);
+
+          return false;
+        });
+      }
+
+      return false;
+    }
+
+    return false;
+  });
+
+  return false;
+};
+
+// Preload the field data.
 var saveIndex = function (buttonData, completeFunction) {
+  'use strict';
+
+  var doctype = buttonData.dataset.indexDoctype;
+
+  getFieldDocs(doctype, indexConditions(), buttonData, completeFunction);
+
+  return false;
+};
+
+// Perform the save action.
+saveIndex2 = function (buttonData, completeFunction) {
   'use strict';
 
   var indexId = buttonData.dataset.indexId;
@@ -15963,14 +16021,14 @@ var saveIndex = function (buttonData, completeFunction) {
     'fields': buttonData.dataset.indexFields,
     'fields_label': buttonData.dataset.indexFields_label,
     'name': buttonData.dataset.indexName,
-    'conditions': getIndexConditions(doctype, document.querySelectorAll('#index-conditions-listing tbody tr'))
+    'conditions': getIndexConditions(doctype, indexConditions())
   };
 
   if (buttonData.dataset.indexReplace_function) {
     obj.replace_function = buttonData.dataset.indexReplace_function;
   }
 
-  ajax.put(url, obj, 'PUT', completeFunction);
+  ajax.put(url, obj, completeFunction);
 
   return false;
 };
@@ -18319,11 +18377,11 @@ exports.isBlank = isBlank;
 exports.validID = validID;
 exports.Base64 = Base64;
 
+},{}],"templates.js":[function(require,module,exports){
+module.exports=require('mkFiG5');
 },{}],"mkFiG5":[function(require,module,exports){
 module.exports=require(52)
-},{"hogan.js":24}],"templates.js":[function(require,module,exports){
-module.exports=require('mkFiG5');
-},{}],104:[function(require,module,exports){
+},{"hogan.js":24}],104:[function(require,module,exports){
 module.exports=require(52)
 },{"hogan.js":24}],105:[function(require,module,exports){
 module.exports=require(53)
