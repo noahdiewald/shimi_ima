@@ -74,7 +74,7 @@ from_json(Json) ->
            name = jsn:get_value(<<"name">>, Json),
            sort_ignore = ensure_list(jsn:get_value(<<"sort_ignore">>, Json)),
            locale = binary_to_list(jsn:get_value(<<"locale">>, Json)),
-           tailoring = ustring:new(jsn:get_value(<<"tailoring">>, Json), utf8),
+           tailoring = <<>>,
            vowels = ensure_list(jsn:get_value(<<"vowels">>, Json)),
            consonants = ensure_list(jsn:get_value(<<"consonants">>, Json)),
            ietf_tag = jsn:get_value(<<"ietf_tag">>, Json),
