@@ -148,7 +148,7 @@ get_sortkey_helper(CharseqId, Value, Project, S) ->
     get_sortkey_helper(Charseq, Value).
 
 get_sortkey_helper(Charseq, Value) ->
-    apply_patterns(Charseq#charseq.sort_ignore, Value).
+    iolist_to_binary(apply_patterns(Charseq#charseq.sort_ignore, Value)).
   
 apply_patterns([], Value) ->
     Value;
