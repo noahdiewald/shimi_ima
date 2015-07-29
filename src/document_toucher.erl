@@ -136,11 +136,6 @@ code_change(_OldVsn, S, _Extra) ->
 
 % Private
 
--spec touch_get_json(binary(), utils:reqdata(), any()) -> json:json_term().
-touch_get_json(Id, Project, S) ->
-    {ok, Json} = h:get(binary_to_list(Id), Project, S),
-    Json.
-
 %% @doc After initialization is complete, begin the touch operation.
 -spec run(string()) -> ok.
 run(Doctype) ->
@@ -150,136 +145,28 @@ run(Doctype) ->
 -spec me(string()) -> atom().
 me(Doctype) ->
     list_to_atom(atom_to_list(?SERVER) ++ "-" ++ Doctype).
-
+    
 %% @doc Touch a document. This means that it will be made to conform
 %% to the current state of its doctype's configuration.
 -spec touch_document(string(), state()) -> ok.
 touch_document(Id, S) ->
-    Json = touch_get_json(Id, S#state.project, S#state.wm_state),
-    Doc = document:from_json(doc, Json),
-    Fieldsets = touch_fieldsets(Doc#document.fieldsets, S),
-    Doc2 = document:to_json(doc, Doc#document{prev = Doc#document.rev,
-                                         fieldsets = Fieldsets}),
-    case couch:update(binary_to_list(Id), Doc2, S#state.project, S#state.wm_state) of
+    Project = S#state.project,
+    WMS = S#state.wm_state,
+    {ok, Json} = h:get(binary_to_list(Id), Project, WMS),
+    Json1 = document:set_sortkeys(Json, Project, S),
+    NormJson = document:normalize(doc, Json1),
+
+    case couch:update(binary_to_list(Id), NormJson, Project, WMS) of
         {ok, _} ->
             untouched:delete(S#state.doctype, Id),
             ok;
-        {409, _} ->
+        {error, conflict} ->
             error_logger:error_report(
-              [{S#state.me, {conflict, Doc2}}]);
+              [{S#state.me, {conflict, NormJson}}]);
         {error, req_timedout} ->
             error_logger:error_report(
-              [{S#state.me, {req_timedout, Doc2}}])
+              [{S#state.me, {req_timedout, NormJson}}])
     end.
-
-%% @doc Perform the portion of a touch operation that is specific to the
-%% fieldsets.
--spec touch_fieldsets([docfieldset()], state()) -> [docfieldset()].
-touch_fieldsets(FSs, S) ->
-    FSs2 = add_missing(FSs, S),
-    Fun = fun(X, Acc) ->
-                  case touch_fieldset(X, S) of
-                      undefined -> Acc;
-                      FS -> [FS|Acc]
-                  end
-          end,
-    SFun = fun(X, Y) -> X#docfieldset.order =< Y#docfieldset.order end,
-    lists:sort(SFun, lists:foldl(Fun, [], FSs2)). 
-
-%% @doc Perform the portion of a touch operation that is specific to
-%% the fields.
--spec touch_fields([docfield()], atom(), state()) -> [docfield()].
-touch_fields(Fs, FTid, S) ->        
-    Fs2 = add_missing(Fs, FTid),
-    FFun = fun(X, Acc) ->
-                  case touch_field(X, FTid, S) of
-                      undefined -> Acc;
-                      F -> [F|Acc]
-                  end
-          end,
-    SFun = fun(X, Y) -> X#docfield.order =< Y#docfield.order end,
-    lists:sort(SFun, lists:foldl(FFun, [], Fs2)).
-
-%% @doc Perform the portion of a touch operation that is specific to a
-%% single fieldset.
--spec touch_fieldset(docfieldset(), state()) -> docfieldset() | undefined.
-touch_fieldset(DFS, S) ->
-    case ets:lookup(S#state.tid, DFS#docfieldset.id) of
-        [] -> undefined;
-        [{_, FS}] ->
-            DFS2 = DFS#docfieldset{
-                     label = FS#fieldset.label,
-                     name = FS#fieldset.name,
-                     order = FS#fieldset.order,
-                     multiple = set_if_undefined(
-                                  DFS#docfieldset.multiple, 
-                                  FS#fieldset.multiple),
-                     collapse = FS#fieldset.collapse
-                    },
-            FTid = list_to_atom(binary_to_list(DFS2#docfieldset.id)),
-            Fs = case {DFS2#docfieldset.multiple, DFS2#docfieldset.fields} of
-                     {true, undefined} -> [[]];
-                     {true, F} -> [touch_fields(X, FTid, S) || X <- F];
-                     {false, undefined} -> [];
-                     {false, F} -> touch_fields(F, FTid, S)
-                 end,
-            DFS2#docfieldset{fields=Fs}
-    end.
-
-%% @doc Perform the portions of the touch operation that is specific
-%% to a single field.
--spec touch_field(docfield(), atom(), state()) -> docfield() | undefined.
-touch_field(DF, FTid, S) ->
-    case ets:lookup(FTid, DF#docfield.id) of
-        [] -> undefined;
-        [{_, F}] ->
-            DF2 = DF#docfield{
-                    charseq = F#field.charseq,
-                    head = F#field.head,
-                    label = F#field.label,
-                    max = F#field.max,
-                    min = F#field.min,
-                    name = F#field.name,
-                    order = F#field.order,
-                    regex = F#field.regex,
-                    required = F#field.required,
-                    reversal = F#field.reversal,
-                    subcategory = F#field.subcategory
-                   },
-            DF3 = update_normalize(DF, F, DF2),
-            Project = S#state.project,
-            DF3#docfield{
-              sortkey=charseq:get_sortkey(DF3, Project, S#state.wm_state)}
-    end.
-
-%% @doc Used to choose which value to set in case one is undefined.
--spec set_if_undefined(undefined | term(), term()) -> term().
-set_if_undefined(undefined, Val) ->
-    Val;
-set_if_undefined(Val, _) ->
-    Val.
-
-%% @doc There may be new fields or fieldsets since the last time the
-%% document was updated. This will add the new ones.
--spec add_missing([docfieldset()], state() | atom()) -> [docfieldset()] | [docfield()].
-add_missing(Fs, FTid) when is_atom(FTid) ->
-    Ids = [X#docfield.id || X <- Fs],
-    Fun = fun({Id, _}, Acc) ->
-                  case lists:member(Id, Ids) of
-                      false -> [#docfield{id=Id}|Acc];
-                      true -> Acc
-                  end
-          end,
-    ets:foldl(Fun, Fs, FTid);
-add_missing(FSs, S) ->
-    Ids = [X#docfieldset.id || X <- FSs],
-    Fun = fun({Id, _}, Acc) ->
-                  case lists:member(Id, Ids) of
-                      false -> [#docfieldset{id=Id}|Acc];
-                      true -> Acc
-                  end
-          end,
-    ets:foldl(Fun, FSs, S#state.tid).
 
 %% @doc Retrieve the ids of the documents that need to be
 %% processed. These are kept in the untouched server so that the
@@ -345,94 +232,3 @@ fill_tables([H|T], Tid) ->
             true = ets:insert(FieldTable, [{FID, Rec}])
     end,
     fill_tables(T, Tid).
-
-%% @doc These are the fairly complex rules that deal with a fields
-%% value when default values, categories or other options have
-%% changed. The first argument is the previous state of the document
-%% field. The second is the field that the docfield is based on and
-%% the third argument is the version of the docfield being updated,
-%% which is already partially processed.
-%% TODO: THIS SHOULD NOT BE ALLOWED. CERTAIN ASPECTS OF THE FIELD LIKE
-%% THOSE BELOW SHOULD NOT BE CHANGEABLE.
--spec update_normalize(docfield(), field(), docfield()) -> docfield() | {error, Reason :: term()}.
-% if the value of the docfield is the default, leave it.
-update_normalize(_, #field{default=X}, DF=#docfield{value=X}) ->
-    DF;
-% if the value is null, set it to the default.
-update_normalize(_, #field{default=Def}, DF=#docfield{value=null}) -> 
-    DF#docfield{value=Def};
-% ensure that booleans aren't null.
-update_normalize(_, _, DF=#docfield{value=V, subcategory=boolean}) when
-      (V /= true) and (V /= false) ->
-    DF#docfield{value=false};
-% this is partially to avoid having undefined be the value. This will
-% ensure the default or null.
-update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=openboolean,
-                                                      value=V}) when
-      (V /= true) and (V /= false) -> DF#docfield{value=Def};
-%  this is partially to avoid having undefined be the value. If the
-%  value isn't a list, then it is unset and the default should be set.
-update_normalize(_, #field{default=Def}, DF=#docfield{subcategory=S,value=V}) 
-  when
-      ((S == multiselect) or (S == docmultiselect)) and (not is_list(V)) -> 
-    DF#docfield{value=Def};
-% if the subcategory hasen't changed or is changing from a string type
-% to text or textarea, leave it alone.
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) 
-  when 
-    (S == S2) or
-    (((S == text) or
-      (S == textarea) or
-      (S == select) or
-      (S == docselect)) and
-     ((S2 == text) or
-      (S2 == textarea))) -> DF;
-% if the previous subcategory was of a type that is simple to convert
-% to a string, do so. Take another pass through to deal with any
-% consequences of this action.
-update_normalize(#docfield{subcategory=S}, F, DF=#docfield{subcategory=S2,
-                                                           value=V}) when 
-    (((S == integer) or
-      (S == rational) or
-      (S == boolean) or
-      (S == openboolean)) and
-     ((S2 == text) or
-      (S2 == textarea))) ->
-    DF2 = DF#docfield{value=iolist_to_binary(io_lib:format("~p", [V]))},
-    update_normalize(#docfield{subcategory=text}, F, DF2);
-% Having established that the subcategory has changed, if the old
-% subcategory is a date, convert the value to a string and make
-% another pass through to sort out any issues that this move may have
-% brought up.
-update_normalize(#docfield{subcategory=date}, F, DF) ->
-    update_normalize(#docfield{subcategory=text}, F, 
-                     DF#docfield{
-                       value=field:unconvert_value(date, DF#docfield.value)});
-% There is no need to change anything if the change is from docselect
-% to select or vice versa.
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
-    ((S == docselect) or (S == select)) and 
-    ((S2 == docselect) or (S2 == select)) -> DF;
-% The same as above but for multiselects.
-update_normalize(#docfield{subcategory=S}, _, DF=#docfield{subcategory=S2}) when
-    ((S == docmultiselect) or (S == multiselect)) and 
-    ((S2 == docmultiselect) or (S2 == multiselect)) -> DF;
-% Convert from rationals to integers by truncating the fractional
-% part.
-update_normalize(#docfield{subcategory=rational}, _, 
-                 DF=#docfield{subcategory=integer,value=V}) ->
-    DF#docfield{value=erlang:trunc(V)};
-% Convert integers to rationals by dividing by 1.
-update_normalize(#docfield{subcategory=integer}, _, 
-                 DF=#docfield{subcategory=rational,value=V}) -> 
-    DF#docfield{value=(V / 1)};
-% Going from boolean to openboolean will not cause any problems.
-update_normalize(#docfield{subcategory=boolean}, _, 
-                 DF=#docfield{subcategory=openboolean}) -> DF;
-% Going from openboolean to boolean, set null to false.
-update_normalize(#docfield{subcategory=openboolean}, _, 
-                 DF=#docfield{subcategory=boolean,value=V}) ->
-    DF#docfield{value=(V == true)};
-% If none of the above condtions match, set the value to default.
-update_normalize(_, #field{default=D}, DF) ->
-    DF#docfield{value=D}.
