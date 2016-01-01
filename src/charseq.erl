@@ -148,19 +148,7 @@ get_sortkey_helper(CharseqId, Value, Project, S) ->
     get_sortkey_helper(Charseq, Value).
 
 get_sortkey_helper(Charseq, Value) ->
-    case apply_patterns(Charseq#charseq.sort_ignore, Value) of
-        <<>> -> <<>>;
-        Value1 -> get_sortkey({Charseq, Value1})
-    end.
-  
-get_sortkey({Charseq, Value}) ->
-    {ok, Key} = 
-        case Charseq#charseq.tailoring of
-            <<>> -> icu:sortkey(Charseq#charseq.locale, 
-                                ustring:new(Value, utf8));
-            Rules -> icu:sortkey(Rules, ustring:new(Value, utf8))
-        end,
-    list_to_binary(utils:binary_to_hexlist(Key)).
+    iolist_to_binary(apply_patterns(Charseq#charseq.sort_ignore, Value)).
   
 apply_patterns([], Value) ->
     Value;

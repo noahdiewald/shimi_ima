@@ -128,7 +128,9 @@ fold_view(Id, Name, Qs, Fun, Project, S) ->
 
 %% @doc Get a document
 -spec get(string(), string(), h:req_state()) -> {ok, jsn:json_term()} | {error, atom()}.
-get(Id, Project, S) ->  
+get(Id, Project, S) when is_tuple(S) ->
+    get(Id, Project, []);
+get(Id, Project, S) when is_list(S) ->  
     Headers = proplists:get_value(headers, S, []),
     Url = case proplists:get_value(revs_info, S) of
         undefined ->
