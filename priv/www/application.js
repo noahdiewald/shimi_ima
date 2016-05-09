@@ -12777,9 +12777,15 @@ var get = function () {
 
   var format = function (resp) {
     resp.rows = resp.rows.map(function (item) {
-      item.display_key = item.key.map(function (k) {
-        return k[1];
-      });
+      if (item.key === null) {
+        // The assumption is that we have a reduce function
+        item.display_key = 'Total';
+        item.value = ['', item.value];
+      } else {
+        item.display_key = item.key.map(function (k) {
+          return k[1];
+        });
+      }
 
       if (indexId && item.value.length > 0) {
         item.value = item.value[1].split(', ');
