@@ -106,7 +106,7 @@ var initIndexBuilderDialog = function (indexDoctype) {
   };
 
   var getLabel = function (elem) {
-    return elem.querySelector('[value=' + elem.value + ']').innerHTML.trim();
+    return elem.querySelector('[value="' + elem.value + '"]').innerHTML.trim();
   };
 
   var dialog = $(dialogElem).dialog({
