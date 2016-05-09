@@ -159,7 +159,8 @@ var alterArg = function (argumentField, operatorField, fieldField, callback) {
     case 'true':
     case 'isDefined':
     case 'blank':
-      argumentField.setAttribute('disabled', 'disabled').value = '';
+      argumentField.setAttribute('disabled', 'disabled');
+      argumentField.setAttribute('value', '');
       break;
     case 'equal':
     case 'member':

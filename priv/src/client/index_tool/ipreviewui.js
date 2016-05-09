@@ -28,9 +28,14 @@ var get = function () {
 
   var format = function (resp) {
     resp.rows = resp.rows.map(function (item) {
-      item.display_key = item.key.map(function (k) {
-        return k[1];
-      });
+      if (item.key === null) {
+        // The assumption is that we have a reduce function
+        item.display_key = 'Total';
+      } else {
+        item.display_key = item.key.map(function (k) {
+          return k[1];
+        });
+      }
 
       return item;
     });
