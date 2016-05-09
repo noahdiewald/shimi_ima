@@ -178,10 +178,10 @@ y(F) ->
 %% attention to return statuses.
 -spec clear_all(Doctype :: string(), Project :: string()) -> ok.
 clear_all(Doctype, Project) ->
-    Url = couch:adb(Project) ++ "_design/" ++ Doctype ++ "/_view/alldocs?limit=100",
+    Url = couch:adb(Project) ++ "_design/" ++ Doctype ++ "/_view/index?include_docs=true&limit=100",
     Header = [{"Content-Type", "application/json"}],
     DelUrl = fun (Id, Rev) -> couch:adb(Project) ++ Id ++ "?rev=" ++ Rev end,
-    GetV = fun (K, J) -> binary_to_list(proplists:get_value(K, proplists:get_value(<<"value">>, J))) end,
+    GetV = fun (K, J) -> binary_to_list(proplists:get_value(K, proplists:get_value(<<"doc">>, J))) end,
     {ok, "200", _, Json} = ibrowse:send_req(Url, Header, get),
     [{_, Total},_,{<<"rows">>, Rows}] = jsn:decode(Json),
     case Total of
