@@ -59,7 +59,7 @@ ndb() ->
 %% @doc Return a unique id. Probably not a real UUID but it isn't
 %% necessary here.
 uuid() ->
-    binary_to_hexlist(crypto:rand_bytes(16)).
+    binary_to_hexlist(crypto:strong_rand_bytes(16)).
 
 %% @doc Takes a tuple that describes a view path and a function. The
 %% function argument takes a document and returns {ok, document} or the
