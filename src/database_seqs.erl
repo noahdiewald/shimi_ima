@@ -114,7 +114,7 @@ get_all_dbs([H|T], Acc) ->
 set_seqs([], Acc) ->
     Acc;
 set_seqs([H|T], Acc) ->
-    case couch:get_db_seq(H) of
+    case couch:get_db_seq_num(H) of
         {error, not_found} -> set_seqs(T, Acc);
         {ok, Seq} -> set_seqs(T, dict:store(H, Seq, Acc))
     end.

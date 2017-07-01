@@ -32,6 +32,7 @@
          get/4,
          get_attachment/4,
          get_db_seq/1,
+         get_db_seq_num/1,
          get_dbs/0,
          get_design_rev/3,
          get_view_json/4,
@@ -163,6 +164,17 @@ get_db_seq(Project) ->
     case get_db_info(Project) of
         {ok, Json} -> {ok, jsn:get_value(<<"update_seq">>, Json)};
         Otherwise -> Otherwise
+    end.
+
+-spec get_db_seq_num(string()) -> {ok, integer()} | {error, atom()}.
+get_db_seq_num(Project) ->
+    case get_db_seq(Project) of
+        {error, E} -> {error, E};
+        {ok, Seq} ->
+            case string:to_integer(Seq) of
+                {error, E} -> {error, E};
+                {SeqNum, _} -> {ok, SeqNum}
+            end
     end.
 
 -spec get_dbs() -> jsn:json_term().

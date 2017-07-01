@@ -71,7 +71,7 @@ handle_cast(_Msg, S) ->
     {noreply, S}.
 
 handle_info(trigger, S=#state{db=DB, views=[], start_seq=StartSeq}) ->
-    case couch:get_db_seq(DB) of
+    case couch:get_db_seq_num(DB) of
         undefined -> database_seqs:delete_seq(DB);
         {error, _} -> ok;
         {ok, EndSeq} ->

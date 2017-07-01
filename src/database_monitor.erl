@@ -86,7 +86,7 @@ code_change(_OldVsn, S, _Extra) ->
 
 get_ready_dbs(DBSeqs) ->
     Pred = fun(DB, OldSeq) ->
-                   case couch:get_db_seq(DB) of
+                   case couch:get_db_seq_num(DB) of
                        {error, not_found} -> false;
                        {error, req_timedout} -> false;
                        {ok, NewSeq} -> (NewSeq - OldSeq) > 10
