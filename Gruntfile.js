@@ -125,6 +125,7 @@ module.exports = function(grunt) {
         strict: true,
         trailing: true,
         undef: true,
+        reporterOutput: "",
         globals: {
           $: true,
           console: true,
