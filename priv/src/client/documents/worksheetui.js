@@ -132,10 +132,10 @@ var hideField = function (fid) {
 // There are two layers of templating information in the
 // template. Activate the second layer.
 var buildTemplate = function () {
-  'use strict';
+    'use strict';
 
-  var doctypeInfo = info.info();
-  var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
+    var doctypeInfo = info.info();
+    var metaTemp = '{{=<% %>=}}\n' + templates['worksheet'](doctypeInfo);
   globals[info.worksheetName()] = Hogan.compile(metaTemp);
 
   return true;
