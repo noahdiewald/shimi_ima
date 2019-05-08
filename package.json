@@ -12,7 +12,6 @@
     "grunt-contrib-less": "2.0.0",
     "grunt-contrib-uglify": "4.0.1",
     "grunt-contrib-jshint": "2.1.0",
-    "grunt-docco": "0.2.0",
     "grunt-env": "0.4.1",
     "grunt-hogan": "0.2.2-1",
     "grunt-mocha-cov": "0.0.7",
