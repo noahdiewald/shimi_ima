@@ -51,14 +51,6 @@ module.exports = function(grunt) {
         ]
       }
     },
-    docco: {
-      client: {
-        src: ['priv/src/client/**/*.js'],
-        options: {
-          output: 'jsdocs/'
-        }
-      }
-    },
     mochacov: {
       unit: {
         options: {
