@@ -16646,10 +16646,14 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
       rNewline =  /\n/g,
       rCr = /\r/g,
       rSlash = /\\/g,
-      tagTypes = {
-        '#': 1, '^': 2, '/': 3,  '!': 4, '>': 5,
-        '<': 6, '=': 7, '_v': 8, '{': 9, '&': 10
-      };
+      rLineSep = /\u2028/,
+      rParagraphSep = /\u2029/;
+
+  Hogan.tags = {
+    '#': 1, '^': 2, '<': 3, '$': 4,
+    '/': 5, '!': 6, '>': 7, '=': 8, '_v': 9,
+    '{': 10, '&': 11, '_t': 12
+  };
 
   Hogan.scan = function scan(text, delimiters) {
     var len = text.length,
@@ -16669,7 +16673,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
 
     function addBuf() {
       if (buf.length > 0) {
-        tokens.push(new String(buf));
+        tokens.push({tag: '_t', text: new String(buf)});
         buf = '';
       }
     }
@@ -16678,8 +16682,8 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
       var isAllWhitespace = true;
       for (var j = lineStart; j < tokens.length; j++) {
         isAllWhitespace =
-          (tokens[j].tag && tagTypes[tokens[j].tag] < tagTypes['_v']) ||
-          (!tokens[j].tag && tokens[j].match(rIsWhitespace) === null);
+          (Hogan.tags[tokens[j].tag] < Hogan.tags['_v']) ||
+          (tokens[j].tag == '_t' && tokens[j].text.match(rIsWhitespace) === null);
         if (!isAllWhitespace) {
           return false;
         }
@@ -16693,10 +16697,10 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
 
       if (haveSeenTag && lineIsWhitespace()) {
         for (var j = lineStart, next; j < tokens.length; j++) {
-          if (!tokens[j].tag) {
+          if (tokens[j].text) {
             if ((next = tokens[j+1]) && next.tag == '>') {
               // set indent to token value
-              next.indent = tokens[j].toString()
+              next.indent = tokens[j].text.toString()
             }
             tokens.splice(j, 1);
           }
@@ -16717,7 +16721,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
           ).split(' ');
 
       otag = delimiters[0];
-      ctag = delimiters[1];
+      ctag = delimiters[delimiters.length - 1];
 
       return closeIndex + close.length - 1;
     }
@@ -16743,7 +16747,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
         }
       } else if (state == IN_TAG_TYPE) {
         i += otag.length - 1;
-        tag = tagTypes[text.charAt(i + 1)];
+        tag = Hogan.tags[text.charAt(i + 1)];
         tagType = tag ? text.charAt(i + 1) : '_v';
         if (tagType == '=') {
           i = changeDelimiters(text, i);
@@ -16758,7 +16762,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
       } else {
         if (tagChange(ctag, text, i)) {
           tokens.push({tag: tagType, n: trim(buf), otag: otag, ctag: ctag,
-                       i: (tagType == '/') ? seenTag - ctag.length : i + otag.length});
+                       i: (tagType == '/') ? seenTag - otag.length : i + ctag.length});
           buf = '';
           i += ctag.length - 1;
           state = IN_TEXT;
@@ -16808,17 +16812,27 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
     return true;
   }
 
+  // the tags allowed inside super templates
+  var allowedInSuper = {'_t': true, '\n': true, '$': true, '/': true};
+
   function buildTree(tokens, kind, stack, customTags) {
     var instructions = [],
         opener = null,
+        tail = null,
         token = null;
+
+    tail = stack[stack.length - 1];
 
     while (tokens.length > 0) {
       token = tokens.shift();
-      if (token.tag == '#' || token.tag == '^' || isOpener(token, customTags)) {
+
+      if (tail && tail.tag == '<' && !(token.tag in allowedInSuper)) {
+        throw new Error('Illegal content in < super tag.');
+      }
+
+      if (Hogan.tags[token.tag] <= Hogan.tags['$'] || isOpener(token, customTags)) {
         stack.push(token);
         token.nodes = buildTree(tokens, token.tag, stack, customTags);
-        instructions.push(token);
       } else if (token.tag == '/') {
         if (stack.length === 0) {
           throw new Error('Closing tag without opener: /' + token.n);
@@ -16829,9 +16843,11 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
         }
         opener.end = token.i;
         return instructions;
-      } else {
-        instructions.push(token);
+      } else if (token.tag == '\n') {
+        token.last = (tokens.length == 0) || (tokens[0].tag == '\n');
       }
+
+      instructions.push(token);
     }
 
     if (stack.length > 0) {
@@ -16858,114 +16874,177 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
     }
   }
 
-  Hogan.generate = function (tree, text, options) {
-    var code = 'var _=this;_.b(i=i||"");' + walk(tree) + 'return _.fl();';
+  function stringifySubstitutions(obj) {
+    var items = [];
+    for (var key in obj) {
+      items.push('"' + esc(key) + '": function(c,p,t,i) {' + obj[key] + '}');
+    }
+    return "{ " + items.join(",") + " }";
+  }
+
+  function stringifyPartials(codeObj) {
+    var partials = [];
+    for (var key in codeObj.partials) {
+      partials.push('"' + esc(key) + '":{name:"' + esc(codeObj.partials[key].name) + '", ' + stringifyPartials(codeObj.partials[key]) + "}");
+    }
+    return "partials: {" + partials.join(",") + "}, subs: " + stringifySubstitutions(codeObj.subs);
+  }
+
+  Hogan.stringify = function(codeObj, text, options) {
+    return "{code: function (c,p,i) { " + Hogan.wrapMain(codeObj.code) + " }," + stringifyPartials(codeObj) +  "}";
+  }
+
+  var serialNo = 0;
+  Hogan.generate = function(tree, text, options) {
+    serialNo = 0;
+    var context = { code: '', subs: {}, partials: {} };
+    Hogan.walk(tree, context);
+
     if (options.asString) {
-      return 'function(c,p,i){' + code + ';}';
+      return this.stringify(context, text, options);
     }
 
-    return new Hogan.Template(new Function('c', 'p', 'i', code), text, Hogan, options);
+    return this.makeTemplate(context, text, options);
+  }
+
+  Hogan.wrapMain = function(code) {
+    return 'var t=this;t.b(i=i||"");' + code + 'return t.fl();';
+  }
+
+  Hogan.template = Hogan.Template;
+
+  Hogan.makeTemplate = function(codeObj, text, options) {
+    var template = this.makePartials(codeObj);
+    template.code = new Function('c', 'p', 'i', this.wrapMain(codeObj.code));
+    return new this.template(template, text, this, options);
+  }
+
+  Hogan.makePartials = function(codeObj) {
+    var key, template = {subs: {}, partials: codeObj.partials, name: codeObj.name};
+    for (key in template.partials) {
+      template.partials[key] = this.makePartials(template.partials[key]);
+    }
+    for (key in codeObj.subs) {
+      template.subs[key] = new Function('c', 'p', 't', 'i', codeObj.subs[key]);
+    }
+    return template;
   }
 
   function esc(s) {
     return s.replace(rSlash, '\\\\')
             .replace(rQuot, '\\\"')
             .replace(rNewline, '\\n')
-            .replace(rCr, '\\r');
+            .replace(rCr, '\\r')
+            .replace(rLineSep, '\\u2028')
+            .replace(rParagraphSep, '\\u2029');
   }
 
   function chooseMethod(s) {
     return (~s.indexOf('.')) ? 'd' : 'f';
   }
 
-  function walk(tree) {
-    var code = '';
-    for (var i = 0, l = tree.length; i < l; i++) {
-      var tag = tree[i].tag;
-      if (tag == '#') {
-        code += section(tree[i].nodes, tree[i].n, chooseMethod(tree[i].n),
-                        tree[i].i, tree[i].end, tree[i].otag + " " + tree[i].ctag);
-      } else if (tag == '^') {
-        code += invertedSection(tree[i].nodes, tree[i].n,
-                                chooseMethod(tree[i].n));
-      } else if (tag == '<' || tag == '>') {
-        code += partial(tree[i]);
-      } else if (tag == '{' || tag == '&') {
-        code += tripleStache(tree[i].n, chooseMethod(tree[i].n));
-      } else if (tag == '\n') {
-        code += text('"\\n"' + (tree.length-1 == i ? '' : ' + i'));
-      } else if (tag == '_v') {
-        code += variable(tree[i].n, chooseMethod(tree[i].n));
-      } else if (tag === undefined) {
-        code += text('"' + esc(tree[i]) + '"');
+  function createPartial(node, context) {
+    var prefix = "<" + (context.prefix || "");
+    var sym = prefix + node.n + serialNo++;
+    context.partials[sym] = {name: node.n, partials: {}};
+    context.code += 't.b(t.rp("' +  esc(sym) + '",c,p,"' + (node.indent || '') + '"));';
+    return sym;
+  }
+
+  Hogan.codegen = {
+    '#': function(node, context) {
+      context.code += 'if(t.s(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,1),' +
+                      'c,p,0,' + node.i + ',' + node.end + ',"' + node.otag + " " + node.ctag + '")){' +
+                      't.rs(c,p,' + 'function(c,p,t){';
+      Hogan.walk(node.nodes, context);
+      context.code += '});c.pop();}';
+    },
+
+    '^': function(node, context) {
+      context.code += 'if(!t.s(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,1),c,p,1,0,0,"")){';
+      Hogan.walk(node.nodes, context);
+      context.code += '};';
+    },
+
+    '>': createPartial,
+    '<': function(node, context) {
+      var ctx = {partials: {}, code: '', subs: {}, inPartial: true};
+      Hogan.walk(node.nodes, ctx);
+      var template = context.partials[createPartial(node, context)];
+      template.subs = ctx.subs;
+      template.partials = ctx.partials;
+    },
+
+    '$': function(node, context) {
+      var ctx = {subs: {}, code: '', partials: context.partials, prefix: node.n};
+      Hogan.walk(node.nodes, ctx);
+      context.subs[node.n] = ctx.code;
+      if (!context.inPartial) {
+        context.code += 't.sub("' + esc(node.n) + '",c,p,i);';
       }
+    },
+
+    '\n': function(node, context) {
+      context.code += write('"\\n"' + (node.last ? '' : ' + i'));
+    },
+
+    '_v': function(node, context) {
+      context.code += 't.b(t.v(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,0)));';
+    },
+
+    '_t': function(node, context) {
+      context.code += write('"' + esc(node.text) + '"');
+    },
+
+    '{': tripleStache,
+
+    '&': tripleStache
+  }
+
+  function tripleStache(node, context) {
+    context.code += 't.b(t.t(t.' + chooseMethod(node.n) + '("' + esc(node.n) + '",c,p,0)));';
+  }
+
+  function write(s) {
+    return 't.b(' + s + ');';
+  }
+
+  Hogan.walk = function(nodelist, context) {
+    var func;
+    for (var i = 0, l = nodelist.length; i < l; i++) {
+      func = Hogan.codegen[nodelist[i].tag];
+      func && func(nodelist[i], context);
     }
-    return code;
-  }
-
-  function section(nodes, id, method, start, end, tags) {
-    return 'if(_.s(_.' + method + '("' + esc(id) + '",c,p,1),' +
-           'c,p,0,' + start + ',' + end + ',"' + tags + '")){' +
-           '_.rs(c,p,' +
-           'function(c,p,_){' +
-           walk(nodes) +
-           '});c.pop();}';
-  }
-
-  function invertedSection(nodes, id, method) {
-    return 'if(!_.s(_.' + method + '("' + esc(id) + '",c,p,1),c,p,1,0,0,"")){' +
-           walk(nodes) +
-           '};';
-  }
-
-  function partial(tok) {
-    return '_.b(_.rp("' +  esc(tok.n) + '",c,p,"' + (tok.indent || '') + '"));';
-  }
-
-  function tripleStache(id, method) {
-    return '_.b(_.t(_.' + method + '("' + esc(id) + '",c,p,0)));';
-  }
-
-  function variable(id, method) {
-    return '_.b(_.v(_.' + method + '("' + esc(id) + '",c,p,0)));';
-  }
-
-  function text(id) {
-    return '_.b(' + id + ');';
+    return context;
   }
 
   Hogan.parse = function(tokens, text, options) {
     options = options || {};
     return buildTree(tokens, '', [], options.sectionTags || []);
-  },
+  }
 
   Hogan.cache = {};
 
+  Hogan.cacheKey = function(text, options) {
+    return [text, !!options.asString, !!options.disableLambda, options.delimiters, !!options.modelGet].join('||');
+  }
+
   Hogan.compile = function(text, options) {
-    // options
-    //
-    // asString: false (default)
-    //
-    // sectionTags: [{o: '_foo', c: 'foo'}]
-    // An array of object with o and c fields that indicate names for custom
-    // section tags. The example above allows parsing of {{_foo}}{{/foo}}.
-    //
-    // delimiters: A string that overrides the default delimiters.
-    // Example: "<% %>"
-    //
     options = options || {};
+    var key = Hogan.cacheKey(text, options);
+    var template = this.cache[key];
 
-    var key = text + '||' + !!options.asString;
-
-    var t = this.cache[key];
-
-    if (t) {
-      return t;
+    if (template) {
+      var partials = template.partials;
+      for (var name in partials) {
+        delete partials[name].instance;
+      }
+      return template;
     }
 
-    t = this.generate(this.parse(this.scan(text, options.delimiters), text, options), text, options);
-    return this.cache[key] = t;
-  };
+    template = this.generate(this.parse(this.scan(text, options.delimiters), text, options), text, options);
+    return this.cache[key] = template;
+  }
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
 },{}],100:[function(require,module,exports){
@@ -16988,7 +17067,9 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
 
 var Hogan = require('./compiler');
 Hogan.Template = require('./template').Template;
-module.exports = Hogan; 
+Hogan.template = Hogan.Template;
+module.exports = Hogan;
+
 },{"./compiler":99,"./template":101}],101:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
@@ -17007,13 +17088,16 @@ module.exports = Hogan;
 
 var Hogan = {};
 
-(function (Hogan, useArrayBuffer) {
-  Hogan.Template = function (renderFunc, text, compiler, options) {
-    this.r = renderFunc || this.r;
+(function (Hogan) {
+  Hogan.Template = function (codeObj, text, compiler, options) {
+    codeObj = codeObj || {};
+    this.r = codeObj.code || this.r;
     this.c = compiler;
-    this.options = options;
+    this.options = options || {};
     this.text = text || '';
-    this.buf = (useArrayBuffer) ? [] : '';
+    this.partials = codeObj.partials || {};
+    this.subs = codeObj.subs || {};
+    this.buf = '';
   }
 
   Hogan.Template.prototype = {
@@ -17035,16 +17119,51 @@ var Hogan = {};
       return this.r(context, partials, indent);
     },
 
-    // tries to find a partial in the curent scope and render it
-    rp: function(name, context, partials, indent) {
-      var partial = partials[name];
+    // ensurePartial
+    ep: function(symbol, partials) {
+      var partial = this.partials[symbol];
 
-      if (!partial) {
-        return '';
+      // check to see that if we've instantiated this partial before
+      var template = partials[partial.name];
+      if (partial.instance && partial.base == template) {
+        return partial.instance;
       }
 
-      if (this.c && typeof partial == 'string') {
-        partial = this.c.compile(partial, this.options);
+      if (typeof template == 'string') {
+        if (!this.c) {
+          throw new Error("No compiler available.");
+        }
+        template = this.c.compile(template, this.options);
+      }
+
+      if (!template) {
+        return null;
+      }
+
+      // We use this to check whether the partials dictionary has changed
+      this.partials[symbol].base = template;
+
+      if (partial.subs) {
+        // Make sure we consider parent template now
+        if (!partials.stackText) partials.stackText = {};
+        for (key in partial.subs) {
+          if (!partials.stackText[key]) {
+            partials.stackText[key] = (this.activeSub !== undefined && partials.stackText[this.activeSub]) ? partials.stackText[this.activeSub] : this.text;
+          }
+        }
+        template = createSpecializedPartial(template, partial.subs, partial.partials,
+          this.stackSubs, this.stackPartials, partials.stackText);
+      }
+      this.partials[symbol].instance = template;
+
+      return template;
+    },
+
+    // tries to find a partial in the current scope and render it
+    rp: function(symbol, context, partials, indent) {
+      var partial = this.ep(symbol, partials);
+      if (!partial) {
+        return '';
       }
 
       return partial.ri(context, partials, indent);
@@ -17075,10 +17194,10 @@ var Hogan = {};
       }
 
       if (typeof val == 'function') {
-        val = this.ls(val, ctx, partials, inverted, start, end, tags);
+        val = this.ms(val, ctx, partials, inverted, start, end, tags);
       }
 
-      pass = (val === '') || !!val;
+      pass = !!val;
 
       if (!inverted && pass && ctx) {
         ctx.push((typeof val == 'object') ? val : ctx[ctx.length - 1]);
@@ -17089,20 +17208,23 @@ var Hogan = {};
 
     // find values with dotted names
     d: function(key, ctx, partials, returnFound) {
-      var names = key.split('.'),
+      var found,
+          names = key.split('.'),
           val = this.f(names[0], ctx, partials, returnFound),
+          doModelGet = this.options.modelGet,
           cx = null;
 
       if (key === '.' && isArray(ctx[ctx.length - 2])) {
-        return ctx[ctx.length - 1];
-      }
-
-      for (var i = 1; i < names.length; i++) {
-        if (val && typeof val == 'object' && names[i] in val) {
-          cx = val;
-          val = val[names[i]];
-        } else {
-          val = '';
+        val = ctx[ctx.length - 1];
+      } else {
+        for (var i = 1; i < names.length; i++) {
+          found = findInScope(names[i], val, doModelGet);
+          if (found !== undefined) {
+            cx = val;
+            val = found;
+          } else {
+            val = '';
+          }
         }
       }
 
@@ -17112,7 +17234,7 @@ var Hogan = {};
 
       if (!returnFound && typeof val == 'function') {
         ctx.push(cx);
-        val = this.lv(val, ctx, partials);
+        val = this.mv(val, ctx, partials);
         ctx.pop();
       }
 
@@ -17123,12 +17245,13 @@ var Hogan = {};
     f: function(key, ctx, partials, returnFound) {
       var val = false,
           v = null,
-          found = false;
+          found = false,
+          doModelGet = this.options.modelGet;
 
       for (var i = ctx.length - 1; i >= 0; i--) {
         v = ctx[i];
-        if (v && typeof v == 'object' && key in v) {
-          val = v[key];
+        val = findInScope(key, v, doModelGet);
+        if (val !== undefined) {
           found = true;
           break;
         }
@@ -17139,75 +17262,134 @@ var Hogan = {};
       }
 
       if (!returnFound && typeof val == 'function') {
-        val = this.lv(val, ctx, partials);
+        val = this.mv(val, ctx, partials);
       }
 
       return val;
     },
 
     // higher order templates
-    ho: function(val, cx, partials, text, tags) {
-      var compiler = this.c;
-      var options = this.options;
-      options.delimiters = tags;
-      var text = val.call(cx, text);
-      text = (text == null) ? String(text) : text.toString();
-      this.b(compiler.compile(text, options).render(cx, partials));
+    ls: function(func, cx, partials, text, tags) {
+      var oldTags = this.options.delimiters;
+
+      this.options.delimiters = tags;
+      this.b(this.ct(coerceToString(func.call(cx, text)), cx, partials));
+      this.options.delimiters = oldTags;
+
       return false;
     },
 
-    // template result buffering
-    b: (useArrayBuffer) ? function(s) { this.buf.push(s); } :
-                          function(s) { this.buf += s; },
-    fl: (useArrayBuffer) ? function() { var r = this.buf.join(''); this.buf = []; return r; } :
-                           function() { var r = this.buf; this.buf = ''; return r; },
-
-    // lambda replace section
-    ls: function(val, ctx, partials, inverted, start, end, tags) {
-      var cx = ctx[ctx.length - 1],
-          t = null;
-
-      if (!inverted && this.c && val.length > 0) {
-        return this.ho(val, cx, partials, this.text.substring(start, end), tags);
+    // compile text
+    ct: function(text, cx, partials) {
+      if (this.options.disableLambda) {
+        throw new Error('Lambda features disabled.');
       }
-
-      t = val.call(cx);
-
-      if (typeof t == 'function') {
-        if (inverted) {
-          return true;
-        } else if (this.c) {
-          return this.ho(t, cx, partials, this.text.substring(start, end), tags);
-        }
-      }
-
-      return t;
+      return this.c.compile(text, this.options).render(cx, partials);
     },
 
-    // lambda replace variable
-    lv: function(val, ctx, partials) {
-      var cx = ctx[ctx.length - 1];
-      var result = val.call(cx);
+    // template result buffering
+    b: function(s) { this.buf += s; },
+
+    fl: function() { var r = this.buf; this.buf = ''; return r; },
+
+    // method replace section
+    ms: function(func, ctx, partials, inverted, start, end, tags) {
+      var textSource,
+          cx = ctx[ctx.length - 1],
+          result = func.call(cx);
 
       if (typeof result == 'function') {
-        result = coerceToString(result.call(cx));
-        if (this.c && ~result.indexOf("{\u007B")) {
-          return this.c.compile(result, this.options).render(cx, partials);
+        if (inverted) {
+          return true;
+        } else {
+          textSource = (this.activeSub && this.subsText && this.subsText[this.activeSub]) ? this.subsText[this.activeSub] : this.text;
+          return this.ls(result, cx, partials, textSource.substring(start, end), tags);
         }
       }
 
-      return coerceToString(result);
+      return result;
+    },
+
+    // method replace variable
+    mv: function(func, ctx, partials) {
+      var cx = ctx[ctx.length - 1];
+      var result = func.call(cx);
+
+      if (typeof result == 'function') {
+        return this.ct(coerceToString(result.call(cx)), cx, partials);
+      }
+
+      return result;
+    },
+
+    sub: function(name, context, partials, indent) {
+      var f = this.subs[name];
+      if (f) {
+        this.activeSub = name;
+        f(context, partials, this, indent);
+        this.activeSub = false;
+      }
     }
 
   };
 
+  //Find a key in an object
+  function findInScope(key, scope, doModelGet) {
+    var val;
+
+    if (scope && typeof scope == 'object') {
+
+      if (scope[key] !== undefined) {
+        val = scope[key];
+
+      // try lookup with get for backbone or similar model data
+      } else if (doModelGet && scope.get && typeof scope.get == 'function') {
+        val = scope.get(key);
+      }
+    }
+
+    return val;
+  }
+
+  function createSpecializedPartial(instance, subs, partials, stackSubs, stackPartials, stackText) {
+    function PartialTemplate() {};
+    PartialTemplate.prototype = instance;
+    function Substitutions() {};
+    Substitutions.prototype = instance.subs;
+    var key;
+    var partial = new PartialTemplate();
+    partial.subs = new Substitutions();
+    partial.subsText = {};  //hehe. substext.
+    partial.buf = '';
+
+    stackSubs = stackSubs || {};
+    partial.stackSubs = stackSubs;
+    partial.subsText = stackText;
+    for (key in subs) {
+      if (!stackSubs[key]) stackSubs[key] = subs[key];
+    }
+    for (key in stackSubs) {
+      partial.subs[key] = stackSubs[key];
+    }
+
+    stackPartials = stackPartials || {};
+    partial.stackPartials = stackPartials;
+    for (key in partials) {
+      if (!stackPartials[key]) stackPartials[key] = partials[key];
+    }
+    for (key in stackPartials) {
+      partial.partials[key] = stackPartials[key];
+    }
+
+    return partial;
+  }
+
   var rAmp = /&/g,
       rLt = /</g,
       rGt = />/g,
-      rApos =/\'/g,
+      rApos = /\'/g,
       rQuot = /\"/g,
-      hChars =/[&<>\"\']/;
-
+      hChars = /[&<>\"\']/;
 
   function coerceToString(val) {
     return String((val === null || val === undefined) ? '' : val);
@@ -17217,10 +17399,10 @@ var Hogan = {};
     str = coerceToString(str);
     return hChars.test(str) ?
       str
-        .replace(rAmp,'&amp;')
-        .replace(rLt,'&lt;')
-        .replace(rGt,'&gt;')
-        .replace(rApos,'&#39;')
+        .replace(rAmp, '&amp;')
+        .replace(rLt, '&lt;')
+        .replace(rGt, '&gt;')
+        .replace(rApos, '&#39;')
         .replace(rQuot, '&quot;') :
       str;
   }
@@ -17230,7 +17412,6 @@ var Hogan = {};
   };
 
 })(typeof exports !== 'undefined' ? exports : Hogan);
-
 
 },{}],102:[function(require,module,exports){
 module.exports = CollectingHandler;
@@ -36795,44 +36976,47 @@ exports.identity = identity;
 
 },{}],"templates":[function(require,module,exports){
 var Hogan = require('hogan.js');
+
 var t = {
-  'changelog-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a");_.b("\n" + i);_.b("      href=\"#");_.b(_.v(_.f("document_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      class=\"view-document-link\">");_.b("\n" + i);_.b("      ");if(_.s(_.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.d(".",c,p,0)));});c.pop();}_.b("\n" + i);_.b("    </a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("change_type",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("user",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("timestamp",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n" + i);if(_.s(_.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <tr class=\"change-change\">");_.b("\n" + i);_.b("    <th>");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("fieldsetLabel",c,p,0)));_.b(": ");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("\n" + i);_.b("    </th>");_.b("\n" + i);_.b("    <td colspan=3>");_.b("\n" + i);if(!_.s(_.f("originalValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\n" + i);_.b("      →");_.b("\n" + i);if(!_.s(_.f("newValue",c,p,1),c,p,1,0,0,"")){_.b("      <b>Ø</b>");_.b("\n");};_.b("      ");_.b(_.v(_.f("newValue",c,p,0)));_.b("\n" + i);_.b("    </td>");_.b("\n" + i);_.b("  </tr>");_.b("\n");});c.pop();}});c.pop();}return _.fl();;}),
-  'charseqs-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,42,157,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("key",c,p,0)));_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n" + i);_.b("   </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'config-maintenance' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div id=\"maintenance\">");_.b("\n" + i);_.b("  <h3>Upgrade Project</h3>");_.b("\n" + i);_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Clicking the button below will initiate an upgrade of the project");_.b("\n" + i);_.b("    core design document to the latest version available on your");_.b("\n" + i);_.b("    system.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    Be aware that this may cause significant slowness on your system");_.b("\n" + i);_.b("    while view indexes are rebuilt.");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("\n" + i);_.b("  <a id=\"maintenance-upgrade-button\" class=\"maintenance-upgrade-button link-button\">Upgrade</a>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
-  'doctypes-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,42,157,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"edit-doctype-link\">");_.b(_.v(_.f("key",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n" + i);_.b("   </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'document-edit' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<h2 class=\"header\">Edit</h2>");_.b("\n" + i);_.b("\n" + i);if(_.s(_.f("has_rows",c,p,1),c,p,0,43,1862,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"edit-document-form\" class=\"ui-widget ui-corner-all\">");_.b("\n" + i);_.b("  ");_.b("\n" + i);_.b("    <div id=\"edit-tabs\">");_.b("\n" + i);_.b("      <div id=\"tabs-container\">");_.b("\n" + i);_.b("        <ul id=\"tab-list\">");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,219,338,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <li>");_.b("\n" + i);_.b("            <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("              ");_.b(_.v(_.f("label",c,p,0)));_.b("\n" + i);_.b("            </a>");_.b("\n" + i);_.b("          </li>");_.b("\n");});c.pop();}_.b("        </ul>");_.b("\n" + i);_.b("      </div>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,400,1448,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <fieldset");_.b("\n" + i);_.b("          id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          class=\"ui-widget ui-widget-content ui-corner-all fieldset\"");_.b("\n" + i);_.b("          data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-field-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          data-field-project=\"project-");_.b(_.v(_.f("project_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-field-doctype=\"");_.b(_.v(_.f("doctype",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("          data-fieldset-multiple=\"");_.b(_.v(_.f("multiple",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-collapse=\"");_.b(_.v(_.f("collapse",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-label=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-order=\"");_.b(_.v(_.f("order",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-project=\"project-");_.b(_.v(_.f("project_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          data-fieldset-doctype=\"");_.b(_.v(_.f("doctype_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("          <p>");_.b(_.v(_.f("description",c,p,0)));_.b("</p>");_.b("\n" + i);_.b("          <div ");_.b("\n" + i);_.b("            id=\"container-");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("            class=\"fieldset-container\"");_.b("\n" + i);_.b("            data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"></div>");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,1279,1408,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("              <a ");_.b("\n" + i);_.b("                class=\"add-button link-button\" ");_.b("\n" + i);_.b("                data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">Add</a>");_.b("\n");});c.pop();}_.b("        </fieldset>");_.b("\n");});c.pop();}_.b("    </div>");_.b("\n" + i);_.b("    <div id=\"submit-button-area\">");_.b("\n" + i);_.b("      <a id=\"clear-document-button\" class=\"clear-button link-button\">Clear Form</a>");_.b("\n" + i);_.b("      <a data-group-id=\"all-document-container\" id=\"create-document-button\" class=\"create-button link-button\">Create as New</a>");_.b("\n" + i);_.b("      <a data-group-id=\"all-document-container\" id=\"save-document-button\" class=\"save-button link-button hidden\">Save</a>");_.b("\n" + i);_.b("    </div>");_.b("\n" + i);_.b("  </div>");_.b("\n");});c.pop();}if(!_.s(_.f("has_rows",c,p,1),c,p,1,0,0,"")){_.b("<p>");_.b("\n" + i);_.b("  You must add fields and fieldsets before you can create a document of this type.");_.b("\n" + i);_.b("</p>");_.b("\n");};return _.fl();;}),
-  'document-search-results' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr>");_.b("\n" + i);_.b("  <th>");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"view-document-link\">");_.b(_.v(_.f("key",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td class=\"search-result-context\">");_.b("\n" + i);_.b("    <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\" class=\"view-document-link\">");_.b(_.v(_.f("value",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'document-search' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("are_results",c,p,1),c,p,0,16,1220,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div class=\"total-rows-info\">");_.b("\n" + i);_.b("    <b>Total</b>: ");_.b(_.v(_.f("total_rows",c,p,0)));_.b("\n" + i);_.b("  </div>");_.b("\n" + i);_.b("  <div id=\"save-search-results\">");_.b("\n" + i);_.b("    <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("  </div>");_.b("\n" + i);if(_.s(_.f("index_listing",c,p,1),c,p,0,191,477,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <div class=\"search-results\">");_.b("\n" + i);_.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results\" />");_.b("\n" + i);_.b("      <label for=\"select-results\">Select Results</label>");_.b("\n" + i);_.b("      <table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,390,439,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-search-results",c,p,"          "));});c.pop();}_.b("      </table>");_.b("\n" + i);_.b("    </div>");_.b("\n");});c.pop();}if(!_.s(_.f("index_listing",c,p,1),c,p,1,0,0,"")){if(_.s(_.f("rows",c,p,1),c,p,0,530,1189,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <h5 class=\"search-result-field-id toggler\"");_.b("\n" + i);_.b("        data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("        data-target=\"results-for-field-");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("        title=\"Click to display\">");_.b("\n" + i);_.b("      <a href=\"#\" title=\"Double click to add as search option\">");_.b("\n" + i);_.b("        ");_.b(_.v(_.f("id",c,p,0)));_.b("\n" + i);_.b("      </a> ");_.b("\n" + i);_.b("      (");_.b(_.v(_.f("total_rows",c,p,0)));_.b(")");_.b("\n" + i);_.b("    </h5>");_.b("\n" + i);_.b("    ");_.b("\n" + i);_.b("    <div class=\"search-results hidden\"");_.b("\n" + i);_.b("         id=\"results-for-field-");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results-");_.b(_.v(_.d("field.id",c,p,0)));_.b("\" />");_.b("\n" + i);_.b("      <label for=\"select-results-");_.b(_.v(_.f("id",c,p,0)));_.b("\">Select Results</label>");_.b("\n" + i);_.b("      <table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,1100,1149,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-search-results",c,p,"          "));});c.pop();}_.b("      </table>");_.b("\n" + i);_.b("    </div>");_.b("\n");});c.pop();}};});c.pop();}if(!_.s(_.f("are_results",c,p,1),c,p,1,0,0,"")){_.b("  <em>No Results</em>");_.b("\n");};return _.fl();;}),
-  'document-view-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li ");_.b("\n" + i);_.b("  class=\"field-view ");_.b("\n" + i);_.b("    ");if(_.s(_.f("changed",c,p,1),c,p,0,42,49,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("  data-field-field=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("instance",c,p,1),c,p,0,108,150,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b("  data-field-value=\"");_.b(_.v(_.f("json_value",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("changed",c,p,1),c,p,0,235,343,"{{ }}")){_.rs(c,p,function(c,p,_){if(!_.s(_.f("newfield",c,p,1),c,p,1,0,0,"")){_.b("<span class=\"small-control view-field-change\" title=\"");_.b(_.v(_.f("originalValue",c,p,0)));_.b("\">→</span>");};});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("is_textarea",c,p,1),c,p,0,375,426,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <span class=\"retain-white\">");_.b(_.v(_.f("value",c,p,0)));_.b("</span>");_.b("\n");});c.pop();}if(!_.s(_.f("is_textarea",c,p,1),c,p,1,0,0,"")){_.b("    ");_.b(_.v(_.f("value",c,p,0)));_.b("\n");};_.b("</li>");_.b("\n");return _.fl();;}),
-  'document-view-tree' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("previous_revision",c,p,1),c,p,0,22,76,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"revision-message\">Previous Revision</div>");_.b("\n");});c.pop();}_.b("\n" + i);if(_.s(_.f("deleted_",c,p,1),c,p,0,113,163,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div id=\"deleted-message\"><b>Deleted</b></div>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<ul>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,197,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <li");_.b("\n" + i);_.b("    class=\"fieldset-view");_.b("\n" + i);_.b("      ");if(_.s(_.f("collapse",c,p,1),c,p,0,248,257,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapsed");});c.pop();}_.b("\n" + i);_.b("      ");if(_.s(_.f("altered",c,p,1),c,p,0,289,296,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("changed");});c.pop();}_.b("\"");_.b("\n" + i);_.b("    data-fieldset-fieldset=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("label",c,p,0)));_.b("</b>");if(_.s(_.f("addition",c,p,1),c,p,0,414,468,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset added\" class=\"addition\">+</span>");});c.pop();}if(_.s(_.f("removal",c,p,1),c,p,0,493,548,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<span title=\"fieldset removed\" class=\"removal\">−</span>");});c.pop();}_.b(":");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,579,818,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <ol>");_.b("\n" + i);if(_.s(_.f("multifields",c,p,1),c,p,0,613,785,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <ul class=\"multifield\">");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,684,737,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"              "));});c.pop();}_.b("          </ul>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("      </ol>");_.b("\n");});c.pop();}if(!_.s(_.f("multiple",c,p,1),c,p,1,0,0,"")){_.b("      <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,880,925,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("document-view-field",c,p,"          "));});c.pop();}_.b("      </ul>");_.b("\n");};_.b("  </li>");_.b("\n");});c.pop();}_.b("</ul>");_.b("\n" + i);_.b("\n" + i);_.b("<div class=\"timestamps\">");_.b("\n" + i);_.b("  <dl>");_.b("\n" + i);_.b("    <dt>Created At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("created_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Created By</dt><dd>");_.b(_.v(_.f("created_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated At</dt><dd class=\"timestamp\">");_.b(_.v(_.f("updated_at_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>Updated By</dt><dd>");_.b(_.v(_.f("updated_by_",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("    <dt>ID</dt><dd>");_.b(_.v(_.f("_id",c,p,0)));_.b("</dd>");_.b("\n" + i);_.b("  </dl>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
-  'document-view' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("doctype_info",c,p,1),c,p,0,17,187,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <h2 class=\"header\">View</h2>");_.b("\n" + i);_.b("\n" + i);_.b("  <form id=\"view-jump\">");_.b("\n" + i);_.b("    <label for=\"view-jump-id\">Id</label>");_.b("\n" + i);_.b("    <input type=\"text\" id=\"view-jump-id\" name=\"view-jump-id\">");_.b("\n" + i);_.b("  </form>");_.b("\n");});c.pop();}_.b("\n" + i);_.b("<div id=\"document-view-info\"");_.b("\n" + i);_.b("     data-document-deleted=\"");_.b(_.v(_.f("deleted_",c,p,0)));_.b("\"");_.b("\n" + i);_.b("     data-document-document=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("     data-document-rev=\"");_.b(_.v(_.f("_rev",c,p,0)));_.b("\"></div>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-restore-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button hidden\">Restore</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-edit-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Edit</a>");_.b("\n" + i);_.b("\n" + i);_.b("<a id=\"document-delete-button\"");_.b("\n" + i);_.b("   data-group-id=\"document-view-info\"");_.b("\n" + i);_.b("   class=\"link-button\">Delete</a>");_.b("\n" + i);_.b("\n" + i);_.b("<nav id=\"history\">");_.b("\n" + i);if(_.s(_.f("revs_info",c,p,1),c,p,0,716,991,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("status",c,p,1),c,p,0,732,975,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <a href=\"#");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("         class=\"revision-link\"");_.b("\n" + i);_.b("         data-group-id=\"document-view-info\"");_.b("\n" + i);if(_.s(_.f("first",c,p,1),c,p,0,854,900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("         id=\"current-revision-link\"");_.b("\n");});c.pop();}_.b("         data-document-oldrev=\"");_.b(_.v(_.f("rev",c,p,0)));_.b("\">");_.b(_.v(_.f("count",c,p,0)));_.b("</a>");_.b("\n");});c.pop();}});c.pop();}_.b("</nav>");_.b("\n" + i);_.b("\n" + i);_.b("<div id=\"document-view-tree\">");_.b("\n" + i);_.b(_.rp("document-view-tree",c,p,"  "));_.b("</div>");_.b("\n");return _.fl();;}),
-  'field-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,29,77,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b(_.v(_.f("label",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
-  'fields' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("fields",c,p,1),c,p,0,11,5710,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <div ");_.b("\n" + i);_.b("    class=\"field-container\" ");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    <label for=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\">");_.b("\n" + i);_.b("      <span class=\"label-text\">");_.b(_.v(_.f("label",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("      <span ");_.b("\n" + i);_.b("        class=\"ui-icon ui-icon-help\" ");_.b("\n" + i);_.b("        title=\"");if(_.s(_.f("date",c,p,1),c,p,0,237,264,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("Format date as: yyyy-mm-dd.");});c.pop();}_.b(" ");_.b(_.v(_.f("description",c,p,0)));_.b("\"></span>");_.b("\n" + i);_.b("    </label>");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,327,602,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,435,511,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,628,905,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,738,814,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,935,1212,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field number ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"text\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1045,1121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,1239,1525,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input ");_.b("\n" + i);_.b("      class=\"field date field-text ui-widget ui-corner-all\" ");_.b("\n" + i);_.b("      type=\"date\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1358,1434,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      value=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}if(!_.s(_.f("default_exists",c,p,1),c,p,1,0,0,"")){_.b("      value=\"\"");_.b("\n");};});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,1551,1711,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <input");_.b("\n" + i);_.b("      class=\"boolean field ui-widget ui-corner-all\"");_.b("\n" + i);_.b("      type=\"checkbox\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1664,1687,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        checked");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,1744,1924,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field open-boolean ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,1846,1900,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,1956,2130,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2052,2106,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,2160,2334,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field select ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2256,2310,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,2362,2534,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        class=\"field file ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2456,2510,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,2564,2765,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2687,2741,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,2805,3006,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <select ");_.b("\n" + i);_.b("        multiple=true");_.b("\n" + i);_.b("        class=\"field multiselect ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,2928,2982,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,3043,3221,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <textarea ");_.b("\n" + i);_.b("        class=\"field textarea ui-widget ui-corner-all\"");_.b("\n" + i);if(_.s(_.f("default_exists",c,p,1),c,p,0,3143,3197,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          data-field-default=\"");_.b(_.v(_.f("default",c,p,0)));_.b("\"");_.b("\n");});c.pop();}});c.pop();}_.b("    name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("    data-field-subcategory=\"");_.b(_.v(_.f("subcategory",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-charseq=\"");_.b(_.v(_.f("charseq",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-label=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-order=\"");_.b(_.v(_.f("order",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-head=\"");_.b(_.v(_.f("head",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-required=\"");_.b(_.v(_.f("required",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-reversal=\"");_.b(_.v(_.f("reversal",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-min=\"");_.b(_.v(_.f("min",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-max=\"");_.b(_.v(_.f("max",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-regex=\"");_.b(_.v(_.f("regex",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-field-instance=\"");_.b(_.v(_.f("instance",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("text",c,p,1),c,p,0,3793,3803,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("integer",c,p,1),c,p,0,3827,3837,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("rational",c,p,1),c,p,0,3865,3875,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("date",c,p,1),c,p,0,3900,3910,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    />");_.b("\n");});c.pop();}if(_.s(_.f("boolean",c,p,1),c,p,0,3934,3965,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    /> Check for true<br />");_.b("\n");});c.pop();}if(_.s(_.f("openboolean",c,p,1),c,p,0,3996,4252,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);_.b("      <option value=\"null\" ");if(_.s(_.f("is_null",c,p,1),c,p,0,4042,4055,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b("></option>");_.b("\n" + i);_.b("      <option value=\"false\" ");if(_.s(_.f("is_false",c,p,1),c,p,0,4119,4132,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">False</option>");_.b("\n" + i);_.b("      <option value=\"true\" ");if(_.s(_.f("value",c,p,1),c,p,0,4198,4211,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">True</option>");_.b("\n" + i);_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("select",c,p,1),c,p,0,4282,4545,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4412,4516,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4462,4475,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docselect",c,p,1),c,p,0,4573,4836,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4703,4807,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,4753,4766,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("file",c,p,1),c,p,0,4862,5121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(!_.s(_.f("required",c,p,1),c,p,1,0,0,"")){_.b("      <option value=\"\" ");if(!_.s(_.f("default",c,p,1),c,p,1,0,0,"")){_.b("selected=true");};_.b("></option>");_.b("\n");};if(_.s(_.f("allowed",c,p,1),c,p,0,4992,5092,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5040,5053,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("key",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("multiselect",c,p,1),c,p,0,5149,5305,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5172,5276,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5222,5235,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("docmultiselect",c,p,1),c,p,0,5343,5499,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");_.b("\n" + i);if(_.s(_.f("allowed",c,p,1),c,p,0,5366,5470,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <option value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\" ");if(_.s(_.f("is_default",c,p,1),c,p,0,5416,5429,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("selected=true");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}_.b("    </select>");_.b("\n");});c.pop();}if(_.s(_.f("textarea",c,p,1),c,p,0,5534,5683,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    >");if(_.s(_.f("default",c,p,1),c,p,0,5552,5565,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("default",c,p,0)));});c.pop();}_.b("</textarea>");_.b("\n" + i);_.b("    <span title=\"Expand/Shrink Text Box\" class=\"expander\" data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"></span>");_.b("\n");});c.pop();}_.b("  </div>");_.b("\n");});c.pop();}return _.fl();;}),
-  'fieldset-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,32,80,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b(_.v(_.f("label",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
-  'fieldset' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div ");_.b("\n" + i);_.b("  data-group-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("  class=\"fields ui-widget ui-widget-content ui-corner-all padded\">");_.b("\n" + i);if(_.s(_.f("multiple",c,p,1),c,p,0,116,181,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <a href=\"#\" class=\"remove-button link-button\">Remove</a >");_.b("\n");});c.pop();}_.b("</div>");_.b("\n");return _.fl();;}),
-  'index-condition' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr class=\"ui-state-default ui-corner-all\">");_.b("\n" + i);if(_.s(_.f("is_or",c,p,1),c,p,0,56,302,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td colspan=5 class=\"or-condition\" data-value=\"true\">OR</td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a class=\"remove-condition-button link-button\">Remove</a>");_.b("\n" + i);_.b("  </td>");_.b("\n");});c.pop();}if(_.s(_.f("paren_close",c,p,1),c,p,0,331,637,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td colspan=5 class=\"paren-condition normal\" data-value=\"close\">");_.b("\n" + i);_.b("    <div title=\"normal closing parenthesis\"></div>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a class=\"remove-condition-button link-button\">Remove</a></td>");_.b("\n");});c.pop();}if(_.s(_.f("paren_exclose",c,p,1),c,p,0,674,996,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td colspan=5 class=\"paren-condition existential\" data-value=\"exclose\">");_.b("\n" + i);_.b("    <div title=\"existential closing paranthesis\">∃</div>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a class=\"remove-condition-button link-button\">Remove</a>");_.b("\n" + i);_.b("  </td>");_.b("\n");});c.pop();}if(_.s(_.f("paren_exopen",c,p,1),c,p,0,1034,1346,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td colspan=5 class=\"paren-condition existential\" data-value=\"exopen\">");_.b("\n" + i);_.b("    <div title=\"existential opening parenthesis\">∃</td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a class=\"remove-condition-button link-button\">Remove</a>");_.b("\n" + i);_.b("  </td>");_.b("\n");});c.pop();}if(_.s(_.f("paren_open",c,p,1),c,p,0,1381,1689,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td colspan=5 class=\"paren-condition normal\" data-value=\"open\">");_.b("\n" + i);_.b("    <div title=\"normal opening parenthesis\"></div>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a class=\"remove-condition-button link-button\">Remove</a>");_.b("\n" + i);_.b("  </td>");_.b("\n");});c.pop();}if(!_.s(_.f("is_or",c,p,1),c,p,1,0,0,"")){if(!_.s(_.f("parens",c,p,1),c,p,1,0,0,"")){_.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");_.b("\n" + i);_.b("  <td class=\"negate-condition\" data-value=\"");_.b(_.v(_.f("negate",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    ");if(_.s(_.f("negate",c,p,1),c,p,0,1871,1874,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("NOT");});c.pop();}_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"fieldset-condition\" data-value=\"");_.b(_.v(_.f("fieldset",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("fieldset_label",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"field-condition\" data-value=\"");_.b(_.v(_.f("field",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("field_label",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"operator-condition\" data-value=\"");_.b(_.v(_.f("operator",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("operator",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"argument-condition\" data-value=\"");_.b(_.v(_.f("argument",c,p,0)));_.b("\">");_.b("\n" + i);_.b("    ");_.b(_.v(_.f("argument",c,p,0)));_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("  <td class=\"remove-condition-button-cell\">");_.b("\n" + i);_.b("    <a href=\"#\" class=\"remove-condition-button link-button\">Remove</a>");_.b("\n" + i);_.b("  </td>");_.b("\n");};};_.b("</tr>");_.b("\n");return _.fl();;}),
-  'index-conditions' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div ");_.b("\n" + i);_.b("   id=\"index-editing-data\" ");_.b("\n" + i);_.b("   data-index-doctype=\"");_.b(_.v(_.f("doctype",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("   data-index-fields_label=\"");_.b(_.v(_.f("fields_label",c,p,0)));_.b("\"");_.b("\n" + i);_.b("   data-index-fields=\"");_.b(_.v(_.f("fields",c,p,0)));_.b("\"");_.b("\n" + i);_.b("   data-index-name=\"");_.b(_.v(_.f("name",c,p,0)));_.b("\"");_.b("\n" + i);_.b("   data-index-show_deleted=\"");_.b(_.v(_.f("show_deleted",c,p,0)));_.b("\"");_.b("\n" + i);if(_.s(_.f("replace_function",c,p,1),c,p,0,261,321,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("   data-index-replace_function=\"");_.b(_.v(_.f("replace_function",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b("   data-index-id=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("   data-index-rev=\"");_.b(_.v(_.f("_rev",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <p>");_.b("\n" + i);_.b("    <em>");_.b(_.v(_.f("name",c,p,0)));_.b("</em>");_.b("\n" + i);_.b("    will list");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("doctype",c,p,0)));_.b("</b>");_.b("\n" + i);_.b("    documents. They will be listed by ");_.b("\n" + i);_.b("    <b>");_.b(_.v(_.f("fields_label",c,p,0)));_.b("</b>.");_.b("\n" + i);_.b("    <span id=\"replace-function-message\">");_.b("\n" + i);if(_.s(_.f("replace_function",c,p,1),c,p,0,610,658,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    This index has a replacement function.");_.b("\n");});c.pop();}_.b("    </span>");_.b("\n" + i);_.b("  </p>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("\n" + i);_.b("<div id=\"index-conditions-listing\">");_.b("\n" + i);_.b("<table>");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr class=\"header\">");_.b("\n" + i);_.b("      <td></td>");_.b("\n" + i);_.b("      <th>Negate</th>");_.b("\n" + i);_.b("      <th>Fieldset</th>");_.b("\n" + i);_.b("      <th>Field</th>");_.b("\n" + i);_.b("      <th>Condition</th>");_.b("\n" + i);_.b("      <th>Value</th>");_.b("\n" + i);_.b("      <td></td>");_.b("\n" + i);_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("conditions",c,p,1),c,p,0,978,1006,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("index-condition",c,p,"    "));});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n" + i);_.b("</div>");_.b("\n");return _.fl();;}),
-  'index-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <ul class=\"head-elements\">");_.b("\n" + i);if(_.s(_.f("display_key",c,p,1),c,p,0,247,362,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b("\n" + i);_.b("          <a href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("            class=\"view-document-link\">");_.b(_.v(_.d(".",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("        </li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <ul class=\"reversal-elements\">");_.b("\n" + i);if(_.s(_.f("value",c,p,1),c,p,0,455,487,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b(_.v(_.d(".",c,p,0)));_.b("</li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'index-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<table>");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <th>Name</th>");_.b("\n" + i);_.b("    <th>Doctype</th>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,91,210,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <th><a href=\"#\" data-index-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("</a></th> ");_.b("\n" + i);_.b("      <td>");_.b(_.v(_.d("key.0",c,p,0)));_.b("</td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");return _.fl();;}),
-  'index-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,27,74,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.d("key.1",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
-  'paged-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<nav class=\"pager\">");_.b("\n" + i);_.b("<a");_.b("\n" + i);_.b("  href=\"#\" ");_.b("\n" + i);_.b("  title=\"Previous Page\"");_.b("\n" + i);_.b("  id=\"previous-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-page\"");_.b("\n" + i);_.b("  class=\"pager-button link-button\"");_.b("\n" + i);_.b(">Prev</a> ");_.b("\n" + i);_.b("<a");_.b("\n" + i);_.b("  href=\"#\"");_.b("\n" + i);_.b("  title=\"Next Page\"");_.b("\n" + i);_.b("  class=\"pager-button link-button\"");_.b("\n" + i);_.b("  id=\"next-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-page\"");_.b("\n" + i);if(_.s(_.f("lastpage",c,p,1),c,p,0,322,351,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    data-last-page=\"true\"");_.b("\n");});c.pop();}if(_.s(_.f("lastrow",c,p,1),c,p,0,379,448,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    data-startkey=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    data-startid=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n");});c.pop();}_.b(">Next</a>");_.b("\n" + i);_.b("</nav>");_.b("\n" + i);_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: ");_.b(_.v(_.f("total_rows",c,p,0)));_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table>");_.b("\n" + i);if(_.s(_.f("rows",c,p,1),c,p,0,567,595,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("listed-element",c,p,"    "));});c.pop();}_.b("</table>");_.b("\n");return _.fl();;}),
-  'preview-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr class=\"change-header\" id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("  <th");_.b("\n" + i);if(_.s(_.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      id=\"first-");_.b(_.v(_.f("prefix",c,p,0)));_.b("-element\"");_.b("\n" + i);_.b("      data-first-id=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("      data-first-key=\"");_.b(_.v(_.f("encoded_key",c,p,0)));_.b("\"");_.b("\n" + i);_.b("    ");});c.pop();}_.b(">");_.b("\n" + i);_.b("    <ul class=\"head-elements\">");_.b("\n" + i);if(_.s(_.f("display_key",c,p,1),c,p,0,247,279,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <li>");_.b(_.v(_.d(".",c,p,0)));_.b("</li>");_.b("\n");});c.pop();}_.b("    </ul>");_.b("\n" + i);_.b("  </th>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <ul class=\"reversal-elements\">");_.b("\n" + i);_.b("      ");_.b(_.v(_.f("value",c,p,0)));_.b("\n" + i);_.b("    </ul>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'project-element' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<tr>");_.b("\n" + i);_.b("  <td><a href=\"/projects/");_.b(_.v(_.f("id",c,p,0)));_.b("/doctypes/main\">");if(_.s(_.f("doc",c,p,1),c,p,0,62,72,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("name",c,p,0)));});c.pop();}_.b("</a></td>");_.b("\n" + i);_.b("  <td>");if(_.s(_.f("doc",c,p,1),c,p,0,104,121,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.v(_.f("description",c,p,0)));});c.pop();}_.b("</td>");_.b("\n" + i);_.b("  <td>");_.b("\n" + i);_.b("    <a href=\"/projects/");_.b(_.v(_.f("id",c,p,0)));_.b("/config\" ");_.b("\n" + i);_.b("       class=\"project-configure-button link-button\">Configure</a>");_.b("\n" + i);_.b("    <a href=\"#\" ");_.b("\n" + i);_.b("       class=\"project-delete-button link-button\" ");_.b("\n" + i);_.b("       id=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">Delete</button>");_.b("\n" + i);_.b("  </td>");_.b("\n" + i);_.b("</tr>");_.b("\n");return _.fl();;}),
-  'project-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");if(_.s(_.f("rows",c,p,1),c,p,0,9,34,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("project-element",c,p,"  "));});c.pop();}return _.fl();;}),
-  'search-field-item' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<a class='search-field-item' ");_.b("\n" + i);_.b("  title='click to remove' ");_.b("\n" + i);_.b("  data-field-field='");_.b(_.v(_.f("field",c,p,0)));_.b("' ");_.b("\n" + i);_.b("  href='#'>");_.b(_.v(_.f("fieldLabel",c,p,0)));_.b("</a>");_.b("\n");return _.fl();;}),
-  'set-listing' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<div class=\"total-rows-info\">");_.b("\n" + i);_.b("  <b>Total</b>: <span id=\"total-set-rows\">");_.b(_.v(_.f("total",c,p,0)));_.b("</span>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<div id=\"save-set-results\">");_.b("\n" + i);_.b("  <a href=\"#\">(Save Selected)</a>");_.b("\n" + i);_.b("</div>");_.b("\n" + i);_.b("<table id=\"set-elements\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" id=\"select-all-set-elements\" title=\"Click to select or deselect all elements\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <th>");_.b("\n" + i);_.b("        Elements");_.b("\n" + i);_.b("      </th>");_.b("\n" + i);_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);if(_.s(_.f("elements",c,p,1),c,p,0,435,720,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <tr>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <input type=\"checkbox\" class=\"set-element-selection\" title=\"Click to select element\" value=\"");_.b(_.v(_.f("id",c,p,0)));_.b("\" data-context=\"");_.b(_.v(_.f("context",c,p,0)));_.b("\" />");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("      <td>");_.b("\n" + i);_.b("        <a class=\"view-document-link\" href=\"#");_.b(_.v(_.f("id",c,p,0)));_.b("\">");_.b(_.v(_.f("context",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);_.b("    </tr>");_.b("\n");});c.pop();}_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;}),
-  'set-options' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<option></option>");_.b("\n" + i);if(_.s(_.f("names",c,p,1),c,p,0,28,66,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("<option value=\"");_.b(_.v(_.d(".",c,p,0)));_.b("\">");_.b(_.v(_.d(".",c,p,0)));_.b("</option>");_.b("\n");});c.pop();}return _.fl();;}),
-  'simple-to-form-array' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<ol>");_.b("\n" + i);if(_.s(_.f("value",c,p,1),c,p,0,17,51,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"    "));});c.pop();}_.b("</ol>");_.b("\n");return _.fl();;}),
-  'simple-to-form-field' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<li>");_.b("\n" + i);if(_.s(_.f("key",c,p,1),c,p,0,15,63,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <label for=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\">");_.b(_.v(_.f("key",c,p,0)));_.b("</label>");_.b("\n");});c.pop();}if(_.s(_.f("text",c,p,1),c,p,0,83,156,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <textarea ");if(_.s(_.f("key",c,p,1),c,p,0,106,122,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\"");});c.pop();}_.b(">");_.b(_.v(_.f("value",c,p,0)));_.b("</textarea>");_.b("\n");});c.pop();}if(_.s(_.f("string",c,p,1),c,p,0,179,260,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <input type=\"text\" ");if(_.s(_.f("key",c,p,1),c,p,0,211,227,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\"");});c.pop();}_.b(" value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\"/>");_.b("\n");});c.pop();}if(_.s(_.f("bool",c,p,1),c,p,0,283,364,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <input type=\"text\" ");if(_.s(_.f("key",c,p,1),c,p,0,315,331,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\"");});c.pop();}_.b(" value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\"/>");_.b("\n");});c.pop();}if(_.s(_.f("number",c,p,1),c,p,0,387,470,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <input type=\"number\" ");if(_.s(_.f("key",c,p,1),c,p,0,421,437,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("name=\"");_.b(_.v(_.f("key",c,p,0)));_.b("\"");});c.pop();}_.b(" value=\"");_.b(_.v(_.f("value",c,p,0)));_.b("\"/>");_.b("\n");});c.pop();}if(_.s(_.f("array",c,p,1),c,p,0,494,691,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("key",c,p,1),c,p,0,507,617,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <fieldset>");_.b("\n" + i);_.b("        <legend>");_.b(_.v(_.f("key",c,p,0)));_.b("</legend>");_.b("\n" + i);_.b(_.rp("simple-to-form-array",c,p,"        "));_.b("      </fieldset>");_.b("\n");});c.pop();}if(_.s(_.f("index",c,p,1),c,p,0,640,678,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-array",c,p,"      "));});c.pop();}});c.pop();}if(_.s(_.f("object",c,p,1),c,p,0,715,914,"{{ }}")){_.rs(c,p,function(c,p,_){if(_.s(_.f("key",c,p,1),c,p,0,728,839,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("      <fieldset>");_.b("\n" + i);_.b("        <legend>");_.b(_.v(_.f("key",c,p,0)));_.b("</legend>");_.b("\n" + i);_.b(_.rp("simple-to-form-object",c,p,"        "));_.b("      </fieldset>");_.b("\n");});c.pop();}if(_.s(_.f("index",c,p,1),c,p,0,862,901,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-object",c,p,"      "));});c.pop();}});c.pop();}_.b("</li>");_.b("\n");return _.fl();;}),
-  'simple-to-form-object' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<ul>");_.b("\n" + i);if(_.s(_.f("value",c,p,1),c,p,0,17,51,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"    "));});c.pop();}_.b("</ul>");_.b("\n");return _.fl();;}),
-  'simple-to-form' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<form>");_.b("\n" + i);if(_.s(_.f("obj",c,p,1),c,p,0,17,110,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("    <ul>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,44,86,"{{ }}")){_.rs(c,p,function(c,p,_){_.b(_.rp("simple-to-form-field",c,p,"        "));});c.pop();}_.b("    </ul>");_.b("\n");});c.pop();}_.b("</form>");_.b("\n");return _.fl();;}),
-  'worksheet' : new Hogan.Template(function(c,p,i){var _=this;_.b(i=i||"");_.b("<table id=\"worksheet-table\">");_.b("\n" + i);_.b("  <thead>");_.b("\n" + i);_.b("    <tr class=\"header-row\">");_.b("\n" + i);_.b("      <td id=\"select-all-worksheet-rows-cell\"");_.b("\n" + i);_.b("        class=\"select-column\">");_.b("\n" + i);_.b("        <input ");_.b("\n" + i);_.b("          id=\"select-all-worksheet-rows\"");_.b("\n" + i);_.b("          type=\"checkbox\"");_.b("\n" + i);_.b("          title=\"Click to select all rows\">");_.b("\n" + i);_.b("      </td>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,303,1494,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("        <th ");_.b("\n" + i);_.b("          class=\"worksheet-handle-header fieldset handle-column ");_.b(_.v(_.f("_id",c,p,0)));_.b("\"");_.b("\n" + i);_.b("          title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("          <div>");_.b("\n" + i);_.b("            <span>");_.b("\n" + i);_.b("              <a class=\"fieldset-handle\" ");_.b("\n" + i);_.b("                data-field-fieldset=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("                href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a></span></div>");_.b("\n" + i);_.b("        </th>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,634,1476,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <th");_.b("\n" + i);_.b("            class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,681,689,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,716,724,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" worksheet-handle-header field handle-column\"");_.b("\n" + i);_.b("            title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("            <div>");_.b("\n" + i);_.b("              <span>");_.b("\n" + i);_.b("                <a class=\"field-handle\" ");_.b("\n" + i);_.b("                  data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("                  href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a></span></div>");_.b("\n" + i);_.b("          </th>");_.b("\n" + i);_.b("          <th");_.b("\n" + i);_.b("            class=\"");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" field-column\"");_.b("\n" + i);_.b("            title=\"");_.b(_.v(_.f("label",c,p,0)));_.b("\">");_.b("\n" + i);_.b("            <a class=\"field-header\" ");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("              href=\"#\">");_.b(_.v(_.f("label",c,p,0)));_.b("</a>");_.b("\n" + i);_.b("            <input ");_.b("\n" + i);_.b("              class=\"select-worksheet-column\"");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\" ");_.b("\n" + i);_.b("              type=\"checkbox\"");_.b("\n" + i);_.b("              title=\"Click to select column\">");_.b("\n" + i);_.b("          </td>");_.b("\n");});c.pop();}});c.pop();}_.b("    </tr>");_.b("\n" + i);_.b("  </thead>");_.b("\n" + i);_.b("  <tbody>");_.b("\n" + i);_.b("    <%#rows%>");_.b("\n" + i);_.b("      <tr id=\"worksheet-row-<% _id %>\"");_.b("\n" + i);_.b("        class=\"body-row\">");_.b("\n" + i);_.b("        <td class=\"select-column\">");_.b("\n" + i);_.b("          <input ");_.b("\n" + i);_.b("            class=\"select-worksheet-row\"");_.b("\n" + i);_.b("            data-row=\"worksheet-row-<% _id %>\"");_.b("\n" + i);_.b("            type=\"checkbox\"");_.b("\n" + i);_.b("            title=\"Click to select row\">");_.b("\n" + i);_.b("        </td>");_.b("\n" + i);if(_.s(_.f("fieldsets",c,p,1),c,p,0,1865,2890,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("          <td class=\"");_.b(_.v(_.f("_id",c,p,0)));_.b(" fieldset handle-column\"></td>");_.b("\n" + i);if(_.s(_.f("fields",c,p,1),c,p,0,1948,2870,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("            <td class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,1985,1993,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,2020,2028,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" field handle-column\"></td>");_.b("\n" + i);_.b("            <td");_.b("\n" + i);_.b("              class=\"");if(_.s(_.f("multiple",c,p,1),c,p,0,2144,2152,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("multiple");});c.pop();}_.b(" ");if(_.s(_.f("collapse",c,p,1),c,p,0,2179,2187,"{{ }}")){_.rs(c,p,function(c,p,_){_.b("collapse");});c.pop();}_.b(" ");_.b(_.v(_.f("fieldset",c,p,0)));_.b(" ");_.b(_.v(_.f("_id",c,p,0)));_.b(" field-column\"");_.b("\n" + i);_.b("              data-field-fieldset=\"");_.b(_.v(_.f("fieldset",c,p,0)));_.b("\"");_.b("\n" + i);_.b("              data-field-field=\"");_.b(_.v(_.f("_id",c,p,0)));_.b("\">");_.b("\n" + i);_.b("              <%#");_.b(_.v(_.f("_id",c,p,0)));_.b("%>");_.b("\n" + i);_.b("                <%#multiple%>");_.b("\n" + i);_.b("                <ol>");_.b("\n" + i);_.b("                  <%#items%>");_.b("\n" + i);_.b("                    <li");_.b("\n" + i);_.b("                      data-field-fieldset_instance=\"<% fieldset_instance %>\"");_.b("\n" + i);_.b("                      data-field-field_instance=\"<% field_instance %>\"><% value %></li>");_.b("\n" + i);_.b("                  <%/items%>");_.b("\n" + i);_.b("                </ol>");_.b("\n" + i);_.b("                <%/multiple%>");_.b("\n" + i);_.b("                <%#single%>");_.b("\n" + i);_.b("                  <span><% value %></span>");_.b("\n" + i);_.b("                <%/single%>");_.b("\n" + i);_.b("              <%/");_.b(_.v(_.f("_id",c,p,0)));_.b("%>");_.b("\n" + i);_.b("            </td>");_.b("\n");});c.pop();}});c.pop();}_.b("      </tr>");_.b("\n" + i);_.b("    <%/rows%>");_.b("\n" + i);_.b("  </tbody>");_.b("\n" + i);_.b("</table>");_.b("\n");return _.fl();;})
+  /* jshint ignore:start */
+  'changelog-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("doc",c,p,1),c,p,0,8,777,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<tr class=\"change-header\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <th");t.b("\n" + i);if(t.s(t.f("firstrow",c,p,1),c,p,0,73,188,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      id=\"first-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-element\"");t.b("\n" + i);t.b("      data-first-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-first-key=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");});c.pop();}t.b(">");t.b("\n" + i);t.b("    <a");t.b("\n" + i);t.b("      href=\"#");t.b(t.v(t.f("document_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      class=\"view-document-link\">");t.b("\n" + i);t.b("      ");if(t.s(t.f("head_values",c,p,1),c,p,0,298,305,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.v(t.d(".",c,p,0)));});c.pop();}t.b("\n" + i);t.b("    </a>");t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("change_type",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("user",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("timestamp",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("</tr>");t.b("\n" + i);if(t.s(t.f("changes",c,p,1),c,p,0,459,764,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <tr class=\"change-change\">");t.b("\n" + i);t.b("    <th>");t.b("\n" + i);t.b("      ");t.b(t.v(t.f("fieldsetLabel",c,p,0)));t.b(": ");t.b(t.v(t.f("fieldLabel",c,p,0)));t.b("\n" + i);t.b("    </th>");t.b("\n" + i);t.b("    <td colspan=3>");t.b("\n" + i);if(!t.s(t.f("originalValue",c,p,1),c,p,1,0,0,"")){t.b("      <b>Ø</b>");t.b("\n" + i);};t.b("      ");t.b(t.v(t.f("originalValue",c,p,0)));t.b("\n" + i);t.b("      →");t.b("\n" + i);if(!t.s(t.f("newValue",c,p,1),c,p,1,0,0,"")){t.b("      <b>Ø</b>");t.b("\n" + i);};t.b("      ");t.b(t.v(t.f("newValue",c,p,0)));t.b("\n" + i);t.b("    </td>");t.b("\n" + i);t.b("  </tr>");t.b("\n" + i);});c.pop();}});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'charseqs-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <th");t.b("\n" + i);if(t.s(t.f("firstrow",c,p,1),c,p,0,42,157,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      id=\"first-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-element\"");t.b("\n" + i);t.b("      data-first-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-first-key=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");});c.pop();}t.b(">");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("key",c,p,0)));t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("value",c,p,0)));t.b("\n" + i);t.b("   </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'config-maintenance' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div id=\"maintenance\">");t.b("\n" + i);t.b("  <h3>Upgrade Project</h3>");t.b("\n");t.b("\n" + i);t.b("  <p>");t.b("\n" + i);t.b("    Clicking the button below will initiate an upgrade of the project");t.b("\n" + i);t.b("    core design document to the latest version available on your");t.b("\n" + i);t.b("    system.");t.b("\n" + i);t.b("  </p>");t.b("\n" + i);t.b("  <p>");t.b("\n" + i);t.b("    Be aware that this may cause significant slowness on your system");t.b("\n" + i);t.b("    while view indexes are rebuilt.");t.b("\n" + i);t.b("  </p>");t.b("\n");t.b("\n" + i);t.b("  <a id=\"maintenance-upgrade-button\" class=\"maintenance-upgrade-button link-button\">Upgrade</a>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'doctypes-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <th");t.b("\n" + i);if(t.s(t.f("firstrow",c,p,1),c,p,0,42,157,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      id=\"first-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-element\"");t.b("\n" + i);t.b("      data-first-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-first-key=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");});c.pop();}t.b(">");t.b("\n" + i);t.b("    <a href=\"#");t.b(t.v(t.f("id",c,p,0)));t.b("\" class=\"edit-doctype-link\">");t.b(t.v(t.f("key",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("value",c,p,0)));t.b("\n" + i);t.b("   </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'document-edit' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h2 class=\"header\">Edit</h2>");t.b("\n");t.b("\n" + i);if(t.s(t.f("has_rows",c,p,1),c,p,0,43,1862,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <div id=\"edit-document-form\" class=\"ui-widget ui-corner-all\">");t.b("\n" + i);t.b("  ");t.b("\n" + i);t.b("    <div id=\"edit-tabs\">");t.b("\n" + i);t.b("      <div id=\"tabs-container\">");t.b("\n" + i);t.b("        <ul id=\"tab-list\">");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,219,338,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          <li>");t.b("\n" + i);t.b("            <a href=\"#");t.b(t.v(t.f("_id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("              ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("            </a>");t.b("\n" + i);t.b("          </li>");t.b("\n" + i);});c.pop();}t.b("        </ul>");t.b("\n" + i);t.b("      </div>");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,400,1448,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <fieldset");t.b("\n" + i);t.b("          id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("          class=\"ui-widget ui-widget-content ui-corner-all fieldset\"");t.b("\n" + i);t.b("          data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-field-fieldset=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("          data-field-project=\"project-");t.b(t.v(t.f("project_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-field-doctype=\"");t.b(t.v(t.f("doctype",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-fieldset=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("          data-fieldset-multiple=\"");t.b(t.v(t.f("multiple",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-collapse=\"");t.b(t.v(t.f("collapse",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-name=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-label=\"");t.b(t.v(t.f("label",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-order=\"");t.b(t.v(t.f("order",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-project=\"project-");t.b(t.v(t.f("project_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          data-fieldset-doctype=\"");t.b(t.v(t.f("doctype_id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("          <p>");t.b(t.v(t.f("description",c,p,0)));t.b("</p>");t.b("\n" + i);t.b("          <div ");t.b("\n" + i);t.b("            id=\"container-");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("            class=\"fieldset-container\"");t.b("\n" + i);t.b("            data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"></div>");t.b("\n" + i);if(t.s(t.f("multiple",c,p,1),c,p,0,1279,1408,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("              <a ");t.b("\n" + i);t.b("                class=\"add-button link-button\" ");t.b("\n" + i);t.b("                data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\">Add</a>");t.b("\n" + i);});c.pop();}t.b("        </fieldset>");t.b("\n" + i);});c.pop();}t.b("    </div>");t.b("\n" + i);t.b("    <div id=\"submit-button-area\">");t.b("\n" + i);t.b("      <a id=\"clear-document-button\" class=\"clear-button link-button\">Clear Form</a>");t.b("\n" + i);t.b("      <a data-group-id=\"all-document-container\" id=\"create-document-button\" class=\"create-button link-button\">Create as New</a>");t.b("\n" + i);t.b("      <a data-group-id=\"all-document-container\" id=\"save-document-button\" class=\"save-button link-button hidden\">Save</a>");t.b("\n" + i);t.b("    </div>");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("has_rows",c,p,1),c,p,1,0,0,"")){t.b("<p>");t.b("\n" + i);t.b("  You must add fields and fieldsets before you can create a document of this type.");t.b("\n" + i);t.b("</p>");t.b("\n" + i);};return t.fl(); },partials: {}, subs: {  }}),
+  'document-search-results' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr>");t.b("\n" + i);t.b("  <th>");t.b("\n" + i);t.b("    <a href=\"#");t.b(t.v(t.f("id",c,p,0)));t.b("\" class=\"view-document-link\">");t.b(t.v(t.f("key",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td class=\"search-result-context\">");t.b("\n" + i);t.b("    <a href=\"#");t.b(t.v(t.f("id",c,p,0)));t.b("\" class=\"view-document-link\">");t.b(t.v(t.f("value",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'document-search' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("are_results",c,p,1),c,p,0,16,1220,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <div class=\"total-rows-info\">");t.b("\n" + i);t.b("    <b>Total</b>: ");t.b(t.v(t.f("total_rows",c,p,0)));t.b("\n" + i);t.b("  </div>");t.b("\n" + i);t.b("  <div id=\"save-search-results\">");t.b("\n" + i);t.b("    <a href=\"#\">(Save Selected)</a>");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);if(t.s(t.f("index_listing",c,p,1),c,p,0,191,477,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <div class=\"search-results\">");t.b("\n" + i);t.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results\" />");t.b("\n" + i);t.b("      <label for=\"select-results\">Select Results</label>");t.b("\n" + i);t.b("      <table>");t.b("\n" + i);if(t.s(t.f("rows",c,p,1),c,p,0,390,439,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<document-search-results0",c,p,"          "));});c.pop();}t.b("      </table>");t.b("\n" + i);t.b("    </div>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("index_listing",c,p,1),c,p,1,0,0,"")){if(t.s(t.f("rows",c,p,1),c,p,0,530,1189,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <h5 class=\"search-result-field-id toggler\"");t.b("\n" + i);t.b("        data-field-field=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("        data-target=\"results-for-field-");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("        title=\"Click to display\">");t.b("\n" + i);t.b("      <a href=\"#\" title=\"Double click to add as search option\">");t.b("\n" + i);t.b("        ");t.b(t.v(t.f("id",c,p,0)));t.b("\n" + i);t.b("      </a> ");t.b("\n" + i);t.b("      (");t.b(t.v(t.f("total_rows",c,p,0)));t.b(")");t.b("\n" + i);t.b("    </h5>");t.b("\n" + i);t.b("    ");t.b("\n" + i);t.b("    <div class=\"search-results hidden\"");t.b("\n" + i);t.b("         id=\"results-for-field-");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("      <input type=\"checkbox\" class=\"select-results\" name=\"select-results-");t.b(t.v(t.d("field.id",c,p,0)));t.b("\" />");t.b("\n" + i);t.b("      <label for=\"select-results-");t.b(t.v(t.f("id",c,p,0)));t.b("\">Select Results</label>");t.b("\n" + i);t.b("      <table>");t.b("\n" + i);if(t.s(t.f("rows",c,p,1),c,p,0,1100,1149,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<document-search-results1",c,p,"          "));});c.pop();}t.b("      </table>");t.b("\n" + i);t.b("    </div>");t.b("\n" + i);});c.pop();}};});c.pop();}if(!t.s(t.f("are_results",c,p,1),c,p,1,0,0,"")){t.b("  <em>No Results</em>");t.b("\n" + i);};return t.fl(); },partials: {"<document-search-results0":{name:"document-search-results", partials: {}, subs: {  }},"<document-search-results1":{name:"document-search-results", partials: {}, subs: {  }}}, subs: {  }}),
+  'document-view-field' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<li ");t.b("\n" + i);t.b("  class=\"field-view ");t.b("\n" + i);t.b("    ");if(t.s(t.f("changed",c,p,1),c,p,0,42,49,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("changed");});c.pop();}t.b("\"");t.b("\n" + i);t.b("  data-field-field=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);if(t.s(t.f("instance",c,p,1),c,p,0,108,150,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  data-field-instance=\"");t.b(t.v(t.f("instance",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}t.b("  data-field-value=\"");t.b(t.v(t.f("json_value",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <b>");t.b(t.v(t.f("label",c,p,0)));t.b("</b>");if(t.s(t.f("changed",c,p,1),c,p,0,235,343,"{{ }}")){t.rs(c,p,function(c,p,t){if(!t.s(t.f("newfield",c,p,1),c,p,1,0,0,"")){t.b("<span class=\"small-control view-field-change\" title=\"");t.b(t.v(t.f("originalValue",c,p,0)));t.b("\">→</span>");};});c.pop();}t.b(":");t.b("\n" + i);if(t.s(t.f("is_textarea",c,p,1),c,p,0,375,426,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <span class=\"retain-white\">");t.b(t.v(t.f("value",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("is_textarea",c,p,1),c,p,1,0,0,"")){t.b("    ");t.b(t.v(t.f("value",c,p,0)));t.b("\n" + i);};t.b("</li>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'document-view-tree' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("previous_revision",c,p,1),c,p,0,22,76,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <div id=\"revision-message\">Previous Revision</div>");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.f("deleted_",c,p,1),c,p,0,113,163,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <div id=\"deleted-message\"><b>Deleted</b></div>");t.b("\n" + i);});c.pop();}t.b("\n" + i);t.b("<ul>");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,197,975,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <li");t.b("\n" + i);t.b("    class=\"fieldset-view");t.b("\n" + i);t.b("      ");if(t.s(t.f("collapse",c,p,1),c,p,0,248,257,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("collapsed");});c.pop();}t.b("\n" + i);t.b("      ");if(t.s(t.f("altered",c,p,1),c,p,0,289,296,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("changed");});c.pop();}t.b("\"");t.b("\n" + i);t.b("    data-fieldset-fieldset=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("    data-group-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    <b>");t.b(t.v(t.f("label",c,p,0)));t.b("</b>");if(t.s(t.f("addition",c,p,1),c,p,0,414,468,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span title=\"fieldset added\" class=\"addition\">+</span>");});c.pop();}if(t.s(t.f("removal",c,p,1),c,p,0,493,548,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span title=\"fieldset removed\" class=\"removal\">−</span>");});c.pop();}t.b(":");t.b("\n" + i);if(t.s(t.f("multiple",c,p,1),c,p,0,579,818,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <ol>");t.b("\n" + i);if(t.s(t.f("multifields",c,p,1),c,p,0,613,785,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <li>");t.b("\n" + i);t.b("          <ul class=\"multifield\">");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,684,737,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<document-view-field0",c,p,"              "));});c.pop();}t.b("          </ul>");t.b("\n" + i);t.b("        </li>");t.b("\n" + i);});c.pop();}t.b("      </ol>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("multiple",c,p,1),c,p,1,0,0,"")){t.b("      <ul>");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,880,925,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<document-view-field1",c,p,"          "));});c.pop();}t.b("      </ul>");t.b("\n" + i);};t.b("  </li>");t.b("\n" + i);});c.pop();}t.b("</ul>");t.b("\n");t.b("\n" + i);t.b("<div class=\"timestamps\">");t.b("\n" + i);t.b("  <dl>");t.b("\n" + i);t.b("    <dt>Created At</dt><dd class=\"timestamp\">");t.b(t.v(t.f("created_at_",c,p,0)));t.b("</dd>");t.b("\n" + i);t.b("    <dt>Created By</dt><dd>");t.b(t.v(t.f("created_by_",c,p,0)));t.b("</dd>");t.b("\n" + i);t.b("    <dt>Updated At</dt><dd class=\"timestamp\">");t.b(t.v(t.f("updated_at_",c,p,0)));t.b("</dd>");t.b("\n" + i);t.b("    <dt>Updated By</dt><dd>");t.b(t.v(t.f("updated_by_",c,p,0)));t.b("</dd>");t.b("\n" + i);t.b("    <dt>ID</dt><dd>");t.b(t.v(t.f("_id",c,p,0)));t.b("</dd>");t.b("\n" + i);t.b("  </dl>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<document-view-field0":{name:"document-view-field", partials: {}, subs: {  }},"<document-view-field1":{name:"document-view-field", partials: {}, subs: {  }}}, subs: {  }}),
+  'document-view' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("doctype_info",c,p,1),c,p,0,17,187,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <h2 class=\"header\">View</h2>");t.b("\n");t.b("\n" + i);t.b("  <form id=\"view-jump\">");t.b("\n" + i);t.b("    <label for=\"view-jump-id\">Id</label>");t.b("\n" + i);t.b("    <input type=\"text\" id=\"view-jump-id\" name=\"view-jump-id\">");t.b("\n" + i);t.b("  </form>");t.b("\n" + i);});c.pop();}t.b("\n" + i);t.b("<div id=\"document-view-info\"");t.b("\n" + i);t.b("     data-document-deleted=\"");t.b(t.v(t.f("deleted_",c,p,0)));t.b("\"");t.b("\n" + i);t.b("     data-document-document=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("     data-document-rev=\"");t.b(t.v(t.f("_rev",c,p,0)));t.b("\"></div>");t.b("\n");t.b("\n" + i);t.b("<a id=\"document-restore-button\"");t.b("\n" + i);t.b("   data-group-id=\"document-view-info\"");t.b("\n" + i);t.b("   class=\"link-button hidden\">Restore</a>");t.b("\n");t.b("\n" + i);t.b("<a id=\"document-edit-button\"");t.b("\n" + i);t.b("   data-group-id=\"document-view-info\"");t.b("\n" + i);t.b("   class=\"link-button\">Edit</a>");t.b("\n");t.b("\n" + i);t.b("<a id=\"document-delete-button\"");t.b("\n" + i);t.b("   data-group-id=\"document-view-info\"");t.b("\n" + i);t.b("   class=\"link-button\">Delete</a>");t.b("\n");t.b("\n" + i);t.b("<nav id=\"history\">");t.b("\n" + i);if(t.s(t.f("revs_info",c,p,1),c,p,0,716,991,"{{ }}")){t.rs(c,p,function(c,p,t){if(t.s(t.f("status",c,p,1),c,p,0,732,975,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <a href=\"#");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("         class=\"revision-link\"");t.b("\n" + i);t.b("         data-group-id=\"document-view-info\"");t.b("\n" + i);if(t.s(t.f("first",c,p,1),c,p,0,854,900,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("         id=\"current-revision-link\"");t.b("\n" + i);});c.pop();}t.b("         data-document-oldrev=\"");t.b(t.v(t.f("rev",c,p,0)));t.b("\">");t.b(t.v(t.f("count",c,p,0)));t.b("</a>");t.b("\n" + i);});c.pop();}});c.pop();}t.b("</nav>");t.b("\n");t.b("\n" + i);t.b("<div id=\"document-view-tree\">");t.b("\n" + i);t.b(t.rp("<document-view-tree0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<document-view-tree0":{name:"document-view-tree", partials: {}, subs: {  }}}, subs: {  }}),
+  'field-options' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<option></option>");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,29,77,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<option value=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'fields' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("fields",c,p,1),c,p,0,11,5710,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <div ");t.b("\n" + i);t.b("    class=\"field-container\" ");t.b("\n" + i);t.b("    data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    <label for=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\">");t.b("\n" + i);t.b("      <span class=\"label-text\">");t.b(t.v(t.f("label",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("      <span ");t.b("\n" + i);t.b("        class=\"ui-icon ui-icon-help\" ");t.b("\n" + i);t.b("        title=\"");if(t.s(t.f("date",c,p,1),c,p,0,237,264,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("Format date as: yyyy-mm-dd.");});c.pop();}t.b(" ");t.b(t.v(t.f("description",c,p,0)));t.b("\"></span>");t.b("\n" + i);t.b("    </label>");t.b("\n" + i);if(t.s(t.f("text",c,p,1),c,p,0,327,602,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <input ");t.b("\n" + i);t.b("      class=\"field text ui-widget ui-corner-all\" ");t.b("\n" + i);t.b("      type=\"text\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,435,511,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      value=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}if(!t.s(t.f("default_exists",c,p,1),c,p,1,0,0,"")){t.b("      value=\"\"");t.b("\n" + i);};});c.pop();}if(t.s(t.f("integer",c,p,1),c,p,0,628,905,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <input ");t.b("\n" + i);t.b("      class=\"field number ui-widget ui-corner-all\" ");t.b("\n" + i);t.b("      type=\"text\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,738,814,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      value=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}if(!t.s(t.f("default_exists",c,p,1),c,p,1,0,0,"")){t.b("      value=\"\"");t.b("\n" + i);};});c.pop();}if(t.s(t.f("rational",c,p,1),c,p,0,935,1212,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <input ");t.b("\n" + i);t.b("      class=\"field number ui-widget ui-corner-all\" ");t.b("\n" + i);t.b("      type=\"text\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,1045,1121,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      value=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}if(!t.s(t.f("default_exists",c,p,1),c,p,1,0,0,"")){t.b("      value=\"\"");t.b("\n" + i);};});c.pop();}if(t.s(t.f("date",c,p,1),c,p,0,1239,1525,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <input ");t.b("\n" + i);t.b("      class=\"field date field-text ui-widget ui-corner-all\" ");t.b("\n" + i);t.b("      type=\"date\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,1358,1434,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      value=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}if(!t.s(t.f("default_exists",c,p,1),c,p,1,0,0,"")){t.b("      value=\"\"");t.b("\n" + i);};});c.pop();}if(t.s(t.f("boolean",c,p,1),c,p,0,1551,1711,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <input");t.b("\n" + i);t.b("      class=\"boolean field ui-widget ui-corner-all\"");t.b("\n" + i);t.b("      type=\"checkbox\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,1664,1687,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        checked");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("openboolean",c,p,1),c,p,0,1744,1924,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        class=\"field open-boolean ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,1846,1900,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("select",c,p,1),c,p,0,1956,2130,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        class=\"field select ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,2052,2106,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("docselect",c,p,1),c,p,0,2160,2334,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        class=\"field select ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,2256,2310,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("file",c,p,1),c,p,0,2362,2534,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        class=\"field file ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,2456,2510,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("multiselect",c,p,1),c,p,0,2564,2765,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        multiple=true");t.b("\n" + i);t.b("        class=\"field multiselect ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,2687,2741,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("docmultiselect",c,p,1),c,p,0,2805,3006,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <select ");t.b("\n" + i);t.b("        multiple=true");t.b("\n" + i);t.b("        class=\"field multiselect ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,2928,2982,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}if(t.s(t.f("textarea",c,p,1),c,p,0,3043,3221,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <textarea ");t.b("\n" + i);t.b("        class=\"field textarea ui-widget ui-corner-all\"");t.b("\n" + i);if(t.s(t.f("default_exists",c,p,1),c,p,0,3143,3197,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          data-field-default=\"");t.b(t.v(t.f("default",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}});c.pop();}t.b("    name=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("    data-field-subcategory=\"");t.b(t.v(t.f("subcategory",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-charseq=\"");t.b(t.v(t.f("charseq",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-label=\"");t.b(t.v(t.f("label",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-order=\"");t.b(t.v(t.f("order",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-head=\"");t.b(t.v(t.f("head",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-required=\"");t.b(t.v(t.f("required",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-reversal=\"");t.b(t.v(t.f("reversal",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-name=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-min=\"");t.b(t.v(t.f("min",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-max=\"");t.b(t.v(t.f("max",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-regex=\"");t.b(t.v(t.f("regex",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-field-instance=\"");t.b(t.v(t.f("instance",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);if(t.s(t.f("text",c,p,1),c,p,0,3793,3803,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    />");t.b("\n" + i);});c.pop();}if(t.s(t.f("integer",c,p,1),c,p,0,3827,3837,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    />");t.b("\n" + i);});c.pop();}if(t.s(t.f("rational",c,p,1),c,p,0,3865,3875,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    />");t.b("\n" + i);});c.pop();}if(t.s(t.f("date",c,p,1),c,p,0,3900,3910,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    />");t.b("\n" + i);});c.pop();}if(t.s(t.f("boolean",c,p,1),c,p,0,3934,3965,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    /> Check for true<br />");t.b("\n" + i);});c.pop();}if(t.s(t.f("openboolean",c,p,1),c,p,0,3996,4252,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);t.b("      <option value=\"null\" ");if(t.s(t.f("is_null",c,p,1),c,p,0,4042,4055,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b("></option>");t.b("\n" + i);t.b("      <option value=\"false\" ");if(t.s(t.f("is_false",c,p,1),c,p,0,4119,4132,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">False</option>");t.b("\n" + i);t.b("      <option value=\"true\" ");if(t.s(t.f("value",c,p,1),c,p,0,4198,4211,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">True</option>");t.b("\n" + i);t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("select",c,p,1),c,p,0,4282,4545,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);if(!t.s(t.f("required",c,p,1),c,p,1,0,0,"")){t.b("      <option value=\"\" ");if(!t.s(t.f("default",c,p,1),c,p,1,0,0,"")){t.b("selected=true");};t.b("></option>");t.b("\n" + i);};if(t.s(t.f("allowed",c,p,1),c,p,0,4412,4516,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <option value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\" ");if(t.s(t.f("is_default",c,p,1),c,p,0,4462,4475,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">");t.b(t.v(t.f("value",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("docselect",c,p,1),c,p,0,4573,4836,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);if(!t.s(t.f("required",c,p,1),c,p,1,0,0,"")){t.b("      <option value=\"\" ");if(!t.s(t.f("default",c,p,1),c,p,1,0,0,"")){t.b("selected=true");};t.b("></option>");t.b("\n" + i);};if(t.s(t.f("allowed",c,p,1),c,p,0,4703,4807,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <option value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\" ");if(t.s(t.f("is_default",c,p,1),c,p,0,4753,4766,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">");t.b(t.v(t.f("value",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("file",c,p,1),c,p,0,4862,5121,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);if(!t.s(t.f("required",c,p,1),c,p,1,0,0,"")){t.b("      <option value=\"\" ");if(!t.s(t.f("default",c,p,1),c,p,1,0,0,"")){t.b("selected=true");};t.b("></option>");t.b("\n" + i);};if(t.s(t.f("allowed",c,p,1),c,p,0,4992,5092,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <option value=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\" ");if(t.s(t.f("is_default",c,p,1),c,p,0,5040,5053,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">");t.b(t.v(t.f("key",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("multiselect",c,p,1),c,p,0,5149,5305,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);if(t.s(t.f("allowed",c,p,1),c,p,0,5172,5276,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <option value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\" ");if(t.s(t.f("is_default",c,p,1),c,p,0,5222,5235,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">");t.b(t.v(t.f("value",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("docmultiselect",c,p,1),c,p,0,5343,5499,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");t.b("\n" + i);if(t.s(t.f("allowed",c,p,1),c,p,0,5366,5470,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <option value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\" ");if(t.s(t.f("is_default",c,p,1),c,p,0,5416,5429,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("selected=true");});c.pop();}t.b(">");t.b(t.v(t.f("value",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}t.b("    </select>");t.b("\n" + i);});c.pop();}if(t.s(t.f("textarea",c,p,1),c,p,0,5534,5683,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    >");if(t.s(t.f("default",c,p,1),c,p,0,5552,5565,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.v(t.f("default",c,p,0)));});c.pop();}t.b("</textarea>");t.b("\n" + i);t.b("    <span title=\"Expand/Shrink Text Box\" class=\"expander\" data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"></span>");t.b("\n" + i);});c.pop();}t.b("  </div>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'fieldset-options' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<option></option>");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,32,80,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<option value=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'fieldset' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div ");t.b("\n" + i);t.b("  data-group-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  class=\"fields ui-widget ui-widget-content ui-corner-all padded\">");t.b("\n" + i);if(t.s(t.f("multiple",c,p,1),c,p,0,116,181,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <a href=\"#\" class=\"remove-button link-button\">Remove</a >");t.b("\n" + i);});c.pop();}t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'index-condition' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"ui-state-default ui-corner-all\">");t.b("\n" + i);if(t.s(t.f("is_or",c,p,1),c,p,0,56,302,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td colspan=5 class=\"or-condition\" data-value=\"true\">OR</td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a class=\"remove-condition-button link-button\">Remove</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);});c.pop();}if(t.s(t.f("paren_close",c,p,1),c,p,0,331,637,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td colspan=5 class=\"paren-condition normal\" data-value=\"close\">");t.b("\n" + i);t.b("    <div title=\"normal closing parenthesis\"></div>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a class=\"remove-condition-button link-button\">Remove</a></td>");t.b("\n" + i);});c.pop();}if(t.s(t.f("paren_exclose",c,p,1),c,p,0,674,996,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td colspan=5 class=\"paren-condition existential\" data-value=\"exclose\">");t.b("\n" + i);t.b("    <div title=\"existential closing paranthesis\">∃</div>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a class=\"remove-condition-button link-button\">Remove</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);});c.pop();}if(t.s(t.f("paren_exopen",c,p,1),c,p,0,1034,1346,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td colspan=5 class=\"paren-condition existential\" data-value=\"exopen\">");t.b("\n" + i);t.b("    <div title=\"existential opening parenthesis\">∃</td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a class=\"remove-condition-button link-button\">Remove</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);});c.pop();}if(t.s(t.f("paren_open",c,p,1),c,p,0,1381,1689,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td colspan=5 class=\"paren-condition normal\" data-value=\"open\">");t.b("\n" + i);t.b("    <div title=\"normal opening parenthesis\"></div>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a class=\"remove-condition-button link-button\">Remove</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("is_or",c,p,1),c,p,1,0,0,"")){if(!t.s(t.f("parens",c,p,1),c,p,1,0,0,"")){t.b("  <td><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span></td>");t.b("\n" + i);t.b("  <td class=\"negate-condition\" data-value=\"");t.b(t.v(t.f("negate",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    ");if(t.s(t.f("negate",c,p,1),c,p,0,1871,1874,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("NOT");});c.pop();}t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"fieldset-condition\" data-value=\"");t.b(t.v(t.f("fieldset",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("fieldset_label",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"field-condition\" data-value=\"");t.b(t.v(t.f("field",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("field_label",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"operator-condition\" data-value=\"");t.b(t.v(t.f("operator",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("operator",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"argument-condition\" data-value=\"");t.b(t.v(t.f("argument",c,p,0)));t.b("\">");t.b("\n" + i);t.b("    ");t.b(t.v(t.f("argument",c,p,0)));t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("  <td class=\"remove-condition-button-cell\">");t.b("\n" + i);t.b("    <a href=\"#\" class=\"remove-condition-button link-button\">Remove</a>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);};};t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'index-conditions' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div ");t.b("\n" + i);t.b("   id=\"index-editing-data\" ");t.b("\n" + i);t.b("   data-index-doctype=\"");t.b(t.v(t.f("doctype",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("   data-index-fields_label=\"");t.b(t.v(t.f("fields_label",c,p,0)));t.b("\"");t.b("\n" + i);t.b("   data-index-fields=\"");t.b(t.v(t.f("fields",c,p,0)));t.b("\"");t.b("\n" + i);t.b("   data-index-name=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\"");t.b("\n" + i);t.b("   data-index-show_deleted=\"");t.b(t.v(t.f("show_deleted",c,p,0)));t.b("\"");t.b("\n" + i);if(t.s(t.f("replace_function",c,p,1),c,p,0,261,321,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("   data-index-replace_function=\"");t.b(t.v(t.f("replace_function",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}t.b("   data-index-id=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("   data-index-rev=\"");t.b(t.v(t.f("_rev",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <p>");t.b("\n" + i);t.b("    <em>");t.b(t.v(t.f("name",c,p,0)));t.b("</em>");t.b("\n" + i);t.b("    will list");t.b("\n" + i);t.b("    <b>");t.b(t.v(t.f("doctype",c,p,0)));t.b("</b>");t.b("\n" + i);t.b("    documents. They will be listed by ");t.b("\n" + i);t.b("    <b>");t.b(t.v(t.f("fields_label",c,p,0)));t.b("</b>.");t.b("\n" + i);t.b("    <span id=\"replace-function-message\">");t.b("\n" + i);if(t.s(t.f("replace_function",c,p,1),c,p,0,610,658,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    This index has a replacement function.");t.b("\n" + i);});c.pop();}t.b("    </span>");t.b("\n" + i);t.b("  </p>");t.b("\n" + i);t.b("</div>");t.b("\n");t.b("\n" + i);t.b("<div id=\"index-conditions-listing\">");t.b("\n" + i);t.b("<table>");t.b("\n" + i);t.b("  <thead>");t.b("\n" + i);t.b("    <tr class=\"header\">");t.b("\n" + i);t.b("      <td></td>");t.b("\n" + i);t.b("      <th>Negate</th>");t.b("\n" + i);t.b("      <th>Fieldset</th>");t.b("\n" + i);t.b("      <th>Field</th>");t.b("\n" + i);t.b("      <th>Condition</th>");t.b("\n" + i);t.b("      <th>Value</th>");t.b("\n" + i);t.b("      <td></td>");t.b("\n" + i);t.b("    </tr>");t.b("\n" + i);t.b("  </thead>");t.b("\n" + i);t.b("  <tbody>");t.b("\n" + i);if(t.s(t.f("conditions",c,p,1),c,p,0,978,1006,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<index-condition0",c,p,"    "));});c.pop();}t.b("  </tbody>");t.b("\n" + i);t.b("</table>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<index-condition0":{name:"index-condition", partials: {}, subs: {  }}}, subs: {  }}),
+  'index-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"change-header\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <th");t.b("\n" + i);if(t.s(t.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      id=\"first-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-element\"");t.b("\n" + i);t.b("      data-first-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-first-key=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");});c.pop();}t.b(">");t.b("\n" + i);t.b("    <ul class=\"head-elements\">");t.b("\n" + i);if(t.s(t.f("display_key",c,p,1),c,p,0,247,362,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <li>");t.b("\n" + i);t.b("          <a href=\"#");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("            class=\"view-document-link\">");t.b(t.v(t.d(".",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("        </li>");t.b("\n" + i);});c.pop();}t.b("    </ul>");t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    <ul class=\"reversal-elements\">");t.b("\n" + i);if(t.s(t.f("value",c,p,1),c,p,0,455,487,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <li>");t.b(t.v(t.d(".",c,p,0)));t.b("</li>");t.b("\n" + i);});c.pop();}t.b("    </ul>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'index-listing' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<table>");t.b("\n" + i);t.b("  <thead>");t.b("\n" + i);t.b("    <th>Name</th>");t.b("\n" + i);t.b("    <th>Doctype</th>");t.b("\n" + i);t.b("  </thead>");t.b("\n" + i);t.b("  <tbody>");t.b("\n" + i);if(t.s(t.f("rows",c,p,1),c,p,0,91,210,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <tr>");t.b("\n" + i);t.b("      <th><a href=\"#\" data-index-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b(t.v(t.d("key.1",c,p,0)));t.b("</a></th> ");t.b("\n" + i);t.b("      <td>");t.b(t.v(t.d("key.0",c,p,0)));t.b("</td>");t.b("\n" + i);t.b("    </tr>");t.b("\n" + i);});c.pop();}t.b("  </tbody>");t.b("\n" + i);t.b("</table>");return t.fl(); },partials: {}, subs: {  }}),
+  'index-options' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<option></option>");t.b("\n" + i);if(t.s(t.f("rows",c,p,1),c,p,0,27,74,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<option value=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b(t.v(t.d("key.1",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'paged-listing' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<nav class=\"pager\">");t.b("\n" + i);t.b("<a");t.b("\n" + i);t.b("  href=\"#\" ");t.b("\n" + i);t.b("  title=\"Previous Page\"");t.b("\n" + i);t.b("  id=\"previous-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-page\"");t.b("\n" + i);t.b("  class=\"pager-button link-button\"");t.b("\n" + i);t.b(">Prev</a> ");t.b("\n" + i);t.b("<a");t.b("\n" + i);t.b("  href=\"#\"");t.b("\n" + i);t.b("  title=\"Next Page\"");t.b("\n" + i);t.b("  class=\"pager-button link-button\"");t.b("\n" + i);t.b("  id=\"next-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-page\"");t.b("\n" + i);if(t.s(t.f("lastpage",c,p,1),c,p,0,322,351,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    data-last-page=\"true\"");t.b("\n" + i);});c.pop();}if(t.s(t.f("lastrow",c,p,1),c,p,0,379,448,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    data-startkey=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    data-startid=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);});c.pop();}t.b(">Next</a>");t.b("\n" + i);t.b("</nav>");t.b("\n" + i);t.b("<div class=\"total-rows-info\">");t.b("\n" + i);t.b("  <b>Total</b>: ");t.b(t.v(t.f("total_rows",c,p,0)));t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("<table>");t.b("\n" + i);if(t.s(t.f("rows",c,p,1),c,p,0,567,595,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<listed-element0",c,p,"    "));});c.pop();}t.b("</table>");t.b("\n");return t.fl(); },partials: {"<listed-element0":{name:"listed-element", partials: {}, subs: {  }}}, subs: {  }}),
+  'preview-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"change-header\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  <th");t.b("\n" + i);if(t.s(t.f("firstrow",c,p,1),c,p,0,64,179,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      id=\"first-");t.b(t.v(t.f("prefix",c,p,0)));t.b("-element\"");t.b("\n" + i);t.b("      data-first-id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      data-first-key=\"");t.b(t.v(t.f("encoded_key",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    ");});c.pop();}t.b(">");t.b("\n" + i);t.b("    <ul class=\"head-elements\">");t.b("\n" + i);if(t.s(t.f("display_key",c,p,1),c,p,0,247,279,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <li>");t.b(t.v(t.d(".",c,p,0)));t.b("</li>");t.b("\n" + i);});c.pop();}t.b("    </ul>");t.b("\n" + i);t.b("  </th>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    <ul class=\"reversal-elements\">");t.b("\n" + i);t.b("      ");t.b(t.v(t.f("value",c,p,0)));t.b("\n" + i);t.b("    </ul>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'project-element' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr>");t.b("\n" + i);t.b("  <td><a href=\"/projects/");t.b(t.v(t.f("id",c,p,0)));t.b("/doctypes/main\">");if(t.s(t.f("doc",c,p,1),c,p,0,62,72,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.v(t.f("name",c,p,0)));});c.pop();}t.b("</a></td>");t.b("\n" + i);t.b("  <td>");if(t.s(t.f("doc",c,p,1),c,p,0,104,121,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.v(t.f("description",c,p,0)));});c.pop();}t.b("</td>");t.b("\n" + i);t.b("  <td>");t.b("\n" + i);t.b("    <a href=\"/projects/");t.b(t.v(t.f("id",c,p,0)));t.b("/config\" ");t.b("\n" + i);t.b("       class=\"project-configure-button link-button\">Configure</a>");t.b("\n" + i);t.b("    <a href=\"#\" ");t.b("\n" + i);t.b("       class=\"project-delete-button link-button\" ");t.b("\n" + i);t.b("       id=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\">Delete</button>");t.b("\n" + i);t.b("  </td>");t.b("\n" + i);t.b("</tr>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'project-listing' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("rows",c,p,1),c,p,0,9,34,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<project-element0",c,p,"  "));});c.pop();}return t.fl(); },partials: {"<project-element0":{name:"project-element", partials: {}, subs: {  }}}, subs: {  }}),
+  'search-field-item' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a class='search-field-item' ");t.b("\n" + i);t.b("  title='click to remove' ");t.b("\n" + i);t.b("  data-field-field='");t.b(t.v(t.f("field",c,p,0)));t.b("' ");t.b("\n" + i);t.b("  href='#'>");t.b(t.v(t.f("fieldLabel",c,p,0)));t.b("</a>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'set-listing' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"total-rows-info\">");t.b("\n" + i);t.b("  <b>Total</b>: <span id=\"total-set-rows\">");t.b(t.v(t.f("total",c,p,0)));t.b("</span>");t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("<div id=\"save-set-results\">");t.b("\n" + i);t.b("  <a href=\"#\">(Save Selected)</a>");t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("<table id=\"set-elements\">");t.b("\n" + i);t.b("  <thead>");t.b("\n" + i);t.b("    <tr>");t.b("\n" + i);t.b("      <td>");t.b("\n" + i);t.b("        <input type=\"checkbox\" id=\"select-all-set-elements\" title=\"Click to select or deselect all elements\" />");t.b("\n" + i);t.b("      </td>");t.b("\n" + i);t.b("      <th>");t.b("\n" + i);t.b("        Elements");t.b("\n" + i);t.b("      </th>");t.b("\n" + i);t.b("    </tr>");t.b("\n" + i);t.b("  </thead>");t.b("\n" + i);t.b("  <tbody>");t.b("\n" + i);if(t.s(t.f("elements",c,p,1),c,p,0,435,720,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <tr>");t.b("\n" + i);t.b("      <td>");t.b("\n" + i);t.b("        <input type=\"checkbox\" class=\"set-element-selection\" title=\"Click to select element\" value=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\" data-context=\"");t.b(t.v(t.f("context",c,p,0)));t.b("\" />");t.b("\n" + i);t.b("      </td>");t.b("\n" + i);t.b("      <td>");t.b("\n" + i);t.b("        <a class=\"view-document-link\" href=\"#");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b(t.v(t.f("context",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("      </td>");t.b("\n" + i);t.b("    </tr>");t.b("\n" + i);});c.pop();}t.b("  </tbody>");t.b("\n" + i);t.b("</table>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}),
+  'set-options' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<option></option>");t.b("\n" + i);if(t.s(t.f("names",c,p,1),c,p,0,28,66,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<option value=\"");t.b(t.v(t.d(".",c,p,0)));t.b("\">");t.b(t.v(t.d(".",c,p,0)));t.b("</option>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}),
+  'simple-to-form-array' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<ol>");t.b("\n" + i);if(t.s(t.f("value",c,p,1),c,p,0,17,51,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<simple-to-form-field0",c,p,"    "));});c.pop();}t.b("</ol>");t.b("\n");return t.fl(); },partials: {"<simple-to-form-field0":{name:"simple-to-form-field", partials: {}, subs: {  }}}, subs: {  }}),
+  'simple-to-form-field' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<li>");t.b("\n" + i);if(t.s(t.f("key",c,p,1),c,p,0,15,63,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <label for=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\">");t.b(t.v(t.f("key",c,p,0)));t.b("</label>");t.b("\n" + i);});c.pop();}if(t.s(t.f("text",c,p,1),c,p,0,83,156,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <textarea ");if(t.s(t.f("key",c,p,1),c,p,0,106,122,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("name=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\"");});c.pop();}t.b(">");t.b(t.v(t.f("value",c,p,0)));t.b("</textarea>");t.b("\n" + i);});c.pop();}if(t.s(t.f("string",c,p,1),c,p,0,179,260,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <input type=\"text\" ");if(t.s(t.f("key",c,p,1),c,p,0,211,227,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("name=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\"");});c.pop();}t.b(" value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\"/>");t.b("\n" + i);});c.pop();}if(t.s(t.f("bool",c,p,1),c,p,0,283,364,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <input type=\"text\" ");if(t.s(t.f("key",c,p,1),c,p,0,315,331,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("name=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\"");});c.pop();}t.b(" value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\"/>");t.b("\n" + i);});c.pop();}if(t.s(t.f("number",c,p,1),c,p,0,387,470,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <input type=\"number\" ");if(t.s(t.f("key",c,p,1),c,p,0,421,437,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("name=\"");t.b(t.v(t.f("key",c,p,0)));t.b("\"");});c.pop();}t.b(" value=\"");t.b(t.v(t.f("value",c,p,0)));t.b("\"/>");t.b("\n" + i);});c.pop();}if(t.s(t.f("array",c,p,1),c,p,0,494,691,"{{ }}")){t.rs(c,p,function(c,p,t){if(t.s(t.f("key",c,p,1),c,p,0,507,617,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <fieldset>");t.b("\n" + i);t.b("        <legend>");t.b(t.v(t.f("key",c,p,0)));t.b("</legend>");t.b("\n" + i);t.b(t.rp("<simple-to-form-array0",c,p,"        "));t.b("      </fieldset>");t.b("\n" + i);});c.pop();}if(t.s(t.f("index",c,p,1),c,p,0,640,678,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<simple-to-form-array1",c,p,"      "));});c.pop();}});c.pop();}if(t.s(t.f("object",c,p,1),c,p,0,715,914,"{{ }}")){t.rs(c,p,function(c,p,t){if(t.s(t.f("key",c,p,1),c,p,0,728,839,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("      <fieldset>");t.b("\n" + i);t.b("        <legend>");t.b(t.v(t.f("key",c,p,0)));t.b("</legend>");t.b("\n" + i);t.b(t.rp("<simple-to-form-object2",c,p,"        "));t.b("      </fieldset>");t.b("\n" + i);});c.pop();}if(t.s(t.f("index",c,p,1),c,p,0,862,901,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<simple-to-form-object3",c,p,"      "));});c.pop();}});c.pop();}t.b("</li>");t.b("\n");return t.fl(); },partials: {"<simple-to-form-array0":{name:"simple-to-form-array", partials: {}, subs: {  }},"<simple-to-form-array1":{name:"simple-to-form-array", partials: {}, subs: {  }},"<simple-to-form-object2":{name:"simple-to-form-object", partials: {}, subs: {  }},"<simple-to-form-object3":{name:"simple-to-form-object", partials: {}, subs: {  }}}, subs: {  }}),
+  'simple-to-form-object' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<ul>");t.b("\n" + i);if(t.s(t.f("value",c,p,1),c,p,0,17,51,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<simple-to-form-field0",c,p,"    "));});c.pop();}t.b("</ul>");t.b("\n");return t.fl(); },partials: {"<simple-to-form-field0":{name:"simple-to-form-field", partials: {}, subs: {  }}}, subs: {  }}),
+  'simple-to-form' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<form>");t.b("\n" + i);if(t.s(t.f("obj",c,p,1),c,p,0,17,110,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("    <ul>");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,44,86,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<simple-to-form-field0",c,p,"        "));});c.pop();}t.b("    </ul>");t.b("\n" + i);});c.pop();}t.b("</form>");t.b("\n");return t.fl(); },partials: {"<simple-to-form-field0":{name:"simple-to-form-field", partials: {}, subs: {  }}}, subs: {  }}),
+  'worksheet' : new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<table id=\"worksheet-table\">");t.b("\n" + i);t.b("  <thead>");t.b("\n" + i);t.b("    <tr class=\"header-row\">");t.b("\n" + i);t.b("      <td id=\"select-all-worksheet-rows-cell\"");t.b("\n" + i);t.b("        class=\"select-column\">");t.b("\n" + i);t.b("        <input ");t.b("\n" + i);t.b("          id=\"select-all-worksheet-rows\"");t.b("\n" + i);t.b("          type=\"checkbox\"");t.b("\n" + i);t.b("          title=\"Click to select all rows\">");t.b("\n" + i);t.b("      </td>");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,303,1494,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("        <th ");t.b("\n" + i);t.b("          class=\"worksheet-handle-header fieldset handle-column ");t.b(t.v(t.f("_id",c,p,0)));t.b("\"");t.b("\n" + i);t.b("          title=\"");t.b(t.v(t.f("label",c,p,0)));t.b("\">");t.b("\n" + i);t.b("          <div>");t.b("\n" + i);t.b("            <span>");t.b("\n" + i);t.b("              <a class=\"fieldset-handle\" ");t.b("\n" + i);t.b("                data-field-fieldset=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("                href=\"#\">");t.b(t.v(t.f("label",c,p,0)));t.b("</a></span></div>");t.b("\n" + i);t.b("        </th>");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,634,1476,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          <th");t.b("\n" + i);t.b("            class=\"");if(t.s(t.f("multiple",c,p,1),c,p,0,681,689,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("multiple");});c.pop();}t.b(" ");if(t.s(t.f("collapse",c,p,1),c,p,0,716,724,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("collapse");});c.pop();}t.b(" ");t.b(t.v(t.f("fieldset",c,p,0)));t.b(" ");t.b(t.v(t.f("_id",c,p,0)));t.b(" worksheet-handle-header field handle-column\"");t.b("\n" + i);t.b("            title=\"");t.b(t.v(t.f("label",c,p,0)));t.b("\">");t.b("\n" + i);t.b("            <div>");t.b("\n" + i);t.b("              <span>");t.b("\n" + i);t.b("                <a class=\"field-handle\" ");t.b("\n" + i);t.b("                  data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("                  href=\"#\">");t.b(t.v(t.f("label",c,p,0)));t.b("</a></span></div>");t.b("\n" + i);t.b("          </th>");t.b("\n" + i);t.b("          <th");t.b("\n" + i);t.b("            class=\"");t.b(t.v(t.f("fieldset",c,p,0)));t.b(" ");t.b(t.v(t.f("_id",c,p,0)));t.b(" field-column\"");t.b("\n" + i);t.b("            title=\"");t.b(t.v(t.f("label",c,p,0)));t.b("\">");t.b("\n" + i);t.b("            <a class=\"field-header\" ");t.b("\n" + i);t.b("              data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("              href=\"#\">");t.b(t.v(t.f("label",c,p,0)));t.b("</a>");t.b("\n" + i);t.b("            <input ");t.b("\n" + i);t.b("              class=\"select-worksheet-column\"");t.b("\n" + i);t.b("              data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\" ");t.b("\n" + i);t.b("              type=\"checkbox\"");t.b("\n" + i);t.b("              title=\"Click to select column\">");t.b("\n" + i);t.b("          </td>");t.b("\n" + i);});c.pop();}});c.pop();}t.b("    </tr>");t.b("\n" + i);t.b("  </thead>");t.b("\n" + i);t.b("  <tbody>");t.b("\n" + i);t.b("    <%#rows%>");t.b("\n" + i);t.b("      <tr id=\"worksheet-row-<% _id %>\"");t.b("\n" + i);t.b("        class=\"body-row\">");t.b("\n" + i);t.b("        <td class=\"select-column\">");t.b("\n" + i);t.b("          <input ");t.b("\n" + i);t.b("            class=\"select-worksheet-row\"");t.b("\n" + i);t.b("            data-row=\"worksheet-row-<% _id %>\"");t.b("\n" + i);t.b("            type=\"checkbox\"");t.b("\n" + i);t.b("            title=\"Click to select row\">");t.b("\n" + i);t.b("        </td>");t.b("\n" + i);if(t.s(t.f("fieldsets",c,p,1),c,p,0,1865,2890,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("          <td class=\"");t.b(t.v(t.f("_id",c,p,0)));t.b(" fieldset handle-column\"></td>");t.b("\n" + i);if(t.s(t.f("fields",c,p,1),c,p,0,1948,2870,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("            <td class=\"");if(t.s(t.f("multiple",c,p,1),c,p,0,1985,1993,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("multiple");});c.pop();}t.b(" ");if(t.s(t.f("collapse",c,p,1),c,p,0,2020,2028,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("collapse");});c.pop();}t.b(" ");t.b(t.v(t.f("_id",c,p,0)));t.b(" ");t.b(t.v(t.f("fieldset",c,p,0)));t.b(" field handle-column\"></td>");t.b("\n" + i);t.b("            <td");t.b("\n" + i);t.b("              class=\"");if(t.s(t.f("multiple",c,p,1),c,p,0,2144,2152,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("multiple");});c.pop();}t.b(" ");if(t.s(t.f("collapse",c,p,1),c,p,0,2179,2187,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("collapse");});c.pop();}t.b(" ");t.b(t.v(t.f("fieldset",c,p,0)));t.b(" ");t.b(t.v(t.f("_id",c,p,0)));t.b(" field-column\"");t.b("\n" + i);t.b("              data-field-fieldset=\"");t.b(t.v(t.f("fieldset",c,p,0)));t.b("\"");t.b("\n" + i);t.b("              data-field-field=\"");t.b(t.v(t.f("_id",c,p,0)));t.b("\">");t.b("\n" + i);t.b("              <%#");t.b(t.v(t.f("_id",c,p,0)));t.b("%>");t.b("\n" + i);t.b("                <%#multiple%>");t.b("\n" + i);t.b("                <ol>");t.b("\n" + i);t.b("                  <%#items%>");t.b("\n" + i);t.b("                    <li");t.b("\n" + i);t.b("                      data-field-fieldset_instance=\"<% fieldset_instance %>\"");t.b("\n" + i);t.b("                      data-field-field_instance=\"<% field_instance %>\"><% value %></li>");t.b("\n" + i);t.b("                  <%/items%>");t.b("\n" + i);t.b("                </ol>");t.b("\n" + i);t.b("                <%/multiple%>");t.b("\n" + i);t.b("                <%#single%>");t.b("\n" + i);t.b("                  <span><% value %></span>");t.b("\n" + i);t.b("                <%/single%>");t.b("\n" + i);t.b("              <%/");t.b(t.v(t.f("_id",c,p,0)));t.b("%>");t.b("\n" + i);t.b("            </td>");t.b("\n" + i);});c.pop();}});c.pop();}t.b("      </tr>");t.b("\n" + i);t.b("    <%/rows%>");t.b("\n" + i);t.b("  </tbody>");t.b("\n" + i);t.b("</table>");t.b("\n");return t.fl(); },partials: {}, subs: {  }})
+  /* jshint ignore:end */
 },
 r = function(n) {
   var tn = t[n];
   return function(c, p, i) {
     return tn.render(c, p || t, i);
-  }
+  };
 };
 module.exports = {
   templates : t,

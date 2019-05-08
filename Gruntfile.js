@@ -6,7 +6,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-docco');
   grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-hogan');
   grunt.loadNpmTasks('grunt-mocha-cov');
@@ -101,10 +100,12 @@ module.exports = function(grunt) {
     },
     hogan: {
       all: {
-        templates: "priv/templates/*.mustache",
-        output: "priv/templates/compiled/templates.js",
-        binderName: "nodejs",
-        exposeTemplates: true
+        src: "priv/templates/*.mustache",
+        dest: "priv/templates/compiled/templates.js",
+        options: {
+          binderName: "nodejs",
+          exposeTemplates: true
+        }
       }
     },
     jshint: {
