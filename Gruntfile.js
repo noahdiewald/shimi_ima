@@ -28,7 +28,7 @@ module.exports = function(grunt) {
         src: ['priv/src/client/**/*.js'],
         dest: 'priv/www/application.tmp.js',
         options: {
-          alias: ['priv/templates/compiled/templates.js:templates.js']
+          alias: {templates: './priv/templates/compiled/templates.js'}
         }
       },
       reporter: {
