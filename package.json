@@ -18,7 +18,7 @@
     "grunt-rigger": "0.6.0",
     "hogan.js": "3.0.2",
     "htmlparser2": "3.10.1",
-    "less": "1.4.0-b2",
+    "less": "3.9.0",
     "reactorjs": "0.0.2",
     "tv4": "1.0.5",
     "node-uuid": "1.4.1"
