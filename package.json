@@ -3,6 +3,7 @@
   "description": "Manages JavaScript Source for this Project",
   "version": "0.0.1",
   "devDependencies": {
+    "growl": "1.10.0",
     "chai": "4.2.0",
     "grunt": "1.0.4",
     "grunt-jsbeautifier": "0.2.13",

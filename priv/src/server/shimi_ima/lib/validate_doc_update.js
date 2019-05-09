@@ -146,6 +146,154 @@ exports.validate_doc_update = function (newDoc, saveDoc, userCtx, testEnv) {
       }
     };
 
+    // Ensure that the date is formatted according to the standard of
+    // this application.
+    var dateFormat = function (field) {
+      var pattern = (/^\d{4}-\d{2}-\d{2}$/);
+
+      if (!pattern.test(field.value) && isNaN(Date.parse(field.value))) {
+        forbidField(field, 'date must be in format yyyy-mm-dd');
+      }
+    };
+
+    var myDateToUTC = function (myDate) {
+
+    };
+
+    // See if a date is earlier than a maximum date. If it isn't fail.
+    var isEarlier = function (field) {
+      if (field.value >= field.max) {
+        var message = 'date must be earlier than or equal to ' + field.max + '.';
+        forbidField(field, message);
+      }
+    };
+
+    // See if a date is later than a minimum date. If it isn't fail.
+    var isLater = function (field) {
+      if (field.value < field.min) {
+        var message = 'date must be later than ' + field.min + '.';
+        forbidField(field, message);
+      }
+    };
+
+    // See if a date should be today. If it isn't fail.
+    var isToday = function (field) {
+      if (field.value !== new Date().toLocaleFormat('%Y-%m-%d')) {
+        forbidField(field, 'date must be today.');
+      }
+    };
+
+    // See if a date should be in the future. If it isn't fail.
+    var isFuture = function (field) {
+      if (field.value <= new Date().toLocaleFormat('%Y-%m-%d')) {
+        forbidField(field, 'date must be in the future.');
+      }
+    };
+
+    // See if a date should be in the past. If it isn't fail.
+    var isPast = function (field) {
+      if (field.value > new Date().toLocaleFormat('%Y-%m-%d')) {
+        forbidField(field, 'date must be in the past.');
+      }
+    };
+
+    // Make sure that the date is not outside of a specified range
+    var dateRange = function (field) {
+      var pattern = (/^\d{4}-\d{2}-\d{2}$/);
+
+      if (pattern.test(field.max)) {
+        isEarlier(field);
+      }
+      if (pattern.test(field.min)) {
+        isLater(field);
+      }
+      if (field.min === 'today' && field.max === 'today') {
+        isToday(field);
+      } else {
+        if (field.min === 'today') {
+          isFuture(field);
+        }
+        if (field.max === 'today') {
+          isPast(field);
+        }
+      }
+    };
+
+    // Test if it is a number and not NaN.
+    var isNumber = function (value) {
+      return ((typeof value === 'number') && !(isNaN(value)));
+    };
+
+    var isInteger = function (field) {
+      var message = 'Expected an integer but got rational number';
+
+      if (field.value % 1 !== 0) {
+        forbidField(field, message);
+      }
+    };
+
+    // Make sure this is a valid number
+    var isValidNumber = function (field) {
+      if (!isNumber(field.value)) {
+        forbidField(field, 'Not a valid number');
+      }
+    };
+
+    // Determine if the number is within a given range
+    var numberRange = function (field) {
+      if (isNumber(field.max) && (field.value > field.max)) {
+        forbidField(field, 'Must be less than or equal to ' + field.max);
+      }
+      if (isNumber(field.min) && (field.value < field.min)) {
+        forbidField(field, 'Must be greater than or equal to ' + field.min);
+      }
+    };
+
+    // Determine if string should match pattern
+    var isMatch = function (field) {
+      if (!isBlank(field.regex)) {
+        var re = new RegExp(field.regex);
+
+        if (!re.test(field.value)) {
+          forbidField(field, 'Must match ' + field.regex);
+        }
+      }
+    };
+
+    // Determine if it is an array of strings
+    var isStringArray = function (field) {
+      if (Object.prototype.toString.call(field.value) !== '[object Array]') {
+        forbidField(field, 'Must be an array of strings.');
+      }
+
+      field.value.forEach(function (v) {
+        if (typeof v !== 'string') {
+          forbidField(field, 'Must contain only text.');
+        }
+      });
+    };
+
+    // Determine if it is a string
+    var isString = function (field) {
+      if (typeof field.value !== 'string') {
+        forbidField(field, 'Must be text.');
+      }
+    };
+
+    // Fail if not a boolean
+    var isBoolean = function (field) {
+      if (typeof field.value !== 'boolean') {
+        forbidField(field, 'Must be true or false.');
+      }
+    };
+
+    // Fail if neither a boolean nor null
+    var isOpenboolean = function (field) {
+      if (typeof field.value !== 'boolean' && field.value !== null) {
+        forbidField(field, 'Must be true, false or blank.');
+      }
+    };
+
     // The following are validation tests that are run for
     // each field by an expression below.
     var requiredField = function (field) {
@@ -249,154 +397,6 @@ exports.validate_doc_update = function (newDoc, saveDoc, userCtx, testEnv) {
     var multiselectField = function (field) {
       if (field.subcategory === 'multiselect' && !isBlank(field.value)) {
         isStringArray(field);
-      }
-    };
-
-    // Ensure that the date is formatted according to the standard of
-    // this application.
-    var dateFormat = function (field) {
-      var pattern = (/^\d{4}-\d{2}-\d{2}$/);
-
-      if (!pattern.test(field.value) && isNaN(Date.parse(field.value))) {
-        forbidField(field, 'date must be in format yyyy-mm-dd');
-      }
-    };
-
-    var myDateToUTC = function (myDate) {
-
-    };
-
-    // Make sure that the date is not outside of a specified range
-    var dateRange = function (field) {
-      var pattern = (/^\d{4}-\d{2}-\d{2}$/);
-
-      if (pattern.test(field.max)) {
-        isEarlier(field);
-      }
-      if (pattern.test(field.min)) {
-        isLater(field);
-      }
-      if (field.min === 'today' && field.max === 'today') {
-        isToday(field);
-      } else {
-        if (field.min === 'today') {
-          isFuture(field);
-        }
-        if (field.max === 'today') {
-          isPast(field);
-        }
-      }
-    };
-
-    // See if a date is earlier than a maximum date. If it isn't fail.
-    var isEarlier = function (field) {
-      if (field.value >= field.max) {
-        var message = 'date must be earlier than or equal to ' + field.max + '.';
-        forbidField(field, message);
-      }
-    };
-
-    // See if a date is later than a minimum date. If it isn't fail.
-    var isLater = function (field) {
-      if (field.value < field.min) {
-        var message = 'date must be later than ' + field.min + '.';
-        forbidField(field, message);
-      }
-    };
-
-    // See if a date should be today. If it isn't fail.
-    var isToday = function (field) {
-      if (field.value !== new Date().toLocaleFormat('%Y-%m-%d')) {
-        forbidField(field, 'date must be today.');
-      }
-    };
-
-    // See if a date should be in the future. If it isn't fail.
-    var isFuture = function (field) {
-      if (field.value <= new Date().toLocaleFormat('%Y-%m-%d')) {
-        forbidField(field, 'date must be in the future.');
-      }
-    };
-
-    // See if a date should be in the past. If it isn't fail.
-    var isPast = function (field) {
-      if (field.value > new Date().toLocaleFormat('%Y-%m-%d')) {
-        forbidField(field, 'date must be in the past.');
-      }
-    };
-
-    var isInteger = function (field) {
-      var message = 'Expected an integer but got rational number';
-
-      if (field.value % 1 !== 0) {
-        forbidField(field, message);
-      }
-    };
-
-    // Make sure this is a valid number
-    var isValidNumber = function (field) {
-      if (!isNumber(field.value)) {
-        forbidField(field, 'Not a valid number');
-      }
-    };
-
-    // Test if it is a number and not NaN.
-    var isNumber = function (value) {
-      return ((typeof value === 'number') && !(isNaN(value)));
-    };
-
-    // Determine if the number is within a given range
-    var numberRange = function (field) {
-      if (isNumber(field.max) && (field.value > field.max)) {
-        forbidField(field, 'Must be less than or equal to ' + field.max);
-      }
-      if (isNumber(field.min) && (field.value < field.min)) {
-        forbidField(field, 'Must be greater than or equal to ' + field.min);
-      }
-    };
-
-    // Determine if string should match pattern
-    var isMatch = function (field) {
-      if (!isBlank(field.regex)) {
-        var re = new RegExp(field.regex);
-
-        if (!re.test(field.value)) {
-          forbidField(field, 'Must match ' + field.regex);
-        }
-      }
-    };
-
-    // Determine if it is an array of strings
-    var isStringArray = function (field) {
-      if (Object.prototype.toString.call(field.value) !== '[object Array]') {
-        forbidField(field, 'Must be an array of strings.');
-      }
-
-      field.value.forEach(function (v) {
-        if (typeof v !== 'string') {
-          forbidField(field, 'Must contain only text.');
-        }
-      });
-    };
-
-    // Determine if it is a string
-    var isString = function (field) {
-      if (typeof field.value !== 'string') {
-        forbidField(field, 'Must be text.');
-      }
-    };
-
-    // Fail if not a boolean
-    var isBoolean = function (field) {
-      if (typeof field.value !== 'boolean') {
-        forbidField(field, 'Must be true or false.');
-      }
-    };
-
-    // Fail if neither a boolean nor null
-    var isOpenboolean = function (field) {
-      if (typeof field.value !== 'boolean' && field.value !== null) {
-        forbidField(field, 'Must be true, false or blank.');
       }
     };
 
