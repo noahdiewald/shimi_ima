@@ -3,6 +3,8 @@
   "description": "Manages JavaScript Source for this Project",
   "version": "0.0.1",
   "devDependencies": {
+    "ms": "0.7.1",
+    "mime": "1.4.1",
     "growl": "1.10.0",
     "chai": "4.2.0",
     "grunt": "1.0.4",
