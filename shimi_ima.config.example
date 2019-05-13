@@ -1,0 +1,5 @@
+[{shimi_ima, [{normal_db, "http://127.0.0.1:5984/"},
+                     {admin_db, 
+                      "http://username:password@127.0.0.1:5984/"},
+                     {local_url, "http://127.0.0.1:8000/"},
+                     {devel, true}]}].
